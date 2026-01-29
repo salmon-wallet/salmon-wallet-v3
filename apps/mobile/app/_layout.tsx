@@ -1,3 +1,6 @@
+// Crypto polyfills - MUST be first import before any other code
+import '../polyfills';
+
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -10,7 +13,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 
 export {
   // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+  ErrorBoundary
 } from 'expo-router';
 
 export const unstable_settings = {
@@ -23,7 +26,10 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require('@salmon/ui/src/assets/fonts/SpaceMono-Regular.ttf'),
+    DMSansBold: require('@salmon/ui/src/assets/fonts/DMSans-Bold.ttf'),
+    DMSansMedium: require('@salmon/ui/src/assets/fonts/DMSans-Medium.ttf'),
+    DMSansRegular: require('@salmon/ui/src/assets/fonts/DMSans-Regular.ttf'),
     ...FontAwesome.font,
   });
 
