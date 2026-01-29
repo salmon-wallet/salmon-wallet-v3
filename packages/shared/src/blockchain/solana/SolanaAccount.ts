@@ -4,8 +4,29 @@ import {
   PublicKey,
   Commitment,
   LAMPORTS_PER_SOL,
+  Message,
 } from '@solana/web3.js';
 import bs58 from 'bs58';
+import {
+  requiresMemo as checkRequiresMemo,
+  calculateTransferFee as calcTransferFee,
+} from './transfer';
+import {
+  getDomain as getDomainFromService,
+  getDomainFromPublicKey as getDomainFromPublicKeyService,
+  getPublicKeyFromDomain as getPublicKeyFromDomainService,
+} from './domains';
+import {
+  validateDestinationAccount as validateDestination,
+  type ValidationResult as ServiceValidationResult,
+} from './validation';
+import {
+  getTransaction as getTransactionService,
+  getRecentTransactions as getRecentTransactionsService,
+  type SolanaTransaction,
+  type SolanaTransactionPaging,
+  type SolanaTransactionListResponse,
+} from './transactions';
 
 /**
  * Network configuration for Solana connections
@@ -54,6 +75,14 @@ export interface SolanaBalance {
   /** Balance in SOL */
   sol: number;
 }
+
+// Re-export types from services for convenience
+export type { SolanaTransactionPaging, SolanaTransactionListResponse, SolanaTransaction } from './transactions';
+
+/**
+ * Validation result for destination address (alias for service type)
+ */
+export type ValidationResult = ServiceValidationResult;
 
 /**
  * SolanaAccount provides core functionality for interacting with the Solana blockchain.
@@ -195,5 +224,191 @@ export class SolanaAccount {
    */
   async disconnect(): Promise<void> {
     this.connection = null;
+  }
+
+  // ==========================================================================
+  // Address Validation
+  // ==========================================================================
+
+  /**
+   * Validates a destination address for transfers.
+   * Checks if address is a valid public key or domain name.
+   * Delegates to the validation service.
+   *
+   * @param address - Address or domain to validate
+   * @returns Validation result with type, code, and address type
+   */
+  async validateDestinationAccount(address: string): Promise<ValidationResult> {
+    const connection = await this.getConnection();
+    return validateDestination(connection, address);
+  }
+
+  // ==========================================================================
+  // Domain Name Services
+  // ==========================================================================
+
+  /**
+   * Gets the domain name associated with this account.
+   * Tries AllDomains first, then falls back to .sol domains.
+   *
+   * @returns Domain name or null if not found
+   */
+  async getDomain(): Promise<string | null> {
+    const connection = await this.getConnection();
+    return getDomainFromService(connection, this.publicKey);
+  }
+
+  /**
+   * Gets the domain name for a given public key.
+   * Tries AllDomains first, then falls back to .sol domains.
+   *
+   * @param publicKey - Public key to look up
+   * @returns Domain name or null if not found
+   */
+  async getDomainFromPublicKey(publicKey: PublicKey | string): Promise<string | null> {
+    const connection = await this.getConnection();
+    const pk = typeof publicKey === 'string' ? new PublicKey(publicKey) : publicKey;
+    return getDomainFromPublicKeyService(connection, pk);
+  }
+
+  /**
+   * Resolves a domain name to a public key.
+   *
+   * @param domain - Domain name to resolve (e.g., 'example.sol', 'example.abc')
+   * @returns Base58-encoded public key or null if not found
+   */
+  async getPublicKeyFromDomain(domain: string): Promise<string | null> {
+    const connection = await this.getConnection();
+    return getPublicKeyFromDomainService(connection, domain);
+  }
+
+  // ==========================================================================
+  // Transaction History
+  // ==========================================================================
+
+  /**
+   * Gets a single transaction by ID.
+   *
+   * @param txId - Transaction ID (signature)
+   * @returns Transaction data or null if not found
+   */
+  async getTransaction(txId: string): Promise<SolanaTransaction | null> {
+    const address = this.publicKey.toBase58();
+    return getTransactionService(this.network.id, address, txId);
+  }
+
+  /**
+   * Gets recent transactions for this account.
+   *
+   * @param paging - Optional paging parameters
+   * @returns Transaction list with pagination
+   */
+  async getRecentTransactions(
+    paging?: SolanaTransactionPaging
+  ): Promise<SolanaTransactionListResponse> {
+    const address = this.publicKey.toBase58();
+    return getRecentTransactionsService(this.network.id, address, paging);
+  }
+
+  // ==========================================================================
+  // Transfer Utilities
+  // ==========================================================================
+
+  /**
+   * Checks if a destination token account requires a memo for transfers.
+   * This is a Token-2022 feature.
+   *
+   * @param destination - Recipient's public key address
+   * @param tokenAddress - Token mint address
+   * @returns True if memo is required
+   */
+  async requiresMemo(
+    destination: string,
+    tokenAddress: string | null | undefined
+  ): Promise<boolean> {
+    const connection = await this.getConnection();
+    return checkRequiresMemo(connection, new PublicKey(destination), tokenAddress);
+  }
+
+  /**
+   * Calculates the transfer fee for Token-2022 tokens with transfer fee extension.
+   *
+   * @param mint - Token mint address
+   * @param amount - Transfer amount (human-readable)
+   * @returns Fee amount in token's smallest unit, or null if no fee
+   */
+  async calculateTransferFee(mint: string, amount: number): Promise<bigint | null> {
+    const connection = await this.getConnection();
+    return calcTransferFee(connection, mint, amount);
+  }
+
+  /**
+   * Estimates the total fee for an array of transaction messages.
+   *
+   * @param messages - Array of transaction messages to estimate
+   * @param commitment - Commitment level for fee estimation
+   * @returns Total estimated fee in lamports
+   */
+  async estimateTransactionsFee(
+    messages: Message[],
+    commitment: Commitment = 'confirmed'
+  ): Promise<number> {
+    const connection = await this.getConnection();
+    const feePromises = messages.map((message) =>
+      connection.getFeeForMessage(message, commitment)
+    );
+    const results = await Promise.all(feePromises);
+    return results
+      .map(({ value }) => value ?? 0)
+      .reduce((sum, fee) => sum + fee, 0);
+  }
+
+  // ==========================================================================
+  // Not Supported Methods (delegated to separate services in v3)
+  // ==========================================================================
+
+  /**
+   * Gets available tokens for the network.
+   * @deprecated Use token list service directly
+   * @throws Error indicating method is not supported
+   */
+  async getAvailableTokens(): Promise<never> {
+    throw new Error('method_not_supported: Use token list service directly');
+  }
+
+  /**
+   * Gets featured tokens for the network.
+   * @deprecated Use token list service directly
+   * @throws Error indicating method is not supported
+   */
+  async getFeaturedTokens(): Promise<never> {
+    throw new Error('method_not_supported: Use token list service directly');
+  }
+
+  /**
+   * Gets the best swap quote for a token pair.
+   * @deprecated Use swap service directly
+   * @throws Error indicating method is not supported
+   */
+  async getBestSwapQuote(): Promise<never> {
+    throw new Error('method_not_supported: Use swap service directly');
+  }
+
+  /**
+   * Creates a swap transaction.
+   * @deprecated Use swap service directly
+   * @throws Error indicating method is not supported
+   */
+  async createSwapTransaction(): Promise<never> {
+    throw new Error('method_not_supported: Use swap service directly');
+  }
+
+  /**
+   * Gets all NFTs for this account.
+   * @deprecated Use getAllNfts from nft.ts directly
+   * @throws Error indicating method is not supported
+   */
+  async getAllNfts(): Promise<never> {
+    throw new Error('method_not_supported: Use getAllNfts from nft.ts directly');
   }
 }

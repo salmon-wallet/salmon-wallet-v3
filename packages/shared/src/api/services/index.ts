@@ -136,3 +136,35 @@ export {
   getBitcoinTransaction,
   broadcastBitcoinTransaction,
 } from './bitcoin';
+
+// ============================================================================
+// Solana Service
+// ============================================================================
+
+export {
+  // Types
+  type SolanaNetworkId,
+  type SolanaTokenTransfer,
+  type SolanaNativeTransfer,
+  type SolanaAccountData,
+  type SolanaInstruction,
+  type SolanaTransactionStatus,
+  type SolanaTransactionType,
+  type SolanaTransaction,
+  type SolanaPagingParams,
+  type SolanaTransactionsResponse,
+  type SwapRouteInfo,
+  type SwapOrderResponse,
+  type SwapOrderParams,
+  type SwapExecuteRequest,
+  type ApiSwapExecuteResponse,
+  // Functions - Transactions
+  getSolanaTransactions,
+  getSolanaTransaction,
+  getAllSolanaTransactions,
+  getRecentSolanaTransactions,
+  getTransactionsByType,
+  // Functions - Swap
+  getSwapOrder,
+  executeSwapApi,
+} from './solana';
