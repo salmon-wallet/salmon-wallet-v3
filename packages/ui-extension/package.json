@@ -1,0 +1,28 @@
+{
+  "name": "@salmon/ui-extension",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.3.5",
+    "qrcode.react": "^4.2.0",
+    "recharts": "^3.5.1",
+    "react-content-loader": "^7.1.1",
+    "keen-slider": "^6.8.6"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "@types/react-dom": "~19.1.0",
+    "typescript": "~5.9.2"
+  }
+}

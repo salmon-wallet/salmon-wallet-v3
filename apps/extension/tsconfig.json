@@ -1,0 +1,13 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@salmon/shared": ["../../packages/shared/src"],
+      "@salmon/ui-extension": ["../../packages/ui-extension/src"]
+    },
+    "types": ["chrome"]
+  }
+}

@@ -3,6 +3,12 @@
 # dependencies
 node_modules/
 
+# pnpm
+pnpm-lock.yaml
+
+# Turborepo
+.turbo/
+
 # Expo
 .expo/
 dist/
@@ -32,10 +38,11 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
 
 # generated native folders
-/ios
-/android
+ios/
+android/

@@ -3,9 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@salmon/shared": ["../../packages/shared/src"],
+      "@salmon/ui": ["../../packages/ui/src"]
     }
   },
   "include": [
