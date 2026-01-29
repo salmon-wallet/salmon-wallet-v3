@@ -85,3 +85,54 @@ export {
   formatUsdValue,
   formatPercentChange,
 } from './balance';
+
+// ============================================================================
+// Marketplace Service
+// ============================================================================
+
+export {
+  // Types
+  type NetworkId as MarketplaceNetworkId,
+  type ListNftParams,
+  type UnlistNftParams,
+  type BuyNftParams,
+  type PlaceBidParams,
+  type CancelBidParams,
+  type BurnNftParams,
+  type TransactionResponse,
+  type NftListing,
+  type NftBid,
+  // Functions
+  createListingTransaction,
+  createUnlistTransaction,
+  createBuyTransaction,
+  createBidTransaction,
+  createCancelBidTransaction,
+  createBurnTransaction,
+  getUserListings,
+  getUserBids,
+} from './marketplace';
+
+// ============================================================================
+// Bitcoin Service
+// ============================================================================
+
+export {
+  // Types
+  type BitcoinNetworkId,
+  type BitcoinBalance,
+  type BitcoinUtxo,
+  type BitcoinTransactionInput,
+  type BitcoinTransactionOutput,
+  type BitcoinTransaction,
+  type BitcoinPagingParams,
+  type BitcoinTransactionsResponse,
+  type BroadcastTransactionRequest,
+  type BroadcastTransactionResponse,
+  // Functions
+  getBitcoinBalance,
+  getBitcoinUtxos,
+  getBitcoinTransactions,
+  getBitcoinTransaction,
+  broadcastBitcoinTransaction,
+} from './bitcoin';

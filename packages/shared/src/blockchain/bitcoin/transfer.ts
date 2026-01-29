@@ -1,0 +1,535 @@
+/**
+ * Bitcoin Transfer Service
+ * Migrated from salmon-wallet-v2/src/adapter/services/bitcoin/bitcoin-transfer-service.js
+ *
+ * Provides functionality for creating and broadcasting Bitcoin transactions.
+ * Uses bitcoinjs-lib for transaction building and signing.
+ *
+ * Features:
+ * - UTXO-based transaction building
+ * - P2PKH (legacy) address support
+ * - Fee estimation based on transaction size
+ * - Transaction signing with BIP32 node
+ * - Transaction broadcasting via API
+ */
+
+import * as bitcoin from 'bitcoinjs-lib';
+import type { BIP32Interface } from 'bip32';
+import { get, post, getApiUrl } from '../../api';
+import {
+  BitcoinNetwork,
+  BitcoinKeyPair,
+  SATOSHIS_PER_BTC,
+} from './BitcoinAccount';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Unspent Transaction Output (UTXO) from the API
+ */
+export interface UTXO {
+  /** Transaction ID containing this UTXO */
+  txid: string;
+  /** Output index within the transaction */
+  vout: number;
+  /** Value in satoshis */
+  satoshis: number;
+  /** Raw transaction hex (for non-SegWit inputs) */
+  rawTx?: string;
+  /** Script pubkey hex */
+  scriptPubKey?: string;
+}
+
+/**
+ * API response wrapper for paginated UTXO list
+ */
+interface UTXOResponse {
+  data: UTXO[];
+  nextPageToken?: string;
+}
+
+/**
+ * Result of creating a transfer transaction
+ */
+export interface TransferTransactionResult {
+  /** Transaction ID (hash) */
+  txId: string;
+  /** Serialized transaction hex for broadcasting */
+  serializedTx: string;
+}
+
+/**
+ * Result of broadcasting a transaction
+ */
+export interface BroadcastResult {
+  /** Transaction ID if successful */
+  txId?: string;
+  /** Success indicator */
+  success: boolean;
+  /** Error message if failed */
+  error?: string;
+}
+
+/**
+ * Bitcoin keypair with signing capability
+ * Extends BitcoinKeyPair with the BIP32 node for signing
+ */
+export interface SigningKeyPair extends BitcoinKeyPair {
+  /** BIP32 node for signing transactions */
+  node: BIP32Interface;
+}
+
+/**
+ * Resolved inputs for transaction building
+ */
+interface ResolvedInputs {
+  /** Array of UTXOs to use as inputs */
+  inputs: UTXO[];
+  /** Total value of all inputs in satoshis */
+  totalAmountAvailable: number;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Default fee rate in satoshis per byte */
+export const DEFAULT_FEE_RATE = 2;
+
+/** Input size for P2PKH in bytes (approximate) */
+const INPUT_SIZE = 146;
+
+/** Output size for P2PKH in bytes */
+const OUTPUT_SIZE = 34;
+
+/** Transaction overhead in bytes */
+const TX_OVERHEAD = 10;
+
+// ============================================================================
+// Fee Estimation
+// ============================================================================
+
+/**
+ * Estimates the transaction fee based on input and output counts.
+ *
+ * Uses a simplified formula for P2PKH transactions:
+ * fee = (inputCount * 146 + outputCount * 34 + 10 - inputCount) * feeRate
+ *
+ * @param inputCount - Number of transaction inputs
+ * @param outputCount - Number of transaction outputs
+ * @param feeRate - Fee rate in satoshis per byte (default: 2)
+ * @returns Estimated fee in satoshis
+ *
+ * @example
+ * ```typescript
+ * // Estimate fee for 2 inputs and 2 outputs at 2 sat/byte
+ * const fee = estimateBitcoinFee(2, 2);
+ * console.log(`Fee: ${fee} satoshis`);
+ * ```
+ */
+export function estimateBitcoinFee(
+  inputCount: number,
+  outputCount: number,
+  feeRate: number = DEFAULT_FEE_RATE
+): number {
+  const transactionSize =
+    inputCount * INPUT_SIZE + outputCount * OUTPUT_SIZE + TX_OVERHEAD - inputCount;
+  return transactionSize * feeRate;
+}
+
+// ============================================================================
+// UTXO Management
+// ============================================================================
+
+/**
+ * Fetches UTXOs for a given address from the API.
+ *
+ * @param network - Bitcoin network configuration
+ * @param address - Bitcoin address to fetch UTXOs for
+ * @returns Promise resolving to array of UTXOs
+ */
+export async function getUtxos(
+  network: BitcoinNetwork,
+  address: string
+): Promise<UTXO[]> {
+  const baseUrl = getApiUrl();
+  const url = `${baseUrl}/v1/${network.id}/account/${address}/utxo`;
+
+  const response = await get<UTXOResponse>(url, {
+    params: { pageSize: 100 },
+  });
+
+  return response.data;
+}
+
+/**
+ * Resolves inputs by fetching UTXOs and calculating total available amount.
+ *
+ * @param network - Bitcoin network configuration
+ * @param sourceAddress - Address to fetch UTXOs from
+ * @returns Promise resolving to resolved inputs
+ */
+async function resolveInputs(
+  network: BitcoinNetwork,
+  sourceAddress: string
+): Promise<ResolvedInputs> {
+  const utxos = await getUtxos(network, sourceAddress);
+
+  const totalAmountAvailable = utxos.reduce(
+    (total, utxo) => total + utxo.satoshis,
+    0
+  );
+
+  return { inputs: utxos, totalAmountAvailable };
+}
+
+// ============================================================================
+// Validation
+// ============================================================================
+
+/**
+ * Validates that the balance is sufficient for the transaction.
+ *
+ * @param totalAmountAvailable - Total available balance in satoshis
+ * @param satoshiToSend - Amount to send in satoshis
+ * @param fee - Transaction fee in satoshis
+ * @throws Error if balance is insufficient
+ */
+function validateBalance(
+  totalAmountAvailable: number,
+  satoshiToSend: number,
+  fee: number
+): void {
+  if (totalAmountAvailable - satoshiToSend - fee < 0) {
+    throw new Error('Balance is too low for this transaction');
+  }
+}
+
+// ============================================================================
+// Transaction Building
+// ============================================================================
+
+/**
+ * Builds a Bitcoin transaction with the specified parameters.
+ *
+ * @param params - Transaction building parameters
+ * @returns Partially signed Bitcoin transaction (PSBT)
+ */
+function buildTransaction(params: {
+  sourceAddress: string;
+  receiverAddress: string;
+  satoshiToSend: number;
+  inputs: UTXO[];
+  fee: number;
+  network: bitcoin.Network;
+}): bitcoin.Psbt {
+  const { sourceAddress, receiverAddress, satoshiToSend, inputs, fee, network } = params;
+
+  const psbt = new bitcoin.Psbt({ network });
+
+  // Calculate total input amount
+  const totalInput = inputs.reduce((sum, utxo) => sum + utxo.satoshis, 0);
+
+  // Add inputs
+  for (const utxo of inputs) {
+    // For P2PKH, we need the full previous transaction
+    if (utxo.rawTx) {
+      psbt.addInput({
+        hash: utxo.txid,
+        index: utxo.vout,
+        nonWitnessUtxo: Buffer.from(utxo.rawTx, 'hex'),
+      });
+    } else {
+      // Fallback: create a witness UTXO (less secure but works for testing)
+      // In production, rawTx should always be provided by the API
+      const outputScript = bitcoin.address.toOutputScript(sourceAddress, network);
+      psbt.addInput({
+        hash: utxo.txid,
+        index: utxo.vout,
+        witnessUtxo: {
+          script: outputScript,
+          value: BigInt(utxo.satoshis),
+        },
+      });
+    }
+  }
+
+  // Add output to receiver
+  psbt.addOutput({
+    address: receiverAddress,
+    value: BigInt(satoshiToSend),
+  });
+
+  // Add change output back to sender
+  const change = totalInput - satoshiToSend - fee;
+  if (change > 0) {
+    psbt.addOutput({
+      address: sourceAddress,
+      value: BigInt(change),
+    });
+  }
+
+  return psbt;
+}
+
+// ============================================================================
+// Transfer Functions
+// ============================================================================
+
+/**
+ * Creates a signed Bitcoin transfer transaction.
+ *
+ * This function:
+ * 1. Converts the amount from BTC to satoshis
+ * 2. Fetches available UTXOs from the API
+ * 3. Estimates the transaction fee
+ * 4. Validates sufficient balance
+ * 5. Builds and signs the transaction
+ *
+ * @param network - Bitcoin network configuration
+ * @param keyPair - Signing keypair with BIP32 node
+ * @param receiverAddress - Recipient's Bitcoin address
+ * @param amountBtc - Amount to send in BTC
+ * @returns Promise resolving to transaction ID and serialized hex
+ *
+ * @example
+ * ```typescript
+ * import { createBitcoinAccount, BITCOIN_NETWORKS } from '@salmon/shared';
+ *
+ * const account = await createBitcoinAccount({
+ *   network: BITCOIN_NETWORKS.mainnet,
+ *   mnemonic: 'your mnemonic...',
+ * });
+ *
+ * const node = account.getBip32Node();
+ * if (!node) throw new Error('No signing key available');
+ *
+ * const keyPair = {
+ *   ...account.keyPair,
+ *   node,
+ * };
+ *
+ * const result = await createTransferTransaction(
+ *   BITCOIN_NETWORKS.mainnet,
+ *   keyPair,
+ *   '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
+ *   0.001 // 0.001 BTC
+ * );
+ *
+ * console.log(`Transaction ID: ${result.txId}`);
+ * ```
+ */
+export async function createTransferTransaction(
+  network: BitcoinNetwork,
+  keyPair: SigningKeyPair,
+  receiverAddress: string,
+  amountBtc: number
+): Promise<TransferTransactionResult> {
+  const sourceAddress = keyPair.address;
+  const satoshiToSend = Math.floor(amountBtc * SATOSHIS_PER_BTC);
+
+  // Fetch UTXOs and calculate available balance
+  const { inputs, totalAmountAvailable } = await resolveInputs(
+    network,
+    sourceAddress
+  );
+
+  // Estimate fee (2 outputs: receiver + change)
+  const outputCount = 2;
+  const inputCount = inputs.length;
+  const fee = estimateBitcoinFee(inputCount, outputCount);
+
+  // Validate sufficient balance
+  validateBalance(totalAmountAvailable, satoshiToSend, fee);
+
+  // Build the transaction
+  const psbt = buildTransaction({
+    sourceAddress,
+    receiverAddress,
+    satoshiToSend,
+    inputs,
+    fee,
+    network: network.config.network,
+  });
+
+  // Sign all inputs with the private key
+  for (let i = 0; i < inputs.length; i++) {
+    psbt.signInput(i, {
+      publicKey: Buffer.from(keyPair.publicKey),
+      sign: (hash: Buffer) => {
+        const signature = keyPair.node.sign(hash);
+        return Buffer.from(signature);
+      },
+    });
+  }
+
+  // Finalize the transaction
+  psbt.finalizeAllInputs();
+
+  // Extract the final transaction
+  const tx = psbt.extractTransaction();
+  const txId = tx.getId();
+  const serializedTx = tx.toHex();
+
+  return { txId, serializedTx };
+}
+
+/**
+ * Broadcasts a signed transaction to the Bitcoin network.
+ *
+ * @param network - Bitcoin network configuration
+ * @param address - Address associated with the transaction (for API routing)
+ * @param serializedTx - Serialized transaction hex
+ * @returns Promise resolving to broadcast result
+ *
+ * @example
+ * ```typescript
+ * const result = await confirmTransferTransaction(
+ *   BITCOIN_NETWORKS.mainnet,
+ *   senderAddress,
+ *   signedTxHex
+ * );
+ *
+ * if (result.success) {
+ *   console.log(`Broadcasted: ${result.txId}`);
+ * } else {
+ *   console.error(`Failed: ${result.error}`);
+ * }
+ * ```
+ */
+export async function confirmTransferTransaction(
+  network: BitcoinNetwork,
+  address: string,
+  serializedTx: string
+): Promise<BroadcastResult> {
+  const baseUrl = getApiUrl();
+  const url = `${baseUrl}/v1/${network.id}/account/${address}/transactions`;
+
+  try {
+    const response = await post<{ txId?: string; success?: boolean }>(url, {
+      tx: serializedTx,
+    });
+
+    return {
+      txId: response.txId,
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Creates and broadcasts a Bitcoin transfer in one step.
+ *
+ * This is a convenience function that combines createTransferTransaction
+ * and confirmTransferTransaction.
+ *
+ * @param network - Bitcoin network configuration
+ * @param keyPair - Signing keypair with BIP32 node
+ * @param receiverAddress - Recipient's Bitcoin address
+ * @param amountBtc - Amount to send in BTC
+ * @returns Promise resolving to broadcast result with transaction ID
+ *
+ * @example
+ * ```typescript
+ * const result = await sendBitcoin(
+ *   BITCOIN_NETWORKS.mainnet,
+ *   keyPair,
+ *   '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
+ *   0.001
+ * );
+ *
+ * if (result.success) {
+ *   console.log(`Sent! TxID: ${result.txId}`);
+ * }
+ * ```
+ */
+export async function sendBitcoin(
+  network: BitcoinNetwork,
+  keyPair: SigningKeyPair,
+  receiverAddress: string,
+  amountBtc: number
+): Promise<BroadcastResult> {
+  const { txId, serializedTx } = await createTransferTransaction(
+    network,
+    keyPair,
+    receiverAddress,
+    amountBtc
+  );
+
+  const result = await confirmTransferTransaction(
+    network,
+    keyPair.address,
+    serializedTx
+  );
+
+  return {
+    ...result,
+    txId: result.txId ?? txId,
+  };
+}
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Converts BTC to satoshis.
+ *
+ * @param btc - Amount in BTC
+ * @returns Amount in satoshis
+ */
+export function btcToSatoshis(btc: number): number {
+  return Math.floor(btc * SATOSHIS_PER_BTC);
+}
+
+/**
+ * Converts satoshis to BTC.
+ *
+ * @param satoshis - Amount in satoshis
+ * @returns Amount in BTC
+ */
+export function satoshisToBtc(satoshis: number): number {
+  return satoshis / SATOSHIS_PER_BTC;
+}
+
+/**
+ * Calculates the maximum sendable amount after fees.
+ *
+ * @param network - Bitcoin network configuration
+ * @param address - Source address
+ * @param feeRate - Fee rate in satoshis per byte (default: 2)
+ * @returns Promise resolving to maximum sendable amount in BTC
+ *
+ * @example
+ * ```typescript
+ * const maxAmount = await getMaxSendableAmount(
+ *   BITCOIN_NETWORKS.mainnet,
+ *   myAddress
+ * );
+ * console.log(`Max sendable: ${maxAmount} BTC`);
+ * ```
+ */
+export async function getMaxSendableAmount(
+  network: BitcoinNetwork,
+  address: string,
+  feeRate: number = DEFAULT_FEE_RATE
+): Promise<number> {
+  const { inputs, totalAmountAvailable } = await resolveInputs(network, address);
+
+  if (inputs.length === 0) {
+    return 0;
+  }
+
+  // Only 1 output when sending max (no change)
+  const fee = estimateBitcoinFee(inputs.length, 1, feeRate);
+  const maxSatoshis = totalAmountAvailable - fee;
+
+  return maxSatoshis > 0 ? satoshisToBtc(maxSatoshis) : 0;
+}
