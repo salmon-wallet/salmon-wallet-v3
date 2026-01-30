@@ -1,24 +1,39 @@
 /**
  * API Configuration
  * Migrated from salmon-wallet-v2/src/adapter/constants/environment.js
+ *
+ * Environments:
+ * - local: For local development, supports Docker via env vars
+ * - staging: Staging environment (TODO: update when ready)
+ * - production: Production environment (TODO: update when ready)
  */
 
 // Environment types supported by the application
-export type Environment = 'local' | 'development' | 'main' | 'production';
+// Note: 'development' environment has been deprecated and removed
+export type Environment = 'local' | 'staging' | 'production';
+
+// Valid environment values for type guards
+const VALID_ENVIRONMENTS: Environment[] = ['local', 'staging', 'production'];
+
+// Default ports and hosts for local development
+const DEFAULT_LOCAL_HOST = 'localhost';
+const DEFAULT_LOCAL_PORT = 3000;
+
+// Temporary fallback API (v2) while new endpoints are being deployed
+const V2_FALLBACK_API = 'https://v2.salmonwallet.io';
 
 // API URL configuration by environment
+// TODO: Update staging and production URLs when new API is deployed
 const API_URLS: Record<Environment, string> = {
-  local: 'http://localhost:3000/local',
-  development: 'https://d1ms6b491qeh6d.cloudfront.net',
-  main: 'https://bo0q5g7ie1.execute-api.us-east-1.amazonaws.com/main',
-  production: 'https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/prod',
+  local: `http://${DEFAULT_LOCAL_HOST}:${DEFAULT_LOCAL_PORT}`,
+  staging: 'https://api-staging.salmonwallet.io', // TODO: Staging API - currently use V2_FALLBACK_API
+  production: 'https://api.salmonwallet.io', // TODO: Production API - currently use V2_FALLBACK_API
 };
 
 // Static API URL configuration by environment
 const STATIC_API_URLS: Record<Environment, string> = {
-  local: 'http://localhost:3000/local',
-  development: 'https://d1fh2pwo7kzely.cloudfront.net',
-  main: 'https://d1fh2pwo7kzely.cloudfront.net',
+  local: `http://${DEFAULT_LOCAL_HOST}:${DEFAULT_LOCAL_PORT}`,
+  staging: 'https://d1fh2pwo7kzely.cloudfront.net',
   production: 'https://d1fh2pwo7kzely.cloudfront.net',
 };
 
@@ -47,6 +62,33 @@ function getEnvVar(name: string): string | undefined {
 }
 
 /**
+ * Helper function to construct local API URL for Docker flexibility
+ * Reads from EXPO_PUBLIC_API_HOST/VITE_API_HOST and EXPO_PUBLIC_API_PORT/VITE_API_PORT env vars
+ *
+ * @param host - Optional host override (defaults to env var or localhost)
+ * @param port - Optional port override (defaults to env var or 3000)
+ * @returns The constructed local API URL
+ *
+ * @example
+ * // With no args, uses env vars or defaults
+ * getLocalApiUrl() // "http://localhost:3000"
+ *
+ * // Docker on different host
+ * getLocalApiUrl('host.docker.internal', 3001) // "http://host.docker.internal:3001"
+ *
+ * // Or set EXPO_PUBLIC_API_HOST=host.docker.internal in .env
+ */
+export function getLocalApiUrl(host?: string, port?: number): string {
+  const envHost = getEnvVar('API_HOST');
+  const envPort = getEnvVar('API_PORT');
+
+  const finalHost = host ?? envHost ?? DEFAULT_LOCAL_HOST;
+  const finalPort = port ?? (envPort ? parseInt(envPort, 10) : DEFAULT_LOCAL_PORT);
+
+  return `http://${finalHost}:${finalPort}`;
+}
+
+/**
  * Detect the current environment from environment variables
  */
 export function detectEnvironment(): Environment {
@@ -61,13 +103,12 @@ export function detectEnvironment(): Environment {
   switch (nodeEnv) {
     case 'production':
       return 'production';
-    case 'development':
-      return 'development';
     case 'test':
     case 'local':
+    case 'development': // Map deprecated NODE_ENV=development to 'local'
       return 'local';
     default:
-      return 'development';
+      return 'local';
   }
 }
 
@@ -75,22 +116,44 @@ export function detectEnvironment(): Environment {
  * Type guard to check if a string is a valid Environment
  */
 function isValidEnvironment(value: string): value is Environment {
-  return ['local', 'development', 'main', 'production'].includes(value);
+  return VALID_ENVIRONMENTS.includes(value as Environment);
 }
 
 /**
  * Get the API URL for a given environment
  * Supports environment variable override via EXPO_PUBLIC_API_URL or VITE_API_URL
+ *
+ * For local development with Docker, you can also use:
+ * - EXPO_PUBLIC_API_HOST / VITE_API_HOST
+ * - EXPO_PUBLIC_API_PORT / VITE_API_PORT
  */
 export function getApiUrl(env?: Environment): string {
-  // Check for environment variable override
+  // Check for full URL override first
   const override = getEnvVar('API_URL');
   if (override) {
     return override;
   }
 
   const environment = env ?? detectEnvironment();
-  return API_URLS[environment];
+
+  // For local environment, use the helper to support Docker env vars
+  if (environment === 'local') {
+    return getLocalApiUrl();
+  }
+
+  // TODO: Once new APIs are deployed, remove this fallback
+  // For now, use v2 API as fallback for staging/production since new endpoints aren't ready
+  const url = API_URLS[environment];
+  if (environment === 'staging' || environment === 'production') {
+    // Check if we should use the placeholder URLs or fall back to v2
+    // The placeholder URLs will return errors until deployed, so we use v2 for now
+    const useFallback = getEnvVar('USE_V2_FALLBACK') !== 'false';
+    if (useFallback) {
+      return V2_FALLBACK_API;
+    }
+  }
+
+  return url;
 }
 
 /**
@@ -105,6 +168,12 @@ export function getStaticApiUrl(env?: Environment): string {
   }
 
   const environment = env ?? detectEnvironment();
+
+  // For local environment, use the helper to support Docker env vars
+  if (environment === 'local') {
+    return getLocalApiUrl();
+  }
+
   return STATIC_API_URLS[environment];
 }
 
@@ -126,3 +195,4 @@ export const apiConfig = {
 // Export constants for direct access
 export const API_URL_MAP = API_URLS;
 export const STATIC_API_URL_MAP = STATIC_API_URLS;
+export const V2_API_FALLBACK = V2_FALLBACK_API;
