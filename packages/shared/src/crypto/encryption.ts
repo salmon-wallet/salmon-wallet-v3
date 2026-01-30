@@ -46,7 +46,7 @@ export interface LockedVault {
  * Configuration options for the lock function.
  */
 export interface LockOptions {
-  /** Number of PBKDF2 iterations (default: 100000) */
+  /** Number of PBKDF2 iterations (default: 600000, OWASP 2024 minimum) */
   iterations?: number;
   /** Digest algorithm for PBKDF2 (default: 'sha256') */
   digest?: DigestAlgorithm;
@@ -89,8 +89,12 @@ export class KeyDerivationError extends Error {
 // Constants
 // ============================================================================
 
-/** Default number of PBKDF2 iterations */
-const DEFAULT_ITERATIONS = 100000;
+/**
+ * Default number of PBKDF2 iterations.
+ * OWASP 2024 recommends minimum 600,000 for PBKDF2-HMAC-SHA256.
+ * @see https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+ */
+const DEFAULT_ITERATIONS = 600000;
 
 /** Default digest algorithm */
 const DEFAULT_DIGEST: DigestAlgorithm = 'sha256';

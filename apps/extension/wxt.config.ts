@@ -32,10 +32,14 @@ export default defineConfig({
       {
         resources: ['injected.js'],
         matches: ['<all_urls>'],
+        // Prevents extension fingerprinting by generating a new ID per session
+        // @see https://developer.chrome.com/docs/extensions/reference/manifest/web-accessible-resources
+        use_dynamic_url: true,
       },
       {
         resources: ['images/*', 'fonts/*'],
         matches: ['<all_urls>'],
+        use_dynamic_url: true,
       },
     ],
     content_security_policy: {

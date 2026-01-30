@@ -448,8 +448,12 @@ async function sendTransaction(
   transaction: Transaction,
   keyPair: Keypair
 ): Promise<TransactionSignature> {
+  // skipPreflight: false (default) ensures transactions are simulated before sending.
+  // This prevents loss of fees on transactions that would fail.
+  // @see https://solana.com/developers/guides/advanced/retry
   return connection.sendTransaction(transaction, [keyPair], {
-    skipPreflight: true,
+    skipPreflight: false,
+    preflightCommitment: 'confirmed',
   });
 }
 
