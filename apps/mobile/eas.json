@@ -4,21 +4,40 @@
     "appVersionSource": "remote"
   },
   "build": {
-    "development": {
+    "local": {
       "developmentClient": true,
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SALMON_ENV": "local"
+      },
       "ios": {
         "simulator": true
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
-    "preview": {
+    "staging": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SALMON_ENV": "staging",
+        "EXPO_PUBLIC_API_URL": "https://api-staging.salmonwallet.io"
+      },
       "ios": {
         "simulator": false
-      }
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "staging"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SALMON_ENV": "production",
+        "EXPO_PUBLIC_API_URL": "https://api.salmonwallet.io"
+      },
+      "channel": "production"
     }
   },
   "submit": {

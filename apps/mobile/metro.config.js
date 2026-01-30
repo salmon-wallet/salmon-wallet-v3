@@ -6,23 +6,16 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Watch all files in the monorepo
-config.watchFolders = [monorepoRoot];
-
-// Let Metro know where to resolve packages
-config.resolver.nodeModulesPaths = [
-  path.resolve(projectRoot, 'node_modules'),
-  path.resolve(monorepoRoot, 'node_modules'),
-];
-
 // Polyfills for crypto libraries (Solana, Bitcoin)
+// Note: Monorepo support is automatic since Expo SDK 52
 config.resolver.extraNodeModules = {
-  crypto: require.resolve('react-native-crypto'),
+  ...config.resolver.extraNodeModules,
+  crypto: require.resolve('expo-crypto'),
   stream: require.resolve('readable-stream'),
   buffer: require.resolve('buffer'),
 };
 
-// Disable package exports to avoid issues with some packages
-config.resolver.unstable_enablePackageExports = false;
+// Support for .cjs files (some packages need this)
+config.resolver.sourceExts = [...config.resolver.sourceExts, 'cjs'];
 
 module.exports = config;
