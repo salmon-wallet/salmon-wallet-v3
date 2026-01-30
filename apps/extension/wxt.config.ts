@@ -5,8 +5,11 @@ export default defineConfig({
   outDir: 'dist',
 
   manifest: {
-    name: 'Salmon Wallet',
-    description: 'Your all-in-one & open-source wallet for the crypto space.',
+    // Use i18n message placeholders for name and description
+    name: '__MSG_extName__',
+    description: '__MSG_extDescription__',
+    // Set default locale for i18n
+    default_locale: 'en',
     version: '1.0.0',
     icons: {
       16: 'icon.png',

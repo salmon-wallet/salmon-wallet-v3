@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "wallet": "Wallet",
+    "swap": "Swap",
+    "collectibles": "Collectibles",
+    "settings": "Settings"
+  },
   "general": {
     "home": "Home",
     "usd": "USD",

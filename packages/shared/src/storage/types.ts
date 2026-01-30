@@ -195,6 +195,8 @@ export const STORAGE_KEYS = {
   NFT_CACHE: 'salmon_nft_cache',
   /** Price cache */
   PRICE_CACHE: 'salmon_price_cache',
+  /** User's preferred language */
+  LANGUAGE: 'salmon_language',
 } as const;
 
 /**

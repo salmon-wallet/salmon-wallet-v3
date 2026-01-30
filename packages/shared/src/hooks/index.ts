@@ -61,3 +61,7 @@ export type {
 export { default as useRuntime } from './useRuntime';
 export type { RuntimeInfo } from './types';
 export { ADAPTER_PREFIXES } from './types';
+
+// Language management hook
+export { useLanguage, default as useLanguageDefault } from './useLanguage';
+export type { UseLanguageResult } from './useLanguage';

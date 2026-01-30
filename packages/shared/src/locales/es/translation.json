@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "wallet": "Billetera",
+    "swap": "Intercambiar",
+    "collectibles": "Coleccionables",
+    "settings": "Configuracion"
+  },
   "general": {
     "home": "Inicio",
     "usd": "USD",
@@ -8,12 +14,26 @@
     "name_or_address": "Nombre o Dirección \"{{token}}\"",
     "recipient_s_address": "Dirección \"{{token}}\" Destinatario",
     "seed_phrase": "Seed-phrase",
+    "private_key": "Clave Privada",
     "balance": "Balance",
     "sending": "Enviando...",
+    "loading": "Cargando...",
     "sent": "¡Enviado!",
+    "close": "Cerrar",
+    "max": "Máx",
+    "back": "Volver",
+    "confirm": "Confirmar",
+    "error": "Error inesperado",
+    "address_validation": {
+      "ERROR": "Error inesperado",
+      "INVALID_ADDRESS": "La dirección no es válida",
+      "EMPTY_ACCOUNT": "Esta dirección no tiene fondos. Por favor verifica si la dirección es correcta.",
+      "NO_FUNDS": "La dirección no tiene fondos"
+    },
     "open_explorer": "Abrir en explorer"
   },
   "actions": {
+    "approve": "Aprobar",
     "skip": "Omitir",
     "next": "Siguiente",
     "start": "Comenzar",
@@ -134,7 +154,11 @@
       "transaction_warning": "Warning",
       "transaction_fail": "Error",
       "goto_explorer": "Ir al Explorer",
-      "view_transaction": "Ver transacción"
+      "view_transaction": "Ver transacción",
+      "empty_account_fee": "No es posible estimar la comisión porque la cuenta de destino está vacía"
+    },
+    "balance": {
+      "percentage_info": "Variación de tu posición en las últimas 24 horas."
     }
   },
   "lock": {
@@ -263,6 +287,7 @@
     "today": "Hoy",
     "yesterday": "Ayer",
     "empty": "No se encontraron transacciones",
+    "detail_back": "Volver a la Billetera",
     "send": "Enviado",
     "receive": "Recibido",
     "swap": "Swap",
@@ -289,6 +314,7 @@
     "description": "Descripción",
     "properties": "Propiedades",
     "send_nft": "Enviar",
+    "preview_sell": "Vista previa",
     "listed_nft": "Listado",
     "list_nft": "Listar en",
     "delist_nft": "Deslistar de",
@@ -363,6 +389,7 @@
     "bridge": "Bridge",
     "preview": "Confirmar Bridge",
     "less_than_minimal": "Monto mínimo: {{min}} {{symbol}}",
+    "no_wallet_found": "No se encontró billetera para la blockchain {{chain}}",
     "provider_error": "Actualmente el proveedor de Bridge no está respondiendo.\nPor favor vuelve a intentar más tarde.",
     "recipient_type": "Wallet de destino:",
     "you_pay": "Pagas",
