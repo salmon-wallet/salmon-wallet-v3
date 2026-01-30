@@ -12,7 +12,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Connection, PublicKey } from '@solana/web3.js';
 import * as BonfidaNameService from '@bonfida/spl-name-service';
-import { TldParser } from '@onsol/tldparser';
 import {
   getSolDomain,
   resolveSolDomain,
@@ -34,9 +33,15 @@ vi.mock('@bonfida/spl-name-service', () => ({
   resolve: vi.fn(),
 }));
 
-// Mock TldParser
+// Mock TldParser - must be mocked as a class
+const mockGetMainDomain = vi.fn();
+const mockGetOwnerFromDomainTld = vi.fn();
+
 vi.mock('@onsol/tldparser', () => ({
-  TldParser: vi.fn(),
+  TldParser: class MockTldParser {
+    getMainDomain = mockGetMainDomain;
+    getOwnerFromDomainTld = mockGetOwnerFromDomainTld;
+  },
 }));
 
 // ============================================================================
@@ -90,7 +95,7 @@ const TEST_DATA = {
 // ============================================================================
 
 describe('SPL Name Service (.sol domains)', () => {
-  const network = SOLANA_NETWORKS.mainnet;
+  const network = SOLANA_NETWORKS['mainnet-beta'];
   let connection: Connection;
 
   beforeEach(() => {
@@ -225,7 +230,7 @@ describe('SPL Name Service (.sol domains)', () => {
 // ============================================================================
 
 describe('AllDomains (multiple TLDs)', () => {
-  const network = SOLANA_NETWORKS.mainnet;
+  const network = SOLANA_NETWORKS['mainnet-beta'];
   let connection: Connection;
 
   beforeEach(() => {
@@ -235,32 +240,24 @@ describe('AllDomains (multiple TLDs)', () => {
 
   describe('getAllDomain', () => {
     it('should get AllDomains domain for a public key', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce({
-          domain: 'test',
-          tld: '.abc',
-          owner: TEST_DATA.allDomain.publicKey,
-        }),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'test',
+        tld: '.abc',
+        owner: TEST_DATA.allDomain.publicKey,
+      });
 
       const result = await getAllDomain(connection, TEST_DATA.allDomain.publicKey);
 
-      expect(mockParser.getMainDomain).toHaveBeenCalledWith(TEST_DATA.allDomain.publicKey);
+      expect(mockGetMainDomain).toHaveBeenCalledWith(TEST_DATA.allDomain.publicKey);
       expect(result).toBe(TEST_DATA.allDomain.name);
     });
 
     it('should concatenate domain and tld', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce({
-          domain: 'myname',
-          tld: '.bonk',
-          owner: TEST_DATA.allDomain.publicKey,
-        }),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'myname',
+        tld: '.bonk',
+        owner: TEST_DATA.allDomain.publicKey,
+      });
 
       const result = await getAllDomain(connection, TEST_DATA.allDomain.publicKey);
 
@@ -268,11 +265,7 @@ describe('AllDomains (multiple TLDs)', () => {
     });
 
     it('should return null if no domain found', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce(null),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce(null);
 
       const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
 
@@ -280,14 +273,10 @@ describe('AllDomains (multiple TLDs)', () => {
     });
 
     it('should return null if domain is missing', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce({
-          domain: null,
-          tld: '.abc',
-        }),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: null,
+        tld: '.abc',
+      });
 
       const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
 
@@ -295,14 +284,10 @@ describe('AllDomains (multiple TLDs)', () => {
     });
 
     it('should return null if tld is missing', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce({
-          domain: 'test',
-          tld: null,
-        }),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'test',
+        tld: null,
+      });
 
       const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
 
@@ -310,11 +295,7 @@ describe('AllDomains (multiple TLDs)', () => {
     });
 
     it('should return null on error', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockRejectedValueOnce(new Error('Domain not found')),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockRejectedValueOnce(new Error('Domain not found'));
 
       const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
 
@@ -324,15 +305,11 @@ describe('AllDomains (multiple TLDs)', () => {
 
   describe('resolveAllDomain', () => {
     it('should resolve AllDomains domain to public key', async () => {
-      const mockParser = {
-        getOwnerFromDomainTld: vi.fn().mockResolvedValueOnce(TEST_DATA.allDomain.publicKey),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
 
       const result = await resolveAllDomain(connection, TEST_DATA.allDomain.name);
 
-      expect(mockParser.getOwnerFromDomainTld).toHaveBeenCalledWith(TEST_DATA.allDomain.name);
+      expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith(TEST_DATA.allDomain.name);
       expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
     });
 
@@ -340,25 +317,17 @@ describe('AllDomains (multiple TLDs)', () => {
       const domains = ['test.abc', 'myname.bonk', 'example.poor'];
 
       for (const domain of domains) {
-        const mockParser = {
-          getOwnerFromDomainTld: vi.fn().mockResolvedValueOnce(TEST_DATA.allDomain.publicKey),
-        };
-
-        vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+        mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
 
         const result = await resolveAllDomain(connection, domain);
 
-        expect(mockParser.getOwnerFromDomainTld).toHaveBeenCalledWith(domain);
+        expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith(domain);
         expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
       }
     });
 
     it('should return null if domain not found', async () => {
-      const mockParser = {
-        getOwnerFromDomainTld: vi.fn().mockResolvedValueOnce(null),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(null);
 
       const result = await resolveAllDomain(connection, 'nonexistent.abc');
 
@@ -366,11 +335,7 @@ describe('AllDomains (multiple TLDs)', () => {
     });
 
     it('should return null on error', async () => {
-      const mockParser = {
-        getOwnerFromDomainTld: vi.fn().mockRejectedValueOnce(new Error('Invalid domain')),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetOwnerFromDomainTld.mockRejectedValueOnce(new Error('Invalid domain'));
 
       const result = await resolveAllDomain(connection, 'invalid.xyz');
 
@@ -384,7 +349,7 @@ describe('AllDomains (multiple TLDs)', () => {
 // ============================================================================
 
 describe('Combined Domain Functions', () => {
-  const network = SOLANA_NETWORKS.mainnet;
+  const network = SOLANA_NETWORKS['mainnet-beta'];
   let connection: Connection;
 
   beforeEach(() => {
@@ -395,10 +360,7 @@ describe('Combined Domain Functions', () => {
   describe('getDomain', () => {
     it('should try AllDomains first, then fall back to .sol', async () => {
       // AllDomains returns null
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce(null),
-      };
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce(null);
 
       // Bonfida returns a domain
       vi.mocked(BonfidaNameService.getFavoriteDomain).mockResolvedValueOnce({
@@ -409,21 +371,17 @@ describe('Combined Domain Functions', () => {
 
       const result = await getDomain(connection, TEST_DATA.solDomain.publicKey);
 
-      expect(mockParser.getMainDomain).toHaveBeenCalled();
+      expect(mockGetMainDomain).toHaveBeenCalled();
       expect(BonfidaNameService.getFavoriteDomain).toHaveBeenCalled();
       expect(result).toBe(TEST_DATA.solDomain.fullName);
     });
 
     it('should return AllDomains result if found', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce({
-          domain: 'test',
-          tld: '.abc',
-          owner: TEST_DATA.allDomain.publicKey,
-        }),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'test',
+        tld: '.abc',
+        owner: TEST_DATA.allDomain.publicKey,
+      });
 
       const result = await getDomain(connection, TEST_DATA.allDomain.publicKey);
 
@@ -433,10 +391,7 @@ describe('Combined Domain Functions', () => {
     });
 
     it('should return null if both fail', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce(null),
-      };
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce(null);
       vi.mocked(BonfidaNameService.getFavoriteDomain).mockResolvedValueOnce({
         domain: null,
       } as any);
@@ -449,15 +404,11 @@ describe('Combined Domain Functions', () => {
 
   describe('getDomainFromPublicKey', () => {
     it('should be an alias for getDomain', async () => {
-      const mockParser = {
-        getMainDomain: vi.fn().mockResolvedValueOnce({
-          domain: 'test',
-          tld: '.abc',
-          owner: TEST_DATA.allDomain.publicKey,
-        }),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'test',
+        tld: '.abc',
+        owner: TEST_DATA.allDomain.publicKey,
+      });
 
       const result = await getDomainFromPublicKey(connection, TEST_DATA.allDomain.publicKey);
 
@@ -478,50 +429,34 @@ describe('Combined Domain Functions', () => {
     });
 
     it('should use resolveAllDomain for other TLDs', async () => {
-      const mockParser = {
-        getOwnerFromDomainTld: vi.fn().mockResolvedValueOnce(TEST_DATA.allDomain.publicKey),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
 
       const result = await getPublicKeyFromDomain(connection, 'test.abc');
 
-      expect(mockParser.getOwnerFromDomainTld).toHaveBeenCalledWith('test.abc');
+      expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith('test.abc');
       expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
     });
 
     it('should handle .bonk domain', async () => {
-      const mockParser = {
-        getOwnerFromDomainTld: vi.fn().mockResolvedValueOnce(TEST_DATA.allDomain.publicKey),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
 
       const result = await getPublicKeyFromDomain(connection, 'myname.bonk');
 
-      expect(mockParser.getOwnerFromDomainTld).toHaveBeenCalledWith('myname.bonk');
+      expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith('myname.bonk');
       expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
     });
 
     it('should handle .poor domain', async () => {
-      const mockParser = {
-        getOwnerFromDomainTld: vi.fn().mockResolvedValueOnce(TEST_DATA.allDomain.publicKey),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
 
       const result = await getPublicKeyFromDomain(connection, 'example.poor');
 
-      expect(mockParser.getOwnerFromDomainTld).toHaveBeenCalledWith('example.poor');
+      expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith('example.poor');
       expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
     });
 
     it('should return null if domain cannot be resolved', async () => {
-      const mockParser = {
-        getOwnerFromDomainTld: vi.fn().mockResolvedValueOnce(null),
-      };
-
-      vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(null);
 
       const result = await getPublicKeyFromDomain(connection, 'nonexistent.xyz');
 
@@ -535,7 +470,7 @@ describe('Combined Domain Functions', () => {
 // ============================================================================
 
 describe('Domain Error Handling', () => {
-  const network = SOLANA_NETWORKS.mainnet;
+  const network = SOLANA_NETWORKS['mainnet-beta'];
   let connection: Connection;
 
   beforeEach(() => {
@@ -577,11 +512,7 @@ describe('Domain Error Handling', () => {
   });
 
   it('should handle invalid public keys in TldParser', async () => {
-    const mockParser = {
-      getMainDomain: vi.fn().mockRejectedValueOnce(new Error('Invalid public key')),
-    };
-
-    vi.mocked(TldParser).mockImplementationOnce(() => mockParser as any);
+    mockGetMainDomain.mockRejectedValueOnce(new Error('Invalid public key'));
 
     const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
     expect(result).toBeNull();
@@ -593,7 +524,7 @@ describe('Domain Error Handling', () => {
 // ============================================================================
 
 describe('Domain Integration Tests (optional)', () => {
-  const network = SOLANA_NETWORKS.mainnet;
+  const network = SOLANA_NETWORKS['mainnet-beta'];
 
   it.skip('should resolve real .sol domain if RPC available', async () => {
     const connection = new Connection(network.config.nodeUrl);

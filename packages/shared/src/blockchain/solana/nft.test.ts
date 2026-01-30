@@ -459,11 +459,17 @@ describe('NFT Pure Functions', () => {
 // ============================================================================
 
 describe('NFT API Functions', () => {
-  const network = SOLANA_NETWORKS.mainnet;
+  const network = SOLANA_NETWORKS['mainnet-beta'];
   const testOwner = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock Connection.prototype.getParsedTokenAccountsByOwner to prevent real RPC calls
+    // This is called by fetchToken2022Extensions in getAllFromHeliusDirect
+    vi.spyOn(Connection.prototype, 'getParsedTokenAccountsByOwner').mockResolvedValue({
+      context: { slot: 0 },
+      value: [],
+    });
   });
 
   describe('getAllFromHeliusDirect', () => {
@@ -774,7 +780,7 @@ describe('NFT API Functions', () => {
 // ============================================================================
 
 describe('NFT Integration Tests (optional)', () => {
-  const network = SOLANA_NETWORKS.mainnet;
+  const network = SOLANA_NETWORKS['mainnet-beta'];
   // Known Solana wallet with NFTs (replace with actual test wallet if available)
   const testOwner = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
 

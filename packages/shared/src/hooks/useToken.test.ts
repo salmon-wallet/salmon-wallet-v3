@@ -1,4 +1,5 @@
 /**
+ * @vitest-environment jsdom
  * Tests for useToken hook
  */
 
@@ -423,7 +424,11 @@ describe('useToken Hook', () => {
 
       const refetchPromise = result.current.refetch();
 
-      expect(result.current.loading).toBe(true);
+      // Wait for the loading state to be set to true
+      // State updates are asynchronous in React, so we need waitFor
+      await waitFor(() => {
+        expect(result.current.loading).toBe(true);
+      });
 
       resolvePromise(MOCK_TOKEN_METADATA);
 

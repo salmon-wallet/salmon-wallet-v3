@@ -1,4 +1,5 @@
 /**
+ * @vitest-environment jsdom
  * Tests for useUserConfig hook
  */
 
@@ -47,6 +48,7 @@ describe('useUserConfig Hook', () => {
     vi.clearAllMocks();
     (storage.getStorage as any).mockReturnValue(mockStorage);
     mockStorage.getItem.mockResolvedValue(null);
+    mockStorage.setItem.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
