@@ -128,7 +128,7 @@ export function removeDecimals(amount: number | bigint, decimals: number): numbe
  * @returns True if address is native SOL
  */
 export function isNativeSol(address: string | null | undefined): boolean {
-  return !address || address === SOL_ADDRESS;
+  return address === null || address === undefined || address === SOL_ADDRESS;
 }
 
 /**
