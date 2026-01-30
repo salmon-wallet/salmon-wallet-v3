@@ -1,0 +1,394 @@
+/**
+ * Tests for useAvailableNetworks hook
+ *
+ * @vitest-environment jsdom
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook } from '@testing-library/react';
+import { useAvailableNetworks } from './useAvailableNetworks';
+import * as useUserConfigModule from './useUserConfig';
+import type { ActiveBlockchainAccount } from './useUserConfig';
+
+// ============================================================================
+// Mocks
+// ============================================================================
+
+vi.mock('./useUserConfig', () => ({
+  useUserConfig: vi.fn(),
+}));
+
+vi.mock('../blockchain/solana/factory', () => ({
+  SOLANA_NETWORKS: {
+    'mainnet-beta': {
+      id: 'mainnet-beta',
+      name: 'Mainnet Beta',
+      config: {
+        nodeUrl: 'https://api.mainnet-beta.solana.com',
+        commitment: 'confirmed',
+      },
+    },
+    devnet: {
+      id: 'devnet',
+      name: 'Devnet',
+      config: {
+        nodeUrl: 'https://api.devnet.solana.com',
+        commitment: 'confirmed',
+      },
+    },
+    testnet: {
+      id: 'testnet',
+      name: 'Testnet',
+      config: {
+        nodeUrl: 'https://api.testnet.solana.com',
+        commitment: 'confirmed',
+      },
+    },
+  },
+}));
+
+vi.mock('../blockchain/bitcoin/factory', () => ({
+  BITCOIN_NETWORKS: {
+    mainnet: {
+      id: 'bitcoin',
+      name: 'Bitcoin Mainnet',
+      environment: 'mainnet',
+      config: {
+        network: {},
+      },
+    },
+    testnet: {
+      id: 'bitcoin-testnet',
+      name: 'Bitcoin Testnet',
+      environment: 'testnet',
+      config: {
+        network: {},
+      },
+    },
+    regtest: {
+      id: 'bitcoin-regtest',
+      name: 'Bitcoin Regtest',
+      environment: 'regtest',
+      config: {
+        network: {},
+      },
+    },
+  },
+}));
+
+vi.mock('../blockchain/ethereum/factory', () => ({
+  ETHEREUM_NETWORKS: {
+    mainnet: {
+      id: 'ethereum',
+      name: 'Ethereum Mainnet',
+      environment: 'mainnet',
+      config: {
+        rpcUrl: 'https://eth.llamarpc.com',
+        chainId: 1,
+      },
+    },
+    goerli: {
+      id: 'ethereum-goerli',
+      name: 'Goerli Testnet',
+      environment: 'goerli',
+      config: {
+        rpcUrl: 'https://rpc.ankr.com/eth_goerli',
+        chainId: 5,
+      },
+    },
+    sepolia: {
+      id: 'ethereum-sepolia',
+      name: 'Sepolia Testnet',
+      environment: 'sepolia',
+      config: {
+        rpcUrl: 'https://rpc.sepolia.org',
+        chainId: 11155111,
+      },
+    },
+  },
+}));
+
+// ============================================================================
+// Test Data
+// ============================================================================
+
+const mockActiveAccount: ActiveBlockchainAccount = {
+  network: {
+    environment: 'mainnet-beta',
+    blockchain: 'solana',
+  },
+};
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+describe('useAvailableNetworks Hook', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('When developerNetworks is FALSE', () => {
+    beforeEach(() => {
+      vi.mocked(useUserConfigModule.useUserConfig).mockReturnValue({
+        developerNetworks: false,
+        isLoading: false,
+        userConfig: {
+          explorers: {},
+          developerNetworks: false,
+        },
+        explorers: [],
+        changeExplorer: vi.fn(),
+        toggleDeveloperNetworks: vi.fn(),
+      });
+    });
+
+    it('should return only mainnet networks for Solana (mainnet-beta)', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.networks.solana).toHaveLength(1);
+      expect(result.current.networks.solana[0].id).toBe('mainnet-beta');
+    });
+
+    it('should NOT return devnet or testnet for Solana', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      const networkIds = result.current.networks.solana.map(n => n.id);
+      expect(networkIds).not.toContain('devnet');
+      expect(networkIds).not.toContain('testnet');
+    });
+
+    it('should return only mainnet networks for Bitcoin (mainnet)', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.networks.bitcoin).toHaveLength(1);
+      expect(result.current.networks.bitcoin[0].environment).toBe('mainnet');
+    });
+
+    it('should NOT return testnet or regtest for Bitcoin', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      const environments = result.current.networks.bitcoin.map(n => n.environment);
+      expect(environments).not.toContain('testnet');
+      expect(environments).not.toContain('regtest');
+    });
+
+    it('should return only mainnet networks for Ethereum (mainnet)', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.networks.ethereum).toHaveLength(1);
+      expect(result.current.networks.ethereum[0].environment).toBe('mainnet');
+    });
+
+    it('should NOT return goerli or sepolia for Ethereum', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      const environments = result.current.networks.ethereum.map(n => n.environment);
+      expect(environments).not.toContain('goerli');
+      expect(environments).not.toContain('sepolia');
+    });
+  });
+
+  describe('When developerNetworks is TRUE', () => {
+    beforeEach(() => {
+      vi.mocked(useUserConfigModule.useUserConfig).mockReturnValue({
+        developerNetworks: true,
+        isLoading: false,
+        userConfig: {
+          explorers: {},
+          developerNetworks: true,
+        },
+        explorers: [],
+        changeExplorer: vi.fn(),
+        toggleDeveloperNetworks: vi.fn(),
+      });
+    });
+
+    it('should return all Solana networks (mainnet-beta, devnet, testnet)', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.networks.solana).toHaveLength(3);
+      const networkIds = result.current.networks.solana.map(n => n.id);
+      expect(networkIds).toContain('mainnet-beta');
+      expect(networkIds).toContain('devnet');
+      expect(networkIds).toContain('testnet');
+    });
+
+    it('should return all Bitcoin networks (mainnet, testnet, regtest)', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.networks.bitcoin).toHaveLength(3);
+      const environments = result.current.networks.bitcoin.map(n => n.environment);
+      expect(environments).toContain('mainnet');
+      expect(environments).toContain('testnet');
+      expect(environments).toContain('regtest');
+    });
+
+    it('should return all Ethereum networks (mainnet, goerli, sepolia)', () => {
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.networks.ethereum).toHaveLength(3);
+      const environments = result.current.networks.ethereum.map(n => n.environment);
+      expect(environments).toContain('mainnet');
+      expect(environments).toContain('goerli');
+      expect(environments).toContain('sepolia');
+    });
+  });
+
+  describe('allNetworks array', () => {
+    it('should contain flat list of all available networks when developerNetworks is TRUE', () => {
+      vi.mocked(useUserConfigModule.useUserConfig).mockReturnValue({
+        developerNetworks: true,
+        isLoading: false,
+        userConfig: {
+          explorers: {},
+          developerNetworks: true,
+        },
+        explorers: [],
+        changeExplorer: vi.fn(),
+        toggleDeveloperNetworks: vi.fn(),
+      });
+
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      const expectedCount =
+        result.current.networks.solana.length +
+        result.current.networks.bitcoin.length +
+        result.current.networks.ethereum.length;
+
+      expect(result.current.allNetworks).toHaveLength(expectedCount);
+      expect(result.current.allNetworks.length).toBe(9); // 3 + 3 + 3
+    });
+
+    it('should contain flat list of only mainnet networks when developerNetworks is FALSE', () => {
+      vi.mocked(useUserConfigModule.useUserConfig).mockReturnValue({
+        developerNetworks: false,
+        isLoading: false,
+        userConfig: {
+          explorers: {},
+          developerNetworks: false,
+        },
+        explorers: [],
+        changeExplorer: vi.fn(),
+        toggleDeveloperNetworks: vi.fn(),
+      });
+
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      const expectedCount =
+        result.current.networks.solana.length +
+        result.current.networks.bitcoin.length +
+        result.current.networks.ethereum.length;
+
+      expect(result.current.allNetworks).toHaveLength(expectedCount);
+      expect(result.current.allNetworks.length).toBe(3); // 1 + 1 + 1
+    });
+  });
+
+  describe('Loading State', () => {
+    it('should return isLoading from useUserConfig', () => {
+      vi.mocked(useUserConfigModule.useUserConfig).mockReturnValue({
+        developerNetworks: false,
+        isLoading: true,
+        userConfig: null,
+        explorers: [],
+        changeExplorer: vi.fn(),
+        toggleDeveloperNetworks: vi.fn(),
+      });
+
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.isLoading).toBe(true);
+    });
+
+    it('should return isLoading as false when config is loaded', () => {
+      vi.mocked(useUserConfigModule.useUserConfig).mockReturnValue({
+        developerNetworks: false,
+        isLoading: false,
+        userConfig: {
+          explorers: {},
+          developerNetworks: false,
+        },
+        explorers: [],
+        changeExplorer: vi.fn(),
+        toggleDeveloperNetworks: vi.fn(),
+      });
+
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.isLoading).toBe(false);
+    });
+  });
+
+  describe('developerNetworks return value', () => {
+    it('should return developerNetworks as false when disabled', () => {
+      vi.mocked(useUserConfigModule.useUserConfig).mockReturnValue({
+        developerNetworks: false,
+        isLoading: false,
+        userConfig: {
+          explorers: {},
+          developerNetworks: false,
+        },
+        explorers: [],
+        changeExplorer: vi.fn(),
+        toggleDeveloperNetworks: vi.fn(),
+      });
+
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.developerNetworks).toBe(false);
+    });
+
+    it('should return developerNetworks as true when enabled', () => {
+      vi.mocked(useUserConfigModule.useUserConfig).mockReturnValue({
+        developerNetworks: true,
+        isLoading: false,
+        userConfig: {
+          explorers: {},
+          developerNetworks: true,
+        },
+        explorers: [],
+        changeExplorer: vi.fn(),
+        toggleDeveloperNetworks: vi.fn(),
+      });
+
+      const { result } = renderHook(() =>
+        useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
+      );
+
+      expect(result.current.developerNetworks).toBe(true);
+    });
+  });
+});

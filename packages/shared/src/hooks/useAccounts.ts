@@ -188,6 +188,10 @@ export interface UseAccountsActions {
   changeAccount: (targetId: string) => Promise<void>;
   /** Change the active network */
   changeNetwork: (targetId: string) => Promise<void>;
+  /** Switch to a different network (alias for changeNetwork) */
+  switchNetwork: (networkId: string) => Promise<void>;
+  /** Get the current network ID */
+  getNetworkId: () => string | null;
   /** Change the active path index */
   changePathIndex: (targetIndex: number) => Promise<void>;
   /** Add a new account */
@@ -933,6 +937,17 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     [networkId, pathIndex, activeAccount]
   );
 
+  const switchNetwork = useCallback(
+    async (targetNetworkId: string): Promise<void> => {
+      await changeNetwork(targetNetworkId);
+    },
+    [changeNetwork]
+  );
+
+  const getNetworkId = useCallback((): string | null => {
+    return networkId;
+  }, [networkId]);
+
   const changePathIndex = useCallback(
     async (targetIndex: number): Promise<void> => {
       if (pathIndex === targetIndex || !activeAccount || !networkId) return;
@@ -1174,6 +1189,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     unlockAccounts,
     changeAccount,
     changeNetwork,
+    switchNetwork,
+    getNetworkId,
     changePathIndex,
     addAccount,
     editAccount,

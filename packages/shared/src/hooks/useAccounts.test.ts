@@ -97,17 +97,35 @@ function createMockAccount(): Account {
 // ============================================================================
 
 describe('useAccounts Hook', () => {
+  // Track stashed values to simulate real stash behavior
+  let stashStore: Record<string, any> = {};
+
   beforeEach(() => {
     vi.resetAllMocks();
+    stashStore = {};
+
     // Default mock implementations
     (storage.getStorageItem as any).mockResolvedValue(null);
-    (storage.getStashItem as any).mockResolvedValue(null);
     (createSolanaAccount as any).mockResolvedValue(mockSolanaAccount);
     (storage.updateLastActivity as any).mockResolvedValue(undefined);
+
+    // Stateful stash mocks - getStashItem returns what setStashItem stored
+    (storage.setStashItem as any).mockImplementation((key: string, value: any) => {
+      stashStore[key] = value;
+      return Promise.resolve();
+    });
+    (storage.getStashItem as any).mockImplementation((key: string) => {
+      return Promise.resolve(stashStore[key] ?? null);
+    });
+    (storage.removeStashItem as any).mockImplementation((key: string) => {
+      delete stashStore[key];
+      return Promise.resolve();
+    });
   });
 
   afterEach(() => {
     vi.resetAllMocks();
+    stashStore = {};
   });
 
   describe('Initialization', () => {
