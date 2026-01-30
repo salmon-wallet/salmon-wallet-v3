@@ -52,3 +52,12 @@ export {
 
 // Services exports
 export * from './services';
+
+// Cache exports
+export {
+  CACHE_TYPES,
+  type CacheType,
+  cache,
+  invalidate,
+  clearAllCache,
+} from './cache';
