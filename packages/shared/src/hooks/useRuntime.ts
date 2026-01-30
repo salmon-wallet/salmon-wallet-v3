@@ -1,0 +1,125 @@
+/**
+ * @fileoverview Platform-agnostic runtime hook with automatic environment detection.
+ *
+ * This module provides a unified interface for runtime context across all platforms:
+ * - Web browsers
+ * - Browser extensions (WXT/Chrome/Firefox)
+ * - React Native / Expo mobile apps
+ *
+ * The hook automatically detects the runtime environment and provides
+ * appropriate adapter detection logic for each platform.
+ *
+ * @example
+ * ```tsx
+ * // Direct import - will use the correct implementation based on bundler config
+ * import { useRuntime } from '@salmon/shared/hooks';
+ *
+ * // Or use platform-specific imports if needed:
+ * import useRuntime from '@salmon/shared/hooks/useRuntime.web';  // Web/Extension
+ * import useRuntime from '@salmon/shared/hooks/useRuntime.native'; // React Native
+ * ```
+ */
+
+import { useMemo } from 'react';
+import type { RuntimeInfo } from './types';
+
+/**
+ * Detects if running in a React Native environment.
+ */
+const isReactNative = (): boolean => {
+  return (
+    typeof navigator !== 'undefined' &&
+    navigator.product === 'ReactNative'
+  );
+};
+
+/**
+ * Checks if the current environment is a browser extension.
+ */
+const isExtension = (): boolean => {
+  if (typeof window === 'undefined') return false;
+
+  // Check for Chrome extension APIs
+  if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
+    return true;
+  }
+
+  // Check for browser extension APIs (Firefox, etc.)
+  if (typeof browser !== 'undefined' && (browser as typeof chrome)?.runtime?.id) {
+    return true;
+  }
+
+  return false;
+};
+
+/**
+ * Web implementation of useRuntime.
+ * Synchronously resolves context from URL hash.
+ */
+const useRuntimeWeb = (): RuntimeInfo => {
+  const context = useMemo(
+    () => new URLSearchParams(window.location.hash.slice(1)),
+    []
+  );
+
+  const opener = useMemo(() => window.opener as Window | null, []);
+
+  const isAdapter = useMemo(
+    () => context.has('origin') && (isExtension() || !!opener),
+    [context, opener]
+  );
+
+  return {
+    ready: true,
+    context,
+    opener,
+    isAdapter,
+  };
+};
+
+/**
+ * Runtime hook for detecting adapter mode and connection context.
+ *
+ * This is the base implementation for web environments. For React Native,
+ * use the platform-specific import or configure your bundler to resolve
+ * `.native.ts` extensions automatically.
+ *
+ * @returns RuntimeInfo object containing:
+ *   - `ready`: Whether the runtime is initialized
+ *   - `context`: URL parameters for the connection
+ *   - `opener`: Reference to window.opener (web only)
+ *   - `isAdapter`: Whether running in adapter/dApp connection mode
+ *
+ * @example
+ * ```tsx
+ * function WalletConnect() {
+ *   const { ready, isAdapter, context } = useRuntime();
+ *
+ *   useEffect(() => {
+ *     if (ready && isAdapter) {
+ *       const origin = context.get('origin');
+ *       console.log('Connected from dApp:', origin);
+ *     }
+ *   }, [ready, isAdapter, context]);
+ *
+ *   if (!ready) return <Loading />;
+ *   return <WalletUI />;
+ * }
+ * ```
+ */
+const useRuntime = (): RuntimeInfo => {
+  // In environments where React Native is detected at runtime,
+  // we need to throw an error since the async behavior is different.
+  // The bundler should resolve to .native.ts for RN environments.
+  if (isReactNative()) {
+    throw new Error(
+      'useRuntime: Detected React Native environment but using web implementation. ' +
+      'Configure your bundler to resolve .native.ts extensions, or import from ' +
+      "'@salmon/shared/hooks/useRuntime.native' directly."
+    );
+  }
+
+  return useRuntimeWeb();
+};
+
+export default useRuntime;
