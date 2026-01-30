@@ -1,4 +1,5 @@
 import { SolanaProvider } from '@/lib/SolanaProvider';
+import { initialize } from 'salmon-wallet-standard';
 
 /**
  * Injected script that runs in the context of web pages.
@@ -9,10 +10,8 @@ export default defineUnlistedScript(() => {
   // Create the Solana provider instance
   const salmon = new SolanaProvider();
 
-  // Initialize wallet-standard support
-  // Note: Uncomment when salmon-wallet-standard package is available
-  // import { initialize } from 'salmon-wallet-standard';
-  // initialize(salmon);
+  // Initialize wallet-standard support for dApp discovery
+  initialize(salmon);
 
   // Expose the provider on the window object
   try {

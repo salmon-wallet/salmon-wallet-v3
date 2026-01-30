@@ -8,11 +8,17 @@ export default defineConfig({
     name: 'Salmon Wallet',
     description: 'Your all-in-one & open-source wallet for the crypto space.',
     version: '1.0.0',
-    permissions: ['storage', 'alarms', 'tabs'],
+    icons: {
+      16: 'icon.png',
+      48: 'icon.png',
+      128: 'icon-192.png',
+      512: 'icon-512.png',
+    },
+    permissions: ['storage', 'alarms', 'tabs', 'scripting'],
     web_accessible_resources: [
       {
         resources: ['injected.js'],
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        matches: ['<all_urls>'],
       },
     ],
     content_security_policy: {
