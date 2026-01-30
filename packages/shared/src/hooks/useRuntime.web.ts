@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 import type { RuntimeInfo } from './types';
 
+// Type declarations for browser extension global APIs
+// These are only available in extension contexts
+declare const chrome: { runtime?: { id?: string } } | undefined;
+declare const browser: { runtime?: { id?: string } } | undefined;
+
 /**
  * Checks if the current environment is a browser extension.
  * This is used to determine adapter mode on web platforms.

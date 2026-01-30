@@ -335,7 +335,7 @@ export class BitcoinAccount {
    */
   static getAddressType(
     address: string,
-    network: bitcoin.Network = bitcoin.networks.bitcoin
+    _network: bitcoin.Network = bitcoin.networks.bitcoin
   ): 'p2pkh' | 'p2sh' | 'p2wpkh' | 'p2wsh' | 'p2tr' | null {
     try {
       // Legacy P2PKH addresses start with 1 (mainnet) or m/n (testnet)

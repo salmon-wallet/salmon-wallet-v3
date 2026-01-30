@@ -177,7 +177,7 @@ async function validateAddress(
       ...VALID_ACCOUNT,
       balance,
     };
-  } catch (error) {
+  } catch {
     // If we can't get balance, return no_info as a warning
     return NO_INFO;
   }
@@ -205,7 +205,7 @@ async function validateDomain(
     }
 
     return INVALID_DOMAIN;
-  } catch (error) {
+  } catch {
     return INVALID_DOMAIN;
   }
 }

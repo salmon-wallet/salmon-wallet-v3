@@ -30,7 +30,6 @@ import {
 } from '@solana/web3.js';
 import {
   TOKEN_2022_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
   createTransferInstruction,
   createTransferCheckedWithFeeInstruction,
   getMemoTransfer,
@@ -42,7 +41,6 @@ import {
   ExtensionType,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
-  Mint,
 } from '@solana/spl-token';
 import { createMemoInstruction } from '@solana/spl-memo';
 

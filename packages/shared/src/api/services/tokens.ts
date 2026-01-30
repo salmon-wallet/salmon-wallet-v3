@@ -44,7 +44,7 @@ export interface TokenMetadata {
   /** CoinGecko ID for price lookups */
   coingeckoId?: string | null;
   /** Token tags for categorization */
-  tags: string[];
+  tags?: string[];
 }
 
 /**
@@ -71,13 +71,14 @@ interface JupiterToken {
 
 /**
  * Raw token data from backend API
+ * Note: address is optional because some APIs use 'id' field instead
  */
 interface BackendToken {
   symbol: string;
   name: string;
   decimals: number;
   logo?: string;
-  address: string;
+  address?: string;
   chainId?: number;
   coingeckoId?: string;
   tags?: string[];
@@ -155,8 +156,9 @@ const IPFS_GATEWAYS = [
 
 /**
  * Normalize IPFS/Arweave URLs to use reliable gateways
+ * @internal - Exported for testing
  */
-function normalizeIpfsUrl(url: string | undefined | null): string | null {
+export function normalizeIpfsUrl(url: string | undefined | null): string | null {
   if (!url) return null;
 
   // Handle IPFS protocol URLs
@@ -232,8 +234,9 @@ async function retrieveTokenList(
 
 /**
  * Normalize backend token data to common format
+ * @internal - Exported for testing
  */
-function normalizeBackendTokens(tokens: BackendToken[]): TokenMetadata[] {
+export function normalizeBackendTokens(tokens: BackendToken[]): TokenMetadata[] {
   return tokens.map((token) => ({
     symbol: token.symbol,
     name: token.name,
@@ -248,8 +251,9 @@ function normalizeBackendTokens(tokens: BackendToken[]): TokenMetadata[] {
 
 /**
  * Normalize Jupiter/CDN token data to common format
+ * @internal - Exported for testing
  */
-function normalizeJupiterTokens(tokens: JupiterToken[]): TokenMetadata[] {
+export function normalizeJupiterTokens(tokens: JupiterToken[]): TokenMetadata[] {
   return tokens.map((token) => ({
     symbol: token.symbol,
     name: token.name,
@@ -291,11 +295,13 @@ export async function getTokenList(
     const existing = seenSymbols.get(key);
 
     // Priority: verified > community > unknown
-    const isVerified = token.tags.includes('verified') || token.tags.includes('strict');
-    const isCommunity = token.tags.includes('community');
+    const tokenTags = token.tags ?? [];
+    const existingTags = existing?.tags ?? [];
+    const isVerified = tokenTags.includes('verified') || tokenTags.includes('strict');
+    const isCommunity = tokenTags.includes('community');
     const existingIsVerified =
-      existing?.tags.includes('verified') || existing?.tags.includes('strict');
-    const existingIsCommunity = existing?.tags.includes('community');
+      existingTags.includes('verified') || existingTags.includes('strict');
+    const existingIsCommunity = existingTags.includes('community');
 
     if (!existing) {
       seenSymbols.set(key, token);
@@ -440,7 +446,7 @@ export async function getVerifiedTokens(
   try {
     const { data } = await apiClient.get<BackendToken[]>(`/v1/${networkId}/ft/verified`);
     return normalizeBackendTokens(data);
-  } catch (error) {
+  } catch {
     console.warn('[TokenService] Verified tokens endpoint unavailable, using fallback...');
 
     // Fallback: use featured tokens

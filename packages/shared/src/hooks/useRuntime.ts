@@ -35,18 +35,24 @@ const isReactNative = (): boolean => {
 
 /**
  * Checks if the current environment is a browser extension.
+ * Uses dynamic property access to avoid type conflicts with WXT's auto-generated types.
  */
 const isExtension = (): boolean => {
   if (typeof window === 'undefined') return false;
 
+  // Use dynamic property access to check for Chrome extension APIs
+  // This avoids type conflicts with WXT's browser global type declarations
+  const globalObj = globalThis as Record<string, unknown>;
+
   // Check for Chrome extension APIs
-  if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
+  const chromeObj = globalObj['chrome'] as { runtime?: { id?: string } } | undefined;
+  if (chromeObj?.runtime?.id) {
     return true;
   }
 
   // Check for browser extension APIs (Firefox, etc.)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (typeof browser !== 'undefined' && (browser as any)?.runtime?.id) {
+  const browserObj = globalObj['browser'] as { runtime?: { id?: string } } | undefined;
+  if (browserObj?.runtime?.id) {
     return true;
   }
 

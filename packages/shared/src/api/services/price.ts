@@ -20,6 +20,7 @@ import { apiClient, staticApiClient, ApiError } from '../client';
 
 /**
  * Token price data from the backend
+ * Note: Many fields are optional as not all price sources provide full data
  */
 export interface TokenPrice {
   /** Token identifier (coingecko ID or address) */
@@ -30,46 +31,46 @@ export interface TokenPrice {
   name: string;
   /** Current price in USD */
   current_price: number;
-  /** Market capitalization in USD */
-  market_cap: number;
-  /** Market cap rank */
-  market_cap_rank: number | null;
-  /** Fully diluted valuation */
-  fully_diluted_valuation: number | null;
-  /** 24h trading volume */
-  total_volume: number;
-  /** 24h high price */
-  high_24h: number;
-  /** 24h low price */
-  low_24h: number;
-  /** 24h price change in USD */
-  price_change_24h: number;
   /** 24h price change percentage */
   price_change_percentage_24h: number;
+  /** Market capitalization in USD */
+  market_cap?: number;
+  /** Market cap rank */
+  market_cap_rank?: number | null;
+  /** Fully diluted valuation */
+  fully_diluted_valuation?: number | null;
+  /** 24h trading volume */
+  total_volume?: number;
+  /** 24h high price */
+  high_24h?: number;
+  /** 24h low price */
+  low_24h?: number;
+  /** 24h price change in USD */
+  price_change_24h?: number;
   /** Market cap change in 24h */
-  market_cap_change_24h: number;
+  market_cap_change_24h?: number;
   /** Market cap change percentage in 24h */
-  market_cap_change_percentage_24h: number;
+  market_cap_change_percentage_24h?: number;
   /** Circulating supply */
-  circulating_supply: number;
+  circulating_supply?: number;
   /** Total supply */
-  total_supply: number | null;
+  total_supply?: number | null;
   /** Maximum supply */
-  max_supply: number | null;
+  max_supply?: number | null;
   /** All-time high price */
-  ath: number;
+  ath?: number;
   /** All-time high change percentage */
-  ath_change_percentage: number;
+  ath_change_percentage?: number;
   /** All-time high date */
-  ath_date: string;
+  ath_date?: string;
   /** All-time low price */
-  atl: number;
+  atl?: number;
   /** All-time low change percentage */
-  atl_change_percentage: number;
+  atl_change_percentage?: number;
   /** All-time low date */
-  atl_date: string;
+  atl_date?: string;
   /** Last updated timestamp */
-  last_updated: string;
+  last_updated?: string;
   /** Token image URL */
   image?: string;
 }

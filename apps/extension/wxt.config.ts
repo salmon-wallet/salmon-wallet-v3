@@ -1,8 +1,18 @@
 import { defineConfig } from 'wxt';
+import path from 'path';
 
 export default defineConfig({
   srcDir: 'src',
   outDir: 'dist',
+
+  vite: () => ({
+    resolve: {
+      alias: {
+        // Mock react-native modules for web extension build
+        'react-native-fast-crypto': path.resolve(__dirname, 'src/stubs/react-native-fast-crypto.ts'),
+      },
+    },
+  }),
 
   manifest: {
     // Use i18n message placeholders for name and description

@@ -13,8 +13,12 @@
  * - Computes 24h price changes
  */
 
-import { getTokenMetadataByMints, TokenMetadata } from './tokens';
-import { getPricesByPlatform, TokenPrice } from './price';
+import { getTokenMetadataByMints, type TokenMetadata } from './tokens';
+import { getPricesByPlatform, type TokenPrice } from './price';
+
+// Re-export types used by decorators for use in tests
+export type { TokenMetadata } from './tokens';
+export type { TokenPrice } from './price';
 
 // ============================================================================
 // Types

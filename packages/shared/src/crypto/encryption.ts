@@ -1,8 +1,10 @@
 import { randomBytes, secretbox } from 'tweetnacl';
 import bs58 from 'bs58';
-// @ts-ignore - react-native-fast-crypto may not have types
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - react-native-fast-crypto types are declared in types/crypto-modules.d.ts
 import { pbkdf2 } from 'react-native-fast-crypto';
-// @ts-ignore - crypto-js types are handled separately
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - crypto-js types are declared in types/crypto-modules.d.ts
 import CryptoJS from 'crypto-js';
 
 // ============================================================================
@@ -145,7 +147,7 @@ export async function deriveEncryptionKey(
     // If native fails, try fallback
     try {
       return deriveFallback(password, salt, iterations, digest);
-    } catch (fallbackError) {
+    } catch {
       throw new KeyDerivationError(
         `Key derivation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       );

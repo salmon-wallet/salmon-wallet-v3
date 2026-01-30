@@ -223,7 +223,6 @@ export async function estimateTransferFee(
     if (!opts.tokenId) {
       throw new Error('tokenId is required for ERC721 transfers');
     }
-    const contract = new Contract(token.address, ERC721_ABI, provider);
     const iface = new Interface(ERC721_ABI);
     const data = iface.encodeFunctionData('safeTransferFrom(address,address,uint256)', [
       ETH_ADDRESS, // Placeholder, will be replaced with actual from address
