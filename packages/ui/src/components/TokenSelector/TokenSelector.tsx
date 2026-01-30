@@ -1,0 +1,221 @@
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from 'react-native';
+import { useTranslation } from 'react-i18next';
+
+import { TokenSelectorModal } from './TokenSelectorModal';
+import type { TokenSelectorToken, TokenSelectorProps } from './types';
+
+/**
+ * Get a short address for display
+ */
+const getShortAddress = (address: string | undefined): string => {
+  if (!address) return '';
+  if (address.length <= 10) return address;
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+};
+
+/**
+ * TokenSelector component for selecting tokens and entering amounts
+ *
+ * Combines an input field for amount entry with a token selector button.
+ * Opens a modal with search and pagination for token selection.
+ *
+ * @example
+ * ```tsx
+ * <TokenSelector
+ *   value={amount}
+ *   onChangeValue={setAmount}
+ *   tokens={userTokens}
+ *   featuredTokens={[solToken, usdcToken]}
+ *   selectedToken={selectedToken}
+ *   onTokenSelect={handleTokenSelect}
+ *   onSearch={searchTokens}
+ *   placeholder="0.00"
+ * />
+ * ```
+ */
+export function TokenSelector({
+  value,
+  onChangeValue,
+  tokens,
+  featuredTokens,
+  onTokenSelect,
+  selectedToken,
+  onSearch,
+  placeholder = '0.00',
+  hiddenBalance = false,
+  showNetworkChip = false,
+  showVerifiedDisclaimer = false,
+  disabled = false,
+}: TokenSelectorProps): React.ReactElement {
+  const { t } = useTranslation();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleOpenModal = useCallback(() => {
+    if (!disabled) {
+      setModalVisible(true);
+    }
+  }, [disabled]);
+
+  const handleCloseModal = useCallback(() => {
+    setModalVisible(false);
+  }, []);
+
+  const handleTokenSelect = useCallback(
+    (token: TokenSelectorToken) => {
+      onTokenSelect(token);
+      setModalVisible(false);
+    },
+    [onTokenSelect]
+  );
+
+  const handleChangeText = useCallback(
+    (text: string) => {
+      // Allow only valid numeric input
+      const sanitized = text.replace(/[^0-9.]/g, '');
+      // Prevent multiple decimal points
+      const parts = sanitized.split('.');
+      const formatted = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : sanitized;
+      onChangeValue(formatted);
+    },
+    [onChangeValue]
+  );
+
+  const tokenName = selectedToken?.name || selectedToken?.symbol || t('wallet.select_token', 'Select');
+  const tokenSymbol = selectedToken?.symbol;
+  const tokenLogo = selectedToken?.logo;
+  const tokenAddress = selectedToken?.mint || selectedToken?.address;
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={handleChangeText}
+          placeholder={placeholder}
+          placeholderTextColor="#666"
+          keyboardType="decimal-pad"
+          editable={!disabled}
+        />
+      </View>
+
+      <TouchableOpacity
+        style={[styles.selectorButton, disabled && styles.selectorButtonDisabled]}
+        onPress={handleOpenModal}
+        activeOpacity={0.7}
+        disabled={disabled}
+      >
+        {tokenLogo ? (
+          <Image source={{ uri: tokenLogo }} style={styles.tokenIcon} />
+        ) : (
+          <View style={[styles.tokenIcon, styles.tokenIconPlaceholder]} />
+        )}
+        <View style={styles.tokenTextContainer}>
+          <TextInput
+            style={styles.tokenName}
+            value={tokenName}
+            editable={false}
+            numberOfLines={1}
+          />
+          {tokenSymbol && tokenAddress && (
+            <TextInput
+              style={styles.tokenAddress}
+              value={getShortAddress(tokenAddress)}
+              editable={false}
+              numberOfLines={1}
+            />
+          )}
+        </View>
+        <View style={styles.chevron}>
+          <TextInput style={styles.chevronIcon} value=">" editable={false} />
+        </View>
+      </TouchableOpacity>
+
+      <TokenSelectorModal
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        tokens={tokens}
+        featuredTokens={featuredTokens}
+        onSelect={handleTokenSelect}
+        onSearch={onSearch}
+        hiddenBalance={hiddenBalance}
+        showNetworkChip={showNetworkChip}
+        showVerifiedDisclaimer={showVerifiedDisclaimer}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a1a2e',
+    borderRadius: 16,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#2a2a4e',
+  },
+  inputContainer: {
+    flex: 1,
+    marginRight: 8,
+  },
+  input: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  selectorButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2a2a4e',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minWidth: 120,
+  },
+  selectorButtonDisabled: {
+    opacity: 0.5,
+  },
+  tokenIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  tokenIconPlaceholder: {
+    backgroundColor: '#3a3a5e',
+  },
+  tokenTextContainer: {
+    flex: 1,
+  },
+  tokenName: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
+    padding: 0,
+  },
+  tokenAddress: {
+    color: '#999',
+    fontSize: 11,
+    marginTop: 1,
+    padding: 0,
+  },
+  chevron: {
+    marginLeft: 4,
+  },
+  chevronIcon: {
+    color: '#999',
+    fontSize: 14,
+    padding: 0,
+  },
+});
