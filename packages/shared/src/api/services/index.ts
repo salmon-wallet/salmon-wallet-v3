@@ -168,3 +168,57 @@ export {
   getSwapOrder,
   executeSwapApi,
 } from './solana';
+
+// ============================================================================
+// DApp Service
+// ============================================================================
+
+export {
+  // Types
+  type DappMetadata,
+  type GetMetadataParams,
+  // Functions
+  getMetadata as getDappMetadata,
+} from './dapp';
+
+// ============================================================================
+// Switch Service (Feature Flags)
+// ============================================================================
+
+export {
+  // Types
+  type Switch,
+  type SwitchesResponse,
+  type SwitchMap,
+  // Functions
+  getSwitches,
+  getSwitch,
+  isSwitchEnabled,
+  getSwitchMap,
+  getEnabledSwitches,
+  clearSwitchesCache,
+} from './switch';
+
+// ============================================================================
+// Bridge Service
+// ============================================================================
+
+export {
+  // Types
+  type BridgeToken,
+  type BridgeAvailableToken,
+  type BridgeFeaturedToken,
+  type BridgeEstimateResponse,
+  type BridgeMinimalResponse,
+  type BridgeExchange,
+  type BridgeTransaction,
+  type BridgeTransactionStatus,
+  // Functions
+  getBridgeSupportedTokens,
+  getBridgeAvailableTokens,
+  getBridgeFeaturedTokens,
+  getBridgeEstimatedAmount,
+  getBridgeMinimalAmount,
+  createBridgeExchange,
+  getBridgeTransaction,
+} from './bridge';
