@@ -65,3 +65,13 @@ export { ADAPTER_PREFIXES } from './types';
 // Language management hook
 export { useLanguage, default as useLanguageDefault } from './useLanguage';
 export type { UseLanguageResult } from './useLanguage';
+
+// Inactivity timeout hook
+export {
+  useInactivityTimeout,
+  default as useInactivityTimeoutDefault,
+} from './useInactivityTimeout';
+export type {
+  UseInactivityTimeoutOptions,
+  UseInactivityTimeoutResult,
+} from './useInactivityTimeout';
