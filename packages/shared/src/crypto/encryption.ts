@@ -1,6 +1,8 @@
 import { randomBytes, secretbox } from 'tweetnacl';
 import bs58 from 'bs58';
+// @ts-ignore - react-native-fast-crypto may not have types
 import { pbkdf2 } from 'react-native-fast-crypto';
+// @ts-ignore - crypto-js types are handled separately
 import CryptoJS from 'crypto-js';
 
 // ============================================================================

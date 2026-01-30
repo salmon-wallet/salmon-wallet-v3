@@ -52,10 +52,10 @@ function getEnvVar(name: string): string | undefined {
   }
 
   // For Vite environments, check import.meta.env
-  // @ts-expect-error - import.meta.env may not exist in all environments
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    // @ts-expect-error - import.meta.env may not exist in all environments
-    return import.meta.env[viteKey] || import.meta.env[name];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const meta = (typeof import.meta !== 'undefined' ? import.meta : undefined) as any;
+  if (meta?.env) {
+    return meta.env[viteKey] || meta.env[name];
   }
 
   return undefined;

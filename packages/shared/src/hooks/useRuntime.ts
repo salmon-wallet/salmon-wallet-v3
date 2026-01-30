@@ -45,7 +45,8 @@ const isExtension = (): boolean => {
   }
 
   // Check for browser extension APIs (Firefox, etc.)
-  if (typeof browser !== 'undefined' && (browser as typeof chrome)?.runtime?.id) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (typeof browser !== 'undefined' && (browser as any)?.runtime?.id) {
     return true;
   }
 
