@@ -1,0 +1,163 @@
+/**
+ * URL Utilities
+ * Migrated from salmon-wallet-v2/src/adapter/lib/url-utils.js
+ *
+ * Provides URL normalization for decentralized storage protocols:
+ * - IPFS (ipfs://)
+ * - Arweave (ar://)
+ * - Various IPFS gateways (broken or private)
+ */
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+/**
+ * List of known dead/problematic domains that should be skipped entirely
+ */
+export const DEAD_DOMAINS = [
+  'shdw-drive.genesysgo.net',
+  'chexbacca.com',
+  'cdn.bridgesplit.com',
+];
+
+/**
+ * Patterns for broken/unreliable IPFS gateways that should be redirected
+ */
+const BROKEN_GATEWAY_PATTERNS = [
+  /https?:\/\/(?:www\.)?cf-ipfs\.com\/ipfs\/(.+)/,
+  /https?:\/\/(?:www\.)?cloudflare-ipfs\.com\/ipfs\/(.+)/,
+  /https?:\/\/(?:www\.)?ipfs\.infura\.io\/ipfs\/(.+)/,
+  /https?:\/\/gateway\.pinata\.cloud\/ipfs\/(.+)/,
+  /https?:\/\/(?:www\.)?nftstorage\.link\/ipfs\/(.+)/,
+];
+
+/**
+ * Pattern for private Pinata gateways (*.mypinata.cloud)
+ */
+const PINATA_PRIVATE_PATTERN = /https?:\/\/[^/]+\.mypinata\.cloud\/ipfs\/(.+)/;
+
+/**
+ * Pattern for subdomain-style IPFS URLs
+ * e.g., QmXXX.ipfs.nftstorage.link, QmXXX.ipfs.dweb.link, QmXXX.ipfs.cf-ipfs.com
+ */
+const SUBDOMAIN_IPFS_PATTERN = /https?:\/\/([a-zA-Z0-9]+)\.ipfs\.([^/]+)\/?(.*)$/;
+
+/**
+ * Default IPFS gateway for normalized URLs
+ */
+const DEFAULT_IPFS_GATEWAY = 'https://ipfs.io/ipfs/';
+
+/**
+ * Default Arweave gateway for normalized URLs
+ */
+const DEFAULT_ARWEAVE_GATEWAY = 'https://arweave.net/';
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Cleans an IPFS hash by removing query parameters and URL fragments
+ * @param hash - The IPFS hash to clean
+ * @returns Cleaned hash
+ */
+function cleanIpfsHash(hash: string): string {
+  if (!hash) return hash;
+  return hash.split('?')[0].split('#')[0];
+}
+
+/**
+ * Check if URL contains a known dead domain
+ * @param url - URL to check
+ * @returns True if URL contains a dead domain
+ */
+function isDeadDomain(url: string): boolean {
+  return DEAD_DOMAINS.some((domain) => url.includes(domain));
+}
+
+// ============================================================================
+// Main Function
+// ============================================================================
+
+/**
+ * Normalizes IPFS, Arweave, and other decentralized storage URLs to reliable HTTP gateways.
+ * Combines functionality from fixIPFSUrl (token service) and normalizeIpfsUrl (NFT service).
+ *
+ * Handles:
+ * - ipfs:// protocol URLs
+ * - ar:// protocol URLs (Arweave)
+ * - Common typos (e.g., arweeve.net -> arweave.net)
+ * - Private Pinata gateways (*.mypinata.cloud)
+ * - Broken/unreliable IPFS gateways
+ * - Subdomain-style IPFS URLs
+ * - Known dead domains (returns null)
+ *
+ * @param url - The URL to normalize
+ * @returns Normalized HTTP URL, original URL if no transformation needed, or null for dead domains
+ *
+ * @example
+ * // IPFS protocol
+ * normalizeIpfsUrl('ipfs://QmXXX') // 'https://ipfs.io/ipfs/QmXXX'
+ *
+ * // Arweave protocol
+ * normalizeIpfsUrl('ar://xxx') // 'https://arweave.net/xxx'
+ *
+ * // Broken gateway
+ * normalizeIpfsUrl('https://cf-ipfs.com/ipfs/QmXXX') // 'https://ipfs.io/ipfs/QmXXX'
+ *
+ * // Dead domain
+ * normalizeIpfsUrl('https://shdw-drive.genesysgo.net/xxx') // null
+ */
+export function normalizeIpfsUrl(url: string | undefined | null): string | null {
+  if (!url) return null;
+
+  // Check for known dead domains - return null to skip these entirely
+  if (isDeadDomain(url)) {
+    return null;
+  }
+
+  // Handle ipfs:// protocol
+  if (url.startsWith('ipfs://')) {
+    const hash = url.replace(/^ipfs:\/\//, '');
+    return `${DEFAULT_IPFS_GATEWAY}${hash}`;
+  }
+
+  // Handle ar:// protocol (Arweave)
+  if (url.startsWith('ar://')) {
+    const hash = url.replace(/^ar:\/\//, '');
+    return `${DEFAULT_ARWEAVE_GATEWAY}${hash}`;
+  }
+
+  // Fix common typo: arweeve.net -> arweave.net
+  if (url.includes('arweeve.net')) {
+    return url.replace('arweeve.net', 'arweave.net');
+  }
+
+  // Handle private Pinata gateways (*.mypinata.cloud)
+  const pinataMatch = url.match(PINATA_PRIVATE_PATTERN);
+  if (pinataMatch) {
+    const hash = cleanIpfsHash(pinataMatch[1]);
+    return `${DEFAULT_IPFS_GATEWAY}${hash}`;
+  }
+
+  // Handle broken/unreliable IPFS gateways - redirect to ipfs.io
+  for (const pattern of BROKEN_GATEWAY_PATTERNS) {
+    const match = url.match(pattern);
+    if (match) {
+      const hash = cleanIpfsHash(match[1]);
+      return `${DEFAULT_IPFS_GATEWAY}${hash}`;
+    }
+  }
+
+  // Handle subdomain-style IPFS URLs
+  const subdomainMatch = url.match(SUBDOMAIN_IPFS_PATTERN);
+  if (subdomainMatch) {
+    const hash = subdomainMatch[1];
+    const path = subdomainMatch[3] ? `/${subdomainMatch[3]}` : '';
+    const cleanPath = path.split('?')[0].split('#')[0]; // Remove query params and fragments
+    return `${DEFAULT_IPFS_GATEWAY}${hash}${cleanPath}`;
+  }
+
+  return url;
+}
