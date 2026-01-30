@@ -75,3 +75,14 @@ export type {
   UseInactivityTimeoutOptions,
   UseInactivityTimeoutResult,
 } from './useInactivityTimeout';
+
+// Available networks hook
+export {
+  useAvailableNetworks,
+  default as useAvailableNetworksDefault,
+} from './useAvailableNetworks';
+export type {
+  AnyNetwork,
+  NetworksByBlockchain,
+  UseAvailableNetworksResult,
+} from './useAvailableNetworks';

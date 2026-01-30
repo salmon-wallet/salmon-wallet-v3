@@ -343,9 +343,9 @@ describe('isTransferTransaction', () => {
     expect(isTransferTransaction(MOCK_TRANSFER_TX)).toBe(true);
   });
 
-  it('should return true for transactions with native transfers', () => {
-    const tx = { ...MOCK_SWAP_TX, type: 'UNKNOWN' as const };
-    expect(isTransferTransaction(tx)).toBe(false); // No native transfers in swap tx
+  it('should return false for transactions without any transfers', () => {
+    const tx = { ...MOCK_SWAP_TX, type: 'UNKNOWN' as const, nativeTransfers: [], tokenTransfers: [] };
+    expect(isTransferTransaction(tx)).toBe(false); // No native or token transfers
   });
 
   it('should return true for transactions with token transfers', () => {
@@ -499,12 +499,21 @@ describe('getNetSolAmount', () => {
 });
 
 describe('getUserTokenTransfers', () => {
-  it('should return token transfers involving user as sender', () => {
+  it('should return all token transfers involving user (as sender or receiver)', () => {
     const transfers = getUserTokenTransfers(MOCK_SWAP_TX, TEST_ADDRESS);
 
-    expect(transfers).toHaveLength(1);
-    expect(transfers[0].fromAddress).toBe(TEST_ADDRESS);
-    expect(transfers[0].symbol).toBe('SOL');
+    // MOCK_SWAP_TX has 2 transfers involving TEST_ADDRESS:
+    // 1. TEST_ADDRESS sends SOL to JupiterProgram
+    // 2. JupiterProgram sends USDC to TEST_ADDRESS
+    expect(transfers).toHaveLength(2);
+
+    const sentTransfer = transfers.find(t => t.fromAddress === TEST_ADDRESS);
+    const receivedTransfer = transfers.find(t => t.toAddress === TEST_ADDRESS);
+
+    expect(sentTransfer).toBeDefined();
+    expect(sentTransfer?.symbol).toBe('SOL');
+    expect(receivedTransfer).toBeDefined();
+    expect(receivedTransfer?.symbol).toBe('USDC');
   });
 
   it('should return token transfers involving user as receiver', () => {

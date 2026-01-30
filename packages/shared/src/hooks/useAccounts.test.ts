@@ -1,4 +1,5 @@
 /**
+ * @vitest-environment jsdom
  * Tests for useAccounts hook
  */
 
@@ -97,7 +98,7 @@ function createMockAccount(): Account {
 
 describe('useAccounts Hook', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     // Default mock implementations
     (storage.getStorageItem as any).mockResolvedValue(null);
     (storage.getStashItem as any).mockResolvedValue(null);
@@ -106,7 +107,7 @@ describe('useAccounts Hook', () => {
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('Initialization', () => {
@@ -201,7 +202,11 @@ describe('useAccounts Hook', () => {
         ciphertext: 'encrypted-data',
       };
 
-      (storage.getStorageItem as any).mockResolvedValue(encryptedData);
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
+        if (key === 'salmon_wallets') return Promise.resolve(null);
+        return Promise.resolve(null);
+      });
       (encryption.unlock as any).mockResolvedValue({ test: 'mnemonic' });
 
       const { result } = renderHook(() => useAccounts());
@@ -221,7 +226,11 @@ describe('useAccounts Hook', () => {
     });
 
     it('should return true for checkPassword when no encryption', async () => {
-      (storage.getStorageItem as any).mockResolvedValue({ test: 'plain-mnemonic' });
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_mnemonics') return Promise.resolve({ test: 'plain-mnemonic' });
+        if (key === 'salmon_wallets') return Promise.resolve(null);
+        return Promise.resolve(null);
+      });
 
       const { result } = renderHook(() => useAccounts());
 
@@ -272,6 +281,7 @@ describe('useAccounts Hook', () => {
           avatar: mockAccount.avatar,
           pathIndexes: mockAccount.pathIndexes,
         }]);
+        if (key === 'salmon_wallets') return Promise.resolve(null);
         return Promise.resolve(null);
       });
 
@@ -290,8 +300,10 @@ describe('useAccounts Hook', () => {
         expect(success).toBe(true);
       });
 
-      const [state] = result.current;
-      expect(state.locked).toBe(false);
+      await waitFor(() => {
+        expect(result.current[0].locked).toBe(false);
+      });
+
       expect(storage.setStashItem).toHaveBeenCalledWith('password', MOCK_PASSWORD);
     });
 
@@ -303,7 +315,11 @@ describe('useAccounts Hook', () => {
         ciphertext: 'encrypted-data',
       };
 
-      (storage.getStorageItem as any).mockResolvedValue(encryptedData);
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
+        if (key === 'salmon_wallets') return Promise.resolve(null);
+        return Promise.resolve(null);
+      });
       (encryption.unlock as any).mockRejectedValue(new Error('Decryption failed'));
 
       const { result } = renderHook(() => useAccounts());
@@ -663,6 +679,119 @@ describe('useAccounts Hook', () => {
       const [state] = result.current;
       expect(state.pathIndex).toBe(1);
       expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_path_index', 1);
+    });
+  });
+
+  describe('switchNetwork', () => {
+    it('should switch to a valid network and persist to storage', async () => {
+      const mockAccount = createMockAccount();
+      mockAccount.networksAccounts['devnet'] = [mockSolanaAccount as any];
+      mockAccount.pathIndexes['devnet'] = [0];
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_accounts') return Promise.resolve([{
+          id: mockAccount.id,
+          name: mockAccount.name,
+          avatar: mockAccount.avatar,
+          pathIndexes: mockAccount.pathIndexes,
+        }]);
+        if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
+        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        return Promise.resolve(null);
+      });
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      const [, actions] = result.current;
+
+      await act(async () => {
+        await actions.switchNetwork('devnet');
+      });
+
+      const [state] = result.current;
+      expect(state.networkId).toBe('devnet');
+      expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_network_id', 'devnet');
+    });
+
+    it('should handle switching to an invalid network gracefully', async () => {
+      const mockAccount = createMockAccount();
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_accounts') return Promise.resolve([{
+          id: mockAccount.id,
+          name: mockAccount.name,
+          avatar: mockAccount.avatar,
+          pathIndexes: mockAccount.pathIndexes,
+        }]);
+        if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
+        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        return Promise.resolve(null);
+      });
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      const [, actions] = result.current;
+
+      await act(async () => {
+        await actions.switchNetwork('invalid-network');
+      });
+
+      const [state] = result.current;
+      // Should remain on the original network
+      expect(state.networkId).toBe('mainnet-beta');
+    });
+  });
+
+  describe('getNetworkId', () => {
+    it('should return current network ID', async () => {
+      const mockAccount = createMockAccount();
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_accounts') return Promise.resolve([{
+          id: mockAccount.id,
+          name: mockAccount.name,
+          avatar: mockAccount.avatar,
+          pathIndexes: mockAccount.pathIndexes,
+        }]);
+        if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
+        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        return Promise.resolve(null);
+      });
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      const [, actions] = result.current;
+      const networkId = actions.getNetworkId();
+
+      expect(networkId).toBe('mainnet-beta');
+    });
+
+    it('should return default network when none is set', async () => {
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      const [, actions] = result.current;
+      const networkId = actions.getNetworkId();
+
+      expect(networkId).toBeNull();
     });
   });
 

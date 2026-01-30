@@ -14,7 +14,7 @@
 /**
  * Supported blockchain types for explorers.
  */
-export type Blockchain = 'SOLANA' | 'BITCOIN';
+export type Blockchain = 'SOLANA' | 'BITCOIN' | 'ETHEREUM';
 
 /**
  * Supported network environments.
@@ -23,7 +23,9 @@ export type NetworkEnvironment =
   | 'mainnet'
   | 'mainnet-beta'
   | 'testnet'
-  | 'devnet';
+  | 'devnet'
+  | 'goerli'
+  | 'sepolia';
 
 /**
  * Explorer configuration with name and URL template.
@@ -105,6 +107,31 @@ const BITCOIN_TESTNET_EXPLORERS: NetworkExplorers = {
 };
 
 // ============================================================================
+// Ethereum Explorers
+// ============================================================================
+
+const ETHEREUM_MAINNET_EXPLORERS: NetworkExplorers = {
+  ETHERSCAN: {
+    name: 'Etherscan',
+    url: 'https://etherscan.io/tx/{txId}',
+  },
+};
+
+const ETHEREUM_GOERLI_EXPLORERS: NetworkExplorers = {
+  ETHERSCAN: {
+    name: 'Etherscan Goerli',
+    url: 'https://goerli.etherscan.io/tx/{txId}',
+  },
+};
+
+const ETHEREUM_SEPOLIA_EXPLORERS: NetworkExplorers = {
+  ETHERSCAN: {
+    name: 'Etherscan Sepolia',
+    url: 'https://sepolia.etherscan.io/tx/{txId}',
+  },
+};
+
+// ============================================================================
 // Explorers Configuration
 // ============================================================================
 
@@ -128,6 +155,11 @@ export const EXPLORERS: ExplorersConfig = {
     mainnet: BITCOIN_MAINNET_EXPLORERS,
     testnet: BITCOIN_TESTNET_EXPLORERS,
   },
+  ETHEREUM: {
+    mainnet: ETHEREUM_MAINNET_EXPLORERS,
+    goerli: ETHEREUM_GOERLI_EXPLORERS,
+    sepolia: ETHEREUM_SEPOLIA_EXPLORERS,
+  },
 };
 
 /**
@@ -138,6 +170,7 @@ export const EXPLORERS: ExplorersConfig = {
 export const DEFAULT_EXPLORERS: DefaultExplorers = {
   SOLANA: 'SOLSCAN',
   BITCOIN: 'BLOCKCYPHER',
+  ETHEREUM: 'ETHERSCAN',
 };
 
 // ============================================================================

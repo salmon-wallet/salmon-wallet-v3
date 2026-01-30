@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Keypair, VersionedTransaction } from '@solana/web3.js';
+import { Keypair, VersionedTransaction, PublicKey, TransactionMessage, MessageV0, TransactionInstruction, SystemProgram } from '@solana/web3.js';
 import {
   getSwapQuote,
   executeSwap,
@@ -37,6 +37,37 @@ vi.mock('../../api/services/tokens');
 const TEST_KEYPAIR = Keypair.generate();
 const TEST_PUBLIC_KEY = TEST_KEYPAIR.publicKey.toBase58();
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+
+/**
+ * Creates a valid base64-encoded VersionedTransaction for testing.
+ * This is needed because VersionedTransaction.deserialize() expects a properly formatted buffer.
+ */
+function createMockVersionedTransactionBase64(payer: PublicKey): string {
+  // Create a minimal valid versioned transaction
+  const instructions: TransactionInstruction[] = [
+    SystemProgram.transfer({
+      fromPubkey: payer,
+      toPubkey: payer, // Send to self (valid for testing)
+      lamports: 1000,
+    }),
+  ];
+
+  // Create a recent blockhash (dummy for testing)
+  const recentBlockhash = 'GHtXQBsoZHVnNFa9YevAzFr17DJjgHXk3ycTKD5xD3Zi';
+
+  // Create MessageV0
+  const messageV0 = new TransactionMessage({
+    payerKey: payer,
+    recentBlockhash,
+    instructions,
+  }).compileToV0Message();
+
+  // Create VersionedTransaction
+  const versionedTx = new VersionedTransaction(messageV0);
+
+  // Serialize and encode to base64
+  return Buffer.from(versionedTx.serialize()).toString('base64');
+}
 
 /**
  * Mock swap order response from API
@@ -360,10 +391,8 @@ describe('executeSwap', () => {
       networkId: 'solana-mainnet',
     };
 
-    // Create a mock versioned transaction
-    const mockTransaction = new Uint8Array([1, 2, 3, 4, 5]);
-    const serializedMockTx = Buffer.from(mockTransaction).toString('base64');
-    quote.swapTransaction = serializedMockTx;
+    // Create a valid mock versioned transaction
+    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     const result = await executeSwap(quote, TEST_KEYPAIR);
 
@@ -381,9 +410,8 @@ describe('executeSwap', () => {
       networkId: 'solana-mainnet',
     };
 
-    const mockTransaction = new Uint8Array([1, 2, 3, 4, 5]);
-    const serializedMockTx = Buffer.from(mockTransaction).toString('base64');
-    quote.swapTransaction = serializedMockTx;
+    // Create a valid mock versioned transaction
+    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     const result = await executeSwap(quote, TEST_KEYPAIR);
 
@@ -402,9 +430,8 @@ describe('executeSwap', () => {
       networkId: 'solana-mainnet',
     };
 
-    const mockTransaction = new Uint8Array([1, 2, 3, 4, 5]);
-    const serializedMockTx = Buffer.from(mockTransaction).toString('base64');
-    quote.swapTransaction = serializedMockTx;
+    // Create a valid mock versioned transaction
+    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     const result = await executeSwap(quote, TEST_KEYPAIR);
 
@@ -421,9 +448,8 @@ describe('executeSwap', () => {
       networkId: 'solana-mainnet',
     };
 
-    const mockTransaction = new Uint8Array([1, 2, 3, 4, 5]);
-    const serializedMockTx = Buffer.from(mockTransaction).toString('base64');
-    quote.swapTransaction = serializedMockTx;
+    // Create a valid mock versioned transaction
+    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     await executeSwap(quote, TEST_KEYPAIR);
 
@@ -444,9 +470,8 @@ describe('executeSwap', () => {
       requestId: 'custom-request-id',
     };
 
-    const mockTransaction = new Uint8Array([1, 2, 3, 4, 5]);
-    const serializedMockTx = Buffer.from(mockTransaction).toString('base64');
-    quote.swapTransaction = serializedMockTx;
+    // Create a valid mock versioned transaction
+    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     await executeSwap(quote, TEST_KEYPAIR);
 
@@ -481,7 +506,7 @@ describe('swap', () => {
     // Mock the swap transaction to be a valid serializable transaction
     const mockSwapOrder = {
       ...MOCK_SWAP_ORDER,
-      swapTransaction: Buffer.from(new Uint8Array([1, 2, 3, 4, 5])).toString('base64'),
+      swapTransaction: createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey),
     };
     vi.mocked(solanaApiService.getSwapOrder).mockResolvedValue(mockSwapOrder);
 
@@ -513,7 +538,7 @@ describe('swap', () => {
   it('should propagate execution errors', async () => {
     const mockSwapOrder = {
       ...MOCK_SWAP_ORDER,
-      swapTransaction: Buffer.from(new Uint8Array([1, 2, 3, 4, 5])).toString('base64'),
+      swapTransaction: createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey),
     };
     vi.mocked(solanaApiService.getSwapOrder).mockResolvedValue(mockSwapOrder);
     vi.mocked(solanaApiService.executeSwapApi).mockResolvedValue(MOCK_SWAP_FAILURE);
