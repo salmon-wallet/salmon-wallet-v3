@@ -23,6 +23,10 @@ export default defineConfig({
         resources: ['injected.js'],
         matches: ['<all_urls>'],
       },
+      {
+        resources: ['images/*', 'fonts/*'],
+        matches: ['<all_urls>'],
+      },
     ],
     content_security_policy: {
       extension_pages: "script-src 'self'; object-src 'self'",
