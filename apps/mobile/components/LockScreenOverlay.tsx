@@ -221,7 +221,7 @@ export function LockScreenOverlay({
       return;
     }
 
-    setShowLoadingScreen(true); // Show loading screen immediately
+    // Don't show loading screen - let the slide animation be visible
     setIsLoading(true);
     setError(null);
     Keyboard.dismiss();
@@ -279,9 +279,7 @@ export function LockScreenOverlay({
         return;
       }
 
-      // Show loading screen while unlocking
-      setShowLoadingScreen(true);
-
+      // Don't show loading screen - let the slide animation be visible
       // Unlock using the cached derived key (no PBKDF2 needed)
       const success = await onUnlockWithKey(keyJson);
 
