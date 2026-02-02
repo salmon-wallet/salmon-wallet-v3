@@ -18,5 +18,8 @@ declare module '#imports' {
   export { InvalidMatchPattern, MatchPattern } from 'wxt/utils/match-patterns';
   export { useState, useCallback, useMemo, useEffect, useRef, useContext, useReducer } from 'react';
   export { fakeBrowser } from 'wxt/testing';
+  export { default as ConfirmDialog, ConfirmDialogProps } from '../src/components/ConfirmDialog';
+  export { default as EditAccountDialog, EditAccountDialogProps } from '../src/components/EditAccountDialog';
+  export { storeSessionKey, getSessionKey, clearSessionKey, hasValidSessionKey } from '../src/utils/sessionKeyCache';
   export { SalmonMessageData, SalmonEventDetail, SalmonBackgroundMessage } from '../src/utils/types';
 }
