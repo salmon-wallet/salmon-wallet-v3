@@ -86,3 +86,14 @@ export type {
   NetworksByBlockchain,
   UseAvailableNetworksResult,
 } from './useAvailableNetworks';
+
+// Balance hook
+export {
+  useBalance,
+  default as useBalanceDefault,
+} from './useBalance';
+export type {
+  NetworkId as BalanceNetworkId,
+  UseBalanceOptions,
+  UseBalanceResult,
+} from './useBalance';

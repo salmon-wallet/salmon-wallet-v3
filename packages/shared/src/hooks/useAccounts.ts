@@ -25,7 +25,15 @@ import {
   removeStashItem,
   updateLastActivity,
 } from '../storage';
-import { lock, unlock, type LockedVault } from '../crypto/encryption';
+import {
+  lock,
+  unlock,
+  lockWithKey,
+  unlockAndGetKey,
+  isKeyCacheValid,
+  type LockedVault,
+  type DerivedKeyCache,
+} from '../crypto/encryption';
 import {
   SolanaAccount,
   createSolanaAccount,
@@ -239,6 +247,8 @@ const STORAGE_KEYS = {
 const STASH_KEYS = {
   PASSWORD: 'password',
   ACTIVE_AT: 'active_at',
+  /** Cached derived key for PBKDF2 optimization (avoids re-derivation) */
+  DERIVED_KEY: 'derived_key_cache',
 } as const;
 
 // ============================================================================
@@ -685,6 +695,41 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   // Account Loading
   // --------------------------------------------------------------------------
 
+  /**
+   * Loads account metadata without mnemonics (for locked state).
+   * This allows the app to know accounts exist even when locked.
+   */
+  const loadMetadata = useCallback(async (): Promise<void> => {
+    const storedAccounts = await getStorageItem<StoredAccount[]>(STORAGE_KEYS.ACCOUNTS);
+    if (!storedAccounts) {
+      setLoaded(true);
+      return;
+    }
+
+    // Create minimal Account objects with empty mnemonics and no blockchain accounts
+    const accountsWithMetadata: Account[] = storedAccounts.map((stored) => ({
+      ...stored,
+      mnemonic: '', // Empty mnemonic placeholder - will be populated on unlock
+      networksAccounts: {}, // Empty networks - will be populated on unlock
+    }));
+
+    const storedCounter = await getStorageItem<number>(STORAGE_KEYS.COUNTER);
+    setCounter(storedCounter ?? 0);
+
+    setAccounts(accountsWithMetadata);
+
+    const storedAccountId = await getStorageItem<string>(STORAGE_KEYS.ACCOUNT_ID);
+    const storedNetworkId = await getStorageItem<string>(STORAGE_KEYS.NETWORK_ID);
+
+    setAccountId(storedAccountId ?? null);
+    setNetworkId(storedNetworkId ?? null);
+    setPathIndex((await getStorageItem<number>(STORAGE_KEYS.PATH_INDEX)) ?? 0);
+    setTrustedApps((await getStorageItem<TrustedApps>(STORAGE_KEYS.TRUSTED_APPS)) ?? {});
+    setTokens((await getStorageItem<CustomTokens>(STORAGE_KEYS.TOKENS)) ?? {});
+
+    setLoaded(true);
+  }, []);
+
   const load = useCallback(async (mnemonics: Record<string, string>): Promise<void> => {
     const storedAccounts = await getStorageItem<StoredAccount[]>(STORAGE_KEYS.ACCOUNTS);
     if (!storedAccounts) {
@@ -740,7 +785,17 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       if (!storedMnemonics || !isEncryptedMnemonics(storedMnemonics)) {
         return true;
       }
-      await unlock<Record<string, string>>(storedMnemonics, password);
+
+      // Use unlockAndGetKey to cache the derived key for later reuse
+      // This avoids a second expensive PBKDF2 derivation in addAccount/removeAccount
+      const { keyCache } = await unlockAndGetKey<Record<string, string>>(
+        storedMnemonics,
+        password
+      );
+
+      // Cache the derived key in stash for reuse within this session
+      await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
+
       return true;
     } catch {
       return false;
@@ -750,6 +805,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   const lockAccounts = useCallback(async (): Promise<void> => {
     setLocked(true);
     await removeStashItem(STASH_KEYS.PASSWORD);
+    // Clear cached derived key for security
+    await removeStashItem(STASH_KEYS.DERIVED_KEY);
   }, []);
 
   const unlockAccounts = useCallback(
@@ -765,7 +822,14 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
         let mnemonics: Record<string, string>;
         if (isEncryptedMnemonics(storedMnemonics)) {
-          mnemonics = await unlock<Record<string, string>>(storedMnemonics, password);
+          // Use unlockAndGetKey to cache the derived key for later reuse
+          const { data, keyCache } = await unlockAndGetKey<Record<string, string>>(
+            storedMnemonics,
+            password
+          );
+          mnemonics = data;
+          // Cache the derived key for subsequent operations
+          await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
         } else {
           mnemonics = storedMnemonics;
         }
@@ -808,6 +872,9 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
             result = await unlockAccounts(password);
           }
           if (!result) {
+            // Load account metadata even when locked so the lock screen can display
+            // This doesn't decrypt mnemonics - just loads account names, avatars, etc.
+            await loadMetadata();
             setLocked(true);
           }
         }
@@ -819,7 +886,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     };
 
     init();
-  }, [runUpgrades, unlockAccounts, load]);
+  }, [runUpgrades, unlockAccounts, load, loadMetadata]);
 
   // --------------------------------------------------------------------------
   // Computed Values
@@ -992,8 +1059,21 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       setPathIndex(getDefaultPathIndex(account, newNetworkId));
 
       if (password) {
-        const lockedMnemonics = await lock(newMnemonics, password);
-        await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...lockedMnemonics, isEncrypted: true });
+        // Check for cached derived key to avoid expensive PBKDF2 re-derivation
+        const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
+
+        let lockedMnemonics: LockedVault & { isEncrypted: true };
+        if (isKeyCacheValid(cachedKey)) {
+          // Reuse cached key (saves ~1.5s of PBKDF2 derivation)
+          const vault = lockWithKey(newMnemonics, cachedKey);
+          lockedMnemonics = { ...vault, isEncrypted: true as const };
+        } else {
+          // No valid cache, derive new key
+          const vault = await lock(newMnemonics, password);
+          lockedMnemonics = { ...vault, isEncrypted: true as const };
+        }
+
+        await setStorageItem(STORAGE_KEYS.MNEMONICS, lockedMnemonics);
         await setStashItem(STASH_KEYS.PASSWORD, password);
       } else {
         await setStorageItem(STORAGE_KEYS.MNEMONICS, newMnemonics);
@@ -1053,6 +1133,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     await removeStorageItem(STORAGE_KEYS.TOKENS);
     await removeStorageItem(STORAGE_KEYS.CONNECTION);
 
+    // Clear session data including cached key
+    await removeStashItem(STASH_KEYS.PASSWORD);
+    await removeStashItem(STASH_KEYS.DERIVED_KEY);
+
     setLocked(false);
     setRequiredLock(false);
     setCounter(0);
@@ -1098,8 +1182,22 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
       if (password) {
         setRequiredLock(true);
-        const lockedMnemonics = await lock(newMnemonics, password);
-        await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...lockedMnemonics, isEncrypted: true });
+
+        // Check for cached derived key to avoid expensive PBKDF2 re-derivation
+        const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
+
+        let lockedMnemonics: LockedVault & { isEncrypted: true };
+        if (isKeyCacheValid(cachedKey)) {
+          // Reuse cached key (saves ~1.5s of PBKDF2 derivation)
+          const vault = lockWithKey(newMnemonics, cachedKey);
+          lockedMnemonics = { ...vault, isEncrypted: true as const };
+        } else {
+          // No valid cache, derive new key
+          const vault = await lock(newMnemonics, password);
+          lockedMnemonics = { ...vault, isEncrypted: true as const };
+        }
+
+        await setStorageItem(STORAGE_KEYS.MNEMONICS, lockedMnemonics);
         await setStashItem(STASH_KEYS.PASSWORD, password);
       } else {
         setRequiredLock(false);
