@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import {
   showAmount,
   showPercentage,
+  showAbsoluteChange,
   getLabelValue,
   hiddenValue,
   type LabelType,
@@ -26,7 +27,12 @@ const DEFAULT_TOKEN_LOGO = 'https://raw.githubusercontent.com/solana-labs/token-
 /**
  * Individual token item component for the TokenList
  *
- * Displays token logo, name, symbol, balance, USD value, and 24h change.
+ * Displays token logo, name, price with change indicator, USD holdings, and token amount.
+ *
+ * Layout (per Figma design):
+ * - Token icon (48px circle)
+ * - Left side: Token name, Price per token with change indicator (e.g., "$ 131.28 . 1.2% (+$10.01)")
+ * - Right side: USD value of holdings, Token amount (e.g., "1.2 SOL")
  *
  * @example
  * ```tsx
@@ -36,9 +42,10 @@ const DEFAULT_TOKEN_LOGO = 'https://raw.githubusercontent.com/solana-labs/token-
  *     name: 'Solana',
  *     symbol: 'SOL',
  *     logo: 'https://...',
- *     uiAmount: '10.5',
- *     usdBalance: 1050.00,
- *     last24HoursChange: { perc: 5.2 }
+ *     price: 131.28,
+ *     uiAmount: '1.2',
+ *     usdBalance: 155.20,
+ *     last24HoursChange: { perc: 1.2, abs: 10.01 }
  *   }}
  *   onPress={(token) => console.log(token)}
  *   hiddenBalance={false}
@@ -50,25 +57,37 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   onPress,
   hiddenBalance = false,
 }) => {
-  const { name, symbol, logo, uiAmount, usdBalance, last24HoursChange } = token;
+  const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange } = token;
 
   const handlePress = React.useCallback(() => {
     onPress(token);
   }, [onPress, token]);
 
-  // Get the label type for coloring the percentage
+  // Get the label type for coloring the percentage and absolute change
   const percentageChange = last24HoursChange?.perc ?? 0;
+  const absoluteChange = last24HoursChange?.abs;
   const labelType = getLabelValue(percentageChange);
-  const percentageColor = LABEL_COLORS[labelType];
+  const changeColor = LABEL_COLORS[labelType];
 
   // Format display values
-  const displayBalance = hiddenBalance ? hiddenValue : `${uiAmount} ${symbol || ''}`;
+  const displayPrice = hiddenBalance
+    ? hiddenValue
+    : price != null
+    ? showAmount(price)
+    : null;
+
+  const displayPercentage = last24HoursChange ? showPercentage(percentageChange) : null;
+  const displayAbsChange = absoluteChange != null ? showAbsoluteChange(absoluteChange) : null;
+
   const displayUsdValue = hiddenBalance
     ? hiddenValue
     : usdBalance != null
     ? showAmount(usdBalance)
     : null;
-  const displayPercentage = last24HoursChange ? showPercentage(percentageChange) : null;
+
+  const displayTokenAmount = hiddenBalance
+    ? hiddenValue
+    : `${uiAmount} ${symbol || ''}`;
 
   return (
     <TouchableOpacity
@@ -86,28 +105,39 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
         accessibilityIgnoresInvertColors
       />
 
-      {/* Token Info */}
+      {/* Token Info - Left Side */}
       <View style={styles.infoContainer}>
         <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
           {name}
         </Text>
-        <Text style={styles.balance} numberOfLines={1} ellipsizeMode="tail">
-          {displayBalance}
-        </Text>
+        <View style={styles.priceRow}>
+          {displayPrice && (
+            <Text style={styles.price} numberOfLines={1}>
+              {displayPrice}
+            </Text>
+          )}
+          {displayPercentage && (
+            <>
+              <Text style={styles.bulletSeparator}> {'\u2022'} </Text>
+              <Text style={[styles.changeText, { color: changeColor }]} numberOfLines={1}>
+                {displayPercentage}
+                {displayAbsChange && ` (${displayAbsChange})`}
+              </Text>
+            </>
+          )}
+        </View>
       </View>
 
-      {/* Value Info */}
+      {/* Value Info - Right Side */}
       <View style={styles.valueContainer}>
         {displayUsdValue && (
           <Text style={styles.usdValue} numberOfLines={1}>
             {displayUsdValue}
           </Text>
         )}
-        {displayPercentage && (
-          <Text style={[styles.percentage, { color: percentageColor }]} numberOfLines={1}>
-            {displayPercentage}
-          </Text>
-        )}
+        <Text style={styles.tokenAmount} numberOfLines={1}>
+          {displayTokenAmount}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -139,9 +169,21 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 4,
   },
-  balance: {
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  price: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.7)',
+  },
+  bulletSeparator: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  changeText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   valueContainer: {
     alignItems: 'flex-end',
@@ -153,9 +195,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 4,
   },
-  percentage: {
+  tokenAmount: {
     fontSize: 14,
-    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.7)',
   },
 });
 

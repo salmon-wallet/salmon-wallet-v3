@@ -10,6 +10,8 @@ export interface Token {
   symbol: string;
   /** Token logo URL */
   logo?: string;
+  /** Current price per token in USD */
+  price?: number;
   /** User's token balance (formatted for display) */
   uiAmount: string | number;
   /** User's token balance in USD */
@@ -18,6 +20,8 @@ export interface Token {
   last24HoursChange?: {
     /** Percentage change */
     perc: number;
+    /** Absolute change in USD */
+    abs?: number;
   } | null;
 }
 

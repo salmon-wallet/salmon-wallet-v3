@@ -11,7 +11,7 @@ import * as bip39 from 'bip39';
 import { BIP32Factory, type BIP32Interface } from 'bip32';
 import * as ecc from '@bitcoinerlab/secp256k1';
 import { Keypair } from '@solana/web3.js';
-import { derivePath } from 'ed25519-hd-key';
+import HDKey from 'micro-key-producer/slip10.js';
 
 // Initialize BIP32 with secp256k1 elliptic curve implementation
 const bip32 = BIP32Factory(ecc);
@@ -152,8 +152,13 @@ export async function mnemonicToSeed(
 /**
  * Derives a Solana Keypair from a mnemonic using ed25519 HD derivation.
  *
- * Uses the ed25519-hd-key library for SLIP-0010 compliant derivation,
+ * Uses micro-key-producer's SLIP-0010 implementation for compliant derivation,
  * which is the standard for Solana wallets (Phantom, Solflare, etc.).
+ *
+ * This library is:
+ * - Browser/React Native compatible (no Node.js Buffer dependency)
+ * - Uses audited @noble/ed25519 under the hood
+ * - Based on audited code from scure-bip32
  *
  * @param mnemonic - The BIP39 mnemonic phrase
  * @param accountIndex - The account index for the derivation path (default: 0)
@@ -176,8 +181,9 @@ export async function deriveSolanaKeypair(
 ): Promise<SolanaDerivedKey> {
   const seed = await mnemonicToSeed(mnemonic);
   const path = SOLANA_PATH(accountIndex);
-  const derived = derivePath(path, seed.toString('hex'));
-  const keypair = Keypair.fromSeed(derived.key);
+  const hdkey = HDKey.fromMasterSeed(seed);
+  const derived = hdkey.derive(path);
+  const keypair = Keypair.fromSeed(derived.privateKey);
 
   return { keypair, path };
 }
@@ -246,4 +252,117 @@ export async function deriveChildFromPath(
   const seed = await mnemonicToSeed(mnemonic);
   const root = bip32.fromSeed(seed);
   return root.derivePath(path);
+}
+
+// ============================================================================
+// Normalization
+// ============================================================================
+
+/**
+ * Normalizes a mnemonic phrase for consistent validation and storage
+ *
+ * - Trims whitespace from start and end
+ * - Converts to lowercase
+ * - Replaces multiple spaces with single spaces
+ *
+ * @param phrase - The mnemonic phrase to normalize
+ * @returns Normalized mnemonic phrase
+ *
+ * @example
+ * normalizeMnemonic('  Apple  Banana   Cherry  ');
+ * // Returns: 'apple banana cherry'
+ */
+export function normalizeMnemonic(phrase: string): string {
+  return phrase
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+// ============================================================================
+// Validation Helpers
+// ============================================================================
+
+/**
+ * Generates random word positions for seed phrase backup validation
+ *
+ * Distributes positions across thirds of the phrase to ensure user
+ * has backed up the entire phrase, not just the beginning.
+ *
+ * @param wordCount - Total number of words in the mnemonic (12 or 24)
+ * @param count - Number of positions to generate (default: 3)
+ * @returns Array of 1-indexed word positions
+ *
+ * @example
+ * generateValidationPositions(12, 3);
+ * // Returns something like: [2, 6, 10] (one from each third)
+ */
+export function generateValidationPositions(
+  wordCount: number,
+  count: number = 3
+): number[] {
+  if (count > wordCount) {
+    throw new Error('Count cannot exceed word count');
+  }
+
+  const positions: number[] = [];
+  const sectionSize = Math.floor(wordCount / count);
+
+  for (let i = 0; i < count; i++) {
+    const sectionStart = i * sectionSize;
+    const sectionEnd = (i + 1) * sectionSize;
+    // Random position within this section (1-indexed)
+    const pos = Math.floor(Math.random() * (sectionEnd - sectionStart)) + sectionStart + 1;
+    positions.push(pos);
+  }
+
+  return positions;
+}
+
+/**
+ * Validates that user-entered words match the original mnemonic
+ *
+ * @param mnemonic - The full mnemonic phrase
+ * @param positions - Array of 1-indexed positions to check
+ * @param userWords - Array of words entered by user (in same order as positions)
+ * @returns Object with validation result and details
+ *
+ * @example
+ * const result = validateMnemonicWords(
+ *   'apple banana cherry date ...',
+ *   [1, 3, 5],
+ *   ['apple', 'cherry', 'elderberry']
+ * );
+ * // result.isValid = true if all match
+ */
+export function validateMnemonicWords(
+  mnemonic: string,
+  positions: number[],
+  userWords: string[]
+): {
+  isValid: boolean;
+  results: Array<{
+    position: number;
+    expected: string;
+    entered: string;
+    isCorrect: boolean;
+  }>;
+} {
+  const words = normalizeMnemonic(mnemonic).split(' ');
+
+  const results = positions.map((pos, index) => {
+    const expected = words[pos - 1] || '';
+    const entered = (userWords[index] || '').toLowerCase().trim();
+    return {
+      position: pos,
+      expected,
+      entered,
+      isCorrect: expected === entered,
+    };
+  });
+
+  return {
+    isValid: results.every(r => r.isCorrect),
+    results,
+  };
 }

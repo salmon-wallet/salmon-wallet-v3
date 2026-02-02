@@ -1,5 +1,5 @@
 import { Keypair } from '@solana/web3.js';
-import { derivePath } from 'ed25519-hd-key';
+import HDKey from 'micro-key-producer/slip10.js';
 import { SolanaAccount, SolanaNetwork } from './SolanaAccount';
 import {
   mnemonicToSeed,
@@ -56,6 +56,11 @@ export function getSolanaDerivationPath(index: number): string {
 /**
  * Generates a Solana keypair from mnemonic and derivation path.
  *
+ * Uses micro-key-producer's SLIP-0010 implementation which is:
+ * - Browser/React Native compatible (no Node.js Buffer dependency)
+ * - Uses audited @noble/ed25519 under the hood
+ * - Based on audited code from scure-bip32
+ *
  * @param mnemonic - BIP39 mnemonic phrase
  * @param path - BIP44 derivation path
  * @returns Promise resolving to Solana Keypair
@@ -65,8 +70,10 @@ export async function generateKeyPair(
   path: string
 ): Promise<Keypair> {
   const seed = await mnemonicToSeed(mnemonic);
-  const derivedSeed = derivePath(path, seed.toString('hex')).key;
-  return Keypair.fromSeed(derivedSeed);
+  const hdkey = HDKey.fromMasterSeed(seed);
+  const derived = hdkey.derive(path);
+
+  return Keypair.fromSeed(derived.privateKey);
 }
 
 /**
