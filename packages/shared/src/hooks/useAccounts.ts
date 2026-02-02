@@ -392,7 +392,7 @@ async function createManyAccounts(
     });
 
     // Override with stored values
-    (account as Account).id = item.id;
+    account.id = item.id;
     account.name = item.name;
     account.avatar = item.avatar;
 

@@ -68,7 +68,7 @@ const FONT_FAMILY = {
 } as const;
 
 // Animation configuration
-const ANIMATION_DURATION = 400; // ms - matches Figma design
+const ANIMATION_DURATION = 800; // ms - slower for better visual effect
 
 // ============================================================================
 // Props
