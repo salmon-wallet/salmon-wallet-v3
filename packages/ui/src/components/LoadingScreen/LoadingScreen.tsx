@@ -102,21 +102,33 @@ export function LoadingScreen({
     }
   }, [visible, overlayOpacity, pulseScale, spinRotation]);
 
+  // Helper function to advance to next tip
+  const advanceToNextTip = useCallback(() => {
+    setCurrentTipIndex((prev) => (prev + 1) % tips.length);
+  }, [tips.length]);
+
+  // Helper function to fade tip back in
+  const fadeInTip = useCallback(() => {
+    tipOpacity.value = withTiming(1, { duration: TIP_FADE_DURATION });
+  }, [tipOpacity]);
+
   // Cycle through tips
   useEffect(() => {
     if (!visible || !showTips || tips.length <= 1) return;
 
     const interval = setInterval(() => {
       // Fade out current tip
-      tipOpacity.value = withTiming(0, { duration: TIP_FADE_DURATION }, () => {
-        // Change tip and fade in
-        runOnJS(setCurrentTipIndex)((prev) => (prev + 1) % tips.length);
-        tipOpacity.value = withTiming(1, { duration: TIP_FADE_DURATION });
+      tipOpacity.value = withTiming(0, { duration: TIP_FADE_DURATION }, (finished) => {
+        if (finished) {
+          // Change tip and fade in
+          runOnJS(advanceToNextTip)();
+          runOnJS(fadeInTip)();
+        }
       });
     }, tipInterval);
 
     return () => clearInterval(interval);
-  }, [visible, showTips, tips.length, tipInterval, tipOpacity]);
+  }, [visible, showTips, tips.length, tipInterval, tipOpacity, advanceToNextTip, fadeInTip]);
 
   // Animated styles
   const pulseStyle = useAnimatedStyle(() => ({

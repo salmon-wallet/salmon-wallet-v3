@@ -15,7 +15,7 @@ function truncateAddress(address: string): string {
  * WalletHeader component for displaying account info and navigation
  *
  * Displays:
- * - Account name + truncated address
+ * - Account name + truncated address (tappable for wallet switcher)
  * - Copy button to copy full address
  * - Settings icon for navigation
  *
@@ -26,6 +26,7 @@ function truncateAddress(address: string): string {
  *   address="9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
  *   onCopyAddress={() => Clipboard.setString(address)}
  *   onSettingsPress={() => navigation.navigate('Settings')}
+ *   onWalletPress={() => setShowWalletSwitcher(true)}
  * />
  * ```
  */
@@ -34,6 +35,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   address,
   onCopyAddress,
   onSettingsPress,
+  onWalletPress,
   style,
 }) => {
   const handleCopyPress = useCallback(() => {
@@ -44,35 +46,54 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
     onSettingsPress?.();
   }, [onSettingsPress]);
 
+  const handleWalletPress = useCallback(() => {
+    onWalletPress?.();
+  }, [onWalletPress]);
+
   const truncatedAddress = truncateAddress(address);
 
   return (
     <View style={[styles.container, style]}>
-      {/* Left side - Account info with copy */}
-      <TouchableOpacity
-        style={styles.accountInfo}
-        onPress={handleCopyPress}
-        activeOpacity={0.7}
-        accessibilityRole="button"
-        accessibilityLabel={`Copy wallet address ${truncatedAddress}`}
-      >
-        <View style={styles.accountTextContainer}>
+      {/* Left side - Account info */}
+      <View style={styles.accountSection}>
+        {/* Account name - taps to open wallet switcher */}
+        <TouchableOpacity
+          style={styles.accountNameRow}
+          onPress={handleWalletPress}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Switch wallet account"
+        >
           <Text style={styles.accountName} numberOfLines={1}>
             {accountName}
           </Text>
-          <View style={styles.addressContainer}>
-            <Text style={styles.address} numberOfLines={1}>
-              {truncatedAddress}
-            </Text>
-            <Ionicons
-              name="copy-outline"
-              size={14}
-              color="rgba(255, 255, 255, 0.6)"
-              style={styles.copyIcon}
-            />
-          </View>
-        </View>
-      </TouchableOpacity>
+          <Ionicons
+            name="chevron-down"
+            size={16}
+            color="rgba(255, 255, 255, 0.6)"
+            style={styles.chevronIcon}
+          />
+        </TouchableOpacity>
+
+        {/* Address - taps to copy */}
+        <TouchableOpacity
+          style={styles.addressContainer}
+          onPress={handleCopyPress}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Copy wallet address ${truncatedAddress}`}
+        >
+          <Text style={styles.address} numberOfLines={1}>
+            {truncatedAddress}
+          </Text>
+          <Ionicons
+            name="copy-outline"
+            size={14}
+            color="rgba(255, 255, 255, 0.6)"
+            style={styles.copyIcon}
+          />
+        </TouchableOpacity>
+      </View>
 
       {/* Right side - Settings button */}
       <TouchableOpacity
@@ -99,19 +120,22 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
-  accountInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  accountSection: {
     flex: 1,
     marginRight: 16,
   },
-  accountTextContainer: {
-    flex: 1,
+  accountNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   accountName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  chevronIcon: {
+    marginLeft: 4,
     marginBottom: 2,
   },
   addressContainer: {

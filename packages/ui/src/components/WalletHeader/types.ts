@@ -12,6 +12,8 @@ export interface WalletHeaderProps {
   onCopyAddress?: () => void;
   /** Callback when settings button is pressed */
   onSettingsPress?: () => void;
+  /** Callback when wallet/account switcher button is pressed */
+  onWalletPress?: () => void;
   /** Optional custom styles for the container */
   style?: ViewStyle;
 }
