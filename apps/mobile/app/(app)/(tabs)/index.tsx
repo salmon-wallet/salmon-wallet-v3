@@ -1,13 +1,240 @@
-import { StyleSheet } from 'react-native';
-import { Text, View } from '@/components/Themed';
+/**
+ * HomeScreen - Main wallet overview screen
+ *
+ * Displays:
+ * - WalletHeader: Account name, address, settings navigation
+ * - BalanceCard: Total USD balance with 24h change
+ * - ActionButtonRow: Send, Receive, Activity buttons
+ * - TokenList: List of token holdings
+ *
+ * Features:
+ * - Pull-to-refresh for balance updates
+ * - Balance visibility toggle (privacy mode)
+ * - Navigation to token detail, send, receive, and activity screens
+ */
 
-export default function WalletScreen() {
+import React, { useCallback, useMemo } from 'react';
+import {
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  View,
+  Text,
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
+import * as Clipboard from 'expo-clipboard';
+
+import { useAccounts, useBalance, SOLANA_NETWORKS } from '@salmon/shared';
+import {
+  WalletHeader,
+  BalanceCard,
+  ActionButtonRow,
+  TokenList,
+  type Token,
+} from '@salmon/ui';
+
+/**
+ * Convert TokenBalanceWithPrice to Token for TokenList
+ */
+function mapBalanceToToken(
+  item: {
+    address: string;
+    symbol: string;
+    name: string;
+    logo: string | null;
+    uiAmount: number;
+    usdBalance?: number;
+    priceChange24h?: number;
+  }
+): Token {
+  return {
+    address: item.address,
+    symbol: item.symbol,
+    name: item.name,
+    logo: item.logo || undefined,
+    uiAmount: item.uiAmount,
+    usdBalance: item.usdBalance || null,
+    last24HoursChange: item.priceChange24h !== undefined
+      ? { perc: item.priceChange24h }
+      : null,
+  };
+}
+
+export default function HomeScreen() {
+  const router = useRouter();
+
+  // Get account state
+  const [accountState] = useAccounts();
+  const {
+    ready,
+    activeAccount,
+    activeBlockchainAccount,
+    networkId,
+  } = accountState;
+
+  // Get balance data
+  const {
+    tokens,
+    usdTotal,
+    changePercent,
+    changeAmount,
+    loading,
+    refreshing,
+    refresh,
+    hiddenBalance,
+    toggleHidden,
+  } = useBalance({
+    account: activeBlockchainAccount,
+    networkId: networkId as 'mainnet-beta' | 'devnet' | undefined,
+    skip: !ready || !activeBlockchainAccount,
+  });
+
+  // Get network info
+  const network = useMemo(() => {
+    const netId = networkId || 'mainnet-beta';
+    const networkConfig = SOLANA_NETWORKS[netId];
+    return {
+      id: netId,
+      name: networkConfig?.name || 'Solana',
+      logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+    };
+  }, [networkId]);
+
+  // Map balance tokens to TokenList format
+  const tokenListItems = useMemo(() => {
+    return tokens.map(mapBalanceToToken);
+  }, [tokens]);
+
+  // Handlers
+  const handleCopyAddress = useCallback(async () => {
+    if (activeBlockchainAccount) {
+      const address = activeBlockchainAccount.getReceiveAddress();
+      await Clipboard.setStringAsync(address);
+      // TODO: Show toast notification
+    }
+  }, [activeBlockchainAccount]);
+
+  const handleSettingsPress = useCallback(() => {
+    router.push('/(app)/(tabs)/settings');
+  }, [router]);
+
+  const handleSendPress = useCallback(() => {
+    router.push('/(app)/token-send');
+  }, [router]);
+
+  const handleReceivePress = useCallback(() => {
+    router.push('/(app)/token-receive');
+  }, [router]);
+
+  const handleActivityPress = useCallback(() => {
+    router.push('/(app)/transactions');
+  }, [router]);
+
+  const handleTokenPress = useCallback((token: Token) => {
+    router.push({
+      pathname: '/(app)/token-detail',
+      params: { address: token.address },
+    });
+  }, [router]);
+
+  const handleNetworkPress = useCallback(() => {
+    // TODO: Open network selector modal
+    console.log('Network selector pressed');
+  }, []);
+
+  // Loading state
+  if (!ready) {
+    return (
+      <View style={styles.loadingContainer}>
+        <StatusBar style="light" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
+  // No account state
+  if (!activeAccount || !activeBlockchainAccount) {
+    return (
+      <View style={styles.loadingContainer}>
+        <StatusBar style="light" />
+        <Text style={styles.loadingText}>No account found</Text>
+      </View>
+    );
+  }
+
+  const accountName = activeAccount.name || 'Account';
+  const address = activeBlockchainAccount.getReceiveAddress();
+  const hasTokens = tokenListItems.length > 0;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Wallet</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <Text style={styles.placeholder}>Wallet Overview</Text>
-      <Text style={styles.subtitle}>Your balances will appear here</Text>
+      <StatusBar style="light" />
+
+      {/* Header */}
+      <WalletHeader
+        accountName={accountName}
+        address={address}
+        onCopyAddress={handleCopyAddress}
+        onSettingsPress={handleSettingsPress}
+      />
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refresh}
+            tintColor="#ff5c45"
+            colors={['#ff5c45']}
+          />
+        }
+      >
+        {/* Balance Card */}
+        <BalanceCard
+          network={network}
+          usdTotal={usdTotal}
+          changePercent={changePercent}
+          changeAmount={changeAmount}
+          hiddenBalance={hiddenBalance}
+          onToggleVisibility={toggleHidden}
+          onNetworkPress={handleNetworkPress}
+          loading={loading && !refreshing}
+          style={styles.balanceCard}
+        />
+
+        {/* Action Buttons */}
+        <ActionButtonRow
+          onSendPress={handleSendPress}
+          onReceivePress={handleReceivePress}
+          onActivityPress={handleActivityPress}
+          style={styles.actionRow}
+        />
+
+        {/* Token List */}
+        <View style={styles.tokenListContainer}>
+          <Text style={styles.sectionTitle}>Assets</Text>
+          {hasTokens ? (
+            <TokenList
+              tokens={tokenListItems}
+              loading={loading && tokenListItems.length === 0}
+              onTokenPress={handleTokenPress}
+              hiddenBalance={hiddenBalance}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>
+                {loading ? 'Loading tokens...' : 'No tokens found'}
+              </Text>
+              <Text style={styles.emptyStateSubtext}>
+                Your tokens will appear here once you receive some
+              </Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -15,25 +242,59 @@ export default function WalletScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0D0D0D',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#0D0D0D',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  loadingText: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 16,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  scrollView: {
+    flex: 1,
   },
-  placeholder: {
-    fontSize: 18,
-    color: '#888',
+  scrollContent: {
+    paddingBottom: 100, // Space for tab bar
   },
-  subtitle: {
+  balanceCard: {
+    marginTop: 16,
+  },
+  actionRow: {
+    marginTop: 8,
+  },
+  tokenListContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    marginTop: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 16,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 16,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyStateSubtext: {
     fontSize: 14,
-    color: '#aaa',
-    marginTop: 10,
+    color: 'rgba(255, 255, 255, 0.4)',
+    textAlign: 'center',
   },
 });

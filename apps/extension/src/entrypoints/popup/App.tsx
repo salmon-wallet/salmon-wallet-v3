@@ -1,58 +1,122 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLanguage } from '../../i18n';
+import React, { useCallback } from 'react';
+import { useAccounts, useInactivityTimeout } from '@salmon/shared';
+import { LockPage } from '../../pages/lock/LockPage';
+import { HomePage } from '../../pages/home/HomePage';
+import { SelectOptionsPage } from '../../pages/auth/SelectOptionsPage';
 
-function App() {
-  const { t } = useTranslation();
-  const { currentLanguage, supportedLanguages, setLanguage, getLanguageName } = useLanguage();
-
+/**
+ * Loading spinner component shown during initialization.
+ * Uses inline styles for instant rendering without CSS loading delays.
+ */
+function LoadingSpinner() {
   return (
-    <div style={{ padding: '20px', minWidth: '300px' }}>
-      <h1>{t('wallet.onboarding.title1')}</h1>
-      <p>{t('wallet.onboarding.content1')}</p>
-
-      <div style={{ marginTop: '20px' }}>
-        <h3>{t('settings.languages.title')}</h3>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {supportedLanguages.map((lang) => (
-            <button
-              key={lang}
-              onClick={() => setLanguage(lang)}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: currentLanguage === lang ? '#007bff' : '#f0f0f0',
-                color: currentLanguage === lang ? 'white' : 'black',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-            >
-              {getLanguageName(lang)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ marginTop: '20px' }}>
-        <h3>{t('settings.title')}</h3>
-        <ul>
-          <li>{t('settings.address_book')}</li>
-          <li>{t('settings.security')}</li>
-          <li>{t('settings.notifications')}</li>
-          <li>{t('settings.trusted_apps')}</li>
-          <li>{t('settings.help_support')}</li>
-        </ul>
-      </div>
-
-      <div style={{ marginTop: '20px' }}>
-        <h3>{t('actions.send')} / {t('actions.receive')}</h3>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button style={{ padding: '8px 16px' }}>{t('actions.send')}</button>
-          <button style={{ padding: '8px 16px' }}>{t('actions.receive')}</button>
-        </div>
-      </div>
+    <div style={styles.loadingContainer}>
+      <div style={styles.spinner} />
     </div>
   );
+}
+
+/**
+ * Main App component that handles wallet state and routing.
+ *
+ * State machine:
+ * 1. Loading (ready = false) -> Show loading spinner
+ * 2. No accounts (ready = true, accounts.length = 0) -> Show onboarding
+ * 3. Locked (ready = true, locked = true) -> Show lock screen
+ * 4. Unlocked (ready = true, locked = false) -> Show home
+ *
+ * Transitions are instant (no animations) to provide a snappy UX.
+ * The unlock action shows a loading state in the button only.
+ */
+function App() {
+  const [state, actions] = useAccounts();
+  const { ready, locked, accounts } = state;
+
+  // Set up inactivity timeout for auto-lock
+  // Only enabled when wallet is unlocked and has accounts
+  useInactivityTimeout({
+    timeoutMs: 5 * 60 * 1000, // 5 minutes
+    onTimeout: () => {
+      actions.lockAccounts();
+    },
+    enabled: ready && !locked && accounts.length > 0,
+  });
+
+  // Handler for removing all accounts from lock screen
+  // After removal, accounts.length will be 0 and app will show onboarding
+  const handleRemoveAllAccounts = useCallback(async () => {
+    await actions.removeAllAccounts();
+  }, [actions]);
+
+  // Show loading spinner during initialization
+  // This is a brief moment while checking stash for existing password
+  if (!ready) {
+    return <LoadingSpinner />;
+  }
+
+  // No accounts - show onboarding/setup flow
+  if (accounts.length === 0) {
+    return <SelectOptionsPage />;
+  }
+
+  // Wallet is locked - show lock screen
+  // Transition to unlocked state is instant (no fade animation)
+  if (locked) {
+    return (
+      <LockPage
+        onUnlock={actions.unlockAccounts}
+        onRemoveAllAccounts={handleRemoveAllAccounts}
+      />
+    );
+  }
+
+  // Wallet is unlocked - show main app
+  return <HomePage />;
+}
+
+/**
+ * Inline styles for instant rendering without CSS loading delays.
+ */
+const styles: Record<string, React.CSSProperties> = {
+  loadingContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    backgroundColor: '#0f0f0f',
+  },
+  spinner: {
+    width: '32px',
+    height: '32px',
+    border: '3px solid rgba(255, 107, 74, 0.2)',
+    borderTopColor: '#FF6B4A',
+    borderRadius: '50%',
+    animation: 'spin 0.8s linear infinite',
+  },
+};
+
+// Inject keyframe animation for spinner (only once)
+if (typeof document !== 'undefined' && !document.getElementById('app-spinner-styles')) {
+  const styleSheet = document.createElement('style');
+  styleSheet.id = 'app-spinner-styles';
+  styleSheet.textContent = `
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Reset default styles for instant rendering */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0f0f0f;
+      overflow: hidden;
+    }
+  `;
+  document.head.appendChild(styleSheet);
 }
 
 export default App;

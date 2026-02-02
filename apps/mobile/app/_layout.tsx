@@ -1,16 +1,19 @@
-// Crypto polyfills - MUST be first import before any other code
-import '../polyfills';
+// Note: Crypto polyfills are now loaded in index.js (the app entry point)
+// This ensures they're available BEFORE expo-router loads any modules
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, router, useSegments, useRootNavigationState } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { View, StyleSheet } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { LockScreenOverlay } from '@/components/LockScreenOverlay';
 import { I18nProvider } from '../src/i18n';
+import { useAccounts } from '@salmon/shared';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -19,7 +22,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading keeps a back button present.
-  initialRouteName: '(app)',
+  initialRouteName: '(auth)',
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -54,16 +57,100 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const [state, actions] = useAccounts();
+  const segments = useSegments();
+  const navigationState = useRootNavigationState();
+
+  // Track if we've done the initial navigation
+  const [hasNavigated, setHasNavigated] = useState(false);
+
+  // Unlock handler for the lock screen overlay
+  const handleUnlock = useCallback(async (password: string): Promise<boolean> => {
+    try {
+      const success = await actions.unlockAccounts(password);
+      return success;
+    } catch (err) {
+      console.error('Unlock failed:', err);
+      return false;
+    }
+  }, [actions]);
+
+  // Remove all accounts handler for wallet reset
+  const handleRemoveAllAccounts = useCallback(async () => {
+    await actions.removeAllAccounts();
+    router.replace('/(auth)');
+  }, [actions]);
+
+  useEffect(() => {
+    // Don't navigate until the navigation state is ready and useAccounts is ready
+    if (!navigationState?.key || !state.ready) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+    const inAppGroup = segments[0] === '(app)';
+
+    const hasAccounts = state.accounts.length > 0;
+
+    // Determine where the user should be
+    if (!hasAccounts) {
+      // No accounts exist - go to auth flow
+      if (!inAuthGroup) {
+        router.replace('/(auth)');
+        setHasNavigated(true);
+      }
+    } else {
+      // Accounts exist - go to main app (lock screen is now an overlay)
+      if (!inAppGroup && !hasNavigated) {
+        // Only auto-navigate to app on initial load, not during normal navigation
+        router.replace('/(app)/(tabs)');
+        setHasNavigated(true);
+      }
+    }
+  }, [state.ready, state.accounts.length, segments, navigationState?.key, hasNavigated]);
+
+  // Determine if lock screen should be shown
+  const hasAccounts = state.accounts.length > 0;
+  const shouldShowLockScreen = state.ready && hasAccounts && state.locked;
 
   return (
     <I18nProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(app)" />
-          <Stack.Screen name="lock" options={{ presentation: 'fullScreenModal' }} />
-        </Stack>
+        <View style={styles.container}>
+          <Stack screenOptions={{ headerShown: false }}>
+            {/* Auth flow - onboarding screens */}
+            <Stack.Screen
+              name="(auth)"
+              options={{
+                // Prevent going back to auth after completing onboarding
+                gestureEnabled: false,
+              }}
+            />
+
+            {/* Main app - tabs and other screens */}
+            <Stack.Screen
+              name="(app)"
+              options={{
+                // Prevent going back
+                gestureEnabled: false,
+              }}
+            />
+          </Stack>
+
+          {/* Lock screen overlay - renders on top of everything */}
+          {hasAccounts && (
+            <LockScreenOverlay
+              locked={shouldShowLockScreen}
+              onUnlock={handleUnlock}
+              onRemoveAllAccounts={handleRemoveAllAccounts}
+            />
+          )}
+        </View>
       </ThemeProvider>
     </I18nProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

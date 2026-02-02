@@ -1,9 +1,165 @@
-import { View, Text } from 'react-native';
+/**
+ * WelcomeScreen - Onboarding entry point
+ *
+ * This screen is displayed when the user first opens the app or when
+ * they need to create or recover a wallet. It provides options to
+ * create a new account or recover an existing one.
+ *
+ * If the user has existing accounts stored, it also shows an option
+ * to access them via the lock screen.
+ *
+ * Design: Dark gradient background with centered content, action buttons.
+ */
 
-export default function SelectOptionsScreen() {
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { StatusBar } from 'expo-status-bar';
+import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import {
+  useAccounts,
+  colors,
+  spacing,
+  componentSizes,
+  contentPadding,
+  fontSize,
+} from '@salmon/shared';
+import { PrimaryButton, SecondaryButton } from '@salmon/ui';
+import { Logo } from '@salmon/assets';
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export default function WelcomeScreen() {
+  const { t } = useTranslation();
+  const [state, actions] = useAccounts();
+
+  // Check if there are existing accounts stored
+  const hasAccounts = state.accounts && state.accounts.length > 0;
+
+  /**
+   * Navigate to account creation flow
+   */
+  const handleCreateAccount = () => {
+    router.push('/(auth)/create');
+  };
+
+  /**
+   * Navigate to account recovery flow
+   */
+  const handleRecoverAccount = () => {
+    router.push('/(auth)/recover');
+  };
+
+  /**
+   * Lock accounts and navigate to main app where LockScreenOverlay will show
+   */
+  const handleAccessExistingAccount = async () => {
+    await actions.lockAccounts();
+    router.replace('/(app)/(tabs)');
+  };
+
+  // Determine title based on whether user has accounts
+  const title = hasAccounts
+    ? t('wallet.onboarding.titleOnboarded')
+    : t('wallet.onboarding.titleWelcome');
+
   return (
-    <View>
-      <Text>SelectOptionsPage</Text>
-    </View>
+    <LinearGradient
+      colors={[colors.background.primary, colors.background.secondary]}
+      style={styles.container}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+    >
+      <StatusBar style="light" />
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+        <View style={styles.content}>
+          {/* Welcome Text */}
+          <Text style={styles.welcomeText}>{title}</Text>
+
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <Image source={Logo} style={styles.logo} resizeMode="contain" />
+          </View>
+
+          {/* Brand Name */}
+          <Text style={styles.brandName}>Salmon</Text>
+
+          {/* Spacer to push buttons to bottom */}
+          <View style={styles.spacer} />
+
+          {/* Buttons Container */}
+          <View style={styles.buttonsContainer}>
+            {/* Create Account Button (Primary - White) */}
+            <PrimaryButton onPress={handleCreateAccount}>
+              {t('wallet.create_wallet').toUpperCase()}
+            </PrimaryButton>
+
+            {/* Recover Account Button (Secondary - Dark) */}
+            <SecondaryButton onPress={handleRecoverAccount}>
+              {t('wallet.recover_wallet').toUpperCase()}
+            </SecondaryButton>
+
+            {/* Access Existing Account Button (only if accounts exist) */}
+            {hasAccounts && (
+              <SecondaryButton onPress={handleAccessExistingAccount}>
+                {t('wallet.access_existing_account').toUpperCase()}
+              </SecondaryButton>
+            )}
+          </View>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: contentPadding.screen,
+    paddingTop: spacing['5xl'],
+    paddingBottom: spacing['3xl'],
+  },
+  welcomeText: {
+    color: colors.text.primary,
+    fontFamily: 'DMSansBold',
+    fontSize: fontSize['2xl'],
+    lineHeight: 32,
+    textAlign: 'center',
+    marginBottom: spacing['3xl'],
+  },
+  logoContainer: {
+    marginBottom: spacing['2xl'],
+  },
+  logo: {
+    width: componentSizes.logoSizeMedium,
+    height: componentSizes.logoSizeMedium,
+  },
+  brandName: {
+    color: colors.text.primary,
+    fontFamily: 'DMSansBold',
+    fontSize: 32,
+    lineHeight: 40,
+    textAlign: 'center',
+  },
+  spacer: {
+    flex: 1,
+  },
+  buttonsContainer: {
+    width: '100%',
+    gap: spacing.lg,
+  },
+});

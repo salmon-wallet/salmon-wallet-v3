@@ -1,59 +1,57 @@
 import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { GlassTabBar } from '@/components/navigation/GlassTabBar';
 
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={24} style={{ marginBottom: -3 }} {...props} />;
-}
-
+/**
+ * Tab Layout for Salmon Wallet
+ *
+ * Design specs from Figma:
+ * - Glass effect pill-shaped container (transparent/blur background)
+ * - Rounded corners: 82px border radius
+ * - 3 tabs: Home, Collectibles, Swap
+ * - Active tab: Orange/red color #ff5c45 for both icon and text
+ * - Inactive tab: White color with slight opacity
+ * - Font: DM Sans SemiBold, ~11px
+ * - Icons: ~28px height
+ * - Padding: 60px horizontal, items centered with space-between
+ *
+ * Note: Settings tab is excluded from the tab bar and accessible elsewhere in the app.
+ */
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const { t } = useTranslation();
-
   return (
     <Tabs
+      tabBar={(props) => <GlassTabBar {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: useClientOnlyValue(false, true),
-        tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: colorScheme === 'dark' ? '#333' : '#eee',
-        },
-      }}>
+        headerShown: false,
+        // Hide the default tab bar styling
+        tabBarStyle: { display: 'none' },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: t('tabs.wallet'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="credit-card" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="swap"
-        options={{
-          title: t('tabs.swap'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="exchange" color={color} />,
+          title: 'Home',
         }}
       />
       <Tabs.Screen
         name="collectibles"
         options={{
-          title: t('tabs.collectibles'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="picture-o" color={color} />,
+          title: 'Collectibles',
         }}
       />
       <Tabs.Screen
+        name="swap"
+        options={{
+          title: 'Swap',
+        }}
+      />
+      {/* Settings is hidden from the tab bar but still accessible via navigation */}
+      <Tabs.Screen
         name="settings"
         options={{
-          title: t('tabs.settings'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
+          href: null, // Hide from tab bar
+          title: 'Settings',
         }}
       />
     </Tabs>
