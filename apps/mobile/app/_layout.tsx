@@ -13,7 +13,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import { LockScreenOverlay } from '@/components/LockScreenOverlay';
 import { I18nProvider } from '../src/i18n';
-import { useAccounts } from '@salmon/shared';
+import { useAccounts, getStashItem, type DerivedKeyCache } from '@salmon/shared';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -74,6 +74,31 @@ function RootLayoutNav() {
       return false;
     }
   }, [actions]);
+
+  // Biometric unlock handler - uses cached derived key to unlock without PBKDF2
+  const handleUnlockWithKey = useCallback(async (keyJson: string): Promise<boolean> => {
+    try {
+      // Parse the cached key from the biometric-stored JSON
+      const keyCache: DerivedKeyCache = JSON.parse(keyJson);
+      // Use the cached key to unlock without expensive PBKDF2 derivation
+      return await actions.unlockWithCachedKey(keyCache);
+    } catch (error) {
+      console.error('Biometric unlock failed:', error);
+      return false;
+    }
+  }, [actions]);
+
+  // Get derived key handler - retrieves the cached key after password unlock
+  // This key is then stored securely for future biometric unlocks
+  const handleGetDerivedKey = useCallback(async (): Promise<string | null> => {
+    try {
+      // The derived key is cached in stash during password unlock
+      const keyCache = await getStashItem<DerivedKeyCache>('derived_key_cache');
+      return keyCache ? JSON.stringify(keyCache) : null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   // Remove all accounts handler for wallet reset
   const handleRemoveAllAccounts = useCallback(async () => {
@@ -140,6 +165,8 @@ function RootLayoutNav() {
             <LockScreenOverlay
               locked={shouldShowLockScreen}
               onUnlock={handleUnlock}
+              onUnlockWithKey={handleUnlockWithKey}
+              onGetDerivedKey={handleGetDerivedKey}
               onRemoveAllAccounts={handleRemoveAllAccounts}
             />
           )}
