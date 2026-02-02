@@ -197,6 +197,8 @@ export const STORAGE_KEYS = {
   PRICE_CACHE: 'salmon_price_cache',
   /** User's preferred language */
   LANGUAGE: 'salmon_language',
+  /** User's preferred display currency */
+  CURRENCY: 'salmon_currency',
 } as const;
 
 /**
