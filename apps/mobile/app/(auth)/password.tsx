@@ -378,6 +378,8 @@ export default function PasswordScreen() {
         visible={isLoading}
         title={loadingTitle}
         subtitle="Please wait while we secure your wallet"
+        showTips={true}
+        tipInterval={4000}
       />
     </>
   );
