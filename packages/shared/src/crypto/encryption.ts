@@ -53,6 +53,26 @@ export interface LockOptions {
 }
 
 /**
+ * Cached derived key for reuse within a session.
+ * Avoids expensive PBKDF2 re-derivation when the same password is used multiple times.
+ */
+export interface DerivedKeyCache {
+  /** The derived encryption key (serialized as number array for stash storage) */
+  key: number[];
+  /** The salt used for derivation, base58 encoded */
+  salt: string;
+  /** Number of iterations used */
+  iterations: number;
+  /** Digest algorithm used */
+  digest: DigestAlgorithm;
+  /** Expiration timestamp (Unix ms) */
+  expiresAt: number;
+}
+
+/** Cache expiration time: 5 minutes */
+const KEY_CACHE_TTL = 5 * 60 * 1000;
+
+/**
  * Error thrown when decryption fails due to an incorrect password.
  */
 export class IncorrectPasswordError extends Error {
@@ -343,6 +363,122 @@ export async function unlock<T>(locked: LockedVault, password: string): Promise<
       `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
+}
+
+// ============================================================================
+// Key Caching Functions (PBKDF2 Optimization)
+// ============================================================================
+
+/**
+ * Decrypts a vault and returns both the data and the derived key.
+ * Use this when you need to reuse the key for subsequent operations.
+ *
+ * @typeParam T - The expected type of the decrypted data
+ * @param locked - The encrypted vault
+ * @param password - The password to decrypt with
+ * @returns Object containing decrypted data and key cache info
+ * @throws {InvalidVaultError} If the vault structure is invalid
+ * @throws {IncorrectPasswordError} If the password is incorrect
+ */
+export async function unlockAndGetKey<T>(
+  locked: LockedVault,
+  password: string
+): Promise<{ data: T; keyCache: DerivedKeyCache }> {
+  // Validate vault structure
+  if (
+    !locked ||
+    typeof locked.encrypted !== 'string' ||
+    typeof locked.nonce !== 'string' ||
+    typeof locked.salt !== 'string' ||
+    typeof locked.iterations !== 'number' ||
+    typeof locked.digest !== 'string'
+  ) {
+    throw new InvalidVaultError('Vault is missing required fields');
+  }
+
+  if (locked.digest !== 'sha256' && locked.digest !== 'sha512') {
+    throw new InvalidVaultError(`Unsupported digest algorithm: ${locked.digest}`);
+  }
+
+  try {
+    const encrypted = bs58.decode(locked.encrypted);
+    const nonce = bs58.decode(locked.nonce);
+    const salt = bs58.decode(locked.salt);
+
+    // Derive the encryption key
+    const key = await deriveEncryptionKey(password, salt, locked.iterations, locked.digest);
+
+    // Decrypt the data
+    const plaintext = secretbox.open(encrypted, nonce, key);
+
+    if (!plaintext) {
+      throw new IncorrectPasswordError();
+    }
+
+    // Parse the decrypted JSON
+    const decodedPlaintext = Buffer.from(plaintext).toString('utf-8');
+    const data = JSON.parse(decodedPlaintext) as T;
+
+    // Create key cache for reuse
+    const keyCache: DerivedKeyCache = {
+      key: Array.from(key),
+      salt: locked.salt,
+      iterations: locked.iterations,
+      digest: locked.digest,
+      expiresAt: Date.now() + KEY_CACHE_TTL,
+    };
+
+    return { data, keyCache };
+  } catch (error) {
+    if (error instanceof IncorrectPasswordError || error instanceof InvalidVaultError) {
+      throw error;
+    }
+    if (error instanceof Error && error.message.includes('decode')) {
+      throw new InvalidVaultError('Failed to decode vault data: invalid base58 encoding');
+    }
+    if (error instanceof SyntaxError) {
+      throw new InvalidVaultError('Failed to parse decrypted data: invalid JSON');
+    }
+    throw new IncorrectPasswordError(
+      `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+/**
+ * Encrypts data using a pre-derived key (from cache).
+ * Avoids expensive PBKDF2 re-derivation when key is already available.
+ *
+ * @typeParam T - The type of data being encrypted
+ * @param unlocked - The data to encrypt
+ * @param keyCache - The cached key info from a previous unlock operation
+ * @returns The encrypted vault
+ */
+export function lockWithKey<T>(unlocked: T, keyCache: DerivedKeyCache): LockedVault {
+  const key = new Uint8Array(keyCache.key);
+
+  // Generate new random nonce (CRITICAL: must be unique per encryption)
+  const nonce = randomBytes(secretbox.nonceLength);
+
+  // Serialize and encrypt the data
+  const plaintext = Buffer.from(JSON.stringify(unlocked));
+  const encrypted = secretbox(plaintext, nonce, key);
+
+  return {
+    encrypted: bs58.encode(encrypted),
+    nonce: bs58.encode(nonce),
+    salt: keyCache.salt, // Reuse the same salt
+    iterations: keyCache.iterations,
+    digest: keyCache.digest,
+    kdf: 'pbkdf2',
+  };
+}
+
+/**
+ * Checks if a key cache is still valid (not expired).
+ */
+export function isKeyCacheValid(keyCache: DerivedKeyCache | null | undefined): keyCache is DerivedKeyCache {
+  return !!keyCache && keyCache.expiresAt > Date.now();
 }
 
 // ============================================================================
