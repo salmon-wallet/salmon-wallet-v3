@@ -39,6 +39,16 @@ const STATIC_API_URLS: Record<Environment, string> = {
 
 /**
  * Get environment variable value, supporting both Expo (mobile) and Vite (extension) formats
+ *
+ * Note: This function uses process.env exclusively for React Native (Hermes) compatibility.
+ * Hermes does not support import.meta at all - even typeof checks fail during parsing.
+ *
+ * For Vite environments:
+ * - Vite transforms import.meta.env.* to process.env.* at build time when using plugins
+ * - Alternatively, use @vitejs/plugin-env or define in vite.config.ts
+ *
+ * For Expo/React Native:
+ * - Uses EXPO_PUBLIC_* prefix which is automatically available via babel-preset-expo
  */
 function getEnvVar(name: string): string | undefined {
   // Check for Expo format (EXPO_PUBLIC_*)
@@ -47,15 +57,13 @@ function getEnvVar(name: string): string | undefined {
   const viteKey = `VITE_${name}`;
 
   // Access process.env safely for different environments
+  // This works for:
+  // - React Native/Expo (via babel-preset-expo which inlines EXPO_PUBLIC_* vars)
+  // - Node.js environments
+  // - Vite (when configured to use process.env or with define config)
+  // - Webpack/other bundlers that support process.env
   if (typeof process !== 'undefined' && process.env) {
     return process.env[expoKey] || process.env[viteKey] || process.env[name];
-  }
-
-  // For Vite environments, check import.meta.env
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const meta = (typeof import.meta !== 'undefined' ? import.meta : undefined) as any;
-  if (meta?.env) {
-    return meta.env[viteKey] || meta.env[name];
   }
 
   return undefined;
@@ -104,10 +112,10 @@ export function detectEnvironment(): Environment {
     case 'production':
       return 'production';
     case 'test':
-    case 'local':
     case 'development': // Map deprecated NODE_ENV=development to 'local'
       return 'local';
     default:
+      // Handles any non-standard NODE_ENV values (including 'local' if ever set)
       return 'local';
   }
 }

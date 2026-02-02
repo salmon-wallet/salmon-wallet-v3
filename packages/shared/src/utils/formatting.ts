@@ -250,3 +250,35 @@ export function formatCurrency(amount: number, currency: Currency): string {
   const { decimals, symbol } = currency;
   return `${formatAmount(amount, decimals)} ${symbol}`;
 }
+
+/**
+ * Formats an absolute price change with sign and dollar symbol
+ *
+ * @param absChange - The absolute change value (can be null or undefined)
+ * @param decimals - Number of decimal places (default: 2)
+ * @returns Formatted string with sign and dollar symbol, or null if absChange is nil
+ *
+ * @example
+ * ```typescript
+ * showAbsoluteChange(10.50)      // '+$10.50'
+ * showAbsoluteChange(-5.25)      // '-$5.25'
+ * showAbsoluteChange(0)          // '$0.00'
+ * showAbsoluteChange(null)       // null
+ * showAbsoluteChange(undefined)  // null
+ * ```
+ */
+export function showAbsoluteChange(
+  absChange: number | null | undefined,
+  decimals: number = 2
+): string | null {
+  if (isNil(absChange)) {
+    return null;
+  }
+  const val = round(Math.abs(absChange), decimals).toFixed(decimals);
+  if (isPositive(absChange)) {
+    return `+$${val}`;
+  } else if (isNegative(absChange)) {
+    return `-$${val}`;
+  }
+  return `$${val}`;
+}

@@ -32,4 +32,6 @@ export {
   showPercentage,
   // Currency formatting
   formatCurrency,
+  // Change formatting
+  showAbsoluteChange,
 } from './formatting';
