@@ -170,7 +170,22 @@
     "clear_confirm": "I UNDERSTAND, DISCONNECT ALL",
     "forgot_content": "Salmon does not store any information of your account. That includes your password. If you forgot it, you will need to disconnect all your accounts. Keep in mind that to re-import them you will need your seedphrase or private key.\n\nAre you sure you want to proceed?",
     "buttonChecking": "Checking...",
-    "buttonUnlock": "Unlock"
+    "buttonUnlock": "Unlock",
+    "forgot_password": "I forgot my password",
+    "reset_wallet_title": "Reset Wallet",
+    "reset_wallet_message": "If you forgot your password, you will need to reset your wallet. This will permanently delete all accounts and data from this device.\n\nYou can restore your wallet using your seed phrase after resetting.",
+    "confirm_title": "Are you sure?",
+    "confirm_message": "This action cannot be undone. All wallet data will be permanently deleted.",
+    "cancel": "Cancel",
+    "reset_button": "Reset Wallet",
+    "delete_button": "Delete All Data",
+    "welcome_back": "Welcome back",
+    "enter_password": "Enter Your Password",
+    "unlock": "Unlock",
+    "wrong_password": "Incorrect password. Please try again.",
+    "enter_password_error": "Please enter your password",
+    "unlock_failed": "Failed to unlock wallet. Please try again.",
+    "reset_failed": "Failed to reset wallet. Please try again."
   },
   "wallet": {
     "name_template": "Account #{{number}}",

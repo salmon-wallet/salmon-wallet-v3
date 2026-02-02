@@ -171,7 +171,22 @@
     "clear_confirm": "ENTENDIDO, DESCONECTAR TODO",
     "forgot_content": "Salmon no almacena ningún tipo de información sobre tu cuenta. Esto incluye tu contraseña. Si la olvidaste, tendrás que desconectar todas tus cuentas. Ten en cuenta que para volver a conectarlas necesitarás tu seedphrase o private key.\n\nEstás seguro que deseas proceder?",
     "buttonChecking": "Validando...",
-    "buttonUnlock": "Desbloquear"
+    "buttonUnlock": "Desbloquear",
+    "forgot_password": "Olvidé mi contraseña",
+    "reset_wallet_title": "Restablecer Billetera",
+    "reset_wallet_message": "Si olvidaste tu contraseña, necesitarás restablecer tu billetera. Esto eliminará permanentemente todas las cuentas y datos de este dispositivo.\n\nPodrás restaurar tu billetera usando tu frase de recuperación después de restablecerla.",
+    "confirm_title": "¿Estás seguro?",
+    "confirm_message": "Esta acción no se puede deshacer. Todos los datos de la billetera se eliminarán permanentemente.",
+    "cancel": "Cancelar",
+    "reset_button": "Restablecer Billetera",
+    "delete_button": "Eliminar Todos los Datos",
+    "welcome_back": "Bienvenido de nuevo",
+    "enter_password": "Ingresa tu contraseña",
+    "unlock": "Desbloquear",
+    "wrong_password": "Contraseña incorrecta. Por favor, inténtalo de nuevo.",
+    "enter_password_error": "Por favor ingresa tu contraseña",
+    "unlock_failed": "Error al desbloquear la billetera. Por favor, inténtalo de nuevo.",
+    "reset_failed": "Error al restablecer la billetera. Por favor, inténtalo de nuevo."
   },
   "wallet": {
     "name_template": "Cuenta Nro {{number}}",
