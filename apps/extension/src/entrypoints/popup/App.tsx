@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
-import { useAccounts, useInactivityTimeout } from '@salmon/shared';
+import { useAccounts, useInactivityTimeout, DerivedKeyCache } from '@salmon/shared';
 import { LockPage } from '../../pages/lock/LockPage';
 import { HomePage } from '../../pages/home/HomePage';
 import { SelectOptionsPage } from '../../pages/auth/SelectOptionsPage';
+import { clearSessionKey } from '../../utils/sessionKeyCache';
 
 /**
  * Loading spinner component shown during initialization.
@@ -34,6 +35,8 @@ function App() {
 
   // Set up inactivity timeout for auto-lock
   // Only enabled when wallet is unlocked and has accounts
+  // Note: We don't clear the session key on auto-lock - the user can still
+  // instantly unlock with the session key until the browser session ends
   useInactivityTimeout({
     timeoutMs: 5 * 60 * 1000, // 5 minutes
     onTimeout: () => {
@@ -45,8 +48,17 @@ function App() {
   // Handler for removing all accounts from lock screen
   // After removal, accounts.length will be 0 and app will show onboarding
   const handleRemoveAllAccounts = useCallback(async () => {
+    await clearSessionKey();
     await actions.removeAllAccounts();
   }, [actions]);
+
+  // Handler for unlocking with a cached derived key (instant unlock)
+  const handleUnlockWithCachedKey = useCallback(
+    async (keyCache: DerivedKeyCache): Promise<boolean> => {
+      return actions.unlockWithCachedKey(keyCache);
+    },
+    [actions]
+  );
 
   // Show loading spinner during initialization
   // This is a brief moment while checking stash for existing password
@@ -65,6 +77,7 @@ function App() {
     return (
       <LockPage
         onUnlock={actions.unlockAccounts}
+        onUnlockWithCachedKey={handleUnlockWithCachedKey}
         onRemoveAllAccounts={handleRemoveAllAccounts}
       />
     );

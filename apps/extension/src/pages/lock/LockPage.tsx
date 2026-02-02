@@ -1,8 +1,32 @@
-import React, { useState, useCallback, type FormEvent, type ChangeEvent } from 'react';
+import React, { useState, useCallback, useEffect, useRef, type FormEvent, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  PrimaryButton,
+  SecondaryButton,
+  LockIcon,
+  LoadingScreen,
+} from '@salmon/ui-extension';
+import {
+  colors,
+  gradients,
+  fontFamily,
+  fontSize,
+  fontWeight,
+  spacing,
+  borderRadius,
+  componentSizes,
+  contentPadding,
+  DerivedKeyCache,
+  getStashItem,
+} from '@salmon/shared';
+import { getSessionKey, storeSessionKey, clearSessionKey } from '../../utils/sessionKeyCache';
+
+/** Stash key used by useAccounts for cached derived key */
+const DERIVED_KEY_STASH_KEY = 'derived_key_cache';
 
 interface LockPageProps {
   onUnlock: (password: string) => Promise<boolean>;
+  onUnlockWithCachedKey: (keyCache: DerivedKeyCache) => Promise<boolean>;
   onRemoveAllAccounts: () => Promise<void>;
 }
 
@@ -15,13 +39,45 @@ interface LockPageProps {
  * - Immediate loading state when submitting
  * - Clear error feedback
  */
-export function LockPage({ onUnlock, onRemoveAllAccounts }: LockPageProps) {
+export function LockPage({ onUnlock, onUnlockWithCachedKey, onRemoveAllAccounts }: LockPageProps) {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isUnlocking, setIsUnlocking] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
+  const [isCheckingSessionKey, setIsCheckingSessionKey] = useState(true);
+  const sessionKeyCheckRef = useRef(false);
+
+  // Check for valid session key on mount for instant unlock
+  useEffect(() => {
+    // Prevent double execution in React strict mode
+    if (sessionKeyCheckRef.current) return;
+    sessionKeyCheckRef.current = true;
+
+    const checkSessionKey = async () => {
+      try {
+        const sessionKey = await getSessionKey();
+        if (sessionKey) {
+          // Try instant unlock with cached session key
+          const success = await onUnlockWithCachedKey(sessionKey);
+          if (success) {
+            // Session key worked, unlock succeeded
+            return;
+          }
+          // Session key was invalid or expired, clear it
+          await clearSessionKey();
+        }
+      } catch (error) {
+        console.warn('Failed to check session key:', error);
+      } finally {
+        setIsCheckingSessionKey(false);
+      }
+    };
+
+    checkSessionKey();
+  }, [onUnlockWithCachedKey]);
 
   const handlePasswordChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -39,6 +95,7 @@ export function LockPage({ onUnlock, onRemoveAllAccounts }: LockPageProps) {
       return;
     }
 
+    setShowLoadingScreen(true);  // Show loading screen immediately
     setIsUnlocking(true);
     setError(null);
 
@@ -47,10 +104,24 @@ export function LockPage({ onUnlock, onRemoveAllAccounts }: LockPageProps) {
       if (!success) {
         setError(t('lock.error.invalid_password', 'Invalid password'));
         setPassword('');
+        setShowLoadingScreen(false);  // Hide on error
+      } else {
+        // On success, retrieve the derived key from stash and store in session
+        // This enables instant unlock for subsequent opens during this browser session
+        try {
+          const derivedKey = await getStashItem<DerivedKeyCache>(DERIVED_KEY_STASH_KEY);
+          if (derivedKey) {
+            await storeSessionKey(derivedKey);
+          }
+        } catch (cacheError) {
+          // Session key caching is optional - don't fail unlock if it fails
+          console.warn('Failed to cache session key:', cacheError);
+        }
       }
-      // If success, the parent component will handle the transition
+      // Don't hide on success - page will navigate away
     } catch {
       setError(t('lock.error.unlock_failed', 'Failed to unlock wallet'));
+      setShowLoadingScreen(false);  // Hide on error
     } finally {
       setIsUnlocking(false);
     }
@@ -85,133 +156,154 @@ export function LockPage({ onUnlock, onRemoveAllAccounts }: LockPageProps) {
     setShowConfirmDialog(false);
   }, []);
 
-  return (
-    <div style={styles.container}>
-      <div style={styles.content}>
-        {/* Logo/Icon placeholder */}
-        <div style={styles.logoContainer}>
-          <div style={styles.logo}>
-            <span style={styles.logoText}>S</span>
+  // Show nothing while checking session key - instant unlock will navigate away
+  // This prevents a flash of the lock screen when session key is valid
+  if (isCheckingSessionKey) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.content}>
+          <div style={styles.logoContainer}>
+            <div style={styles.logo}>
+              <LockIcon sx={{ fontSize: 32, color: colors.text.primary }} />
+            </div>
           </div>
         </div>
+      </div>
+    );
+  }
 
-        <h1 style={styles.title}>
-          {t('lock.title', 'Welcome Back')}
-        </h1>
-
-        <p style={styles.subtitle}>
-          {t('lock.subtitle', 'Enter your password to unlock your wallet')}
-        </p>
-
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.inputContainer}>
-            <input
-              type="password"
-              value={password}
-              onChange={handlePasswordChange}
-              placeholder={t('lock.password_placeholder', 'Password')}
-              style={{
-                ...styles.input,
-                ...(error ? styles.inputError : {}),
-              }}
-              disabled={isUnlocking}
-              autoFocus
-            />
-            {error && (
-              <p style={styles.errorText}>{error}</p>
-            )}
+  return (
+    <>
+      <div style={styles.container}>
+        <div style={styles.content}>
+          {/* Logo with Lock Icon */}
+          <div style={styles.logoContainer}>
+            <div style={styles.logo}>
+              <LockIcon sx={{ fontSize: 32, color: colors.text.primary }} />
+            </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isUnlocking || !password.trim()}
-            style={{
-              ...styles.button,
-              ...(isUnlocking || !password.trim() ? styles.buttonDisabled : {}),
-            }}
-          >
-            {isUnlocking ? (
-              <span style={styles.spinner} />
-            ) : (
-              t('lock.unlock', 'Unlock')
-            )}
-          </button>
+          <h1 style={styles.title}>
+            {t('lock.title', 'Welcome Back')}
+          </h1>
 
-          {/* Forgot Password Link */}
-          <button
-            type="button"
-            onClick={handleForgotPassword}
-            disabled={isUnlocking}
-            style={styles.forgotPasswordButton}
-          >
-            {t('lock.forgot_password', 'I forgot my password')}
-          </button>
-        </form>
+          <p style={styles.subtitle}>
+            {t('lock.subtitle', 'Enter your password to unlock your wallet')}
+          </p>
+
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <div style={styles.inputContainer}>
+              <input
+                type="password"
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder={t('lock.password_placeholder', 'Password')}
+                style={{
+                  ...styles.input,
+                  ...(error ? styles.inputError : {}),
+                }}
+                disabled={isUnlocking}
+                autoFocus
+              />
+              {error && (
+                <p style={styles.errorText}>{error}</p>
+              )}
+            </div>
+
+            <PrimaryButton
+              type="submit"
+              disabled={!password.trim()}
+              loading={isUnlocking}
+              fullWidth
+            >
+              {t('lock.unlock', 'Unlock')}
+            </PrimaryButton>
+
+            {/* Forgot Password Link */}
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={isUnlocking}
+              style={styles.forgotPasswordButton}
+            >
+              {t('lock.forgot_password', 'I forgot my password')}
+            </button>
+          </form>
+        </div>
+
+        {/* Reset Wallet Dialog */}
+        {showResetDialog && (
+          <div style={styles.modalOverlay} onClick={handleCancelReset}>
+            <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+              <h2 style={styles.modalTitle}>
+                {t('lock.reset_wallet.title', 'Reset Wallet')}
+              </h2>
+              <p style={styles.modalMessage}>
+                {t('lock.reset_wallet.message', 'If you forgot your password, you will need to reset your wallet. This will permanently delete all accounts and data. You can restore your wallet using your seed phrase after resetting.')}
+              </p>
+              <div style={styles.modalButtons}>
+                <SecondaryButton
+                  onClick={handleCancelReset}
+                  variant="outline"
+                  fullWidth
+                >
+                  {t('lock.reset_wallet.cancel', 'Cancel')}
+                </SecondaryButton>
+                <button
+                  onClick={handleConfirmReset}
+                  style={styles.destructiveButton}
+                >
+                  {t('lock.reset_wallet.reset', 'Reset Wallet')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirm Reset Dialog */}
+        {showConfirmDialog && (
+          <div style={styles.modalOverlay} onClick={handleCancelConfirm}>
+            <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+              <h2 style={styles.modalTitle}>
+                {t('lock.confirm_reset.title', 'Are you sure?')}
+              </h2>
+              <p style={styles.modalMessage}>
+                {t('lock.confirm_reset.message', 'This action cannot be undone. All wallet data will be permanently deleted.')}
+              </p>
+              <div style={styles.modalButtons}>
+                <SecondaryButton
+                  onClick={handleCancelConfirm}
+                  variant="outline"
+                  fullWidth
+                >
+                  {t('lock.confirm_reset.cancel', 'Cancel')}
+                </SecondaryButton>
+                <button
+                  onClick={handleFinalConfirm}
+                  style={styles.destructiveButton}
+                >
+                  {t('lock.confirm_reset.confirm', 'Delete All Data')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Reset Wallet Dialog */}
-      {showResetDialog && (
-        <div style={styles.modalOverlay} onClick={handleCancelReset}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h2 style={styles.modalTitle}>
-              {t('lock.reset_wallet.title', 'Reset Wallet')}
-            </h2>
-            <p style={styles.modalMessage}>
-              {t('lock.reset_wallet.message', 'If you forgot your password, you will need to reset your wallet. This will permanently delete all accounts and data. You can restore your wallet using your seed phrase after resetting.')}
-            </p>
-            <div style={styles.modalButtons}>
-              <button
-                onClick={handleCancelReset}
-                style={styles.modalButtonSecondary}
-              >
-                {t('lock.reset_wallet.cancel', 'Cancel')}
-              </button>
-              <button
-                onClick={handleConfirmReset}
-                style={styles.modalButtonDestructive}
-              >
-                {t('lock.reset_wallet.reset', 'Reset Wallet')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Confirm Reset Dialog */}
-      {showConfirmDialog && (
-        <div style={styles.modalOverlay} onClick={handleCancelConfirm}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h2 style={styles.modalTitle}>
-              {t('lock.confirm_reset.title', 'Are you sure?')}
-            </h2>
-            <p style={styles.modalMessage}>
-              {t('lock.confirm_reset.message', 'This action cannot be undone. All wallet data will be permanently deleted.')}
-            </p>
-            <div style={styles.modalButtons}>
-              <button
-                onClick={handleCancelConfirm}
-                style={styles.modalButtonSecondary}
-              >
-                {t('lock.confirm_reset.cancel', 'Cancel')}
-              </button>
-              <button
-                onClick={handleFinalConfirm}
-                style={styles.modalButtonDestructive}
-              >
-                {t('lock.confirm_reset.confirm', 'Delete All Data')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Loading Screen during unlock */}
+      <LoadingScreen
+        visible={showLoadingScreen}
+        title="Unlocking Wallet"
+        showTips={true}
+        tipInterval={3000}
+      />
+    </>
   );
 }
 
 /**
- * Inline styles for the LockPage component.
- * Using inline styles to avoid any CSS loading delays
- * and ensure instant rendering.
+ * Styles for the LockPage component.
+ * Uses design tokens from @salmon/shared for consistency.
  */
 const styles: Record<string, React.CSSProperties> = {
   container: {
@@ -220,10 +312,10 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '100vh',
-    padding: '24px',
-    backgroundColor: '#0f0f0f',
-    color: '#ffffff',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    padding: `${contentPadding.screen}px`,
+    background: `linear-gradient(180deg, ${colors.background.primary} 0%, ${colors.background.secondary} 100%)`,
+    color: colors.text.primary,
+    fontFamily: `${fontFamily.sans}, sans-serif`,
   },
   content: {
     width: '100%',
@@ -233,99 +325,70 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
   },
   logoContainer: {
-    marginBottom: '32px',
+    marginBottom: `${spacing['3xl']}px`,
   },
   logo: {
     width: '72px',
     height: '72px',
     borderRadius: '50%',
-    background: 'linear-gradient(135deg, #FF6B4A 0%, #FF8E53 100%)',
+    background: gradients.primaryCSS,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logoText: {
-    fontSize: '32px',
-    fontWeight: 700,
-    color: '#ffffff',
-  },
   title: {
-    fontSize: '24px',
-    fontWeight: 600,
-    marginBottom: '8px',
+    fontSize: fontSize['2xl'],
+    fontWeight: fontWeight.semibold,
+    marginBottom: `${spacing.sm}px`,
     textAlign: 'center' as const,
+    color: colors.text.primary,
   },
   subtitle: {
-    fontSize: '14px',
-    color: '#888888',
-    marginBottom: '32px',
+    fontSize: fontSize.sm,
+    color: colors.text.secondary,
+    marginBottom: `${spacing['3xl']}px`,
     textAlign: 'center' as const,
   },
   form: {
     width: '100%',
   },
   inputContainer: {
-    marginBottom: '16px',
+    marginBottom: `${spacing.lg}px`,
   },
   input: {
     width: '100%',
     padding: '14px 16px',
-    fontSize: '16px',
-    backgroundColor: '#1a1a1a',
-    border: '1px solid #333333',
-    borderRadius: '12px',
-    color: '#ffffff',
+    fontSize: fontSize.md,
+    backgroundColor: colors.input.background,
+    border: `1px solid ${colors.input.border}`,
+    borderRadius: `${componentSizes.inputRadius}px`,
+    color: colors.text.primary,
     outline: 'none',
     boxSizing: 'border-box' as const,
     transition: 'border-color 0.15s ease',
+    fontFamily: `${fontFamily.sans}, sans-serif`,
   },
   inputError: {
-    borderColor: '#ff4444',
+    borderColor: colors.input.borderError,
   },
   errorText: {
-    color: '#ff4444',
-    fontSize: '12px',
-    marginTop: '8px',
-    marginLeft: '4px',
-  },
-  button: {
-    width: '100%',
-    padding: '14px',
-    fontSize: '16px',
-    fontWeight: 600,
-    backgroundColor: '#FF6B4A',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '12px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '50px',
-    transition: 'opacity 0.15s ease',
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-    cursor: 'not-allowed',
-  },
-  spinner: {
-    width: '20px',
-    height: '20px',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    borderTopColor: '#ffffff',
-    borderRadius: '50%',
-    animation: 'spin 0.8s linear infinite',
+    color: colors.status.error,
+    fontSize: fontSize.xs,
+    marginTop: `${spacing.sm}px`,
+    marginLeft: `${spacing.xs}px`,
   },
   forgotPasswordButton: {
-    marginTop: '16px',
-    padding: '8px',
+    marginTop: `${spacing.lg}px`,
+    padding: `${spacing.sm}px`,
     background: 'none',
     border: 'none',
-    color: '#888888',
-    fontSize: '14px',
+    color: colors.text.secondary,
+    fontSize: fontSize.sm,
     cursor: 'pointer',
     textDecoration: 'none',
     transition: 'color 0.15s ease',
+    width: '100%',
+    fontFamily: `${fontFamily.sans}, sans-serif`,
   },
   modalOverlay: {
     position: 'fixed' as const,
@@ -333,90 +396,83 @@ const styles: Record<string, React.CSSProperties> = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: colors.dialog.overlay,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
-    padding: '24px',
+    padding: `${contentPadding.screen}px`,
   },
   modalContent: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: '16px',
-    padding: '24px',
+    backgroundColor: colors.dialog.background,
+    borderRadius: `${borderRadius.xl}px`,
+    padding: `${contentPadding.modal}px`,
     maxWidth: '400px',
     width: '100%',
-    border: '1px solid #333333',
+    border: `1px solid ${colors.dialog.border}`,
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
   },
   modalTitle: {
-    fontSize: '20px',
-    fontWeight: 600,
-    color: '#ffffff',
-    marginBottom: '16px',
+    fontSize: fontSize.xl,
+    fontWeight: fontWeight.semibold,
+    color: colors.text.primary,
+    marginBottom: `${spacing.lg}px`,
     textAlign: 'center' as const,
+    fontFamily: `${fontFamily.sans}, sans-serif`,
   },
   modalMessage: {
-    fontSize: '14px',
-    color: '#cccccc',
+    fontSize: fontSize.sm,
+    color: colors.text.muted,
     lineHeight: '1.6',
-    marginBottom: '24px',
+    marginBottom: `${spacing['2xl']}px`,
     textAlign: 'center' as const,
+    fontFamily: `${fontFamily.sans}, sans-serif`,
   },
   modalButtons: {
     display: 'flex',
-    gap: '12px',
+    gap: `${spacing.md}px`,
     justifyContent: 'center',
   },
-  modalButtonSecondary: {
+  destructiveButton: {
     flex: 1,
     padding: '12px 20px',
-    fontSize: '14px',
-    fontWeight: 600,
-    backgroundColor: '#333333',
-    color: '#ffffff',
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.semibold,
+    backgroundColor: colors.status.error,
+    color: colors.text.primary,
     border: 'none',
-    borderRadius: '12px',
+    borderRadius: `${componentSizes.buttonRadius}px`,
     cursor: 'pointer',
-    transition: 'background-color 0.15s ease',
-  },
-  modalButtonDestructive: {
-    flex: 1,
-    padding: '12px 20px',
-    fontSize: '14px',
-    fontWeight: 600,
-    backgroundColor: '#ff4444',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '12px',
-    cursor: 'pointer',
-    transition: 'background-color 0.15s ease',
+    transition: 'opacity 0.15s ease',
+    fontFamily: `${fontFamily.sans}, sans-serif`,
+    height: `${componentSizes.buttonHeight}px`,
   },
 };
 
-// Inject keyframe animation for spinner and button hover effects
+// Inject hover effects for interactive elements
 if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style');
-  styleSheet.textContent = `
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+  const styleId = 'lock-page-styles';
+  if (!document.getElementById(styleId)) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = styleId;
+    styleSheet.textContent = `
+      /* Input focus effect */
+      input:focus {
+        border-color: ${colors.input.borderFocus} !important;
+      }
 
-    /* Forgot password button hover effect */
-    button[style*="color: rgb(136, 136, 136)"]:hover:not(:disabled) {
-      color: #ffffff !important;
-    }
+      /* Forgot password button hover effect */
+      button[style*="background: none"]:hover:not(:disabled) {
+        color: ${colors.text.primary} !important;
+      }
 
-    /* Modal button hover effects */
-    button[style*="background-color: rgb(51, 51, 51)"]:hover {
-      background-color: #444444 !important;
-    }
-
-    button[style*="background-color: rgb(255, 68, 68)"]:hover {
-      background-color: #ff5555 !important;
-    }
-  `;
-  document.head.appendChild(styleSheet);
+      /* Destructive button hover effect */
+      button[style*="background-color: ${colors.status.error}"]:hover {
+        opacity: 0.9;
+      }
+    `;
+    document.head.appendChild(styleSheet);
+  }
 }
 
 export default LockPage;
