@@ -318,13 +318,10 @@ export default function HomeScreen() {
     );
   }, [accountState, activeAccount, accountActions, handleRemoveAllWallets, t]);
 
-  // Check if the account has populated network data
-  const hasNetworksData = activeAccount &&
-    activeAccount.networksAccounts &&
-    Object.keys(activeAccount.networksAccounts).length > 0;
-
-  // Loading state - wait for networksAccounts to be populated
-  if (!ready || (activeAccount && !hasNetworksData)) {
+  // Loading state - wait for hook to be ready
+  // Note: If we're on this screen, the LockScreenOverlay has been dismissed,
+  // which means unlock succeeded and accounts should be loaded
+  if (!ready) {
     return (
       <View style={styles.loadingContainer}>
         <StatusBar style="light" />
