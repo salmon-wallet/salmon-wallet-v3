@@ -30,6 +30,7 @@ import {
   unlock,
   lockWithKey,
   unlockAndGetKey,
+  unlockWithKey,
   isKeyCacheValid,
   type LockedVault,
   type DerivedKeyCache,
@@ -192,6 +193,8 @@ export interface UseAccountsActions {
   lockAccounts: () => Promise<void>;
   /** Unlock accounts with password */
   unlockAccounts: (password: string) => Promise<boolean>;
+  /** Unlock accounts with a cached derived key (for biometric unlock) */
+  unlockWithCachedKey: (keyCache: DerivedKeyCache) => Promise<boolean>;
   /** Change the active account */
   changeAccount: (targetId: string) => Promise<void>;
   /** Change the active network */
@@ -850,6 +853,53 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     [runUpgrades, loaded, load]
   );
 
+  /**
+   * Unlocks accounts using a cached derived key (for biometric unlock).
+   * This avoids the expensive PBKDF2 key derivation by using a previously
+   * cached key from a password unlock.
+   *
+   * @param keyCache - The cached derived key from a previous password unlock
+   * @returns true if unlock succeeded, false otherwise
+   */
+  const unlockWithCachedKey = useCallback(
+    async (keyCache: DerivedKeyCache): Promise<boolean> => {
+      try {
+        // Validate the key cache
+        if (!isKeyCacheValid(keyCache)) {
+          console.warn('Key cache is expired or invalid');
+          return false;
+        }
+
+        const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
+        if (!storedMnemonics) {
+          setLocked(false);
+          return true;
+        }
+
+        let mnemonics: Record<string, string>;
+        if (isEncryptedMnemonics(storedMnemonics)) {
+          // Use the cached key to decrypt (no PBKDF2 needed)
+          mnemonics = unlockWithKey<Record<string, string>>(storedMnemonics, keyCache);
+          // Cache the key for subsequent operations
+          await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
+        } else {
+          mnemonics = storedMnemonics;
+        }
+
+        if (!loaded) {
+          await load(mnemonics);
+        }
+        setLocked(false);
+
+        return true;
+      } catch (error) {
+        console.warn('Failed to unlock accounts with cached key:', error);
+        return false;
+      }
+    },
+    [loaded, load]
+  );
+
   // --------------------------------------------------------------------------
   // Initialization
   // --------------------------------------------------------------------------
@@ -1285,6 +1335,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     checkPassword,
     lockAccounts,
     unlockAccounts,
+    unlockWithCachedKey,
     changeAccount,
     changeNetwork,
     switchNetwork,

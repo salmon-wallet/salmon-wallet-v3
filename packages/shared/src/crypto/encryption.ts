@@ -481,6 +481,76 @@ export function isKeyCacheValid(keyCache: DerivedKeyCache | null | undefined): k
   return !!keyCache && keyCache.expiresAt > Date.now();
 }
 
+/**
+ * Decrypts a vault using a pre-derived key (from cache).
+ * Avoids expensive PBKDF2 re-derivation when key is already available.
+ *
+ * IMPORTANT: The vault must have been encrypted with the same salt
+ * that was used to derive the cached key.
+ *
+ * @typeParam T - The expected type of the decrypted data
+ * @param locked - The encrypted vault
+ * @param keyCache - The cached key info from a previous unlock operation
+ * @returns The decrypted data
+ * @throws {InvalidVaultError} If the vault structure is invalid
+ * @throws {IncorrectPasswordError} If decryption fails (key mismatch)
+ */
+export function unlockWithKey<T>(locked: LockedVault, keyCache: DerivedKeyCache): T {
+  // Validate vault structure
+  if (
+    !locked ||
+    typeof locked.encrypted !== 'string' ||
+    typeof locked.nonce !== 'string' ||
+    typeof locked.salt !== 'string' ||
+    typeof locked.iterations !== 'number' ||
+    typeof locked.digest !== 'string'
+  ) {
+    throw new InvalidVaultError('Vault is missing required fields');
+  }
+
+  // Validate that the cached key was derived with the same parameters
+  if (locked.salt !== keyCache.salt) {
+    throw new IncorrectPasswordError('Key cache salt does not match vault salt');
+  }
+
+  try {
+    const key = new Uint8Array(keyCache.key);
+    const encrypted = bs58.decode(locked.encrypted);
+    const nonce = bs58.decode(locked.nonce);
+
+    // Decrypt the data
+    const plaintext = secretbox.open(encrypted, nonce, key);
+
+    if (!plaintext) {
+      throw new IncorrectPasswordError();
+    }
+
+    // Parse and return the decrypted JSON
+    const decodedPlaintext = Buffer.from(plaintext).toString('utf-8');
+    return JSON.parse(decodedPlaintext) as T;
+  } catch (error) {
+    // Re-throw our custom errors
+    if (error instanceof IncorrectPasswordError || error instanceof InvalidVaultError) {
+      throw error;
+    }
+
+    // Handle base58 decode errors
+    if (error instanceof Error && error.message.includes('decode')) {
+      throw new InvalidVaultError('Failed to decode vault data: invalid base58 encoding');
+    }
+
+    // Handle JSON parse errors
+    if (error instanceof SyntaxError) {
+      throw new InvalidVaultError('Failed to parse decrypted data: invalid JSON');
+    }
+
+    // Unknown error
+    throw new IncorrectPasswordError(
+      `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
 // ============================================================================
 // Utility Functions
 // ============================================================================
