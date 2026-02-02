@@ -88,3 +88,27 @@ export type { ScreenHeaderProps } from './ScreenHeader';
 // LoadingScreen - Animated loading overlay with pulsing logo and spinner
 export { LoadingScreen, DEFAULT_WALLET_TIPS } from './LoadingScreen';
 export type { LoadingScreenProps } from './LoadingScreen';
+
+// PriceChart - Token price history chart with time period selector
+export { PriceChart, PRICE_CHART_PERIODS } from './PriceChart';
+export type {
+  PriceChartProps,
+  PriceChartPeriod,
+  PriceDataPoint,
+} from './PriceChart';
+
+// TokenInfo - Token information display (description, market stats, contract)
+export { TokenInfo } from './TokenInfo';
+export type { TokenInfoProps } from './TokenInfo';
+
+// TokenFeatures - Token characteristics/features badges
+export { TokenFeatures } from './TokenFeatures';
+export type { TokenFeaturesProps, TokenFeature } from './TokenFeatures';
+
+// TopSheet - Slide-down modal from top of screen
+export { TopSheet } from './TopSheet';
+export type {
+  TopSheetProps,
+  TopSheetAnimationConfig,
+  TopSheetRef,
+} from './TopSheet';
