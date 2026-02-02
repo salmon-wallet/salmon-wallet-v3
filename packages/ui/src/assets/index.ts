@@ -1,12 +1,13 @@
 /**
  * Re-export all assets from @salmon/assets package
- * This maintains backward compatibility while using the centralized assets package
  *
- * Note: Assets are typically required directly using require() statements
- * rather than imported via ES modules. See apps/mobile/app/_layout.tsx for examples.
+ * This file provides backward compatibility for any imports from @salmon/ui/assets.
+ * All assets are centralized in the @salmon/assets package.
+ *
+ * Usage:
+ *   import { Logo, AppIcon } from '@salmon/assets';
+ *   // or for backward compatibility:
+ *   import { Logo, AppIcon } from '@salmon/ui/assets';
  */
 
-// Re-export fonts and images from centralized assets package
-// Commented out temporarily to avoid TypeScript errors with asset modules
-// These are imported directly via require() in the apps
-// export * from '@salmon/assets';
+export * from '@salmon/assets';
