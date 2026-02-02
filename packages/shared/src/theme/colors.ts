@@ -7,17 +7,21 @@ export const colors = {
   background: {
     primary: '#10131c', // bg-darken
     secondary: '#161c2d',
+    tertiary: 'rgba(255, 255, 255, 0.08)', // For elevated surfaces
     card: 'rgba(255, 255, 255, 0.05)',
     glass: 'rgba(0, 0, 0, 0.4)', // glass effect
   },
   text: {
     primary: '#FFFFFF', // Unificado a blanco puro
     secondary: '#8A8D98', // Actualizado para mejor legibilidad
+    tertiary: '#6B6E7B', // For less prominent text
     muted: 'rgba(255, 255, 255, 0.7)',
     placeholder: '#6B6E7B',
+    disabled: 'rgba(255, 255, 255, 0.4)', // For disabled text elements
   },
   border: {
     default: '#404962',
+    primary: '#404962', // Alias for default
     light: 'rgba(255, 255, 255, 0.8)',
   },
   accent: {

@@ -9,6 +9,8 @@ export const spacing = {
   none: 0,
   /** 2px */
   '2xs': 2,
+  /** 2px - alias for 2xs */
+  xxs: 2,
   /** 4px */
   xs: 4,
   /** 8px */
