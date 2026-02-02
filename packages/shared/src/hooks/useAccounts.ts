@@ -837,9 +837,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
           mnemonics = storedMnemonics;
         }
 
-        if (!loaded) {
-          await load(mnemonics);
-        }
+        // Always reload accounts with decrypted mnemonics on unlock.
+        // Even if loadMetadata() was called (setting loaded=true), we need to
+        // populate the actual blockchain account instances in networksAccounts.
+        await load(mnemonics);
         setLocked(false);
 
         await setStashItem(STASH_KEYS.PASSWORD, password);
@@ -850,7 +851,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         return false;
       }
     },
-    [runUpgrades, loaded, load]
+    [runUpgrades, load]
   );
 
   /**
@@ -886,9 +887,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
           mnemonics = storedMnemonics;
         }
 
-        if (!loaded) {
-          await load(mnemonics);
-        }
+        // Always reload accounts with decrypted mnemonics on unlock.
+        // Even if loadMetadata() was called (setting loaded=true), we need to
+        // populate the actual blockchain account instances in networksAccounts.
+        await load(mnemonics);
         setLocked(false);
 
         return true;
@@ -897,7 +899,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         return false;
       }
     },
-    [loaded, load]
+    [load]
   );
 
   // --------------------------------------------------------------------------
