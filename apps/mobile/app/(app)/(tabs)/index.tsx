@@ -13,19 +13,28 @@
  * - Navigation to token detail, send, receive, and activity screens
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   StyleSheet,
   ScrollView,
   RefreshControl,
   View,
   Text,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
+import { useTranslation } from 'react-i18next';
 
-import { useAccounts, useBalance, SOLANA_NETWORKS } from '@salmon/shared';
+import {
+  useAccounts,
+  useBalance,
+  useUserConfig,
+  SOLANA_NETWORKS,
+  getStashedPassword,
+} from '@salmon/shared';
 import {
   WalletHeader,
   BalanceCard,
@@ -33,6 +42,8 @@ import {
   TokenList,
   type Token,
 } from '@salmon/ui';
+import { SettingsSheet } from '../../../components/SettingsSheet';
+import { WalletSwitcherSheet } from '../../../components/WalletSwitcherSheet';
 
 /**
  * Convert TokenBalanceWithPrice to Token for TokenList
@@ -63,15 +74,43 @@ function mapBalanceToToken(
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
 
-  // Get account state
-  const [accountState] = useAccounts();
+  // Settings sheet visibility
+  const [settingsVisible, setSettingsVisible] = useState(false);
+
+  // Wallet switcher sheet visibility
+  const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
+
+  // Get account state and actions
+  const [accountState, accountActions] = useAccounts();
   const {
     ready,
+    accounts,
+    accountId,
     activeAccount,
     activeBlockchainAccount,
     networkId,
   } = accountState;
+
+  // User configuration (developer networks toggle)
+  // Build a mock activeBlockchainAccount for useUserConfig when not available
+  const userConfigAccount = activeBlockchainAccount
+    ? {
+        network: {
+          environment: (networkId || 'mainnet-beta') as 'mainnet-beta' | 'devnet' | 'testnet',
+          blockchain: 'solana',
+        },
+      }
+    : {
+        network: {
+          environment: 'mainnet-beta' as const,
+          blockchain: 'solana',
+        },
+      };
+  const { developerNetworks, toggleDeveloperNetworks } = useUserConfig({
+    activeBlockchainAccount: userConfigAccount,
+  });
 
   // Get balance data
   const {
@@ -116,8 +155,8 @@ export default function HomeScreen() {
   }, [activeBlockchainAccount]);
 
   const handleSettingsPress = useCallback(() => {
-    router.push('/(app)/(tabs)/settings');
-  }, [router]);
+    setSettingsVisible(true);
+  }, []);
 
   const handleSendPress = useCallback(() => {
     router.push('/(app)/token-send');
@@ -143,17 +182,159 @@ export default function HomeScreen() {
     console.log('Network selector pressed');
   }, []);
 
-  // Loading state
-  if (!ready) {
+  const handleSettingsNavigate = useCallback((screen: string) => {
+    setSettingsVisible(false);
+    // Navigate to specific settings screen if needed
+    router.push(`/(app)/settings/${screen}` as any);
+  }, [router]);
+
+  const handleSettingsClose = useCallback(() => {
+    setSettingsVisible(false);
+  }, []);
+
+  // Wallet Switcher handlers
+  const handleWalletPress = useCallback(() => {
+    setWalletSwitcherVisible(true);
+  }, []);
+
+  const handleWalletSwitcherClose = useCallback(() => {
+    setWalletSwitcherVisible(false);
+  }, []);
+
+  const handleSelectAccount = useCallback(async (id: string) => {
+    await accountActions.changeAccount(id);
+    setWalletSwitcherVisible(false);
+  }, [accountActions]);
+
+  const handleAddAccount = useCallback(() => {
+    setWalletSwitcherVisible(false);
+    // Navigate to auth flow to add a new account
+    router.push('/(auth)');
+  }, [router]);
+
+  const handleEditAccount = useCallback((id: string) => {
+    setWalletSwitcherVisible(false);
+    // Navigate to account edit screen
+    router.push({
+      pathname: '/(app)/settings/account-edit',
+      params: { id },
+    } as any);
+  }, [router]);
+
+  const handleDeleteAccount = useCallback(async (id: string) => {
+    // The WalletSwitcherSheet already shows a confirmation dialog
+    // and handles closing itself, so we just need to call removeAccount
+    await accountActions.removeAccount(id);
+  }, [accountActions]);
+
+  /**
+   * Handle remove all wallets action from SettingsSheet
+   * Shows confirmation dialog before removing all accounts
+   */
+  const handleRemoveAllWallets = useCallback(() => {
+    Alert.alert(
+      t('settings.remove_all_title'),
+      t('settings.wallets.remove_all_wallets_description'),
+      [
+        {
+          text: t('actions.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('actions.remove_all'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Remove all accounts
+              await accountActions.removeAllAccounts();
+
+              // Navigate to onboarding/auth flow
+              router.replace('/(auth)');
+            } catch (error) {
+              console.error('Failed to remove all wallets:', error);
+              Alert.alert(
+                t('general.error'),
+                'Failed to remove wallets. Please try again.'
+              );
+            }
+          },
+        },
+      ]
+    );
+  }, [accountActions, router, t]);
+
+  /**
+   * Handle remove current wallet action from SettingsSheet
+   * Shows confirmation dialog and verifies password if required
+   */
+  const handleRemoveWallet = useCallback(async () => {
+    const { requiredLock, accounts } = accountState;
+    const currentAccount = activeAccount;
+
+    if (!currentAccount) return;
+
+    // Check if this is the last account
+    if (accounts.length <= 1) {
+      // If it's the last account, redirect to remove all wallets flow
+      handleRemoveAllWallets();
+      return;
+    }
+
+    // Show confirmation dialog
+    Alert.alert(
+      t('settings.remove_wallet_title'),
+      t('settings.wallets.remove_wallet_description'),
+      [
+        {
+          text: t('actions.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('settings.confirm_remove'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // If password is required, get it from stash
+              let password: string | undefined;
+              if (requiredLock) {
+                password = await getStashedPassword();
+              }
+
+              // Remove the account
+              await accountActions.removeAccount(currentAccount.id, password);
+
+              // Account actions will automatically switch to another account
+              // No need to navigate, the UI will update
+            } catch (error) {
+              console.error('Failed to remove wallet:', error);
+              Alert.alert(
+                t('general.error'),
+                'Failed to remove wallet. Please try again.'
+              );
+            }
+          },
+        },
+      ]
+    );
+  }, [accountState, activeAccount, accountActions, handleRemoveAllWallets, t]);
+
+  // Check if the account has populated network data
+  const hasNetworksData = activeAccount &&
+    activeAccount.networksAccounts &&
+    Object.keys(activeAccount.networksAccounts).length > 0;
+
+  // Loading state - wait for networksAccounts to be populated
+  if (!ready || (activeAccount && !hasNetworksData)) {
     return (
       <View style={styles.loadingContainer}>
         <StatusBar style="light" />
-        <Text style={styles.loadingText}>Loading...</Text>
+        <ActivityIndicator size="large" color="#FF6B35" />
+        <Text style={styles.loadingText}>Loading wallet...</Text>
       </View>
     );
   }
 
-  // No account state
+  // No account state (only show if accounts array is empty)
   if (!activeAccount || !activeBlockchainAccount) {
     return (
       <View style={styles.loadingContainer}>
@@ -177,6 +358,7 @@ export default function HomeScreen() {
         address={address}
         onCopyAddress={handleCopyAddress}
         onSettingsPress={handleSettingsPress}
+        onWalletPress={handleWalletPress}
       />
 
       <ScrollView
@@ -235,6 +417,29 @@ export default function HomeScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Settings Sheet */}
+      <SettingsSheet
+        visible={settingsVisible}
+        onClose={handleSettingsClose}
+        onNavigate={handleSettingsNavigate}
+        developerNetworksEnabled={developerNetworks}
+        onDeveloperNetworksToggle={toggleDeveloperNetworks}
+        onRemoveWallet={handleRemoveWallet}
+        onRemoveAllWallets={handleRemoveAllWallets}
+      />
+
+      {/* Wallet Switcher Sheet */}
+      <WalletSwitcherSheet
+        visible={walletSwitcherVisible}
+        onClose={handleWalletSwitcherClose}
+        accounts={accounts}
+        activeAccountId={accountId ?? ''}
+        onSelectAccount={handleSelectAccount}
+        onAddAccount={handleAddAccount}
+        onEditAccount={handleEditAccount}
+        onDeleteAccount={handleDeleteAccount}
+      />
     </View>
   );
 }
@@ -253,6 +458,7 @@ const styles = StyleSheet.create({
   loadingText: {
     color: 'rgba(255, 255, 255, 0.6)',
     fontSize: 16,
+    marginTop: 16,
   },
   scrollView: {
     flex: 1,
