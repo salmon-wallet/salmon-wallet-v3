@@ -13,3 +13,6 @@ export * from './ExplorerPage';
 export * from './LanguagePage';
 export * from './SecurityPage';
 export * from './TrustedAppsPage';
+export * from './BackupPage';
+export * from './CurrencyPage';
+export * from './AboutPage';
