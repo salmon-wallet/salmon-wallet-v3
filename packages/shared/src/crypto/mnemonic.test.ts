@@ -160,7 +160,7 @@ describe('deriveBitcoinKeypair', () => {
     const { node: node0 } = await deriveBitcoinKeypair(VALID_MNEMONIC, 0);
     const { node: node1 } = await deriveBitcoinKeypair(VALID_MNEMONIC, 1);
 
-    expect(node0.publicKey.toString('hex')).not.toBe(node1.publicKey.toString('hex'));
+    expect(Buffer.from(node0.publicKey).toString('hex')).not.toBe(Buffer.from(node1.publicKey).toString('hex'));
   });
 });
 

@@ -13,7 +13,7 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../assets/src/assets.d.ts"],
   "exclude": ["node_modules", "dist"],
   "ts-node": {
     "transpileOnly": true

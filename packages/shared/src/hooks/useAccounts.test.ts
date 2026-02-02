@@ -28,6 +28,9 @@ vi.mock('../storage', () => ({
 vi.mock('../crypto/encryption', () => ({
   lock: vi.fn(),
   unlock: vi.fn(),
+  unlockAndGetKey: vi.fn(),
+  lockWithKey: vi.fn(),
+  isKeyCacheValid: vi.fn(),
 }));
 
 vi.mock('../blockchain/solana', () => ({
@@ -202,6 +205,51 @@ describe('useAccounts Hook', () => {
       expect(state.requiredLock).toBe(true);
     });
 
+    it('should load account metadata even when locked (without decrypting mnemonics)', async () => {
+      const mockAccount = createMockAccount();
+      const storedAccounts = [{
+        id: mockAccount.id,
+        name: mockAccount.name,
+        avatar: mockAccount.avatar,
+        pathIndexes: mockAccount.pathIndexes,
+      }];
+
+      const encryptedData = {
+        isEncrypted: true,
+        nonce: 'test-nonce',
+        salt: 'test-salt',
+        ciphertext: 'encrypted-data',
+      };
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
+        if (key === 'salmon_accounts') return Promise.resolve(storedAccounts);
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
+        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_account_counter') return Promise.resolve(1);
+        return Promise.resolve(null);
+      });
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      const [state] = result.current;
+      expect(state.locked).toBe(true);
+      expect(state.requiredLock).toBe(true);
+      // Critical: accounts array should NOT be empty even when locked
+      expect(state.accounts).toHaveLength(1);
+      expect(state.accounts[0].id).toBe(mockAccount.id);
+      expect(state.accounts[0].name).toBe(mockAccount.name);
+      expect(state.accounts[0].avatar).toBe(mockAccount.avatar);
+      // Mnemonic should be empty placeholder (not decrypted)
+      expect(state.accounts[0].mnemonic).toBe('');
+      // Networks should be empty (not loaded until unlock)
+      expect(state.accounts[0].networksAccounts).toEqual({});
+    });
+
     it('should update last activity on mount', async () => {
       renderHook(() => useAccounts());
 
@@ -220,12 +268,21 @@ describe('useAccounts Hook', () => {
         ciphertext: 'encrypted-data',
       };
 
+      const mockKeyCache = {
+        salt: 'test-salt',
+        derivedKey: new Uint8Array(32),
+        createdAt: Date.now(),
+      };
+
       (storage.getStorageItem as any).mockImplementation((key: string) => {
         if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
         if (key === 'salmon_wallets') return Promise.resolve(null);
         return Promise.resolve(null);
       });
-      (encryption.unlock as any).mockResolvedValue({ test: 'mnemonic' });
+      (encryption.unlockAndGetKey as any).mockResolvedValue({
+        data: { test: 'mnemonic' },
+        keyCache: mockKeyCache,
+      });
 
       const { result } = renderHook(() => useAccounts());
 
@@ -240,7 +297,7 @@ describe('useAccounts Hook', () => {
         expect(isValid).toBe(true);
       });
 
-      expect(encryption.unlock).toHaveBeenCalledWith(encryptedData, MOCK_PASSWORD);
+      expect(encryption.unlockAndGetKey).toHaveBeenCalledWith(encryptedData, MOCK_PASSWORD);
     });
 
     it('should return true for checkPassword when no encryption', async () => {
@@ -291,6 +348,12 @@ describe('useAccounts Hook', () => {
         ciphertext: 'encrypted-data',
       };
 
+      const mockKeyCache = {
+        salt: 'test-salt',
+        derivedKey: new Uint8Array(32),
+        createdAt: Date.now(),
+      };
+
       (storage.getStorageItem as any).mockImplementation((key: string) => {
         if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
         if (key === 'salmon_accounts') return Promise.resolve([{
@@ -303,7 +366,10 @@ describe('useAccounts Hook', () => {
         return Promise.resolve(null);
       });
 
-      (encryption.unlock as any).mockResolvedValue({ [mockAccount.id]: MOCK_MNEMONIC });
+      (encryption.unlockAndGetKey as any).mockResolvedValue({
+        data: { [mockAccount.id]: MOCK_MNEMONIC },
+        keyCache: mockKeyCache,
+      });
 
       const { result } = renderHook(() => useAccounts());
 
@@ -338,7 +404,7 @@ describe('useAccounts Hook', () => {
         if (key === 'salmon_wallets') return Promise.resolve(null);
         return Promise.resolve(null);
       });
-      (encryption.unlock as any).mockRejectedValue(new Error('Decryption failed'));
+      (encryption.unlockAndGetKey as any).mockRejectedValue(new Error('Decryption failed'));
 
       const { result } = renderHook(() => useAccounts());
 
@@ -388,6 +454,7 @@ describe('useAccounts Hook', () => {
         salt: 'salt',
         ciphertext: 'encrypted',
       });
+      (encryption.isKeyCacheValid as any).mockReturnValue(false);
 
       const { result } = renderHook(() => useAccounts());
 

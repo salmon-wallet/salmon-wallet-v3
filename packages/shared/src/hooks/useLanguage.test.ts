@@ -22,18 +22,11 @@ vi.mock('../storage', () => ({
 }));
 
 vi.mock('../locales', () => ({
-  AVAILABLE_LANGUAGES: ['en', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh'],
+  AVAILABLE_LANGUAGES: ['en', 'es'],
   DEFAULT_LANGUAGE: 'en',
   LANGUAGE_NAMES: {
     en: 'English',
     es: 'Español',
-    fr: 'Français',
-    de: 'Deutsch',
-    it: 'Italiano',
-    pt: 'Português',
-    ja: '日本語',
-    ko: '한국어',
-    zh: '中文',
   },
 }));
 
@@ -125,12 +118,12 @@ describe('useLanguage Hook', () => {
       });
 
       await act(async () => {
-        await result.current.changeLanguage('fr');
+        await result.current.changeLanguage('es');
       });
 
-      expect(result.current.language).toBe('fr');
-      expect(result.current.languageName).toBe('Français');
-      expect(mockStorage.setItem).toHaveBeenCalledWith('salmon_language', 'fr');
+      expect(result.current.language).toBe('es');
+      expect(result.current.languageName).toBe('Español');
+      expect(mockStorage.setItem).toHaveBeenCalledWith('salmon_language', 'es');
     });
 
     it('should persist language change to storage', async () => {
@@ -141,10 +134,10 @@ describe('useLanguage Hook', () => {
       });
 
       await act(async () => {
-        await result.current.changeLanguage('ja');
+        await result.current.changeLanguage('es');
       });
 
-      expect(mockStorage.setItem).toHaveBeenCalledWith('salmon_language', 'ja');
+      expect(mockStorage.setItem).toHaveBeenCalledWith('salmon_language', 'es');
     });
 
     it('should reject invalid language codes', async () => {
@@ -176,10 +169,10 @@ describe('useLanguage Hook', () => {
       });
 
       await act(async () => {
-        await result.current.changeLanguage('de');
+        await result.current.changeLanguage('es');
       });
 
-      expect(result.current.language).toBe('de');
+      expect(result.current.language).toBe('es');
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
     });
@@ -193,9 +186,7 @@ describe('useLanguage Hook', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(result.current.availableLanguages).toEqual([
-        'en', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh'
-      ]);
+      expect(result.current.availableLanguages).toEqual(['en', 'es']);
     });
 
     it('should provide language names map', async () => {
@@ -207,7 +198,6 @@ describe('useLanguage Hook', () => {
 
       expect(result.current.languageNames).toHaveProperty('en', 'English');
       expect(result.current.languageNames).toHaveProperty('es', 'Español');
-      expect(result.current.languageNames).toHaveProperty('zh', '中文');
     });
   });
 
@@ -251,11 +241,11 @@ describe('useLanguage Hook', () => {
 
       await act(async () => {
         await result.current.changeLanguage('es');
-        await result.current.changeLanguage('fr');
-        await result.current.changeLanguage('de');
+        await result.current.changeLanguage('en');
+        await result.current.changeLanguage('es');
       });
 
-      expect(result.current.language).toBe('de');
+      expect(result.current.language).toBe('es');
     });
 
     it('should persist each language change', async () => {
@@ -272,10 +262,10 @@ describe('useLanguage Hook', () => {
       expect(mockStorage.setItem).toHaveBeenCalledWith('salmon_language', 'es');
 
       await act(async () => {
-        await result.current.changeLanguage('ja');
+        await result.current.changeLanguage('en');
       });
 
-      expect(mockStorage.setItem).toHaveBeenCalledWith('salmon_language', 'ja');
+      expect(mockStorage.setItem).toHaveBeenCalledWith('salmon_language', 'en');
     });
   });
 
@@ -290,10 +280,10 @@ describe('useLanguage Hook', () => {
       expect(result.current.languageName).toBe('English');
 
       await act(async () => {
-        await result.current.changeLanguage('ko');
+        await result.current.changeLanguage('es');
       });
 
-      expect(result.current.languageName).toBe('한국어');
+      expect(result.current.languageName).toBe('Español');
     });
 
     it('should provide correct language names for all supported languages', async () => {
@@ -306,18 +296,11 @@ describe('useLanguage Hook', () => {
       const testCases = [
         { code: 'en', name: 'English' },
         { code: 'es', name: 'Español' },
-        { code: 'fr', name: 'Français' },
-        { code: 'de', name: 'Deutsch' },
-        { code: 'it', name: 'Italiano' },
-        { code: 'pt', name: 'Português' },
-        { code: 'ja', name: '日本語' },
-        { code: 'ko', name: '한국어' },
-        { code: 'zh', name: '中文' },
       ];
 
       for (const { code, name } of testCases) {
         await act(async () => {
-          await result.current.changeLanguage(code as any);
+          await result.current.changeLanguage(code as 'en' | 'es');
         });
 
         expect(result.current.languageName).toBe(name);

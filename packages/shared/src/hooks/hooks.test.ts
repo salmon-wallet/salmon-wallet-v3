@@ -52,29 +52,28 @@ vi.mock('../storage', () => ({
     removeItem: vi.fn(),
   })),
   STORAGE_KEYS: {
+    VAULT: 'salmon_vault',
     SETTINGS: 'salmon_settings',
-    LANGUAGE: 'salmon_language',
-    CONTACTS: 'salmon_contacts',
-    COUNTER: 'salmon_account_counter',
     ACCOUNTS: 'salmon_accounts',
-    MNEMONICS: 'salmon_mnemonics',
-    ACCOUNT_ID: 'salmon_active_account_id',
-    NETWORK_ID: 'salmon_active_network_id',
-    PATH_INDEX: 'salmon_active_path_index',
-    TRUSTED_APPS: 'salmon_trusted_apps',
-    TOKENS: 'salmon_custom_tokens',
-    CONNECTION: 'salmon_connection',
-    WALLETS: 'salmon_wallets',
-    ACTIVE: 'salmon_active',
-    ENDPOINTS: 'salmon_endpoints',
+    ACTIVE_ACCOUNT: 'salmon_active_account',
+    TOKENS: 'salmon_tokens',
+    CONTACTS: 'salmon_contacts',
+    TX_HISTORY: 'salmon_tx_history',
+    NETWORK: 'salmon_network',
+    NFT_CACHE: 'salmon_nft_cache',
+    PRICE_CACHE: 'salmon_price_cache',
+    LANGUAGE: 'salmon_language',
   },
 }));
 
 vi.mock('../crypto/encryption', () => ({
   lock: vi.fn((data) => Promise.resolve({
     encrypted: 'mock-encrypted-data',
-    iv: 'mock-iv',
+    nonce: 'mock-nonce',
     salt: 'mock-salt',
+    iterations: 600000,
+    digest: 'sha256',
+    kdf: 'pbkdf2',
   })),
   unlock: vi.fn((vault, password) => {
     if (password === 'wrong-password') {
@@ -275,7 +274,7 @@ describe('Storage module integration', () => {
     expect(storage.STORAGE_KEYS.LANGUAGE).toBe('salmon_language');
     expect(storage.STORAGE_KEYS.CONTACTS).toBe('salmon_contacts');
     expect(storage.STORAGE_KEYS.ACCOUNTS).toBe('salmon_accounts');
-    expect(storage.STORAGE_KEYS.MNEMONICS).toBe('salmon_mnemonics');
+    expect(storage.STORAGE_KEYS.VAULT).toBe('salmon_vault');
   });
 
   it('should mock getStorageItem correctly', async () => {
@@ -322,13 +321,13 @@ describe('Encryption module', () => {
     const result = await lock(data, 'password');
 
     expect(result).toHaveProperty('encrypted');
-    expect(result).toHaveProperty('iv');
+    expect(result).toHaveProperty('nonce');
     expect(result).toHaveProperty('salt');
   });
 
   it('should mock unlock function with correct password', async () => {
     const { unlock } = await import('../crypto/encryption');
-    const vault = { encrypted: 'data', iv: 'iv', salt: 'salt' };
+    const vault = { encrypted: 'data', nonce: 'nonce', salt: 'salt', iterations: 600000, digest: 'sha256' as const, kdf: 'pbkdf2' as const };
     const result = await unlock(vault, 'correct-password');
 
     expect(result).toHaveProperty('account_1');
@@ -336,7 +335,7 @@ describe('Encryption module', () => {
 
   it('should throw error for wrong password', async () => {
     const { unlock } = await import('../crypto/encryption');
-    const vault = { encrypted: 'data', iv: 'iv', salt: 'salt' };
+    const vault = { encrypted: 'data', nonce: 'nonce', salt: 'salt', iterations: 600000, digest: 'sha256' as const, kdf: 'pbkdf2' as const };
 
     try {
       await unlock(vault, 'wrong-password');
@@ -391,8 +390,8 @@ describe('Token service', () => {
       'solana-mainnet'
     );
 
-    expect(token.symbol).toBe('USDC');
-    expect(token.name).toBe('USD Coin');
+    expect(token?.symbol).toBe('USDC');
+    expect(token?.name).toBe('USD Coin');
   });
 
   it('should handle API errors', async () => {
@@ -590,7 +589,7 @@ describe('Integration scenarios', () => {
     // Store account data
     (storage.setStorageItem as any).mockResolvedValue(undefined);
     await storage.setStorageItem('salmon_accounts', [MOCK_STORED_ACCOUNT]);
-    await storage.setStorageItem('salmon_mnemonics', encrypted);
+    await storage.setStorageItem('salmon_vault', encrypted);
 
     expect(storage.setStorageItem).toHaveBeenCalledTimes(2);
   });
@@ -605,8 +604,8 @@ describe('Integration scenarios', () => {
       'solana-mainnet'
     );
 
-    expect(token.symbol).toBe(MOCK_TOKEN_BALANCE.symbol);
-    expect(token.name).toBe(MOCK_TOKEN_BALANCE.name);
+    expect(token?.symbol).toBe(MOCK_TOKEN_BALANCE.symbol);
+    expect(token?.name).toBe(MOCK_TOKEN_BALANCE.name);
   });
 
   it('should handle domain caching workflow', async () => {

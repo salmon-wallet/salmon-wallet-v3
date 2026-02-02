@@ -5,7 +5,7 @@
  * Uses Vitest 4.0.18 for testing with mocked API responses.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   getTransaction,
   getRecentTransactions,

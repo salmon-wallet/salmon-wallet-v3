@@ -5,9 +5,24 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./fonts": "./src/fonts/index.ts",
-    "./images": "./src/images/index.ts"
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./fonts": {
+      "import": "./src/fonts/index.ts",
+      "require": "./src/fonts/index.ts",
+      "types": "./src/fonts/index.ts"
+    },
+    "./fonts/*": "./src/fonts/*",
+    "./images": {
+      "import": "./src/images/index.ts",
+      "require": "./src/images/index.ts",
+      "types": "./src/images/index.ts"
+    },
+    "./images/*": "./src/images/*",
+    "./*": "./src/*"
   },
   "files": [
     "src"

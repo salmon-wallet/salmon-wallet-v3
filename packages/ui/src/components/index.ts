@@ -46,3 +46,45 @@ export type {
   TokenSelectorModalProps,
   UseTokenSearchResult,
 } from './TokenSelector';
+
+// GradientBackground - Linear gradient wrapper component
+export { GradientBackground } from './GradientBackground';
+export type { GradientBackgroundProps } from './GradientBackground';
+
+// WalletHeader - Account info and settings navigation
+export { WalletHeader } from './WalletHeader';
+export type { WalletHeaderProps } from './WalletHeader';
+
+// BalanceCard - Portfolio balance display with gradient
+export { BalanceCard } from './BalanceCard';
+export type { BalanceCardProps, NetworkInfo } from './BalanceCard';
+
+// ActionButtonRow - Send/Receive/Activity action buttons
+export { ActionButtonRow } from './ActionButtonRow';
+export type { ActionButtonRowProps, ActionButton } from './ActionButtonRow';
+
+// Button - Reusable button components
+export { PrimaryButton, SecondaryButton, TextButton } from './Button';
+export type {
+  PrimaryButtonProps,
+  SecondaryButtonProps,
+  TextButtonProps,
+} from './Button';
+
+// StepIndicator - Progress indicator for multi-step flows
+export { StepIndicator } from './StepIndicator';
+export type { StepIndicatorProps } from './StepIndicator';
+
+// PasswordInput - Secure password input with visibility toggle and strength indicator
+export { PasswordInput, PasswordStrengthBar } from './PasswordInput';
+
+// SeedPhrase - Seed phrase display and input components
+export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
+
+// ScreenHeader - Common header for onboarding/auth screens
+export { ScreenHeader } from './ScreenHeader';
+export type { ScreenHeaderProps } from './ScreenHeader';
+
+// LoadingScreen - Animated loading overlay with pulsing logo and spinner
+export { LoadingScreen, DEFAULT_WALLET_TIPS } from './LoadingScreen';
+export type { LoadingScreenProps } from './LoadingScreen';

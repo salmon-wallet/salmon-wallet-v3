@@ -123,7 +123,6 @@ const MOCK_TOKEN_LIST: TokenMetadata[] = [
     name: 'Solana',
     decimals: 9,
     logo: 'https://example.com/sol.png',
-    verified: true,
   },
   {
     address: USDC_MINT,
@@ -131,7 +130,6 @@ const MOCK_TOKEN_LIST: TokenMetadata[] = [
     name: 'USD Coin',
     decimals: 6,
     logo: 'https://example.com/usdc.png',
-    verified: true,
   },
 ];
 
