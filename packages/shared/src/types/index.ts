@@ -4,3 +4,6 @@
  */
 
 export * from './transaction';
+export * from './ui';
+export * from './icons';
+export * from './settings';
