@@ -49,6 +49,16 @@ export interface TokenListProps {
   onTokenPress: (token: Token) => void;
   /** Whether to hide balance values (privacy mode) */
   hiddenBalance?: boolean;
+  /** Component to render above the list (for avoiding ScrollView nesting) */
+  ListHeaderComponent?: React.ReactElement | null;
+  /** Component to render when list is empty */
+  ListEmptyComponent?: React.ReactElement | null;
+  /** Whether the list is currently refreshing */
+  refreshing?: boolean;
+  /** Callback when pull-to-refresh is triggered */
+  onRefresh?: () => void;
+  /** Style for the list content container */
+  contentContainerStyle?: object;
 }
 
 /**

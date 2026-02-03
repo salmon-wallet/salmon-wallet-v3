@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList, StyleSheet, ListRenderItem } from 'react-native';
+import { View, FlatList, StyleSheet, ListRenderItem, RefreshControl } from 'react-native';
 import TokenListItem from './TokenListItem';
 import TokenListSkeleton from './TokenListSkeleton';
 import type { Token, TokenListProps } from './types';
@@ -43,6 +43,11 @@ const TokenList: React.FC<TokenListProps> = ({
   loading = false,
   onTokenPress,
   hiddenBalance = false,
+  ListHeaderComponent,
+  ListEmptyComponent,
+  refreshing = false,
+  onRefresh,
+  contentContainerStyle,
 }) => {
   // Render item callback - memoized for performance
   // Must be defined before any conditional returns to comply with Rules of Hooks
@@ -57,10 +62,24 @@ const TokenList: React.FC<TokenListProps> = ({
     [onTokenPress, hiddenBalance]
   );
 
-  // Show skeleton while loading
-  if (loading) {
+  // Show skeleton while loading (only when no header component is provided)
+  // When header is provided, the skeleton should be shown inline
+  if (loading && !ListHeaderComponent) {
     return <TokenListSkeleton count={5} />;
   }
+
+  // Create refresh control if onRefresh is provided
+  const refreshControl = onRefresh ? (
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      tintColor="#ff5c45"
+      colors={['#ff5c45']}
+    />
+  ) : undefined;
+
+  // Determine empty component - show skeleton if loading with header, otherwise use provided component
+  const emptyComponent = loading ? <TokenListSkeleton count={5} /> : ListEmptyComponent;
 
   return (
     <View style={styles.container}>
@@ -69,11 +88,14 @@ const TokenList: React.FC<TokenListProps> = ({
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, contentContainerStyle]}
         initialNumToRender={10}
         maxToRenderPerBatch={10}
         windowSize={5}
         removeClippedSubviews={true}
+        ListHeaderComponent={ListHeaderComponent}
+        ListEmptyComponent={emptyComponent}
+        refreshControl={refreshControl}
       />
     </View>
   );
