@@ -3,14 +3,12 @@ import {
   View,
   TouchableOpacity,
   StyleSheet,
-  Image,
   Text,
-  ImageSourcePropType,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { IconHome, IconNFT, IconSwap } from '@salmon/assets';
+import { HomeSvgIcon, GridViewSvgIcon, SwapSvgIcon } from '@salmon/ui';
 
 /**
  * Design specs from Figma:
@@ -32,24 +30,24 @@ const TAB_COLORS = {
 
 interface TabConfig {
   name: string;
-  icon: ImageSourcePropType;
+  icon: React.FC<{ size?: number; color?: string }>;
   label: string;
 }
 
 const TAB_CONFIG: Record<string, TabConfig> = {
   index: {
     name: 'index',
-    icon: IconHome,
+    icon: HomeSvgIcon,
     label: 'Home',
   },
   collectibles: {
     name: 'collectibles',
-    icon: IconNFT,
+    icon: GridViewSvgIcon,
     label: 'Collectibles',
   },
   swap: {
     name: 'swap',
-    icon: IconSwap,
+    icon: SwapSvgIcon,
     label: 'Swap',
   },
 };
@@ -71,8 +69,9 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
     return null;
   }
 
-  const iconTintColor = isFocused ? TAB_COLORS.active : TAB_COLORS.inactiveIcon;
+  const iconColor = isFocused ? TAB_COLORS.active : TAB_COLORS.inactiveIcon;
   const labelColor = isFocused ? TAB_COLORS.active : TAB_COLORS.inactive;
+  const IconComponent = config.icon;
 
   return (
     <TouchableOpacity
@@ -83,11 +82,9 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
       onLongPress={onLongPress}
       style={styles.tabItem}
     >
-      <Image
-        source={config.icon}
-        style={[styles.tabIcon, { tintColor: iconTintColor }]}
-        resizeMode="contain"
-      />
+      <View style={styles.tabIconContainer}>
+        <IconComponent size={28} color={iconColor} />
+      </View>
       <Text style={[styles.tabLabel, { color: labelColor }]}>
         {config.label}
       </Text>
@@ -179,10 +176,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 4,
   },
-  tabIcon: {
+  tabIconContainer: {
     width: 28,
     height: 28,
     marginBottom: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabLabel: {
     fontFamily: 'DMSansBold',
