@@ -68,54 +68,67 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   const safeAreaTop = Platform.OS === 'web' ? 0 : insets.top;
 
   return (
-    <View style={[styles.container, { paddingTop: safeAreaTop }, style]}>
-      {/* Left side - Wallet icon + Account info */}
-      <View style={styles.leftSection}>
-        {/* Wallet icon */}
-        <TouchableOpacity
-          style={styles.walletIconContainer}
-          onPress={handleWalletPress}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Switch wallet account"
-        >
-          <WalletSvgIcon size={24} color={colors.text.muted} />
-        </TouchableOpacity>
-
-        {/* Account name + address in single line */}
-        <View style={styles.accountInfo}>
-          <Text style={styles.accountText} numberOfLines={1}>
-            {displayText}
-          </Text>
-          {/* Copy button */}
+    <View style={[styles.outerContainer, { paddingTop: safeAreaTop }, style]}>
+      <View style={styles.innerContainer}>
+        {/* Left side - Wallet icon + Account info */}
+        <View style={styles.leftSection}>
+          {/* Wallet icon */}
           <TouchableOpacity
-            onPress={handleCopyPress}
+            style={styles.walletIconContainer}
+            onPress={handleWalletPress}
             activeOpacity={0.7}
             accessibilityRole="button"
-            accessibilityLabel={`Copy wallet address ${truncatedAddress}`}
-            style={styles.copyButton}
+            accessibilityLabel="Switch wallet account"
           >
-            <ContentCopySvgIcon size={24} color={colors.text.primary} />
+            <WalletSvgIcon size={24} color={colors.text.muted} />
           </TouchableOpacity>
-        </View>
-      </View>
 
-      {/* Right side - Settings button */}
-      <TouchableOpacity
-        style={styles.settingsButton}
-        onPress={handleSettingsPress}
-        activeOpacity={0.7}
-        accessibilityRole="button"
-        accessibilityLabel="Open settings"
-      >
-        <SettingsSvgIcon size={24} color={colors.text.muted} />
-      </TouchableOpacity>
+          {/* Account name + address in single line */}
+          <View style={styles.accountInfo}>
+            <Text style={styles.accountText} numberOfLines={1}>
+              {displayText}
+            </Text>
+            {/* Copy button */}
+            <TouchableOpacity
+              onPress={handleCopyPress}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`Copy wallet address ${truncatedAddress}`}
+              style={styles.copyButton}
+            >
+              <ContentCopySvgIcon size={24} color={colors.text.primary} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Right side - Settings button */}
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={handleSettingsPress}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Open settings"
+        >
+          <SettingsSvgIcon size={24} color={colors.text.muted} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
+    // Transparent background to allow card to show through corner areas
+    backgroundColor: 'transparent',
+    // Ensure header appears above the balance card (curtain effect)
+    zIndex: 10,
+    // Position absolutely to allow card to slide behind
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  innerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
