@@ -1,6 +1,11 @@
 import type { Token } from '@salmon/shared';
 
 /**
+ * Blockchain identifier for styling variations
+ */
+export type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
+
+/**
  * Props for the TokenListItem component
  */
 export interface TokenListItemProps {
@@ -10,6 +15,8 @@ export interface TokenListItemProps {
   onPress: (token: Token) => void;
   /** Whether to hide balance values */
   hiddenBalance?: boolean;
+  /** Current blockchain for layout variations (Bitcoin has different layout) */
+  blockchain?: BlockchainType;
 }
 
 /**
@@ -34,6 +41,8 @@ export interface TokenListProps {
   onRefresh?: () => void;
   /** Style for the list content container */
   contentContainerStyle?: object;
+  /** Current blockchain for layout variations */
+  blockchain?: BlockchainType;
 }
 
 /**

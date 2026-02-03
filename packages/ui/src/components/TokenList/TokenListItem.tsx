@@ -7,24 +7,37 @@ import {
   getLabelValue,
   hiddenValue,
   colors,
-  type LabelType,
 } from '@salmon/shared';
 import type { TokenListItemProps } from './types';
 
 /**
  * Default placeholder image for tokens without a logo
  */
-const DEFAULT_TOKEN_LOGO = 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
+const DEFAULT_TOKEN_LOGO =
+  'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
+
+/**
+ * Arrow indicator component for price changes
+ */
+const ChangeArrow: React.FC<{ isPositive: boolean }> = ({ isPositive }) => (
+  <Text
+    style={[
+      styles.changeArrow,
+      { color: isPositive ? colors.change.positive : colors.change.negative },
+    ]}
+  >
+    {isPositive ? '\u25B2' : '\u25BC'}
+  </Text>
+);
 
 /**
  * Individual token item component for the TokenList
  *
  * Displays token logo, name, price with change indicator, USD holdings, and token amount.
  *
- * Layout (per Figma design):
- * - Token icon (48px circle)
- * - Left side: Token name, Price per token with change indicator (e.g., "$ 131.28 . 1.2% (+$10.01)")
- * - Right side: USD value of holdings, Token amount (e.g., "1.2 SOL")
+ * Layout varies by blockchain:
+ * - Solana/Ethereum: Full layout with token name, price, and detailed info
+ * - Bitcoin: Simplified layout showing only total USD value and BTC amount
  *
  * @example
  * ```tsx
@@ -41,6 +54,7 @@ const DEFAULT_TOKEN_LOGO = 'https://raw.githubusercontent.com/solana-labs/token-
  *   }}
  *   onPress={(token) => console.log(token)}
  *   hiddenBalance={false}
+ *   blockchain="solana"
  * />
  * ```
  */
@@ -48,6 +62,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   token,
   onPress,
   hiddenBalance = false,
+  blockchain = 'solana',
 }) => {
   const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange, isVerified } = token;
 
@@ -60,13 +75,14 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   const absoluteChange = last24HoursChange?.abs;
   const labelType = getLabelValue(percentageChange);
   const changeColor = colors.change[labelType];
+  const isPositiveChange = percentageChange >= 0;
 
   // Format display values
   const displayPrice = hiddenBalance
     ? hiddenValue
     : price != null
-    ? showAmount(price)
-    : null;
+      ? showAmount(price)
+      : null;
 
   const displayPercentage = last24HoursChange ? showPercentage(percentageChange) : null;
   const displayAbsChange = absoluteChange != null ? showAbsoluteChange(absoluteChange) : null;
@@ -74,13 +90,60 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   const displayUsdValue = hiddenBalance
     ? hiddenValue
     : usdBalance != null
-    ? showAmount(usdBalance)
-    : null;
+      ? showAmount(usdBalance)
+      : null;
 
-  const displayTokenAmount = hiddenBalance
-    ? hiddenValue
-    : `${uiAmount} ${symbol || ''}`;
+  const displayTokenAmount = hiddenBalance ? hiddenValue : `${uiAmount} ${symbol || ''}`;
 
+  // Bitcoin has a different, simplified layout
+  if (blockchain === 'bitcoin') {
+    return (
+      <TouchableOpacity
+        style={styles.container}
+        onPress={handlePress}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={`${name} token, balance ${uiAmount} ${symbol}`}
+      >
+        {/* Token Logo - slightly smaller for Bitcoin */}
+        <Image
+          source={{ uri: logo || DEFAULT_TOKEN_LOGO }}
+          style={styles.logoBitcoin}
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+        />
+
+        {/* Bitcoin Info - USD total with change */}
+        <View style={styles.bitcoinInfoContainer}>
+          {displayUsdValue && (
+            <Text style={styles.bitcoinUsdValue} numberOfLines={1}>
+              {displayUsdValue}
+            </Text>
+          )}
+          <View style={styles.bitcoinChangeRow}>
+            {displayPercentage && (
+              <>
+                <ChangeArrow isPositive={isPositiveChange} />
+                <Text style={[styles.bitcoinChangeText, { color: changeColor }]} numberOfLines={1}>
+                  {displayPercentage}
+                  {displayAbsChange && ` (${displayAbsChange})`}
+                </Text>
+              </>
+            )}
+          </View>
+        </View>
+
+        {/* Bitcoin Amount - Right Side */}
+        <View style={styles.bitcoinAmountContainer}>
+          <Text style={styles.bitcoinAmount} numberOfLines={1}>
+            {displayTokenAmount}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  // Solana/Ethereum layout
   return (
     <TouchableOpacity
       style={styles.container}
@@ -117,7 +180,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
           )}
           {displayPercentage && (
             <>
-              <Text style={styles.bulletSeparator}> {'\u2022'} </Text>
+              <ChangeArrow isPositive={isPositiveChange} />
               <Text style={[styles.changeText, { color: changeColor }]} numberOfLines={1}>
                 {displayPercentage}
                 {displayAbsChange && ` (${displayAbsChange})`}
@@ -143,15 +206,22 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
 };
 
 const styles = StyleSheet.create({
+  // Common container styles
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: colors.background.card,
-    borderRadius: 12,
-    marginBottom: 8,
+    paddingVertical: 20,
+    backgroundColor: colors.background.tokenItem,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    marginBottom: 10,
+    marginHorizontal: 24,
+    gap: 16,
   },
+
+  // Solana/Ethereum styles
   logo: {
     width: 48,
     height: 48,
@@ -160,18 +230,19 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flex: 1,
-    marginLeft: 12,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   name: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.primary,
+    fontSize: 18,
+    fontWeight: '500',
+    color: colors.text.token,
     flexShrink: 1,
+    lineHeight: 25,
+    letterSpacing: -0.09,
   },
   verifiedBadge: {
     width: 16,
@@ -190,32 +261,75 @@ const styles = StyleSheet.create({
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 3,
   },
   price: {
-    fontSize: 14,
-    color: colors.text.muted,
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text.tokenPrice,
+    letterSpacing: -0.09,
   },
-  bulletSeparator: {
-    fontSize: 14,
-    color: colors.text.disabled,
+  changeArrow: {
+    fontSize: 12,
+    marginLeft: 4,
   },
   changeText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '300',
+    letterSpacing: -0.08,
   },
   valueContainer: {
     alignItems: 'flex-end',
-    marginLeft: 8,
   },
   usdValue: {
+    fontSize: 24,
+    fontWeight: '500',
+    color: colors.text.token,
+    letterSpacing: -0.12,
+    lineHeight: 28,
+  },
+  tokenAmount: {
     fontSize: 16,
     fontWeight: '500',
     color: colors.text.primary,
-    marginBottom: 4,
   },
-  tokenAmount: {
-    fontSize: 14,
-    color: colors.text.muted,
+
+  // Bitcoin-specific styles
+  logoBitcoin: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.background.tertiary,
+  },
+  bitcoinInfoContainer: {
+    flex: 1,
+  },
+  bitcoinUsdValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text.primary,
+    letterSpacing: 0.036,
+    lineHeight: 31,
+  },
+  bitcoinChangeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  bitcoinChangeText: {
+    fontSize: 15,
+    fontWeight: '300',
+    letterSpacing: -0.08,
+  },
+  bitcoinAmountContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bitcoinAmount: {
+    fontSize: 25,
+    fontWeight: '600',
+    color: colors.text.tokenPrice,
+    letterSpacing: -0.13,
   },
 });
 

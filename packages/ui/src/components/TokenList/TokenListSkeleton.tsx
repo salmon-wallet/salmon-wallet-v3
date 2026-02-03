@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
+import { colors } from '@salmon/shared';
 import type { TokenListSkeletonProps } from './types';
 
 /**
@@ -38,13 +39,13 @@ const SkeletonItem: React.FC = () => {
       {/* Token info skeleton */}
       <View style={styles.infoContainer}>
         <View style={styles.nameSkeleton} />
-        <View style={styles.balanceSkeleton} />
+        <View style={styles.priceSkeleton} />
       </View>
 
       {/* Value info skeleton */}
       <View style={styles.valueContainer}>
         <View style={styles.usdSkeleton} />
-        <View style={styles.changeSkeleton} />
+        <View style={styles.amountSkeleton} />
       </View>
     </Animated.View>
   );
@@ -79,50 +80,53 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    marginBottom: 8,
+    paddingVertical: 20,
+    backgroundColor: colors.background.tokenItem,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    marginBottom: 10,
+    marginHorizontal: 24,
+    gap: 16,
   },
   logoSkeleton: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.skeleton.base,
   },
   infoContainer: {
     flex: 1,
-    marginLeft: 12,
   },
   nameSkeleton: {
     width: 100,
-    height: 16,
+    height: 18,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.skeleton.base,
     marginBottom: 6,
   },
-  balanceSkeleton: {
-    width: 80,
-    height: 14,
+  priceSkeleton: {
+    width: 140,
+    height: 15,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.skeleton.base,
   },
   valueContainer: {
     alignItems: 'flex-end',
   },
   usdSkeleton: {
+    width: 80,
+    height: 24,
+    borderRadius: 4,
+    backgroundColor: colors.skeleton.base,
+    marginBottom: 4,
+  },
+  amountSkeleton: {
     width: 60,
     height: 16,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    marginBottom: 6,
-  },
-  changeSkeleton: {
-    width: 50,
-    height: 14,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.skeleton.base,
   },
 });
 

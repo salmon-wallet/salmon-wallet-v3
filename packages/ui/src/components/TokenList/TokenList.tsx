@@ -36,6 +36,7 @@ const keyExtractor = (item: Token): string => item.address;
  *   loading={false}
  *   onTokenPress={(token) => navigation.navigate('TokenDetail', { token })}
  *   hiddenBalance={false}
+ *   blockchain="solana"
  * />
  * ```
  */
@@ -49,6 +50,7 @@ const TokenList: React.FC<TokenListProps> = ({
   refreshing = false,
   onRefresh,
   contentContainerStyle,
+  blockchain = 'solana',
 }) => {
   // Render item callback - memoized for performance
   // Must be defined before any conditional returns to comply with Rules of Hooks
@@ -58,9 +60,10 @@ const TokenList: React.FC<TokenListProps> = ({
         token={item}
         onPress={onTokenPress}
         hiddenBalance={hiddenBalance}
+        blockchain={blockchain}
       />
     ),
-    [onTokenPress, hiddenBalance]
+    [onTokenPress, hiddenBalance, blockchain]
   );
 
   // Show skeleton while loading (only when no header component is provided)
