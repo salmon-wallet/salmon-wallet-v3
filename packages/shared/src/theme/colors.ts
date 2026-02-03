@@ -23,6 +23,7 @@ export const colors = {
     default: '#404962',
     primary: '#404962', // Alias for default
     light: 'rgba(255, 255, 255, 0.8)',
+    subtle: 'rgba(255, 255, 255, 0.15)', // For secondary button borders
   },
   accent: {
     primary: '#FF5C45', // orange/red - color de acento principal
@@ -32,6 +33,14 @@ export const colors = {
     success: '#10B981',
     error: '#EF4444',
     warning: '#F59E0B',
+  },
+  /**
+   * Price change colors for token lists and charts
+   */
+  change: {
+    positive: '#00C853',
+    negative: '#FF5252',
+    neutral: '#9E9E9E',
   },
   input: {
     background: 'rgba(64, 73, 98, 0.2)',
@@ -45,6 +54,9 @@ export const colors = {
     primaryText: '#000000',
     secondaryBackground: '#2a3441',
     secondaryText: '#FFFFFF',
+    disabledBackground: '#666666',
+    disabledBackgroundEnd: '#444444',
+    disabledText: '#666666',
     disabledOpacity: 0.5,
   },
   passwordStrength: {
@@ -70,6 +82,37 @@ export const colors = {
     border: 'rgba(255, 255, 255, 0.1)',
     borderActive: '#FF5C45',
   },
+  /**
+   * QR Scanner colors
+   */
+  scanner: {
+    background: '#1a1a2e',
+    surface: '#2a2a4e',
+    text: '#ffffff',
+    textSecondary: '#8b8b9e',
+    textTertiary: '#6b6b7e',
+    button: '#4a4a6e',
+  },
+  /**
+   * Color palette for feature badges, avatars, and decorative elements
+   */
+  palette: {
+    orange: '#FF5C45',
+    green: '#10B981',
+    purple: '#8B5CF6',
+    amber: '#F59E0B',
+    blue: '#3B82F6',
+    pink: '#EC4899',
+    cyan: '#06B6D4',
+    indigo: '#6366F1',
+  },
+  /**
+   * Verification badge colors
+   */
+  verified: {
+    background: 'rgba(76, 175, 80, 0.2)',
+    icon: '#4CAF50',
+  },
 } as const;
 
 /**
@@ -83,9 +126,39 @@ export const gradients = {
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 },
   },
-  // CSS version for web
+  /**
+   * Primary action button gradient (e.g., Send button)
+   */
+  primaryButton: {
+    colors: ['#ff5c45', '#ff3d2e'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 },
+  },
+  /**
+   * Balance card cosmic/purple gradient
+   */
+  balanceCard: {
+    colors: ['#4A1A8C', '#2D1052', '#1A0A33'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  /**
+   * Disabled button gradient
+   */
+  disabled: {
+    colors: ['#666666', '#444444'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 },
+  },
+  // CSS versions for web
   primaryCSS:
     'linear-gradient(101deg, rgb(255, 92, 69) 12%, rgba(161, 42, 42, 0.9) 83%)',
+  primaryButtonCSS:
+    'linear-gradient(90deg, #ff5c45 0%, #ff3d2e 100%)',
+  balanceCardCSS:
+    'linear-gradient(135deg, #4A1A8C 0%, #2D1052 50%, #1A0A33 100%)',
+  disabledCSS:
+    'linear-gradient(90deg, #666666 0%, #444444 100%)',
 } as const;
 
 export type Colors = typeof colors;
