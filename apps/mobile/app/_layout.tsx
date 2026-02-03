@@ -3,6 +3,7 @@
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { colors } from '@salmon/shared';
 import { useFonts } from 'expo-font';
 import { Stack, router, useSegments, useRootNavigationState } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -58,6 +59,16 @@ export default function RootLayout() {
     </AccountsProvider>
   );
 }
+
+// Custom dark theme with app background color matching header
+const CustomDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: colors.background.primary, // #10131c - matches header
+    card: colors.background.primary,
+  },
+};
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
@@ -146,7 +157,7 @@ function RootLayoutNav() {
 
   return (
     <I18nProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : DefaultTheme}>
         <View style={styles.container}>
           <Stack screenOptions={{ headerShown: false }}>
             {/* Auth flow - onboarding screens */}
