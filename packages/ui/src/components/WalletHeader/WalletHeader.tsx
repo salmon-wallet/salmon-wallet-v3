@@ -1,22 +1,25 @@
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@salmon/shared';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, spacing, borderRadius, borderWidth, shadows } from '@salmon/shared';
+import { WalletSvgIcon, ContentCopySvgIcon, SettingsSvgIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
 /**
- * Truncates an address to show first 6 and last 4 characters
+ * Truncates an address to show first 4 and last 4 characters
+ * Matches Figma format: "ABcd...XYZ1"
  */
 function truncateAddress(address: string): string {
-  if (!address || address.length < 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  if (!address || address.length < 10) return address;
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
 }
 
 /**
  * WalletHeader component for displaying account info and navigation
  *
- * Displays:
- * - Account name + truncated address (tappable for wallet switcher)
+ * Displays (matching Figma design):
+ * - Wallet icon on the left
+ * - Account name with truncated address: "Account 1 (ABcd...XYZ1)"
  * - Copy button to copy full address
  * - Settings icon for navigation
  *
@@ -39,6 +42,8 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   onWalletPress,
   style,
 }) => {
+  const insets = useSafeAreaInsets();
+
   const handleCopyPress = useCallback(() => {
     onCopyAddress?.();
   }, [onCopyAddress]);
@@ -53,47 +58,46 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
 
   const truncatedAddress = truncateAddress(address);
 
+  // Format: "Account 1 (ABcd...XYZ1)" matching Figma
+  const displayText = `${accountName} (${truncatedAddress})`;
+
+  // Calculate top padding:
+  // - iOS: Use safe area inset (for notch/dynamic island)
+  // - Android: Use safe area inset (handles status bar)
+  // - Web: No safe area needed (use 0)
+  const safeAreaTop = Platform.OS === 'web' ? 0 : insets.top;
+
   return (
-    <View style={[styles.container, style]}>
-      {/* Left side - Account info */}
-      <View style={styles.accountSection}>
-        {/* Account name - taps to open wallet switcher */}
+    <View style={[styles.container, { paddingTop: safeAreaTop }, style]}>
+      {/* Left side - Wallet icon + Account info */}
+      <View style={styles.leftSection}>
+        {/* Wallet icon */}
         <TouchableOpacity
-          style={styles.accountNameRow}
+          style={styles.walletIconContainer}
           onPress={handleWalletPress}
           activeOpacity={0.7}
           accessibilityRole="button"
           accessibilityLabel="Switch wallet account"
         >
-          <Text style={styles.accountName} numberOfLines={1}>
-            {accountName}
-          </Text>
-          <Ionicons
-            name="chevron-down"
-            size={16}
-            color={colors.text.muted}
-            style={styles.chevronIcon}
-          />
+          <WalletSvgIcon size={24} color={colors.text.muted} />
         </TouchableOpacity>
 
-        {/* Address - taps to copy */}
-        <TouchableOpacity
-          style={styles.addressContainer}
-          onPress={handleCopyPress}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel={`Copy wallet address ${truncatedAddress}`}
-        >
-          <Text style={styles.address} numberOfLines={1}>
-            {truncatedAddress}
+        {/* Account name + address in single line */}
+        <View style={styles.accountInfo}>
+          <Text style={styles.accountText} numberOfLines={1}>
+            {displayText}
           </Text>
-          <Ionicons
-            name="copy-outline"
-            size={14}
-            color={colors.text.muted}
-            style={styles.copyIcon}
-          />
-        </TouchableOpacity>
+          {/* Copy button */}
+          <TouchableOpacity
+            onPress={handleCopyPress}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Copy wallet address ${truncatedAddress}`}
+            style={styles.copyButton}
+          >
+            <ContentCopySvgIcon size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Right side - Settings button */}
@@ -104,7 +108,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
         accessibilityRole="button"
         accessibilityLabel="Open settings"
       >
-        <Ionicons name="settings-outline" size={24} color={colors.text.primary} />
+        <SettingsSvgIcon size={24} color={colors.text.muted} />
       </TouchableOpacity>
     </View>
   );
@@ -115,47 +119,62 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: spacing['2xl'],
+    paddingBottom: spacing.md,
+    // Design specs from Figma:
+    // - Background color: #10131c (bg-darken)
     backgroundColor: colors.background.primary,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    // - Rounded bottom corners: 34.557px
+    borderBottomLeftRadius: borderRadius.header,
+    borderBottomRightRadius: borderRadius.header,
+    // - Bottom border: 1.38px rgba(255,255,255,0.8)
+    borderBottomWidth: borderWidth.header,
+    borderBottomColor: colors.border.light,
+    // - Shadow: 0px 10px 20px rgba(0,0,0,0.9)
+    ...Platform.select({
+      ios: {
+        shadowColor: shadows.header.shadowColor,
+        shadowOffset: shadows.header.shadowOffset,
+        shadowOpacity: shadows.header.shadowOpacity,
+        shadowRadius: shadows.header.shadowRadius,
+      },
+      android: {
+        elevation: shadows.header.elevation,
+      },
+      default: {}, // Web doesn't need RN shadow
+    }),
   },
-  accountSection: {
+  leftSection: {
     flex: 1,
-    marginRight: 16,
-  },
-  accountNameRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing.sm,
   },
-  accountName: {
-    fontSize: 16,
+  walletIconContainer: {
+    width: 43,
+    height: 46,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accountInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  accountText: {
+    fontSize: 16.587,
     fontWeight: '600',
     color: colors.text.primary,
-    marginBottom: 2,
+    letterSpacing: 0.166,
+    lineHeight: 22,
   },
-  chevronIcon: {
-    marginLeft: 4,
-    marginBottom: 2,
-  },
-  addressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  address: {
-    fontSize: 13,
-    color: colors.text.muted,
-    fontFamily: 'monospace',
-  },
-  copyIcon: {
-    marginLeft: 6,
+  copyButton: {
+    padding: spacing.xs,
   },
   settingsButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.background.tertiary,
+    width: 43,
+    height: 46,
     alignItems: 'center',
     justifyContent: 'center',
   },
