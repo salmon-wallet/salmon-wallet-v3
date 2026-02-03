@@ -8,18 +8,19 @@ import {
   fontWeight,
   fontSize,
 } from '@salmon/shared';
-import type { TokenFeaturesProps, TokenFeature } from './types';
+import type { TokenFeature } from '@salmon/shared';
+import type { TokenFeaturesProps } from './types';
 
 /**
- * Default feature colors for variety
+ * Default feature colors from the palette for variety
  */
 const DEFAULT_FEATURE_COLORS = [
-  '#FF5C45', // Orange/Red (accent)
-  '#10B981', // Green
-  '#8B5CF6', // Purple
-  '#F59E0B', // Amber
-  '#3B82F6', // Blue
-  '#EC4899', // Pink
+  colors.palette.orange,
+  colors.palette.green,
+  colors.palette.purple,
+  colors.palette.amber,
+  colors.palette.blue,
+  colors.palette.pink,
 ];
 
 /**

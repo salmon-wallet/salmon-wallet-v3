@@ -1,14 +1,9 @@
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, type ColorValue } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, gradients } from '@salmon/shared';
 import type { ActionButtonRowProps } from './types';
-
-/**
- * Gradient colors for primary (send) button
- */
-const PRIMARY_GRADIENT: readonly [ColorValue, ColorValue] = ['#ff5c45', '#ff3d2e'];
-const DISABLED_GRADIENT: readonly [ColorValue, ColorValue] = ['#666', '#444'];
 
 /**
  * ActionButtonRow component for primary wallet actions
@@ -66,12 +61,12 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
         accessibilityLabel="Send tokens"
       >
         <LinearGradient
-          colors={sendDisabled ? DISABLED_GRADIENT : PRIMARY_GRADIENT}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
+          colors={sendDisabled ? gradients.disabled.colors : gradients.primaryButton.colors}
+          start={gradients.primaryButton.start}
+          end={gradients.primaryButton.end}
           style={styles.primaryButton}
         >
-          <Ionicons name="arrow-up" size={22} color="#FFFFFF" />
+          <Ionicons name="arrow-up" size={22} color={colors.text.primary} />
           <Text style={styles.primaryButtonText}>Send</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -92,7 +87,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
         <Ionicons
           name="arrow-down"
           size={22}
-          color={receiveDisabled ? '#666' : '#FFFFFF'}
+          color={receiveDisabled ? colors.button.disabledText : colors.text.primary}
         />
         <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
           Receive
@@ -115,7 +110,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
         <Ionicons
           name="time-outline"
           size={22}
-          color={activityDisabled ? '#666' : '#FFFFFF'}
+          color={activityDisabled ? colors.button.disabledText : colors.text.primary}
         />
         <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
           Activity
@@ -140,7 +135,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   buttonDisabled: {
-    opacity: 0.5,
+    opacity: colors.button.disabledOpacity,
   },
   primaryButton: {
     flexDirection: 'row',
@@ -153,7 +148,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   secondaryButton: {
     flexDirection: 'row',
@@ -161,19 +156,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 16,
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: colors.border.subtle,
     borderRadius: 16,
     gap: 8,
   },
   secondaryButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   textDisabled: {
-    color: '#666',
+    color: colors.button.disabledText,
   },
 });
 

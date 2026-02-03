@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ViewStyle, ColorValue } from 'react-native';
 import type { ReactNode } from 'react';
+import { gradients } from '@salmon/shared';
 
 interface GradientBackgroundProps {
   colors?: readonly [ColorValue, ColorValue, ...ColorValue[]];
@@ -10,12 +11,10 @@ interface GradientBackgroundProps {
   children?: ReactNode;
 }
 
-const DEFAULT_COLORS: readonly [ColorValue, ColorValue] = ['#ff5c45', 'rgba(161, 42, 42, 0.9)'];
-
 export const GradientBackground = ({
-  colors = DEFAULT_COLORS,
-  start = { x: 0, y: 0 },
-  end = { x: 1, y: 0 },
+  colors = gradients.primary.colors,
+  start = gradients.primary.start,
+  end = gradients.primary.end,
   style,
   children,
 }: GradientBackgroundProps) => {

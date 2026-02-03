@@ -21,87 +21,9 @@ import {
   type ViewStyle,
 } from 'react-native';
 import type { Connection } from '@solana/web3.js';
+import { colors } from '@salmon/shared';
 import { useAddressValidation } from './useAddressValidation';
 import type { InputAddressProps, ValidationState } from './types';
-
-// ============================================================================
-// Styles
-// ============================================================================
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
-    color: '#FFFFFF',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1A1A2E',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#2D2D44',
-    paddingHorizontal: 16,
-    minHeight: 56,
-  },
-  inputContainerValid: {
-    borderColor: '#10B981',
-  },
-  inputContainerInvalid: {
-    borderColor: '#EF4444',
-  },
-  inputContainerWarning: {
-    borderColor: '#F59E0B',
-  },
-  inputContainerDisabled: {
-    opacity: 0.5,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#FFFFFF',
-    paddingVertical: 12,
-  },
-  inputDisabled: {
-    color: '#6B7280',
-  },
-  validationIcon: {
-    marginLeft: 12,
-  },
-  messageContainer: {
-    marginTop: 8,
-  },
-  message: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  messageError: {
-    color: '#EF4444',
-  },
-  messageWarning: {
-    color: '#F59E0B',
-  },
-  domainInfo: {
-    marginTop: 8,
-    padding: 12,
-    backgroundColor: '#1A1A2E',
-    borderRadius: 8,
-  },
-  domainLabel: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginBottom: 4,
-  },
-  domainValue: {
-    fontSize: 13,
-    color: '#FFFFFF',
-    fontFamily: 'monospace',
-  },
-});
 
 // ============================================================================
 // Helper Components
@@ -120,27 +42,27 @@ function ValidationIndicator({ state }: ValidationIndicatorProps) {
       return (
         <ActivityIndicator
           size="small"
-          color="#6366F1"
+          color={colors.palette.indigo}
           style={styles.validationIcon}
           testID="input-address-loading"
         />
       );
     case 'valid':
       return (
-        <Text style={[styles.validationIcon, { color: '#10B981', fontSize: 18 }]} testID="input-address-valid">
-          ✓
+        <Text style={[styles.validationIcon, { color: colors.status.success, fontSize: 18 }]} testID="input-address-valid">
+          {'\u2713'}
         </Text>
       );
     case 'invalid':
       return (
-        <Text style={[styles.validationIcon, { color: '#EF4444', fontSize: 18 }]} testID="input-address-invalid">
-          ✕
+        <Text style={[styles.validationIcon, { color: colors.status.error, fontSize: 18 }]} testID="input-address-invalid">
+          {'\u2715'}
         </Text>
       );
     case 'warning':
       return (
-        <Text style={[styles.validationIcon, { color: '#F59E0B', fontSize: 18 }]} testID="input-address-warning">
-          ⚠
+        <Text style={[styles.validationIcon, { color: colors.status.warning, fontSize: 18 }]} testID="input-address-warning">
+          {'\u26A0'}
         </Text>
       );
     default:
@@ -262,7 +184,7 @@ export function InputAddress({
           value={address}
           onChangeText={handleChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.text.placeholder}
           editable={!disabled && !isValidating}
           autoCapitalize="none"
           autoCorrect={false}
@@ -305,5 +227,84 @@ export function InputAddress({
     </View>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+    color: colors.text.primary,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.scanner.background,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.input.border,
+    paddingHorizontal: 16,
+    minHeight: 56,
+  },
+  inputContainerValid: {
+    borderColor: colors.input.borderSuccess,
+  },
+  inputContainerInvalid: {
+    borderColor: colors.input.borderError,
+  },
+  inputContainerWarning: {
+    borderColor: colors.status.warning,
+  },
+  inputContainerDisabled: {
+    opacity: colors.button.disabledOpacity,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: colors.text.primary,
+    paddingVertical: 12,
+  },
+  inputDisabled: {
+    color: colors.text.tertiary,
+  },
+  validationIcon: {
+    marginLeft: 12,
+  },
+  messageContainer: {
+    marginTop: 8,
+  },
+  message: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  messageError: {
+    color: colors.status.error,
+  },
+  messageWarning: {
+    color: colors.status.warning,
+  },
+  domainInfo: {
+    marginTop: 8,
+    padding: 12,
+    backgroundColor: colors.scanner.background,
+    borderRadius: 8,
+  },
+  domainLabel: {
+    fontSize: 12,
+    color: colors.text.secondary,
+    marginBottom: 4,
+  },
+  domainValue: {
+    fontSize: 13,
+    color: colors.text.primary,
+    fontFamily: 'monospace',
+  },
+});
 
 export default InputAddress;

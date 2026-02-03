@@ -1,8 +1,16 @@
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, type ColorValue } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { showAmount, showPercentage, showAbsoluteChange, getLabelValue, hiddenValue } from '@salmon/shared';
+import {
+  showAmount,
+  showPercentage,
+  showAbsoluteChange,
+  getLabelValue,
+  hiddenValue,
+  colors,
+  gradients,
+} from '@salmon/shared';
 import type { BalanceCardProps } from './types';
 
 /**
@@ -13,20 +21,6 @@ const NETWORK_LOGOS: Record<string, string> = {
   'devnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
   'testnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
 };
-
-/**
- * Color mapping for percentage change labels
- */
-const LABEL_COLORS: Record<string, string> = {
-  positive: '#00C853',
-  negative: '#FF5252',
-  neutral: 'rgba(255, 255, 255, 0.6)',
-};
-
-/**
- * Gradient colors for the balance card
- */
-const GRADIENT_COLORS: readonly [ColorValue, ColorValue, ColorValue] = ['#4A1A8C', '#2D1052', '#1A0A33'];
 
 /**
  * BalanceCard component for displaying total portfolio balance
@@ -74,7 +68,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
   // Determine the label type for coloring
   const labelType = getLabelValue(changePercent);
-  const changeColor = LABEL_COLORS[labelType];
+  const changeColor = colors.change[labelType];
 
   // Get network logo
   const networkLogo = network.logo || NETWORK_LOGOS[network.id] || NETWORK_LOGOS['mainnet-beta'];
@@ -86,9 +80,9 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
   return (
     <LinearGradient
-      colors={GRADIENT_COLORS}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+      colors={gradients.balanceCard.colors}
+      start={gradients.balanceCard.start}
+      end={gradients.balanceCard.end}
       style={[styles.container, style]}
     >
       {/* Network selector */}
@@ -108,7 +102,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         <Ionicons
           name="chevron-down"
           size={16}
-          color="rgba(255, 255, 255, 0.6)"
+          color={colors.text.muted}
           style={styles.chevron}
         />
       </TouchableOpacity>
@@ -116,7 +110,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       {/* Balance display */}
       <View style={styles.balanceContainer}>
         {loading ? (
-          <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
+          <ActivityIndicator size="large" color={colors.text.primary} style={styles.loader} />
         ) : (
           <Text style={styles.balance} numberOfLines={1} adjustsFontSizeToFit>
             {displayBalance}
@@ -134,7 +128,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
           <Ionicons
             name={hiddenBalance ? 'eye-off-outline' : 'eye-outline'}
             size={22}
-            color="rgba(255, 255, 255, 0.6)"
+            color={colors.text.muted}
           />
         </TouchableOpacity>
       </View>
@@ -187,7 +181,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.background.tertiary,
     borderRadius: 16,
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -202,7 +196,7 @@ const styles = StyleSheet.create({
   networkName: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   chevron: {
     marginLeft: 4,
@@ -216,7 +210,7 @@ const styles = StyleSheet.create({
   balance: {
     fontSize: 42,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     flex: 1,
     marginRight: 12,
   },
@@ -228,7 +222,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.background.tertiary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -247,7 +241,7 @@ const styles = StyleSheet.create({
   },
   changeHidden: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: colors.text.muted,
   },
   pagination: {
     flexDirection: 'row',
@@ -258,11 +252,11 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: colors.step.inactive,
     marginHorizontal: 4,
   },
   paginationDotActive: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.text.primary,
   },
 });
 

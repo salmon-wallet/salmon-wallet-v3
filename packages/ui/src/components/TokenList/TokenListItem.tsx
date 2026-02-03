@@ -6,18 +6,10 @@ import {
   showAbsoluteChange,
   getLabelValue,
   hiddenValue,
+  colors,
   type LabelType,
 } from '@salmon/shared';
 import type { TokenListItemProps } from './types';
-
-/**
- * Color mapping for percentage change labels
- */
-const LABEL_COLORS: Record<LabelType, string> = {
-  positive: '#00C853',
-  negative: '#FF5252',
-  neutral: '#9E9E9E',
-};
 
 /**
  * Default placeholder image for tokens without a logo
@@ -67,7 +59,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   const percentageChange = last24HoursChange?.perc ?? 0;
   const absoluteChange = last24HoursChange?.abs;
   const labelType = getLabelValue(percentageChange);
-  const changeColor = LABEL_COLORS[labelType];
+  const changeColor = colors.change[labelType];
 
   // Format display values
   const displayPrice = hiddenBalance
@@ -156,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
     borderRadius: 12,
     marginBottom: 8,
   },
@@ -164,7 +156,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.background.tertiary,
   },
   infoContainer: {
     flex: 1,
@@ -178,21 +170,21 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     flexShrink: 1,
   },
   verifiedBadge: {
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+    backgroundColor: colors.verified.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 6,
   },
   verifiedIcon: {
     fontSize: 10,
-    color: '#4CAF50',
+    color: colors.verified.icon,
     fontWeight: '700',
   },
   priceRow: {
@@ -201,11 +193,11 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: colors.text.muted,
   },
   bulletSeparator: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: colors.text.disabled,
   },
   changeText: {
     fontSize: 14,
@@ -218,12 +210,12 @@ const styles = StyleSheet.create({
   usdValue: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginBottom: 4,
   },
   tokenAmount: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: colors.text.muted,
   },
 });
 

@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@salmon/shared';
 import type { WalletHeaderProps } from './types';
 
 /**
@@ -70,7 +71,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
           <Ionicons
             name="chevron-down"
             size={16}
-            color="rgba(255, 255, 255, 0.6)"
+            color={colors.text.muted}
             style={styles.chevronIcon}
           />
         </TouchableOpacity>
@@ -89,7 +90,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
           <Ionicons
             name="copy-outline"
             size={14}
-            color="rgba(255, 255, 255, 0.6)"
+            color={colors.text.muted}
             style={styles.copyIcon}
           />
         </TouchableOpacity>
@@ -103,7 +104,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
         accessibilityRole="button"
         accessibilityLabel="Open settings"
       >
-        <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
+        <Ionicons name="settings-outline" size={24} color={colors.text.primary} />
       </TouchableOpacity>
     </View>
   );
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: '#0D0D0D',
+    backgroundColor: colors.background.primary,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
   accountName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginBottom: 2,
   },
   chevronIcon: {
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
   },
   address: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: colors.text.muted,
     fontFamily: 'monospace',
   },
   copyIcon: {
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.background.tertiary,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -11,6 +11,7 @@
 
 import React from 'react';
 import { Modal, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { colors } from '@salmon/shared';
 import type { QRScannerProps } from './types';
 
 /**
@@ -78,7 +79,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.scanner.background,
   },
   header: {
     flexDirection: 'row',
@@ -92,13 +93,13 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   backButtonText: {
-    color: '#ffffff',
+    color: colors.scanner.text,
     fontSize: 16,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.scanner.text,
   },
   headerSpacer: {
     width: 60,
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
   scannerPlaceholder: {
     width: 250,
     height: 250,
-    backgroundColor: '#2a2a4e',
+    backgroundColor: colors.scanner.surface,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 30,
     height: 30,
-    borderColor: '#ffffff',
+    borderColor: colors.scanner.text,
   },
   cornerTopLeft: {
     top: 0,
@@ -163,19 +164,19 @@ const styles = StyleSheet.create({
   messageTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.scanner.text,
     marginBottom: 12,
     textAlign: 'center',
   },
   messageText: {
     fontSize: 16,
-    color: '#8b8b9e',
+    color: colors.scanner.textSecondary,
     textAlign: 'center',
     marginBottom: 8,
   },
   messageSubtext: {
     fontSize: 14,
-    color: '#6b6b7e',
+    color: colors.scanner.textTertiary,
     textAlign: 'center',
     paddingHorizontal: 16,
   },
@@ -185,14 +186,14 @@ const styles = StyleSheet.create({
     paddingBottom: 48, // Account for home indicator on mobile
   },
   button: {
-    backgroundColor: '#4a4a6e',
+    backgroundColor: colors.scanner.button,
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 12,
     alignItems: 'center',
   },
   buttonText: {
-    color: '#ffffff',
+    color: colors.scanner.text,
     fontSize: 16,
     fontWeight: '600',
   },
