@@ -23,6 +23,7 @@ import {
   Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +58,7 @@ function mapBalanceToToken(
     logo: string | null;
     uiAmount: number;
     usdBalance?: number;
+    price?: number;
     priceChange24h?: number;
     tags?: string[];
   }
@@ -66,15 +68,24 @@ function mapBalanceToToken(
     (tag) => tag === 'verified' || tag === 'strict'
   ) ?? false;
 
+  // Calculate absolute USD change based on percentage and current balance
+  let absoluteChange: number | undefined;
+  if (item.priceChange24h !== undefined && item.usdBalance !== undefined && item.usdBalance > 0) {
+    // Calculate previous balance: current / (1 + percentage/100)
+    const previousBalance = item.usdBalance / (1 + item.priceChange24h / 100);
+    absoluteChange = item.usdBalance - previousBalance;
+  }
+
   return {
     address: item.address,
     symbol: item.symbol,
     name: item.name,
     logo: item.logo || undefined,
+    price: item.price,
     uiAmount: item.uiAmount,
-    usdBalance: item.usdBalance || null,
+    usdBalance: item.usdBalance ?? null,
     last24HoursChange: item.priceChange24h !== undefined
-      ? { perc: item.priceChange24h }
+      ? { perc: item.priceChange24h, abs: absoluteChange }
       : null,
     tags: item.tags,
     isVerified,
@@ -185,6 +196,12 @@ export default function HomeScreen() {
   const tokenListItems = useMemo(() => {
     return tokens.map(mapBalanceToToken);
   }, [tokens]);
+
+  // Get current blockchain type for TokenList styling
+  const currentBlockchain = useMemo(() => {
+    const blockchainMap: BlockchainId[] = ['solana', 'bitcoin', 'ethereum'];
+    return blockchainMap[activeBlockchainIndex] || 'solana';
+  }, [activeBlockchainIndex]);
 
   // Handlers
   const handleCopyAddress = useCallback(async () => {
@@ -360,10 +377,10 @@ export default function HomeScreen() {
     );
   }, [accountState, activeAccount, accountActions, handleRemoveAllWallets, t]);
 
-  // Memoize the list header component to avoid unnecessary re-renders
+  // Memoize the fixed header component (Balance Card + Action Buttons)
   // IMPORTANT: This hook must be called BEFORE any early returns to follow React's Rules of Hooks
-  const ListHeaderComponent = useMemo(() => (
-    <>
+  const FixedHeaderComponent = useMemo(() => (
+    <View style={styles.fixedHeader}>
       {/* Balance Card Carousel */}
       <BalanceCardCarousel
         blockchains={blockchainBalances}
@@ -381,12 +398,7 @@ export default function HomeScreen() {
         onActivityPress={handleActivityPress}
         style={styles.actionRow}
       />
-
-      {/* Token List Header */}
-      <View style={styles.tokenListHeader}>
-        <Text style={styles.sectionTitle}>Assets</Text>
-      </View>
-    </>
+    </View>
   ), [
     blockchainBalances,
     hiddenBalance,
@@ -441,21 +453,36 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Token List with integrated header and pull-to-refresh */}
-      {/* Renders below the absolutely positioned header */}
+      {/* Fixed Header: Balance Card + Action Buttons */}
+      {FixedHeaderComponent}
+
+      {/* Scrollable Token List */}
       <View style={styles.listContainer}>
         <TokenList
           tokens={tokenListItems}
           loading={loading && tokenListItems.length === 0}
           onTokenPress={handleTokenPress}
           hiddenBalance={hiddenBalance}
-          ListHeaderComponent={ListHeaderComponent}
           ListEmptyComponent={ListEmptyComponent}
           refreshing={refreshing}
           onRefresh={refresh}
           contentContainerStyle={styles.listContent}
+          blockchain={currentBlockchain}
+        />
+        {/* Top fade gradient - positioned at the top of the scrollable area */}
+        <LinearGradient
+          colors={['#0D0D0D', 'transparent']}
+          style={styles.topFadeGradient}
+          pointerEvents="none"
         />
       </View>
+
+      {/* Bottom fade gradient - smooth transition before tab bar */}
+      <LinearGradient
+        colors={['transparent', '#0D0D0D']}
+        style={styles.bottomFadeGradient}
+        pointerEvents="none"
+      />
 
       {/* Header - Absolutely positioned above content */}
       <WalletHeader
@@ -508,10 +535,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 16,
   },
+  fixedHeader: {
+    // Fixed header containing balance card and action buttons
+  },
   listContainer: {
     flex: 1,
   },
   listContent: {
+    paddingTop: 8,
     paddingBottom: 100, // Space for tab bar
   },
   balanceCard: {
@@ -520,16 +551,23 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     marginTop: 8,
+    marginBottom: 8,
   },
-  tokenListHeader: {
-    paddingHorizontal: 16,
-    marginTop: 24,
+  topFadeGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 24,
+    zIndex: 1,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 16,
+  bottomFadeGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 180,
+    bottom: 0,
+    zIndex: 1,
   },
   emptyState: {
     alignItems: 'center',
