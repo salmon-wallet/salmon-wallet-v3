@@ -23,6 +23,10 @@ export interface Token {
     /** Absolute change in USD */
     abs?: number;
   } | null;
+  /** Token tags (e.g., 'verified', 'strict', 'community') */
+  tags?: string[];
+  /** Whether the token is verified (has 'verified' or 'strict' tag) */
+  isVerified?: boolean;
 }
 
 /**

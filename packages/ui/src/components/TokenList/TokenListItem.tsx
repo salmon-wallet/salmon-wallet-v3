@@ -57,7 +57,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   onPress,
   hiddenBalance = false,
 }) => {
-  const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange } = token;
+  const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange, isVerified } = token;
 
   const handlePress = React.useCallback(() => {
     onPress(token);
@@ -107,9 +107,16 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
 
       {/* Token Info - Left Side */}
       <View style={styles.infoContainer}>
-        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-          {name}
-        </Text>
+        <View style={styles.nameRow}>
+          <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+            {name}
+          </Text>
+          {isVerified && (
+            <View style={styles.verifiedBadge}>
+              <Text style={styles.verifiedIcon}>{'\u2713'}</Text>
+            </View>
+          )}
+        </View>
         <View style={styles.priceRow}>
           {displayPrice && (
             <Text style={styles.price} numberOfLines={1}>
@@ -163,11 +170,30 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   name: {
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
-    marginBottom: 4,
+    flexShrink: 1,
+  },
+  verifiedBadge: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 6,
+  },
+  verifiedIcon: {
+    fontSize: 10,
+    color: '#4CAF50',
+    fontWeight: '700',
   },
   priceRow: {
     flexDirection: 'row',
