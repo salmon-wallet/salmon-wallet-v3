@@ -1,5 +1,12 @@
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Platform,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -10,33 +17,59 @@ import {
   hiddenValue,
   colors,
   gradients,
+  borderRadius,
+  borderWidth,
 } from '@salmon/shared';
-import type { BalanceCardProps } from './types';
+import type { BalanceCardProps, BlockchainId } from './types';
+import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon/SvgIcons';
 
 /**
- * Default network logos
+ * Get gradient configuration for a blockchain
  */
-const NETWORK_LOGOS: Record<string, string> = {
-  'mainnet-beta': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-  'devnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-  'testnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+const getGradientForBlockchain = (blockchain: BlockchainId) => {
+  switch (blockchain) {
+    case 'bitcoin':
+      return gradients.balanceCardBitcoin;
+    case 'ethereum':
+      return gradients.balanceCardEthereum;
+    case 'solana':
+    default:
+      return gradients.balanceCardSolana;
+  }
+};
+
+/**
+ * Render the blockchain logo using local SVG icons
+ */
+const renderBlockchainLogo = (blockchain: BlockchainId, size: number = 42) => {
+  switch (blockchain) {
+    case 'solana':
+      return <SolanaSvgIcon size={size} color="#FFFFFF" />;
+    case 'bitcoin':
+      return <BitcoinSvgIcon size={size} color="#FFFFFF" />;
+    case 'ethereum':
+      return <EthereumSvgIcon size={size} color="#FFFFFF" />;
+    default:
+      return <SolanaSvgIcon size={size} color="#FFFFFF" />;
+  }
 };
 
 /**
  * BalanceCard component for displaying total portfolio balance
  *
  * Features:
- * - Network logo and name
- * - Total balance in USD
- * - Eye icon to toggle visibility
- * - 24h percentage and absolute change
- * - Purple/cosmic gradient background
- * - Pagination dots for future multi-network carousel
+ * - Large centered blockchain logo (42x38px)
+ * - Centered balance with decimal opacity styling
+ * - Inline eye icon for visibility toggle
+ * - 24h percentage and absolute change with trending arrow
+ * - Blockchain-specific gradient background
+ * - Pagination dots for multi-network carousel
  *
  * @example
  * ```tsx
  * <BalanceCard
  *   network={{ id: 'mainnet-beta', name: 'Solana Mainnet' }}
+ *   blockchain="solana"
  *   usdTotal={1234.56}
  *   changePercent={5.23}
  *   changeAmount={61.45}
@@ -47,12 +80,12 @@ const NETWORK_LOGOS: Record<string, string> = {
  */
 export const BalanceCard: React.FC<BalanceCardProps> = ({
   network,
+  blockchain = 'solana',
   usdTotal,
   changePercent = 0,
   changeAmount = 0,
   hiddenBalance = false,
   onToggleVisibility,
-  onNetworkPress,
   currentIndex = 0,
   totalCount = 1,
   loading = false,
@@ -62,96 +95,131 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
     onToggleVisibility?.();
   }, [onToggleVisibility]);
 
-  const handleNetworkPress = useCallback(() => {
-    onNetworkPress?.();
-  }, [onNetworkPress]);
-
   // Determine the label type for coloring
   const labelType = getLabelValue(changePercent);
   const changeColor = colors.change[labelType];
 
-  // Get network logo
-  const networkLogo = network.logo || NETWORK_LOGOS[network.id] || NETWORK_LOGOS['mainnet-beta'];
 
   // Format display values
-  const displayBalance = hiddenBalance ? hiddenValue : showAmount(usdTotal);
   const displayPercentage = showPercentage(changePercent);
   const displayAbsChange = showAbsoluteChange(changeAmount);
 
+  // Get gradient for current blockchain
+  const gradient = getGradientForBlockchain(blockchain);
+
+  // Determine if change is positive
+  const isPositive = changePercent >= 0;
+
+  /**
+   * Render balance with decimal opacity styling
+   * Format: $1,177.90 where .90 has 40% opacity
+   */
+  const renderBalance = () => {
+    if (hiddenBalance) {
+      return (
+        <View style={styles.balanceRow}>
+          <Text style={styles.balanceDollars}>{hiddenValue}</Text>
+          <TouchableOpacity
+            onPress={handleToggleVisibility}
+            style={styles.eyeButton}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Show balance"
+          >
+            <Ionicons
+              name="eye-off"
+              size={20}
+              color="rgba(255,255,255,0.7)"
+            />
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    const formatted = showAmount(usdTotal);
+    const parts = formatted.split('.');
+
+    return (
+      <View style={styles.balanceRow}>
+        <Text style={styles.balanceDollars}>{parts[0]}</Text>
+        {parts[1] && (
+          <Text style={[styles.balanceDollars, styles.balanceDecimals]}>
+            .{parts[1]}
+          </Text>
+        )}
+        <TouchableOpacity
+          onPress={handleToggleVisibility}
+          style={styles.eyeButton}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Hide balance"
+        >
+          <Ionicons name="eye" size={20} color="rgba(255,255,255,0.7)" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  /**
+   * Render 24h change with trending arrow
+   * Format: 3,2 % (arrow) (+$199.45)
+   */
+  const renderChange = () => {
+    if (hiddenBalance) {
+      return (
+        <View style={styles.changeRow}>
+          <Text style={styles.changeHidden}>{hiddenValue}</Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.changeRow}>
+        <Text style={[styles.changeText, { color: changeColor }]}>
+          {displayPercentage}
+        </Text>
+        <Ionicons
+          name={isPositive ? 'arrow-up' : 'arrow-down'}
+          size={16}
+          color={changeColor}
+          style={styles.trendingIcon}
+        />
+        {displayAbsChange && (
+          <Text style={[styles.changeText, { color: changeColor }]}>
+            ({displayAbsChange})
+          </Text>
+        )}
+      </View>
+    );
+  };
+
   return (
     <LinearGradient
-      colors={gradients.balanceCard.colors}
-      start={gradients.balanceCard.start}
-      end={gradients.balanceCard.end}
+      colors={gradient.colors}
+      start={gradient.start}
+      end={gradient.end}
       style={[styles.container, style]}
     >
-      {/* Network selector */}
-      <TouchableOpacity
-        style={styles.networkContainer}
-        onPress={handleNetworkPress}
-        activeOpacity={0.7}
-        accessibilityRole="button"
-        accessibilityLabel={`Current network: ${network.name}`}
-      >
-        <Image
-          source={{ uri: networkLogo }}
-          style={styles.networkLogo}
-          resizeMode="cover"
-        />
-        <Text style={styles.networkName}>{network.name}</Text>
-        <Ionicons
-          name="chevron-down"
-          size={16}
-          color={colors.text.muted}
-          style={styles.chevron}
-        />
-      </TouchableOpacity>
+      {/* Blockchain Logo */}
+      <View style={styles.logoContainer}>
+        {renderBlockchainLogo(blockchain, 42)}
+      </View>
 
       {/* Balance display */}
       <View style={styles.balanceContainer}>
         {loading ? (
-          <ActivityIndicator size="large" color={colors.text.primary} style={styles.loader} />
-        ) : (
-          <Text style={styles.balance} numberOfLines={1} adjustsFontSizeToFit>
-            {displayBalance}
-          </Text>
-        )}
-
-        {/* Visibility toggle */}
-        <TouchableOpacity
-          style={styles.visibilityButton}
-          onPress={handleToggleVisibility}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel={hiddenBalance ? 'Show balance' : 'Hide balance'}
-        >
-          <Ionicons
-            name={hiddenBalance ? 'eye-off-outline' : 'eye-outline'}
-            size={22}
-            color={colors.text.muted}
+          <ActivityIndicator
+            size="large"
+            color={colors.text.primary}
+            style={styles.loader}
           />
-        </TouchableOpacity>
+        ) : (
+          renderBalance()
+        )}
       </View>
 
       {/* 24h change */}
-      {!loading && (
-        <View style={styles.changeContainer}>
-          {hiddenBalance ? (
-            <Text style={styles.changeHidden}>{hiddenValue}</Text>
-          ) : (
-            <>
-              <Text style={[styles.changePercent, { color: changeColor }]}>
-                {displayPercentage}
-              </Text>
-              {displayAbsChange && (
-                <Text style={[styles.changeAbsolute, { color: changeColor }]}>
-                  {' '}({displayAbsChange})
-                </Text>
-              )}
-            </>
-          )}
-        </View>
-      )}
+      {!loading && renderChange()}
 
       {/* Pagination dots */}
       {totalCount > 1 && (
@@ -173,71 +241,74 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 24,
-    padding: 20,
-    marginHorizontal: 16,
-  },
-  networkContainer: {
-    flexDirection: 'row',
+    borderRadius: borderRadius.header, // 35px
+    padding: 24,
+    marginHorizontal: 0,
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: colors.background.tertiary,
-    borderRadius: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    marginBottom: 16,
+    justifyContent: 'center',
+    // Shadow for iOS
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.9,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 20,
+      },
+    }),
+    // Bottom border
+    borderBottomWidth: borderWidth.header, // 1.38px
+    borderBottomColor: colors.border.light, // rgba(255, 255, 255, 0.8)
   },
-  networkLogo: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    marginRight: 8,
-  },
-  networkName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text.primary,
-  },
-  chevron: {
-    marginLeft: 4,
-  },
-  balanceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  balance: {
-    fontSize: 42,
-    fontWeight: '700',
-    color: colors.text.primary,
-    flex: 1,
-    marginRight: 12,
-  },
-  loader: {
-    flex: 1,
-    alignSelf: 'flex-start',
-  },
-  visibilityButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.background.tertiary,
+  logoContainer: {
+    width: 42,
+    height: 42,
+    marginBottom: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  changeContainer: {
+  balanceContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  balanceRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  balanceDollars: {
+    fontSize: 50,
+    fontWeight: '600',
+    color: '#e0e0e0',
+    letterSpacing: -0.25,
+  },
+  balanceDecimals: {
+    opacity: 0.4,
+    color: '#ffffff',
+  },
+  eyeButton: {
+    marginLeft: 12,
+    padding: 4,
+  },
+  loader: {
+    height: 50,
+  },
+  changeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
     marginBottom: 16,
   },
-  changePercent: {
+  changeText: {
     fontSize: 16,
     fontWeight: '500',
   },
-  changeAbsolute: {
-    fontSize: 14,
-    fontWeight: '400',
+  trendingIcon: {
+    marginHorizontal: 4,
   },
   changeHidden: {
     fontSize: 16,
