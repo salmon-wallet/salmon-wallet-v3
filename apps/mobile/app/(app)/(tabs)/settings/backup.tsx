@@ -30,7 +30,7 @@ import {
   spacing,
   borderRadius,
   contentPadding,
-  useAccounts,
+  useAccountsContext,
 } from '@salmon/shared';
 import {
   PrimaryButton,
@@ -54,7 +54,7 @@ const FONT_FAMILY = {
 
 export default function BackupScreen() {
   const { t } = useTranslation();
-  const [accountState] = useAccounts();
+  const [accountState] = useAccountsContext();
   const { activeAccount } = accountState;
 
   // State

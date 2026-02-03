@@ -40,7 +40,7 @@ import {
   generateAccountName,
   PASSWORD_CONSTRAINTS,
   spacing,
-  useAccounts,
+  useAccountsContext,
   validatePassword,
 } from '@salmon/shared';
 import {
@@ -76,7 +76,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function PasswordScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ mnemonic: string; type?: string }>();
-  const [state, actions] = useAccounts();
+  const [state, actions] = useAccountsContext();
 
   // Get requiredLock from state - true if password already exists
   const requiredLock = state.requiredLock;

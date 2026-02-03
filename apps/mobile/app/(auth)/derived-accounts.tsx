@@ -37,7 +37,7 @@ import {
   componentSizes,
   contentPadding,
   borderRadius,
-  useAccounts,
+  useAccountsContext,
   createSolanaAccount,
   SOLANA_NETWORKS,
   getShortAddress,
@@ -135,7 +135,7 @@ function AccountCard({ accountInfo, onToggle }: AccountCardProps) {
 
 export default function DerivedAccountsScreen() {
   const params = useLocalSearchParams<{ mnemonic: string }>();
-  const [{ activeAccount }, actions] = useAccounts();
+  const [{ activeAccount }, actions] = useAccountsContext();
 
   // State
   const [loading, setLoading] = useState(true);

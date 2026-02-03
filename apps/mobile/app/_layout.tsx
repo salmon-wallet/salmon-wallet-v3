@@ -13,7 +13,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import { LockScreenOverlay } from '@/components/LockScreenOverlay';
 import { I18nProvider } from '../src/i18n';
-import { useAccounts, getStashItem, type DerivedKeyCache } from '@salmon/shared';
+import { AccountsProvider, useAccountsContext, getStashItem, type DerivedKeyCache } from '@salmon/shared';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -52,17 +52,33 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AccountsProvider>
+      <RootLayoutNav />
+    </AccountsProvider>
+  );
 }
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const [state, actions] = useAccounts();
+  const [state, actions] = useAccountsContext();
   const segments = useSegments();
   const navigationState = useRootNavigationState();
 
   // Track if we've done the initial navigation
   const [hasNavigated, setHasNavigated] = useState(false);
+
+  // DEBUG: Log navigation state
+  console.log('[DEBUG:RootLayoutNav] render', {
+    ready: state.ready,
+    locked: state.locked,
+    accountsCount: state.accounts.length,
+    accountId: state.accountId,
+    networkId: state.networkId,
+    segments,
+    hasNavigationKey: !!navigationState?.key,
+    hasNavigated,
+  });
 
   // Unlock handler for the lock screen overlay
   const handleUnlock = useCallback(async (password: string): Promise<boolean> => {
@@ -107,34 +123,67 @@ function RootLayoutNav() {
   }, [actions]);
 
   useEffect(() => {
+    console.log('[DEBUG:RootLayoutNav:useEffect] navigation effect triggered', {
+      hasNavigationKey: !!navigationState?.key,
+      ready: state.ready,
+      locked: state.locked,
+      accountsCount: state.accounts.length,
+      segments,
+      hasNavigated,
+    });
+
     // Don't navigate until the navigation state is ready and useAccounts is ready
-    if (!navigationState?.key || !state.ready) return;
+    if (!navigationState?.key || !state.ready) {
+      console.log('[DEBUG:RootLayoutNav:useEffect] skipping - not ready', {
+        hasNavigationKey: !!navigationState?.key,
+        ready: state.ready,
+      });
+      return;
+    }
 
     const inAuthGroup = segments[0] === '(auth)';
     const inAppGroup = segments[0] === '(app)';
 
     const hasAccounts = state.accounts.length > 0;
+    console.log('[DEBUG:RootLayoutNav:useEffect] navigation decision', {
+      inAuthGroup,
+      inAppGroup,
+      hasAccounts,
+      locked: state.locked,
+      hasNavigated,
+    });
 
     // Determine where the user should be
     if (!hasAccounts) {
       // No accounts exist - go to auth flow
       if (!inAuthGroup) {
+        console.log('[DEBUG:RootLayoutNav:useEffect] navigating to (auth) - no accounts');
         router.replace('/(auth)');
         setHasNavigated(true);
       }
     } else {
-      // Accounts exist - go to main app (lock screen is now an overlay)
-      if (!inAppGroup && !hasNavigated) {
-        // Only auto-navigate to app on initial load, not during normal navigation
+      // Accounts exist - but don't navigate to app if locked
+      // The lock screen overlay will be shown first, and only after
+      // successful unlock should we navigate to the app
+      if (!inAppGroup && !hasNavigated && !state.locked) {
+        // Only auto-navigate to app on initial load when not locked
+        console.log('[DEBUG:RootLayoutNav:useEffect] navigating to (app)/(tabs) - has accounts and unlocked');
         router.replace('/(app)/(tabs)');
         setHasNavigated(true);
       }
     }
-  }, [state.ready, state.accounts.length, segments, navigationState?.key, hasNavigated]);
+  }, [state.ready, state.locked, state.accounts.length, segments, navigationState?.key, hasNavigated]);
 
   // Determine if lock screen should be shown
   const hasAccounts = state.accounts.length > 0;
   const shouldShowLockScreen = state.ready && hasAccounts && state.locked;
+
+  console.log('[DEBUG:RootLayoutNav] lock screen decision', {
+    hasAccounts,
+    shouldShowLockScreen,
+    ready: state.ready,
+    locked: state.locked,
+  });
 
   return (
     <I18nProvider>

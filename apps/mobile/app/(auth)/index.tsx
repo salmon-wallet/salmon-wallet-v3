@@ -18,7 +18,7 @@ import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
-  useAccounts,
+  useAccountsContext,
   colors,
   spacing,
   componentSizes,
@@ -34,7 +34,7 @@ import { Logo } from '@salmon/assets';
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
-  const [state, actions] = useAccounts();
+  const [state, actions] = useAccountsContext();
 
   // Check if there are existing accounts stored
   const hasAccounts = state.accounts && state.accounts.length > 0;

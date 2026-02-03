@@ -16,8 +16,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   StyleSheet,
-  ScrollView,
-  RefreshControl,
   View,
   Text,
   ActivityIndicator,
@@ -29,7 +27,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
 
 import {
-  useAccounts,
+  useAccountsContext,
   useBalance,
   useUserConfig,
   SOLANA_NETWORKS,
@@ -82,8 +80,8 @@ export default function HomeScreen() {
   // Wallet switcher sheet visibility
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
 
-  // Get account state and actions
-  const [accountState, accountActions] = useAccounts();
+  // Get account state and actions from shared context
+  const [accountState, accountActions] = useAccountsContext();
   const {
     ready,
     accounts,
@@ -92,6 +90,19 @@ export default function HomeScreen() {
     activeBlockchainAccount,
     networkId,
   } = accountState;
+
+  // DEBUG: Log HomeScreen render and account state
+  console.log('[DEBUG:HomeScreen] render', {
+    ready,
+    accountsCount: accounts.length,
+    accountId,
+    hasActiveAccount: !!activeAccount,
+    hasActiveBlockchainAccount: !!activeBlockchainAccount,
+    networkId,
+    activeAccountName: activeAccount?.name,
+    activeAccountNetworksAccounts: activeAccount ? Object.keys(activeAccount.networksAccounts) : [],
+    activeAccountNetworksAccountsCount: activeAccount ? Object.values(activeAccount.networksAccounts).map(arr => arr?.length) : [],
+  });
 
   // User configuration (developer networks toggle)
   // Build a mock activeBlockchainAccount for useUserConfig when not available
@@ -318,10 +329,69 @@ export default function HomeScreen() {
     );
   }, [accountState, activeAccount, accountActions, handleRemoveAllWallets, t]);
 
+  // Memoize the list header component to avoid unnecessary re-renders
+  // IMPORTANT: This hook must be called BEFORE any early returns to follow React's Rules of Hooks
+  const ListHeaderComponent = useMemo(() => (
+    <>
+      {/* Balance Card */}
+      <BalanceCard
+        network={network}
+        usdTotal={usdTotal}
+        changePercent={changePercent}
+        changeAmount={changeAmount}
+        hiddenBalance={hiddenBalance}
+        onToggleVisibility={toggleHidden}
+        onNetworkPress={handleNetworkPress}
+        loading={loading && !refreshing}
+        style={styles.balanceCard}
+      />
+
+      {/* Action Buttons */}
+      <ActionButtonRow
+        onSendPress={handleSendPress}
+        onReceivePress={handleReceivePress}
+        onActivityPress={handleActivityPress}
+        style={styles.actionRow}
+      />
+
+      {/* Token List Header */}
+      <View style={styles.tokenListHeader}>
+        <Text style={styles.sectionTitle}>Assets</Text>
+      </View>
+    </>
+  ), [
+    network,
+    usdTotal,
+    changePercent,
+    changeAmount,
+    hiddenBalance,
+    toggleHidden,
+    handleNetworkPress,
+    loading,
+    refreshing,
+    handleSendPress,
+    handleReceivePress,
+    handleActivityPress,
+  ]);
+
+  // Memoize the empty component
+  // IMPORTANT: This hook must be called BEFORE any early returns to follow React's Rules of Hooks
+  const ListEmptyComponent = useMemo(() => (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyStateText}>
+        {loading ? 'Loading tokens...' : 'No tokens found'}
+      </Text>
+      <Text style={styles.emptyStateSubtext}>
+        Your tokens will appear here once you receive some
+      </Text>
+    </View>
+  ), [loading]);
+
   // Loading state - wait for hook to be ready
   // Note: If we're on this screen, the LockScreenOverlay has been dismissed,
   // which means unlock succeeded and accounts should be loaded
   if (!ready) {
+    console.log('[DEBUG:HomeScreen] showing loading - ready=false');
     return (
       <View style={styles.loadingContainer}>
         <StatusBar style="light" />
@@ -333,6 +403,16 @@ export default function HomeScreen() {
 
   // No account state (only show if accounts array is empty)
   if (!activeAccount || !activeBlockchainAccount) {
+    console.log('[DEBUG:HomeScreen] showing "No account found"', {
+      ready,
+      hasActiveAccount: !!activeAccount,
+      hasActiveBlockchainAccount: !!activeBlockchainAccount,
+      accountsCount: accounts.length,
+      accountId,
+      networkId,
+      firstAccountNetworksAccounts: accounts[0] ? Object.keys(accounts[0].networksAccounts) : 'no accounts',
+      firstAccountNetworksAccountsValues: accounts[0] ? Object.entries(accounts[0].networksAccounts).map(([k, v]) => `${k}: ${v?.length}`) : [],
+    });
     return (
       <View style={styles.loadingContainer}>
         <StatusBar style="light" />
@@ -343,7 +423,6 @@ export default function HomeScreen() {
 
   const accountName = activeAccount.name || 'Account';
   const address = activeBlockchainAccount.getReceiveAddress();
-  const hasTokens = tokenListItems.length > 0;
 
   return (
     <View style={styles.container}>
@@ -358,62 +437,20 @@ export default function HomeScreen() {
         onWalletPress={handleWalletPress}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={refresh}
-            tintColor="#ff5c45"
-            colors={['#ff5c45']}
-          />
-        }
-      >
-        {/* Balance Card */}
-        <BalanceCard
-          network={network}
-          usdTotal={usdTotal}
-          changePercent={changePercent}
-          changeAmount={changeAmount}
+      {/* Token List with integrated header and pull-to-refresh */}
+      <View style={styles.listContainer}>
+        <TokenList
+          tokens={tokenListItems}
+          loading={loading && tokenListItems.length === 0}
+          onTokenPress={handleTokenPress}
           hiddenBalance={hiddenBalance}
-          onToggleVisibility={toggleHidden}
-          onNetworkPress={handleNetworkPress}
-          loading={loading && !refreshing}
-          style={styles.balanceCard}
+          ListHeaderComponent={ListHeaderComponent}
+          ListEmptyComponent={ListEmptyComponent}
+          refreshing={refreshing}
+          onRefresh={refresh}
+          contentContainerStyle={styles.listContent}
         />
-
-        {/* Action Buttons */}
-        <ActionButtonRow
-          onSendPress={handleSendPress}
-          onReceivePress={handleReceivePress}
-          onActivityPress={handleActivityPress}
-          style={styles.actionRow}
-        />
-
-        {/* Token List */}
-        <View style={styles.tokenListContainer}>
-          <Text style={styles.sectionTitle}>Assets</Text>
-          {hasTokens ? (
-            <TokenList
-              tokens={tokenListItems}
-              loading={loading && tokenListItems.length === 0}
-              onTokenPress={handleTokenPress}
-              hiddenBalance={hiddenBalance}
-            />
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>
-                {loading ? 'Loading tokens...' : 'No tokens found'}
-              </Text>
-              <Text style={styles.emptyStateSubtext}>
-                Your tokens will appear here once you receive some
-              </Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
+      </View>
 
       {/* Settings Sheet */}
       <SettingsSheet
@@ -457,10 +494,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 16,
   },
-  scrollView: {
+  listContainer: {
     flex: 1,
   },
-  scrollContent: {
+  listContent: {
     paddingBottom: 100, // Space for tab bar
   },
   balanceCard: {
@@ -469,8 +506,7 @@ const styles = StyleSheet.create({
   actionRow: {
     marginTop: 8,
   },
-  tokenListContainer: {
-    flex: 1,
+  tokenListHeader: {
     paddingHorizontal: 16,
     marginTop: 24,
   },
@@ -485,6 +521,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 48,
     paddingHorizontal: 24,
+    marginHorizontal: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 16,
   },
