@@ -1,16 +1,5 @@
 import type { ViewStyle } from 'react-native';
-
-/**
- * Individual token feature/characteristic
- */
-export interface TokenFeature {
-  /** Feature name (e.g., "Native Token", "DeFi", "Governance") */
-  label: string;
-  /** Optional icon name from Ionicons */
-  icon?: string;
-  /** Badge background color (defaults to accent color) */
-  color?: string;
-}
+import type { TokenFeature } from '@salmon/shared';
 
 /**
  * Props for the TokenFeatures component

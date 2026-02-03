@@ -11,11 +11,11 @@
  */
 
 import { useState, useEffect, CSSProperties } from 'react';
-import { colors, gradients } from '@salmon/shared';
+import { colors, gradients, DEFAULT_WALLET_TIPS } from '@salmon/shared';
 // Note: For web, you'll need to import the logo as a URL
 // import logoUrl from '@salmon/assets/images/Logo.png';
 
-import { LoadingScreenProps, DEFAULT_WALLET_TIPS } from './types';
+import { LoadingScreenProps } from './types';
 
 // ============================================================================
 // CSS Keyframes (injected into document)

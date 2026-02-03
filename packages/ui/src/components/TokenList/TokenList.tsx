@@ -2,7 +2,8 @@ import React from 'react';
 import { View, FlatList, StyleSheet, ListRenderItem, RefreshControl } from 'react-native';
 import TokenListItem from './TokenListItem';
 import TokenListSkeleton from './TokenListSkeleton';
-import type { Token, TokenListProps } from './types';
+import type { Token } from '@salmon/shared';
+import type { TokenListProps } from './types';
 
 /**
  * Key extractor for FlatList

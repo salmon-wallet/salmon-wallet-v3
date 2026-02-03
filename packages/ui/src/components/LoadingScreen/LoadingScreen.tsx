@@ -24,9 +24,9 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Logo } from '@salmon/assets';
-import { colors } from '@salmon/shared';
+import { colors, DEFAULT_WALLET_TIPS } from '@salmon/shared';
 
-import { LoadingScreenProps, DEFAULT_WALLET_TIPS } from './types';
+import { LoadingScreenProps } from './types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

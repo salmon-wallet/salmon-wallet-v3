@@ -1,33 +1,4 @@
-/**
- * Token data structure representing a cryptocurrency token
- */
-export interface Token {
-  /** Unique token address/mint */
-  address: string;
-  /** Token display name */
-  name: string;
-  /** Token symbol (e.g., 'SOL', 'ETH') */
-  symbol: string;
-  /** Token logo URL */
-  logo?: string;
-  /** Current price per token in USD */
-  price?: number;
-  /** User's token balance (formatted for display) */
-  uiAmount: string | number;
-  /** User's token balance in USD */
-  usdBalance?: number | null;
-  /** 24-hour price change information */
-  last24HoursChange?: {
-    /** Percentage change */
-    perc: number;
-    /** Absolute change in USD */
-    abs?: number;
-  } | null;
-  /** Token tags (e.g., 'verified', 'strict', 'community') */
-  tags?: string[];
-  /** Whether the token is verified (has 'verified' or 'strict' tag) */
-  isVerified?: boolean;
-}
+import type { Token } from '@salmon/shared';
 
 /**
  * Props for the TokenListItem component

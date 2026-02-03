@@ -28,7 +28,6 @@ export {
   TokenListSkeleton,
 } from './TokenList';
 export type {
-  Token,
   TokenListProps,
   TokenListItemProps,
   TokenListSkeletonProps,
@@ -57,7 +56,7 @@ export type { WalletHeaderProps } from './WalletHeader';
 
 // BalanceCard - Portfolio balance display with gradient
 export { BalanceCard } from './BalanceCard';
-export type { BalanceCardProps, NetworkInfo } from './BalanceCard';
+export type { BalanceCardProps } from './BalanceCard';
 
 // ActionButtonRow - Send/Receive/Activity action buttons
 export { ActionButtonRow } from './ActionButtonRow';
@@ -86,16 +85,12 @@ export { ScreenHeader } from './ScreenHeader';
 export type { ScreenHeaderProps } from './ScreenHeader';
 
 // LoadingScreen - Animated loading overlay with pulsing logo and spinner
-export { LoadingScreen, DEFAULT_WALLET_TIPS } from './LoadingScreen';
+export { LoadingScreen } from './LoadingScreen';
 export type { LoadingScreenProps } from './LoadingScreen';
 
 // PriceChart - Token price history chart with time period selector
-export { PriceChart, PRICE_CHART_PERIODS } from './PriceChart';
-export type {
-  PriceChartProps,
-  PriceChartPeriod,
-  PriceDataPoint,
-} from './PriceChart';
+export { PriceChart } from './PriceChart';
+export type { PriceChartProps } from './PriceChart';
 
 // TokenInfo - Token information display (description, market stats, contract)
 export { TokenInfo } from './TokenInfo';
@@ -103,7 +98,7 @@ export type { TokenInfoProps } from './TokenInfo';
 
 // TokenFeatures - Token characteristics/features badges
 export { TokenFeatures } from './TokenFeatures';
-export type { TokenFeaturesProps, TokenFeature } from './TokenFeatures';
+export type { TokenFeaturesProps } from './TokenFeatures';
 
 // TopSheet - Slide-down modal from top of screen
 export { TopSheet } from './TopSheet';
@@ -112,3 +107,22 @@ export type {
   TopSheetAnimationConfig,
   TopSheetRef,
 } from './TopSheet';
+
+// SettingsSheet - Slide-down settings panel
+export { SettingsSheet } from './SettingsSheet';
+export type {
+  SettingsSheetProps,
+  SettingsOption,
+  SettingsSection,
+} from './SettingsSheet';
+
+// WalletSwitcherSheet - Account selection sheet
+export { WalletSwitcherSheet } from './WalletSwitcherSheet';
+export type {
+  WalletSwitcherSheetProps,
+  AccountListItemProps,
+} from './WalletSwitcherSheet';
+
+// Icon - Unified icon component
+export { Icon } from './Icon';
+export type { IconProps } from './Icon';
