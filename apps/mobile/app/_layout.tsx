@@ -2,7 +2,7 @@
 // This ensures they're available BEFORE expo-router loads any modules
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { colors } from '@salmon/shared';
 import { useFonts } from 'expo-font';
 import { Stack, router, useSegments, useRootNavigationState } from 'expo-router';
@@ -11,7 +11,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+// Force dark theme for the wallet app
+// import { useColorScheme } from '@/components/useColorScheme';
 import { LockScreenOverlay } from '@/components/LockScreenOverlay';
 import { I18nProvider } from '../src/i18n';
 import { AccountsProvider, useAccountsContext, getStashItem, type DerivedKeyCache } from '@salmon/shared';
@@ -71,7 +72,7 @@ const CustomDarkTheme = {
 };
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  // Always use dark theme for the wallet app
   const [state, actions] = useAccountsContext();
   const segments = useSegments();
   const navigationState = useRootNavigationState();
@@ -157,7 +158,7 @@ function RootLayoutNav() {
 
   return (
     <I18nProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : DefaultTheme}>
+      <ThemeProvider value={CustomDarkTheme}>
         <View style={styles.container}>
           <Stack screenOptions={{ headerShown: false }}>
             {/* Auth flow - onboarding screens */}

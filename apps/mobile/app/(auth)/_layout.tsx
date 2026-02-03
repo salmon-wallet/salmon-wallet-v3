@@ -11,19 +11,31 @@
  */
 
 import { Stack } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { gradients } from '@salmon/shared';
 
 export default function AuthLayout() {
   return (
-    <Stack
-      screenOptions={{
-        // Hide headers - we handle our own back buttons
-        headerShown: false,
-        // Use default iOS-style animations
-        animation: 'slide_from_right',
-        // Prevent gesture back on certain screens (handled per-screen)
-        gestureEnabled: true,
-      }}
-    >
+    <View style={styles.container}>
+      <LinearGradient
+        colors={gradients.onboarding.colors}
+        start={gradients.onboarding.start}
+        end={gradients.onboarding.end}
+        style={StyleSheet.absoluteFill}
+      />
+      <Stack
+        screenOptions={{
+          // Hide headers - we handle our own back buttons
+          headerShown: false,
+          // Use default iOS-style animations
+          animation: 'slide_from_right',
+          // Prevent gesture back on certain screens (handled per-screen)
+          gestureEnabled: true,
+          // Transparent background to show gradient
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
+      >
       {/* Welcome screen - entry point */}
       <Stack.Screen
         name="index"
@@ -61,5 +73,12 @@ export default function AuthLayout() {
       {/* Derived accounts selection */}
       <Stack.Screen name="derived-accounts" />
     </Stack>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

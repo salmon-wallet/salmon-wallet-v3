@@ -10,6 +10,7 @@ export const colors = {
     tertiary: 'rgba(255, 255, 255, 0.08)', // For elevated surfaces
     card: 'rgba(255, 255, 255, 0.05)',
     glass: 'rgba(0, 0, 0, 0.4)', // glass effect
+    tokenItem: 'rgba(56, 63, 82, 0.1)', // Token list item background with blur
   },
   text: {
     primary: '#FFFFFF', // Unificado a blanco puro
@@ -18,6 +19,8 @@ export const colors = {
     muted: 'rgba(255, 255, 255, 0.7)',
     placeholder: '#6B6E7B',
     disabled: 'rgba(255, 255, 255, 0.4)', // For disabled text elements
+    token: '#d6d6d6', // For token names and USD values in TokenList
+    tokenPrice: 'rgba(255, 255, 255, 0.79)', // For token prices
   },
   border: {
     default: '#404962',
@@ -38,7 +41,7 @@ export const colors = {
    * Price change colors for token lists and charts
    */
   change: {
-    positive: '#00C853',
+    positive: '#80ff54',
     negative: '#FF5252',
     neutral: '#9E9E9E',
   },
@@ -193,6 +196,14 @@ export const gradients = {
     colors: ['#666666', '#444444'] as const,
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 },
+  },
+  /**
+   * Onboarding/Auth screens dark gradient background
+   */
+  onboarding: {
+    colors: ['#10131c', '#161c2d'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
   },
   // CSS versions for web
   primaryCSS:
