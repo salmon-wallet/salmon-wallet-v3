@@ -113,6 +113,26 @@ export const colors = {
     background: 'rgba(76, 175, 80, 0.2)',
     icon: '#4CAF50',
   },
+  /**
+   * Blockchain-specific colors
+   */
+  blockchain: {
+    solana: {
+      primary: '#9945FF',      // Solana purple
+      secondary: '#14F195',    // Solana green accent
+      gradient: ['#4A1A8C', '#2D1052', '#1A0A33'] as const,
+    },
+    bitcoin: {
+      primary: '#F7931A',      // Bitcoin orange
+      secondary: '#FFB84D',    // Lighter orange accent
+      gradient: ['#F7931A', '#8B5A00', '#3D2800'] as const,
+    },
+    ethereum: {
+      primary: '#627EEA',      // Ethereum blue
+      secondary: '#C0C8F9',    // Light blue accent
+      gradient: ['#627EEA', '#3A4A8C', '#1A1F33'] as const,
+    },
+  },
 } as const;
 
 /**
@@ -141,6 +161,30 @@ export const gradients = {
     colors: ['#4A1A8C', '#2D1052', '#1A0A33'] as const,
     start: { x: 0, y: 0 },
     end: { x: 1, y: 1 },
+  },
+  /**
+   * Balance card Solana gradient
+   */
+  balanceCardSolana: {
+    colors: ['#4A1A8C', '#2D1052', '#1A0A33'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
+  },
+  /**
+   * Balance card Bitcoin gradient
+   */
+  balanceCardBitcoin: {
+    colors: ['#F7931A', '#8B5A00', '#3D2800'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
+  },
+  /**
+   * Balance card Ethereum gradient
+   */
+  balanceCardEthereum: {
+    colors: ['#627EEA', '#3A4A8C', '#1A1F33'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
   },
   /**
    * Disabled button gradient

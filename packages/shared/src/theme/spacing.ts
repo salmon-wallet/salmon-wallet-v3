@@ -53,6 +53,10 @@ export const borderRadius = {
   xl: 16,
   /** 24px */
   '2xl': 24,
+  /** 32px */
+  '3xl': 32,
+  /** 35px - Figma header rounded corners (34.557px) */
+  header: 35,
   /** 9999px - fully rounded */
   full: 9999,
 } as const;
@@ -92,6 +96,12 @@ export const componentSizes = {
   // Header
   headerHeight: 56,
   backButtonSize: 40,
+
+  // Header + Card overlap (from Figma)
+  /** Inner header container height: 63px */
+  headerInnerHeight: 63,
+  /** Card top padding to push content below header: ~114px in Figma */
+  cardHeaderOffset: 114,
 } as const;
 
 /**
@@ -103,7 +113,22 @@ export const contentPadding = {
   modal: 20,
 } as const;
 
+/**
+ * Border width tokens
+ */
+export const borderWidth = {
+  /** 0px */
+  none: 0,
+  /** 1px */
+  thin: 1,
+  /** 1.38px - Figma header border (1.38px rgba(255,255,255,0.8)) */
+  header: 1.38,
+  /** 2px */
+  medium: 2,
+} as const;
+
 export type Spacing = typeof spacing;
 export type BorderRadius = typeof borderRadius;
 export type ComponentSizes = typeof componentSizes;
 export type ContentPadding = typeof contentPadding;
+export type BorderWidth = typeof borderWidth;

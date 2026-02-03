@@ -15,6 +15,7 @@ import { colors, gradients } from './colors';
 import {
   spacing,
   borderRadius,
+  borderWidth,
   componentSizes,
   contentPadding,
 } from './spacing';
@@ -36,12 +37,14 @@ export type { Colors, Gradients } from './colors';
 export {
   spacing,
   borderRadius,
+  borderWidth,
   componentSizes,
   contentPadding,
 } from './spacing';
 export type {
   Spacing,
   BorderRadius,
+  BorderWidth,
   ComponentSizes,
   ContentPadding,
 } from './spacing';
@@ -77,6 +80,7 @@ export const theme = {
   gradients,
   spacing,
   borderRadius,
+  borderWidth,
   componentSizes,
   contentPadding,
   fontFamily,

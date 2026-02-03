@@ -56,6 +56,14 @@ export const shadows = {
     shadowRadius: 10.32,
     elevation: 16,
   },
+  /** Strong shadow for header/card elements - Figma: 0px 10px 20px rgba(0,0,0,0.9) */
+  header: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.9,
+    shadowRadius: 20,
+    elevation: 20,
+  },
   /** Colored glow for accent elements */
   glow: {
     shadowColor: '#ff5c45',
@@ -84,6 +92,8 @@ export const shadowsCSS = {
   /** Maximum shadow for overlays */
   '2xl':
     '0 12px 24px -6px rgba(0, 0, 0, 0.44), 0 24px 48px -12px rgba(0, 0, 0, 0.3)',
+  /** Strong shadow for header/card elements - Figma: 0px 10px 20px rgba(0,0,0,0.9) */
+  header: '0 10px 20px rgba(0, 0, 0, 0.9)',
   /** Colored glow for accent elements */
   glow: '0 0 24px rgba(255, 92, 69, 0.5)',
 } as const;
