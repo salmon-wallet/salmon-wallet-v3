@@ -93,8 +93,8 @@ const MOCK_SOLANA_PRICES: TokenPrice[] = [
     id: 'solana',
     symbol: 'sol',
     name: 'Solana',
-    current_price: 100.5,
-    price_change_percentage_24h: 5.2,
+    usdPrice: 100.5,
+    perc24HoursChange: 5.2,
     market_cap: 45000000000,
     market_cap_rank: 5,
     total_volume: 2500000000,
@@ -117,8 +117,8 @@ const MOCK_SOLANA_PRICES: TokenPrice[] = [
     id: 'usd-coin',
     symbol: 'usdc',
     name: 'USD Coin',
-    current_price: 1.0,
-    price_change_percentage_24h: 0.01,
+    usdPrice: 1.0,
+    perc24HoursChange: 0.01,
     market_cap: 25000000000,
     market_cap_rank: 6,
     total_volume: 5000000000,
@@ -130,8 +130,8 @@ const MOCK_SOLANA_PRICES: TokenPrice[] = [
     id: 'bonk',
     symbol: 'bonk',
     name: 'Bonk',
-    current_price: 0.00002145,
-    price_change_percentage_24h: -12.5,
+    usdPrice: 0.00002145,
+    perc24HoursChange: -12.5,
     market_cap: 1500000000,
     market_cap_rank: 75,
     total_volume: 350000000,
@@ -143,8 +143,8 @@ const MOCK_BITCOIN_PRICES: TokenPrice[] = [
     id: 'bitcoin',
     symbol: 'btc',
     name: 'Bitcoin',
-    current_price: 45000.0,
-    price_change_percentage_24h: 2.5,
+    usdPrice: 45000.0,
+    perc24HoursChange: 2.5,
     market_cap: 880000000000,
     market_cap_rank: 1,
   },
@@ -152,8 +152,8 @@ const MOCK_BITCOIN_PRICES: TokenPrice[] = [
     id: 'wrapped-bitcoin',
     symbol: 'wbtc',
     name: 'Wrapped Bitcoin',
-    current_price: 44980.0,
-    price_change_percentage_24h: 2.48,
+    usdPrice: 44980.0,
+    perc24HoursChange: 2.48,
   },
 ];
 
@@ -162,8 +162,8 @@ const MOCK_ETHEREUM_PRICES: TokenPrice[] = [
     id: 'ethereum',
     symbol: 'eth',
     name: 'Ethereum',
-    current_price: 2500.0,
-    price_change_percentage_24h: 3.2,
+    usdPrice: 2500.0,
+    perc24HoursChange: 3.2,
     market_cap: 300000000000,
     market_cap_rank: 2,
   },
@@ -236,35 +236,33 @@ const MOCK_COIN_INFO: CoinInfo = {
   id: 'solana',
   symbol: 'sol',
   name: 'Solana',
-  description: {
-    en: 'Solana is a highly functional open source project that banks on blockchain technology.',
-  },
-  image: {
-    thumb: 'https://assets.coingecko.com/coins/images/4128/thumb/solana.png',
-    small: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
-    large: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
-  },
-  market_data: {
-    current_price: { usd: 100.5 },
-    market_cap: { usd: 45000000000 },
-    total_volume: { usd: 2500000000 },
-    high_24h: { usd: 105.2 },
-    low_24h: { usd: 95.8 },
-    price_change_24h: 4.95,
-    price_change_percentage_24h: 5.2,
-    circulating_supply: 447615274,
-    total_supply: 550000000,
-    max_supply: null,
-    ath: { usd: 260.06 },
-    atl: { usd: 0.500801 },
+  description: 'Solana is a highly functional open source project that banks on blockchain technology.',
+  image: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
+  marketData: {
+    currentPrice: 100.5,
+    marketCap: 45000000000,
+    totalVolume: 2500000000,
+    high24h: 105.2,
+    low24h: 95.8,
+    priceChange24h: 4.95,
+    priceChangePercentage24h: 5.2,
+    circulatingSupply: 447615274,
+    totalSupply: 550000000,
+    maxSupply: null,
+    ath: 260.06,
+    athChangePercentage: -61.35,
+    athDate: '2021-11-06T21:54:35.825Z',
+    atl: 0.500801,
+    atlChangePercentage: 19961.42,
+    atlDate: '2020-05-11T19:35:23.449Z',
   },
   links: {
     homepage: ['https://solana.com'],
-    blockchain_site: ['https://solscan.io', 'https://explorer.solana.com'],
-    twitter_screen_name: 'solana',
+    blockchainSite: ['https://solscan.io', 'https://explorer.solana.com'],
+    twitterScreenName: 'solana',
   },
   categories: ['Smart Contract Platform', 'Layer 1'],
-  genesis_date: '2020-03-16',
+  genesisDate: '2020-03-16',
 };
 
 // Known test addresses
@@ -394,8 +392,8 @@ describe('Price Service', () => {
       expect(result![0]).toHaveProperty('id');
       expect(result![0]).toHaveProperty('symbol');
       expect(result![0]).toHaveProperty('name');
-      expect(result![0]).toHaveProperty('current_price');
-      expect(result![0]).toHaveProperty('price_change_percentage_24h');
+      expect(result![0]).toHaveProperty('usdPrice');
+      expect(result![0]).toHaveProperty('perc24HoursChange');
     });
 
     it('should handle eclipse platform', async () => {
@@ -404,8 +402,8 @@ describe('Price Service', () => {
           id: 'eclipse-token',
           symbol: 'ecl',
           name: 'Eclipse',
-          current_price: 5.0,
-          price_change_percentage_24h: 1.5,
+          usdPrice: 5.0,
+          perc24HoursChange: 1.5,
         },
       ];
 
@@ -817,7 +815,7 @@ describe('Price Service', () => {
       expect(result).toHaveProperty('id');
       expect(result).toHaveProperty('symbol');
       expect(result).toHaveProperty('name');
-      expect(result).toHaveProperty('market_data');
+      expect(result).toHaveProperty('marketData');
       expect(result).toHaveProperty('image');
     });
 
@@ -826,10 +824,10 @@ describe('Price Service', () => {
 
       const result = await getCoinInfo('solana');
 
-      expect(result!.market_data).toBeDefined();
-      expect(result!.market_data?.current_price).toBeDefined();
-      expect(result!.market_data?.market_cap).toBeDefined();
-      expect(result!.market_data?.total_volume).toBeDefined();
+      expect(result!.marketData).toBeDefined();
+      expect(result!.marketData?.currentPrice).toBeDefined();
+      expect(result!.marketData?.marketCap).toBeDefined();
+      expect(result!.marketData?.totalVolume).toBeDefined();
     });
 
     it('should handle coin without optional fields', async () => {
@@ -846,7 +844,7 @@ describe('Price Service', () => {
       expect(result).toEqual(minimalCoinInfo);
       expect(result!.description).toBeUndefined();
       expect(result!.image).toBeUndefined();
-      expect(result!.market_data).toBeUndefined();
+      expect(result!.marketData).toBeUndefined();
     });
   });
 
@@ -862,7 +860,7 @@ describe('Price Service', () => {
 
       expect(result).not.toBeNull();
       expect(result!.id).toBe('solana');
-      expect(result!.current_price).toBe(100.5);
+      expect(result!.usdPrice).toBe(100.5);
     });
 
     it('should find token by symbol', async () => {
@@ -1096,8 +1094,8 @@ describe('Price Service', () => {
         // Verify structure
         const solPrice = result!.find((p) => p.id === 'solana' || p.symbol.toLowerCase() === 'sol');
         expect(solPrice).toBeDefined();
-        expect(solPrice!.current_price).toBeGreaterThan(0);
-        expect(typeof solPrice!.price_change_percentage_24h).toBe('number');
+        expect(solPrice!.usdPrice).toBeGreaterThan(0);
+        expect(typeof solPrice!.perc24HoursChange).toBe('number');
       },
       10000 // 10 second timeout
     );
