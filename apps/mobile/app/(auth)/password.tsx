@@ -50,7 +50,6 @@ import {
   PrimaryButton,
   ScreenHeader,
 } from '@salmon/ui';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useRef, useState } from 'react';
@@ -259,119 +258,112 @@ export default function PasswordScreen() {
 
   return (
     <>
-      <LinearGradient
-        colors={[colors.background.primary, colors.background.secondary]}
-        style={styles.container}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-      >
-        <StatusBar style="light" />
-        <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <KeyboardAvoidingView
-              style={styles.keyboardView}
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            >
-              {/* Header with Step Indicator */}
-              <ScreenHeader
-                onBack={handleBack}
-                stepIndicator={{ totalSteps: 2, currentStep: 2 }}
-                backDisabled={isLoading || isChecking}
-              />
+      <StatusBar style="light" />
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView
+            style={styles.keyboardView}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          >
+            {/* Header with Step Indicator */}
+            <ScreenHeader
+              onBack={handleBack}
+              stepIndicator={{ totalSteps: 2, currentStep: 2 }}
+              backDisabled={isLoading || isChecking}
+            />
 
-              {/* Content */}
-              <View style={styles.content}>
-                {/* Logo */}
-                <View style={styles.logoContainer}>
-                  <Image source={Logo} style={styles.logo} resizeMode="contain" />
-                </View>
+            {/* Content */}
+            <View style={styles.content}>
+              {/* Logo */}
+              <View style={styles.logoContainer}>
+                <Image source={Logo} style={styles.logo} resizeMode="contain" />
+              </View>
 
-                {/* Title - Different for showSingleInput */}
-                <Text style={styles.title}>
-                  {showSingleInput
-                    ? t('wallet.create.enter_your_password') || 'Enter your password'
-                    : t('wallet.create.choose_a_password') || 'Choose a Password'}
+              {/* Title - Different for showSingleInput */}
+              <Text style={styles.title}>
+                {showSingleInput
+                  ? t('wallet.create.enter_your_password') || 'Enter your password'
+                  : t('wallet.create.choose_a_password') || 'Choose a Password'}
+              </Text>
+
+              {/* Subtitle - Only show when not showSingleInput */}
+              {!showSingleInput && (
+                <Text style={styles.subtitle}>
+                  {t('wallet.create.choose_a_password_body') ||
+                    'You will need it to unlock your wallet'}
                 </Text>
+              )}
 
-                {/* Subtitle - Only show when not showSingleInput */}
-                {!showSingleInput && (
-                  <Text style={styles.subtitle}>
-                    {t('wallet.create.choose_a_password_body') ||
-                      'You will need it to unlock your wallet'}
-                  </Text>
-                )}
-
-                {/* Password Input */}
-                <View style={styles.inputContainer}>
-                  <PasswordInput
-                    value={password}
-                    onChangeText={handlePasswordChange}
-                    placeholder={
-                      showSingleInput
-                        ? t('wallet.create.enter_your_password') || 'Enter your password'
-                        : t('wallet.create.passwordNew') || 'New password'
+              {/* Password Input */}
+              <View style={styles.inputContainer}>
+                <PasswordInput
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  placeholder={
+                    showSingleInput
+                      ? t('wallet.create.enter_your_password') || 'Enter your password'
+                      : t('wallet.create.passwordNew') || 'New password'
+                  }
+                  error={passwordError}
+                  editable={!isLoading && !isChecking}
+                  onSubmitEditing={() => {
+                    if (showSingleInput) {
+                      handleSubmit();
+                    } else {
+                      confirmPasswordRef.current?.focus();
                     }
-                    error={passwordError}
-                    editable={!isLoading && !isChecking}
-                    onSubmitEditing={() => {
-                      if (showSingleInput) {
-                        handleSubmit();
-                      } else {
-                        confirmPasswordRef.current?.focus();
-                      }
-                    }}
-                  />
+                  }}
+                />
 
-                  {/* Password Strength Indicator - Only for new password */}
-                  {!showSingleInput && password.length > 0 && (
-                    <View style={styles.strengthContainer}>
-                      <PasswordStrengthBar strength={passwordValidation.strength} t={t} />
-                    </View>
-                  )}
-                </View>
-
-                {/* Confirm Password Input - Only when not showSingleInput */}
-                {!showSingleInput && (
-                  <View style={styles.inputContainer}>
-                    <PasswordInput
-                      value={confirmPassword}
-                      onChangeText={handleConfirmPasswordChange}
-                      placeholder={t('wallet.create.passwordRepeat') || 'Repeat password'}
-                      error={confirmError}
-                      editable={!isLoading && !isChecking}
-                      onSubmitEditing={handleSubmit}
-                    />
+                {/* Password Strength Indicator - Only for new password */}
+                {!showSingleInput && password.length > 0 && (
+                  <View style={styles.strengthContainer}>
+                    <PasswordStrengthBar strength={passwordValidation.strength} t={t} />
                   </View>
                 )}
-
-                {/* General Error */}
-                {error && <Text style={styles.generalError}>{error}</Text>}
-
-                {/* Terms Text */}
-                <Text style={styles.termsText}>
-                  {flowType === 'recover'
-                    ? t('wallet.recover.i_accept_terms_conditions').replace('Terms & Conditions', '')
-                    : t('wallet.create.i_accept_terms_conditions').replace('Terms & Conditions', '')}
-                  <Text style={styles.termsHighlight} onPress={handleTermsPress}>
-                    Terms & Conditions
-                  </Text>
-                </Text>
-
-                {/* Submit Button */}
-                <View style={styles.buttonContainer}>
-                  <PrimaryButton
-                    onPress={handleSubmit}
-                    disabled={!isFormValid() || wrongPassword}
-                    loading={isLoading || isChecking}
-                  >
-                    {getButtonText()}
-                  </PrimaryButton>
-                </View>
               </View>
-            </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
-        </SafeAreaView>
-      </LinearGradient>
+
+              {/* Confirm Password Input - Only when not showSingleInput */}
+              {!showSingleInput && (
+                <View style={styles.inputContainer}>
+                  <PasswordInput
+                    value={confirmPassword}
+                    onChangeText={handleConfirmPasswordChange}
+                    placeholder={t('wallet.create.passwordRepeat') || 'Repeat password'}
+                    error={confirmError}
+                    editable={!isLoading && !isChecking}
+                    onSubmitEditing={handleSubmit}
+                  />
+                </View>
+              )}
+
+              {/* General Error */}
+              {error && <Text style={styles.generalError}>{error}</Text>}
+
+              {/* Terms Text */}
+              <Text style={styles.termsText}>
+                {flowType === 'recover'
+                  ? t('wallet.recover.i_accept_terms_conditions').replace('Terms & Conditions', '')
+                  : t('wallet.create.i_accept_terms_conditions').replace('Terms & Conditions', '')}
+                <Text style={styles.termsHighlight} onPress={handleTermsPress}>
+                  Terms & Conditions
+                </Text>
+              </Text>
+
+              {/* Submit Button */}
+              <View style={styles.buttonContainer}>
+                <PrimaryButton
+                  onPress={handleSubmit}
+                  disabled={!isFormValid() || wrongPassword}
+                  loading={isLoading || isChecking}
+                >
+                  {getButtonText()}
+                </PrimaryButton>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </SafeAreaView>
 
       {/* Loading Screen Overlay */}
       <LoadingScreen
@@ -390,9 +382,6 @@ export default function PasswordScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   safeArea: {
     flex: 1,
   },

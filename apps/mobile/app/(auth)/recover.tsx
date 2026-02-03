@@ -9,39 +9,37 @@
  * and orange accent buttons.
  */
 
-import { useState, useCallback } from 'react';
+import { Logo } from '@salmon/assets';
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Keyboard,
-  TouchableWithoutFeedback,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
-import * as Clipboard from 'expo-clipboard';
-import { useTranslation } from 'react-i18next';
-import {
+  borderRadius,
   colors,
-  spacing,
   componentSizes,
   contentPadding,
-  borderRadius,
-  validateMnemonic,
   normalizeMnemonic,
+  spacing,
+  validateMnemonic,
 } from '@salmon/shared';
 import {
   PrimaryButton,
-  SecondaryButton,
   ScreenHeader,
+  SecondaryButton,
 } from '@salmon/ui';
-import { Logo } from '@salmon/assets';
+import * as Clipboard from 'expo-clipboard';
+import { router } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // ============================================================================
 // Component
@@ -111,85 +109,77 @@ export default function RecoverWalletScreen() {
   const showNextButton = isValidSeedPhrase();
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <KeyboardAvoidingView
-            style={styles.keyboardView}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          >
-            {/* Header with step indicator */}
-            <ScreenHeader
-              onBack={handleBack}
-              stepIndicator={{ totalSteps: 2, currentStep: 1 }}
-            />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          {/* Header with step indicator */}
+          <ScreenHeader
+            onBack={handleBack}
+            stepIndicator={{ totalSteps: 2, currentStep: 1 }}
+          />
 
-            {/* Content */}
-            <View style={styles.content}>
-              {/* Logo */}
-              <View style={styles.logoContainer}>
-                <Image
-                  source={Logo}
-                  style={styles.logo}
-                  resizeMode="contain"
-                />
-              </View>
-
-              {/* Title */}
-              <Text style={styles.title}>{t('wallet.recover.messageTitle')}</Text>
-
-              {/* Subtitle */}
-              <Text style={styles.subtitle}>
-                {t('wallet.recover.messageBody')}
-              </Text>
-
-              {/* Seed Phrase Input */}
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={[
-                    styles.textarea,
-                    { borderColor: getInputBorderColor() },
-                  ]}
-                  placeholder="Enter your seed phrase..."
-                  placeholderTextColor={colors.text.placeholder}
-                  value={seedPhrase}
-                  onChangeText={setSeedPhrase}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                  multiline
-                  textAlignVertical="center"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-              </View>
-
-              {/* Buttons */}
-              <View style={styles.buttonContainer}>
-                {/* Paste Button - Always visible */}
-                <SecondaryButton onPress={handlePaste}>
-                  {t('wallet.recover.pasteSeed').toUpperCase()}
-                </SecondaryButton>
-
-                {/* Next Button - Only visible when seed phrase is valid */}
-                {showNextButton && (
-                  <PrimaryButton onPress={handleNext}>
-                    {t('actions.next').toUpperCase()}
-                  </PrimaryButton>
-                )}
-              </View>
+          {/* Content */}
+          <View style={styles.content}>
+            {/* Logo */}
+            <View style={styles.logoContainer}>
+              <Image
+                source={Logo}
+                style={styles.logo}
+                resizeMode="contain"
+              />
             </View>
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
-      </SafeAreaView>
-    </LinearGradient>
+
+            {/* Title */}
+            <Text style={styles.title}>{t('wallet.recover.messageTitle')}</Text>
+
+            {/* Subtitle */}
+            <Text style={styles.subtitle}>
+              {t('wallet.recover.messageBody')}
+            </Text>
+
+            {/* Seed Phrase Input */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={[
+                  styles.textarea,
+                  { borderColor: getInputBorderColor() },
+                ]}
+                placeholder="Enter your seed phrase..."
+                placeholderTextColor={colors.text.placeholder}
+                value={seedPhrase}
+                onChangeText={setSeedPhrase}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                multiline
+                textAlignVertical="center"
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </View>
+
+            {/* Buttons */}
+            <View style={styles.buttonContainer}>
+              {/* Paste Button - Always visible */}
+              <SecondaryButton onPress={handlePaste}>
+                {t('wallet.recover.pasteSeed').toUpperCase()}
+              </SecondaryButton>
+
+              {/* Next Button - Only visible when seed phrase is valid */}
+              {showNextButton && (
+                <PrimaryButton onPress={handleNext}>
+                  {t('actions.next').toUpperCase()}
+                </PrimaryButton>
+              )}
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }
 
@@ -198,9 +188,6 @@ export default function RecoverWalletScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   safeArea: {
     flex: 1,
   },

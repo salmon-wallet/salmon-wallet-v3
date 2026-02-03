@@ -11,22 +11,20 @@
  * Design: Dark gradient background with centered content, action buttons.
  */
 
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
-import { useTranslation } from 'react-i18next';
+import { Logo } from '@salmon/assets';
 import {
-  useAccountsContext,
   colors,
-  spacing,
   componentSizes,
   contentPadding,
   fontSize,
+  spacing,
+  useAccountsContext,
 } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '@salmon/ui';
-import { Logo } from '@salmon/assets';
+import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // ============================================================================
 // Component
@@ -67,51 +65,43 @@ export default function WelcomeScreen() {
     : t('wallet.onboarding.titleWelcome');
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <View style={styles.content}>
-          {/* Welcome Text */}
-          <Text style={styles.welcomeText}>{title}</Text>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <View style={styles.content}>
+        {/* Welcome Text */}
+        <Text style={styles.welcomeText}>{title}</Text>
 
-          {/* Logo */}
-          <View style={styles.logoContainer}>
-            <Image source={Logo} style={styles.logo} resizeMode="contain" />
-          </View>
-
-          {/* Brand Name */}
-          <Text style={styles.brandName}>Salmon</Text>
-
-          {/* Spacer to push buttons to bottom */}
-          <View style={styles.spacer} />
-
-          {/* Buttons Container */}
-          <View style={styles.buttonsContainer}>
-            {/* Create Account Button (Primary - White) */}
-            <PrimaryButton onPress={handleCreateAccount}>
-              {t('wallet.create_wallet').toUpperCase()}
-            </PrimaryButton>
-
-            {/* Recover Account Button (Secondary - Dark) */}
-            <SecondaryButton onPress={handleRecoverAccount}>
-              {t('wallet.recover_wallet').toUpperCase()}
-            </SecondaryButton>
-
-            {/* Access Existing Account Button (only if accounts exist) */}
-            {hasAccounts && (
-              <SecondaryButton onPress={handleAccessExistingAccount}>
-                {t('wallet.access_existing_account').toUpperCase()}
-              </SecondaryButton>
-            )}
-          </View>
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image source={Logo} style={styles.logo} resizeMode="contain" />
         </View>
-      </SafeAreaView>
-    </LinearGradient>
+
+        {/* Brand Name */}
+        <Text style={styles.brandName}>Salmon</Text>
+
+        {/* Spacer to push buttons to bottom */}
+        <View style={styles.spacer} />
+
+        {/* Buttons Container */}
+        <View style={styles.buttonsContainer}>
+          {/* Create Account Button (Primary - White) */}
+          <PrimaryButton onPress={handleCreateAccount}>
+            {t('wallet.create_wallet').toUpperCase()}
+          </PrimaryButton>
+
+          {/* Recover Account Button (Secondary - Dark) */}
+          <SecondaryButton onPress={handleRecoverAccount}>
+            {t('wallet.recover_wallet').toUpperCase()}
+          </SecondaryButton>
+
+          {/* Access Existing Account Button (only if accounts exist) */}
+          {hasAccounts && (
+            <SecondaryButton onPress={handleAccessExistingAccount}>
+              {t('wallet.access_existing_account').toUpperCase()}
+            </SecondaryButton>
+          )}
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -120,9 +110,6 @@ export default function WelcomeScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   safeArea: {
     flex: 1,
   },

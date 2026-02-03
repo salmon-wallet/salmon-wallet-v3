@@ -15,39 +15,39 @@
  * - mnemonic: The seed phrase to derive accounts from
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
-import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Logo } from '@salmon/assets';
 import {
+  borderRadius,
   colors,
-  spacing,
   componentSizes,
   contentPadding,
-  borderRadius,
-  useAccountsContext,
   createSolanaAccount,
-  SOLANA_NETWORKS,
   getShortAddress,
+  SOLANA_NETWORKS,
+  spacing,
+  useAccountsContext,
   type SolanaAccount,
 } from '@salmon/shared';
 import {
   PrimaryButton,
-  SecondaryButton,
   ScreenHeader,
+  SecondaryButton,
 } from '@salmon/ui';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router, useLocalSearchParams } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // ============================================================================
 // Types

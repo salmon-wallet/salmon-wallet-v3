@@ -11,43 +11,41 @@
  * and orange accent buttons. Seed phrase displayed in 3-column grid.
  */
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Keyboard,
-  TouchableWithoutFeedback,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
-import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
+import { Logo } from '@salmon/assets';
 import {
+  borderRadius,
   colors,
-  spacing,
   componentSizes,
   contentPadding,
-  borderRadius,
   generateMnemonic,
   generateValidationPositions,
+  spacing,
   validateMnemonicWords,
 } from '@salmon/shared';
 import {
   PrimaryButton,
-  SecondaryButton,
   ScreenHeader,
+  SecondaryButton,
   SeedWordGrid,
   SeedWordInput,
 } from '@salmon/ui';
-import { Logo } from '@salmon/assets';
+import * as Clipboard from 'expo-clipboard';
+import { router } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // ============================================================================
 // Types
@@ -366,37 +364,29 @@ export default function CreateWalletScreen() {
   }, [mnemonic]);
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {step === 'message' && (
-          <MessageStep onNext={handleStart} onBack={handleBack} t={t} />
-        )}
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      {step === 'message' && (
+        <MessageStep onNext={handleStart} onBack={handleBack} t={t} />
+      )}
 
-        {step === 'seedPhrase' && (
-          <SeedPhraseStep
-            mnemonic={mnemonic}
-            onNext={handleProceedToValidation}
-            onBack={handleBack}
-            t={t}
-          />
-        )}
+      {step === 'seedPhrase' && (
+        <SeedPhraseStep
+          mnemonic={mnemonic}
+          onNext={handleProceedToValidation}
+          onBack={handleBack}
+          t={t}
+        />
+      )}
 
-        {step === 'validate' && (
-          <ValidateStep
-            mnemonic={mnemonic}
-            onComplete={handleValidationComplete}
-            onBack={handleBack}
-            t={t}
-          />
-        )}
-      </SafeAreaView>
-    </LinearGradient>
+      {step === 'validate' && (
+        <ValidateStep
+          mnemonic={mnemonic}
+          onComplete={handleValidationComplete}
+          onBack={handleBack}
+          t={t}
+        />
+      )}
+    </SafeAreaView>
   );
 }
 
@@ -405,9 +395,6 @@ export default function CreateWalletScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   safeArea: {
     flex: 1,
   },

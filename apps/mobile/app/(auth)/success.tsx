@@ -8,33 +8,31 @@
  * Design: Dark gradient background with centered content, salmon logo, and action buttons.
  */
 
-import { useCallback, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Modal,
-  Pressable,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { Logo } from '@salmon/assets';
 import {
+  borderRadius,
   colors,
-  spacing,
   componentSizes,
   contentPadding,
-  borderRadius,
+  spacing,
 } from '@salmon/shared';
 import {
   PrimaryButton,
   SecondaryButton,
   TextButton,
 } from '@salmon/ui';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // ============================================================================
 // Component
@@ -67,96 +65,88 @@ export default function SuccessScreen() {
   }, []);
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <View style={styles.content}>
-          {/* Top spacer for centering */}
-          <View style={styles.topSpacer} />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <View style={styles.content}>
+        {/* Top spacer for centering */}
+        <View style={styles.topSpacer} />
 
-          {/* Centered content */}
-          <View style={styles.centerContent}>
-            {/* Logo */}
-            <View style={styles.logoContainer}>
-              <Image
-                source={Logo}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-            </View>
-
-            {/* Title */}
-            <Text style={styles.title}>
-              {t('wallet.create.success_message')}
-            </Text>
-
-            {/* Subtitle */}
-            <Text style={styles.subtitle}>
-              {t('wallet.create.success_message_body')}
-            </Text>
+        {/* Centered content */}
+        <View style={styles.centerContent}>
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={Logo}
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </View>
 
-          {/* Bottom buttons */}
-          <View style={styles.buttonsContainer}>
-            {/* Primary Button - Go to Wallet */}
-            <PrimaryButton
-              onPress={handleGoToWallet}
-              style={styles.buttonSpacing}
-            >
-              {t('wallet.create.go_to_my_wallet')}
-            </PrimaryButton>
+          {/* Title */}
+          <Text style={styles.title}>
+            {t('wallet.create.success_message')}
+          </Text>
 
-            {/* Secondary Button - Check Derived Accounts */}
-            <SecondaryButton
-              onPress={handleGoToDerived}
-              style={styles.buttonSpacing}
-            >
-              {t('wallet.create.check_derivables')}
-            </SecondaryButton>
-
-            {/* Info Link - What are derived accounts? */}
-            <TextButton
-              onPress={toggleDialog}
-              color={colors.text.secondary}
-            >
-              {t('wallet.create.derivable_info_icon')}
-            </TextButton>
-          </View>
+          {/* Subtitle */}
+          <Text style={styles.subtitle}>
+            {t('wallet.create.success_message_body')}
+          </Text>
         </View>
 
-        {/* Derivable Info Dialog */}
-        <Modal
-          visible={showDialog}
-          transparent
-          animationType="fade"
-          onRequestClose={toggleDialog}
-        >
-          <Pressable style={styles.dialogOverlay} onPress={toggleDialog}>
-            <Pressable style={styles.dialogContent} onPress={() => {}}>
-              {/* Dialog Title */}
-              <Text style={styles.dialogTitle}>
-                {t('wallet.create.derivable_info')}
-              </Text>
+        {/* Bottom buttons */}
+        <View style={styles.buttonsContainer}>
+          {/* Primary Button - Go to Wallet */}
+          <PrimaryButton
+            onPress={handleGoToWallet}
+            style={styles.buttonSpacing}
+          >
+            {t('wallet.create.go_to_my_wallet')}
+          </PrimaryButton>
 
-              {/* Dialog Description */}
-              <Text style={styles.dialogBody}>
-                {t('wallet.create.derivable_description')}
-              </Text>
+          {/* Secondary Button - Check Derived Accounts */}
+          <SecondaryButton
+            onPress={handleGoToDerived}
+            style={styles.buttonSpacing}
+          >
+            {t('wallet.create.check_derivables')}
+          </SecondaryButton>
 
-              {/* Close Button */}
-              <PrimaryButton onPress={toggleDialog}>
-                {t('actions.continue')}
-              </PrimaryButton>
-            </Pressable>
+          {/* Info Link - What are derived accounts? */}
+          <TextButton
+            onPress={toggleDialog}
+            color={colors.text.secondary}
+          >
+            {t('wallet.create.derivable_info_icon')}
+          </TextButton>
+        </View>
+      </View>
+
+      {/* Derivable Info Dialog */}
+      <Modal
+        visible={showDialog}
+        transparent
+        animationType="fade"
+        onRequestClose={toggleDialog}
+      >
+        <Pressable style={styles.dialogOverlay} onPress={toggleDialog}>
+          <Pressable style={styles.dialogContent} onPress={() => { }}>
+            {/* Dialog Title */}
+            <Text style={styles.dialogTitle}>
+              {t('wallet.create.derivable_info')}
+            </Text>
+
+            {/* Dialog Description */}
+            <Text style={styles.dialogBody}>
+              {t('wallet.create.derivable_description')}
+            </Text>
+
+            {/* Close Button */}
+            <PrimaryButton onPress={toggleDialog}>
+              {t('actions.continue')}
+            </PrimaryButton>
           </Pressable>
-        </Modal>
-      </SafeAreaView>
-    </LinearGradient>
+        </Pressable>
+      </Modal>
+    </SafeAreaView>
   );
 }
 
@@ -165,9 +155,6 @@ export default function SuccessScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   safeArea: {
     flex: 1,
   },
