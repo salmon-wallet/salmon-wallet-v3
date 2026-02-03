@@ -1,2 +1,2 @@
 export { BalanceCard } from './BalanceCard';
-export type { BalanceCardProps, NetworkInfo } from './types';
+export type { BalanceCardProps } from './types';

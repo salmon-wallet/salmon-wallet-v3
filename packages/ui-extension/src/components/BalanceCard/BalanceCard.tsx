@@ -22,7 +22,8 @@ import {
   hiddenValue,
 } from '@salmon/shared';
 import { EyeIcon, EyeOffIcon, ChevronDownIcon } from '../Icon';
-import type { BalanceCardProps, NetworkInfo } from './types';
+import type { NetworkInfo } from '@salmon/shared';
+import type { BalanceCardProps } from './types';
 
 /**
  * Default network logos

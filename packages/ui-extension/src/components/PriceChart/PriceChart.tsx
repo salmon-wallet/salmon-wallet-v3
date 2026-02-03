@@ -17,9 +17,9 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts';
-import { colors, spacing, borderRadius, fontFamily, fontWeight } from '@salmon/shared';
-import type { PriceChartProps, PriceChartPeriod, PriceDataPoint } from './types';
-import { PRICE_CHART_PERIODS } from './types';
+import { colors, spacing, borderRadius, fontFamily, fontWeight, PRICE_CHART_PERIODS } from '@salmon/shared';
+import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
+import type { PriceChartProps } from './types';
 
 /**
  * Default colors for positive/negative performance

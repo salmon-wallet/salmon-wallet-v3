@@ -15,7 +15,8 @@ import {
   fontWeight,
   fontSize,
 } from '@salmon/shared';
-import type { TokenFeaturesProps, TokenFeature } from './types';
+import type { TokenFeature } from '@salmon/shared';
+import type { TokenFeaturesProps } from './types';
 
 /**
  * Default feature colors for variety

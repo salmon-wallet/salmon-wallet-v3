@@ -2,18 +2,7 @@
  * BalanceCard types for @salmon/ui-extension
  */
 import type { CSSProperties } from 'react';
-
-/**
- * Network information for display
- */
-export interface NetworkInfo {
-  /** Network identifier */
-  id: string;
-  /** Network display name */
-  name: string;
-  /** Network logo URL */
-  logo?: string;
-}
+import type { NetworkInfo } from '@salmon/shared';
 
 /**
  * Props for the BalanceCard component

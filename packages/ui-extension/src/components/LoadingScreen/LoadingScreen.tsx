@@ -10,8 +10,8 @@
  * - Smooth fade in/out transitions
  */
 import { useState, useEffect, CSSProperties } from 'react';
-import { colors, gradients, fontFamily, fontWeight, fontSize } from '@salmon/shared';
-import { LoadingScreenProps, DEFAULT_WALLET_TIPS } from './types';
+import { colors, gradients, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIPS } from '@salmon/shared';
+import type { LoadingScreenProps } from './types';
 
 // ============================================================================
 // CSS Keyframes (injected into document)

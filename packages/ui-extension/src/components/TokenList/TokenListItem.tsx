@@ -19,9 +19,10 @@ import {
   getLabelValue,
   hiddenValue,
   type LabelType,
+  type Token,
 } from '@salmon/shared';
 import { ChevronRightIcon } from '../Icon';
-import type { TokenListItemProps, Token } from './types';
+import type { TokenListItemProps } from './types';
 
 /**
  * Color mapping for percentage change labels
