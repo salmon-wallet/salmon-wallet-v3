@@ -45,48 +45,48 @@ describe('API Config Module', () => {
   });
 
   describe('getLocalApiUrl', () => {
-    it('should return default localhost:3000 when no parameters or env vars are set', () => {
+    it('should return default localhost:3000/local when no parameters or env vars are set', () => {
       const url = getLocalApiUrl();
-      expect(url).toBe('http://localhost:3000');
+      expect(url).toBe('http://localhost:3000/local');
     });
 
     it('should use provided host parameter', () => {
       const url = getLocalApiUrl('192.168.1.100');
-      expect(url).toBe('http://192.168.1.100:3000');
+      expect(url).toBe('http://192.168.1.100:3000/local');
     });
 
     it('should use provided port parameter', () => {
       const url = getLocalApiUrl(undefined, 8080);
-      expect(url).toBe('http://localhost:8080');
+      expect(url).toBe('http://localhost:8080/local');
     });
 
     it('should use both host and port parameters', () => {
       const url = getLocalApiUrl('host.docker.internal', 3001);
-      expect(url).toBe('http://host.docker.internal:3001');
+      expect(url).toBe('http://host.docker.internal:3001/local');
     });
 
     it('should use EXPO_PUBLIC_API_HOST env var when no host parameter provided', () => {
       process.env.EXPO_PUBLIC_API_HOST = 'expo.host.com';
       const url = getLocalApiUrl();
-      expect(url).toBe('http://expo.host.com:3000');
+      expect(url).toBe('http://expo.host.com:3000/local');
     });
 
     it('should use EXPO_PUBLIC_API_PORT env var when no port parameter provided', () => {
       process.env.EXPO_PUBLIC_API_PORT = '4000';
       const url = getLocalApiUrl();
-      expect(url).toBe('http://localhost:4000');
+      expect(url).toBe('http://localhost:4000/local');
     });
 
     it('should use VITE_API_HOST env var when EXPO_PUBLIC_API_HOST is not set', () => {
       process.env.VITE_API_HOST = 'vite.host.com';
       const url = getLocalApiUrl();
-      expect(url).toBe('http://vite.host.com:3000');
+      expect(url).toBe('http://vite.host.com:3000/local');
     });
 
     it('should use VITE_API_PORT env var when EXPO_PUBLIC_API_PORT is not set', () => {
       process.env.VITE_API_PORT = '5000';
       const url = getLocalApiUrl();
-      expect(url).toBe('http://localhost:5000');
+      expect(url).toBe('http://localhost:5000/local');
     });
 
     it('should prefer EXPO_PUBLIC_* over VITE_* env vars', () => {
@@ -95,14 +95,14 @@ describe('API Config Module', () => {
       process.env.EXPO_PUBLIC_API_PORT = '4000';
       process.env.VITE_API_PORT = '5000';
       const url = getLocalApiUrl();
-      expect(url).toBe('http://expo.host.com:4000');
+      expect(url).toBe('http://expo.host.com:4000/local');
     });
 
     it('should prefer parameters over env vars', () => {
       process.env.EXPO_PUBLIC_API_HOST = 'env.host.com';
       process.env.EXPO_PUBLIC_API_PORT = '4000';
       const url = getLocalApiUrl('param.host.com', 8080);
-      expect(url).toBe('http://param.host.com:8080');
+      expect(url).toBe('http://param.host.com:8080/local');
     });
 
     it('should handle non-numeric port env var by falling back to default', () => {
@@ -116,26 +116,26 @@ describe('API Config Module', () => {
       process.env.EXPO_PUBLIC_API_HOST = '';
       process.env.EXPO_PUBLIC_API_PORT = '';
       const url = getLocalApiUrl();
-      expect(url).toBe('http://localhost:3000');
+      expect(url).toBe('http://localhost:3000/local');
     });
 
     it('should support Docker host.docker.internal', () => {
       const url = getLocalApiUrl('host.docker.internal', 3000);
-      expect(url).toBe('http://host.docker.internal:3000');
+      expect(url).toBe('http://host.docker.internal:3000/local');
     });
 
     it('should support IPv4 addresses', () => {
       const url = getLocalApiUrl('127.0.0.1', 8080);
-      expect(url).toBe('http://127.0.0.1:8080');
+      expect(url).toBe('http://127.0.0.1:8080/local');
     });
 
     it('should support custom ports for different services', () => {
       const url1 = getLocalApiUrl('localhost', 3000);
       const url2 = getLocalApiUrl('localhost', 3001);
       const url3 = getLocalApiUrl('localhost', 8000);
-      expect(url1).toBe('http://localhost:3000');
-      expect(url2).toBe('http://localhost:3001');
-      expect(url3).toBe('http://localhost:8000');
+      expect(url1).toBe('http://localhost:3000/local');
+      expect(url2).toBe('http://localhost:3001/local');
+      expect(url3).toBe('http://localhost:8000/local');
     });
   });
 
@@ -251,7 +251,7 @@ describe('API Config Module', () => {
     it('should return local API URL when environment is "local"', () => {
       process.env.NODE_ENV = 'development';
       const url = getApiUrl();
-      expect(url).toBe('http://localhost:3000');
+      expect(url).toBe('http://localhost:3000/local');
     });
 
     it('should use provided environment parameter over detected environment', () => {
@@ -312,7 +312,7 @@ describe('API Config Module', () => {
       process.env.EXPO_PUBLIC_API_HOST = 'dev.local';
       process.env.EXPO_PUBLIC_API_PORT = '4000';
       const url = getApiUrl('local');
-      expect(url).toBe('http://dev.local:4000');
+      expect(url).toBe('http://dev.local:4000/local');
     });
 
     it('should handle all valid environment values', () => {
@@ -340,7 +340,7 @@ describe('API Config Module', () => {
   describe('getStaticApiUrl', () => {
     it('should return local API URL when environment is "local"', () => {
       const url = getStaticApiUrl('local');
-      expect(url).toBe('http://localhost:3000');
+      expect(url).toBe('http://localhost:3000/local');
     });
 
     it('should return CloudFront URL for staging', () => {
@@ -382,7 +382,7 @@ describe('API Config Module', () => {
       process.env.EXPO_PUBLIC_API_HOST = 'static.local';
       process.env.EXPO_PUBLIC_API_PORT = '5000';
       const url = getStaticApiUrl('local');
-      expect(url).toBe('http://static.local:5000');
+      expect(url).toBe('http://static.local:5000/local');
     });
 
     it('should detect environment when no parameter provided', () => {
@@ -410,7 +410,7 @@ describe('API Config Module', () => {
   describe('apiConfig object', () => {
     it('should provide dynamic baseUrl getter', () => {
       process.env.EXPO_PUBLIC_SALMON_ENV = 'local';
-      expect(apiConfig.baseUrl).toBe('http://localhost:3000');
+      expect(apiConfig.baseUrl).toBe('http://localhost:3000/local');
     });
 
     it('should provide dynamic staticBaseUrl getter', () => {
@@ -496,23 +496,23 @@ describe('API Config Module', () => {
 
     it('should handle port 0', () => {
       const url = getLocalApiUrl('localhost', 0);
-      expect(url).toBe('http://localhost:0');
+      expect(url).toBe('http://localhost:0/local');
     });
 
     it('should handle very high port numbers', () => {
       const url = getLocalApiUrl('localhost', 65535);
-      expect(url).toBe('http://localhost:65535');
+      expect(url).toBe('http://localhost:65535/local');
     });
 
     it('should handle negative port numbers', () => {
       const url = getLocalApiUrl('localhost', -1);
-      expect(url).toBe('http://localhost:-1');
+      expect(url).toBe('http://localhost:-1/local');
     });
 
     it('should not validate URL format', () => {
       // The module doesn't validate URLs, it just constructs them
       const url = getLocalApiUrl('not a valid host!@#', 3000);
-      expect(url).toBe('http://not a valid host!@#:3000');
+      expect(url).toBe('http://not a valid host!@#:3000/local');
     });
 
     it('should handle multiple consecutive calls efficiently', () => {
