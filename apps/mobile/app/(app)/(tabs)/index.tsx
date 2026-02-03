@@ -91,19 +91,6 @@ export default function HomeScreen() {
     networkId,
   } = accountState;
 
-  // DEBUG: Log HomeScreen render and account state
-  console.log('[DEBUG:HomeScreen] render', {
-    ready,
-    accountsCount: accounts.length,
-    accountId,
-    hasActiveAccount: !!activeAccount,
-    hasActiveBlockchainAccount: !!activeBlockchainAccount,
-    networkId,
-    activeAccountName: activeAccount?.name,
-    activeAccountNetworksAccounts: activeAccount ? Object.keys(activeAccount.networksAccounts) : [],
-    activeAccountNetworksAccountsCount: activeAccount ? Object.values(activeAccount.networksAccounts).map(arr => arr?.length) : [],
-  });
-
   // User configuration (developer networks toggle)
   // Build a mock activeBlockchainAccount for useUserConfig when not available
   const userConfigAccount = activeBlockchainAccount
@@ -391,7 +378,6 @@ export default function HomeScreen() {
   // Note: If we're on this screen, the LockScreenOverlay has been dismissed,
   // which means unlock succeeded and accounts should be loaded
   if (!ready) {
-    console.log('[DEBUG:HomeScreen] showing loading - ready=false');
     return (
       <View style={styles.loadingContainer}>
         <StatusBar style="light" />
@@ -403,16 +389,6 @@ export default function HomeScreen() {
 
   // No account state (only show if accounts array is empty)
   if (!activeAccount || !activeBlockchainAccount) {
-    console.log('[DEBUG:HomeScreen] showing "No account found"', {
-      ready,
-      hasActiveAccount: !!activeAccount,
-      hasActiveBlockchainAccount: !!activeBlockchainAccount,
-      accountsCount: accounts.length,
-      accountId,
-      networkId,
-      firstAccountNetworksAccounts: accounts[0] ? Object.keys(accounts[0].networksAccounts) : 'no accounts',
-      firstAccountNetworksAccountsValues: accounts[0] ? Object.entries(accounts[0].networksAccounts).map(([k, v]) => `${k}: ${v?.length}`) : [],
-    });
     return (
       <View style={styles.loadingContainer}>
         <StatusBar style="light" />

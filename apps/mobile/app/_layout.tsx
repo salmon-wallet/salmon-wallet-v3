@@ -68,18 +68,6 @@ function RootLayoutNav() {
   // Track if we've done the initial navigation
   const [hasNavigated, setHasNavigated] = useState(false);
 
-  // DEBUG: Log navigation state
-  console.log('[DEBUG:RootLayoutNav] render', {
-    ready: state.ready,
-    locked: state.locked,
-    accountsCount: state.accounts.length,
-    accountId: state.accountId,
-    networkId: state.networkId,
-    segments,
-    hasNavigationKey: !!navigationState?.key,
-    hasNavigated,
-  });
-
   // Unlock handler for the lock screen overlay
   const handleUnlock = useCallback(async (password: string): Promise<boolean> => {
     try {
@@ -123,21 +111,8 @@ function RootLayoutNav() {
   }, [actions]);
 
   useEffect(() => {
-    console.log('[DEBUG:RootLayoutNav:useEffect] navigation effect triggered', {
-      hasNavigationKey: !!navigationState?.key,
-      ready: state.ready,
-      locked: state.locked,
-      accountsCount: state.accounts.length,
-      segments,
-      hasNavigated,
-    });
-
     // Don't navigate until the navigation state is ready and useAccounts is ready
     if (!navigationState?.key || !state.ready) {
-      console.log('[DEBUG:RootLayoutNav:useEffect] skipping - not ready', {
-        hasNavigationKey: !!navigationState?.key,
-        ready: state.ready,
-      });
       return;
     }
 
@@ -145,19 +120,11 @@ function RootLayoutNav() {
     const inAppGroup = segments[0] === '(app)';
 
     const hasAccounts = state.accounts.length > 0;
-    console.log('[DEBUG:RootLayoutNav:useEffect] navigation decision', {
-      inAuthGroup,
-      inAppGroup,
-      hasAccounts,
-      locked: state.locked,
-      hasNavigated,
-    });
 
     // Determine where the user should be
     if (!hasAccounts) {
       // No accounts exist - go to auth flow
       if (!inAuthGroup) {
-        console.log('[DEBUG:RootLayoutNav:useEffect] navigating to (auth) - no accounts');
         router.replace('/(auth)');
         setHasNavigated(true);
       }
@@ -167,7 +134,6 @@ function RootLayoutNav() {
       // successful unlock should we navigate to the app
       if (!inAppGroup && !hasNavigated && !state.locked) {
         // Only auto-navigate to app on initial load when not locked
-        console.log('[DEBUG:RootLayoutNav:useEffect] navigating to (app)/(tabs) - has accounts and unlocked');
         router.replace('/(app)/(tabs)');
         setHasNavigated(true);
       }
@@ -177,13 +143,6 @@ function RootLayoutNav() {
   // Determine if lock screen should be shown
   const hasAccounts = state.accounts.length > 0;
   const shouldShowLockScreen = state.ready && hasAccounts && state.locked;
-
-  console.log('[DEBUG:RootLayoutNav] lock screen decision', {
-    hasAccounts,
-    shouldShowLockScreen,
-    ready: state.ready,
-    locked: state.locked,
-  });
 
   return (
     <I18nProvider>
