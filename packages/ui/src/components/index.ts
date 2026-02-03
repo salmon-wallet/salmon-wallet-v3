@@ -55,8 +55,14 @@ export { WalletHeader } from './WalletHeader';
 export type { WalletHeaderProps } from './WalletHeader';
 
 // BalanceCard - Portfolio balance display with gradient
-export { BalanceCard } from './BalanceCard';
-export type { BalanceCardProps } from './BalanceCard';
+export { BalanceCard, BalanceCardCarousel } from './BalanceCard';
+export type {
+  BalanceCardProps,
+  BalanceCardCarouselProps,
+  BlockchainId,
+  BlockchainBalance,
+  BlockchainNetworkInfo,
+} from './BalanceCard';
 
 // ActionButtonRow - Send/Receive/Activity action buttons
 export { ActionButtonRow } from './ActionButtonRow';
@@ -123,6 +129,15 @@ export type {
   AccountListItemProps,
 } from './WalletSwitcherSheet';
 
-// Icon - Unified icon component
-export { Icon } from './Icon';
-export type { IconProps } from './Icon';
+// SVG Icons
+export {
+  WalletSvgIcon,
+  ContentCopySvgIcon,
+  SettingsSvgIcon,
+  SolanaSvgIcon,
+  BitcoinSvgIcon,
+  EthereumSvgIcon,
+  GridViewSvgIcon,
+  HomeSvgIcon,
+  SwapSvgIcon,
+} from './Icon';
