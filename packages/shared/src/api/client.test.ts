@@ -830,6 +830,44 @@ describe('API Client Module', () => {
       });
     });
 
+    it('should skip Content-Type and Accept headers when skipContentTypeHeaders is true', () => {
+      const mockInstance = {
+        interceptors: {
+          request: { use: vi.fn() },
+          response: { use: vi.fn() },
+        },
+      } as unknown as AxiosInstance;
+
+      mockedAxios.create.mockReturnValue(mockInstance);
+
+      createApiClient({ skipContentTypeHeaders: true });
+
+      const createCall = mockedAxios.create.mock.calls[0]?.[0];
+      expect(createCall?.headers).not.toHaveProperty('Content-Type');
+      expect(createCall?.headers).not.toHaveProperty('Accept');
+    });
+
+    it('should still include custom headers when skipContentTypeHeaders is true', () => {
+      const mockInstance = {
+        interceptors: {
+          request: { use: vi.fn() },
+          response: { use: vi.fn() },
+        },
+      } as unknown as AxiosInstance;
+
+      mockedAxios.create.mockReturnValue(mockInstance);
+
+      const customHeaders = { 'X-Custom-Header': 'value' };
+      createApiClient({ skipContentTypeHeaders: true, headers: customHeaders });
+
+      const createCall = mockedAxios.create.mock.calls[0]?.[0];
+      expect(createCall?.headers).toMatchObject({
+        'X-Custom-Header': 'value',
+      });
+      expect(createCall?.headers).not.toHaveProperty('Content-Type');
+      expect(createCall?.headers).not.toHaveProperty('Accept');
+    });
+
     it('should register request interceptor', () => {
       const mockRequestInterceptor = vi.fn();
       const mockInstance = {

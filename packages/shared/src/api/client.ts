@@ -127,6 +127,8 @@ export interface ApiClientConfig {
   onRequest?: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig;
   /** Custom response interceptor */
   onResponse?: <T>(response: AxiosResponse<T>) => AxiosResponse<T>;
+  /** Skip default Content-Type and Accept headers (useful for CDN/static API requests) */
+  skipContentTypeHeaders?: boolean;
 }
 
 // ============================================================================
@@ -146,20 +148,26 @@ export function createApiClient(config: ApiClientConfig = {}): AxiosInstance {
     onError,
     onRequest,
     onResponse,
+    skipContentTypeHeaders = false,
   } = config;
 
   // Resolve base URL
   const resolvedBaseUrl = baseUrl ?? getApiUrl(environment);
 
+  // Build headers - skip Content-Type and Accept for static/CDN requests
+  const defaultHeaders = skipContentTypeHeaders
+    ? { ...headers }
+    : {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...headers,
+      };
+
   // Create axios instance
   const client = axios.create({
     baseURL: resolvedBaseUrl,
     timeout,
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...headers,
-    },
+    headers: defaultHeaders,
   });
 
   // Request interceptor
@@ -264,10 +272,12 @@ function transformError(error: AxiosError<ApiErrorResponse>): ApiError {
 export const apiClient = createApiClient();
 
 /**
- * Static API client for static content endpoints
+ * Static API client for static content endpoints (CDN)
+ * Does not send Content-Type/Accept headers which can cause 404 on CloudFront
  */
 export const staticApiClient = createApiClient({
   baseUrl: getStaticApiUrl(),
+  skipContentTypeHeaders: true,
 });
 
 // ============================================================================
