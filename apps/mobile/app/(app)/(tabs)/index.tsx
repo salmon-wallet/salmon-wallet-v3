@@ -3,13 +3,14 @@
  *
  * Displays:
  * - WalletHeader: Account name, address, settings navigation
- * - BalanceCard: Total USD balance with 24h change
+ * - BalanceCardCarousel: Swipeable balance cards for multiple blockchains
  * - ActionButtonRow: Send, Receive, Activity buttons
  * - TokenList: List of token holdings
  *
  * Features:
  * - Pull-to-refresh for balance updates
  * - Balance visibility toggle (privacy mode)
+ * - Multi-chain carousel (Solana, Bitcoin, Ethereum)
  * - Navigation to token detail, send, receive, and activity screens
  */
 
@@ -36,11 +37,13 @@ import {
 } from '@salmon/shared';
 import {
   WalletHeader,
-  BalanceCard,
+  BalanceCardCarousel,
   ActionButtonRow,
   TokenList,
   SettingsSheet,
   WalletSwitcherSheet,
+  type BlockchainBalance,
+  type BlockchainId,
 } from '@salmon/ui';
 
 /**
@@ -87,6 +90,9 @@ export default function HomeScreen() {
 
   // Wallet switcher sheet visibility
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
+
+  // Active blockchain index for carousel
+  const [activeBlockchainIndex, setActiveBlockchainIndex] = useState(0);
 
   // Get account state and actions from shared context
   const [accountState, accountActions] = useAccountsContext();
@@ -135,16 +141,45 @@ export default function HomeScreen() {
     skip: !ready || !activeBlockchainAccount,
   });
 
-  // Get network info
-  const network = useMemo(() => {
-    const netId = networkId || 'mainnet-beta';
-    const networkConfig = SOLANA_NETWORKS[netId];
-    return {
-      id: netId,
-      name: networkConfig?.name || 'Solana',
-      logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-    };
-  }, [networkId]);
+  // Create blockchain balances array for carousel
+  const blockchainBalances: BlockchainBalance[] = useMemo(() => [
+    {
+      network: {
+        id: networkId || 'mainnet-beta',
+        name: 'Solana',
+        blockchain: 'solana' as BlockchainId,
+        logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+      },
+      usdTotal,
+      changePercent,
+      changeAmount,
+      loading: loading && !refreshing,
+    },
+    {
+      network: {
+        id: 'bitcoin-mainnet',
+        name: 'Bitcoin',
+        blockchain: 'bitcoin' as BlockchainId,
+        logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+      },
+      usdTotal: undefined,
+      changePercent: undefined,
+      changeAmount: undefined,
+      loading: false,
+    },
+    {
+      network: {
+        id: 'ethereum-mainnet',
+        name: 'Ethereum',
+        blockchain: 'ethereum' as BlockchainId,
+        logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+      },
+      usdTotal: undefined,
+      changePercent: undefined,
+      changeAmount: undefined,
+      loading: false,
+    },
+  ], [networkId, usdTotal, changePercent, changeAmount, loading, refreshing]);
 
   // Map balance tokens to TokenList format
   const tokenListItems = useMemo(() => {
@@ -183,9 +218,10 @@ export default function HomeScreen() {
     });
   }, [router]);
 
-  const handleNetworkPress = useCallback(() => {
-    // TODO: Open network selector modal
-    console.log('Network selector pressed');
+  const handleBlockchainChange = useCallback((blockchain: BlockchainId, index: number) => {
+    setActiveBlockchainIndex(index);
+    // Future: Could switch active account or fetch different blockchain's balance
+    console.log('Switched to blockchain:', blockchain);
   }, []);
 
   const handleSettingsNavigate = useCallback((screen: string) => {
@@ -328,16 +364,13 @@ export default function HomeScreen() {
   // IMPORTANT: This hook must be called BEFORE any early returns to follow React's Rules of Hooks
   const ListHeaderComponent = useMemo(() => (
     <>
-      {/* Balance Card */}
-      <BalanceCard
-        network={network}
-        usdTotal={usdTotal}
-        changePercent={changePercent}
-        changeAmount={changeAmount}
+      {/* Balance Card Carousel */}
+      <BalanceCardCarousel
+        blockchains={blockchainBalances}
         hiddenBalance={hiddenBalance}
         onToggleVisibility={toggleHidden}
-        onNetworkPress={handleNetworkPress}
-        loading={loading && !refreshing}
+        onBlockchainChange={handleBlockchainChange}
+        activeIndex={activeBlockchainIndex}
         style={styles.balanceCard}
       />
 
@@ -355,15 +388,11 @@ export default function HomeScreen() {
       </View>
     </>
   ), [
-    network,
-    usdTotal,
-    changePercent,
-    changeAmount,
+    blockchainBalances,
     hiddenBalance,
     toggleHidden,
-    handleNetworkPress,
-    loading,
-    refreshing,
+    handleBlockchainChange,
+    activeBlockchainIndex,
     handleSendPress,
     handleReceivePress,
     handleActivityPress,
@@ -412,16 +441,8 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Header */}
-      <WalletHeader
-        accountName={accountName}
-        address={address}
-        onCopyAddress={handleCopyAddress}
-        onSettingsPress={handleSettingsPress}
-        onWalletPress={handleWalletPress}
-      />
-
       {/* Token List with integrated header and pull-to-refresh */}
+      {/* Renders below the absolutely positioned header */}
       <View style={styles.listContainer}>
         <TokenList
           tokens={tokenListItems}
@@ -435,6 +456,15 @@ export default function HomeScreen() {
           contentContainerStyle={styles.listContent}
         />
       </View>
+
+      {/* Header - Absolutely positioned above content */}
+      <WalletHeader
+        accountName={accountName}
+        address={address}
+        onCopyAddress={handleCopyAddress}
+        onSettingsPress={handleSettingsPress}
+        onWalletPress={handleWalletPress}
+      />
 
       {/* Settings Sheet */}
       <SettingsSheet
@@ -485,7 +515,8 @@ const styles = StyleSheet.create({
     paddingBottom: 100, // Space for tab bar
   },
   balanceCard: {
-    marginTop: 16,
+    // Card now extends behind the header - no negative margin needed
+    // The card's internal paddingTop handles the header offset
   },
   actionRow: {
     marginTop: 8,
