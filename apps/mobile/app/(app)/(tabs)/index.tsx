@@ -32,16 +32,16 @@ import {
   useUserConfig,
   SOLANA_NETWORKS,
   getStashedPassword,
+  type Token,
 } from '@salmon/shared';
 import {
   WalletHeader,
   BalanceCard,
   ActionButtonRow,
   TokenList,
-  type Token,
+  SettingsSheet,
+  WalletSwitcherSheet,
 } from '@salmon/ui';
-import { SettingsSheet } from '../../../components/SettingsSheet';
-import { WalletSwitcherSheet } from '../../../components/WalletSwitcherSheet';
 
 /**
  * Convert TokenBalanceWithPrice to Token for TokenList
