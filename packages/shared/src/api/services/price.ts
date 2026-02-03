@@ -20,7 +20,7 @@ import { apiClient, staticApiClient, ApiError } from '../client';
 
 /**
  * Token price data from the backend
- * Note: Many fields are optional as not all price sources provide full data
+ * Note: The backend uses usdPrice/perc24HoursChange field names (not CoinGecko standard)
  */
 export interface TokenPrice {
   /** Token identifier (coingecko ID or address) */
@@ -29,49 +29,27 @@ export interface TokenPrice {
   symbol: string;
   /** Token name */
   name: string;
-  /** Current price in USD */
-  current_price: number;
-  /** 24h price change percentage */
-  price_change_percentage_24h: number;
-  /** Market capitalization in USD */
+  /** Current price in USD (backend field name) */
+  usdPrice: number;
+  /** 24h price change percentage (backend field name, can be null) */
+  perc24HoursChange: number | null;
+  /** Optional fields that may be present in some responses */
   market_cap?: number;
-  /** Market cap rank */
   market_cap_rank?: number | null;
-  /** Fully diluted valuation */
-  fully_diluted_valuation?: number | null;
-  /** 24h trading volume */
   total_volume?: number;
-  /** 24h high price */
   high_24h?: number;
-  /** 24h low price */
   low_24h?: number;
-  /** 24h price change in USD */
   price_change_24h?: number;
-  /** Market cap change in 24h */
-  market_cap_change_24h?: number;
-  /** Market cap change percentage in 24h */
-  market_cap_change_percentage_24h?: number;
-  /** Circulating supply */
   circulating_supply?: number;
-  /** Total supply */
   total_supply?: number | null;
-  /** Maximum supply */
   max_supply?: number | null;
-  /** All-time high price */
   ath?: number;
-  /** All-time high change percentage */
   ath_change_percentage?: number;
-  /** All-time high date */
   ath_date?: string;
-  /** All-time low price */
   atl?: number;
-  /** All-time low change percentage */
   atl_change_percentage?: number;
-  /** All-time low date */
   atl_date?: string;
-  /** Last updated timestamp */
   last_updated?: string;
-  /** Token image URL */
   image?: string;
 }
 
@@ -130,6 +108,64 @@ export interface MarketChartData {
 }
 
 /**
+ * Market data for a coin
+ */
+export interface CoinMarketData {
+  /** Current price in USD */
+  currentPrice?: number;
+  /** 24h price change in USD */
+  priceChange24h?: number;
+  /** 24h price change percentage */
+  priceChangePercentage24h?: number;
+  /** Market capitalization */
+  marketCap?: number;
+  /** Market cap rank */
+  marketCapRank?: number | null;
+  /** 24h trading volume */
+  totalVolume?: number;
+  /** 24h high price */
+  high24h?: number;
+  /** 24h low price */
+  low24h?: number;
+  /** Circulating supply */
+  circulatingSupply?: number;
+  /** Total supply */
+  totalSupply?: number | null;
+  /** Maximum supply */
+  maxSupply?: number | null;
+  /** All-time high price */
+  ath?: number;
+  /** ATH change percentage */
+  athChangePercentage?: number;
+  /** ATH date */
+  athDate?: string;
+  /** All-time low price */
+  atl?: number;
+  /** ATL change percentage */
+  atlChangePercentage?: number;
+  /** ATL date */
+  atlDate?: string;
+}
+
+/**
+ * Links associated with a coin
+ */
+export interface CoinLinks {
+  /** Homepage URLs */
+  homepage?: string[];
+  /** Blockchain explorer URLs */
+  blockchainSite?: string[];
+  /** Official forum URLs */
+  officialForumUrl?: string[];
+  /** Twitter handle */
+  twitterScreenName?: string;
+  /** Telegram channel identifier */
+  telegramChannelIdentifier?: string;
+  /** Subreddit URL */
+  subredditUrl?: string;
+}
+
+/**
  * Detailed coin information
  */
 export interface CoinInfo {
@@ -139,44 +175,18 @@ export interface CoinInfo {
   symbol: string;
   /** Coin name */
   name: string;
-  /** Description (localized) */
-  description?: { en?: string };
-  /** Image URLs */
-  image?: {
-    thumb?: string;
-    small?: string;
-    large?: string;
-  };
+  /** Description text */
+  description?: string;
+  /** Image URL */
+  image?: string;
   /** Market data */
-  market_data?: {
-    current_price?: Record<string, number>;
-    market_cap?: Record<string, number>;
-    total_volume?: Record<string, number>;
-    high_24h?: Record<string, number>;
-    low_24h?: Record<string, number>;
-    price_change_24h?: number;
-    price_change_percentage_24h?: number;
-    market_cap_change_24h?: number;
-    market_cap_change_percentage_24h?: number;
-    circulating_supply?: number;
-    total_supply?: number | null;
-    max_supply?: number | null;
-    ath?: Record<string, number>;
-    atl?: Record<string, number>;
-  };
+  marketData?: CoinMarketData;
   /** Links */
-  links?: {
-    homepage?: string[];
-    blockchain_site?: string[];
-    official_forum_url?: string[];
-    twitter_screen_name?: string;
-    telegram_channel_identifier?: string;
-    subreddit_url?: string;
-  };
+  links?: CoinLinks;
   /** Categories */
   categories?: string[];
   /** Genesis date */
-  genesis_date?: string | null;
+  genesisDate?: string | null;
 }
 
 /**

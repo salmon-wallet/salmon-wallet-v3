@@ -25,6 +25,8 @@ export {
   type TopToken,
   type ChartDataPoint,
   type MarketChartData,
+  type CoinMarketData,
+  type CoinLinks,
   type CoinInfo,
   type PricePlatform,
   type NetworkId as PriceNetworkId,

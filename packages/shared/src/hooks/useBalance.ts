@@ -435,8 +435,8 @@ export function useBalance({
             (p) => p.id.toLowerCase() === 'ethereum' || p.symbol.toLowerCase() === 'eth'
           );
           if (ethPriceData) {
-            ethPrice = ethPriceData.current_price;
-            ethPriceChange24h = ethPriceData.price_change_percentage_24h;
+            ethPrice = ethPriceData.usdPrice;
+            ethPriceChange24h = ethPriceData.perc24HoursChange ?? undefined;
           }
         }
 
@@ -498,7 +498,9 @@ export function useBalance({
    */
   const fetchBalance = useCallback(
     async (isRefresh: boolean = false) => {
-      if (!account || skip) return;
+      if (!account || skip) {
+        return;
+      }
 
       // Check cache validity
       const now = Date.now();

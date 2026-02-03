@@ -201,12 +201,12 @@ export function decorateBalancePrices(
     }
 
     if (priceData) {
-      const usdBalance = balance.uiAmount * priceData.current_price;
+      const usdBalance = balance.uiAmount * priceData.usdPrice;
       return {
         ...balance,
-        price: priceData.current_price,
+        price: priceData.usdPrice,
         usdBalance,
-        priceChange24h: priceData.price_change_percentage_24h,
+        priceChange24h: priceData.perc24HoursChange ?? undefined,
       };
     }
 
