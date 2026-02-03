@@ -9,6 +9,7 @@ import {
   useUserConfig,
   colors,
   spacing,
+  type SettingsScreen,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -16,10 +17,10 @@ import {
   ActionButtonRow,
   TokenList,
   LockIcon,
+  SettingsSheet,
+  WalletSwitcherSheet,
 } from '@salmon/ui-extension';
 import IconButton from '@mui/material/IconButton';
-import { SettingsSheet, type SettingsScreen } from '../../components/SettingsSheet';
-import { WalletSwitcherSheet } from '../../components/WalletSwitcherSheet';
 import { EditAccountDialog } from '../../components/EditAccountDialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 
@@ -202,7 +203,7 @@ export function HomePage() {
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
 
-  // Fetch balance data
+  // Fetch balance data for any blockchain account type (Solana, Bitcoin, Ethereum)
   const {
     tokens,
     usdTotal,
