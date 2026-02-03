@@ -41,12 +41,30 @@ import {
   type SolanaNetwork,
   SOLANA_NETWORKS,
 } from '../blockchain/solana';
+import {
+  BitcoinAccount,
+  createBitcoinAccount,
+  type BitcoinNetwork,
+  BITCOIN_NETWORKS,
+} from '../blockchain/bitcoin';
+import {
+  EthereumAccount,
+  createEthereumAccount,
+  type EthereumNetwork,
+  ETHEREUM_NETWORKS,
+} from '../blockchain/ethereum';
 import { getApiUrl } from '../api/config';
 import { getPathIndex } from '../utils';
 
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
+
+/**
+ * Unified blockchain account type that can represent accounts from any supported blockchain.
+ * This allows the account management system to work with Solana, Bitcoin, and Ethereum accounts.
+ */
+export type BlockchainAccount = SolanaAccount | BitcoinAccount | EthereumAccount;
 
 /**
  * Represents the path indexes for each network in an account.
@@ -56,9 +74,10 @@ export type NetworkPathIndexes = Record<string, (number | null)[]>;
 
 /**
  * Represents the network accounts (blockchain account instances) for each network.
- * Key is the network ID, value is an array of SolanaAccount instances.
+ * Key is the network ID, value is an array of blockchain account instances.
+ * Supports SolanaAccount, BitcoinAccount, and EthereumAccount.
  */
-export type NetworksAccounts = Record<string, (SolanaAccount | null)[]>;
+export type NetworksAccounts = Record<string, (BlockchainAccount | null)[]>;
 
 /**
  * Serializable account data for storage.
@@ -147,8 +166,8 @@ export interface EditAccountParams {
   name?: string;
   /** New avatar for the account */
   avatar?: string;
-  /** New derived accounts to add */
-  newDerivedAccounts?: SolanaAccount[];
+  /** New derived accounts to add (supports any blockchain type) */
+  newDerivedAccounts?: BlockchainAccount[];
 }
 
 /**
@@ -173,8 +192,8 @@ export interface UseAccountsState {
   pathIndex: number;
   /** The currently active account */
   activeAccount: Account | undefined;
-  /** The currently active blockchain account */
-  activeBlockchainAccount: SolanaAccount | undefined;
+  /** The currently active blockchain account (can be Solana, Bitcoin, or Ethereum) */
+  activeBlockchainAccount: BlockchainAccount | undefined;
   /** Trusted apps for the current network */
   activeTrustedApps: Record<string, TrustedApp>;
   /** Custom tokens for the current network */
@@ -271,7 +290,7 @@ function getDefaultPathIndex(account: Account, networkId: string): number {
 function formatAccountForStorage(account: Account): StoredAccount {
   const { id, name, avatar, networksAccounts } = account;
 
-  const getPathIndexes = (networkAccounts: (SolanaAccount | null)[]): (number | null)[] => {
+  const getPathIndexes = (networkAccounts: (BlockchainAccount | null)[]): (number | null)[] => {
     return Object.keys(networkAccounts).map((index) => {
       return networkAccounts[Number(index)] ? parseInt(index, 10) : null;
     });
@@ -301,15 +320,52 @@ function invertBy<T extends Record<string, string>>(obj: T): Record<string, stri
 }
 
 /**
- * Gets available networks configuration.
- * In v3, we focus on Solana networks.
+ * Union type for all supported network configurations.
  */
-async function getNetworks(): Promise<SolanaNetwork[]> {
-  return Object.values(SOLANA_NETWORKS).map((network) => ({
+type AnyNetwork = SolanaNetwork | BitcoinNetwork | EthereumNetwork;
+
+/**
+ * Gets available networks configuration for all supported blockchains.
+ * Returns Solana, Bitcoin, and Ethereum networks.
+ */
+async function getNetworks(): Promise<AnyNetwork[]> {
+  const solanaNetworks = Object.values(SOLANA_NETWORKS).map((network) => ({
     ...network,
     blockchain: 'SOLANA',
     environment: network.id,
   })) as unknown as SolanaNetwork[];
+
+  const bitcoinNetworks = Object.values(BITCOIN_NETWORKS).map((network) => ({
+    ...network,
+    blockchain: 'BITCOIN',
+  })) as unknown as BitcoinNetwork[];
+
+  const ethereumNetworks = Object.values(ETHEREUM_NETWORKS).map((network) => ({
+    ...network,
+    blockchain: 'ETHEREUM',
+  })) as unknown as EthereumNetwork[];
+
+  return [...solanaNetworks, ...bitcoinNetworks, ...ethereumNetworks];
+}
+
+/**
+ * Determines the blockchain type from a network ID.
+ * @param networkId - The network identifier (e.g., 'mainnet-beta', 'bitcoin', 'ethereum')
+ * @returns The blockchain type ('solana', 'bitcoin', or 'ethereum')
+ */
+function getBlockchainTypeFromNetworkId(networkId: string): 'solana' | 'bitcoin' | 'ethereum' {
+  // Check Bitcoin networks
+  if (BITCOIN_NETWORKS[networkId] || networkId.startsWith('bitcoin')) {
+    return 'bitcoin';
+  }
+
+  // Check Ethereum networks
+  if (ETHEREUM_NETWORKS[networkId] || networkId.startsWith('ethereum')) {
+    return 'ethereum';
+  }
+
+  // Default to Solana for backwards compatibility
+  return 'solana';
 }
 
 // ============================================================================
@@ -327,7 +383,64 @@ interface CreateAccountOptions {
 }
 
 /**
+ * Creates a blockchain account for the specified network and index.
+ * Routes to the correct factory based on the blockchain type.
+ *
+ * @param networkId - The network identifier
+ * @param mnemonic - The BIP39 mnemonic phrase
+ * @param index - The account derivation index
+ * @returns Promise resolving to the created blockchain account
+ */
+async function createBlockchainAccountForNetwork(
+  networkId: string,
+  mnemonic: string,
+  index: number
+): Promise<BlockchainAccount | null> {
+  const blockchainType = getBlockchainTypeFromNetworkId(networkId);
+
+  switch (blockchainType) {
+    case 'bitcoin': {
+      const network = BITCOIN_NETWORKS[networkId] || BITCOIN_NETWORKS.mainnet;
+      return createBitcoinAccount({
+        network,
+        mnemonic,
+        index,
+      });
+    }
+    case 'ethereum': {
+      // Map network ID to ETHEREUM_NETWORKS key
+      let networkKey = 'mainnet';
+      if (networkId === 'ethereum') {
+        networkKey = 'mainnet';
+      } else if (networkId === 'ethereum-goerli') {
+        networkKey = 'goerli';
+      } else if (networkId === 'ethereum-sepolia') {
+        networkKey = 'sepolia';
+      }
+      const network = ETHEREUM_NETWORKS[networkKey];
+      if (!network) return null;
+      return createEthereumAccount({
+        network,
+        mnemonic,
+        index,
+      });
+    }
+    case 'solana':
+    default: {
+      const network = SOLANA_NETWORKS[networkId];
+      if (!network) return null;
+      return createSolanaAccount({
+        network,
+        mnemonic,
+        index,
+      });
+    }
+  }
+}
+
+/**
  * Creates a new account with the given options.
+ * Supports creating accounts for Solana, Bitcoin, and Ethereum networks.
  */
 async function createAccount(options: CreateAccountOptions): Promise<Account> {
   const { name, avatar, mnemonic, pathIndexes = {} } = options;
@@ -342,9 +455,6 @@ async function createAccount(options: CreateAccountOptions): Promise<Account> {
 
   // Create blockchain accounts for each network and path index
   for (const [networkId, indexes] of Object.entries(defaultPathIndexes)) {
-    const network = SOLANA_NETWORKS[networkId];
-    if (!network) continue;
-
     networksAccounts[networkId] = [];
 
     for (const index of indexes) {
@@ -353,17 +463,22 @@ async function createAccount(options: CreateAccountOptions): Promise<Account> {
         continue;
       }
 
-      const solanaAccount = await createSolanaAccount({
-        network,
+      const blockchainAccount = await createBlockchainAccountForNetwork(
+        networkId,
         mnemonic,
-        index,
-      });
+        index
+      );
+
+      if (!blockchainAccount) {
+        // Skip unsupported networks
+        continue;
+      }
 
       // Ensure the array is large enough
       while (networksAccounts[networkId].length <= index) {
         networksAccounts[networkId].push(null);
       }
-      networksAccounts[networkId][index] = solanaAccount;
+      networksAccounts[networkId][index] = blockchainAccount;
     }
   }
 
@@ -954,7 +1069,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     [findAccount, accountId]
   );
 
-  const activeBlockchainAccount = useMemo((): SolanaAccount | undefined => {
+  const activeBlockchainAccount = useMemo((): BlockchainAccount | undefined => {
     if (!activeAccount || !networkId) return undefined;
     return activeAccount.networksAccounts[networkId]?.[pathIndex] ?? undefined;
   }, [activeAccount, networkId, pathIndex]);
@@ -975,10 +1090,11 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
   useEffect(() => {
     const updateConnection = async (): Promise<void> => {
-      if (activeBlockchainAccount) {
+      if (activeBlockchainAccount && networkId) {
         const { network } = activeBlockchainAccount;
+        const blockchainType = getBlockchainTypeFromNetworkId(networkId);
         const connectionInfo: ConnectionInfo = {
-          blockchain: 'SOLANA',
+          blockchain: blockchainType.toUpperCase(),
           environment: network.id,
           address: activeBlockchainAccount.getReceiveAddress(),
         };
@@ -989,7 +1105,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     };
 
     updateConnection();
-  }, [activeBlockchainAccount]);
+  }, [activeBlockchainAccount, networkId]);
 
   // --------------------------------------------------------------------------
   // Whitelist Check Effect

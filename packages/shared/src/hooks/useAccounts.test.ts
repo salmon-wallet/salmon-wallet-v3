@@ -51,6 +51,48 @@ vi.mock('../blockchain/solana', () => ({
   },
 }));
 
+vi.mock('../blockchain/bitcoin', () => ({
+  createBitcoinAccount: vi.fn(),
+  BITCOIN_NETWORKS: {
+    mainnet: {
+      id: 'bitcoin',
+      name: 'Bitcoin Mainnet',
+      blockchain: 'BITCOIN',
+      environment: 'mainnet',
+    },
+    testnet: {
+      id: 'bitcoin-testnet',
+      name: 'Bitcoin Testnet',
+      blockchain: 'BITCOIN',
+      environment: 'testnet',
+    },
+  },
+}));
+
+vi.mock('../blockchain/ethereum', () => ({
+  createEthereumAccount: vi.fn(),
+  ETHEREUM_NETWORKS: {
+    mainnet: {
+      id: 'ethereum',
+      name: 'Ethereum Mainnet',
+      blockchain: 'ETHEREUM',
+      environment: 'mainnet',
+    },
+    goerli: {
+      id: 'ethereum-goerli',
+      name: 'Goerli Testnet',
+      blockchain: 'ETHEREUM',
+      environment: 'goerli',
+    },
+    sepolia: {
+      id: 'ethereum-sepolia',
+      name: 'Sepolia Testnet',
+      blockchain: 'ETHEREUM',
+      environment: 'sepolia',
+    },
+  },
+}));
+
 vi.mock('axios', () => ({
   default: {
     get: vi.fn(),

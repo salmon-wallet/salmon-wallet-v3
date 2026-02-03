@@ -13,6 +13,7 @@ export {
 // Types
 export type {
   // Account types
+  BlockchainAccount,
   NetworkPathIndexes,
   NetworksAccounts,
   StoredAccount,
