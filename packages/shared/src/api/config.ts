@@ -24,15 +24,17 @@ const V2_FALLBACK_API = 'https://v2.salmonwallet.io';
 
 // API URL configuration by environment
 // TODO: Update staging and production URLs when new API is deployed
+// Note: Local uses /local prefix because serverless-offline adds it to all routes
 const API_URLS: Record<Environment, string> = {
-  local: `http://${DEFAULT_LOCAL_HOST}:${DEFAULT_LOCAL_PORT}`,
+  local: `http://${DEFAULT_LOCAL_HOST}:${DEFAULT_LOCAL_PORT}/local`,
   staging: 'https://api-staging.salmonwallet.io', // TODO: Staging API - currently use V2_FALLBACK_API
   production: 'https://api.salmonwallet.io', // TODO: Production API - currently use V2_FALLBACK_API
 };
 
 // Static API URL configuration by environment
+// Note: Local uses /local prefix because serverless-offline adds it to all routes
 const STATIC_API_URLS: Record<Environment, string> = {
-  local: `http://${DEFAULT_LOCAL_HOST}:${DEFAULT_LOCAL_PORT}`,
+  local: `http://${DEFAULT_LOCAL_HOST}:${DEFAULT_LOCAL_PORT}/local`,
   staging: 'https://d1fh2pwo7kzely.cloudfront.net',
   production: 'https://d1fh2pwo7kzely.cloudfront.net',
 };
@@ -93,7 +95,8 @@ export function getLocalApiUrl(host?: string, port?: number): string {
   const finalHost = host ?? envHost ?? DEFAULT_LOCAL_HOST;
   const finalPort = port ?? (envPort ? parseInt(envPort, 10) : DEFAULT_LOCAL_PORT);
 
-  return `http://${finalHost}:${finalPort}`;
+  // Note: /local prefix is required because serverless-offline adds it to all routes
+  return `http://${finalHost}:${finalPort}/local`;
 }
 
 /**
