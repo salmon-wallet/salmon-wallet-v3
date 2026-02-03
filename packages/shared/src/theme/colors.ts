@@ -150,9 +150,9 @@ export const gradients = {
    * Primary action button gradient (e.g., Send button)
    */
   primaryButton: {
-    colors: ['#ff5c45', '#ff3d2e'] as const,
+    colors: ['#FF5C45', 'rgba(161, 42, 42, 0.9)'] as const,
     start: { x: 0, y: 0 },
-    end: { x: 1, y: 0 },
+    end: { x: 1, y: 0.04 }, // ~93.8 degrees
   },
   /**
    * Balance card cosmic/purple gradient
