@@ -1,21 +1,21 @@
-import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Linking,
-  Alert,
-} from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  colors,
-  spacing,
   borderRadius,
-  fontWeight,
+  colors,
   fontSize,
+  fontWeight,
+  spacing,
 } from '@salmon/shared';
+import * as Clipboard from 'expo-clipboard';
+import React, { useCallback } from 'react';
+import {
+  Alert,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import type { TokenInfoProps } from './types';
 
 /**
