@@ -55,8 +55,14 @@ function mapBalanceToToken(
     uiAmount: number;
     usdBalance?: number;
     priceChange24h?: number;
+    tags?: string[];
   }
 ): Token {
+  // Check if token has 'verified' or 'strict' tag
+  const isVerified = item.tags?.some(
+    (tag) => tag === 'verified' || tag === 'strict'
+  ) ?? false;
+
   return {
     address: item.address,
     symbol: item.symbol,
@@ -67,6 +73,8 @@ function mapBalanceToToken(
     last24HoursChange: item.priceChange24h !== undefined
       ? { perc: item.priceChange24h }
       : null,
+    tags: item.tags,
+    isVerified,
   };
 }
 
