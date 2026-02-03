@@ -1,8 +1,13 @@
 import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { colors, gradients } from '@salmon/shared';
+import {
+  CallMadeSvgIcon,
+  QrCodeScannerSvgIcon,
+  ReceiptLongSvgIcon,
+} from '../Icon/SvgIcons';
 import type { ActionButtonRowProps } from './types';
 
 /**
@@ -10,8 +15,8 @@ import type { ActionButtonRowProps } from './types';
  *
  * Displays three main action buttons:
  * - Send: Primary orange gradient button
- * - Receive: Secondary outlined button
- * - Activity: Secondary outlined button
+ * - Receive: Secondary glass effect button
+ * - Activity: Secondary glass effect button
  *
  * @example
  * ```tsx
@@ -66,12 +71,12 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           end={gradients.primaryButton.end}
           style={styles.primaryButton}
         >
-          <Ionicons name="arrow-up" size={22} color={colors.text.primary} />
+          <CallMadeSvgIcon size={18} color={colors.text.primary} />
           <Text style={styles.primaryButtonText}>Send</Text>
         </LinearGradient>
       </TouchableOpacity>
 
-      {/* Receive Button - Secondary */}
+      {/* Receive Button - Secondary with Glass Effect */}
       <TouchableOpacity
         style={[
           styles.buttonWrapper,
@@ -84,17 +89,18 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
         accessibilityRole="button"
         accessibilityLabel="Receive tokens"
       >
-        <Ionicons
-          name="arrow-down"
-          size={22}
-          color={receiveDisabled ? colors.button.disabledText : colors.text.primary}
-        />
-        <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
-          Receive
-        </Text>
+        <BlurView intensity={6} tint="dark" style={styles.blurContainer}>
+          <QrCodeScannerSvgIcon
+            size={18}
+            color={receiveDisabled ? colors.button.disabledText : '#e0e0e0'}
+          />
+          <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
+            Receive
+          </Text>
+        </BlurView>
       </TouchableOpacity>
 
-      {/* Activity Button - Secondary */}
+      {/* Activity Button - Secondary with Glass Effect */}
       <TouchableOpacity
         style={[
           styles.buttonWrapper,
@@ -107,14 +113,15 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
         accessibilityRole="button"
         accessibilityLabel="View activity"
       >
-        <Ionicons
-          name="time-outline"
-          size={22}
-          color={activityDisabled ? colors.button.disabledText : colors.text.primary}
-        />
-        <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
-          Activity
-        </Text>
+        <BlurView intensity={6} tint="dark" style={styles.blurContainer}>
+          <ReceiptLongSvgIcon
+            size={18}
+            color={activityDisabled ? colors.button.disabledText : '#e0e0e0'}
+          />
+          <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
+            Activity
+          </Text>
+        </BlurView>
       </TouchableOpacity>
     </View>
   );
@@ -124,14 +131,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    gap: 12,
+    justifyContent: 'center',
+    paddingHorizontal: 80,
+    paddingVertical: 32,
+    gap: 16,
   },
   buttonWrapper: {
-    flex: 1,
-    borderRadius: 16,
+    borderRadius: 17,
     overflow: 'hidden',
   },
   buttonDisabled: {
@@ -142,30 +148,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
-    paddingHorizontal: 16,
-    gap: 8,
+    paddingHorizontal: 22,
+    gap: 11,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 92, 69, 0.8)',
   },
   primaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.primary,
+    fontSize: 17,
+    fontWeight: '400',
+    color: '#FFFFFF',
   },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
-    paddingHorizontal: 16,
-    backgroundColor: colors.background.card,
+    paddingHorizontal: 22,
+    gap: 11,
+    borderRadius: 17,
     borderWidth: 1,
-    borderColor: colors.border.subtle,
-    borderRadius: 16,
-    gap: 8,
+    borderColor: 'rgba(255, 92, 69, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+  },
+  blurContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 11,
   },
   secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.primary,
+    fontSize: 17,
+    fontWeight: '400',
+    color: '#e0e0e0',
   },
   textDisabled: {
     color: colors.button.disabledText,
