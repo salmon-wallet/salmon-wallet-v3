@@ -1,14 +1,13 @@
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { colors, gradients } from '@salmon/shared';
 import {
   CallMadeSvgIcon,
   QrCodeScannerSvgIcon,
   ReceiptLongSvgIcon,
 } from '../Icon/SvgIcons';
+import { GlassContainer } from '../GlassContainer';
 import type { ActionButtonRowProps } from './types';
 
 /**
@@ -31,35 +30,6 @@ import type { ActionButtonRowProps } from './types';
  * />
  * ```
  */
-
-// Check if native Liquid Glass is available (iOS 26+)
-const useNativeLiquidGlass = Platform.OS === 'ios' && isLiquidGlassAvailable();
-
-/**
- * Glass effect wrapper for secondary buttons
- * Uses native Liquid Glass on iOS 26+, BlurView fallback otherwise
- */
-function GlassButtonContent({ children }: { children: React.ReactNode }) {
-  if (useNativeLiquidGlass) {
-    return (
-      <GlassView glassEffectStyle="clear" style={styles.glassContent}>
-        {children}
-      </GlassView>
-    );
-  }
-
-  // Fallback: BlurView for iOS < 26 and Android
-  return (
-    <BlurView
-      intensity={20}
-      tint="dark"
-      experimentalBlurMethod="dimezisBlurView"
-      style={styles.blurContainer}
-    >
-      {children}
-    </BlurView>
-  );
-}
 
 export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
   onSendPress,
@@ -111,19 +81,21 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
       </TouchableOpacity>
 
       {/* Receive Button - Secondary with Glass Effect */}
-      <TouchableOpacity
-        style={[
-          styles.buttonWrapper,
-          styles.secondaryButton,
-          receiveDisabled && styles.buttonDisabled,
-        ]}
-        onPress={handleReceivePress}
-        activeOpacity={0.8}
-        disabled={receiveDisabled}
-        accessibilityRole="button"
-        accessibilityLabel="Receive tokens"
+      <GlassContainer
+        style={[styles.secondaryButtonWrapper, receiveDisabled && styles.buttonDisabled]}
+        fallbackBlurIntensity={40}
+        fallbackBackgroundColor="rgba(255, 255, 255, 0.04)"
+        fallbackBorderColor="rgba(255, 92, 69, 0.8)"
+        fallbackBorderWidth={1}
       >
-        <GlassButtonContent>
+        <TouchableOpacity
+          style={styles.secondaryButtonContent}
+          onPress={handleReceivePress}
+          activeOpacity={0.8}
+          disabled={receiveDisabled}
+          accessibilityRole="button"
+          accessibilityLabel="Receive tokens"
+        >
           <QrCodeScannerSvgIcon
             size={18}
             color={receiveDisabled ? colors.button.disabledText : '#e0e0e0'}
@@ -131,23 +103,25 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
             Receive
           </Text>
-        </GlassButtonContent>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </GlassContainer>
 
       {/* Activity Button - Secondary with Glass Effect */}
-      <TouchableOpacity
-        style={[
-          styles.buttonWrapper,
-          styles.secondaryButton,
-          activityDisabled && styles.buttonDisabled,
-        ]}
-        onPress={handleActivityPress}
-        activeOpacity={0.8}
-        disabled={activityDisabled}
-        accessibilityRole="button"
-        accessibilityLabel="View activity"
+      <GlassContainer
+        style={[styles.secondaryButtonWrapper, activityDisabled && styles.buttonDisabled]}
+        fallbackBlurIntensity={40}
+        fallbackBackgroundColor="rgba(255, 255, 255, 0.04)"
+        fallbackBorderColor="rgba(255, 92, 69, 0.8)"
+        fallbackBorderWidth={1}
       >
-        <GlassButtonContent>
+        <TouchableOpacity
+          style={styles.secondaryButtonContent}
+          onPress={handleActivityPress}
+          activeOpacity={0.8}
+          disabled={activityDisabled}
+          accessibilityRole="button"
+          accessibilityLabel="View activity"
+        >
           <ReceiptLongSvgIcon
             size={18}
             color={activityDisabled ? colors.button.disabledText : '#e0e0e0'}
@@ -155,8 +129,8 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
             Activity
           </Text>
-        </GlassButtonContent>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </GlassContainer>
     </View>
   );
 };
@@ -193,28 +167,16 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: '#FFFFFF',
   },
-  secondaryButton: {
+  secondaryButtonWrapper: {
+    borderRadius: 17,
+    overflow: 'hidden',
+  },
+  secondaryButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
     paddingHorizontal: 22,
-    gap: 11,
-    borderRadius: 17,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-  },
-  glassContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 11,
-  },
-  blurContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     gap: 11,
   },
   secondaryButtonText: {
