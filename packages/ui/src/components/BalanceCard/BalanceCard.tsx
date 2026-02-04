@@ -1,27 +1,28 @@
-import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Platform,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import {
+  colors,
+  getLabelValue,
+  gradients,
+  hiddenValue,
+  ms,
+  s,
+  showAbsoluteChange,
   showAmount,
   showPercentage,
-  showAbsoluteChange,
-  getLabelValue,
-  hiddenValue,
-  colors,
-  gradients,
-  borderRadius,
-  borderWidth,
+  vs,
 } from '@salmon/shared';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useCallback } from 'react';
+import {
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { BitcoinSvgIcon, EthereumSvgIcon, SolanaSvgIcon } from '../Icon/SvgIcons';
 import type { BalanceCardProps, BlockchainId } from './types';
-import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon/SvgIcons';
 
 /**
  * Get gradient configuration for a blockchain
@@ -40,17 +41,19 @@ const getGradientForBlockchain = (blockchain: BlockchainId) => {
 
 /**
  * Render the blockchain logo using local SVG icons
+ * All icons now have normalized viewBox dimensions (~43x57) for consistent visual size
  */
-const renderBlockchainLogo = (blockchain: BlockchainId, size: number = 42) => {
+const renderBlockchainLogo = (blockchain: BlockchainId) => {
+  const iconSize = s(55);
   switch (blockchain) {
     case 'solana':
-      return <SolanaSvgIcon size={size} color="#FFFFFF" />;
+      return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
     case 'bitcoin':
-      return <BitcoinSvgIcon size={size} color="#FFFFFF" />;
+      return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
     case 'ethereum':
-      return <EthereumSvgIcon size={size} color="#FFFFFF" />;
+      return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
     default:
-      return <SolanaSvgIcon size={size} color="#FFFFFF" />;
+      return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
   }
 };
 
@@ -128,7 +131,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
           >
             <Ionicons
               name="eye-off"
-              size={20}
+              size={ms(15)}
               color="rgba(255,255,255,0.7)"
             />
           </TouchableOpacity>
@@ -154,7 +157,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
           accessibilityRole="button"
           accessibilityLabel="Hide balance"
         >
-          <Ionicons name="eye" size={20} color="rgba(255,255,255,0.7)" />
+          <Ionicons name="eye" size={ms(15)} color="rgba(255,255,255,0.7)" />
         </TouchableOpacity>
       </View>
     );
@@ -180,7 +183,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         </Text>
         <Ionicons
           name={isPositive ? 'arrow-up' : 'arrow-down'}
-          size={16}
+          size={ms(15)}
           color={changeColor}
           style={styles.trendingIcon}
         />
@@ -200,9 +203,9 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       end={gradient.end}
       style={[styles.container, style]}
     >
-      {/* Blockchain Logo */}
+      {/* Blockchain Logo - Figma: 32x29px (node 1697:3529) */}
       <View style={styles.logoContainer}>
-        {renderBlockchainLogo(blockchain, 42)}
+        {renderBlockchainLogo(blockchain)}
       </View>
 
       {/* Balance display */}
@@ -241,90 +244,117 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: borderRadius.header, // 35px
-    padding: 24,
-    marginHorizontal: 0,
+    borderRadius: ms(26),
+    paddingTop: vs(24),
+    paddingHorizontal: s(24),
+    paddingBottom: vs(24),
     alignItems: 'center',
     justifyContent: 'center',
-    // Shadow for iOS
+    gap: vs(18),
+    // Shadow: 0px 7.469px 14.938px 1.494px rgba(0,0,0,0.9)
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 10 },
+        shadowOffset: { width: 0, height: 7 },
         shadowOpacity: 0.9,
-        shadowRadius: 20,
+        shadowRadius: 15,
       },
       android: {
-        elevation: 20,
+        elevation: 15,
       },
     }),
-    // Bottom border
-    borderBottomWidth: borderWidth.header, // 1.38px
-    borderBottomColor: colors.border.light, // rgba(255, 255, 255, 0.8)
+    // Bottom border: 1.032px rgba(255,255,255,0.8)
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border.light,
   },
+  // Container for blockchain logos
   logoContainer: {
-    width: 42,
-    height: 42,
-    marginBottom: 24,
+    width: s(65),
+    height: vs(65),
     alignItems: 'center',
     justifyContent: 'center',
   },
   balanceContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
   },
   balanceRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: s(12),
+    // Shadow: 0px 2.987px 17.925px black
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 18,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
+  // Figma: 37.344px, SemiBold, tracking -0.1867 (node 1697:3531)
   balanceDollars: {
-    fontSize: 50,
+    fontSize: ms(37),
     fontWeight: '600',
     color: '#e0e0e0',
-    letterSpacing: -0.25,
+    letterSpacing: -0.19,
   },
   balanceDecimals: {
     opacity: 0.4,
     color: '#ffffff',
   },
   eyeButton: {
-    marginLeft: 12,
-    padding: 4,
+    padding: s(4),
   },
   loader: {
-    height: 50,
+    height: vs(37),
   },
   changeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
-    marginBottom: 16,
+    // Shadow on change text
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 18,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   changeText: {
-    fontSize: 16,
+    fontSize: ms(13),
     fontWeight: '500',
+    letterSpacing: 0.13,
+    lineHeight: ms(13 * 1.3),
   },
   trendingIcon: {
-    marginHorizontal: 4,
+    marginHorizontal: s(2),
   },
   changeHidden: {
-    fontSize: 16,
+    fontSize: ms(13),
     color: colors.text.muted,
   },
   pagination: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: vs(16),
   },
   paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: s(4),
+    height: s(4),
+    borderRadius: s(2),
     backgroundColor: colors.step.inactive,
-    marginHorizontal: 4,
+    marginHorizontal: s(3),
   },
   paginationDotActive: {
     backgroundColor: colors.text.primary,

@@ -19,6 +19,9 @@ import {
   hiddenValue,
   componentSizes,
   spacing,
+  s,
+  vs,
+  ms,
 } from '@salmon/shared';
 import type { BalanceCardCarouselProps, BlockchainId } from './types';
 
@@ -120,17 +123,18 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   const labelType = getLabelValue(changePercent);
   const changeColor = colors.change[labelType];
 
-  // Render blockchain logo
-  const renderLogo = (blockchain: BlockchainId, size: number = 42) => {
+  // Render blockchain logo - all use s(55)
+  const renderLogo = (blockchain: BlockchainId) => {
+    const iconSize = s(55);
     switch (blockchain) {
       case 'solana':
-        return <SolanaSvgIcon size={size} color="#FFFFFF" />;
+        return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
       case 'bitcoin':
-        return <BitcoinSvgIcon size={size} color="#FFFFFF" />;
+        return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
       case 'ethereum':
-        return <EthereumSvgIcon size={size} color="#FFFFFF" />;
+        return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
       default:
-        return <SolanaSvgIcon size={size} color="#FFFFFF" />;
+        return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
     }
   };
 
@@ -164,9 +168,9 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
       >
         <GestureDetector gesture={panGesture}>
           <Animated.View style={[styles.content, animatedContentStyle]}>
-            {/* Logo */}
+            {/* Logo - Figma: 32x29px */}
             <View style={styles.logoContainer}>
-              {renderLogo(currentBlockchain?.network.blockchain || 'solana', 42)}
+              {renderLogo(currentBlockchain?.network.blockchain || 'solana')}
             </View>
 
             {/* Balance with eye icon */}
@@ -175,7 +179,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
               <TouchableOpacity onPress={onToggleVisibility} style={styles.eyeButton}>
                 <Ionicons
                   name={hiddenBalance ? 'eye-off' : 'eye'}
-                  size={20}
+                  size={ms(15)}
                   color="rgba(255,255,255,0.7)"
                 />
               </TouchableOpacity>
@@ -189,7 +193,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
                 </Text>
                 <Ionicons
                   name={changePercent >= 0 ? 'arrow-up' : 'arrow-down'}
-                  size={16}
+                  size={ms(15)}
                   color={changeColor}
                   style={styles.changeArrow}
                 />
@@ -219,30 +223,31 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   gradient: {
-    borderRadius: 35,
-    padding: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1.38,
+    borderRadius: ms(26),
+    paddingHorizontal: s(24),
+    paddingBottom: vs(24),
+    borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.8)',
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 10 },
+        shadowOffset: { width: 0, height: 7 },
         shadowOpacity: 0.9,
-        shadowRadius: 20,
+        shadowRadius: 15,
       },
       android: {
-        elevation: 20,
+        elevation: 15,
       },
     }),
   },
   content: {
     alignItems: 'center',
+    gap: vs(12),
   },
+  // Container for blockchain logos
   logoContainer: {
-    width: 42,
-    height: 42,
-    marginBottom: 24,
+    width: s(65),
+    height: vs(65),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -250,51 +255,78 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
   },
+  // Figma: gap-11.95 between balance and eye (node 1697:3530)
   balanceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    gap: s(12),
+    // Shadow: 0px 2.987px 17.925px black
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 18,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
+  // Figma: 37.344px, SemiBold, tracking -0.1867 (node 1697:3531)
   balance: {
-    fontSize: 50,
+    fontSize: ms(45),
     fontWeight: '600',
     color: '#e0e0e0',
-    letterSpacing: -0.25,
+    letterSpacing: -0.23,
   },
   balanceDecimals: {
     opacity: 0.4,
     color: '#ffffff',
   },
   eyeButton: {
-    marginLeft: 12,
-    padding: 4,
+    padding: s(4),
   },
+  // Figma: shadow 0px 2.987px 17.925px black (node 1697:3536)
   changeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 18,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
+  // Figma: 12.907px, Medium, tracking 0.1291, lineHeight 1.3 (node 1697:3537)
   changeText: {
-    fontSize: 17,
+    fontSize: ms(13),
     fontWeight: '500',
+    letterSpacing: 0.13,
+    lineHeight: ms(13 * 1.3),
   },
   changeArrow: {
-    marginHorizontal: 4,
+    marginHorizontal: s(2),
   },
   pagination: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: vs(16),
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: s(4),
+    height: s(4),
+    borderRadius: s(2),
     backgroundColor: colors.step.inactive,
-    marginHorizontal: 4,
+    marginHorizontal: s(3),
   },
   dotActive: {
     backgroundColor: colors.text.primary,
