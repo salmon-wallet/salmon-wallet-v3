@@ -17,48 +17,46 @@
  * - Duration: 400ms with cubic easing
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { Logo } from '@salmon/assets';
 import {
-  View,
+  colors,
+  fontSize,
+  gradients,
+  lineHeight,
+  ms,
+  s,
+  spacing,
+  vs
+} from '@salmon/shared';
+import { LoadingScreen } from '@salmon/ui';
+import { LinearGradient } from 'expo-linear-gradient';
+import { StatusBar } from 'expo-status-bar';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Keyboard,
   TouchableWithoutFeedback,
-  Image,
-  Alert,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   useWindowDimensions,
+  View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
   Easing,
   runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
-import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
-import { Logo } from '@salmon/assets';
-import { LoadingScreen } from '@salmon/ui';
-import {
-  colors,
-  gradients,
-  spacing,
-  componentSizes,
-  contentPadding,
-  fontSize,
-  lineHeight,
-  s,
-  vs,
-  ms,
-} from '@salmon/shared';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBiometricAuth } from '../hooks/useBiometricAuth';
 
 // ============================================================================
@@ -533,7 +531,6 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  // Figma: px-35.85 (node 1702:6390) - gap adjusted to 40
   content: {
     flex: 1,
     alignItems: 'center',
@@ -541,7 +538,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(36),
     gap: vs(40),
   },
-  // Figma: gap-31.369 (node 1702:6391)
   logoSection: {
     width: '100%',
     alignItems: 'center',
@@ -555,7 +551,6 @@ const styles = StyleSheet.create({
     width: s(140),
     height: s(140),
   },
-  // Figma: 26.887px, SemiBold, tracking -0.4555, lineHeight 37.962 (node 1702:6404)
   welcomeText: {
     color: colors.text.primary,
     fontFamily: FONT_FAMILY.semiBold,
@@ -564,7 +559,6 @@ const styles = StyleSheet.create({
     lineHeight: vs(38),
     textAlign: 'center',
   },
-  // Figma: h-54.371, border-0.747, radius-8.963 (node 1702:6405)
   inputContainer: {
     width: '100%',
   },
@@ -587,7 +581,6 @@ const styles = StyleSheet.create({
     marginTop: vs(spacing.sm),
     paddingHorizontal: s(spacing.sm),
   },
-  // Figma: gap-22.406 (node 1702:6407)
   buttonSection: {
     width: '100%',
     gap: vs(22),
@@ -595,7 +588,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
   },
-  // Figma: h-53.126, radius-15.736, border-1.021 rgba(255,92,69,0.8), shadow (node 1702:6408)
   button: {
     width: '100%',
     height: vs(53),
@@ -614,7 +606,6 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: colors.button.disabledOpacity,
   },
-  // Figma: 16.341px, ExtraBold (node 1702:6411)
   buttonText: {
     color: colors.text.primary,
     fontFamily: FONT_FAMILY.extraBold,
@@ -645,7 +636,6 @@ const styles = StyleSheet.create({
   forgotPasswordContainer: {
     padding: s(spacing.md),
   },
-  // Figma: 14.938px, SemiBold, tracking -0.4555, lineHeight 37.962 (node 1702:6412)
   forgotPasswordText: {
     color: colors.text.primary,
     fontFamily: FONT_FAMILY.semiBold,
