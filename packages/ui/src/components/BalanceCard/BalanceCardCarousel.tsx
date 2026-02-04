@@ -199,9 +199,9 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   const labelType = getLabelValue(changePercent);
   const changeColor = colors.change[labelType];
 
-  // Render blockchain logo - all use s(55)
+  // Render blockchain logo
   const renderLogo = (blockchain: BlockchainId) => {
-    const iconSize = s(55);
+    const iconSize = s(45);
     switch (blockchain) {
       case 'solana':
         return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
@@ -262,7 +262,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
               <TouchableOpacity onPress={onToggleVisibility} style={styles.eyeButton}>
                 <Ionicons
                   name={hiddenBalance ? 'eye-off' : 'eye'}
-                  size={ms(15)}
+                  size={ms(20)}
                   color="rgba(255,255,255,0.7)"
                 />
               </TouchableOpacity>
@@ -309,28 +309,40 @@ const styles = StyleSheet.create({
     borderRadius: ms(26),
     paddingHorizontal: s(24),
     paddingBottom: vs(24),
+    // Shadow - Figma: 0px 7.469px 14.938px 1.494px rgba(0,0,0,0.9)
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 15 },
-        shadowOpacity: 1,
-        shadowRadius: 25,
+        shadowOffset: { width: 0, height: 7.5 },
+        shadowOpacity: 0.9,
+        shadowRadius: 15,
       },
       android: {
-        elevation: 24,
+        elevation: 16,
       },
     }),
   },
   content: {
     alignItems: 'center',
-    gap: vs(12),
+    gap: vs(8),
   },
   // Container for blockchain logos
   logoContainer: {
-    width: s(65),
-    height: vs(65),
+    width: s(35),
+    height: vs(35),
     alignItems: 'center',
     justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   balanceRow: {
     flexDirection: 'row',
@@ -354,12 +366,11 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  // Figma: 37.344px, SemiBold, tracking -0.1867 (node 1697:3531)
   balance: {
-    fontSize: ms(45),
+    fontSize: ms(60),
     fontWeight: '600',
     color: '#e0e0e0',
-    letterSpacing: -0.23,
+    letterSpacing: -0.245,
   },
   balanceDecimals: {
     opacity: 0.4,
@@ -399,7 +410,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vs(16),
+    marginTop: vs(42),
   },
   dot: {
     width: s(4),
