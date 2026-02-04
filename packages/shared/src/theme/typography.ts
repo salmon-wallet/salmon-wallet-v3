@@ -22,6 +22,8 @@ export const fontSize = {
   sm: 12,
   /** 14px - Base size */
   base: 14,
+  /** 14.5px - Action button text */
+  actionButton: 14.5,
   /** 16px - Medium */
   md: 16,
   /** 18px - Large */

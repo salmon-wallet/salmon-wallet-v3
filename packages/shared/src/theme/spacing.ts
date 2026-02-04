@@ -80,6 +80,16 @@ export const componentSizes = {
   buttonRadius: 28,        // Para botones redondeados
   buttonRadiusSmall: 21,
 
+  // ActionButtonRow
+  /** Action button width: 112px */
+  actionButtonWidth: 112,
+  /** Action button height: 47px */
+  actionButtonHeight: 47,
+  /** Action button border radius: 14px */
+  actionButtonRadius: 14,
+  /** Action button icon size: 15px */
+  actionButtonIcon: 15,
+
   // Inputs
   inputHeight: 56,
   inputRadius: 12,
@@ -149,6 +159,8 @@ export const contentPadding = {
 export const borderWidth = {
   /** 0px */
   none: 0,
+  /** 0.5px - Action button border */
+  actionButton: 0.5,
   /** 1px */
   thin: 1,
   /** 1.38px - Figma header border (1.38px rgba(255,255,255,0.8)) */
