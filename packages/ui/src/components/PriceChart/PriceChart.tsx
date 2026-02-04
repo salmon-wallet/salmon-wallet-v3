@@ -2,9 +2,10 @@ import React, { useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import ContentLoader, { Rect } from 'react-content-loader/native';
-import { colors, spacing, borderRadius, PRICE_CHART_PERIODS } from '@salmon/shared';
+import { colors, spacing, borderRadius, PRICE_CHART_PERIODS, s } from '@salmon/shared';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
 import type { PriceChartProps } from './types';
+import { GlassContainer } from '../GlassContainer';
 
 /**
  * Default colors for positive/negative performance
@@ -218,80 +219,94 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   );
 
   return (
-    <View style={[styles.container, style]}>
-      {/* Chart area */}
-      <View style={[styles.chartContainer, { height: chartHeight }]}>
+    <GlassContainer
+      style={[styles.glassWrapper, style]}
+      fallbackBackgroundColor={colors.background.tokenItem}
+      fallbackBorderColor={colors.border.default}
+      fallbackBorderWidth={1}
+      fallbackBlurIntensity={2}
+    >
+      <View style={styles.container}>
+        {/* Chart area */}
+        <View style={[styles.chartContainer, { height: chartHeight }]}>
+          {loading ? (
+            <ChartSkeleton height={chartHeight} />
+          ) : data.length > 0 ? (
+            <Svg width={chartWidth} height={chartHeight}>
+              <Defs>
+                <LinearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor={chartColor} stopOpacity={0.3} />
+                  <Stop offset="1" stopColor={chartColor} stopOpacity={0} />
+                </LinearGradient>
+              </Defs>
+
+              {/* Area fill */}
+              <Path d={areaPath} fill="url(#areaGradient)" />
+
+              {/* Line */}
+              <Path
+                d={linePath}
+                stroke={chartColor}
+                strokeWidth={2}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>No data available</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Period selector */}
         {loading ? (
-          <ChartSkeleton height={chartHeight} />
-        ) : data.length > 0 ? (
-          <Svg width={chartWidth} height={chartHeight}>
-            <Defs>
-              <LinearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={chartColor} stopOpacity={0.3} />
-                <Stop offset="1" stopColor={chartColor} stopOpacity={0} />
-              </LinearGradient>
-            </Defs>
-
-            {/* Area fill */}
-            <Path d={areaPath} fill="url(#areaGradient)" />
-
-            {/* Line */}
-            <Path
-              d={linePath}
-              stroke={chartColor}
-              strokeWidth={2}
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </Svg>
+          <PeriodSelectorSkeleton />
         ) : (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No data available</Text>
+          <View style={styles.periodContainer}>
+            {PRICE_CHART_PERIODS.map((period) => {
+              const isSelected = period === selectedPeriod;
+              return (
+                <TouchableOpacity
+                  key={period}
+                  style={[
+                    styles.periodButton,
+                    isSelected && styles.periodButtonSelected,
+                  ]}
+                  onPress={() => handlePeriodPress(period)}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select ${period} time period`}
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <Text
+                    style={[
+                      styles.periodButtonText,
+                      isSelected && styles.periodButtonTextSelected,
+                    ]}
+                  >
+                    {period}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         )}
       </View>
-
-      {/* Period selector */}
-      {loading ? (
-        <PeriodSelectorSkeleton />
-      ) : (
-        <View style={styles.periodContainer}>
-          {PRICE_CHART_PERIODS.map((period) => {
-            const isSelected = period === selectedPeriod;
-            return (
-              <TouchableOpacity
-                key={period}
-                style={[
-                  styles.periodButton,
-                  isSelected && styles.periodButtonSelected,
-                ]}
-                onPress={() => handlePeriodPress(period)}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel={`Select ${period} time period`}
-                accessibilityState={{ selected: isSelected }}
-              >
-                <Text
-                  style={[
-                    styles.periodButtonText,
-                    isSelected && styles.periodButtonTextSelected,
-                  ]}
-                >
-                  {period}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      )}
-    </View>
+    </GlassContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  glassWrapper: {
+    borderRadius: 18,
+    marginHorizontal: s(24),
+    overflow: 'hidden',
+  },
   container: {
     backgroundColor: 'transparent',
+    padding: spacing.md,
   },
   chartContainer: {
     marginBottom: spacing.lg,
@@ -305,23 +320,26 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   periodButton: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
     borderRadius: borderRadius.full,
     backgroundColor: 'transparent',
-    minWidth: 40,
+    minWidth: 35,
     alignItems: 'center',
   },
   periodButtonSelected: {
-    backgroundColor: colors.text.primary,
+    backgroundColor: colors.accent.primary,
   },
   periodButtonText: {
     fontSize: 13,
-    fontWeight: '500',
-    color: colors.text.secondary,
+    fontWeight: '700',
+    color: colors.text.primary,
+    opacity: 0.9,
+    fontFamily: 'DMSansBold',
   },
   periodButtonTextSelected: {
-    color: colors.background.primary,
+    color: colors.text.primary,
+    opacity: 0.9,
   },
   emptyState: {
     flex: 1,
