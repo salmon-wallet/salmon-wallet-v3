@@ -1,4 +1,4 @@
-import { borderRadius, colors, ms, s, shadows, spacing, vs } from '@salmon/shared';
+import { borderRadius, colors, fontSize, letterSpacing, ms, s, shadows, spacing, vs } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -132,15 +132,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: s(spacing['2xl']),
-    // Design specs from Figma:
-    // - Background color: #10131c (bg-darken)
+    paddingHorizontal: s(spacing.headerPadding),
     backgroundColor: colors.background.primary,
-    // - Rounded bottom corners: 34.557px
     borderBottomLeftRadius: borderRadius.header,
     borderBottomRightRadius: borderRadius.header,
-    // Bottom border removed - will be handled separately
-    // - Shadow: 0px 10px 20px rgba(0,0,0,0.9)
     ...Platform.select({
       ios: {
         shadowColor: shadows.header.shadowColor,
@@ -151,7 +146,7 @@ const styles = StyleSheet.create({
       android: {
         elevation: shadows.header.elevation,
       },
-      default: {}, // Web doesn't need RN shadow
+      default: {},
     }),
   },
   leftSection: {
@@ -173,10 +168,10 @@ const styles = StyleSheet.create({
     gap: s(spacing.sm),
   },
   accountText: {
-    fontSize: ms(16.587),
+    fontSize: ms(fontSize.sm),
     fontWeight: '600',
     color: colors.text.primary,
-    letterSpacing: ms(0.166, 0.3),
+    letterSpacing: letterSpacing.header,
     lineHeight: vs(22),
   },
   copyButton: {
