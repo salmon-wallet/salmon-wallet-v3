@@ -1,6 +1,6 @@
 import { colors, ms, s, vs } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { GlassContainer } from '../GlassContainer';
+import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps, NftCardSkeletonProps } from './types';
 
 /**
@@ -125,12 +125,12 @@ export const NftCard: React.FC<NftCardProps> = ({
 
     return (
       <View style={styles.nameBadgeContainer}>
-        <GlassContainer
+        <BlurContainer
           style={styles.nameBadge}
-          fallbackBlurIntensity={6}
-          fallbackBackgroundColor="rgba(0, 0, 0, 0.6)"
-          fallbackBorderColor="rgba(255, 92, 69, 0.8)"
-          fallbackBorderWidth={0.5}
+          blurIntensity={6}
+          backgroundColor="rgba(0, 0, 0, 0.6)"
+          borderColor="rgba(255, 92, 69, 0.8)"
+          borderWidth={0.5}
         >
           <Text
             style={styles.nameText}
@@ -139,7 +139,7 @@ export const NftCard: React.FC<NftCardProps> = ({
           >
             {displayName}
           </Text>
-        </GlassContainer>
+        </BlurContainer>
       </View>
     );
   };
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nameBadge: {
-    // Border radius: 9px (GlassContainer handles background/border)
+    // Border radius: 9px (BlurContainer handles background/border)
     borderRadius: ms(9),
     // Padding: 6px vertical
     paddingVertical: vs(6),
@@ -235,65 +235,68 @@ const styles = StyleSheet.create({
  * Displays the orange gradient background with the name badge
  * but no image, matching the Figma skeleton design.
  */
-export const NftCardSkeleton: React.FC<NftCardSkeletonProps> = ({
-  style,
-  testID,
-  animated = true,
-}) => {
-  const [pulseAnim] = useState(() => new Animated.Value(0.6));
+export const NftCardSkeleton = React.memo<NftCardSkeletonProps>(
+  ({ style, testID, animated = true }) => {
+    const [pulseAnim] = useState(() => new Animated.Value(0.6));
 
-  React.useEffect(() => {
-    if (!animated) return;
-
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 800,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 0.6,
-          duration: 800,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
+    // Memoize gradient colors array to prevent unnecessary re-renders
+    const gradientColors = useMemo(
+      () => [...FALLBACK_GRADIENT.colors] as const,
+      []
     );
 
-    animation.start();
-    return () => animation.stop();
-  }, [animated, pulseAnim]);
+    // Memoize animated style to prevent object recreation on each render
+    const animatedStyle = useMemo(
+      () => [styles.container, style, animated && { opacity: pulseAnim }],
+      [style, animated, pulseAnim]
+    );
 
-  return (
-    <Animated.View
-      style={[
-        styles.container,
-        style,
-        animated && { opacity: pulseAnim },
-      ]}
-      testID={testID}
-    >
-      <LinearGradient
-        colors={[...FALLBACK_GRADIENT.colors]}
-        start={FALLBACK_GRADIENT.start}
-        end={FALLBACK_GRADIENT.end}
-        style={styles.fallbackGradient}
-      />
-      <View style={styles.nameBadgeContainer}>
-        <GlassContainer
-          style={styles.nameBadge}
-          fallbackBlurIntensity={6}
-          fallbackBackgroundColor="rgba(0, 0, 0, 0.6)"
-          fallbackBorderColor="rgba(255, 92, 69, 0.8)"
-          fallbackBorderWidth={0.5}
-        >
-          <Text style={styles.nameText}>NFT Name</Text>
-        </GlassContainer>
-      </View>
-    </Animated.View>
-  );
-};
+    React.useEffect(() => {
+      if (!animated) return;
+
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 0.6,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ])
+      );
+
+      animation.start();
+      return () => animation.stop();
+    }, [animated]); // pulseAnim is stable (created once via useState)
+
+    return (
+      <Animated.View style={animatedStyle} testID={testID}>
+        <LinearGradient
+          colors={gradientColors}
+          start={FALLBACK_GRADIENT.start}
+          end={FALLBACK_GRADIENT.end}
+          style={styles.fallbackGradient}
+        />
+        <View style={styles.nameBadgeContainer}>
+          <BlurContainer
+            style={styles.nameBadge}
+            blurIntensity={6}
+            backgroundColor="rgba(0, 0, 0, 0.6)"
+            borderColor="rgba(255, 92, 69, 0.8)"
+            borderWidth={0.5}
+          >
+            <Text style={styles.nameText}>NFT Name</Text>
+          </BlurContainer>
+        </View>
+      </Animated.View>
+    );
+  }
+);
 
 export default NftCard;

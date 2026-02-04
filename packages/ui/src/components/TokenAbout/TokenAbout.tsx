@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextLayoutEventData, NativeSyntheticEvent } from 'react-native';
 import ContentLoader, { Rect } from 'react-content-loader/native';
 import { colors, ms, vs, s } from '@salmon/shared';
-import { GlassContainer } from '../GlassContainer';
+import { BlurContainer } from '../BlurContainer';
 import type { TokenAboutProps } from './types';
 
 /**
@@ -47,13 +47,7 @@ export const TokenAbout: React.FC<TokenAboutProps> = ({
 
   if (loading) {
     return (
-      <GlassContainer
-        style={[styles.glassWrapper, style]}
-        fallbackBackgroundColor={colors.background.tokenItem}
-        fallbackBorderColor={colors.border.default}
-        fallbackBorderWidth={1}
-        fallbackBlurIntensity={2}
-      >
+      <BlurContainer style={[styles.glassWrapper, style]}>
         <View style={styles.container}>
           <ContentLoader
             speed={1.5}
@@ -69,7 +63,7 @@ export const TokenAbout: React.FC<TokenAboutProps> = ({
             <Rect x="0" y="82" rx="4" ry="4" width="70%" height="12" />
           </ContentLoader>
         </View>
-      </GlassContainer>
+      </BlurContainer>
     );
   }
 
@@ -78,12 +72,12 @@ export const TokenAbout: React.FC<TokenAboutProps> = ({
   }
 
   return (
-    <GlassContainer
+    <BlurContainer
       style={[styles.glassWrapper, style]}
-      fallbackBackgroundColor={colors.background.tokenItem}
-      fallbackBorderColor={colors.border.default}
-      fallbackBorderWidth={1}
-      fallbackBlurIntensity={2}
+      backgroundColor={colors.background.tokenItem}
+      borderColor={colors.border.default}
+      borderWidth={1}
+      blurIntensity={2}
     >
       <View style={styles.container}>
         <Text style={styles.title}>{title}</Text>
@@ -107,7 +101,7 @@ export const TokenAbout: React.FC<TokenAboutProps> = ({
           </TouchableOpacity>
         )}
       </View>
-    </GlassContainer>
+    </BlurContainer>
   );
 };
 

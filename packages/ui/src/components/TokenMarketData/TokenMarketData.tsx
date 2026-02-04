@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import ContentLoader, { Rect } from 'react-content-loader/native';
 import { colors, ms, vs, s } from '@salmon/shared';
-import { GlassContainer } from '../GlassContainer';
+import { BlurContainer } from '../BlurContainer';
 import type { TokenMarketDataProps } from './types';
 
 /**
@@ -106,13 +106,7 @@ export const TokenMarketData: React.FC<TokenMarketDataProps> = ({
 }) => {
   if (loading) {
     return (
-      <GlassContainer
-        style={[styles.glassWrapper, style]}
-        fallbackBackgroundColor={colors.background.tokenItem}
-        fallbackBorderColor={colors.border.default}
-        fallbackBorderWidth={1}
-        fallbackBlurIntensity={2}
-      >
+      <BlurContainer style={[styles.glassWrapper, style]}>
         <View style={styles.container}>
           <ContentLoader
             speed={1.5}
@@ -140,7 +134,7 @@ export const TokenMarketData: React.FC<TokenMarketDataProps> = ({
             <Rect x="80%" y="132" rx="4" ry="4" width="20%" height="14" />
           </ContentLoader>
         </View>
-      </GlassContainer>
+      </BlurContainer>
     );
   }
 
@@ -178,12 +172,12 @@ export const TokenMarketData: React.FC<TokenMarketDataProps> = ({
       : undefined;
 
   return (
-    <GlassContainer
+    <BlurContainer
       style={[styles.glassWrapper, style]}
-      fallbackBackgroundColor={colors.background.tokenItem}
-      fallbackBorderColor={colors.border.default}
-      fallbackBorderWidth={1}
-      fallbackBlurIntensity={2}
+      backgroundColor={colors.background.tokenItem}
+      borderColor={colors.border.default}
+      borderWidth={1}
+      blurIntensity={2}
     >
       <View style={styles.container}>
         <Text style={styles.title}>{title}</Text>
@@ -283,7 +277,7 @@ export const TokenMarketData: React.FC<TokenMarketDataProps> = ({
           )}
         </View>
       </View>
-    </GlassContainer>
+    </BlurContainer>
   );
 };
 

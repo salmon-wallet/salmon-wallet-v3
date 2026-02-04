@@ -11,7 +11,7 @@ import {
 } from '@salmon/shared';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { GlassContainer } from '../GlassContainer';
+import { BlurContainer } from '../BlurContainer';
 import type { TokenListItemProps } from './types';
 
 /**
@@ -103,13 +103,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   // Bitcoin has a different layout showing price, change, and BTC amount
   if (blockchain === 'bitcoin') {
     return (
-      <GlassContainer
-        style={[styles.glassWrapper, style]}
-        fallbackBackgroundColor={colors.background.tokenItem}
-        fallbackBorderColor={colors.border.default}
-        fallbackBorderWidth={1}
-        fallbackBlurIntensity={2}
-      >
+      <BlurContainer style={[styles.glassWrapper, style]}>
         <TouchableOpacity
           style={styles.bitcoinContainer}
           onPress={handlePress}
@@ -152,19 +146,13 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
             </Text>
           </View>
         </TouchableOpacity>
-      </GlassContainer>
+      </BlurContainer>
     );
   }
 
   // Solana/Ethereum layout
   return (
-    <GlassContainer
-      style={[styles.glassWrapper, style]}
-      fallbackBackgroundColor={colors.background.tokenItem}
-      fallbackBorderColor={colors.border.default}
-      fallbackBorderWidth={1}
-      fallbackBlurIntensity={2}
-    >
+    <BlurContainer style={[styles.glassWrapper, style]}>
       <TouchableOpacity
         style={styles.container}
         onPress={handlePress}
@@ -222,7 +210,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
           </Text>
         </View>
       </TouchableOpacity>
-    </GlassContainer>
+    </BlurContainer>
   );
 };
 

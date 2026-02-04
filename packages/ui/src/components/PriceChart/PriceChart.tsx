@@ -5,7 +5,7 @@ import ContentLoader, { Rect } from 'react-content-loader/native';
 import { colors, spacing, borderRadius, PRICE_CHART_PERIODS, s } from '@salmon/shared';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
 import type { PriceChartProps } from './types';
-import { GlassContainer } from '../GlassContainer';
+import { BlurContainer } from '../BlurContainer';
 
 /**
  * Default colors for positive/negative performance
@@ -219,13 +219,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   );
 
   return (
-    <GlassContainer
-      style={[styles.glassWrapper, style]}
-      fallbackBackgroundColor={colors.background.tokenItem}
-      fallbackBorderColor={colors.border.default}
-      fallbackBorderWidth={1}
-      fallbackBlurIntensity={2}
-    >
+    <BlurContainer style={[styles.glassWrapper, style]}>
       <View style={styles.container}>
         {/* Chart area */}
         <View style={[styles.chartContainer, { height: chartHeight }]}>
@@ -294,7 +288,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
           </View>
         )}
       </View>
-    </GlassContainer>
+    </BlurContainer>
   );
 };
 

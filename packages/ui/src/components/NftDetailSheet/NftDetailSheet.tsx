@@ -21,7 +21,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, gradients, ms, vs, s } from '@salmon/shared';
 import { CallMadeSvgIcon } from '../Icon/SvgIcons';
-import { GlassContainer } from '../GlassContainer';
+import { BlurContainer } from '../BlurContainer';
 import type { NftDetailSheetProps, NftAttribute, NftDetailData } from './types';
 
 // Animation constants
@@ -266,12 +266,12 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               </TouchableOpacity>
 
               {/* Burn Button - Secondary with Glass Effect */}
-              <GlassContainer
+              <BlurContainer
                 style={styles.secondaryButtonWrapper}
-                fallbackBlurIntensity={2.5}
-                fallbackBackgroundColor="rgba(255, 255, 255, 0.04)"
-                fallbackBorderColor="rgba(255, 92, 69, 0.8)"
-                fallbackBorderWidth={0.5}
+                blurIntensity={2.5}
+                backgroundColor="rgba(255, 255, 255, 0.04)"
+                borderColor="rgba(255, 92, 69, 0.8)"
+                borderWidth={0.5}
               >
                 <TouchableOpacity
                   style={styles.secondaryButtonContent}
@@ -283,7 +283,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
                   <BurnIcon size={ms(15)} color="#e0e0e0" />
                   <Text style={styles.buttonText}>Burn</Text>
                 </TouchableOpacity>
-              </GlassContainer>
+              </BlurContainer>
             </View>
           </ScrollView>
         </Animated.View>

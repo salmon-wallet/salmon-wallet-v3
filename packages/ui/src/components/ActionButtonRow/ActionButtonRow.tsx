@@ -2,7 +2,7 @@ import { colors, gradients, ms, s, vs } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { GlassContainer } from '../GlassContainer';
+import { BlurContainer } from '../BlurContainer';
 import {
   CallMadeSvgIcon,
   QrCodeScannerSvgIcon,
@@ -75,117 +75,128 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           end={gradients.primaryButton.end}
           style={styles.primaryButton}
         >
-          <CallMadeSvgIcon size={ms(15)} color="#e0e0e0" />
+          <CallMadeSvgIcon size={ms(BUTTON_DIMENSIONS.iconSize)} color="#e0e0e0" />
           <Text style={styles.primaryButtonText}>Send</Text>
         </LinearGradient>
       </TouchableOpacity>
 
-      {/* Receive Button - Secondary with Glass Effect */}
-      <GlassContainer
-        style={[styles.secondaryButtonWrapper, receiveDisabled && styles.buttonDisabled]}
-        fallbackBlurIntensity={2.5}
-        fallbackBackgroundColor="rgba(255, 255, 255, 0.04)"
-        fallbackBorderColor="rgba(255, 92, 69, 0.8)"
-        fallbackBorderWidth={0.5}
-      >
-        <TouchableOpacity
-          style={styles.secondaryButtonContent}
-          onPress={handleReceivePress}
-          activeOpacity={0.8}
-          disabled={receiveDisabled}
-          accessibilityRole="button"
-          accessibilityLabel="Receive tokens"
+      {/* Receive Button - Secondary with BlurContainer */}
+      <View style={[styles.buttonWrapper, receiveDisabled && styles.buttonDisabled]}>
+        <BlurContainer
+          style={styles.secondaryButton}
+          borderColor={colors.accent.primary}
+          borderWidth={0.45}
         >
-          <QrCodeScannerSvgIcon
-            size={ms(15)}
-            color={receiveDisabled ? colors.button.disabledText : '#e0e0e0'}
-          />
-          <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
-            Receive
-          </Text>
-        </TouchableOpacity>
-      </GlassContainer>
+          <TouchableOpacity
+            style={styles.secondaryButtonContent}
+            onPress={handleReceivePress}
+            activeOpacity={0.8}
+            disabled={receiveDisabled}
+            accessibilityRole="button"
+            accessibilityLabel="Receive tokens"
+          >
+            <QrCodeScannerSvgIcon
+              size={ms(BUTTON_DIMENSIONS.iconSize)}
+              color={receiveDisabled ? colors.button.disabledText : '#e0e0e0'}
+            />
+            <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
+              Receive
+            </Text>
+          </TouchableOpacity>
+        </BlurContainer>
+      </View>
 
-      {/* Activity Button - Secondary with Glass Effect */}
-      <GlassContainer
-        style={[styles.secondaryButtonWrapper, activityDisabled && styles.buttonDisabled]}
-        fallbackBlurIntensity={2.5}
-        fallbackBackgroundColor="rgba(255, 255, 255, 0.04)"
-        fallbackBorderColor="rgba(255, 92, 69, 0.8)"
-        fallbackBorderWidth={0.5}
-      >
-        <TouchableOpacity
-          style={styles.secondaryButtonContent}
-          onPress={handleActivityPress}
-          activeOpacity={0.8}
-          disabled={activityDisabled}
-          accessibilityRole="button"
-          accessibilityLabel="View activity"
+      {/* Activity Button - Secondary with BlurContainer */}
+      <View style={[styles.buttonWrapper, activityDisabled && styles.buttonDisabled]}>
+        <BlurContainer
+          style={styles.secondaryButton}
+          borderColor={colors.accent.primary}
+          borderWidth={0.45}
         >
-          <ReceiptLongSvgIcon
-            size={ms(15)}
-            color={activityDisabled ? colors.button.disabledText : '#e0e0e0'}
-          />
-          <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
-            Activity
-          </Text>
-        </TouchableOpacity>
-      </GlassContainer>
+          <TouchableOpacity
+            style={styles.secondaryButtonContent}
+            onPress={handleActivityPress}
+            activeOpacity={0.8}
+            disabled={activityDisabled}
+            accessibilityRole="button"
+            accessibilityLabel="View activity"
+          >
+            <ReceiptLongSvgIcon
+              size={ms(BUTTON_DIMENSIONS.iconSize)}
+              color={activityDisabled ? colors.button.disabledText : '#e0e0e0'}
+            />
+            <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
+              Activity
+            </Text>
+          </TouchableOpacity>
+        </BlurContainer>
+      </View>
     </View>
   );
 };
+
+// Figma spec dimensions (node 1697-3549)
+const BUTTON_DIMENSIONS = {
+  width: 98,
+  height: 39,
+  borderRadius: 12,
+  paddingHorizontal: 15,
+  gap: 7.5,
+  fontSize: 12,
+  iconSize: 13,
+  containerPaddingHorizontal: 60,
+} as const;
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: s(28),
-    paddingVertical: vs(24),
+    paddingHorizontal: s(BUTTON_DIMENSIONS.containerPaddingHorizontal),
   },
   buttonWrapper: {
-    borderRadius: ms(14),
+    width: s(BUTTON_DIMENSIONS.width),
+    height: vs(BUTTON_DIMENSIONS.height),
+    borderRadius: ms(BUTTON_DIMENSIONS.borderRadius),
     overflow: 'hidden',
-    width: s(118),
   },
   buttonDisabled: {
     opacity: colors.button.disabledOpacity,
   },
   primaryButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: vs(47),
-    paddingHorizontal: s(18),
-    gap: s(9),
-    borderRadius: ms(14),
-    borderWidth: 0.5,
+    paddingHorizontal: s(BUTTON_DIMENSIONS.paddingHorizontal),
+    gap: s(BUTTON_DIMENSIONS.gap),
+    borderRadius: ms(BUTTON_DIMENSIONS.borderRadius),
+    borderWidth: 0.45,
     borderColor: 'rgba(255, 92, 69, 0.8)',
   },
   primaryButtonText: {
-    fontSize: ms(14.5),
+    fontSize: ms(BUTTON_DIMENSIONS.fontSize),
     fontWeight: '400',
     color: '#e0e0e0',
-    lineHeight: ms(14.5 * 1.5),
+    lineHeight: ms(BUTTON_DIMENSIONS.fontSize * 1.5),
   },
-  secondaryButtonWrapper: {
-    borderRadius: ms(14),
-    overflow: 'hidden',
-    width: s(118),
+  secondaryButton: {
+    flex: 1,
+    borderRadius: ms(BUTTON_DIMENSIONS.borderRadius),
   },
   secondaryButtonContent: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: vs(47),
-    paddingHorizontal: s(18),
-    gap: s(9),
+    paddingHorizontal: s(BUTTON_DIMENSIONS.paddingHorizontal),
+    gap: s(BUTTON_DIMENSIONS.gap),
   },
   secondaryButtonText: {
-    fontSize: ms(14.5),
+    fontSize: ms(BUTTON_DIMENSIONS.fontSize),
     fontWeight: '400',
     color: '#e0e0e0',
-    lineHeight: ms(14.5 * 1.5),
+    lineHeight: ms(BUTTON_DIMENSIONS.fontSize * 1.5),
   },
   textDisabled: {
     color: colors.button.disabledText,
