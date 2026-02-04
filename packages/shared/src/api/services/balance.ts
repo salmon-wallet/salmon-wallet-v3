@@ -114,7 +114,7 @@ export const SOL_CONSTANTS = {
   LOGO: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
   ADDRESS: 'So11111111111111111111111111111111111111112',
   COINGECKO_ID: 'solana',
-  TAGS: ['verified', 'native'] as string[],
+  TAGS: ['community', 'moonshot-verified', 'strict', 'verified', 'major'] as string[],
 } as const;
 
 /** USDC token address */
