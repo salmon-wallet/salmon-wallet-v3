@@ -56,6 +56,7 @@ import {
   TokenAbout,
   TokenMarketData,
   TokenInformationSheet,
+  ScalesBackground,
   type BlockchainBalance,
   type BlockchainId,
   type MarketData,
@@ -703,6 +704,9 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
+
+      {/* Scales pattern background */}
+      <ScalesBackground />
 
       {/* Fixed Header: Balance Card + Action Buttons */}
       {FixedHeaderComponent}

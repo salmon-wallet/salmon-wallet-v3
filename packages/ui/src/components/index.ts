@@ -169,3 +169,7 @@ export {
   HomeSvgIcon,
   SwapSvgIcon,
 } from './Icon';
+
+// ScalesBackground - Repeating fish scales pattern background
+export { ScalesBackground } from './ScalesBackground';
+export type { ScalesBackgroundProps } from './ScalesBackground';
