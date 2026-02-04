@@ -133,15 +133,45 @@ export const colors = {
       secondary: '#14F195',    // Solana green accent
       gradient: ['#4A1A8C', '#2D1052', '#1A0A33'] as const,
     },
+    solanaDevnet: {
+      primary: '#00FFA3',      // Surge Green
+      secondary: '#00CC82',    // Darker green accent
+      gradient: ['#00FFA3', '#00B377', '#00664D'] as const,
+    },
+    solanaTestnet: {
+      primary: '#03E1FF',      // Ocean Blue
+      secondary: '#02B8CC',    // Darker blue accent
+      gradient: ['#03E1FF', '#02A3B8', '#01667A'] as const,
+    },
     bitcoin: {
       primary: '#F7931A',      // Bitcoin orange
       secondary: '#FFB84D',    // Lighter orange accent
       gradient: ['#F7931A', '#8B5A00', '#3D2800'] as const,
     },
+    bitcoinTestnet: {
+      primary: '#FF9500',      // Light orange
+      secondary: '#E68600',    // Darker orange accent
+      gradient: ['#FF9500', '#B36D00', '#663D00'] as const,
+    },
+    bitcoinSignet: {
+      primary: '#6C63FF',      // Purple
+      secondary: '#5A52E6',    // Darker purple accent
+      gradient: ['#6C63FF', '#4A40B3', '#2A2466'] as const,
+    },
     ethereum: {
       primary: '#627EEA',      // Ethereum blue
       secondary: '#C0C8F9',    // Light blue accent
       gradient: ['#627EEA', '#3A4A8C', '#1A1F33'] as const,
+    },
+    ethereumSepolia: {
+      primary: '#4CAF50',      // Green
+      secondary: '#388E3C',    // Darker green accent
+      gradient: ['#4CAF50', '#2E7D32', '#1B5E20'] as const,
+    },
+    ethereumHolesky: {
+      primary: '#FFA500',      // Orange
+      secondary: '#E69500',    // Darker orange accent
+      gradient: ['#FFA500', '#B37700', '#664400'] as const,
     },
   },
 } as const;
@@ -182,6 +212,22 @@ export const gradients = {
     end: { x: 0.5, y: 1 },
   },
   /**
+   * Balance card Solana Devnet gradient
+   */
+  balanceCardSolanaDevnet: {
+    colors: ['#00FFA3', '#00B377', '#00664D'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
+  },
+  /**
+   * Balance card Solana Testnet gradient
+   */
+  balanceCardSolanaTestnet: {
+    colors: ['#03E1FF', '#02A3B8', '#01667A'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
+  },
+  /**
    * Balance card Bitcoin gradient
    */
   balanceCardBitcoin: {
@@ -190,10 +236,42 @@ export const gradients = {
     end: { x: 0.5, y: 1 },
   },
   /**
+   * Balance card Bitcoin Testnet gradient
+   */
+  balanceCardBitcoinTestnet: {
+    colors: ['#FF9500', '#B36D00', '#663D00'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
+  },
+  /**
+   * Balance card Bitcoin Signet gradient
+   */
+  balanceCardBitcoinSignet: {
+    colors: ['#6C63FF', '#4A40B3', '#2A2466'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
+  },
+  /**
    * Balance card Ethereum gradient
    */
   balanceCardEthereum: {
     colors: ['#627EEA', '#3A4A8C', '#1A1F33'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
+  },
+  /**
+   * Balance card Ethereum Sepolia gradient
+   */
+  balanceCardEthereumSepolia: {
+    colors: ['#4CAF50', '#2E7D32', '#1B5E20'] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1 },
+  },
+  /**
+   * Balance card Ethereum Holesky gradient
+   */
+  balanceCardEthereumHolesky: {
+    colors: ['#FFA500', '#B37700', '#664400'] as const,
     start: { x: 0.5, y: 0 },
     end: { x: 0.5, y: 1 },
   },
