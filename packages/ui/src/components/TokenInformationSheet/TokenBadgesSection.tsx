@@ -224,13 +224,7 @@ export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
   }
 
   return (
-    <BlurContainer
-      style={[styles.glassWrapper, style]}
-      backgroundColor={colors.background.tokenItem}
-      borderColor={colors.border.default}
-      borderWidth={1}
-      blurIntensity={2}
-    >
+    <BlurContainer style={[styles.glassWrapper, style]}>
       <View style={styles.container}>
         <Text style={styles.title}>Badges</Text>
         <View style={styles.badgesContainer}>
