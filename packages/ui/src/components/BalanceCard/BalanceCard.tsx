@@ -1,14 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
 import {
+  borderRadius,
   colors,
+  componentSizes,
+  fontSize,
   getLabelValue,
   gradients,
   hiddenValue,
+  letterSpacing,
   ms,
   s,
+  shadows,
   showAbsoluteChange,
   showAmount,
   showPercentage,
+  spacing,
   vs,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -59,7 +65,7 @@ const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
  * Render the blockchain logo using local SVG icons
  */
 const renderBlockchainLogo = (blockchain: BlockchainId) => {
-  const iconSize = s(45);
+  const iconSize = s(componentSizes.blockchainIcon);
   switch (blockchain) {
     case 'solana':
       return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
@@ -147,8 +153,8 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
           >
             <Ionicons
               name="eye-off"
-              size={ms(20)}
-              color="rgba(255,255,255,0.7)"
+              size={ms(componentSizes.eyeIcon)}
+              color={colors.text.muted}
             />
           </TouchableOpacity>
         </View>
@@ -173,7 +179,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
           accessibilityRole="button"
           accessibilityLabel="Hide balance"
         >
-          <Ionicons name="eye" size={ms(20)} color="rgba(255,255,255,0.7)" />
+          <Ionicons name="eye" size={ms(componentSizes.eyeIcon)} color={colors.text.muted} />
         </TouchableOpacity>
       </View>
     );
@@ -198,8 +204,8 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
           {displayPercentage}
         </Text>
         <Ionicons
-          name={isPositive ? 'arrow-up' : 'arrow-down'}
-          size={ms(15)}
+          name={isPositive ? 'chevron-up' : 'chevron-down'}
+          size={ms(componentSizes.changeArrowIcon)}
           color={changeColor}
           style={styles.trendingIcon}
         />
@@ -268,45 +274,42 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: ms(26),
-    overflow: 'hidden',
+    borderRadius: ms(borderRadius.card),
   },
   container: {
-    borderRadius: ms(26),
-    paddingTop: vs(24),
-    paddingHorizontal: s(24),
-    paddingBottom: vs(24),
+    borderRadius: ms(borderRadius.card),
+    paddingTop: vs(spacing['2xl']),
+    paddingHorizontal: s(spacing['2xl']),
+    paddingBottom: vs(spacing['2xl']),
     alignItems: 'center',
     justifyContent: 'center',
-    gap: vs(8),
-    // Shadow - Figma: 0px 7.469px 14.938px 1.494px rgba(0,0,0,0.9)
+    gap: vs(spacing.sm),
     ...Platform.select({
       ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 7.5 },
-        shadowOpacity: 0.9,
-        shadowRadius: 15,
+        shadowColor: shadows.card.shadowColor,
+        shadowOffset: shadows.card.shadowOffset,
+        shadowOpacity: shadows.card.shadowOpacity,
+        shadowRadius: shadows.card.shadowRadius,
       },
       android: {
-        elevation: 16,
+        elevation: shadows.card.elevation,
       },
     }),
   },
-  // Container for blockchain logos
   logoContainer: {
-    width: s(35),
-    height: vs(35),
+    width: s(componentSizes.logoContainer),
+    height: vs(componentSizes.logoContainer),
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.5,
-        shadowRadius: 8,
+        shadowColor: shadows.logo.shadowColor,
+        shadowOffset: shadows.logo.shadowOffset,
+        shadowOpacity: shadows.logo.shadowOpacity,
+        shadowRadius: shadows.logo.shadowRadius,
       },
       android: {
-        elevation: 8,
+        elevation: shadows.logo.elevation,
       },
     }),
   },
@@ -318,75 +321,73 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: s(12),
-    // Shadow: 0px 2.987px 17.925px black
+    gap: s(spacing.md),
     ...Platform.select({
       ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 1,
-        shadowRadius: 18,
+        shadowColor: shadows.balanceText.shadowColor,
+        shadowOffset: shadows.balanceText.shadowOffset,
+        shadowOpacity: shadows.balanceText.shadowOpacity,
+        shadowRadius: shadows.balanceText.shadowRadius,
       },
       android: {
-        elevation: 8,
+        elevation: shadows.balanceText.elevation,
       },
     }),
   },
   balanceDollars: {
-    fontSize: ms(60),
+    fontSize: ms(fontSize.balance),
     fontWeight: '600',
-    color: '#e0e0e0',
-    letterSpacing: -0.245,
+    color: colors.text.balance,
+    letterSpacing: letterSpacing.balance,
   },
   balanceDecimals: {
     opacity: 0.4,
-    color: '#ffffff',
+    color: colors.text.primary,
   },
   eyeButton: {
-    padding: s(4),
+    padding: s(spacing.xs),
   },
   changeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    // Shadow on change text
     ...Platform.select({
       ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 1,
-        shadowRadius: 18,
+        shadowColor: shadows.balanceText.shadowColor,
+        shadowOffset: shadows.balanceText.shadowOffset,
+        shadowOpacity: shadows.balanceText.shadowOpacity,
+        shadowRadius: shadows.balanceText.shadowRadius,
       },
       android: {
-        elevation: 8,
+        elevation: shadows.balanceText.elevation,
       },
     }),
   },
   changeText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontWeight: '500',
-    letterSpacing: 0.13,
-    lineHeight: ms(13 * 1.3),
+    letterSpacing: letterSpacing.change,
+    lineHeight: ms(fontSize.sm * 1.3),
   },
   trendingIcon: {
-    marginHorizontal: s(2),
+    marginHorizontal: s(spacing['2xs']),
   },
   changeHidden: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     color: colors.text.muted,
   },
   pagination: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vs(42),
+    marginTop: vs(spacing.paginationGap),
   },
   paginationDot: {
-    width: s(4),
-    height: s(4),
-    borderRadius: s(2),
+    width: s(spacing.xs),
+    height: s(spacing.xs),
+    borderRadius: s(spacing['2xs']),
     backgroundColor: colors.step.inactive,
-    marginHorizontal: s(3),
+    marginHorizontal: s(spacing.xxs + 1),
   },
   paginationDotActive: {
     backgroundColor: colors.text.primary,
