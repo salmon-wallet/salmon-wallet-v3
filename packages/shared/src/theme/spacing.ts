@@ -57,8 +57,8 @@ export const borderRadius = {
   '2xl': 24,
   /** 32px */
   '3xl': 32,
-  /** 24px - Figma header rounded corners (23.9px) */
-  header: 24,
+  /** 34.557px - Figma header rounded corners */
+  header: 35,
   /** 9999px - fully rounded */
   full: 9999,
 } as const;
