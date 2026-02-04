@@ -57,8 +57,8 @@ export const borderRadius = {
   '2xl': 24,
   /** 32px */
   '3xl': 32,
-  /** 35px - Figma header rounded corners (34.557px) */
-  header: 35,
+  /** 24px - Figma header rounded corners (23.9px) */
+  header: 24,
   /** 9999px - fully rounded */
   full: 9999,
 } as const;
@@ -104,6 +104,18 @@ export const componentSizes = {
   headerInnerHeight: 63,
   /** Card top padding to push content below header: ~114px in Figma */
   cardHeaderOffset: 114,
+
+  // Tab Bar (GlassTabBar)
+  /** Tab bar gradient padding top: 32px */
+  tabBarPaddingTop: 32,
+  /** Tab bar content height (icon + padding): 56px */
+  tabBarContentHeight: 56,
+  /** Tab bar minimum bottom padding (fallback when no safe area): 16px */
+  tabBarMinBottomPadding: 16,
+  /** Tab bar total base height (without safe area): 88px */
+  tabBarHeight: 88,
+  /** Scroll content bottom padding to clear tab bar */
+  tabBarScrollPadding: 160,
 } as const;
 
 /**
