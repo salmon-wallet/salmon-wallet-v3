@@ -28,6 +28,7 @@ import { TokenListItem } from '../TokenList';
 import { PriceChart } from '../PriceChart';
 import { TokenMarketData } from '../TokenMarketData';
 import { TokenAbout } from '../TokenAbout';
+import { ScalesBackground } from '../ScalesBackground';
 import { TokenBadgesSection } from './TokenBadgesSection';
 import type { TokenInformationSheetProps } from './types';
 
@@ -238,6 +239,9 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
 
         {/* Sheet Container */}
         <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
+          {/* Scales Background */}
+          <ScalesBackground />
+
           {/* Draggable Header Area */}
           <GestureDetector gesture={panGesture}>
             <Animated.View style={styles.dragArea}>

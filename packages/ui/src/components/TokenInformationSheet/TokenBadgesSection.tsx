@@ -175,7 +175,7 @@ const BadgeItem: React.FC<{ tag: string }> = ({ tag }) => {
   return (
     <View style={styles.badgeItem}>
       <View style={[styles.badgeIcon, { backgroundColor: `${config.color}15` }]}>
-        <Ionicons name={config.icon} size={ms(14)} color={config.color} />
+        <Ionicons name={config.icon} size={ms(18)} color={config.color} />
       </View>
       <Text style={[styles.badgeLabel, { color: config.color }]} numberOfLines={1}>
         {config.label}
@@ -262,16 +262,17 @@ const styles = StyleSheet.create({
   badgesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: s(spacing.md),
+    justifyContent: 'center',
+    gap: s(spacing.lg),
   },
   badgeItem: {
     alignItems: 'center',
-    minWidth: s(60),
+    minWidth: s(55),
   },
   badgeIcon: {
-    width: s(32),
-    height: vs(32),
-    borderRadius: borderRadius.sm,
+    width: s(40),
+    height: s(40),
+    borderRadius: s(20),
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: vs(spacing.xs),
