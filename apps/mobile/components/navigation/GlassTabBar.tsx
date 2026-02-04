@@ -1,9 +1,12 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors, componentSizes, gradients, ms, s, spacing, vs } from '@salmon/shared';
-import { GlassContainer, GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '@salmon/ui';
+import { GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '@salmon/ui';
+import { BlurView } from 'expo-blur';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -23,6 +26,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  * iOS 26+: Uses native Liquid Glass effect via expo-glass-effect
  * iOS < 26 / Android: Falls back to BlurView with enhanced glass simulation
  */
+
+// Check if native Liquid Glass is available (iOS 26+)
+const isNativeLiquidGlassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 interface TabConfig {
   name: string;
@@ -92,6 +98,38 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
   );
 }
 
+/**
+ * GlassPill - Uses Liquid Glass on iOS 26+, BlurView fallback otherwise
+ */
+function GlassPill({ children }: { children: React.ReactNode }) {
+  if (isNativeLiquidGlassAvailable) {
+    return (
+      <GlassView glassEffectStyle="clear" style={styles.glassContainer}>
+        {children}
+      </GlassView>
+    );
+  }
+
+  // Fallback for iOS < 26 and Android
+  return (
+    <BlurView
+      intensity={80}
+      tint="dark"
+      experimentalBlurMethod="dimezisBlurView"
+      style={[
+        styles.glassContainer,
+        {
+          backgroundColor: colors.background.glass,
+          borderColor: colors.border.subtle,
+          borderWidth: 1,
+        },
+      ]}
+    >
+      {children}
+    </BlurView>
+  );
+}
+
 export function GlassTabBar({
   state,
   descriptors,
@@ -111,13 +149,7 @@ export function GlassTabBar({
       end={gradients.tabBarFade.end}
       style={[styles.container, { paddingBottom: Math.max(insets.bottom, componentSizes.tabBarMinBottomPadding) }]}
     >
-      <GlassContainer
-        style={styles.glassContainer}
-        fallbackBlurIntensity={80}
-        fallbackBackgroundColor={colors.background.glass}
-        fallbackBorderColor={colors.border.subtle}
-        fallbackBorderWidth={1}
-      >
+      <GlassPill>
         <View style={styles.pillContainer}>
           {visibleRoutes.map((route) => {
             const isFocused = state.routes[state.index]?.name === route.name;
@@ -152,7 +184,7 @@ export function GlassTabBar({
             );
           })}
         </View>
-      </GlassContainer>
+      </GlassPill>
     </LinearGradient>
   );
 }
@@ -165,7 +197,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: s(spacing['2xl']),
+    paddingHorizontal: s(spacing['3xl']),
     paddingTop: vs(componentSizes.tabBarPaddingTop),
   },
   // Glass pill container
@@ -173,20 +205,21 @@ const styles = StyleSheet.create({
     borderRadius: 62,
     overflow: 'hidden',
   },
-  // Inner pill content
+  // Inner pill content - Figma: px-[44.813px]
   pillContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: s(60),
+    width: '100%',
+    paddingHorizontal: s(45),
   },
-  // Tab item - enlarged for better touch target
+  // Tab item - Figma: h-[60.497px], auto width
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(18),
-    paddingVertical: vs(14),
-    gap: s(5),
+    height: vs(60),
+    paddingHorizontal: s(14),
+    gap: s(3),
   },
   // Icon container
   tabIconContainer: {
