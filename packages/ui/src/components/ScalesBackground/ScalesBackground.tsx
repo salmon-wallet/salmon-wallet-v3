@@ -5,7 +5,7 @@ import Svg, { Defs, Pattern, Path, Rect } from 'react-native-svg';
 export interface ScalesBackgroundProps {
   /**
    * Stroke color for the scales pattern
-   * @default "#000000"
+   * @default "rgba(0, 0, 0, 0.5)"
    */
   strokeColor?: string;
   /**
@@ -19,6 +19,11 @@ export interface ScalesBackgroundProps {
    * @default 26
    */
   patternHeight?: number;
+  /**
+   * Top offset to start the pattern below a header
+   * @default 0
+   */
+  topOffset?: number;
   /**
    * Additional styles for the container
    */
@@ -37,13 +42,14 @@ export interface ScalesBackgroundProps {
  * ```
  */
 export const ScalesBackground: React.FC<ScalesBackgroundProps> = ({
-  strokeColor = '#000000',
+  strokeColor = 'rgba(0, 0, 0, 0.5)',
   strokeWidth = 1,
   patternHeight = 26,
+  topOffset = 0,
   style,
 }) => {
   return (
-    <View style={[styles.container, style]} pointerEvents="none">
+    <View style={[styles.container, topOffset > 0 && { top: topOffset }, style]} pointerEvents="none">
       <Svg width="100%" height="100%">
         <Defs>
           <Pattern

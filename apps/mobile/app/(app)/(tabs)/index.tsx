@@ -44,6 +44,7 @@ import {
   type PriceChartPeriod,
   type PriceDataPoint,
 } from '@salmon/shared';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   WalletHeader,
   BalanceCardCarousel,
@@ -130,6 +131,7 @@ function mapBalanceToToken(
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   // Settings sheet visibility
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -705,8 +707,8 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Scales pattern background */}
-      <ScalesBackground />
+      {/* Scales pattern background - starts below header */}
+      <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
 
       {/* Fixed Header: Balance Card + Action Buttons */}
       {FixedHeaderComponent}
