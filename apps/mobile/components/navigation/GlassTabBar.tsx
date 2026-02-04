@@ -8,7 +8,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { colors, gradients, spacing } from '@salmon/shared';
+import { colors, gradients, spacing, s, vs, ms } from '@salmon/shared';
 import { HomeSvgIcon, GridViewSvgIcon, SwapSvgIcon, GlassContainer } from '@salmon/ui';
 
 /**
@@ -36,19 +36,19 @@ const TAB_CONFIG: Record<string, TabConfig> = {
     name: 'index',
     icon: HomeSvgIcon,
     label: 'Home',
-    iconSize: 20, // Figma: 19.631x21.416
+    iconSize: s(20), // Figma: 19.631x21.416
   },
   collectibles: {
     name: 'collectibles',
     icon: GridViewSvgIcon,
     label: 'Collectibles',
-    iconSize: 22, // Figma: 21.612x21.612
+    iconSize: s(22), // Figma: 21.612x21.612
   },
   swap: {
     name: 'swap',
     icon: SwapSvgIcon,
     label: 'Swap',
-    iconSize: 20, // Figma: 22.619x17.925
+    iconSize: s(20), // Figma: 22.619x17.925
   },
 };
 
@@ -166,8 +166,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: spacing['2xl'], // 24px
-    paddingTop: spacing['3xl'], // Extra padding for gradient fade effect
+    paddingHorizontal: s(spacing['2xl']), // 24px
+    paddingTop: vs(spacing['3xl']), // Extra padding for gradient fade effect
   },
   // Glass pill container
   // Figma: border-radius 61.538px
@@ -181,21 +181,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 45,
-    height: 60,
+    paddingHorizontal: s(45),
+    height: vs(60),
   },
   // Tab item
   // Figma: width 48.547px, height 60.497px, padding-x 14.378px, gap 2.987px
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 14,
-    gap: 3,
+    paddingHorizontal: s(14),
+    gap: s(3),
   },
   // Icon container
   // Figma: varies per icon (~20-22px)
   tabIconContainer: {
-    height: 22,
+    height: vs(22),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -203,8 +203,8 @@ const styles = StyleSheet.create({
   // Figma: DM Sans SemiBold, 7.972px, tracking 0.1594px, line-height 1.4
   tabLabel: {
     fontFamily: 'DMSansSemiBold',
-    fontSize: 8,
-    letterSpacing: 0.16,
+    fontSize: ms(8),
+    letterSpacing: ms(0.16, 0.3),
     textAlign: 'center',
   },
 });
