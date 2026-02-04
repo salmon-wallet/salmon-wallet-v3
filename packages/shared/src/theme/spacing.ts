@@ -13,6 +13,8 @@ export const spacing = {
   xxs: 2,
   /** 4px */
   xs: 4,
+  /** 4px - Gap between amounts in token list item */
+  tokenAmountGap: 4,
   /** 8px */
   sm: 8,
   /** 10px - Used for header icon gaps */
@@ -57,6 +59,8 @@ export const borderRadius = {
   lg: 12,
   /** 16px */
   xl: 16,
+  /** 22px - Token icon rounded corners */
+  tokenIcon: 22,
   /** 24px */
   '2xl': 24,
   /** 32px */
@@ -142,6 +146,10 @@ export const componentSizes = {
   tabBarHeight: 88,
   /** Scroll content bottom padding to clear tab bar */
   tabBarScrollPadding: 160,
+
+  // TokenListItem (from Figma)
+  /** Token icon size: 38px */
+  tokenIcon: 38,
 } as const;
 
 /**
@@ -161,6 +169,8 @@ export const borderWidth = {
   none: 0,
   /** 0.5px - Action button border */
   actionButton: 0.5,
+  /** 0.75px - TokenListItem container border */
+  tokenListItem: 0.75,
   /** 1px */
   thin: 1,
   /** 1.38px - Figma header border (1.38px rgba(255,255,255,0.8)) */

@@ -18,8 +18,12 @@ export const fontFamily = {
 export const fontSize = {
   /** 10px - Extra small, fine print */
   xs: 10,
+  /** 11.375px - TokenListItem change text */
+  tokenChange: 11.375,
   /** 12px - Small, captions */
   sm: 12,
+  /** 13.65px - TokenListItem name and price */
+  tokenNamePrice: 13.65,
   /** 14px - Base size */
   base: 14,
   /** 14.5px - Action button text */
@@ -53,6 +57,8 @@ export const lineHeight = {
   tight: 1.25,
   /** Snug - 1.375 */
   snug: 1.375,
+  /** TokenListItem - 1.4 */
+  tokenListItem: 1.4,
   /** Normal - 1.5 */
   normal: 1.5,
   /** Relaxed - 1.625 */
@@ -66,6 +72,8 @@ export const lineHeight = {
  * Maps to DM Sans weight variants
  */
 export const fontWeight = {
+  /** 300 - Light */
+  light: '300',
   /** 400 - Regular */
   regular: '400',
   /** 500 - Medium */
