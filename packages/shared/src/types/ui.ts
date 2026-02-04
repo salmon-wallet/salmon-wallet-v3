@@ -53,6 +53,8 @@ export interface Token {
   tags?: string[];
   /** Whether the token is verified (has 'verified' or 'strict' tag) */
   isVerified?: boolean;
+  /** CoinGecko ID for fetching market data */
+  coingeckoId?: string | null;
 }
 
 // ============================================================================

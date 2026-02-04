@@ -793,6 +793,7 @@ describe('createSolBalance', () => {
       logo: SOL_CONSTANTS.LOGO,
       address: SOL_CONSTANTS.ADDRESS,
       coingeckoId: SOL_CONSTANTS.COINGECKO_ID,
+      tags: ['verified', 'native'],
     });
   });
 
