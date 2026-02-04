@@ -13,6 +13,20 @@ export { getShortAddress } from './address';
 // Clipboard utilities (web only - use expo-clipboard for native)
 export { copyToClipboard, pasteFromClipboard } from './clipboard';
 
+// Responsive scaling utilities
+export {
+  DESIGN_WIDTH,
+  DESIGN_HEIGHT,
+  scale,
+  s,
+  verticalScale,
+  vs,
+  moderateScale,
+  ms,
+  moderateVerticalScale,
+  mvs,
+} from './scaling';
+
 // Formatting utilities
 export {
   // Types
