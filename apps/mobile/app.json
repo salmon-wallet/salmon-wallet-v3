@@ -9,6 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "backgroundColor": "#10131c",
+    "androidStatusBar": {
+      "backgroundColor": "#10131c",
+      "barStyle": "light-content",
+      "translucent": false
+    },
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
