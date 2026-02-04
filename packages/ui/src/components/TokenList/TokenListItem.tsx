@@ -101,8 +101,8 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
     return (
       <GlassContainer
         style={styles.glassWrapper}
-        fallbackBackgroundColor="rgba(56, 63, 82, 0.1)"
-        fallbackBorderColor="#404962"
+        fallbackBackgroundColor={colors.background.tokenItem}
+        fallbackBorderColor={colors.border.default}
         fallbackBorderWidth={1}
         fallbackBlurIntensity={2}
       >
@@ -156,8 +156,8 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   return (
     <GlassContainer
       style={styles.glassWrapper}
-      fallbackBackgroundColor="rgba(56, 63, 82, 0.1)"
-      fallbackBorderColor="#404962"
+      fallbackBackgroundColor={colors.background.tokenItem}
+      fallbackBorderColor={colors.border.default}
       fallbackBorderWidth={1}
       fallbackBlurIntensity={2}
     >
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 14,
     fontFamily: 'DMSansMedium',
-    color: '#d6d6d6',
+    color: colors.text.token,
     flexShrink: 1,
     lineHeight: 20,
     letterSpacing: -0.07,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 14,
     fontFamily: 'DMSansSemiBold',
-    color: 'rgba(255, 255, 255, 0.79)',
+    color: colors.text.tokenPrice,
     letterSpacing: -0.07,
   },
   // Figma: arrow 13.65px
@@ -309,14 +309,14 @@ const styles = StyleSheet.create({
   usdValue: {
     fontSize: 18,
     fontFamily: 'DMSansMedium',
-    color: '#d6d6d6',
+    color: colors.text.token,
     letterSpacing: -0.09,
   },
   // Figma: 11.95px Medium, color #ffffff
   tokenAmount: {
     fontSize: 12,
     fontFamily: 'DMSansMedium',
-    color: '#ffffff',
+    color: colors.text.primary,
   },
 
   // Bitcoin-specific styles (scaled proportionally)
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   bitcoinUsdValue: {
     fontSize: 18,
     fontFamily: 'DMSansBold',
-    color: '#d6d6d6',
+    color: colors.text.token,
     letterSpacing: -0.09,
   },
   bitcoinChangeRow: {
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   bitcoinAmount: {
     fontSize: 18,
     fontFamily: 'DMSansSemiBold',
-    color: 'rgba(255, 255, 255, 0.79)',
+    color: colors.text.tokenPrice,
     letterSpacing: -0.09,
   },
 });
