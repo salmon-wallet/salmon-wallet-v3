@@ -22,6 +22,48 @@ import { normalizeIpfsUrl } from '../../utils';
 import type { SolanaNetwork } from './SolanaAccount';
 
 // ============================================================================
+// Helius API Configuration
+// ============================================================================
+
+/**
+ * Get Helius API key from environment variables
+ * Supports both Expo (EXPO_PUBLIC_*) and Vite (VITE_*) formats
+ */
+function getHeliusApiKey(): string | undefined {
+  if (typeof process !== 'undefined' && process.env) {
+    return (
+      process.env.EXPO_PUBLIC_HELIUS_API_KEY ||
+      process.env.VITE_HELIUS_API_KEY ||
+      process.env.HELIUS_API_KEY
+    );
+  }
+  return undefined;
+}
+
+/**
+ * Get Helius RPC URL for a given network
+ * Returns the Helius DAS API endpoint if API key is configured
+ *
+ * @param networkId - The network ID (mainnet-beta, devnet, etc.)
+ * @returns The Helius RPC URL or null if not configured
+ */
+function getHeliusRpcUrl(networkId: string): string | null {
+  const apiKey = getHeliusApiKey();
+  if (!apiKey) {
+    console.warn('[NFT Service] HELIUS_API_KEY not configured - NFT fetching may fail');
+    return null;
+  }
+
+  // Map network IDs to Helius endpoints
+  const heliusEndpoints: Record<string, string> = {
+    'mainnet-beta': `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
+    'devnet': `https://devnet.helius-rpc.com/?api-key=${apiKey}`,
+  };
+
+  return heliusEndpoints[networkId] || null;
+}
+
+// ============================================================================
 // Types
 // ============================================================================
 
@@ -366,6 +408,12 @@ export async function getAllFromHeliusDirect(
 ): Promise<NftPaginatedResponse> {
   const { nodeUrl } = network.config;
 
+  // Get Helius RPC URL for DAS API calls
+  const heliusUrl = getHeliusRpcUrl(network.id);
+  if (!heliusUrl) {
+    throw new Error('Helius API key not configured. Set EXPO_PUBLIC_HELIUS_API_KEY in your .env file.');
+  }
+
   const limit = Math.min(Math.max(1, options.limit ?? 50), 100);
   const offset = Math.max(0, options.offset ?? 0);
 
@@ -374,7 +422,7 @@ export async function getAllFromHeliusDirect(
   );
 
   const response = await axios.post<HeliusDasResponse>(
-    nodeUrl,
+    heliusUrl,
     {
       jsonrpc: '2.0',
       id: 'get-nfts-by-owner',
