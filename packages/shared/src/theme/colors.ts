@@ -17,6 +17,7 @@ export const colors = {
     secondary: '#8A8D98', // Actualizado para mejor legibilidad
     tertiary: '#6B6E7B', // For less prominent text
     muted: 'rgba(255, 255, 255, 0.7)',
+    balance: '#e0e0e0', // Balance card amount color
     placeholder: '#6B6E7B',
     disabled: 'rgba(255, 255, 255, 0.4)', // For disabled text elements
     token: '#d6d6d6', // For token names and USD values in TokenList

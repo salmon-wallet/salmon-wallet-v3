@@ -36,6 +36,8 @@ export const fontSize = {
   '4xl': 36,
   /** 48px - 5XL, hero text */
   '5xl': 48,
+  /** 60px - Balance card amount */
+  balance: 60,
 } as const;
 
 /**
@@ -82,8 +84,14 @@ export const letterSpacing = {
   tight: -0.25,
   /** Normal - 0px */
   normal: 0,
+  /** Header text - 0.12px */
+  header: 0.12,
   /** Wide - 0.25px */
   wide: 0.25,
+  /** Change text - 0.13px */
+  change: 0.13,
+  /** Balance amount - -0.245px */
+  balance: -0.245,
   /** Wider - 0.5px */
   wider: 0.5,
   /** Widest - 1px */

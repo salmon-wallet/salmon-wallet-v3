@@ -56,13 +56,37 @@ export const shadows = {
     shadowRadius: 10.32,
     elevation: 16,
   },
-  /** Strong shadow for header/card elements - Figma: 0px 10px 20px rgba(0,0,0,0.9) */
+  /** Strong shadow for header - downward only, subtle */
   header: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.9,
-    shadowRadius: 20,
-    elevation: 20,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    elevation: 12,
+  },
+  /** Balance card shadow - downward only */
+  card: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 16,
+  },
+  /** Logo icon shadow */
+  logo: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  /** Balance text shadow */
+  balanceText: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 18,
+    elevation: 8,
   },
   /** Colored glow for accent elements */
   glow: {

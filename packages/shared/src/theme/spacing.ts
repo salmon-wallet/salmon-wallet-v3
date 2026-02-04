@@ -21,6 +21,8 @@ export const spacing = {
   md: 12,
   /** 16px */
   lg: 16,
+  /** 18px - Header horizontal padding */
+  headerPadding: 18,
   /** 20px */
   xl: 20,
   /** 24px */
@@ -29,6 +31,8 @@ export const spacing = {
   '3xl': 32,
   /** 40px */
   '4xl': 40,
+  /** 42px - Pagination gap in balance card */
+  paginationGap: 42,
   /** 48px */
   '5xl': 48,
   /** 64px */
@@ -57,8 +61,10 @@ export const borderRadius = {
   '2xl': 24,
   /** 32px */
   '3xl': 32,
-  /** 34.557px - Figma header rounded corners */
-  header: 35,
+  /** 24px - Header rounded corners */
+  header: 24,
+  /** 26px - Balance card rounded corners */
+  card: 26,
   /** 9999px - fully rounded */
   full: 9999,
 } as const;
@@ -98,6 +104,16 @@ export const componentSizes = {
   // Header
   headerHeight: 56,
   backButtonSize: 40,
+
+  // Balance card elements
+  /** Logo container size: 35px */
+  logoContainer: 35,
+  /** Blockchain icon size: 45px */
+  blockchainIcon: 45,
+  /** Eye icon size: 20px */
+  eyeIcon: 20,
+  /** Change arrow icon size: 15px */
+  changeArrowIcon: 15,
 
   // Header + Card overlap (from Figma)
   /** Inner header container height: 63px */
