@@ -1,8 +1,8 @@
+import { borderRadius, borderWidth, colors, ms, s, shadows, spacing, vs } from '@salmon/shared';
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, spacing, borderRadius, borderWidth, shadows, s, vs, ms } from '@salmon/shared';
-import { WalletSvgIcon, ContentCopySvgIcon, SettingsSvgIcon } from '../Icon';
+import { ContentCopySvgIcon, SettingsSvgIcon, WalletSvgIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
 /**
@@ -80,7 +80,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
             accessibilityRole="button"
             accessibilityLabel="Switch wallet account"
           >
-            <WalletSvgIcon size={24} color={colors.text.muted} />
+            <WalletSvgIcon size={s(39)} color={colors.text.muted} />
           </TouchableOpacity>
 
           {/* Account name + address in single line */}
@@ -109,7 +109,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
           accessibilityRole="button"
           accessibilityLabel="Open settings"
         >
-          <SettingsSvgIcon size={24} color={colors.text.muted} />
+          <SettingsSvgIcon size={s(30)} color={colors.text.muted} />
         </TouchableOpacity>
       </View>
     </View>
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(spacing.base), // Figma: 10px gap between wallet icon and account info
+    gap: s(spacing.base),
   },
   walletIconContainer: {
     width: s(43),
