@@ -129,6 +129,14 @@ export type {
   AccountListItemProps,
 } from './WalletSwitcherSheet';
 
+// GlassContainer - Reusable glass/blur effect component (iOS 26+ Liquid Glass)
+export { GlassContainer, isNativeLiquidGlassAvailable } from './GlassContainer';
+export type {
+  GlassContainerProps,
+  GlassEffectStyle,
+  BlurTint,
+} from './GlassContainer';
+
 // SVG Icons
 export {
   WalletSvgIcon,
