@@ -4,7 +4,10 @@ import type { NetworkInfo } from '@salmon/shared';
 /**
  * Supported blockchain types for the carousel
  */
-export type BlockchainId = 'solana' | 'bitcoin' | 'ethereum';
+export type BlockchainId =
+  | 'solana' | 'solana-devnet' | 'solana-testnet'
+  | 'bitcoin' | 'bitcoin-testnet' | 'bitcoin-signet'
+  | 'ethereum' | 'ethereum-sepolia' | 'ethereum-holesky';
 
 /**
  * Extended network info with blockchain type

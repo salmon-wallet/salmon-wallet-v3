@@ -36,11 +36,24 @@ import type { BalanceCardProps, BlockchainId } from './types';
  */
 const getGradientForBlockchain = (blockchain: BlockchainId) => {
   switch (blockchain) {
+    case 'solana':
+      return gradients.balanceCardSolana;
+    case 'solana-devnet':
+      return gradients.balanceCardSolanaDevnet;
+    case 'solana-testnet':
+      return gradients.balanceCardSolanaTestnet;
     case 'bitcoin':
       return gradients.balanceCardBitcoin;
+    case 'bitcoin-testnet':
+      return gradients.balanceCardBitcoinTestnet;
+    case 'bitcoin-signet':
+      return gradients.balanceCardBitcoinSignet;
     case 'ethereum':
       return gradients.balanceCardEthereum;
-    case 'solana':
+    case 'ethereum-sepolia':
+      return gradients.balanceCardEthereumSepolia;
+    case 'ethereum-holesky':
+      return gradients.balanceCardEthereumHolesky;
     default:
       return gradients.balanceCardSolana;
   }
@@ -51,11 +64,24 @@ const getGradientForBlockchain = (blockchain: BlockchainId) => {
  */
 const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
   switch (blockchain) {
+    case 'solana':
+      return 'rgba(153, 69, 255, 0.15)';   // Solana purple (#9945FF)
+    case 'solana-devnet':
+      return 'rgba(0, 255, 163, 0.15)';    // Solana Devnet green (#00FFA3)
+    case 'solana-testnet':
+      return 'rgba(3, 225, 255, 0.15)';    // Solana Testnet blue (#03E1FF)
     case 'bitcoin':
       return 'rgba(247, 147, 26, 0.15)';   // Bitcoin orange (#F7931A)
+    case 'bitcoin-testnet':
+      return 'rgba(255, 149, 0, 0.15)';    // Bitcoin Testnet orange (#FF9500)
+    case 'bitcoin-signet':
+      return 'rgba(108, 99, 255, 0.15)';   // Bitcoin Signet purple (#6C63FF)
     case 'ethereum':
       return 'rgba(98, 126, 234, 0.15)';   // Ethereum blue (#627EEA)
-    case 'solana':
+    case 'ethereum-sepolia':
+      return 'rgba(76, 175, 80, 0.15)';    // Ethereum Sepolia green (#4CAF50)
+    case 'ethereum-holesky':
+      return 'rgba(255, 165, 0, 0.15)';    // Ethereum Holesky orange (#FFA500)
     default:
       return 'rgba(153, 69, 255, 0.15)';   // Solana purple (#9945FF)
   }
