@@ -4,13 +4,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Text,
-  Platform,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { HomeSvgIcon, GridViewSvgIcon, SwapSvgIcon } from '@salmon/ui';
+import { HomeSvgIcon, GridViewSvgIcon, SwapSvgIcon, GlassContainer } from '@salmon/ui';
 
 /**
  * Design specs from Figma:
@@ -60,9 +57,6 @@ const TAB_CONFIG: Record<string, TabConfig> = {
 // Order of tabs as they should appear
 const TAB_ORDER = ['index', 'collectibles', 'swap'];
 
-// Check if native Liquid Glass is available (iOS 26+)
-const useNativeLiquidGlass = Platform.OS === 'ios' && isLiquidGlassAvailable();
-
 interface TabItemProps {
   routeName: string;
   isFocused: boolean;
@@ -100,35 +94,6 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
   );
 }
 
-/**
- * Glass container component that uses native Liquid Glass on iOS 26+
- * and falls back to enhanced BlurView on older iOS / Android
- */
-function GlassContainer({ children, style }: { children: React.ReactNode; style?: object }) {
-  if (useNativeLiquidGlass) {
-    return (
-      <GlassView
-        glassEffectStyle="regular"
-        style={[styles.glassContainer, style]}
-      >
-        {children}
-      </GlassView>
-    );
-  }
-
-  // Fallback: Enhanced BlurView for iOS < 26 and Android
-  return (
-    <BlurView
-      intensity={80}
-      tint="dark"
-      experimentalBlurMethod="dimezisBlurView"
-      style={[styles.blurContainer, style]}
-    >
-      {children}
-    </BlurView>
-  );
-}
-
 export function GlassTabBar({
   state,
   descriptors,
@@ -143,7 +108,13 @@ export function GlassTabBar({
 
   return (
     <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-      <GlassContainer>
+      <GlassContainer
+        style={styles.glassContainer}
+        fallbackBlurIntensity={80}
+        fallbackBackgroundColor="rgba(30, 30, 30, 0.5)"
+        fallbackBorderColor="rgba(255, 255, 255, 0.1)"
+        fallbackBorderWidth={1}
+      >
         <View style={styles.pillContainer}>
           {visibleRoutes.map((route) => {
             const { options } = descriptors[route.key];
@@ -196,14 +167,6 @@ const styles = StyleSheet.create({
   glassContainer: {
     borderRadius: 82,
     overflow: 'hidden',
-  },
-  blurContainer: {
-    borderRadius: 82,
-    overflow: 'hidden',
-    // Enhanced glass effect fallback for non-iOS 26
-    backgroundColor: 'rgba(30, 30, 30, 0.5)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   pillContainer: {
     flexDirection: 'row',
