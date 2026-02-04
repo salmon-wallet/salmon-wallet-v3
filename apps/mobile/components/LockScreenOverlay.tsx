@@ -55,6 +55,9 @@ import {
   contentPadding,
   fontSize,
   lineHeight,
+  s,
+  vs,
+  ms,
 } from '@salmon/shared';
 import { useBiometricAuth } from '../hooks/useBiometricAuth';
 
@@ -64,7 +67,11 @@ import { useBiometricAuth } from '../hooks/useBiometricAuth';
 
 const FONT_FAMILY = {
   regular: 'DMSansRegular',
+  medium: 'DMSansMedium',
+  // SemiBold/ExtraBold not available - using Bold as fallback
+  semiBold: 'DMSansBold',
   bold: 'DMSansBold',
+  extraBold: 'DMSansBold',
 } as const;
 
 // Animation configuration
@@ -381,105 +388,111 @@ export function LockScreenOverlay({
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               >
                 <View style={styles.content}>
-                  {/* Logo */}
-                  <View style={styles.logoContainer}>
-                    <Image
-                      source={Logo}
-                      style={styles.logo}
-                      resizeMode="contain"
-                    />
-                  </View>
+                  {/* Logo Section - Figma node 1702:6391 */}
+                  <View style={styles.logoSection}>
+                    {/* Logo */}
+                    <View style={styles.logoContainer}>
+                      <Image
+                        source={Logo}
+                        style={styles.logo}
+                        resizeMode="contain"
+                      />
+                    </View>
 
-                  {/* Welcome Text */}
-                  <Text style={styles.welcomeText}>{t('lock.welcome_back')}</Text>
+                    {/* Welcome Text */}
+                    <Text style={styles.welcomeText}>{t('lock.welcome_back')}</Text>
 
-                  {/* Password Input */}
-                  <View style={styles.inputContainer}>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        { borderColor: getInputBorderColor() },
-                      ]}
-                      placeholder={t('lock.enter_password')}
-                      placeholderTextColor={colors.text.placeholder}
-                      secureTextEntry
-                      value={password}
-                      onChangeText={(text) => {
-                        setPassword(text);
-                        if (error) setError(null);
-                      }}
-                      onFocus={() => setIsFocused(true)}
-                      onBlur={() => setIsFocused(false)}
-                      onSubmitEditing={handleUnlock}
-                      editable={!isLoading}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      returnKeyType="done"
-                    />
+                    {/* Password Input */}
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          { borderColor: getInputBorderColor() },
+                        ]}
+                        placeholder={t('lock.enter_password')}
+                        placeholderTextColor="#667294"
+                        secureTextEntry
+                        value={password}
+                        onChangeText={(text) => {
+                          setPassword(text);
+                          if (error) setError(null);
+                        }}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setIsFocused(false)}
+                        onSubmitEditing={handleUnlock}
+                        editable={!isLoading}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        returnKeyType="done"
+                      />
 
-                    {/* Error Message */}
-                    {error && (
-                      <Text style={styles.errorText}>{error}</Text>
-                    )}
-                  </View>
-
-                  {/* Unlock Button */}
-                  <TouchableOpacity
-                    onPress={handleUnlock}
-                    disabled={isLoading || !password.trim()}
-                    activeOpacity={0.8}
-                    style={styles.buttonContainer}
-                  >
-                    <LinearGradient
-                      colors={[...gradients.primary.colors]}
-                      style={[
-                        styles.button,
-                        (isLoading || !password.trim()) && styles.buttonDisabled,
-                      ]}
-                      start={gradients.primary.start}
-                      end={gradients.primary.end}
-                    >
-                      {isLoading ? (
-                        <ActivityIndicator color={colors.text.primary} />
-                      ) : (
-                        <Text style={styles.buttonText}>{t('lock.unlock')}</Text>
+                      {/* Error Message */}
+                      {error && (
+                        <Text style={styles.errorText}>{error}</Text>
                       )}
-                    </LinearGradient>
-                  </TouchableOpacity>
+                    </View>
+                  </View>
 
-                  {/* Biometric Unlock Button */}
-                  {showBiometricButton && (
+                  {/* Button Section - Figma node 1702:6407 */}
+                  <View style={styles.buttonSection}>
+                    {/* Unlock Button */}
                     <TouchableOpacity
-                      onPress={handleBiometricUnlock}
-                      disabled={isLoading}
-                      activeOpacity={0.7}
-                      style={styles.biometricContainer}
-                      accessibilityLabel={getBiometricLabel()}
-                      accessibilityRole="button"
+                      onPress={handleUnlock}
+                      disabled={isLoading || !password.trim()}
+                      activeOpacity={0.8}
+                      style={styles.buttonContainer}
                     >
-                      <View style={styles.biometricButton}>
-                        <Ionicons
-                          name={getBiometricIcon() as any}
-                          size={32}
-                          color={colors.text.primary}
-                        />
-                      </View>
-                      <Text style={styles.biometricText}>
-                        {getBiometricLabel()}
+                      <LinearGradient
+                        colors={[...gradients.primary.colors]}
+                        style={[
+                          styles.button,
+                          (isLoading || !password.trim()) && styles.buttonDisabled,
+                        ]}
+                        start={gradients.primary.start}
+                        end={gradients.primary.end}
+                      >
+                        {isLoading ? (
+                          <ActivityIndicator color={colors.text.primary} />
+                        ) : (
+                          <Text style={styles.buttonText}>{t('lock.unlock')}</Text>
+                        )}
+                      </LinearGradient>
+                    </TouchableOpacity>
+
+                    {/* Biometric Unlock Button */}
+                    {showBiometricButton && (
+                      <TouchableOpacity
+                        onPress={handleBiometricUnlock}
+                        disabled={isLoading}
+                        activeOpacity={0.7}
+                        style={styles.biometricContainer}
+                        accessibilityLabel={getBiometricLabel()}
+                        accessibilityRole="button"
+                      >
+                        <View style={styles.biometricButton}>
+                          <Ionicons
+                            name={getBiometricIcon() as any}
+                            size={ms(32)}
+                            color={colors.text.primary}
+                          />
+                        </View>
+                        <Text style={styles.biometricText}>
+                          {getBiometricLabel()}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {/* Forgot Password Link */}
+                    <TouchableOpacity
+                      onPress={handleForgotPassword}
+                      disabled={isLoading}
+                      style={styles.forgotPasswordContainer}
+                    >
+                      <Text style={styles.forgotPasswordText}>
+                        {t('lock.forgot_password')}
                       </Text>
                     </TouchableOpacity>
-                  )}
-
-                  {/* Forgot Password Link */}
-                  <TouchableOpacity
-                    onPress={handleForgotPassword}
-                    disabled={isLoading}
-                    style={styles.forgotPasswordContainer}
-                  >
-                    <Text style={styles.forgotPasswordText}>
-                      {t('lock.forgot_password')}
-                    </Text>
-                  </TouchableOpacity>
+                  </View>
                 </View>
               </KeyboardAvoidingView>
             </TouchableWithoutFeedback>
@@ -520,100 +533,125 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
+  // Figma: px-35.85 (node 1702:6390) - gap adjusted to 40
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: contentPadding.screen,
+    paddingHorizontal: s(36),
+    gap: vs(40),
+  },
+  // Figma: gap-31.369 (node 1702:6391)
+  logoSection: {
+    width: '100%',
+    alignItems: 'center',
+    gap: vs(31),
   },
   logoContainer: {
-    marginBottom: spacing['2xl'],
+    // No margin - using gap in parent
   },
+  // Adjusted: larger logo for better visibility
   logo: {
-    width: componentSizes.logoSizeLarge,
-    height: componentSizes.logoSizeLarge,
+    width: s(140),
+    height: s(140),
   },
+  // Figma: 26.887px, SemiBold, tracking -0.4555, lineHeight 37.962 (node 1702:6404)
   welcomeText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
-    fontSize: fontSize['4xl'],
-    lineHeight: fontSize['4xl'] * lineHeight.snug,
-    marginBottom: spacing['3xl'],
+    fontFamily: FONT_FAMILY.semiBold,
+    fontSize: ms(27),
+    letterSpacing: -0.46,
+    lineHeight: vs(38),
     textAlign: 'center',
   },
+  // Figma: h-54.371, border-0.747, radius-8.963 (node 1702:6405)
   inputContainer: {
     width: '100%',
-    marginBottom: spacing['2xl'],
   },
   input: {
     width: '100%',
-    height: componentSizes.inputHeight,
+    height: vs(54),
     backgroundColor: colors.input.background,
-    borderWidth: 1,
-    borderRadius: componentSizes.inputRadius,
-    paddingHorizontal: spacing.lg,
+    borderWidth: 0.75,
+    borderRadius: 9,
+    paddingHorizontal: s(spacing.lg),
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.regular,
-    fontSize: fontSize.md,
+    fontFamily: FONT_FAMILY.medium,
+    fontSize: ms(17),
   },
   errorText: {
     color: colors.status.error,
     fontFamily: FONT_FAMILY.regular,
-    fontSize: fontSize.sm,
-    lineHeight: fontSize.sm * lineHeight.normal,
-    marginTop: spacing.sm,
-    paddingHorizontal: spacing.sm,
+    fontSize: ms(fontSize.sm),
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
+    marginTop: vs(spacing.sm),
+    paddingHorizontal: s(spacing.sm),
+  },
+  // Figma: gap-22.406 (node 1702:6407)
+  buttonSection: {
+    width: '100%',
+    gap: vs(22),
   },
   buttonContainer: {
     width: '100%',
-    marginBottom: spacing['2xl'],
   },
+  // Figma: h-53.126, radius-15.736, border-1.021 rgba(255,92,69,0.8), shadow (node 1702:6408)
   button: {
     width: '100%',
-    height: componentSizes.buttonHeight,
-    borderRadius: componentSizes.buttonRadiusSmall,
+    height: vs(53),
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 92, 69, 0.8)',
     alignItems: 'center',
     justifyContent: 'center',
+    // Shadow for button
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.64,
+    shadowRadius: 15,
+    elevation: 8,
   },
   buttonDisabled: {
     opacity: colors.button.disabledOpacity,
   },
+  // Figma: 16.341px, ExtraBold (node 1702:6411)
   buttonText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
-    fontSize: fontSize.lg,
-    lineHeight: fontSize.lg * lineHeight.normal,
+    fontFamily: FONT_FAMILY.extraBold,
+    fontSize: ms(16),
+    lineHeight: ms(16 * 1.5),
   },
   biometricContainer: {
     alignItems: 'center',
-    marginBottom: spacing.xl,
   },
   biometricButton: {
-    width: 64,
-    height: 64,
+    width: s(64),
+    height: s(64),
     borderRadius: 32,
     backgroundColor: colors.input.background,
-    borderWidth: 1,
+    borderWidth: 0.75,
     borderColor: colors.input.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: vs(spacing.sm),
   },
   biometricText: {
     color: colors.text.secondary,
     fontFamily: FONT_FAMILY.regular,
-    fontSize: fontSize.sm,
-    lineHeight: fontSize.sm * lineHeight.normal,
+    fontSize: ms(fontSize.sm),
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
     textAlign: 'center',
   },
   forgotPasswordContainer: {
-    padding: spacing.md,
+    padding: s(spacing.md),
   },
+  // Figma: 14.938px, SemiBold, tracking -0.4555, lineHeight 37.962 (node 1702:6412)
   forgotPasswordText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.regular,
-    fontSize: fontSize.base,
-    lineHeight: fontSize.base * lineHeight.normal,
+    fontFamily: FONT_FAMILY.semiBold,
+    fontSize: ms(15),
+    letterSpacing: -0.46,
+    lineHeight: vs(38),
     textAlign: 'center',
   },
 });
