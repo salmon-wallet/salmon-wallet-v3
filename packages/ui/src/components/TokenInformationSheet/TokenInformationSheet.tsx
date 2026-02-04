@@ -274,14 +274,16 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
               />
             )}
 
-            {/* PriceChart */}
-            <PriceChart
-              data={chartData}
-              selectedPeriod={chartPeriod}
-              onPeriodChange={onChartPeriodChange}
-              loading={loading}
-              style={{ marginHorizontal: 0 }}
-            />
+            {/* PriceChart - only show if data available */}
+            {(loading || chartData.length > 0) && (
+              <PriceChart
+                data={chartData}
+                selectedPeriod={chartPeriod}
+                onPeriodChange={onChartPeriodChange}
+                loading={loading}
+                style={{ marginHorizontal: 0 }}
+              />
+            )}
 
             {/* TokenMarketData (Info) */}
             <TokenMarketData
