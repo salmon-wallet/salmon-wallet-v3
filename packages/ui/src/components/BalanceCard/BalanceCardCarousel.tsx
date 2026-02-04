@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    gap: vs(spacing.sm),
+    gap: vs(spacing.xs),
   },
   logoContainer: {
     width: s(componentSizes.logoContainer),
