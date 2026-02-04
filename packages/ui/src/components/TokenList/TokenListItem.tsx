@@ -7,6 +7,9 @@ import {
   getLabelValue,
   hiddenValue,
   colors,
+  s,
+  vs,
+  ms,
 } from '@salmon/shared';
 import { GlassContainer, isNativeLiquidGlassAvailable } from '../GlassContainer';
 import type { TokenListItemProps } from './types';
@@ -227,8 +230,8 @@ const styles = StyleSheet.create({
   // Figma: border-radius 12.391px, border 0.747px #404962
   glassWrapper: {
     borderRadius: 12,
-    marginBottom: 8,
-    marginHorizontal: 24,
+    marginBottom: vs(8),
+    marginHorizontal: s(24),
     overflow: 'hidden',
   },
   // Common container styles
@@ -236,16 +239,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    gap: 12,
+    paddingHorizontal: s(12),
+    paddingVertical: vs(12),
+    gap: s(12),
   },
 
   // Solana/Ethereum styles
   // Figma: logo 35.85px, border-radius 21.838px
   logo: {
-    width: 36,
-    height: 36,
+    width: s(36),
+    height: vs(36),
     borderRadius: 18,
     backgroundColor: colors.background.tertiary,
   },
@@ -258,24 +261,24 @@ const styles = StyleSheet.create({
   },
   // Figma: 13.65px Medium, color #d6d6d6, tracking -0.0682px, line-height 1.4
   name: {
-    fontSize: 14,
+    fontSize: ms(14),
     fontFamily: 'DMSansMedium',
     color: colors.text.token,
     flexShrink: 1,
-    lineHeight: 20,
-    letterSpacing: -0.07,
+    lineHeight: vs(20),
+    letterSpacing: ms(-0.07, 0.3),
   },
   verifiedBadge: {
-    width: 14,
-    height: 14,
+    width: s(14),
+    height: vs(14),
     borderRadius: 7,
     backgroundColor: colors.verified.background,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 4,
+    marginLeft: s(4),
   },
   verifiedIcon: {
-    fontSize: 8,
+    fontSize: ms(8),
     color: colors.verified.icon,
     fontWeight: '700',
   },
@@ -283,46 +286,46 @@ const styles = StyleSheet.create({
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: s(2),
   },
   // Figma: 13.65px SemiBold, color rgba(255,255,255,0.79), tracking -0.0682px
   price: {
-    fontSize: 14,
+    fontSize: ms(14),
     fontFamily: 'DMSansSemiBold',
     color: colors.text.tokenPrice,
-    letterSpacing: -0.07,
+    letterSpacing: ms(-0.07, 0.3),
   },
   // Figma: arrow 13.65px
   changeArrow: {
-    fontSize: 14,
+    fontSize: ms(14),
   },
   // Figma: 11.375px Light, tracking -0.0569px
   changeText: {
-    fontSize: 11,
+    fontSize: ms(11),
     fontFamily: 'DMSansLight',
-    letterSpacing: -0.06,
+    letterSpacing: ms(-0.06, 0.3),
   },
   valueContainer: {
     alignItems: 'flex-end',
   },
   // Figma: 17.925px Medium, color #d6d6d6, tracking -0.0896px
   usdValue: {
-    fontSize: 18,
+    fontSize: ms(18),
     fontFamily: 'DMSansMedium',
     color: colors.text.token,
-    letterSpacing: -0.09,
+    letterSpacing: ms(-0.09, 0.3),
   },
   // Figma: 11.95px Medium, color #ffffff
   tokenAmount: {
-    fontSize: 12,
+    fontSize: ms(12),
     fontFamily: 'DMSansMedium',
     color: colors.text.primary,
   },
 
   // Bitcoin-specific styles (scaled proportionally)
   logoBitcoin: {
-    width: 36,
-    height: 36,
+    width: s(36),
+    height: vs(36),
     borderRadius: 18,
     backgroundColor: colors.background.tertiary,
   },
@@ -330,30 +333,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bitcoinUsdValue: {
-    fontSize: 18,
+    fontSize: ms(18),
     fontFamily: 'DMSansBold',
     color: colors.text.token,
-    letterSpacing: -0.09,
+    letterSpacing: ms(-0.09, 0.3),
   },
   bitcoinChangeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: s(2),
   },
   bitcoinChangeText: {
-    fontSize: 11,
+    fontSize: ms(11),
     fontFamily: 'DMSansLight',
-    letterSpacing: -0.06,
+    letterSpacing: ms(-0.06, 0.3),
   },
   bitcoinAmountContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   bitcoinAmount: {
-    fontSize: 18,
+    fontSize: ms(18),
     fontFamily: 'DMSansSemiBold',
     color: colors.text.tokenPrice,
-    letterSpacing: -0.09,
+    letterSpacing: ms(-0.09, 0.3),
   },
 });
 
