@@ -320,11 +320,8 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-  },
-  gradient: {
+    overflow: 'visible',
     borderRadius: ms(borderRadius.card),
-    paddingHorizontal: s(spacing['2xl']),
-    paddingBottom: vs(spacing['2xl']),
     ...Platform.select({
       ios: {
         shadowColor: shadows.card.shadowColor,
@@ -336,6 +333,12 @@ const styles = StyleSheet.create({
         elevation: shadows.card.elevation,
       },
     }),
+  },
+  gradient: {
+    borderRadius: ms(borderRadius.card),
+    paddingHorizontal: s(spacing['2xl']),
+    paddingBottom: vs(spacing['2xl']),
+    overflow: 'hidden',
   },
   content: {
     alignItems: 'center',
