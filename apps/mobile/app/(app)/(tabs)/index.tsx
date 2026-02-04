@@ -14,7 +14,7 @@
  * - Navigation to token detail, send, receive, and activity screens
  */
 
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -22,6 +22,9 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  Animated,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,6 +36,8 @@ import {
   useAccountsContext,
   useBalance,
   useUserConfig,
+  useAvailableNetworks,
+  useAdjacentBalances,
   getStashedPassword,
   colors,
   componentSizes,
@@ -43,6 +48,7 @@ import {
   type CoinInfo,
   type PriceChartPeriod,
   type PriceDataPoint,
+  type AnyNetwork,
 } from '@salmon/shared';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -70,6 +76,13 @@ const BLOCKCHAIN_TO_COINGECKO: Record<BlockchainId, string> = {
   ethereum: 'ethereum',
 };
 
+// Map blockchain to logo URL (outside component to avoid recreation)
+const BLOCKCHAIN_LOGOS: Record<BlockchainId, string> = {
+  solana: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+  bitcoin: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+  ethereum: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+};
+
 // Map period to days for API call (outside component to avoid recreation)
 const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
   '1H': 1,
@@ -80,6 +93,32 @@ const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
   '1Y': 365,
   'All': 365,
 };
+
+/**
+ * Determines the blockchain type from a network object.
+ * Uses network ID patterns to identify the blockchain.
+ */
+function getBlockchainFromNetwork(network: AnyNetwork): BlockchainId {
+  const networkId = network.id.toLowerCase();
+
+  // Solana networks
+  if (networkId.includes('mainnet-beta') || networkId.includes('devnet') || networkId.includes('testnet')) {
+    return 'solana';
+  }
+
+  // Bitcoin networks
+  if (networkId.includes('bitcoin')) {
+    return 'bitcoin';
+  }
+
+  // Ethereum networks (ethereum, goerli, sepolia)
+  if (networkId.includes('ethereum') || networkId.includes('goerli') || networkId.includes('sepolia')) {
+    return 'ethereum';
+  }
+
+  // Default to solana if unable to determine
+  return 'solana';
+}
 
 /**
  * Convert TokenBalanceWithPrice to Token for TokenList
@@ -132,6 +171,9 @@ export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+
+  // Top fade gradient opacity - animated based on scroll position
+  const topFadeOpacity = useRef(new Animated.Value(0)).current;
 
   // Settings sheet visibility
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -187,7 +229,19 @@ export default function HomeScreen() {
     activeBlockchainAccount: userConfigAccount,
   });
 
-  // Get balance data
+  // Get available networks filtered by developer mode
+  const { allNetworks } = useAvailableNetworks({
+    activeBlockchainAccount: userConfigAccount,
+  });
+
+  // Get adjacent network accounts for preloading
+  const { adjacentAccounts, shouldPreload } = useAdjacentBalances({
+    activeAccount,
+    allNetworks,
+    activeIndex: activeBlockchainIndex,
+  });
+
+  // Get balance data for current network (active)
   const {
     tokens,
     usdTotal,
@@ -204,45 +258,121 @@ export default function HomeScreen() {
     skip: !ready || !activeBlockchainAccount,
   });
 
+  // Preload balance data for previous network (activeIndex - 1)
+  const prevNetwork = allNetworks[activeBlockchainIndex - 1];
+  const {
+    usdTotal: prevUsdTotal,
+    changePercent: prevChangePercent,
+    changeAmount: prevChangeAmount,
+    loading: prevLoading,
+    refreshing: prevRefreshing,
+  } = useBalance({
+    account: adjacentAccounts.prevAccount,
+    networkId: prevNetwork?.id as 'mainnet-beta' | 'devnet' | undefined,
+    skip: !ready || !adjacentAccounts.prevAccount || !prevNetwork,
+  });
+
+  // Preload balance data for next network (activeIndex + 1)
+  const nextNetwork = allNetworks[activeBlockchainIndex + 1];
+  const {
+    usdTotal: nextUsdTotal,
+    changePercent: nextChangePercent,
+    changeAmount: nextChangeAmount,
+    loading: nextLoading,
+    refreshing: nextRefreshing,
+  } = useBalance({
+    account: adjacentAccounts.nextAccount,
+    networkId: nextNetwork?.id as 'mainnet-beta' | 'devnet' | undefined,
+    skip: !ready || !adjacentAccounts.nextAccount || !nextNetwork,
+  });
+
   // Create blockchain balances array for carousel
-  const blockchainBalances: BlockchainBalance[] = useMemo(() => [
-    {
-      network: {
-        id: networkId || 'mainnet-beta',
-        name: 'Solana',
-        blockchain: 'solana' as BlockchainId,
-        logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-      },
-      usdTotal,
-      changePercent,
-      changeAmount,
-      loading: loading && !refreshing,
-    },
-    {
-      network: {
-        id: 'bitcoin-mainnet',
-        name: 'Bitcoin',
-        blockchain: 'bitcoin' as BlockchainId,
-        logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
-      },
-      usdTotal: undefined,
-      changePercent: undefined,
-      changeAmount: undefined,
-      loading: false,
-    },
-    {
-      network: {
-        id: 'ethereum-mainnet',
-        name: 'Ethereum',
-        blockchain: 'ethereum' as BlockchainId,
-        logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
-      },
-      usdTotal: undefined,
-      changePercent: undefined,
-      changeAmount: undefined,
-      loading: false,
-    },
-  ], [networkId, usdTotal, changePercent, changeAmount, loading, refreshing]);
+  // Maps available networks from useAvailableNetworks to BlockchainBalance objects
+  // Includes preloaded balance data for adjacent networks (±1 from active index)
+  const blockchainBalances: BlockchainBalance[] = useMemo(() => {
+    return allNetworks.map((network, index) => {
+      const blockchain = getBlockchainFromNetwork(network);
+      const isActiveNetwork = network.id === networkId;
+      const isPrevNetwork = index === activeBlockchainIndex - 1;
+      const isNextNetwork = index === activeBlockchainIndex + 1;
+
+      // Determine which balance data to show based on preloading strategy
+      let balanceData: {
+        usdTotal: number | undefined;
+        changePercent: number | undefined;
+        changeAmount: number | undefined;
+        loading: boolean;
+      };
+
+      if (isActiveNetwork) {
+        // Active network: show current balance data
+        balanceData = {
+          usdTotal,
+          changePercent,
+          changeAmount,
+          loading: loading && !refreshing,
+        };
+      } else if (isPrevNetwork && prevNetwork) {
+        // Previous network (index - 1): show preloaded data
+        balanceData = {
+          usdTotal: prevUsdTotal,
+          changePercent: prevChangePercent,
+          changeAmount: prevChangeAmount,
+          loading: prevLoading && !prevRefreshing,
+        };
+      } else if (isNextNetwork && nextNetwork) {
+        // Next network (index + 1): show preloaded data
+        balanceData = {
+          usdTotal: nextUsdTotal,
+          changePercent: nextChangePercent,
+          changeAmount: nextChangeAmount,
+          loading: nextLoading && !nextRefreshing,
+        };
+      } else {
+        // Non-adjacent networks: show undefined (not preloaded)
+        balanceData = {
+          usdTotal: undefined,
+          changePercent: undefined,
+          changeAmount: undefined,
+          loading: false,
+        };
+      }
+
+      return {
+        network: {
+          id: network.id,
+          name: network.name,
+          blockchain,
+          logo: BLOCKCHAIN_LOGOS[blockchain],
+        },
+        ...balanceData,
+      };
+    });
+  }, [
+    allNetworks,
+    networkId,
+    activeBlockchainIndex,
+    // Current network balance
+    usdTotal,
+    changePercent,
+    changeAmount,
+    loading,
+    refreshing,
+    // Previous network balance
+    prevNetwork,
+    prevUsdTotal,
+    prevChangePercent,
+    prevChangeAmount,
+    prevLoading,
+    prevRefreshing,
+    // Next network balance
+    nextNetwork,
+    nextUsdTotal,
+    nextChangePercent,
+    nextChangeAmount,
+    nextLoading,
+    nextRefreshing,
+  ]);
 
   // Map balance tokens to TokenList format, filtering out spam/unknown tokens
   const tokenListItems = useMemo(() => {
@@ -267,9 +397,9 @@ export default function HomeScreen() {
 
   // Get current blockchain type for TokenList styling
   const currentBlockchain = useMemo(() => {
-    const blockchainMap: BlockchainId[] = ['solana', 'bitcoin', 'ethereum'];
-    return blockchainMap[activeBlockchainIndex] || 'solana';
-  }, [activeBlockchainIndex]);
+    const activeBalance = blockchainBalances[activeBlockchainIndex];
+    return activeBalance?.network.blockchain || 'solana';
+  }, [activeBlockchainIndex, blockchainBalances]);
 
   // Load Bitcoin chart data when user swipes to Bitcoin or changes period
   useEffect(() => {
@@ -495,6 +625,14 @@ export default function HomeScreen() {
     console.log('Switched to blockchain:', blockchain);
   }, []);
 
+  // Handle scroll to show/hide top fade gradient dynamically
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    // Fade in when scrolled down, fade out when at top
+    const opacity = Math.min(offsetY / 30, 1); // Fully visible after 30px scroll
+    topFadeOpacity.setValue(opacity);
+  }, [topFadeOpacity]);
+
   const handleSettingsNavigate = useCallback((screen: string) => {
     setSettingsVisible(false);
     // Navigate to specific settings screen if needed
@@ -645,7 +783,7 @@ export default function HomeScreen() {
         style={styles.balanceCard}
       />
 
-      {/* Action Buttons */}
+      {/* Action Buttons with 24px vertical spacing */}
       <ActionButtonRow
         onSendPress={handleSendPress}
         onReceivePress={handleReceivePress}
@@ -706,6 +844,9 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
+
+      {/* Solid background for status bar area and entire screen */}
+      <View style={styles.solidBackground} />
 
       {/* Scales pattern background - starts below header */}
       <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
@@ -770,16 +911,22 @@ export default function HomeScreen() {
             ListEmptyComponent={ListEmptyComponent}
             refreshing={refreshing}
             onRefresh={refresh}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
             contentContainerStyle={styles.listContent}
             blockchain={currentBlockchain}
           />
         )}
-        {/* Top fade gradient - positioned at the top of the scrollable area */}
-        <LinearGradient
-          colors={[colors.background.primary, 'transparent']}
-          style={styles.topFadeGradient}
+        {/* Top fade gradient - shows only when scrolled, fades in dynamically */}
+        <Animated.View
+          style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
           pointerEvents="none"
-        />
+        >
+          <LinearGradient
+            colors={[colors.background.primary, 'transparent']}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
       </View>
 
       {/* Bottom fade gradient - smooth transition before tab bar */}
@@ -845,6 +992,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.primary,
   },
+  solidBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.background.primary,
+    zIndex: 0,
+  },
   loadingContainer: {
     flex: 1,
     backgroundColor: colors.background.primary,
@@ -871,15 +1023,16 @@ const styles = StyleSheet.create({
     // The card's internal paddingTop handles the header offset
   },
   actionRow: {
-    marginTop: 8,
-    marginBottom: 8,
+    // 24px vertical spacing moved from ActionButtonRow to create space for card shadow
+    marginTop: vs(24), // Space for card shadow to be visible
+    marginBottom: vs(24), // Gap before token list
   },
   topFadeGradient: {
     position: 'absolute',
     left: 0,
     right: 0,
     top: 0,
-    height: 24,
+    height: 30, // iOS standard fade height
     zIndex: 1,
   },
   bottomFadeGradient: {
