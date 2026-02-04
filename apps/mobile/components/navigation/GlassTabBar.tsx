@@ -1,15 +1,15 @@
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { colors, componentSizes, gradients, ms, s, spacing, vs } from '@salmon/shared';
+import { GlassContainer, GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '@salmon/ui';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
-  View,
-  TouchableOpacity,
   StyleSheet,
   Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { colors, gradients, spacing, s, vs, ms } from '@salmon/shared';
-import { HomeSvgIcon, GridViewSvgIcon, SwapSvgIcon, GlassContainer } from '@salmon/ui';
 
 /**
  * Design specs from Figma (node 1698:4682, 1698:4683):
@@ -109,7 +109,7 @@ export function GlassTabBar({
       colors={gradients.tabBarFade.colors}
       start={gradients.tabBarFade.start}
       end={gradients.tabBarFade.end}
-      style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}
+      style={[styles.container, { paddingBottom: Math.max(insets.bottom, componentSizes.tabBarMinBottomPadding) }]}
     >
       <GlassContainer
         style={styles.glassContainer}
@@ -159,24 +159,21 @@ export function GlassTabBar({
 
 const styles = StyleSheet.create({
   // Outer container with gradient fade
-  // Figma: padding-x 24px, gradient black→transparent
   container: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: s(spacing['2xl']), // 24px
-    paddingTop: vs(spacing['3xl']), // Extra padding for gradient fade effect
+    paddingHorizontal: s(spacing['2xl']),
+    paddingTop: vs(componentSizes.tabBarPaddingTop),
   },
   // Glass pill container
-  // Figma: border-radius 61.538px
   glassContainer: {
     borderRadius: 62,
     overflow: 'hidden',
   },
   // Inner pill content
-  // Figma: padding-x 59.75px (node 1697:3514)
   pillContainer: {
     flexDirection: 'row',
     alignItems: 'center',
