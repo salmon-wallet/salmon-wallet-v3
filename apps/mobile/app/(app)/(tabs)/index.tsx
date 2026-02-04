@@ -166,10 +166,8 @@ function mapBalanceToToken(
     coingeckoId?: string | null;
   }
 ): Token {
-  // Check if token has 'verified' or 'strict' tag
-  const isVerified = item.tags?.some(
-    (tag) => tag === 'verified' || tag === 'strict'
-  ) ?? false;
+  // Check if token has 'verified' tag
+  const isVerified = item.tags?.includes('verified') ?? false;
 
   // Calculate absolute USD change based on percentage and current balance
   let absoluteChange: number | undefined;
@@ -407,22 +405,28 @@ export default function HomeScreen() {
   const tokenListItems = useMemo(() => {
     return tokens
       .filter((token) => {
-        // Always show verified tokens (including native SOL)
-        const isVerified = token.tags?.some(
-          (tag) => tag === 'verified' || tag === 'strict' || tag === 'native'
-        );
-        if (isVerified) return true;
+        // Check if token has meaningful tags (not just "unknown")
+        const hasMeaningfulTags =
+          token.tags &&
+          token.tags.length > 0 &&
+          token.tags.some((tag) => tag !== 'unknown');
 
-        // Filter out unknown tokens (no metadata from backend)
-        if (token.name === 'Unknown Token' || token.symbol === 'UNKNOWN') {
+        // Always show tokens with known tags (verified, community, etc.)
+        if (hasMeaningfulTags) return true;
+
+        // Filter out unknown tokens unless developer mode is enabled
+        // Unknown tokens are those with:
+        // - No tags at all
+        // - Only "unknown" tag (from Jupiter API for unverified tokens)
+        if (!developerNetworks) {
           return false;
         }
 
-        // Show all other tokens with metadata
+        // Developer mode: show all tokens including unknown ones
         return true;
       })
       .map(mapBalanceToToken);
-  }, [tokens]);
+  }, [tokens, developerNetworks]);
 
   // Get current blockchain type for TokenList styling
   const currentBlockchain = useMemo(() => {
