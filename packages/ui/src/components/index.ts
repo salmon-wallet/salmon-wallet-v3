@@ -102,9 +102,21 @@ export type { PriceChartProps } from './PriceChart';
 export { TokenInfo } from './TokenInfo';
 export type { TokenInfoProps } from './TokenInfo';
 
+// TokenAbout - Token description/about section with glassmorphism
+export { TokenAbout } from './TokenAbout';
+export type { TokenAboutProps } from './TokenAbout';
+
+// TokenMarketData - Token market statistics with glassmorphism
+export { TokenMarketData } from './TokenMarketData';
+export type { TokenMarketDataProps, MarketData } from './TokenMarketData';
+
 // TokenFeatures - Token characteristics/features badges
 export { TokenFeatures } from './TokenFeatures';
 export type { TokenFeaturesProps } from './TokenFeatures';
+
+// TokenInformationSheet - Bottom sheet modal for token details
+export { TokenInformationSheet } from './TokenInformationSheet';
+export type { TokenInformationSheetProps, CoinInfo } from './TokenInformationSheet';
 
 // TopSheet - Slide-down modal from top of screen
 export { TopSheet } from './TopSheet';
@@ -136,6 +148,14 @@ export type {
   GlassEffectStyle,
   BlurTint,
 } from './GlassContainer';
+
+// NftCard - NFT display card for grid layouts
+export { NftCard, NftCardSkeleton } from './NftCard';
+export type { NftCardProps, NftCardSkeletonProps, NftData } from './NftCard';
+
+// NftDetailSheet - Bottom sheet modal for NFT details
+export { NftDetailSheet } from './NftDetailSheet';
+export type { NftDetailSheetProps, NftDetailData, NftAttribute } from './NftDetailSheet';
 
 // SVG Icons
 export {
