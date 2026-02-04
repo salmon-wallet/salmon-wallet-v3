@@ -67,21 +67,16 @@ export default function WelcomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <View style={styles.content}>
-        {/* Welcome Text */}
-        <Text style={styles.welcomeText}>{title}</Text>
-
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <Image source={Logo} style={styles.logo} resizeMode="contain" />
+        {/* Centered content: Welcome, Logo, Brand Name */}
+        <View style={styles.centerContent}>
+          <Text style={styles.welcomeText}>{title}</Text>
+          <View style={styles.logoContainer}>
+            <Image source={Logo} style={styles.logo} resizeMode="contain" />
+          </View>
+          <Text style={styles.brandName}>Salmon</Text>
         </View>
 
-        {/* Brand Name */}
-        <Text style={styles.brandName}>Salmon</Text>
-
-        {/* Spacer to push buttons to bottom */}
-        <View style={styles.spacer} />
-
-        {/* Buttons Container */}
+        {/* Buttons Container - stays at bottom */}
         <View style={styles.buttonsContainer}>
           {/* Create Account Button (Primary - White) */}
           <PrimaryButton onPress={handleCreateAccount}>
@@ -115,10 +110,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: 'center',
     paddingHorizontal: contentPadding.screen,
-    paddingTop: spacing['5xl'],
     paddingBottom: spacing['3xl'],
+  },
+  centerContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   welcomeText: {
     color: colors.text.primary,
@@ -141,9 +139,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 40,
     textAlign: 'center',
-  },
-  spacer: {
-    flex: 1,
   },
   buttonsContainer: {
     width: '100%',
