@@ -15,6 +15,8 @@ export const spacing = {
   xs: 4,
   /** 8px */
   sm: 8,
+  /** 10px - Used for header icon gaps */
+  base: 10,
   /** 12px */
   md: 12,
   /** 16px */

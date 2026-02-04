@@ -71,6 +71,13 @@ export const colors = {
     active: '#FF5C45',
     inactive: 'rgba(255, 255, 255, 0.3)',
   },
+  /**
+   * TabBar navigation colors
+   */
+  tabBar: {
+    active: '#FF5C45',
+    inactive: 'rgba(255, 255, 255, 0.6)',
+  },
   skeleton: {
     base: 'rgba(64, 73, 98, 0.3)',
     highlight: 'rgba(64, 73, 98, 0.5)',
@@ -204,6 +211,15 @@ export const gradients = {
     colors: ['#10131c', '#161c2d'] as const,
     start: { x: 0.5, y: 0 },
     end: { x: 0.5, y: 1 },
+  },
+  /**
+   * TabBar fade gradient (black to transparent, bottom to top)
+   * Used for better UX when scrolling token list
+   */
+  tabBarFade: {
+    colors: ['#000000', 'rgba(0, 0, 0, 0)'] as const,
+    start: { x: 0.5, y: 1 }, // bottom
+    end: { x: 0.5, y: 0 },   // top
   },
   // CSS versions for web
   primaryCSS:
