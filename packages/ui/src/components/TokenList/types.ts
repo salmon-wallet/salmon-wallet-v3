@@ -1,4 +1,4 @@
-import type { ViewStyle } from 'react-native';
+import type { NativeScrollEvent, NativeSyntheticEvent, ViewStyle } from 'react-native';
 import type { Token } from '@salmon/shared';
 
 /**
@@ -46,6 +46,10 @@ export interface TokenListProps {
   contentContainerStyle?: object;
   /** Current blockchain for layout variations */
   blockchain?: BlockchainType;
+  /** Callback when list is scrolled */
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  /** How often to fire scroll events (ms) */
+  scrollEventThrottle?: number;
 }
 
 /**

@@ -51,6 +51,8 @@ const TokenList: React.FC<TokenListProps> = ({
   onRefresh,
   contentContainerStyle,
   blockchain = 'solana',
+  onScroll,
+  scrollEventThrottle = 16,
 }) => {
   // Render item callback - memoized for performance
   // Must be defined before any conditional returns to comply with Rules of Hooks
@@ -100,6 +102,8 @@ const TokenList: React.FC<TokenListProps> = ({
         ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={emptyComponent}
         refreshControl={refreshControl}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
       />
     </View>
   );
