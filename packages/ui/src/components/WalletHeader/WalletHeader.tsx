@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, spacing, borderRadius, borderWidth, shadows } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, shadows, s, vs, ms } from '@salmon/shared';
 import { WalletSvgIcon, ContentCopySvgIcon, SettingsSvgIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing['2xl'],
-    paddingBottom: spacing.md,
+    paddingHorizontal: s(spacing['2xl']),
+    paddingBottom: vs(spacing.md),
     // Design specs from Figma:
     // - Background color: #10131c (bg-darken)
     backgroundColor: colors.background.primary,
@@ -161,11 +161,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.base, // Figma: 10px gap between wallet icon and account info
+    gap: s(spacing.base), // Figma: 10px gap between wallet icon and account info
   },
   walletIconContainer: {
-    width: 43,
-    height: 46,
+    width: s(43),
+    height: vs(46),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -173,21 +173,21 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: s(spacing.sm),
   },
   accountText: {
-    fontSize: 16.587,
+    fontSize: ms(16.587),
     fontWeight: '600',
     color: colors.text.primary,
-    letterSpacing: 0.166,
-    lineHeight: 22,
+    letterSpacing: ms(0.166, 0.3),
+    lineHeight: vs(22),
   },
   copyButton: {
-    padding: spacing.xs,
+    padding: s(spacing.xs),
   },
   settingsButton: {
-    width: 43,
-    height: 46,
+    width: s(43),
+    height: vs(46),
     alignItems: 'center',
     justifyContent: 'center',
   },
