@@ -1,17 +1,24 @@
 import {
+  borderRadius,
+  borderWidth,
   colors,
+  componentSizes,
+  fontSize,
   getLabelValue,
   hiddenValue,
+  lineHeight,
   ms,
   s,
   showAbsoluteChange,
   showAmount,
   showPercentage,
+  spacing,
   vs,
 } from '@salmon/shared';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BlurContainer } from '../BlurContainer';
+import TokenBadges from './TokenBadges';
 import type { TokenListItemProps } from './types';
 
 /**
@@ -69,7 +76,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   blockchain = 'solana',
   style,
 }) => {
-  const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange, isVerified } = token;
+  const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange, tags } = token;
 
   const handlePress = React.useCallback(() => {
     onPress(token);
@@ -103,7 +110,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   // Bitcoin has a different layout showing price, change, and BTC amount
   if (blockchain === 'bitcoin') {
     return (
-      <BlurContainer style={[styles.glassWrapper, style]}>
+      <BlurContainer style={[styles.glassWrapper, style]} borderWidth={borderWidth.tokenListItem}>
         <TouchableOpacity
           style={styles.bitcoinContainer}
           onPress={handlePress}
@@ -152,7 +159,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
 
   // Solana/Ethereum layout
   return (
-    <BlurContainer style={[styles.glassWrapper, style]}>
+    <BlurContainer style={[styles.glassWrapper, style]} borderWidth={borderWidth.tokenListItem}>
       <TouchableOpacity
         style={styles.container}
         onPress={handlePress}
@@ -174,11 +181,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
             <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
               {name}
             </Text>
-            {isVerified && (
-              <View style={styles.verifiedBadge}>
-                <Text style={styles.verifiedIcon}>{'\u2713'}</Text>
-              </View>
-            )}
+            <TokenBadges tags={tags} />
           </View>
           <View style={styles.priceRow}>
             {displayPrice && (
@@ -217,25 +220,25 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
 const styles = StyleSheet.create({
   // Glass wrapper for iOS 26+ Liquid Glass effect
   glassWrapper: {
-    borderRadius: 12,
-    marginBottom: vs(8),
-    marginHorizontal: s(24),
+    borderRadius: borderRadius.lg,
+    marginBottom: vs(spacing.sm),
+    marginHorizontal: s(spacing['2xl']),
     overflow: 'hidden',
   },
   // Common container styles
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: s(12),
-    paddingVertical: vs(12),
-    gap: s(12),
+    paddingHorizontal: s(spacing.md),
+    paddingVertical: vs(spacing.md),
+    gap: s(spacing.md),
   },
 
   // Solana/Ethereum styles
   logo: {
-    width: s(36),
-    height: vs(36),
-    borderRadius: 18,
+    width: s(componentSizes.tokenIcon),
+    height: vs(componentSizes.tokenIcon),
+    borderRadius: borderRadius.tokenIcon,
     backgroundColor: colors.background.tertiary,
   },
   infoContainer: {
@@ -246,57 +249,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.tokenNamePrice),
     fontFamily: 'DMSansMedium',
     color: colors.text.token,
     flexShrink: 1,
-    lineHeight: vs(20),
+    lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
-  },
-  verifiedBadge: {
-    width: s(14),
-    height: vs(14),
-    borderRadius: 7,
-    backgroundColor: colors.verified.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: s(4),
-  },
-  verifiedIcon: {
-    fontSize: ms(8),
-    color: colors.verified.icon,
-    fontWeight: '700',
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(2),
+    gap: s(spacing['2xs']),
   },
   price: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.tokenNamePrice),
     fontFamily: 'DMSansSemiBold',
     color: colors.text.tokenPrice,
+    lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
   },
   changeArrow: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.tokenNamePrice),
   },
   changeText: {
-    fontSize: ms(11),
+    fontSize: ms(fontSize.tokenChange),
     fontFamily: 'DMSansLight',
     letterSpacing: ms(-0.06, 0.3),
   },
   valueContainer: {
     alignItems: 'flex-end',
+    gap: vs(spacing.tokenAmountGap),
   },
   usdValue: {
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     fontFamily: 'DMSansMedium',
     color: colors.text.token,
     letterSpacing: ms(-0.09, 0.3),
   },
   tokenAmount: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: 'DMSansMedium',
     color: colors.text.primary,
   },
@@ -305,9 +296,9 @@ const styles = StyleSheet.create({
   bitcoinContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: s(12),
-    paddingVertical: vs(12),
-    gap: s(12),
+    paddingHorizontal: s(spacing.md),
+    paddingVertical: vs(spacing.md),
+    gap: s(spacing.md),
   },
   logoBitcoin: {
     width: s(33),
@@ -317,10 +308,10 @@ const styles = StyleSheet.create({
   },
   bitcoinInfoContainer: {
     flex: 1,
-    gap: vs(2),
+    gap: vs(spacing['2xs']),
   },
   bitcoinPrice: {
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     fontFamily: 'DMSansBold',
     color: '#FFFFFF',
     letterSpacing: ms(-0.09, 0.3),
@@ -328,10 +319,10 @@ const styles = StyleSheet.create({
   bitcoinChangeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(2),
+    gap: s(spacing['2xs']),
   },
   bitcoinChangeText: {
-    fontSize: ms(11),
+    fontSize: ms(fontSize.tokenChange),
     fontFamily: 'DMSansLight',
     letterSpacing: ms(-0.06, 0.3),
   },
