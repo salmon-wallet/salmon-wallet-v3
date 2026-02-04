@@ -20,7 +20,7 @@ import Animated, {
   runOnJS,
   interpolate,
 } from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { colors, ms, vs, s } from '@salmon/shared';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -28,6 +28,7 @@ import { TokenListItem } from '../TokenList';
 import { PriceChart } from '../PriceChart';
 import { TokenMarketData } from '../TokenMarketData';
 import { TokenAbout } from '../TokenAbout';
+import { TokenBadgesSection } from './TokenBadgesSection';
 import type { TokenInformationSheetProps } from './types';
 
 // Animation constants
@@ -228,7 +229,8 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={styles.overlay}>
+      <GestureHandlerRootView style={styles.gestureRoot}>
+        <View style={styles.overlay}>
         {/* Backdrop */}
         <TouchableWithoutFeedback onPress={handleBackdropPress}>
           <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} />
@@ -286,6 +288,13 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
               style={{ marginHorizontal: 0 }}
             />
 
+            {/* TokenBadgesSection - Before About */}
+            <TokenBadgesSection
+              tags={token.tags}
+              loading={loading}
+              style={{ marginHorizontal: 0 }}
+            />
+
             {/* TokenAbout - At the bottom */}
             <TokenAbout
               description={coinInfo?.description}
@@ -295,11 +304,15 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
           </ScrollView>
         </Animated.View>
       </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
