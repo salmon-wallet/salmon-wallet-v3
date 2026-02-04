@@ -8,6 +8,7 @@ import {
   hiddenValue,
   colors,
 } from '@salmon/shared';
+import { GlassContainer, isNativeLiquidGlassAvailable } from '../GlassContainer';
 import type { TokenListItemProps } from './types';
 
 /**
@@ -98,6 +99,68 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   // Bitcoin has a different, simplified layout
   if (blockchain === 'bitcoin') {
     return (
+      <GlassContainer
+        style={styles.glassWrapper}
+        fallbackBackgroundColor="rgba(56, 63, 82, 0.1)"
+        fallbackBorderColor="#404962"
+        fallbackBorderWidth={1}
+        fallbackBlurIntensity={2}
+      >
+        <TouchableOpacity
+          style={styles.container}
+          onPress={handlePress}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`${name} token, balance ${uiAmount} ${symbol}`}
+        >
+          {/* Token Logo - slightly smaller for Bitcoin */}
+          <Image
+            source={{ uri: logo || DEFAULT_TOKEN_LOGO }}
+            style={styles.logoBitcoin}
+            resizeMode="cover"
+            accessibilityIgnoresInvertColors
+          />
+
+          {/* Bitcoin Info - USD total with change */}
+          <View style={styles.bitcoinInfoContainer}>
+            {displayUsdValue && (
+              <Text style={styles.bitcoinUsdValue} numberOfLines={1}>
+                {displayUsdValue}
+              </Text>
+            )}
+            <View style={styles.bitcoinChangeRow}>
+              {displayPercentage && (
+                <>
+                  <ChangeArrow isPositive={isPositiveChange} />
+                  <Text style={[styles.bitcoinChangeText, { color: changeColor }]} numberOfLines={1}>
+                    {displayPercentage}
+                    {displayAbsChange && ` (${displayAbsChange})`}
+                  </Text>
+                </>
+              )}
+            </View>
+          </View>
+
+          {/* Bitcoin Amount - Right Side */}
+          <View style={styles.bitcoinAmountContainer}>
+            <Text style={styles.bitcoinAmount} numberOfLines={1}>
+              {displayTokenAmount}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </GlassContainer>
+    );
+  }
+
+  // Solana/Ethereum layout
+  return (
+    <GlassContainer
+      style={styles.glassWrapper}
+      fallbackBackgroundColor="rgba(56, 63, 82, 0.1)"
+      fallbackBorderColor="#404962"
+      fallbackBorderWidth={1}
+      fallbackBlurIntensity={2}
+    >
       <TouchableOpacity
         style={styles.container}
         onPress={handlePress}
@@ -105,26 +168,36 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
         accessibilityRole="button"
         accessibilityLabel={`${name} token, balance ${uiAmount} ${symbol}`}
       >
-        {/* Token Logo - slightly smaller for Bitcoin */}
+        {/* Token Logo */}
         <Image
           source={{ uri: logo || DEFAULT_TOKEN_LOGO }}
-          style={styles.logoBitcoin}
+          style={styles.logo}
           resizeMode="cover"
           accessibilityIgnoresInvertColors
         />
 
-        {/* Bitcoin Info - USD total with change */}
-        <View style={styles.bitcoinInfoContainer}>
-          {displayUsdValue && (
-            <Text style={styles.bitcoinUsdValue} numberOfLines={1}>
-              {displayUsdValue}
+        {/* Token Info - Left Side */}
+        <View style={styles.infoContainer}>
+          <View style={styles.nameRow}>
+            <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+              {name}
             </Text>
-          )}
-          <View style={styles.bitcoinChangeRow}>
+            {isVerified && (
+              <View style={styles.verifiedBadge}>
+                <Text style={styles.verifiedIcon}>{'\u2713'}</Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.priceRow}>
+            {displayPrice && (
+              <Text style={styles.price} numberOfLines={1}>
+                {displayPrice}
+              </Text>
+            )}
             {displayPercentage && (
               <>
                 <ChangeArrow isPositive={isPositiveChange} />
-                <Text style={[styles.bitcoinChangeText, { color: changeColor }]} numberOfLines={1}>
+                <Text style={[styles.changeText, { color: changeColor }]} numberOfLines={1}>
                   {displayPercentage}
                   {displayAbsChange && ` (${displayAbsChange})`}
                 </Text>
@@ -133,99 +206,47 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
           </View>
         </View>
 
-        {/* Bitcoin Amount - Right Side */}
-        <View style={styles.bitcoinAmountContainer}>
-          <Text style={styles.bitcoinAmount} numberOfLines={1}>
+        {/* Value Info - Right Side */}
+        <View style={styles.valueContainer}>
+          {displayUsdValue && (
+            <Text style={styles.usdValue} numberOfLines={1}>
+              {displayUsdValue}
+            </Text>
+          )}
+          <Text style={styles.tokenAmount} numberOfLines={1}>
             {displayTokenAmount}
           </Text>
         </View>
       </TouchableOpacity>
-    );
-  }
-
-  // Solana/Ethereum layout
-  return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={handlePress}
-      activeOpacity={0.7}
-      accessibilityRole="button"
-      accessibilityLabel={`${name} token, balance ${uiAmount} ${symbol}`}
-    >
-      {/* Token Logo */}
-      <Image
-        source={{ uri: logo || DEFAULT_TOKEN_LOGO }}
-        style={styles.logo}
-        resizeMode="cover"
-        accessibilityIgnoresInvertColors
-      />
-
-      {/* Token Info - Left Side */}
-      <View style={styles.infoContainer}>
-        <View style={styles.nameRow}>
-          <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-            {name}
-          </Text>
-          {isVerified && (
-            <View style={styles.verifiedBadge}>
-              <Text style={styles.verifiedIcon}>{'\u2713'}</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.priceRow}>
-          {displayPrice && (
-            <Text style={styles.price} numberOfLines={1}>
-              {displayPrice}
-            </Text>
-          )}
-          {displayPercentage && (
-            <>
-              <ChangeArrow isPositive={isPositiveChange} />
-              <Text style={[styles.changeText, { color: changeColor }]} numberOfLines={1}>
-                {displayPercentage}
-                {displayAbsChange && ` (${displayAbsChange})`}
-              </Text>
-            </>
-          )}
-        </View>
-      </View>
-
-      {/* Value Info - Right Side */}
-      <View style={styles.valueContainer}>
-        {displayUsdValue && (
-          <Text style={styles.usdValue} numberOfLines={1}>
-            {displayUsdValue}
-          </Text>
-        )}
-        <Text style={styles.tokenAmount} numberOfLines={1}>
-          {displayTokenAmount}
-        </Text>
-      </View>
-    </TouchableOpacity>
+    </GlassContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  // Glass wrapper for iOS 26+ Liquid Glass effect
+  // Figma: border-radius 12.391px, border 0.747px #404962
+  glassWrapper: {
+    borderRadius: 12,
+    marginBottom: 8,
+    marginHorizontal: 24,
+    overflow: 'hidden',
+  },
   // Common container styles
+  // Figma: padding-h 11.95px, gap 11.95px
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    backgroundColor: colors.background.tokenItem,
-    borderRadius: 17,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    marginBottom: 10,
-    marginHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    gap: 12,
   },
 
   // Solana/Ethereum styles
+  // Figma: logo 35.85px, border-radius 21.838px
   logo: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.background.tertiary,
   },
   infoContainer: {
@@ -234,102 +255,105 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 2,
   },
+  // Figma: 13.65px Medium, color #d6d6d6, tracking -0.0682px, line-height 1.4
   name: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: colors.text.token,
+    fontSize: 14,
+    fontFamily: 'DMSansMedium',
+    color: '#d6d6d6',
     flexShrink: 1,
-    lineHeight: 25,
-    letterSpacing: -0.09,
+    lineHeight: 20,
+    letterSpacing: -0.07,
   },
   verifiedBadge: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: colors.verified.background,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 6,
+    marginLeft: 4,
   },
   verifiedIcon: {
-    fontSize: 10,
+    fontSize: 8,
     color: colors.verified.icon,
     fontWeight: '700',
   },
+  // Figma: gap 2.275px
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 2,
   },
+  // Figma: 13.65px SemiBold, color rgba(255,255,255,0.79), tracking -0.0682px
   price: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text.tokenPrice,
-    letterSpacing: -0.09,
+    fontSize: 14,
+    fontFamily: 'DMSansSemiBold',
+    color: 'rgba(255, 255, 255, 0.79)',
+    letterSpacing: -0.07,
   },
+  // Figma: arrow 13.65px
   changeArrow: {
-    fontSize: 12,
-    marginLeft: 4,
+    fontSize: 14,
   },
+  // Figma: 11.375px Light, tracking -0.0569px
   changeText: {
-    fontSize: 15,
-    fontWeight: '300',
-    letterSpacing: -0.08,
+    fontSize: 11,
+    fontFamily: 'DMSansLight',
+    letterSpacing: -0.06,
   },
   valueContainer: {
     alignItems: 'flex-end',
   },
+  // Figma: 17.925px Medium, color #d6d6d6, tracking -0.0896px
   usdValue: {
-    fontSize: 24,
-    fontWeight: '500',
-    color: colors.text.token,
-    letterSpacing: -0.12,
-    lineHeight: 28,
+    fontSize: 18,
+    fontFamily: 'DMSansMedium',
+    color: '#d6d6d6',
+    letterSpacing: -0.09,
   },
+  // Figma: 11.95px Medium, color #ffffff
   tokenAmount: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.text.primary,
+    fontSize: 12,
+    fontFamily: 'DMSansMedium',
+    color: '#ffffff',
   },
 
-  // Bitcoin-specific styles
+  // Bitcoin-specific styles (scaled proportionally)
   logoBitcoin: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.background.tertiary,
   },
   bitcoinInfoContainer: {
     flex: 1,
   },
   bitcoinUsdValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.text.primary,
-    letterSpacing: 0.036,
-    lineHeight: 31,
+    fontSize: 18,
+    fontFamily: 'DMSansBold',
+    color: '#d6d6d6',
+    letterSpacing: -0.09,
   },
   bitcoinChangeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 2,
   },
   bitcoinChangeText: {
-    fontSize: 15,
-    fontWeight: '300',
-    letterSpacing: -0.08,
+    fontSize: 11,
+    fontFamily: 'DMSansLight',
+    letterSpacing: -0.06,
   },
   bitcoinAmountContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   bitcoinAmount: {
-    fontSize: 25,
-    fontWeight: '600',
-    color: colors.text.tokenPrice,
-    letterSpacing: -0.13,
+    fontSize: 18,
+    fontFamily: 'DMSansSemiBold',
+    color: 'rgba(255, 255, 255, 0.79)',
+    letterSpacing: -0.09,
   },
 });
 
