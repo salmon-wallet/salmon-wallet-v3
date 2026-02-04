@@ -1,4 +1,4 @@
-import { borderRadius, borderWidth, colors, ms, s, shadows, spacing, vs } from '@salmon/shared';
+import { borderRadius, colors, ms, s, shadows, spacing, vs } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -80,7 +80,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
             accessibilityRole="button"
             accessibilityLabel="Switch wallet account"
           >
-            <WalletSvgIcon size={s(39)} color={colors.text.muted} />
+            <WalletSvgIcon size={s(28)} color={colors.text.muted} />
           </TouchableOpacity>
 
           {/* Account name + address in single line */}
@@ -96,7 +96,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
               accessibilityLabel={`Copy wallet address ${truncatedAddress}`}
               style={styles.copyButton}
             >
-              <ContentCopySvgIcon size={24} color={colors.text.primary} />
+              <ContentCopySvgIcon size={s(16)} color={colors.text.primary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -133,16 +133,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: s(spacing['2xl']),
-    paddingBottom: vs(spacing.md),
     // Design specs from Figma:
     // - Background color: #10131c (bg-darken)
     backgroundColor: colors.background.primary,
     // - Rounded bottom corners: 34.557px
     borderBottomLeftRadius: borderRadius.header,
     borderBottomRightRadius: borderRadius.header,
-    // - Bottom border: 1.38px rgba(255,255,255,0.8)
-    borderBottomWidth: borderWidth.header,
-    borderBottomColor: colors.border.light,
+    // Bottom border removed - will be handled separately
     // - Shadow: 0px 10px 20px rgba(0,0,0,0.9)
     ...Platform.select({
       ios: {
@@ -164,7 +161,7 @@ const styles = StyleSheet.create({
     gap: s(spacing.base),
   },
   walletIconContainer: {
-    width: s(43),
+    width: s(32),
     height: vs(46),
     alignItems: 'center',
     justifyContent: 'center',
@@ -186,8 +183,8 @@ const styles = StyleSheet.create({
     padding: s(spacing.xs),
   },
   settingsButton: {
-    width: s(43),
-    height: vs(46),
+    width: s(30),
+    height: vs(32),
     alignItems: 'center',
     justifyContent: 'center',
   },
