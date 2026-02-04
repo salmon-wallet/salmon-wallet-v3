@@ -14,13 +14,14 @@
  * - Navigation to token detail, send, receive, and activity screens
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
   Text,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,20 +33,51 @@ import {
   useAccountsContext,
   useBalance,
   useUserConfig,
-  SOLANA_NETWORKS,
   getStashedPassword,
+  colors,
+  componentSizes,
+  vs,
+  getMarketChart,
+  getCoinInfo,
   type Token,
+  type CoinInfo,
+  type PriceChartPeriod,
+  type PriceDataPoint,
 } from '@salmon/shared';
 import {
   WalletHeader,
   BalanceCardCarousel,
   ActionButtonRow,
   TokenList,
+  TokenListItem,
   SettingsSheet,
   WalletSwitcherSheet,
+  PriceChart,
+  TokenAbout,
+  TokenMarketData,
+  TokenInformationSheet,
   type BlockchainBalance,
   type BlockchainId,
+  type MarketData,
 } from '@salmon/ui';
+
+// Map blockchain to CoinGecko ID (outside component to avoid recreation)
+const BLOCKCHAIN_TO_COINGECKO: Record<BlockchainId, string> = {
+  solana: 'solana',
+  bitcoin: 'bitcoin',
+  ethereum: 'ethereum',
+};
+
+// Map period to days for API call (outside component to avoid recreation)
+const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
+  '1H': 1,
+  '1D': 1,
+  '1W': 7,
+  '1M': 30,
+  '3M': 90,
+  '1Y': 365,
+  'All': 365,
+};
 
 /**
  * Convert TokenBalanceWithPrice to Token for TokenList
@@ -61,6 +93,7 @@ function mapBalanceToToken(
     price?: number;
     priceChange24h?: number;
     tags?: string[];
+    coingeckoId?: string | null;
   }
 ): Token {
   // Check if token has 'verified' or 'strict' tag
@@ -89,6 +122,7 @@ function mapBalanceToToken(
       : null,
     tags: item.tags,
     isVerified,
+    coingeckoId: item.coingeckoId,
   };
 }
 
@@ -104,6 +138,21 @@ export default function HomeScreen() {
 
   // Active blockchain index for carousel
   const [activeBlockchainIndex, setActiveBlockchainIndex] = useState(0);
+
+  // Bitcoin-specific data states
+  const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
+  const [bitcoinCoinInfo, setBitcoinCoinInfo] = useState<CoinInfo | null>(null);
+  const [bitcoinChartPeriod, setBitcoinChartPeriod] = useState<PriceChartPeriod>('1M');
+  const [bitcoinDataLoading, setBitcoinDataLoading] = useState(false);
+
+  // TokenInformationSheet states
+  const [tokenSheetVisible, setTokenSheetVisible] = useState(false);
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
+  const [selectedTokenChartData, setSelectedTokenChartData] = useState<PriceDataPoint[]>([]);
+  const [selectedTokenCoinInfo, setSelectedTokenCoinInfo] = useState<CoinInfo | null>(null);
+  const [selectedTokenChartPeriod, setSelectedTokenChartPeriod] = useState<PriceChartPeriod>('1M');
+  const [selectedTokenMarketData, setSelectedTokenMarketData] = useState<MarketData | undefined>(undefined);
+  const [selectedTokenLoading, setSelectedTokenLoading] = useState(false);
 
   // Get account state and actions from shared context
   const [accountState, accountActions] = useAccountsContext();
@@ -192,9 +241,25 @@ export default function HomeScreen() {
     },
   ], [networkId, usdTotal, changePercent, changeAmount, loading, refreshing]);
 
-  // Map balance tokens to TokenList format
+  // Map balance tokens to TokenList format, filtering out spam/unknown tokens
   const tokenListItems = useMemo(() => {
-    return tokens.map(mapBalanceToToken);
+    return tokens
+      .filter((token) => {
+        // Always show verified tokens (including native SOL)
+        const isVerified = token.tags?.some(
+          (tag) => tag === 'verified' || tag === 'strict' || tag === 'native'
+        );
+        if (isVerified) return true;
+
+        // Filter out unknown tokens (no metadata from backend)
+        if (token.name === 'Unknown Token' || token.symbol === 'UNKNOWN') {
+          return false;
+        }
+
+        // Show all other tokens with metadata
+        return true;
+      })
+      .map(mapBalanceToToken);
   }, [tokens]);
 
   // Get current blockchain type for TokenList styling
@@ -202,6 +267,176 @@ export default function HomeScreen() {
     const blockchainMap: BlockchainId[] = ['solana', 'bitcoin', 'ethereum'];
     return blockchainMap[activeBlockchainIndex] || 'solana';
   }, [activeBlockchainIndex]);
+
+  // Load Bitcoin chart data when user swipes to Bitcoin or changes period
+  useEffect(() => {
+    const loadBitcoinChartData = async () => {
+      if (currentBlockchain !== 'bitcoin') return;
+
+      setBitcoinDataLoading(true);
+      try {
+        const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
+        const days = PERIOD_TO_DAYS[bitcoinChartPeriod];
+
+        const chartResponse = await getMarketChart(coinId, days);
+
+        // Transform chart data to PriceDataPoint format
+        if (chartResponse?.prices) {
+          const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
+            timestamp,
+            price,
+          }));
+          setBitcoinChartData(priceData);
+        }
+      } catch (error) {
+        console.error('Failed to load Bitcoin chart data:', error);
+      } finally {
+        setBitcoinDataLoading(false);
+      }
+    };
+
+    loadBitcoinChartData();
+  }, [currentBlockchain, bitcoinChartPeriod]);
+
+  // Load Bitcoin coin info once when user swipes to Bitcoin
+  useEffect(() => {
+    const loadBitcoinCoinInfo = async () => {
+      if (currentBlockchain !== 'bitcoin') return;
+      if (bitcoinCoinInfo) return; // Already loaded
+
+      try {
+        const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
+        const infoResponse = await getCoinInfo(coinId);
+        if (infoResponse) {
+          setBitcoinCoinInfo(infoResponse);
+        }
+      } catch (error) {
+        console.error('Failed to load Bitcoin coin info:', error);
+      }
+    };
+
+    loadBitcoinCoinInfo();
+  }, [currentBlockchain, bitcoinCoinInfo]);
+
+  // Load selected token chart data when token is selected or period changes
+  useEffect(() => {
+    const loadSelectedTokenChartData = async () => {
+      if (!selectedToken || !tokenSheetVisible) return;
+
+      const coinId = selectedToken.coingeckoId;
+      if (!coinId) return;
+
+      setSelectedTokenLoading(true);
+      try {
+        const days = PERIOD_TO_DAYS[selectedTokenChartPeriod];
+        const chartResponse = await getMarketChart(coinId, days);
+
+        if (chartResponse?.prices) {
+          const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
+            timestamp,
+            price,
+          }));
+          setSelectedTokenChartData(priceData);
+        }
+      } catch (error) {
+        console.error('Failed to load token chart data:', error);
+      } finally {
+        setSelectedTokenLoading(false);
+      }
+    };
+
+    loadSelectedTokenChartData();
+  }, [selectedToken, selectedTokenChartPeriod, tokenSheetVisible]);
+
+  // Load selected token coin info when token is selected
+  useEffect(() => {
+    const loadSelectedTokenCoinInfo = async () => {
+      if (!selectedToken || !tokenSheetVisible) return;
+
+      const coinId = selectedToken.coingeckoId;
+      if (!coinId) return;
+
+      try {
+        const infoResponse = await getCoinInfo(coinId);
+        if (infoResponse) {
+          setSelectedTokenCoinInfo(infoResponse);
+
+          // Transform CoinInfo to MarketData
+          if (infoResponse.marketData) {
+            const md = infoResponse.marketData;
+            setSelectedTokenMarketData({
+              currentPrice: md.currentPrice,
+              marketCap: md.marketCap,
+              marketCapRank: md.marketCapRank,
+              volume24h: md.totalVolume,
+              high24h: md.high24h,
+              low24h: md.low24h,
+              circulatingSupply: md.circulatingSupply,
+              totalSupply: md.totalSupply,
+              maxSupply: md.maxSupply,
+              ath: md.ath,
+              athChangePercentage: md.athChangePercentage,
+              athDate: md.athDate,
+              atl: md.atl,
+              atlChangePercentage: md.atlChangePercentage,
+              atlDate: md.atlDate,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load token coin info:', error);
+      }
+    };
+
+    loadSelectedTokenCoinInfo();
+  }, [selectedToken, tokenSheetVisible]);
+
+  // Handle chart period change
+  const handleChartPeriodChange = useCallback((period: PriceChartPeriod) => {
+    setBitcoinChartPeriod(period);
+  }, []);
+
+  // Transform CoinInfo to MarketData for TokenMarketData component
+  const bitcoinMarketData: MarketData | undefined = useMemo(() => {
+    if (!bitcoinCoinInfo?.marketData) return undefined;
+    const md = bitcoinCoinInfo.marketData;
+    return {
+      currentPrice: md.currentPrice,
+      marketCap: md.marketCap,
+      marketCapRank: md.marketCapRank,
+      volume24h: md.totalVolume,
+      high24h: md.high24h,
+      low24h: md.low24h,
+      circulatingSupply: md.circulatingSupply,
+      totalSupply: md.totalSupply,
+      maxSupply: md.maxSupply,
+      ath: md.ath,
+      athChangePercentage: md.athChangePercentage,
+      athDate: md.athDate,
+      atl: md.atl,
+      atlChangePercentage: md.atlChangePercentage,
+      atlDate: md.atlDate,
+    };
+  }, [bitcoinCoinInfo]);
+
+  // Create a mock Bitcoin token for display
+  const bitcoinToken: Token | undefined = useMemo(() => {
+    if (!bitcoinCoinInfo?.marketData) return undefined;
+    const md = bitcoinCoinInfo.marketData;
+    return {
+      address: 'bitcoin',
+      name: 'Bitcoin',
+      symbol: 'BTC',
+      logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+      price: md.currentPrice,
+      uiAmount: 0, // No balance yet
+      usdBalance: 0,
+      last24HoursChange: md.priceChangePercentage24h
+        ? { perc: md.priceChangePercentage24h, abs: md.priceChange24h }
+        : null,
+      isVerified: true,
+    };
+  }, [bitcoinCoinInfo]);
 
   // Handlers
   const handleCopyAddress = useCallback(async () => {
@@ -229,11 +464,27 @@ export default function HomeScreen() {
   }, [router]);
 
   const handleTokenPress = useCallback((token: Token) => {
-    router.push({
-      pathname: '/(app)/token-detail',
-      params: { address: token.address },
-    });
-  }, [router]);
+    // Reset previous token data
+    setSelectedTokenChartData([]);
+    setSelectedTokenCoinInfo(null);
+    setSelectedTokenMarketData(undefined);
+    setSelectedTokenChartPeriod('1M');
+    // Set selected token and show sheet
+    setSelectedToken(token);
+    setTokenSheetVisible(true);
+  }, []);
+
+  const handleTokenSheetClose = useCallback(() => {
+    setTokenSheetVisible(false);
+    // Clear selected token after animation
+    setTimeout(() => {
+      setSelectedToken(null);
+    }, 300);
+  }, []);
+
+  const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
+    setSelectedTokenChartPeriod(period);
+  }, []);
 
   const handleBlockchainChange = useCallback((blockchain: BlockchainId, index: number) => {
     setActiveBlockchainIndex(index);
@@ -456,22 +707,70 @@ export default function HomeScreen() {
       {/* Fixed Header: Balance Card + Action Buttons */}
       {FixedHeaderComponent}
 
-      {/* Scrollable Token List */}
+      {/* Scrollable Token List or Bitcoin View */}
       <View style={styles.listContainer}>
-        <TokenList
-          tokens={tokenListItems}
-          loading={loading && tokenListItems.length === 0}
-          onTokenPress={handleTokenPress}
-          hiddenBalance={hiddenBalance}
-          ListEmptyComponent={ListEmptyComponent}
-          refreshing={refreshing}
-          onRefresh={refresh}
-          contentContainerStyle={styles.listContent}
-          blockchain={currentBlockchain}
-        />
+        {currentBlockchain === 'bitcoin' ? (
+          // Bitcoin view with chart, about, and market data
+          <ScrollView
+            style={styles.bitcoinScrollView}
+            contentContainerStyle={styles.bitcoinContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Bitcoin Token Item */}
+            {bitcoinToken && (
+              <TokenListItem
+                token={bitcoinToken}
+                onPress={handleTokenPress}
+                hiddenBalance={hiddenBalance}
+                blockchain="bitcoin"
+              />
+            )}
+
+            {/* Price Chart */}
+            <View style={styles.bitcoinSection}>
+              <PriceChart
+                data={bitcoinChartData}
+                selectedPeriod={bitcoinChartPeriod}
+                onPeriodChange={handleChartPeriodChange}
+                loading={bitcoinDataLoading && bitcoinChartData.length === 0}
+                height={180}
+              />
+            </View>
+
+            {/* Market Data */}
+            <View style={styles.bitcoinSection}>
+              <TokenMarketData
+                data={bitcoinMarketData}
+                symbol="BTC"
+                loading={bitcoinDataLoading && !bitcoinCoinInfo}
+              />
+            </View>
+
+            {/* About Section - at the end */}
+            <View style={styles.bitcoinSection}>
+              <TokenAbout
+                description={bitcoinCoinInfo?.description}
+                loading={bitcoinDataLoading && !bitcoinCoinInfo}
+              />
+            </View>
+          </ScrollView>
+        ) : (
+          // Normal token list for Solana/Ethereum
+          <TokenList
+            tokens={tokenListItems}
+            loading={loading && tokenListItems.length === 0}
+            onTokenPress={handleTokenPress}
+            hiddenBalance={hiddenBalance}
+            ListEmptyComponent={ListEmptyComponent}
+            refreshing={refreshing}
+            onRefresh={refresh}
+            contentContainerStyle={styles.listContent}
+            blockchain={currentBlockchain}
+          />
+        )}
         {/* Top fade gradient - positioned at the top of the scrollable area */}
         <LinearGradient
-          colors={['#0D0D0D', 'transparent']}
+          colors={[colors.background.primary, 'transparent']}
           style={styles.topFadeGradient}
           pointerEvents="none"
         />
@@ -479,7 +778,7 @@ export default function HomeScreen() {
 
       {/* Bottom fade gradient - smooth transition before tab bar */}
       <LinearGradient
-        colors={['transparent', '#0D0D0D']}
+        colors={['transparent', colors.background.primary]}
         style={styles.bottomFadeGradient}
         pointerEvents="none"
       />
@@ -515,6 +814,22 @@ export default function HomeScreen() {
         onEditAccount={handleEditAccount}
         onDeleteAccount={handleDeleteAccount}
       />
+
+      {/* Token Information Sheet */}
+      {selectedToken && (
+        <TokenInformationSheet
+          visible={tokenSheetVisible}
+          onClose={handleTokenSheetClose}
+          token={selectedToken}
+          blockchain={currentBlockchain}
+          chartData={selectedTokenChartData}
+          chartPeriod={selectedTokenChartPeriod}
+          onChartPeriodChange={handleSelectedTokenChartPeriodChange}
+          coinInfo={selectedTokenCoinInfo}
+          marketData={selectedTokenMarketData}
+          loading={selectedTokenLoading && selectedTokenChartData.length === 0}
+        />
+      )}
     </View>
   );
 }
@@ -522,11 +837,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D0D0D',
+    backgroundColor: colors.background.primary,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#0D0D0D',
+    backgroundColor: colors.background.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -543,7 +858,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingTop: 8,
-    paddingBottom: 100, // Space for tab bar
+    paddingBottom: vs(componentSizes.tabBarScrollPadding),
   },
   balanceCard: {
     // Card now extends behind the header - no negative margin needed
@@ -589,5 +904,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.4)',
     textAlign: 'center',
+  },
+  // Bitcoin view styles
+  bitcoinScrollView: {
+    flex: 1,
+  },
+  bitcoinContent: {
+    paddingTop: 8,
+    paddingBottom: vs(componentSizes.tabBarScrollPadding),
+  },
+  bitcoinSection: {
+    marginTop: 16,
   },
 });
