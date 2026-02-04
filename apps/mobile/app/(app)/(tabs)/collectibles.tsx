@@ -582,6 +582,9 @@ export default function CollectiblesScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
+      {/* Solid background for status bar area and entire screen */}
+      <View style={styles.solidBackground} />
+
       {/* WalletHeader - Absolutely positioned above content */}
       <WalletHeader
         accountName={accountName}
@@ -631,6 +634,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.primary,
+  },
+  solidBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.background.primary,
+    zIndex: 0,
   },
   loadingContainer: {
     flex: 1,
