@@ -36,19 +36,19 @@ const TAB_CONFIG: Record<string, TabConfig> = {
     name: 'index',
     icon: HomeSvgIcon,
     label: 'Home',
-    iconSize: s(20), // Figma: 19.631x21.416
+    iconSize: s(21), // Figma: 20.726x22.61 (node 1697:3516)
   },
   collectibles: {
     name: 'collectibles',
     icon: GridViewSvgIcon,
     label: 'Collectibles',
-    iconSize: s(22), // Figma: 21.612x21.612
+    iconSize: s(22), // Figma: 22.406x22.406 (node 1697:3519)
   },
   swap: {
     name: 'swap',
     icon: SwapSvgIcon,
     label: 'Swap',
-    iconSize: s(20), // Figma: 22.619x17.925
+    iconSize: s(23), // Figma: 22.619x17.925 (node 1697:3522)
   },
 };
 
@@ -176,35 +176,35 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   // Inner pill content
-  // Figma: padding-x 44.813px, height 60.497px
+  // Figma: padding-x 59.75px (node 1697:3514)
   pillContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: s(45),
-    height: vs(60),
+    paddingHorizontal: s(60),
   },
   // Tab item
-  // Figma: width 48.547px, height 60.497px, padding-x 14.378px, gap 2.987px
+  // Figma: padding-x 14.378px, padding-y 8.962px, gap 2.987px (node 1697:3515)
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: s(14),
+    paddingVertical: vs(9),
     gap: s(3),
   },
   // Icon container
-  // Figma: varies per icon (~20-22px)
+  // Figma: ~22-23px height to accommodate largest icon
   tabIconContainer: {
-    height: vs(22),
+    height: vs(23),
     alignItems: 'center',
     justifyContent: 'center',
   },
   // Tab label
-  // Figma: DM Sans SemiBold, 7.972px, tracking 0.1594px, line-height 1.4
+  // Figma: DM Sans SemiBold, 8.962px, tracking 0.1792px, line-height 1.4 (node 1697:3517)
   tabLabel: {
     fontFamily: 'DMSansSemiBold',
-    fontSize: ms(8),
-    letterSpacing: ms(0.16, 0.3),
+    fontSize: ms(9),
+    letterSpacing: ms(0.18, 0.3),
     textAlign: 'center',
   },
 });
