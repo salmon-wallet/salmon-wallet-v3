@@ -94,29 +94,58 @@ const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
   'All': 365,
 };
 
+// Network ID to BlockchainId mapping
+const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
+  // Solana networks
+  'mainnet-beta': 'solana',
+  'devnet': 'solana-devnet',
+  'testnet': 'solana-testnet',
+
+  // Bitcoin networks
+  'bitcoin': 'bitcoin',
+  'mainnet': 'bitcoin',
+  'bitcoin-testnet': 'bitcoin-testnet',
+  'bitcoin-regtest': 'bitcoin-signet',
+
+  // Ethereum networks
+  'ethereum': 'ethereum',
+  'ethereum-sepolia': 'ethereum-sepolia',
+  'ethereum-goerli': 'ethereum-holesky',
+};
+
 /**
  * Determines the blockchain type from a network object.
- * Uses network ID patterns to identify the blockchain.
+ * Maps network IDs to their corresponding BlockchainIds.
  */
 function getBlockchainFromNetwork(network: AnyNetwork): BlockchainId {
   const networkId = network.id.toLowerCase();
 
-  // Solana networks
-  if (networkId.includes('mainnet-beta') || networkId.includes('devnet') || networkId.includes('testnet')) {
+  // Direct mapping lookup
+  const blockchain = NETWORK_TO_BLOCKCHAIN[networkId];
+  if (blockchain) {
+    return blockchain;
+  }
+
+  // Fallback: check for partial matches
+  if (networkId.includes('solana')) {
+    if (networkId.includes('devnet')) return 'solana-devnet';
+    if (networkId.includes('testnet')) return 'solana-testnet';
     return 'solana';
   }
 
-  // Bitcoin networks
   if (networkId.includes('bitcoin')) {
+    if (networkId.includes('testnet')) return 'bitcoin-testnet';
+    if (networkId.includes('signet') || networkId.includes('regtest')) return 'bitcoin-signet';
     return 'bitcoin';
   }
 
-  // Ethereum networks (ethereum, goerli, sepolia)
-  if (networkId.includes('ethereum') || networkId.includes('goerli') || networkId.includes('sepolia')) {
+  if (networkId.includes('ethereum')) {
+    if (networkId.includes('sepolia')) return 'ethereum-sepolia';
+    if (networkId.includes('holesky') || networkId.includes('goerli')) return 'ethereum-holesky';
     return 'ethereum';
   }
 
-  // Default to solana if unable to determine
+  // Default to solana mainnet if unable to determine
   return 'solana';
 }
 
