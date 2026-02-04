@@ -67,9 +67,51 @@ const MAINNET_NETWORK_IDS = {
   ethereum: ['mainnet'],
 };
 
+/**
+ * Desired network order for each blockchain.
+ * Mainnet networks are shown first, followed by dev/test networks.
+ */
+const NETWORK_ORDER = {
+  solana: ['mainnet-beta', 'devnet', 'testnet'],
+  bitcoin: ['mainnet', 'testnet', 'regtest'],
+  ethereum: ['mainnet', 'sepolia', 'goerli'],
+};
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
+
+/**
+ * Sorts networks according to a predefined order.
+ * Networks not in the order list are placed at the end in their original order.
+ */
+function sortNetworks<T extends { id: string }>(
+  networks: T[],
+  order: string[]
+): T[] {
+  return networks.sort((a, b) => {
+    const aIndex = order.indexOf(a.id);
+    const bIndex = order.indexOf(b.id);
+
+    // If both are in the order list, sort by their position
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+
+    // If only a is in the order list, it comes first
+    if (aIndex !== -1) {
+      return -1;
+    }
+
+    // If only b is in the order list, it comes first
+    if (bIndex !== -1) {
+      return 1;
+    }
+
+    // If neither is in the order list, maintain original order
+    return 0;
+  });
+}
 
 /**
  * Filters Solana networks based on whether developer mode is enabled.
@@ -79,7 +121,7 @@ function filterSolanaNetworks(
   mainnetIds: string[],
   developerNetworks: boolean
 ): SolanaNetwork[] {
-  return Object.entries(networks)
+  const filtered = Object.entries(networks)
     .filter(([key, network]) => {
       if (developerNetworks) {
         return true;
@@ -87,6 +129,8 @@ function filterSolanaNetworks(
       return mainnetIds.includes(key) || mainnetIds.includes(network.id);
     })
     .map(([, network]) => network);
+
+  return sortNetworks(filtered, NETWORK_ORDER.solana);
 }
 
 /**
@@ -97,7 +141,7 @@ function filterBitcoinNetworks(
   mainnetIds: string[],
   developerNetworks: boolean
 ): BitcoinNetwork[] {
-  return Object.entries(networks)
+  const filtered = Object.entries(networks)
     .filter(([key, network]) => {
       if (developerNetworks) {
         return true;
@@ -105,6 +149,8 @@ function filterBitcoinNetworks(
       return mainnetIds.includes(key) || mainnetIds.includes(network.id);
     })
     .map(([, network]) => network);
+
+  return sortNetworks(filtered, NETWORK_ORDER.bitcoin);
 }
 
 /**
@@ -115,7 +161,7 @@ function filterEthereumNetworks(
   mainnetIds: string[],
   developerNetworks: boolean
 ): EthereumNetwork[] {
-  return Object.entries(networks)
+  const filtered = Object.entries(networks)
     .filter(([key, network]) => {
       if (developerNetworks) {
         return true;
@@ -123,6 +169,8 @@ function filterEthereumNetworks(
       return mainnetIds.includes(key) || mainnetIds.includes(network.id);
     })
     .map(([, network]) => network);
+
+  return sortNetworks(filtered, NETWORK_ORDER.ethereum);
 }
 
 // ============================================================================
