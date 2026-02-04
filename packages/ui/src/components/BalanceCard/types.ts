@@ -51,6 +51,18 @@ export interface BalanceCardCarouselProps {
 }
 
 /**
+ * Props for the BalanceCardSkeleton component
+ */
+export interface BalanceCardSkeletonProps {
+  /** Optional custom styles for the container */
+  style?: ViewStyle;
+  /** Test ID for testing */
+  testID?: string;
+  /** Whether to animate the skeleton (default: true) */
+  animated?: boolean;
+}
+
+/**
  * Props for the BalanceCard component
  */
 export interface BalanceCardProps {

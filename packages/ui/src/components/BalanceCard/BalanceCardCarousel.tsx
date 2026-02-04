@@ -1,42 +1,57 @@
-import React, { useCallback } from 'react';
-import { View, StyleSheet, Dimensions, Text, TouchableOpacity, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  runOnJS,
-} from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
+  componentSizes,
+  getLabelValue,
   gradients,
+  hiddenValue,
+  ms,
+  s,
+  showAbsoluteChange,
   showAmount,
   showPercentage,
-  showAbsoluteChange,
-  getLabelValue,
-  hiddenValue,
-  componentSizes,
   spacing,
-  s,
   vs,
-  ms,
 } from '@salmon/shared';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useCallback } from 'react';
+import { Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BalanceCardCarouselProps, BlockchainId } from './types';
 
 // Import the SVG icons from Icon component
-import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon/SvgIcons';
 import { Ionicons } from '@expo/vector-icons';
+import { BitcoinSvgIcon, EthereumSvgIcon, SolanaSvgIcon } from '../Icon/SvgIcons';
+import { ScalesBackground } from '../ScalesBackground';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
+
+// Professional smooth timing config (like Revolut) - zero bounce
+const SMOOTH_TIMING_CONFIG = {
+  duration: 350,
+  easing: Easing.out(Easing.cubic),
+};
 
 // Gradient colors for each blockchain
 const BLOCKCHAIN_GRADIENTS: Record<BlockchainId, readonly [string, string, string]> = {
   solana: gradients.balanceCardSolana.colors,
   bitcoin: gradients.balanceCardBitcoin.colors,
   ethereum: gradients.balanceCardEthereum.colors,
+};
+
+// ScalesBackground stroke colors for each blockchain (15% opacity)
+const BLOCKCHAIN_SCALES_COLORS: Record<BlockchainId, string> = {
+  solana: 'rgba(153, 69, 255, 0.15)',   // Solana purple (#9945FF)
+  bitcoin: 'rgba(247, 147, 26, 0.15)',   // Bitcoin orange (#F7931A)
+  ethereum: 'rgba(98, 126, 234, 0.15)',  // Ethereum blue (#627EEA)
 };
 
 /**
@@ -81,6 +96,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   const contentPaddingTop = componentSizes.headerInnerHeight + spacing.md;
 
   const translateX = useSharedValue(0);
+  const isAnimating = useSharedValue(false);
 
   const updateIndex = useCallback(
     (newIndex: number) => {
@@ -93,20 +109,78 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
 
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
+      if (isAnimating.value) return;
       translateX.value = event.translationX;
     })
     .onEnd((event) => {
+      if (isAnimating.value) return;
       const shouldSwipeLeft =
         event.translationX < -SWIPE_THRESHOLD && activeIndex < blockchains.length - 1;
       const shouldSwipeRight = event.translationX > SWIPE_THRESHOLD && activeIndex > 0;
 
       if (shouldSwipeLeft) {
-        runOnJS(updateIndex)(activeIndex + 1);
+        // Swipe left → animate current content OFF to the left
+        isAnimating.value = true;
+        translateX.value = withTiming(
+          -SCREEN_WIDTH,
+          { duration: 200 },
+          (finished) => {
+            if (finished) {
+              // Update index (loads new content)
+              runOnJS(updateIndex)(activeIndex + 1);
+              // Position new content OFF to the right
+              translateX.value = SCREEN_WIDTH;
+              // Animate new content IN from the right
+              translateX.value = withTiming(
+                0,
+                SMOOTH_TIMING_CONFIG,
+                (timingFinished) => {
+                  if (timingFinished) {
+                    isAnimating.value = false;
+                  }
+                }
+              );
+            }
+          }
+        );
       } else if (shouldSwipeRight) {
-        runOnJS(updateIndex)(activeIndex - 1);
+        // Swipe right → animate current content OFF to the right
+        isAnimating.value = true;
+        translateX.value = withTiming(
+          SCREEN_WIDTH,
+          { duration: 200 },
+          (finished) => {
+            if (finished) {
+              // Update index (loads new content)
+              runOnJS(updateIndex)(activeIndex - 1);
+              // Position new content OFF to the left
+              translateX.value = -SCREEN_WIDTH;
+              // Animate new content IN from the left
+              translateX.value = withTiming(
+                0,
+                SMOOTH_TIMING_CONFIG,
+                (timingFinished) => {
+                  if (timingFinished) {
+                    isAnimating.value = false;
+                  }
+                }
+              );
+            }
+          }
+        );
+      } else {
+        // Not enough swipe distance → smooth return to center (no bounce)
+        isAnimating.value = true;
+        translateX.value = withTiming(
+          0,
+          SMOOTH_TIMING_CONFIG,
+          (finished) => {
+            if (finished) {
+              isAnimating.value = false;
+            }
+          }
+        );
       }
-
-      translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
     });
 
   // Animated style for content sliding
@@ -116,7 +190,9 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
 
   // Get current blockchain data
   const currentBlockchain = blockchains[activeIndex];
-  const currentGradient = BLOCKCHAIN_GRADIENTS[currentBlockchain?.network.blockchain || 'solana'];
+  const currentBlockchainId = currentBlockchain?.network.blockchain || 'solana';
+  const currentGradient = BLOCKCHAIN_GRADIENTS[currentBlockchainId];
+  const currentScalesColor = BLOCKCHAIN_SCALES_COLORS[currentBlockchainId];
 
   // Format values
   const { usdTotal, changePercent = 0, changeAmount = 0 } = currentBlockchain || {};
@@ -166,6 +242,13 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
         end={{ x: 0.5, y: 1 }}
         style={[styles.gradient, { paddingTop: contentPaddingTop }]}
       >
+        {/* Scales pattern overlay - color based on current blockchain */}
+        <ScalesBackground
+          strokeColor={currentScalesColor}
+          strokeWidth={1}
+          patternHeight={26}
+          style={styles.scalesOverlay}
+        />
         <GestureDetector gesture={panGesture}>
           <Animated.View style={[styles.content, animatedContentStyle]}>
             {/* Logo - Figma: 32x29px */}
@@ -226,17 +309,15 @@ const styles = StyleSheet.create({
     borderRadius: ms(26),
     paddingHorizontal: s(24),
     paddingBottom: vs(24),
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.8)',
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 7 },
-        shadowOpacity: 0.9,
-        shadowRadius: 15,
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 1,
+        shadowRadius: 25,
       },
       android: {
-        elevation: 15,
+        elevation: 24,
       },
     }),
   },
@@ -255,7 +336,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
   },
-  // Figma: gap-11.95 between balance and eye (node 1697:3530)
   balanceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -330,6 +410,15 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     backgroundColor: colors.text.primary,
+  },
+  scalesOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: ms(26),
+    overflow: 'hidden',
   },
 });
 

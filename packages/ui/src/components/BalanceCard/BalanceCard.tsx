@@ -14,7 +14,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
 import {
-  ActivityIndicator,
   Platform,
   StyleSheet,
   Text,
@@ -22,6 +21,8 @@ import {
   View,
 } from 'react-native';
 import { BitcoinSvgIcon, EthereumSvgIcon, SolanaSvgIcon } from '../Icon/SvgIcons';
+import { ScalesBackground } from '../ScalesBackground';
+import { BalanceCardSkeleton } from './BalanceCardSkeleton';
 import type { BalanceCardProps, BlockchainId } from './types';
 
 /**
@@ -36,6 +37,21 @@ const getGradientForBlockchain = (blockchain: BlockchainId) => {
     case 'solana':
     default:
       return gradients.balanceCardSolana;
+  }
+};
+
+/**
+ * Get ScalesBackground stroke color for a blockchain (15% opacity)
+ */
+const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
+  switch (blockchain) {
+    case 'bitcoin':
+      return 'rgba(247, 147, 26, 0.15)';   // Bitcoin orange (#F7931A)
+    case 'ethereum':
+      return 'rgba(98, 126, 234, 0.15)';   // Ethereum blue (#627EEA)
+    case 'solana':
+    default:
+      return 'rgba(153, 69, 255, 0.15)';   // Solana purple (#9945FF)
   }
 };
 
@@ -107,8 +123,9 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   const displayPercentage = showPercentage(changePercent);
   const displayAbsChange = showAbsoluteChange(changeAmount);
 
-  // Get gradient for current blockchain
+  // Get gradient and scales color for current blockchain
   const gradient = getGradientForBlockchain(blockchain);
+  const scalesColor = getScalesColorForBlockchain(blockchain);
 
   // Determine if change is positive
   const isPositive = changePercent >= 0;
@@ -203,6 +220,13 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       end={gradient.end}
       style={[styles.container, style]}
     >
+      {/* Scales pattern overlay - color based on blockchain */}
+      <ScalesBackground
+        strokeColor={scalesColor}
+        strokeWidth={1}
+        patternHeight={26}
+        style={styles.scalesOverlay}
+      />
       {/* Blockchain Logo - Figma: 32x29px (node 1697:3529) */}
       <View style={styles.logoContainer}>
         {renderBlockchainLogo(blockchain)}
@@ -211,11 +235,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       {/* Balance display */}
       <View style={styles.balanceContainer}>
         {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={colors.text.primary}
-            style={styles.loader}
-          />
+          <BalanceCardSkeleton testID="balance-card-skeleton" />
         ) : (
           renderBalance()
         )}
@@ -243,6 +263,15 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 };
 
 const styles = StyleSheet.create({
+  scalesOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: ms(26),
+    overflow: 'hidden',
+  },
   container: {
     borderRadius: ms(26),
     paddingTop: vs(24),
@@ -251,21 +280,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: vs(18),
-    // Shadow: 0px 7.469px 14.938px 1.494px rgba(0,0,0,0.9)
+    // Shadow: 0px 15px 25px rgba(0,0,0,1)
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 7 },
-        shadowOpacity: 0.9,
-        shadowRadius: 15,
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 1,
+        shadowRadius: 25,
       },
       android: {
-        elevation: 15,
+        elevation: 24,
       },
     }),
-    // Bottom border: 1.032px rgba(255,255,255,0.8)
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
   },
   // Container for blockchain logos
   logoContainer: {
@@ -309,9 +335,6 @@ const styles = StyleSheet.create({
   },
   eyeButton: {
     padding: s(4),
-  },
-  loader: {
-    height: vs(37),
   },
   changeRow: {
     flexDirection: 'row',
