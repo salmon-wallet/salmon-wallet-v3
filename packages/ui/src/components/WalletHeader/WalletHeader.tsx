@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: spacing.base, // Figma: 10px gap between wallet icon and account info
   },
   walletIconContainer: {
     width: 43,
