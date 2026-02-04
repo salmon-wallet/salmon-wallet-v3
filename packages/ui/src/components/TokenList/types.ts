@@ -1,3 +1,4 @@
+import type { ViewStyle } from 'react-native';
 import type { Token } from '@salmon/shared';
 
 /**
@@ -17,6 +18,8 @@ export interface TokenListItemProps {
   hiddenBalance?: boolean;
   /** Current blockchain for layout variations (Bitcoin has different layout) */
   blockchain?: BlockchainType;
+  /** Optional custom styles for the container */
+  style?: ViewStyle;
 }
 
 /**
