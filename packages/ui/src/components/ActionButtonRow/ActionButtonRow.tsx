@@ -1,4 +1,15 @@
-import { colors, gradients, ms, s, vs } from '@salmon/shared';
+import {
+  borderRadius,
+  borderWidth,
+  colors,
+  componentSizes,
+  fontSize,
+  gradients,
+  ms,
+  s,
+  spacing,
+  vs,
+} from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -75,7 +86,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           end={gradients.primaryButton.end}
           style={styles.primaryButton}
         >
-          <CallMadeSvgIcon size={ms(BUTTON_DIMENSIONS.iconSize)} color="#e0e0e0" />
+          <CallMadeSvgIcon size={ms(componentSizes.actionButtonIcon)} color="#e0e0e0" />
           <Text style={styles.primaryButtonText}>Send</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -85,7 +96,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
         <BlurContainer
           style={styles.secondaryButton}
           borderColor={colors.accent.primary}
-          borderWidth={0.45}
+          borderWidth={borderWidth.actionButton}
         >
           <TouchableOpacity
             style={styles.secondaryButtonContent}
@@ -96,7 +107,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
             accessibilityLabel="Receive tokens"
           >
             <QrCodeScannerSvgIcon
-              size={ms(BUTTON_DIMENSIONS.iconSize)}
+              size={ms(componentSizes.actionButtonIcon)}
               color={receiveDisabled ? colors.button.disabledText : '#e0e0e0'}
             />
             <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
@@ -111,7 +122,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
         <BlurContainer
           style={styles.secondaryButton}
           borderColor={colors.accent.primary}
-          borderWidth={0.45}
+          borderWidth={borderWidth.actionButton}
         >
           <TouchableOpacity
             style={styles.secondaryButtonContent}
@@ -122,7 +133,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
             accessibilityLabel="View activity"
           >
             <ReceiptLongSvgIcon
-              size={ms(BUTTON_DIMENSIONS.iconSize)}
+              size={ms(componentSizes.actionButtonIcon)}
               color={activityDisabled ? colors.button.disabledText : '#e0e0e0'}
             />
             <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
@@ -135,29 +146,24 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
   );
 };
 
-// Figma spec dimensions (node 1697-3549)
-const BUTTON_DIMENSIONS = {
-  width: 98,
-  height: 39,
-  borderRadius: 12,
-  paddingHorizontal: 15,
-  gap: 7.5,
-  fontSize: 12,
-  iconSize: 13,
-  containerPaddingHorizontal: 60,
-} as const;
+// Figma spec dimensions - Updated to match new design
+// Container: paddingHorizontal: 40px
+// Buttons: width: 112px, height: 47px, borderRadius: 14px, gap: 8px
+// Icons: ~15px
+// Text: fontSize: 14.5px, lineHeight: 1.5
+// Border: 0.5px rgba(255,92,69,0.8)
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: s(BUTTON_DIMENSIONS.containerPaddingHorizontal),
+    paddingHorizontal: s(spacing['4xl']), // 40px
   },
   buttonWrapper: {
-    width: s(BUTTON_DIMENSIONS.width),
-    height: vs(BUTTON_DIMENSIONS.height),
-    borderRadius: ms(BUTTON_DIMENSIONS.borderRadius),
+    width: s(componentSizes.actionButtonWidth), // 112px
+    height: vs(componentSizes.actionButtonHeight), // 47px
+    borderRadius: ms(componentSizes.actionButtonRadius), // 14px
     overflow: 'hidden',
   },
   buttonDisabled: {
@@ -168,35 +174,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(BUTTON_DIMENSIONS.paddingHorizontal),
-    gap: s(BUTTON_DIMENSIONS.gap),
-    borderRadius: ms(BUTTON_DIMENSIONS.borderRadius),
-    borderWidth: 0.45,
+    gap: s(spacing.sm), // 8px
+    borderRadius: ms(componentSizes.actionButtonRadius), // 14px
+    borderWidth: borderWidth.actionButton, // 0.5px
     borderColor: 'rgba(255, 92, 69, 0.8)',
   },
   primaryButtonText: {
-    fontSize: ms(BUTTON_DIMENSIONS.fontSize),
+    fontSize: ms(fontSize.actionButton), // 14.5px
     fontWeight: '400',
     color: '#e0e0e0',
-    lineHeight: ms(BUTTON_DIMENSIONS.fontSize * 1.5),
+    lineHeight: ms(fontSize.actionButton * 1.5), // lineHeight: 1.5
   },
   secondaryButton: {
     flex: 1,
-    borderRadius: ms(BUTTON_DIMENSIONS.borderRadius),
+    borderRadius: ms(componentSizes.actionButtonRadius), // 14px
   },
   secondaryButtonContent: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(BUTTON_DIMENSIONS.paddingHorizontal),
-    gap: s(BUTTON_DIMENSIONS.gap),
+    gap: s(spacing.sm), // 8px
   },
   secondaryButtonText: {
-    fontSize: ms(BUTTON_DIMENSIONS.fontSize),
+    fontSize: ms(fontSize.actionButton), // 14.5px
     fontWeight: '400',
     color: '#e0e0e0',
-    lineHeight: ms(BUTTON_DIMENSIONS.fontSize * 1.5),
+    lineHeight: ms(fontSize.actionButton * 1.5), // lineHeight: 1.5
   },
   textDisabled: {
     color: colors.button.disabledText,
