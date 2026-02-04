@@ -8,7 +8,7 @@ import type { BlurContainerProps } from './types';
  * BlurContainer - A reusable blur effect component
  *
  * Provides a consistent blur effect across the app using expo-blur BlurView.
- * Uses #383F52 at 10% opacity as background with blur intensity 40.
+ * Uses #383F52 at 10% opacity as background with blur intensity 8.
  *
  * @example
  * ```tsx
@@ -29,7 +29,7 @@ import type { BlurContainerProps } from './types';
 export function BlurContainer({
   children,
   style,
-  blurIntensity = 40,
+  blurIntensity = 8,
   blurTint = 'dark',
   backgroundColor = colors.background.tokenItem,
   borderColor = colors.border.default,

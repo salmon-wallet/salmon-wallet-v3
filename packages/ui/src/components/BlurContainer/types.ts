@@ -7,7 +7,7 @@ export interface BlurContainerProps {
   style?: StyleProp<ViewStyle>;
   /**
    * Blur intensity for BlurView
-   * @default 40
+   * @default 8
    */
   blurIntensity?: number;
   /**
