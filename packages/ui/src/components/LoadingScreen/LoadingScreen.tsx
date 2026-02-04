@@ -11,7 +11,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -20,15 +20,12 @@ import Animated, {
   withTiming,
   withSequence,
   Easing,
-  interpolate,
   runOnJS,
 } from 'react-native-reanimated';
 import { Logo } from '@salmon/assets';
 import { colors, DEFAULT_WALLET_TIPS } from '@salmon/shared';
 
 import { LoadingScreenProps } from './types';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ============================================================================
 // Animation Constants
@@ -108,9 +105,11 @@ export function LoadingScreen({
   }, [tips.length]);
 
   // Helper function to fade tip back in
+  // Note: tipOpacity is a Reanimated SharedValue which is stable and doesn't need to be in dependencies
   const fadeInTip = useCallback(() => {
     tipOpacity.value = withTiming(1, { duration: TIP_FADE_DURATION });
-  }, [tipOpacity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Cycle through tips
   useEffect(() => {
@@ -151,7 +150,6 @@ export function LoadingScreen({
   if (!isVisible) return null;
 
   const spinnerStrokeWidth = 3;
-  const spinnerRadius = spinnerSize / 2 - spinnerStrokeWidth;
 
   return (
     <Animated.View style={[styles.overlay, overlayStyle]}>
