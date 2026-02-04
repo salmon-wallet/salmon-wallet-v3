@@ -141,13 +141,9 @@ export type {
   AccountListItemProps,
 } from './WalletSwitcherSheet';
 
-// GlassContainer - Reusable glass/blur effect component (iOS 26+ Liquid Glass)
-export { GlassContainer, isNativeLiquidGlassAvailable } from './GlassContainer';
-export type {
-  GlassContainerProps,
-  GlassEffectStyle,
-  BlurTint,
-} from './GlassContainer';
+// BlurContainer - Reusable blur effect component
+export { BlurContainer } from './BlurContainer';
+export type { BlurContainerProps, BlurTint } from './BlurContainer';
 
 // NftCard - NFT display card for grid layouts
 export { NftCard, NftCardSkeleton } from './NftCard';
