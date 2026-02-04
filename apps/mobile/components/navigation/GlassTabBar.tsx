@@ -5,35 +5,30 @@ import {
   StyleSheet,
   Text,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { colors, gradients, spacing } from '@salmon/shared';
 import { HomeSvgIcon, GridViewSvgIcon, SwapSvgIcon, GlassContainer } from '@salmon/ui';
 
 /**
- * Design specs from Figma:
- * - Glass effect pill-shaped container (transparent/blur background)
- * - Rounded corners: 82px border radius
- * - 3 tabs: Home, Collectibles, Swap
- * - Active tab: Orange/red color #ff5c45 for both icon and text
- * - Inactive tab: White color with slight opacity
- * - Font: DM Sans SemiBold, ~11px
- * - Icons: ~28px height
- * - Padding: 60px horizontal, items centered with space-between
+ * Design specs from Figma (node 1698:4682, 1698:4683):
+ * - Outer container: padding-x 24px, gradient fade black→transparent
+ * - Glass pill: border-radius 62px, padding-x 45px, height 60px
+ * - Tab items: width ~49px, height 60px, padding-x 14px, gap 3px
+ * - Icons: Home 20x21, Grid 22x22, Swap 23x18
+ * - Labels: DM Sans SemiBold, 8px, tracking 0.16px, line-height 1.4
+ * - Active: #ff5c45, Inactive: rgba(255,255,255,0.6)
  *
  * iOS 26+: Uses native Liquid Glass effect via expo-glass-effect
  * iOS < 26 / Android: Falls back to BlurView with enhanced glass simulation
  */
 
-const TAB_COLORS = {
-  active: '#ff5c45',
-  inactive: 'rgba(255, 255, 255, 0.6)',
-  inactiveIcon: 'rgba(255, 255, 255, 0.7)',
-} as const;
-
 interface TabConfig {
   name: string;
   icon: React.FC<{ size?: number; color?: string }>;
   label: string;
+  iconSize: number;
 }
 
 const TAB_CONFIG: Record<string, TabConfig> = {
@@ -41,16 +36,19 @@ const TAB_CONFIG: Record<string, TabConfig> = {
     name: 'index',
     icon: HomeSvgIcon,
     label: 'Home',
+    iconSize: 20, // Figma: 19.631x21.416
   },
   collectibles: {
     name: 'collectibles',
     icon: GridViewSvgIcon,
     label: 'Collectibles',
+    iconSize: 22, // Figma: 21.612x21.612
   },
   swap: {
     name: 'swap',
     icon: SwapSvgIcon,
     label: 'Swap',
+    iconSize: 20, // Figma: 22.619x17.925
   },
 };
 
@@ -71,8 +69,8 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
     return null;
   }
 
-  const iconColor = isFocused ? TAB_COLORS.active : TAB_COLORS.inactiveIcon;
-  const labelColor = isFocused ? TAB_COLORS.active : TAB_COLORS.inactive;
+  const iconColor = isFocused ? colors.tabBar.active : colors.tabBar.inactive;
+  const labelColor = isFocused ? colors.tabBar.active : colors.tabBar.inactive;
   const IconComponent = config.icon;
 
   return (
@@ -85,7 +83,7 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
       style={styles.tabItem}
     >
       <View style={styles.tabIconContainer}>
-        <IconComponent size={28} color={iconColor} />
+        <IconComponent size={config.iconSize} color={iconColor} />
       </View>
       <Text style={[styles.tabLabel, { color: labelColor }]}>
         {config.label}
@@ -107,17 +105,21 @@ export function GlassTabBar({
     .filter((route): route is typeof state.routes[0] => route !== undefined);
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+    <LinearGradient
+      colors={gradients.tabBarFade.colors}
+      start={gradients.tabBarFade.start}
+      end={gradients.tabBarFade.end}
+      style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}
+    >
       <GlassContainer
         style={styles.glassContainer}
         fallbackBlurIntensity={80}
-        fallbackBackgroundColor="rgba(30, 30, 30, 0.5)"
-        fallbackBorderColor="rgba(255, 255, 255, 0.1)"
+        fallbackBackgroundColor={colors.background.glass}
+        fallbackBorderColor={colors.border.subtle}
         fallbackBorderWidth={1}
       >
         <View style={styles.pillContainer}>
           {visibleRoutes.map((route) => {
-            const { options } = descriptors[route.key];
             const isFocused = state.routes[state.index]?.name === route.name;
 
             const onPress = () => {
@@ -151,47 +153,58 @@ export function GlassTabBar({
           })}
         </View>
       </GlassContainer>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  // Outer container with gradient fade
+  // Figma: padding-x 24px, gradient black→transparent
   container: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing['2xl'], // 24px
+    paddingTop: spacing['3xl'], // Extra padding for gradient fade effect
   },
+  // Glass pill container
+  // Figma: border-radius 61.538px
   glassContainer: {
-    borderRadius: 82,
+    borderRadius: 62,
     overflow: 'hidden',
   },
+  // Inner pill content
+  // Figma: padding-x 44.813px, height 60.497px
   pillContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 60,
-    paddingVertical: 12,
-    minWidth: 320,
+    paddingHorizontal: 45,
+    height: 60,
   },
+  // Tab item
+  // Figma: width 48.547px, height 60.497px, padding-x 14.378px, gap 2.987px
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingHorizontal: 14,
+    gap: 3,
   },
+  // Icon container
+  // Figma: varies per icon (~20-22px)
   tabIconContainer: {
-    width: 28,
-    height: 28,
-    marginBottom: 4,
+    height: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Tab label
+  // Figma: DM Sans SemiBold, 7.972px, tracking 0.1594px, line-height 1.4
   tabLabel: {
-    fontFamily: 'DMSansBold',
-    fontSize: 11,
+    fontFamily: 'DMSansSemiBold',
+    fontSize: 8,
+    letterSpacing: 0.16,
     textAlign: 'center',
   },
 });
