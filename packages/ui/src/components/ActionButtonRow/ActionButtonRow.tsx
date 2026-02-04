@@ -1,13 +1,13 @@
-import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { colors, gradients, ms, s, vs } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, gradients } from '@salmon/shared';
+import React, { useCallback } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { GlassContainer } from '../GlassContainer';
 import {
   CallMadeSvgIcon,
   QrCodeScannerSvgIcon,
   ReceiptLongSvgIcon,
 } from '../Icon/SvgIcons';
-import { GlassContainer } from '../GlassContainer';
 import type { ActionButtonRowProps } from './types';
 
 /**
@@ -75,7 +75,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           end={gradients.primaryButton.end}
           style={styles.primaryButton}
         >
-          <CallMadeSvgIcon size={18} color={colors.text.primary} />
+          <CallMadeSvgIcon size={ms(15)} color="#e0e0e0" />
           <Text style={styles.primaryButtonText}>Send</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -83,10 +83,10 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
       {/* Receive Button - Secondary with Glass Effect */}
       <GlassContainer
         style={[styles.secondaryButtonWrapper, receiveDisabled && styles.buttonDisabled]}
-        fallbackBlurIntensity={40}
+        fallbackBlurIntensity={2.5}
         fallbackBackgroundColor="rgba(255, 255, 255, 0.04)"
         fallbackBorderColor="rgba(255, 92, 69, 0.8)"
-        fallbackBorderWidth={1}
+        fallbackBorderWidth={0.5}
       >
         <TouchableOpacity
           style={styles.secondaryButtonContent}
@@ -97,7 +97,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           accessibilityLabel="Receive tokens"
         >
           <QrCodeScannerSvgIcon
-            size={18}
+            size={ms(15)}
             color={receiveDisabled ? colors.button.disabledText : '#e0e0e0'}
           />
           <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
@@ -109,10 +109,10 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
       {/* Activity Button - Secondary with Glass Effect */}
       <GlassContainer
         style={[styles.secondaryButtonWrapper, activityDisabled && styles.buttonDisabled]}
-        fallbackBlurIntensity={40}
+        fallbackBlurIntensity={2.5}
         fallbackBackgroundColor="rgba(255, 255, 255, 0.04)"
         fallbackBorderColor="rgba(255, 92, 69, 0.8)"
-        fallbackBorderWidth={1}
+        fallbackBorderWidth={0.5}
       >
         <TouchableOpacity
           style={styles.secondaryButtonContent}
@@ -123,7 +123,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           accessibilityLabel="View activity"
         >
           <ReceiptLongSvgIcon
-            size={18}
+            size={ms(15)}
             color={activityDisabled ? colors.button.disabledText : '#e0e0e0'}
           />
           <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
@@ -139,14 +139,14 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 80,
-    paddingVertical: 32,
-    gap: 16,
+    justifyContent: 'space-between',
+    paddingHorizontal: s(28),
+    paddingVertical: vs(24),
   },
   buttonWrapper: {
-    borderRadius: 17,
+    borderRadius: ms(14),
     overflow: 'hidden',
+    width: s(118),
   },
   buttonDisabled: {
     opacity: colors.button.disabledOpacity,
@@ -155,34 +155,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 22,
-    gap: 11,
-    borderRadius: 17,
-    borderWidth: 1,
+    height: vs(47),
+    paddingHorizontal: s(18),
+    gap: s(9),
+    borderRadius: ms(14),
+    borderWidth: 0.5,
     borderColor: 'rgba(255, 92, 69, 0.8)',
   },
   primaryButtonText: {
-    fontSize: 17,
+    fontSize: ms(14.5),
     fontWeight: '400',
-    color: '#FFFFFF',
+    color: '#e0e0e0',
+    lineHeight: ms(14.5 * 1.5),
   },
   secondaryButtonWrapper: {
-    borderRadius: 17,
+    borderRadius: ms(14),
     overflow: 'hidden',
+    width: s(118),
   },
   secondaryButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 22,
-    gap: 11,
+    height: vs(47),
+    paddingHorizontal: s(18),
+    gap: s(9),
   },
   secondaryButtonText: {
-    fontSize: 17,
+    fontSize: ms(14.5),
     fontWeight: '400',
     color: '#e0e0e0',
+    lineHeight: ms(14.5 * 1.5),
   },
   textDisabled: {
     color: colors.button.disabledText,
