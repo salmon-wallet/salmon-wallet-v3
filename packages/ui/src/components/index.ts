@@ -26,11 +26,13 @@ export {
   TokenList,
   TokenListItem,
   TokenListSkeleton,
+  TokenBadges,
 } from './TokenList';
 export type {
   TokenListProps,
   TokenListItemProps,
   TokenListSkeletonProps,
+  TokenBadgesProps,
 } from './TokenList';
 
 // TokenSelector - Token selection with search and pagination
