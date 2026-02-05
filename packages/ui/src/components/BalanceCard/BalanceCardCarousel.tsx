@@ -51,10 +51,10 @@ const BLOCKCHAIN_GRADIENTS: Record<BlockchainId, readonly [string, string, strin
   'solana-testnet': gradients.balanceCardSolanaTestnet.colors,
   bitcoin: gradients.balanceCardBitcoin.colors,
   'bitcoin-testnet': gradients.balanceCardBitcoinTestnet.colors,
-  'bitcoin-signet': gradients.balanceCardBitcoinSignet.colors,
+  'bitcoin-regtest': gradients.balanceCardBitcoinRegtest.colors,
   ethereum: gradients.balanceCardEthereum.colors,
   'ethereum-sepolia': gradients.balanceCardEthereumSepolia.colors,
-  'ethereum-holesky': gradients.balanceCardEthereumHolesky.colors,
+  'ethereum-goerli': gradients.balanceCardEthereumGoerli.colors,
 };
 
 // ScalesBackground stroke colors for each blockchain (15% opacity)
@@ -64,10 +64,10 @@ const BLOCKCHAIN_SCALES_COLORS: Record<BlockchainId, string> = {
   'solana-testnet': 'rgba(3, 225, 255, 0.15)',    // Solana Testnet blue (#03E1FF)
   bitcoin: 'rgba(247, 147, 26, 0.15)',   // Bitcoin orange (#F7931A)
   'bitcoin-testnet': 'rgba(255, 149, 0, 0.15)',   // Bitcoin Testnet orange (#FF9500)
-  'bitcoin-signet': 'rgba(108, 99, 255, 0.15)',   // Bitcoin Signet purple (#6C63FF)
+  'bitcoin-regtest': 'rgba(108, 99, 255, 0.15)',   // Bitcoin Regtest purple (#6C63FF)
   ethereum: 'rgba(98, 126, 234, 0.15)',  // Ethereum blue (#627EEA)
   'ethereum-sepolia': 'rgba(76, 175, 80, 0.15)',  // Ethereum Sepolia green (#4CAF50)
-  'ethereum-holesky': 'rgba(255, 165, 0, 0.15)',  // Ethereum Holesky orange (#FFA500)
+  'ethereum-goerli': 'rgba(255, 165, 0, 0.15)',  // Ethereum Goerli orange (#FFA500)
 };
 
 /**

@@ -6,8 +6,8 @@ import type { NetworkInfo } from '@salmon/shared';
  */
 export type BlockchainId =
   | 'solana' | 'solana-devnet' | 'solana-testnet'
-  | 'bitcoin' | 'bitcoin-testnet' | 'bitcoin-signet'
-  | 'ethereum' | 'ethereum-sepolia' | 'ethereum-holesky';
+  | 'bitcoin' | 'bitcoin-testnet' | 'bitcoin-regtest'
+  | 'ethereum' | 'ethereum-sepolia' | 'ethereum-goerli';
 
 /**
  * Extended network info with blockchain type
