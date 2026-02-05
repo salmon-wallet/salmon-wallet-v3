@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,12 @@ import {
   Platform,
   BackHandler,
   Image,
+  Animated,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, {
+import ReanimatedAnimated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
@@ -90,6 +93,9 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   const translateY = useSharedValue(1000);
   const backdropOpacity = useSharedValue(0);
 
+  // Top fade gradient opacity
+  const topFadeOpacity = useRef(new Animated.Value(0)).current;
+
   // Handle visibility changes
   useEffect(() => {
     if (visible) {
@@ -147,6 +153,13 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
     onBurnPress?.();
   }, [onBurnPress]);
 
+  // Handle scroll to show/hide top fade gradient dynamically
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const opacity = Math.min(offsetY / 30, 1);
+    topFadeOpacity.setValue(opacity);
+  }, [topFadeOpacity]);
+
   // Animated styles
   const sheetAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -182,11 +195,11 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
         <View style={styles.overlay}>
         {/* Backdrop */}
         <TouchableWithoutFeedback onPress={handleBackdropPress}>
-          <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} />
+          <ReanimatedAnimated.View style={[styles.backdrop, backdropAnimatedStyle]} />
         </TouchableWithoutFeedback>
 
         {/* Sheet Container */}
-        <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
+        <ReanimatedAnimated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
           {/* Scales Background */}
           <ScalesBackground />
 
@@ -208,6 +221,8 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             style={styles.scrollView}
             contentContainerStyle={styles.scrollViewContent}
             showsVerticalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
           >
             {/* NFT Image */}
             {nft.image && (
@@ -292,7 +307,18 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               </BlurContainer>
             </View>
           </ScrollView>
-        </Animated.View>
+
+          {/* Top fade gradient */}
+          <Animated.View
+            style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+            pointerEvents="none"
+          >
+            <LinearGradient
+              colors={['#161c2d', 'transparent']}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
+        </ReanimatedAnimated.View>
         </View>
       </GestureHandlerRootView>
     </Modal>
@@ -475,6 +501,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#e0e0e0',
     lineHeight: ms(16 * 1.5),
+  },
+  topFadeGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: vs(12) + vs(8) + ms(24) + vs(16), // handleContainer + nftName
+    height: 30,
+    zIndex: 1,
   },
 });
 

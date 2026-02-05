@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,12 @@ import {
   BackHandler,
   Dimensions,
   ActivityIndicator,
+  Animated,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import ContentLoader, { Rect } from 'react-content-loader/native';
-import Animated, {
+import ReanimatedAnimated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
@@ -22,6 +25,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors, ms, vs, s, spacing, fontSize } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
@@ -177,6 +181,9 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
   const dragY = useSharedValue(0);
   const isDragging = useSharedValue(false);
 
+  // Top fade gradient opacity
+  const topFadeOpacity = useRef(new Animated.Value(0)).current;
+
   // Close handler for worklet
   const closeSheet = useCallback(() => {
     onClose();
@@ -273,6 +280,13 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
     [onTransactionPress]
   );
 
+  // Handle scroll to show/hide top fade gradient dynamically
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const opacity = Math.min(offsetY / 30, 1);
+    topFadeOpacity.setValue(opacity);
+  }, [topFadeOpacity]);
+
   // Handle end reached for pagination
   const handleEndReached = useCallback(() => {
     if (!loadingMore && hasMore && onLoadMore) {
@@ -327,17 +341,17 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
         <View style={styles.overlay}>
           {/* Backdrop */}
           <TouchableWithoutFeedback onPress={handleBackdropPress}>
-            <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} />
+            <ReanimatedAnimated.View style={[styles.backdrop, backdropAnimatedStyle]} />
           </TouchableWithoutFeedback>
 
           {/* Sheet Container */}
-          <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
+          <ReanimatedAnimated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
             {/* Scales Background */}
             <ScalesBackground />
 
             {/* Draggable Header Area */}
             <GestureDetector gesture={panGesture}>
-              <Animated.View style={styles.dragArea}>
+              <ReanimatedAnimated.View style={styles.dragArea}>
                 {/* Drag Handle */}
                 <View style={styles.handleContainer}>
                   <View style={styles.handle} />
@@ -345,7 +359,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
 
                 {/* Title */}
                 <Text style={styles.title}>Transaction History</Text>
-              </Animated.View>
+              </ReanimatedAnimated.View>
             </GestureDetector>
 
             {/* Content */}
@@ -373,13 +387,26 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
                   keyExtractor={(item) => item.id}
                   contentContainerStyle={styles.listContent}
                   showsVerticalScrollIndicator={false}
+                  onScroll={handleScroll}
+                  scrollEventThrottle={16}
                   onEndReached={handleEndReached}
                   onEndReachedThreshold={0.5}
                   ListFooterComponent={renderFooter}
                 />
               )}
             </View>
-          </Animated.View>
+
+            {/* Top fade gradient */}
+            <Animated.View
+              style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+              pointerEvents="none"
+            >
+              <LinearGradient
+                colors={['#161c2d', 'transparent']}
+                style={StyleSheet.absoluteFill}
+              />
+            </Animated.View>
+          </ReanimatedAnimated.View>
         </View>
       </GestureHandlerRootView>
     </Modal>
@@ -518,6 +545,14 @@ const styles = StyleSheet.create({
   loadingMoreContainer: {
     paddingVertical: vs(16),
     alignItems: 'center',
+  },
+  topFadeGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: vs(12) + vs(8) + ms(24) + vs(15), // handleContainer + title
+    height: 30,
+    zIndex: 1,
   },
 });
 

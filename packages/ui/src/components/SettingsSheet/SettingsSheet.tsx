@@ -28,7 +28,7 @@
  * ```
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -36,9 +36,13 @@ import {
   StyleSheet,
   ScrollView,
   Switch,
+  Animated,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { LinearGradient } from 'expo-linear-gradient';
 import { TopSheet } from '../TopSheet';
 import {
   colors,
@@ -187,6 +191,9 @@ export function SettingsSheet({
 }: SettingsSheetProps): React.ReactElement {
   const { t } = useTranslation();
 
+  // Top fade gradient opacity
+  const topFadeOpacity = useRef(new Animated.Value(0)).current;
+
   /**
    * Handle settings option press
    */
@@ -223,6 +230,15 @@ export function SettingsSheet({
     },
     [onDeveloperNetworksToggle]
   );
+
+  /**
+   * Handle scroll to show/hide top fade gradient dynamically
+   */
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const opacity = Math.min(offsetY / 30, 1);
+    topFadeOpacity.setValue(opacity);
+  }, [topFadeOpacity]);
 
   /**
    * Render a section header
@@ -373,13 +389,28 @@ export function SettingsSheet({
       title={t('settings.title')}
       testID="settings-sheet"
     >
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {SETTINGS_SECTIONS.map(renderSection)}
-      </ScrollView>
+      <View style={styles.container}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        >
+          {SETTINGS_SECTIONS.map(renderSection)}
+        </ScrollView>
+
+        {/* Top fade gradient */}
+        <Animated.View
+          style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+          pointerEvents="none"
+        >
+          <LinearGradient
+            colors={['#161c2d', 'transparent']}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
+      </View>
     </TopSheet>
   );
 }
@@ -389,6 +420,9 @@ export function SettingsSheet({
 // ============================================================================
 
 const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+  },
   scrollView: {
     maxHeight: 500,
   },
@@ -461,6 +495,14 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     fontSize: fontSize.sm,
     marginTop: 2,
+  },
+  topFadeGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 30,
+    zIndex: 1,
   },
 });
 
