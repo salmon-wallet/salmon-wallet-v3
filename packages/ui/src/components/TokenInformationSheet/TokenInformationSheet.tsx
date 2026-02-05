@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,12 @@ import {
   Platform,
   BackHandler,
   Dimensions,
+  Animated,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import ContentLoader, { Rect } from 'react-content-loader/native';
-import Animated, {
+import ReanimatedAnimated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
@@ -21,6 +24,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors, ms, vs, s } from '@salmon/shared';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -41,6 +45,11 @@ const SPRING_CONFIG = {
   stiffness: 200,
   mass: 0.5,
 };
+
+// Font family constants
+const FONT_FAMILY = {
+  extraBold: 'DMSansExtraBold',
+} as const;
 
 /**
  * TokenListItem skeleton for loading state
@@ -115,6 +124,9 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
   const backdropOpacity = useSharedValue(0);
   const dragY = useSharedValue(0);
   const isDragging = useSharedValue(false);
+
+  // Top fade gradient opacity
+  const topFadeOpacity = useRef(new Animated.Value(0)).current;
 
   // Close handler for worklet
   const closeSheet = useCallback(() => {
@@ -209,6 +221,13 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
     // No action needed - token is already selected
   }, []);
 
+  // Handle scroll to show/hide top fade gradient dynamically
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const opacity = Math.min(offsetY / 30, 1);
+    topFadeOpacity.setValue(opacity);
+  }, [topFadeOpacity]);
+
   // Animated styles
   const sheetAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value + dragY.value }],
@@ -234,17 +253,17 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
         <View style={styles.overlay}>
         {/* Backdrop */}
         <TouchableWithoutFeedback onPress={handleBackdropPress}>
-          <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} />
+          <ReanimatedAnimated.View style={[styles.backdrop, backdropAnimatedStyle]} />
         </TouchableWithoutFeedback>
 
         {/* Sheet Container */}
-        <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
+        <ReanimatedAnimated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
           {/* Scales Background */}
           <ScalesBackground />
 
           {/* Draggable Header Area */}
           <GestureDetector gesture={panGesture}>
-            <Animated.View style={styles.dragArea}>
+            <ReanimatedAnimated.View style={styles.dragArea}>
               {/* Drag Handle */}
               <View style={styles.handleContainer}>
                 <View style={styles.handle} />
@@ -252,7 +271,7 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
 
               {/* Title */}
               <Text style={styles.title}>Token Information</Text>
-            </Animated.View>
+            </ReanimatedAnimated.View>
           </GestureDetector>
 
           {/* ScrollView Content */}
@@ -260,7 +279,20 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
             style={styles.scrollView}
             contentContainerStyle={styles.scrollViewContent}
             showsVerticalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
           >
+            {/* PriceChart - full width, edge to edge */}
+            {(loading || chartData.length > 0) && (
+              <PriceChart
+                data={chartData}
+                selectedPeriod={chartPeriod}
+                onPeriodChange={onChartPeriodChange}
+                loading={loading}
+                style={{ marginHorizontal: -s(18) }}
+              />
+            )}
+
             {/* TokenListItem */}
             {loading ? (
               <TokenListItemSkeleton />
@@ -270,18 +302,7 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
                 onPress={handleTokenPress}
                 hiddenBalance={false}
                 blockchain={blockchain}
-                style={{ marginHorizontal: 0 }}
-              />
-            )}
-
-            {/* PriceChart - full width, edge to edge */}
-            {(loading || chartData.length > 0) && (
-              <PriceChart
-                data={chartData}
-                selectedPeriod={chartPeriod}
-                onPeriodChange={onChartPeriodChange}
-                loading={loading}
-                style={{ marginHorizontal: -s(18) }}
+                style={{ marginHorizontal: 0, marginBottom: 0 }}
               />
             )}
 
@@ -308,7 +329,18 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
               style={{ marginHorizontal: 0 }}
             />
           </ScrollView>
-        </Animated.View>
+
+          {/* Top fade gradient */}
+          <Animated.View
+            style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+            pointerEvents="none"
+          >
+            <LinearGradient
+              colors={['#161c2d', 'transparent']}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
+        </ReanimatedAnimated.View>
       </View>
       </GestureHandlerRootView>
     </Modal>
@@ -366,7 +398,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(24),
-    fontFamily: 'DMSansExtraBold',
+    fontFamily: FONT_FAMILY.extraBold,
     color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: vs(15),
@@ -385,6 +417,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: vs(8),
     overflow: 'hidden',
+  },
+  topFadeGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: vs(12) + vs(8) + ms(24) + vs(15), // handleContainer + title
+    height: 30,
+    zIndex: 1,
   },
 });
 
