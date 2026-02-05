@@ -299,6 +299,16 @@ export async function getTopTokensByPlatform(platform: PricePlatform): Promise<T
 }
 
 /**
+ * Jupiter price data response
+ */
+export interface JupiterPriceData {
+  /** USD price */
+  usdPrice: number;
+  /** 24h price change percentage (can be null) */
+  priceChange24h: number | null;
+}
+
+/**
  * Get price for a specific Solana token from Jupiter Price API v3
  * Uses backend endpoint with caching and rate limiting
  *
@@ -306,17 +316,23 @@ export async function getTopTokensByPlatform(platform: PricePlatform): Promise<T
  *
  * @param mintAddress - Solana token mint address
  * @param networkId - Network ID (default: 'solana-mainnet')
- * @returns USD price or null if not found
+ * @returns Price data with usdPrice and priceChange24h, or null if not found
  */
 export async function getSolanaTokenPrice(
   mintAddress: string,
   networkId: NetworkId = 'solana-mainnet'
-): Promise<number | null> {
+): Promise<JupiterPriceData | null> {
   try {
-    const { data } = await apiClient.get<{ usdPrice?: number }>(
+    const { data } = await apiClient.get<{ usdPrice?: number; priceChange24h?: number | null }>(
       `/v1/${networkId}/ft/price/${mintAddress}`
     );
-    return data?.usdPrice ?? null;
+    if (data?.usdPrice !== undefined) {
+      return {
+        usdPrice: data.usdPrice,
+        priceChange24h: data.priceChange24h ?? null,
+      };
+    }
+    return null;
   } catch (error) {
     if (error instanceof ApiError && error.isNotFound()) {
       // Token not found, return null silently

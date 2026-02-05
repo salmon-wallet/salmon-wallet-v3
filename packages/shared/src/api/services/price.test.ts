@@ -596,16 +596,16 @@ describe('Price Service', () => {
 
   describe('getSolanaTokenPrice', () => {
     it('should fetch price for a valid Solana token', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 100.5 } });
+      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 100.5, priceChange24h: 5.2 } });
 
       const result = await getSolanaTokenPrice(KNOWN_MINTS.SOL);
 
-      expect(result).toBe(100.5);
+      expect(result).toEqual({ usdPrice: 100.5, priceChange24h: 5.2 });
       expect(mockApiClientGet).toHaveBeenCalledWith('/v1/solana-mainnet/ft/price/' + KNOWN_MINTS.SOL);
     });
 
     it('should use default network ID (solana-mainnet)', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 1.0 } });
+      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 1.0, priceChange24h: 0.01 } });
 
       await getSolanaTokenPrice(KNOWN_MINTS.USDC);
 
@@ -613,7 +613,7 @@ describe('Price Service', () => {
     });
 
     it('should use specified network ID', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 1.0 } });
+      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 1.0, priceChange24h: 0.01 } });
 
       await getSolanaTokenPrice(KNOWN_MINTS.USDC, 'solana-devnet');
 
@@ -646,27 +646,35 @@ describe('Price Service', () => {
     });
 
     it('should handle zero price', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 0 } });
+      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 0, priceChange24h: null } });
 
       const result = await getSolanaTokenPrice('ZeroPrice1111111111111111111111111111111');
 
-      expect(result).toBe(0);
+      expect(result).toEqual({ usdPrice: 0, priceChange24h: null });
     });
 
     it('should handle very small prices', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 0.00000001 } });
+      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 0.00000001, priceChange24h: -50.5 } });
 
       const result = await getSolanaTokenPrice('TinyPrice1111111111111111111111111111111');
 
-      expect(result).toBe(0.00000001);
+      expect(result).toEqual({ usdPrice: 0.00000001, priceChange24h: -50.5 });
     });
 
     it('should handle large prices', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 999999.99 } });
+      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 999999.99, priceChange24h: 100.0 } });
 
       const result = await getSolanaTokenPrice('ExpensiveToken111111111111111111111111');
 
-      expect(result).toBe(999999.99);
+      expect(result).toEqual({ usdPrice: 999999.99, priceChange24h: 100.0 });
+    });
+
+    it('should handle null priceChange24h', async () => {
+      mockApiClientGet.mockResolvedValueOnce({ data: { usdPrice: 50.0 } });
+
+      const result = await getSolanaTokenPrice(KNOWN_MINTS.SOL);
+
+      expect(result).toEqual({ usdPrice: 50.0, priceChange24h: null });
     });
   });
 
