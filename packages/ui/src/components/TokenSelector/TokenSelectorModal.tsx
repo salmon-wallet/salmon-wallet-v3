@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   type ListRenderItem,
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 
 import { useTokenSearch } from './useTokenSearch';
@@ -215,7 +216,8 @@ export function TokenSelectorModal({
       transparent={false}
       onRequestClose={handleClose}
     >
-      <SafeAreaView style={styles.container}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleClose} style={styles.backButton}>
             <TextInput style={styles.backButtonText} value="<" editable={false} />
@@ -263,6 +265,7 @@ export function TokenSelectorModal({
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+      </GestureHandlerRootView>
     </Modal>
   );
 }

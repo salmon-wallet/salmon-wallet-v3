@@ -11,6 +11,7 @@
 
 import React from 'react';
 import { Modal, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { colors } from '@salmon/shared';
 import type { QRScannerProps } from './types';
 
@@ -35,7 +36,8 @@ export const QRScanner: React.FC<QRScannerProps> = ({
       visible={visible}
       transparent={false}
     >
-      <View style={[styles.container, containerStyle]}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View style={[styles.container, containerStyle]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.backButton}>
             <Text style={styles.backButtonText}>{'<'} Back</Text>
@@ -72,6 +74,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
           </TouchableOpacity>
         </View>
       </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 };
