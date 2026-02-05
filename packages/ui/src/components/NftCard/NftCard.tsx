@@ -299,4 +299,6 @@ export const NftCardSkeleton = React.memo<NftCardSkeletonProps>(
   }
 );
 
+NftCardSkeleton.displayName = 'NftCardSkeleton';
+
 export default NftCard;
