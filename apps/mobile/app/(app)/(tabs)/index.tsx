@@ -38,6 +38,7 @@ import {
   useUserConfig,
   useAvailableNetworks,
   useAdjacentBalances,
+  useTransactions,
   getStashedPassword,
   colors,
   componentSizes,
@@ -63,24 +64,40 @@ import {
   TokenAbout,
   TokenMarketData,
   TokenInformationSheet,
+  ReceiveSheet,
+  TransactionHistorySheet,
   ScalesBackground,
   type BlockchainBalance,
   type BlockchainId,
   type MarketData,
+  type Transaction,
 } from '@salmon/ui';
 
 // Map blockchain to CoinGecko ID (outside component to avoid recreation)
+// Devnets/testnets map to their mainnet counterparts for price data
 const BLOCKCHAIN_TO_COINGECKO: Record<BlockchainId, string> = {
-  solana: 'solana',
-  bitcoin: 'bitcoin',
-  ethereum: 'ethereum',
+  'solana': 'solana',
+  'solana-devnet': 'solana',
+  'solana-testnet': 'solana',
+  'bitcoin': 'bitcoin',
+  'bitcoin-testnet': 'bitcoin',
+  'bitcoin-regtest': 'bitcoin',
+  'ethereum': 'ethereum',
+  'ethereum-sepolia': 'ethereum',
+  'ethereum-goerli': 'ethereum',
 };
 
 // Map blockchain to logo URL (outside component to avoid recreation)
 const BLOCKCHAIN_LOGOS: Record<BlockchainId, string> = {
-  solana: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-  bitcoin: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
-  ethereum: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+  'solana': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+  'solana-devnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+  'solana-testnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+  'bitcoin': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+  'bitcoin-testnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+  'bitcoin-regtest': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+  'ethereum': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+  'ethereum-sepolia': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+  'ethereum-goerli': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
 };
 
 // Map period to days for API call (outside component to avoid recreation)
@@ -94,6 +111,16 @@ const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
   'All': 365,
 };
 
+// Type for base blockchain (mainnet only)
+type BaseBlockchain = 'solana' | 'bitcoin' | 'ethereum';
+
+// Map BlockchainId to base blockchain type (for UI components that don't support devnets)
+function getBaseBlockchain(blockchainId: BlockchainId): BaseBlockchain {
+  if (blockchainId.startsWith('solana')) return 'solana';
+  if (blockchainId.startsWith('bitcoin')) return 'bitcoin';
+  return 'ethereum';
+}
+
 // Network ID to BlockchainId mapping
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
   // Solana networks
@@ -105,12 +132,12 @@ const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
   'bitcoin': 'bitcoin',
   'mainnet': 'bitcoin',
   'bitcoin-testnet': 'bitcoin-testnet',
-  'bitcoin-regtest': 'bitcoin-signet',
+  'bitcoin-regtest': 'bitcoin-regtest',
 
   // Ethereum networks
   'ethereum': 'ethereum',
   'ethereum-sepolia': 'ethereum-sepolia',
-  'ethereum-goerli': 'ethereum-holesky',
+  'ethereum-goerli': 'ethereum-goerli',
 };
 
 /**
@@ -135,13 +162,13 @@ function getBlockchainFromNetwork(network: AnyNetwork): BlockchainId {
 
   if (networkId.includes('bitcoin')) {
     if (networkId.includes('testnet')) return 'bitcoin-testnet';
-    if (networkId.includes('signet') || networkId.includes('regtest')) return 'bitcoin-signet';
+    if (networkId.includes('regtest')) return 'bitcoin-regtest';
     return 'bitcoin';
   }
 
   if (networkId.includes('ethereum')) {
     if (networkId.includes('sepolia')) return 'ethereum-sepolia';
-    if (networkId.includes('holesky') || networkId.includes('goerli')) return 'ethereum-holesky';
+    if (networkId.includes('goerli')) return 'ethereum-goerli';
     return 'ethereum';
   }
 
@@ -226,6 +253,12 @@ export default function HomeScreen() {
   const [selectedTokenMarketData, setSelectedTokenMarketData] = useState<MarketData | undefined>(undefined);
   const [selectedTokenLoading, setSelectedTokenLoading] = useState(false);
 
+  // ReceiveSheet visibility
+  const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
+
+  // TransactionHistorySheet visibility
+  const [transactionHistoryVisible, setTransactionHistoryVisible] = useState(false);
+
   // Get account state and actions from shared context
   const [accountState, accountActions] = useAccountsContext();
   const {
@@ -283,6 +316,22 @@ export default function HomeScreen() {
     account: activeBlockchainAccount,
     networkId: networkId as 'mainnet-beta' | 'devnet' | undefined,
     skip: !ready || !activeBlockchainAccount,
+  });
+
+  // Get transaction history for current account
+  const address = activeBlockchainAccount?.getReceiveAddress() ?? '';
+  const {
+    transactions: historyTransactions,
+    loading: transactionsLoading,
+    loadingMore: transactionsLoadingMore,
+    error: transactionsError,
+    hasMore: transactionsHasMore,
+    loadMore: transactionsLoadMore,
+    refresh: transactionsRefresh,
+  } = useTransactions({
+    address,
+    networkId: (networkId as 'mainnet-beta' | 'devnet') === 'mainnet-beta' ? 'solana-mainnet' : 'solana-devnet',
+    skip: !ready || !activeBlockchainAccount || !transactionHistoryVisible,
   });
 
   // Preload balance data for previous network (activeIndex - 1)
@@ -622,12 +671,24 @@ export default function HomeScreen() {
   }, [router]);
 
   const handleReceivePress = useCallback(() => {
-    router.push('/(app)/token-receive');
-  }, [router]);
+    setReceiveSheetVisible(true);
+  }, []);
+
+  const handleReceiveSheetClose = useCallback(() => {
+    setReceiveSheetVisible(false);
+  }, []);
+
+  const handleReceiveSheetCopy = useCallback(async () => {
+    if (activeBlockchainAccount) {
+      const addr = activeBlockchainAccount.getReceiveAddress();
+      await Clipboard.setStringAsync(addr);
+      // TODO: Show toast notification
+    }
+  }, [activeBlockchainAccount]);
 
   const handleActivityPress = useCallback(() => {
-    router.push('/(app)/transactions');
-  }, [router]);
+    setTransactionHistoryVisible(true);
+  }, []);
 
   const handleTokenPress = useCallback((token: Token) => {
     // Reset previous token data
@@ -648,15 +709,33 @@ export default function HomeScreen() {
     }, 300);
   }, []);
 
+  const handleTransactionHistoryClose = useCallback(() => {
+    setTransactionHistoryVisible(false);
+  }, []);
+
+  const handleTransactionPress = useCallback((transaction: Transaction) => {
+    // Open transaction in Solana Explorer
+    const explorerUrl = networkId === 'devnet'
+      ? `https://explorer.solana.com/tx/${transaction.id}?cluster=devnet`
+      : `https://explorer.solana.com/tx/${transaction.id}`;
+    console.log('Opening transaction:', explorerUrl);
+    // TODO: Open in browser or in-app browser
+  }, [networkId]);
+
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
     setSelectedTokenChartPeriod(period);
   }, []);
 
   const handleBlockchainChange = useCallback((blockchain: BlockchainId, index: number) => {
     setActiveBlockchainIndex(index);
-    // Future: Could switch active account or fetch different blockchain's balance
-    console.log('Switched to blockchain:', blockchain);
-  }, []);
+    // Switch to the selected network
+    const selectedBalance = blockchainBalances[index];
+    if (selectedBalance) {
+      const newNetworkId = selectedBalance.network.id;
+      accountActions.changeNetwork(newNetworkId);
+      console.log('Switched to blockchain:', blockchain, 'network:', newNetworkId);
+    }
+  }, [blockchainBalances, accountActions]);
 
   // Handle scroll to show/hide top fade gradient dynamically
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -872,7 +951,7 @@ export default function HomeScreen() {
   }
 
   const accountName = activeAccount.name || 'Account';
-  const address = activeBlockchainAccount.getReceiveAddress();
+  // address is already defined above for useTransactions hook
 
   return (
     <View style={styles.container}>
@@ -947,7 +1026,7 @@ export default function HomeScreen() {
             onScroll={handleScroll}
             scrollEventThrottle={16}
             contentContainerStyle={styles.listContent}
-            blockchain={currentBlockchain}
+            blockchain={getBaseBlockchain(currentBlockchain)}
           />
         )}
         {/* Top fade gradient - shows only when scrolled, fades in dynamically */}
@@ -1007,7 +1086,7 @@ export default function HomeScreen() {
           visible={tokenSheetVisible}
           onClose={handleTokenSheetClose}
           token={selectedToken}
-          blockchain={currentBlockchain}
+          blockchain={getBaseBlockchain(currentBlockchain)}
           chartData={selectedTokenChartData}
           chartPeriod={selectedTokenChartPeriod}
           onChartPeriodChange={handleSelectedTokenChartPeriodChange}
@@ -1016,6 +1095,29 @@ export default function HomeScreen() {
           loading={selectedTokenLoading && selectedTokenChartData.length === 0}
         />
       )}
+
+      {/* Receive Sheet */}
+      <ReceiveSheet
+        visible={receiveSheetVisible}
+        onClose={handleReceiveSheetClose}
+        address={address}
+        onCopy={handleReceiveSheetCopy}
+      />
+
+      {/* Transaction History Sheet */}
+      <TransactionHistorySheet
+        visible={transactionHistoryVisible}
+        onClose={handleTransactionHistoryClose}
+        transactions={historyTransactions as Transaction[]}
+        loading={transactionsLoading}
+        loadingMore={transactionsLoadingMore}
+        hasMore={transactionsHasMore}
+        onLoadMore={transactionsLoadMore}
+        hiddenBalance={hiddenBalance}
+        onTransactionPress={handleTransactionPress}
+        error={transactionsError}
+        onRetry={transactionsRefresh}
+      />
     </View>
   );
 }
