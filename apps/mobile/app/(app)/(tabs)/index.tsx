@@ -101,14 +101,15 @@ const BLOCKCHAIN_LOGOS: Record<BlockchainId, string> = {
 };
 
 // Map period to days for API call (outside component to avoid recreation)
+// CoinGecko Free Tier limits: max 365 days
 const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
-  '1H': 1,
-  '1D': 1,
-  '1W': 7,
-  '1M': 30,
-  '3M': 90,
-  '1Y': 365,
-  'All': 365,
+  '1H': 1,   // 1 day with 5-min intervals
+  '1D': 1,   // 1 day with 5-min intervals
+  '1W': 7,   // 7 days with hourly intervals
+  '1M': 30,  // 30 days with hourly intervals
+  '3M': 90,  // 90 days with hourly intervals
+  '1Y': 365, // 365 days with daily intervals
+  // 'All': requires paid CoinGecko tier for >365 days
 };
 
 // Type for base blockchain (mainnet only)
