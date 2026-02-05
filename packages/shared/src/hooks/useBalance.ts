@@ -51,6 +51,7 @@ import {
 } from '../api/services/balance';
 import { getPricesByPlatform } from '../api/services/price';
 import { getEthBalance, ETH_CONSTANTS } from '../blockchain/ethereum/balance';
+import { detectAllTokens, type EthereumTokenBalance as EthTokenBalance } from '../blockchain/ethereum/tokens';
 import { getStorageItem, setStorageItem } from '../storage';
 
 // ============================================================================
@@ -410,41 +411,66 @@ export function useBalance({
 
   /**
    * Fetch Ethereum balance data
-   * Calls ethereumAccount.getBalance() and transforms EthereumBalance to WalletBalance format.
-   * Also fetches ETH price from the price service for USD calculations.
+   * Uses automatic ERC-20 token detection to find ALL tokens the user holds,
+   * not just featured tokens. This provides MetaMask-like token discovery.
    */
   const fetchEthereumBalance = useCallback(
     async (ethereumAccount: EthereumAccount): Promise<WalletBalance> => {
       try {
-        // Get the provider for token balance fetching
+        // Get the provider and wallet address
         const provider = await ethereumAccount.getProvider();
         const walletAddress = ethereumAccount.getReceiveAddress();
+        const networkId = ethereumAccount.network?.id || 'ethereum';
 
-        // Fetch ETH balance and prices in parallel
-        const [ethBalance, prices] = await Promise.all([
+        // Fetch ETH balance, auto-detect all ERC-20 tokens, and get prices in parallel
+        // detectAllTokens automatically finds ALL tokens the user holds via API indexing
+        // and falls back to featured tokens if the API is unavailable
+        const [ethBalance, tokenDetectionResult, prices] = await Promise.all([
           getEthBalance(provider, walletAddress),
+          detectAllTokens(provider, walletAddress, networkId),
           getPricesByPlatform('ethereum'),
         ]);
 
-        // Find ETH price from the price data
-        let ethPrice: number | undefined;
-        let ethPriceChange24h: number | undefined;
+        // Log detection method for debugging
+        if (tokenDetectionResult.usedAutomaticDetection) {
+          console.debug(
+            `[useBalance] Auto-detected ${tokenDetectionResult.detectedTokens.length} ERC-20 tokens for ${walletAddress}`
+          );
+        } else {
+          console.debug(
+            `[useBalance] Using featured token fallback, found ${tokenDetectionResult.featuredTokens.length} tokens`
+          );
+        }
+
+        // Create price lookup maps
+        const priceByCoingeckoId = new Map<string, { usdPrice: number; priceChange24h: number | null }>();
+        const priceBySymbol = new Map<string, { usdPrice: number; priceChange24h: number | null }>();
 
         if (prices) {
-          const ethPriceData = prices.find(
-            (p) => p.id.toLowerCase() === 'ethereum' || p.symbol.toLowerCase() === 'eth'
-          );
-          if (ethPriceData) {
-            ethPrice = ethPriceData.usdPrice;
-            ethPriceChange24h = ethPriceData.perc24HoursChange ?? undefined;
-          }
+          prices.forEach((p) => {
+            priceByCoingeckoId.set(p.id.toLowerCase(), {
+              usdPrice: p.usdPrice,
+              priceChange24h: p.perc24HoursChange,
+            });
+            if (p.symbol) {
+              priceBySymbol.set(p.symbol.toLowerCase(), {
+                usdPrice: p.usdPrice,
+                priceChange24h: p.perc24HoursChange,
+              });
+            }
+          });
         }
+
+        // Find ETH price
+        const ethPriceData = priceByCoingeckoId.get('ethereum') || priceBySymbol.get('eth');
+        const ethPrice = ethPriceData?.usdPrice;
+        const ethPriceChange24h = ethPriceData?.priceChange24h ?? undefined;
 
         // Calculate USD balance for ETH
         const ethUiAmount = parseFloat(ethBalance.formattedBalance);
         const ethUsdBalance = ethPrice ? ethUiAmount * ethPrice : undefined;
 
-        // Create ETH token balance entry
+        // Create ETH token balance entry (always first)
         const ethTokenBalance: TokenBalanceWithPrice = {
           mint: ETH_CONSTANTS.ADDRESS || 'ethereum',
           owner: walletAddress,
@@ -461,20 +487,60 @@ export function useBalance({
           priceChange24h: ethPriceChange24h,
         };
 
-        // For now, we only fetch native ETH balance
-        // ERC20 token support can be added in a future phase by calling getEthereumTokenBalances
-        // with a list of known token addresses
-        const items: TokenBalanceWithPrice[] = [ethTokenBalance];
+        // Convert auto-detected ERC-20 balances to TokenBalanceWithPrice format
+        const erc20Items: TokenBalanceWithPrice[] = tokenDetectionResult.allTokens.map((token: EthTokenBalance) => {
+          // Find price by coingeckoId first, then by symbol
+          const coingeckoId = token.coingeckoId;
+
+          let tokenPriceData = coingeckoId
+            ? priceByCoingeckoId.get(coingeckoId.toLowerCase())
+            : undefined;
+
+          if (!tokenPriceData) {
+            tokenPriceData = priceBySymbol.get(token.symbol.toLowerCase());
+          }
+
+          const tokenPrice = tokenPriceData?.usdPrice;
+          const tokenPriceChange24h = tokenPriceData?.priceChange24h ?? undefined;
+          const tokenUiAmount = parseFloat(token.uiAmount);
+          const tokenUsdBalance = tokenPrice ? tokenUiAmount * tokenPrice : undefined;
+
+          return {
+            mint: token.address,
+            owner: walletAddress,
+            amount: token.balance.toString(),
+            decimals: token.decimals,
+            uiAmount: tokenUiAmount,
+            symbol: token.symbol,
+            name: token.name,
+            logo: token.logoUri || null,
+            address: token.address,
+            coingeckoId: coingeckoId,
+            price: tokenPrice,
+            usdBalance: tokenUsdBalance,
+            priceChange24h: tokenPriceChange24h,
+          };
+        });
+
+        // Combine ETH + ERC-20 tokens, sort by USD balance (ETH always first)
+        const allItems = [ethTokenBalance, ...erc20Items];
+        const sortedItems = allItems.sort((a, b) => {
+          // ETH always first
+          if (a.symbol === 'ETH') return -1;
+          if (b.symbol === 'ETH') return 1;
+          // Then by USD balance descending
+          return (b.usdBalance || 0) - (a.usdBalance || 0);
+        });
 
         // Calculate totals
-        const usdTotal = items.reduce((sum, item) => sum + (item.usdBalance || 0), 0);
+        const usdTotal = sortedItems.reduce((sum, item) => sum + (item.usdBalance || 0), 0);
 
         // Calculate 24h change
         const { amount: last24HoursChange, percent: last24HoursChangePercent } =
-          calculate24HoursChange(items, usdTotal);
+          calculate24HoursChange(sortedItems, usdTotal);
 
         return {
-          items,
+          items: sortedItems,
           usdTotal,
           last24HoursChange,
           last24HoursChangePercent,
