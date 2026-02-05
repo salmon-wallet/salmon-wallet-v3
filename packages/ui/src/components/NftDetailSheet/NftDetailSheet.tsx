@@ -11,6 +11,7 @@ import {
   BackHandler,
   Image,
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,6 +23,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, gradients, ms, vs, s } from '@salmon/shared';
 import { CallMadeSvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
+import { ScalesBackground } from '../ScalesBackground';
 import type { NftDetailSheetProps, NftAttribute, NftDetailData } from './types';
 
 // Animation constants
@@ -176,7 +178,8 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={styles.overlay}>
+      <GestureHandlerRootView style={styles.gestureRoot}>
+        <View style={styles.overlay}>
         {/* Backdrop */}
         <TouchableWithoutFeedback onPress={handleBackdropPress}>
           <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} />
@@ -184,6 +187,9 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
 
         {/* Sheet Container */}
         <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
+          {/* Scales Background */}
+          <ScalesBackground />
+
           {/* Texture overlay */}
           <View style={styles.textureOverlay} />
 
@@ -287,12 +293,16 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             </View>
           </ScrollView>
         </Animated.View>
-      </View>
+        </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
