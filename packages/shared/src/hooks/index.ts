@@ -109,3 +109,18 @@ export type {
   UseAdjacentBalancesParams,
   UseAdjacentBalancesResult,
 } from './useAdjacentBalances';
+
+// Transactions hook
+export {
+  useTransactions,
+  default as useTransactionsDefault,
+} from './useTransactions';
+export type {
+  HistoryTransaction,
+  HistoryTransactionType,
+  HistoryTransactionStatus,
+  TransactionTokenAmount as HistoryTransactionTokenAmount,
+  TransactionFee as HistoryTransactionFee,
+  UseTransactionsOptions,
+  UseTransactionsResult,
+} from './useTransactions';
