@@ -89,7 +89,7 @@ const TokenListItemSkeleton: React.FC = () => {
  *   onClose={() => setIsVisible(false)}
  *   token={selectedToken}
  *   chartData={priceData}
- *   chartPeriod="1D"
+ *   chartPeriod="1M"
  *   onChartPeriodChange={setPeriod}
  *   coinInfo={coinInfo}
  *   marketData={marketData}
@@ -274,14 +274,14 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
               />
             )}
 
-            {/* PriceChart - only show if data available */}
+            {/* PriceChart - full width, edge to edge */}
             {(loading || chartData.length > 0) && (
               <PriceChart
                 data={chartData}
                 selectedPeriod={chartPeriod}
                 onPeriodChange={onChartPeriodChange}
                 loading={loading}
-                style={{ marginHorizontal: 0 }}
+                style={{ marginHorizontal: -s(18) }}
               />
             )}
 
