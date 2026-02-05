@@ -171,3 +171,19 @@ export {
 // ScalesBackground - Repeating fish scales pattern background
 export { ScalesBackground } from './ScalesBackground';
 export type { ScalesBackgroundProps } from './ScalesBackground';
+
+// ReceiveSheet - Bottom sheet for receiving tokens with QR code
+export { ReceiveSheet } from './ReceiveSheet';
+export type { ReceiveSheetProps } from './ReceiveSheet';
+
+// TransactionHistorySheet - Bottom sheet for transaction history
+export { TransactionHistorySheet, TransactionItem } from './TransactionHistorySheet';
+export type {
+  TransactionHistorySheetProps,
+  TransactionItemProps,
+  Transaction,
+  TransactionType,
+  TransactionStatus,
+  TransactionTokenAmount,
+  TransactionFee,
+} from './TransactionHistorySheet';
