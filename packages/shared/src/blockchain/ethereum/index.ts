@@ -55,12 +55,16 @@ export {
   getFeaturedTokenByAddress,
   isErc20Token,
   formatTokenBalance,
+  detectAllTokens,
+  getAllTokensForOwner,
   ETHEREUM_NETWORK_IDS,
 } from './tokens';
 export type {
   EthereumToken,
   EthereumTokenBalance,
   EthereumNetworkId,
+  TokenDetectionResult,
+  DetectedERC20Token,
 } from './tokens';
 
 // Transfer functions

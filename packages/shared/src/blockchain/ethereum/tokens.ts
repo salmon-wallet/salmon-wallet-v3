@@ -5,14 +5,23 @@
  *
  * Provides functionality for ERC-20 token operations:
  * - Get token metadata (name, symbol, decimals)
- * - Get user's tokens with balances
+ * - Get user's tokens with balances (automatic detection)
  * - Get featured/well-known tokens
+ *
+ * Features:
+ * - Automatic ERC-20 token detection via indexing APIs
+ * - Fallback to RPC calls for featured tokens
+ * - Efficient batched balance queries
  *
  * Uses ethers.js v6 Contract for ERC-20 interactions.
  */
 
 import { Contract, formatUnits } from 'ethers';
 import type { Provider } from 'ethers';
+import {
+  getERC20TokenBalances,
+  type DetectedERC20Token,
+} from '../../api/services/ethereum';
 
 // ============================================================================
 // Types
@@ -27,6 +36,7 @@ export interface EthereumToken {
   name: string;
   decimals: number;
   logoUri?: string;
+  coingeckoId?: string;
 }
 
 /**
@@ -46,6 +56,7 @@ interface KnownToken {
   name: string;
   decimals: number;
   logoUri?: string;
+  coingeckoId?: string;
 }
 
 // ============================================================================
@@ -86,6 +97,7 @@ const MAINNET_FEATURED_TOKENS: KnownToken[] = [
     decimals: 18,
     logoUri:
       'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+    coingeckoId: 'weth',
   },
   {
     address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -94,6 +106,7 @@ const MAINNET_FEATURED_TOKENS: KnownToken[] = [
     decimals: 6,
     logoUri:
       'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+    coingeckoId: 'usd-coin',
   },
   {
     address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -102,14 +115,16 @@ const MAINNET_FEATURED_TOKENS: KnownToken[] = [
     decimals: 6,
     logoUri:
       'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png',
+    coingeckoId: 'tether',
   },
   {
-    address: '0x6B175474E89094C44Da98b954EescdeCB5BE3eF69',
+    address: '0x6B175474E89094C44Da98b954EedeC16991e0F68',
     symbol: 'DAI',
     name: 'Dai Stablecoin',
     decimals: 18,
     logoUri:
       'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeC16991e0F68/logo.png',
+    coingeckoId: 'dai',
   },
   {
     address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
@@ -118,6 +133,34 @@ const MAINNET_FEATURED_TOKENS: KnownToken[] = [
     decimals: 18,
     logoUri:
       'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png',
+    coingeckoId: 'uniswap',
+  },
+  {
+    address: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
+    symbol: 'LINK',
+    name: 'Chainlink',
+    decimals: 18,
+    logoUri:
+      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x514910771AF9Ca656af840dff83E8264EcF986CA/logo.png',
+    coingeckoId: 'chainlink',
+  },
+  {
+    address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+    symbol: 'AAVE',
+    name: 'Aave',
+    decimals: 18,
+    logoUri:
+      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9/logo.png',
+    coingeckoId: 'aave',
+  },
+  {
+    address: '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE',
+    symbol: 'SHIB',
+    name: 'Shiba Inu',
+    decimals: 18,
+    logoUri:
+      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE/logo.png',
+    coingeckoId: 'shiba-inu',
   },
 ];
 
@@ -333,3 +376,152 @@ export async function isErc20Token(
 export function formatTokenBalance(balance: bigint, decimals: number): string {
   return formatUnits(balance, decimals);
 }
+
+// ============================================================================
+// Automatic Token Detection Functions
+// ============================================================================
+
+/**
+ * Result of automatic token detection
+ */
+export interface TokenDetectionResult {
+  /** Tokens detected via API indexing (all tokens user holds) */
+  detectedTokens: EthereumTokenBalance[];
+  /** Tokens from featured list with balances fetched via RPC */
+  featuredTokens: EthereumTokenBalance[];
+  /** Combined and deduplicated list of all tokens with non-zero balance */
+  allTokens: EthereumTokenBalance[];
+  /** Whether automatic detection was used (vs. RPC-only fallback) */
+  usedAutomaticDetection: boolean;
+}
+
+/**
+ * Automatically detect all ERC-20 tokens for a wallet
+ *
+ * This is the primary function for token detection. It:
+ * 1. Uses API-based indexing to detect ALL tokens the user holds
+ * 2. Falls back to featured tokens via RPC if API is unavailable
+ * 3. Combines both sources, deduplicating by address
+ *
+ * This replaces the old approach of only checking "featured tokens"
+ * and provides MetaMask-like automatic token detection.
+ *
+ * @param provider - Ethers.js provider
+ * @param address - User's Ethereum address
+ * @param networkId - Network identifier (e.g., 'ethereum')
+ * @returns Token detection result with all found tokens
+ *
+ * @example
+ * ```typescript
+ * const result = await detectAllTokens(provider, userAddress, 'ethereum');
+ * console.log(`Found ${result.allTokens.length} tokens`);
+ * result.allTokens.forEach(token => {
+ *   console.log(`${token.symbol}: ${token.uiAmount}`);
+ * });
+ * ```
+ */
+export async function detectAllTokens(
+  provider: Provider,
+  address: string,
+  networkId: string = 'ethereum'
+): Promise<TokenDetectionResult> {
+  let detectedTokens: EthereumTokenBalance[] = [];
+  let usedAutomaticDetection = false;
+
+  // Step 1: Try automatic detection via API
+  try {
+    const apiTokens = await getERC20TokenBalances(address, networkId);
+
+    if (apiTokens.length > 0) {
+      usedAutomaticDetection = true;
+      detectedTokens = apiTokens.map((token) => ({
+        address: token.address,
+        symbol: token.symbol,
+        name: token.name,
+        decimals: token.decimals,
+        balance: BigInt(token.balance),
+        uiAmount: formatUnits(BigInt(token.balance), token.decimals),
+        logoUri: token.logoUri,
+        coingeckoId: token.coingeckoId,
+      }));
+    }
+  } catch (error) {
+    console.warn('[tokens] Automatic token detection failed:', error);
+  }
+
+  // Step 2: Always fetch featured tokens via RPC as a fallback/supplement
+  const featuredTokens = getFeaturedTokens(networkId);
+  let featuredWithBalances: EthereumTokenBalance[] = [];
+
+  if (featuredTokens.length > 0) {
+    try {
+      featuredWithBalances = await getTokensByOwner(
+        provider,
+        address,
+        featuredTokens
+      );
+    } catch (error) {
+      console.warn('[tokens] Featured token balance fetch failed:', error);
+    }
+  }
+
+  // Step 3: Merge detected and featured tokens, preferring detected data
+  const tokenMap = new Map<string, EthereumTokenBalance>();
+
+  // Add detected tokens first (they have the most complete data)
+  detectedTokens.forEach((token) => {
+    tokenMap.set(token.address.toLowerCase(), token);
+  });
+
+  // Add featured tokens if not already present
+  featuredWithBalances.forEach((token) => {
+    const key = token.address.toLowerCase();
+    if (!tokenMap.has(key)) {
+      tokenMap.set(key, token);
+    } else {
+      // Merge metadata from featured token (may have better logo/coingeckoId)
+      const existing = tokenMap.get(key)!;
+      if (!existing.logoUri && token.logoUri) {
+        existing.logoUri = token.logoUri;
+      }
+      if (!existing.coingeckoId && token.coingeckoId) {
+        existing.coingeckoId = token.coingeckoId;
+      }
+    }
+  });
+
+  // Convert map to array and filter for non-zero balances
+  const allTokens = Array.from(tokenMap.values()).filter(
+    (token) => token.balance > 0n
+  );
+
+  return {
+    detectedTokens,
+    featuredTokens: featuredWithBalances,
+    allTokens,
+    usedAutomaticDetection,
+  };
+}
+
+/**
+ * Get all tokens for an owner with automatic detection
+ *
+ * Convenience function that wraps detectAllTokens and returns
+ * just the token array (for simpler use cases).
+ *
+ * @param provider - Ethers.js provider
+ * @param address - User's Ethereum address
+ * @param networkId - Network identifier
+ * @returns Array of tokens with non-zero balances
+ */
+export async function getAllTokensForOwner(
+  provider: Provider,
+  address: string,
+  networkId: string = 'ethereum'
+): Promise<EthereumTokenBalance[]> {
+  const result = await detectAllTokens(provider, address, networkId);
+  return result.allTokens;
+}
+
+// Re-export the DetectedERC20Token type for external use
+export type { DetectedERC20Token };
