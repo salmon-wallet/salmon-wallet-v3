@@ -63,8 +63,18 @@ export interface Token {
 
 /**
  * Time period options for price chart
+ *
+ * CoinGecko Free Tier (Demo API) limits:
+ * - Maximum 365 days of historical data
+ * - 1 day = 5-minute intervals
+ * - 1-90 days = hourly intervals
+ * - 90+ days = daily intervals (00:00 UTC)
+ *
+ * 'All' requires paid tier for >365 days
  */
-export type PriceChartPeriod = '1H' | '1D' | '1W' | '1M' | '3M' | '1Y' | 'All';
+export type PriceChartPeriod = '1H' | '1D' | '1W' | '1M' | '3M' | '1Y';
+// Future: Add 'All' when upgrading to paid CoinGecko tier
+// export type PriceChartPeriod = '1H' | '1D' | '1W' | '1M' | '3M' | '1Y' | 'All';
 
 /**
  * Single data point in price history
@@ -78,15 +88,16 @@ export interface PriceDataPoint {
 
 /**
  * Available time periods for the chart
+ * Based on CoinGecko Free Tier limits (max 365 days)
  */
 export const PRICE_CHART_PERIODS: PriceChartPeriod[] = [
-  '1H',
-  '1D',
-  '1W',
-  '1M',
-  '3M',
-  '1Y',
-  'All',
+  '1H',  // Uses 1 day of data with 5-min intervals
+  '1D',  // 1 day, 5-min intervals
+  '1W',  // 7 days, hourly intervals
+  '1M',  // 30 days, hourly intervals
+  '3M',  // 90 days, hourly intervals
+  '1Y',  // 365 days, daily intervals
+  // 'All', // Requires paid CoinGecko tier for >365 days
 ];
 
 // ============================================================================
