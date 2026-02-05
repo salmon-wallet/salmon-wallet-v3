@@ -2,10 +2,11 @@ import React, { useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import ContentLoader, { Rect } from 'react-content-loader/native';
-import { colors, spacing, borderRadius, PRICE_CHART_PERIODS, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, PRICE_CHART_PERIODS } from '@salmon/shared';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
 import type { PriceChartProps } from './types';
-import { BlurContainer } from '../BlurContainer';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 /**
  * Default colors for positive/negative performance
@@ -99,20 +100,17 @@ const isPositivePerformance = (data: PriceDataPoint[]): boolean => {
 /**
  * ChartSkeleton - Loading placeholder for the chart
  */
-const ChartSkeleton: React.FC<{ height: number }> = ({ height }) => {
-  const screenWidth = Dimensions.get('window').width - spacing['2xl'] * 2;
-
+const ChartSkeleton: React.FC<{ height: number; width: number }> = ({ height, width }) => {
   return (
     <ContentLoader
       speed={1.5}
-      width={screenWidth}
+      width={width}
       height={height}
-      viewBox={`0 0 ${screenWidth} ${height}`}
+      viewBox={`0 0 ${width} ${height}`}
       backgroundColor={colors.skeleton.base}
       foregroundColor={colors.skeleton.highlight}
     >
-      {/* Chart area skeleton */}
-      <Rect x="0" y="0" rx="8" ry="8" width={screenWidth} height={height} />
+      <Rect x="0" y="0" rx="0" ry="0" width={width} height={height} />
     </ContentLoader>
   );
 };
@@ -156,10 +154,13 @@ const PeriodSelectorSkeleton: React.FC = () => {
  * PriceChart component for displaying token price history
  *
  * Features:
- * - Line chart with gradient fill
- * - Time period selector (1H, 1D, 1W, 1M, 3M, 1Y, All)
+ * - Full-width line chart with gradient fill (edge to edge)
+ * - Time period selector centered below the chart
  * - Color changes based on period performance
  * - Loading state with skeleton
+ *
+ * CoinGecko Free Tier periods: 1H, 1D, 1W, 1M, 3M, 1Y
+ * (All period requires paid tier)
  *
  * @example
  * ```tsx
@@ -186,8 +187,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   height = 200,
   style,
 }) => {
-  // Calculate chart dimensions
-  const chartWidth = Dimensions.get('window').width - spacing['2xl'] * 2;
+  // Full screen width for edge-to-edge chart
+  const chartWidth = SCREEN_WIDTH;
   const chartHeight = height;
 
   // Determine chart color based on performance
@@ -219,92 +220,83 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   );
 
   return (
-    <BlurContainer style={[styles.glassWrapper, style]}>
-      <View style={styles.container}>
-        {/* Chart area */}
-        <View style={[styles.chartContainer, { height: chartHeight }]}>
-          {loading ? (
-            <ChartSkeleton height={chartHeight} />
-          ) : data.length > 0 ? (
-            <Svg width={chartWidth} height={chartHeight}>
-              <Defs>
-                <LinearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0" stopColor={chartColor} stopOpacity={0.3} />
-                  <Stop offset="1" stopColor={chartColor} stopOpacity={0} />
-                </LinearGradient>
-              </Defs>
-
-              {/* Area fill */}
-              <Path d={areaPath} fill="url(#areaGradient)" />
-
-              {/* Line */}
-              <Path
-                d={linePath}
-                stroke={chartColor}
-                strokeWidth={2}
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No data available</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Period selector */}
+    <View style={[styles.wrapper, style]}>
+      {/* Chart area - full width */}
+      <View style={[styles.chartContainer, { height: chartHeight }]}>
         {loading ? (
-          <PeriodSelectorSkeleton />
+          <ChartSkeleton height={chartHeight} width={chartWidth} />
+        ) : data.length > 0 ? (
+          <Svg width={chartWidth} height={chartHeight}>
+            <Defs>
+              <LinearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={chartColor} stopOpacity={0.3} />
+                <Stop offset="1" stopColor={chartColor} stopOpacity={0} />
+              </LinearGradient>
+            </Defs>
+
+            {/* Area fill */}
+            <Path d={areaPath} fill="url(#areaGradient)" />
+
+            {/* Line */}
+            <Path
+              d={linePath}
+              stroke={chartColor}
+              strokeWidth={2}
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </Svg>
         ) : (
-          <View style={styles.periodContainer}>
-            {PRICE_CHART_PERIODS.map((period) => {
-              const isSelected = period === selectedPeriod;
-              return (
-                <TouchableOpacity
-                  key={period}
-                  style={[
-                    styles.periodButton,
-                    isSelected && styles.periodButtonSelected,
-                  ]}
-                  onPress={() => handlePeriodPress(period)}
-                  activeOpacity={0.7}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Select ${period} time period`}
-                  accessibilityState={{ selected: isSelected }}
-                >
-                  <Text
-                    style={[
-                      styles.periodButtonText,
-                      isSelected && styles.periodButtonTextSelected,
-                    ]}
-                  >
-                    {period}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>No data available</Text>
           </View>
         )}
       </View>
-    </BlurContainer>
+
+      {/* Period selector - centered below chart */}
+      {loading ? (
+        <PeriodSelectorSkeleton />
+      ) : (
+        <View style={styles.periodContainer}>
+          {PRICE_CHART_PERIODS.map((period) => {
+            const isSelected = period === selectedPeriod;
+            return (
+              <TouchableOpacity
+                key={period}
+                style={[
+                  styles.periodButton,
+                  isSelected && styles.periodButtonSelected,
+                ]}
+                onPress={() => handlePeriodPress(period)}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`Select ${period} time period`}
+                accessibilityState={{ selected: isSelected }}
+              >
+                <Text
+                  style={[
+                    styles.periodButtonText,
+                    isSelected && styles.periodButtonTextSelected,
+                  ]}
+                >
+                  {period}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  glassWrapper: {
-    borderRadius: 18,
-    marginHorizontal: s(24),
-    overflow: 'hidden',
-  },
-  container: {
-    backgroundColor: 'transparent',
-    padding: spacing.md,
+  wrapper: {
+    width: SCREEN_WIDTH,
   },
   chartContainer: {
-    marginBottom: spacing.lg,
-    borderRadius: borderRadius.md,
+    width: SCREEN_WIDTH,
     overflow: 'hidden',
   },
   periodContainer: {
