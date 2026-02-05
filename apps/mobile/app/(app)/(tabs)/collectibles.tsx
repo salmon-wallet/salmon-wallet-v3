@@ -43,7 +43,7 @@ import Animated, {
   runOnJS,
   interpolate,
 } from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import * as Clipboard from 'expo-clipboard';
 import {
@@ -58,7 +58,7 @@ import {
   type SolanaNetwork,
   SOLANA_NETWORKS,
 } from '@salmon/shared';
-import { NftCard, NftCardSkeleton, WalletHeader, type NftData } from '@salmon/ui';
+import { NftCard, NftCardSkeleton, WalletHeader, ScalesBackground, type NftData } from '@salmon/ui';
 
 // ============================================================================
 // Types
@@ -266,26 +266,30 @@ const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={styles.sheetOverlay}>
-        {/* Backdrop */}
-        <TouchableWithoutFeedback onPress={onClose}>
-          <Animated.View style={[styles.sheetBackdrop, backdropAnimatedStyle]} />
-        </TouchableWithoutFeedback>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View style={styles.sheetOverlay}>
+          {/* Backdrop */}
+          <TouchableWithoutFeedback onPress={onClose}>
+            <Animated.View style={[styles.sheetBackdrop, backdropAnimatedStyle]} />
+          </TouchableWithoutFeedback>
 
-        {/* Sheet Container */}
-        <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle]}>
-          {/* Draggable Header Area */}
-          <GestureDetector gesture={panGesture}>
-            <Animated.View style={styles.sheetDragArea}>
-              {/* Drag Handle */}
-              <View style={styles.sheetHandleContainer}>
-                <View style={styles.sheetHandle} />
-              </View>
+          {/* Sheet Container */}
+          <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle]}>
+            {/* ScalesBackground */}
+            <ScalesBackground topOffset={0} />
 
-              {/* Title */}
-              <Text style={styles.sheetTitle}>NFT Information</Text>
-            </Animated.View>
-          </GestureDetector>
+            {/* Draggable Header Area */}
+            <GestureDetector gesture={panGesture}>
+              <Animated.View style={styles.sheetDragArea}>
+                {/* Drag Handle */}
+                <View style={styles.sheetHandleContainer}>
+                  <View style={styles.sheetHandle} />
+                </View>
+
+                {/* Title */}
+                <Text style={styles.sheetTitle}>NFT Information</Text>
+              </Animated.View>
+            </GestureDetector>
 
           {/* ScrollView Content */}
           <ScrollView
@@ -367,6 +371,7 @@ const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
           </ScrollView>
         </Animated.View>
       </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 };
@@ -584,6 +589,9 @@ export default function CollectiblesScreen() {
 
       {/* Solid background for status bar area and entire screen */}
       <View style={styles.solidBackground} />
+
+      {/* ScalesBackground */}
+      <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
 
       {/* WalletHeader - Absolutely positioned above content */}
       <WalletHeader
