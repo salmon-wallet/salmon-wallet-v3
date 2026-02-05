@@ -74,6 +74,7 @@ const FONT_FAMILY = {
   regular: 'DMSansRegular',
   medium: 'DMSansMedium',
   bold: 'DMSansBold',
+  extraBold: 'DMSansExtraBold',
 } as const;
 
 // ============================================================================
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: FONT_FAMILY.extraBold,
     fontSize: fontSize.lg,
     textAlign: 'center',
     marginLeft: 40, // Offset for close button centering
