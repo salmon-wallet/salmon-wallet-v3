@@ -11,7 +11,6 @@ import {
   apiConfig,
   API_URL_MAP,
   STATIC_API_URL_MAP,
-  V2_API_FALLBACK,
   type Environment,
 } from './config';
 
@@ -33,8 +32,6 @@ describe('API Config Module', () => {
     delete process.env.VITE_API_URL;
     delete process.env.VITE_STATIC_API_URL;
     delete process.env.VITE_SALMON_ENV;
-    delete process.env.EXPO_PUBLIC_USE_V2_FALLBACK;
-    delete process.env.VITE_USE_V2_FALLBACK;
     delete process.env.NODE_ENV;
   });
 
@@ -257,30 +254,17 @@ describe('API Config Module', () => {
     it('should use provided environment parameter over detected environment', () => {
       process.env.EXPO_PUBLIC_SALMON_ENV = 'local';
       const url = getApiUrl('staging');
-      // Should use V2 fallback by default for staging
-      expect(url).toBe(V2_API_FALLBACK);
+      expect(url).toBe('https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/prod');
     });
 
-    it('should return V2 fallback for staging by default', () => {
+    it('should return AWS API Gateway URL for staging', () => {
       const url = getApiUrl('staging');
-      expect(url).toBe('https://v2.salmonwallet.io');
+      expect(url).toBe('https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/prod');
     });
 
-    it('should return V2 fallback for production by default', () => {
+    it('should return AWS API Gateway URL for production', () => {
       const url = getApiUrl('production');
-      expect(url).toBe('https://v2.salmonwallet.io');
-    });
-
-    it('should return actual staging URL when USE_V2_FALLBACK is "false"', () => {
-      process.env.EXPO_PUBLIC_USE_V2_FALLBACK = 'false';
-      const url = getApiUrl('staging');
-      expect(url).toBe('https://api-staging.salmonwallet.io');
-    });
-
-    it('should return actual production URL when USE_V2_FALLBACK is "false"', () => {
-      process.env.VITE_USE_V2_FALLBACK = 'false';
-      const url = getApiUrl('production');
-      expect(url).toBe('https://api.salmonwallet.io');
+      expect(url).toBe('https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/prod');
     });
 
     it('should respect EXPO_PUBLIC_API_URL override', () => {
@@ -333,7 +317,7 @@ describe('API Config Module', () => {
     it('should use detected environment when no parameter provided', () => {
       process.env.EXPO_PUBLIC_SALMON_ENV = 'staging';
       const url = getApiUrl();
-      expect(url).toBe(V2_API_FALLBACK);
+      expect(url).toBe('https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/prod');
     });
   });
 
@@ -455,11 +439,6 @@ describe('API Config Module', () => {
       expect(STATIC_API_URL_MAP).toHaveProperty('local');
       expect(STATIC_API_URL_MAP).toHaveProperty('staging');
       expect(STATIC_API_URL_MAP).toHaveProperty('production');
-    });
-
-    it('should export V2_API_FALLBACK as a string', () => {
-      expect(typeof V2_API_FALLBACK).toBe('string');
-      expect(V2_API_FALLBACK).toBe('https://v2.salmonwallet.io');
     });
 
     it('API_URL_MAP should contain valid HTTP(S) URLs', () => {

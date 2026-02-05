@@ -19,16 +19,12 @@ const VALID_ENVIRONMENTS: Environment[] = ['local', 'staging', 'production'];
 const DEFAULT_LOCAL_HOST = 'localhost';
 const DEFAULT_LOCAL_PORT = 3000;
 
-// Temporary fallback API (v2) while new endpoints are being deployed
-const V2_FALLBACK_API = 'https://v2.salmonwallet.io';
-
 // API URL configuration by environment
-// TODO: Update staging and production URLs when new API is deployed
 // Note: Local uses /local prefix because serverless-offline adds it to all routes
 const API_URLS: Record<Environment, string> = {
   local: `http://${DEFAULT_LOCAL_HOST}:${DEFAULT_LOCAL_PORT}/local`,
-  staging: 'https://api-staging.salmonwallet.io', // TODO: Staging API - currently use V2_FALLBACK_API
-  production: 'https://api.salmonwallet.io', // TODO: Production API - currently use V2_FALLBACK_API
+  staging: 'https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/prod',
+  production: 'https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/prod',
 };
 
 // Static API URL configuration by environment
@@ -152,19 +148,7 @@ export function getApiUrl(env?: Environment): string {
     return getLocalApiUrl();
   }
 
-  // TODO: Once new APIs are deployed, remove this fallback
-  // For now, use v2 API as fallback for staging/production since new endpoints aren't ready
-  const url = API_URLS[environment];
-  if (environment === 'staging' || environment === 'production') {
-    // Check if we should use the placeholder URLs or fall back to v2
-    // The placeholder URLs will return errors until deployed, so we use v2 for now
-    const useFallback = getEnvVar('USE_V2_FALLBACK') !== 'false';
-    if (useFallback) {
-      return V2_FALLBACK_API;
-    }
-  }
-
-  return url;
+  return API_URLS[environment];
 }
 
 /**
@@ -206,4 +190,3 @@ export const apiConfig = {
 // Export constants for direct access
 export const API_URL_MAP = API_URLS;
 export const STATIC_API_URL_MAP = STATIC_API_URLS;
-export const V2_API_FALLBACK = V2_FALLBACK_API;
