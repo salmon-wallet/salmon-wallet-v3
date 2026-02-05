@@ -6,6 +6,9 @@
  * It delegates to the API service for actual API calls while providing
  * convenient helper functions for transaction analysis.
  *
+ * Note: The backend returns transactions already transformed to UI format
+ * with inputs/outputs arrays instead of raw Helius format.
+ *
  * API Endpoints used:
  * - GET /v1/{networkId}/account/{address}/transactions - Get paginated transactions
  * - GET /v1/{networkId}/account/{address}/transactions/{txId} - Get single transaction
@@ -17,12 +20,10 @@ import {
   type SolanaTransaction,
   type SolanaTransactionsResponse,
   type SolanaPagingParams,
-  type SolanaTokenTransfer,
-  type SolanaNativeTransfer,
-  type SolanaAccountData,
-  type SolanaTransactionType,
-  type SolanaTransactionStatus,
-  type SolanaInstruction,
+  type SolanaTransactionTokenAmount,
+  type SolanaTransactionFee,
+  type SolanaTransactionTypeBackend,
+  type SolanaTransactionStatusBackend,
   type SolanaNetworkId,
 } from '../../api/services/solana';
 
@@ -34,12 +35,10 @@ export type {
   SolanaTransaction,
   SolanaTransactionsResponse,
   SolanaPagingParams,
-  SolanaTokenTransfer,
-  SolanaNativeTransfer,
-  SolanaAccountData,
-  SolanaTransactionType,
-  SolanaTransactionStatus,
-  SolanaInstruction,
+  SolanaTransactionTokenAmount,
+  SolanaTransactionFee,
+  SolanaTransactionTypeBackend,
+  SolanaTransactionStatusBackend,
   SolanaNetworkId,
 };
 
@@ -156,12 +155,12 @@ export async function getRecentTransactions(
 // ============================================================================
 
 /**
- * Check if a transaction is a transfer (SOL or token)
+ * Check if a transaction is a transfer (send or receive)
  * @param tx - Transaction to check
  * @returns True if the transaction is a transfer
  */
 export function isTransferTransaction(tx: SolanaTransaction): boolean {
-  return tx.type === 'TRANSFER' || tx.nativeTransfers.length > 0 || tx.tokenTransfers.length > 0;
+  return tx.type === 'send' || tx.type === 'receive';
 }
 
 /**
@@ -170,16 +169,18 @@ export function isTransferTransaction(tx: SolanaTransaction): boolean {
  * @returns True if the transaction is a swap
  */
 export function isSwapTransaction(tx: SolanaTransaction): boolean {
-  return tx.type === 'SWAP';
+  return tx.type === 'swap';
 }
 
 /**
  * Check if a transaction is NFT-related
+ * Uses heliusType to check for NFT operations
  * @param tx - Transaction to check
  * @returns True if the transaction is NFT-related
  */
 export function isNftTransaction(tx: SolanaTransaction): boolean {
-  return tx.type.startsWith('NFT_') || tx.type.startsWith('COMPRESSED_NFT_');
+  const heliusType = tx.heliusType || '';
+  return heliusType.startsWith('NFT_') || heliusType.startsWith('COMPRESSED_NFT_');
 }
 
 /**
@@ -201,68 +202,61 @@ export function isFailed(tx: SolanaTransaction): boolean {
 }
 
 /**
- * Get the total SOL amount transferred in a transaction
- * @param tx - Transaction to get SOL amount from
- * @param userAddress - The user's address to determine direction
- * @returns Net SOL amount in lamports (positive = received, negative = sent)
+ * Get the net amount for a specific token in a transaction
+ * @param tx - Transaction to analyze
+ * @param tokenContract - Token contract/mint address to look for
+ * @returns Net amount (positive = received, negative = sent), or null if token not found
  */
-export function getNetSolAmount(tx: SolanaTransaction, userAddress: string): number {
-  let netAmount = 0;
-
-  for (const transfer of tx.nativeTransfers) {
-    if (transfer.toAddress === userAddress) {
-      netAmount += transfer.amount;
-    }
-    if (transfer.fromAddress === userAddress) {
-      netAmount -= transfer.amount;
-    }
+export function getNetTokenAmount(
+  tx: SolanaTransaction,
+  tokenContract: string
+): { amount: string; decimals: number; symbol: string } | null {
+  // Check inputs (received tokens)
+  const inputToken = tx.inputs.find((i) => i.contract === tokenContract);
+  if (inputToken) {
+    return {
+      amount: inputToken.amount,
+      decimals: inputToken.decimals,
+      symbol: inputToken.symbol,
+    };
   }
 
-  return netAmount;
+  // Check outputs (sent tokens) - negate amount
+  const outputToken = tx.outputs.find((o) => o.contract === tokenContract);
+  if (outputToken) {
+    // Negate for sent tokens
+    const negatedAmount = BigInt(outputToken.amount) * -1n;
+    return {
+      amount: negatedAmount.toString(),
+      decimals: outputToken.decimals,
+      symbol: outputToken.symbol,
+    };
+  }
+
+  return null;
 }
 
 /**
- * Get token transfers for a specific user
- * @param tx - Transaction to get token transfers from
- * @param userAddress - The user's address
- * @returns Token transfers involving the user
+ * Get all tokens involved in a transaction
+ * @param tx - Transaction to get tokens from
+ * @returns Array of unique token contracts
  */
-export function getUserTokenTransfers(
-  tx: SolanaTransaction,
-  userAddress: string
-): SolanaTokenTransfer[] {
-  return tx.tokenTransfers.filter(
-    (transfer) =>
-      transfer.fromAddress === userAddress || transfer.toAddress === userAddress
-  );
-}
+export function getInvolvedTokens(tx: SolanaTransaction): string[] {
+  const tokens = new Set<string>();
 
-/**
- * Get native SOL transfers for a specific user
- * @param tx - Transaction to get native transfers from
- * @param userAddress - The user's address
- * @returns Native transfers involving the user
- */
-export function getUserNativeTransfers(
-  tx: SolanaTransaction,
-  userAddress: string
-): SolanaNativeTransfer[] {
-  return tx.nativeTransfers.filter(
-    (transfer) =>
-      transfer.fromAddress === userAddress || transfer.toAddress === userAddress
-  );
+  tx.inputs.forEach((i) => tokens.add(i.contract));
+  tx.outputs.forEach((o) => tokens.add(o.contract));
+
+  return Array.from(tokens);
 }
 
 /**
  * Format a transaction timestamp to a Date object
  * @param tx - Transaction to get date from
- * @returns Date object or null if no block time
+ * @returns Date object
  */
-export function getTransactionDate(tx: SolanaTransaction): Date | null {
-  if (tx.blockTime === null) {
-    return null;
-  }
-  return new Date(tx.blockTime * 1000);
+export function getTransactionDate(tx: SolanaTransaction): Date {
+  return new Date(tx.timestamp * 1000);
 }
 
 /**
@@ -271,12 +265,8 @@ export function getTransactionDate(tx: SolanaTransaction): Date | null {
  * @returns Human-readable time ago string (e.g., "2 hours ago")
  */
 export function getTimeAgo(tx: SolanaTransaction): string {
-  if (tx.blockTime === null) {
-    return 'Unknown';
-  }
-
   const now = Date.now();
-  const txTime = tx.blockTime * 1000;
+  const txTime = tx.timestamp * 1000;
   const diff = now - txTime;
 
   const seconds = Math.floor(diff / 1000);
@@ -302,7 +292,7 @@ export function getTimeAgo(tx: SolanaTransaction): string {
  * @returns True if the transaction is stake-related
  */
 export function isStakingTransaction(tx: SolanaTransaction): boolean {
-  return tx.type === 'STAKE' || tx.type === 'UNSTAKE';
+  return tx.type === 'stake';
 }
 
 /**
@@ -311,7 +301,7 @@ export function isStakingTransaction(tx: SolanaTransaction): boolean {
  * @returns True if the transaction is a mint or burn
  */
 export function isTokenMintOrBurn(tx: SolanaTransaction): boolean {
-  return tx.type === 'TOKEN_MINT' || tx.type === 'TOKEN_BURN';
+  return tx.type === 'mint' || tx.type === 'burn';
 }
 
 /**

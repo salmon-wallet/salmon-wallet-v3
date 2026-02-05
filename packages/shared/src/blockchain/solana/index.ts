@@ -116,9 +116,8 @@ export {
   isNftTransaction,
   isSuccessful,
   isFailed,
-  getNetSolAmount,
-  getUserTokenTransfers,
-  getUserNativeTransfers,
+  getNetTokenAmount,
+  getInvolvedTokens,
   getTransactionDate,
   getTimeAgo,
   isStakingTransaction,
@@ -130,16 +129,14 @@ export type {
   // Solana transaction types
   SolanaTransactionPaging,
   SolanaTransactionListResponse,
-  // Re-exported from API service
+  // Re-exported from API service (backend-transformed format)
   SolanaTransaction,
   SolanaTransactionsResponse,
   SolanaPagingParams,
-  SolanaTokenTransfer,
-  SolanaNativeTransfer,
-  SolanaAccountData,
-  SolanaTransactionType,
-  SolanaTransactionStatus,
-  SolanaInstruction,
+  SolanaTransactionTokenAmount,
+  SolanaTransactionFee,
+  SolanaTransactionTypeBackend,
+  SolanaTransactionStatusBackend,
 } from './transactions';
 
 // Validation functions
