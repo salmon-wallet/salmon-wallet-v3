@@ -91,8 +91,8 @@ export const componentSizes = {
   actionButtonHeight: 47,
   /** Action button border radius: 14px */
   actionButtonRadius: 14,
-  /** Action button icon size: 15px */
-  actionButtonIcon: 15,
+  /** Action button icon size: 16px */
+  actionButtonIcon: 16,
 
   // Inputs
   inputHeight: 56,
