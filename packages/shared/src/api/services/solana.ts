@@ -94,12 +94,14 @@ export interface SolanaInstruction {
 }
 
 /**
- * Transaction status
+ * Transaction status (RPC format - uppercase)
+ * @deprecated Use SolanaTransactionStatusBackend instead (lowercase from backend)
  */
 export type SolanaTransactionStatus = 'confirmed' | 'finalized' | 'failed';
 
 /**
- * Transaction type classification
+ * Transaction type classification (Helius format - uppercase)
+ * Used for filtering API requests
  */
 export type SolanaTransactionType =
   | 'TRANSFER'
@@ -120,51 +122,110 @@ export type SolanaTransactionType =
   | 'UNKNOWN';
 
 /**
- * Solana transaction from the API
+ * Token amount in a transaction (from backend)
+ */
+export interface SolanaTransactionTokenAmount {
+  /** Raw amount (in smallest unit) */
+  amount: string;
+  /** Token decimals */
+  decimals: number;
+  /** Token symbol */
+  symbol: string;
+  /** Token name */
+  name?: string;
+  /** Token logo URL */
+  logo?: string | null;
+  /** Token contract/mint address */
+  contract: string;
+  /** Source address (for receives) */
+  source?: string;
+  /** Destination address (for sends) */
+  destination?: string;
+  /** Whether this is an NFT */
+  isNft?: boolean;
+}
+
+/**
+ * Transaction fee information (from backend)
+ */
+export interface SolanaTransactionFee {
+  /** Fee amount in lamports */
+  amount: number;
+  /** Fee decimals */
+  decimals: number;
+  /** Fee token symbol */
+  symbol: string;
+}
+
+/**
+ * Transaction status from backend (lowercase)
+ */
+export type SolanaTransactionStatusBackend = 'completed' | 'failed' | 'pending';
+
+/**
+ * Transaction type from backend (lowercase)
+ */
+export type SolanaTransactionTypeBackend =
+  | 'send'
+  | 'receive'
+  | 'swap'
+  | 'mint'
+  | 'burn'
+  | 'stake'
+  | 'loan'
+  | 'interaction'
+  | 'unknown';
+
+/**
+ * Solana transaction from the API (backend-transformed format)
+ *
+ * Note: The backend returns transactions already transformed to UI format.
+ * This differs from raw Helius format (which has nativeTransfers/tokenTransfers).
  */
 export interface SolanaTransaction {
+  /** Wallet address */
+  address?: string;
   /** Transaction signature (unique identifier) */
   signature: string;
-  /** Block slot number */
-  slot: number;
-  /** Block time (Unix timestamp in seconds) */
-  blockTime: number | null;
-  /** Transaction status */
-  status: SolanaTransactionStatus;
-  /** Transaction fee in lamports */
-  fee: number;
-  /** Fee payer address */
-  feePayer: string;
-  /** Transaction type classification */
-  type: SolanaTransactionType;
-  /** Human-readable description */
+  /** Transaction ID (same as signature) */
+  id: string;
+  /** Unix timestamp in seconds */
+  timestamp: number;
+  /** Transaction status (lowercase from backend) */
+  status: SolanaTransactionStatusBackend;
+  /** Transaction fee (null if user didn't pay fee) */
+  fee?: SolanaTransactionFee | null;
+  /** Transaction type (lowercase from backend) */
+  type: SolanaTransactionTypeBackend;
+  /** Tokens received */
+  inputs: SolanaTransactionTokenAmount[];
+  /** Tokens sent */
+  outputs: SolanaTransactionTokenAmount[];
+  /** Human-readable description from Helius */
   description?: string;
-  /** Source of the transaction (e.g., 'JUPITER', 'MAGIC_EDEN') */
+  /** Source protocol (e.g., 'JUPITER', 'MAGIC_EDEN', 'PHANTOM') */
   source?: string;
-  /** Native SOL transfers */
-  nativeTransfers: SolanaNativeTransfer[];
-  /** Token transfers */
-  tokenTransfers: SolanaTokenTransfer[];
-  /** Account data changes */
-  accountData: SolanaAccountData[];
-  /** Transaction instructions */
-  instructions: SolanaInstruction[];
-  /** Transaction events (parsed events from known programs) */
+  /** Transaction events */
   events?: Record<string, unknown>;
-  /** Error message if transaction failed */
-  error?: string | null;
+  /** Original Helius transaction type (uppercase) */
+  heliusType?: string;
 }
 
 /**
  * Pagination parameters for transaction queries
  */
 export interface SolanaPagingParams {
-  /** Signature to start before (for cursor-based pagination) */
-  before?: string;
+  /** Page token for cursor-based pagination (from previous response's oldestSignature) */
+  pageToken?: string;
   /** Number of items per page (max 100) */
-  limit?: number;
+  pageSize?: number;
   /** Transaction type filter */
   type?: SolanaTransactionType;
+  // Legacy aliases for backwards compatibility
+  /** @deprecated Use pageToken instead */
+  before?: string;
+  /** @deprecated Use pageSize instead */
+  limit?: number;
 }
 
 /**
@@ -329,25 +390,38 @@ export async function getSolanaTransactions(
   try {
     const params: Record<string, string | number> = {};
 
-    if (paging?.before) {
-      params.before = paging.before;
+    // Use pageToken/pageSize (new) or before/limit (legacy)
+    const pageToken = paging?.pageToken || paging?.before;
+    const pageSize = paging?.pageSize || paging?.limit;
+
+    if (pageToken) {
+      params.pageToken = pageToken;
     }
-    if (paging?.limit) {
-      params.limit = paging.limit;
+    if (pageSize) {
+      params.pageSize = pageSize;
     }
     if (paging?.type) {
       params.type = paging.type;
     }
 
-    const { data } = await apiClient.get<SolanaTransactionsResponse>(
+    // Backend returns { data: Transaction[], meta: { nextPageToken?: string } }
+    interface BackendResponse {
+      data: SolanaTransaction[];
+      meta?: { nextPageToken?: string };
+    }
+
+    const { data: response } = await apiClient.get<BackendResponse>(
       `/v1/${networkId}/account/${address}/transactions`,
       { params }
     );
 
+    const transactions = response.data || [];
+    const nextPageToken = response.meta?.nextPageToken;
+
     return {
-      transactions: data.transactions || [],
-      oldestSignature: data.oldestSignature,
-      hasMore: data.hasMore ?? false,
+      transactions,
+      oldestSignature: nextPageToken || null,
+      hasMore: !!nextPageToken,
     };
   } catch (error) {
     if (error instanceof ApiError && error.isNotFound()) {
