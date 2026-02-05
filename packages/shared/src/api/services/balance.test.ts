@@ -884,13 +884,31 @@ describe('getWalletBalance', () => {
   }
 
   describe('with mocked services', () => {
+    // Map of token addresses to Jupiter price data (all lowercase)
+    // Now returns { usdPrice, priceChange24h } to match the new API format
+    const JUPITER_PRICE_MAP: Record<string, { usdPrice: number; priceChange24h: number | null }> = {
+      [SOL_CONSTANTS.ADDRESS.toLowerCase()]: { usdPrice: 100.5, priceChange24h: 5.2 },
+      epjfwdd5aufqssqem2qn1xzybapc8g4weggkzwytdt1v: { usdPrice: 1.0, priceChange24h: 0.01 }, // USDC
+      es9vmfrzacermjfrf4h2fyd4kconky11mcce8benwnyb: { usdPrice: 0.9999, priceChange24h: -0.02 }, // USDT
+      dezxaz8z7pnrnrjjz3wxborgixca6xjnb7yab1ppb263: { usdPrice: 0.00002145, priceChange24h: -12.5 }, // BONK
+    };
+
     beforeEach(() => {
       // Clear all mocks before each test
       vi.clearAllMocks();
+
+      // Mock Jupiter price service (getSolanaTokenPrice)
+      // Returns price data { usdPrice, priceChange24h } based on token address
+      vi.spyOn(priceModule, 'getSolanaTokenPrice').mockImplementation(
+        async (address: string) => {
+          return JUPITER_PRICE_MAP[address.toLowerCase()] ?? null;
+        }
+      );
     });
 
     afterEach(() => {
       // Restore all mocks after each test
+      vi.restoreAllMocks();
     });
     it('should combine SOL balance and token balances correctly', async () => {
       // Mock metadata service
@@ -1017,9 +1035,11 @@ describe('getWalletBalance', () => {
 
     });
 
-    it('should handle null price data', async () => {
+    it('should handle null price data from all sources', async () => {
       vi.spyOn(tokensModule, 'getTokenMetadataByMints').mockResolvedValue(MOCK_TOKEN_METADATA);
       vi.spyOn(priceModule, 'getPricesByPlatform').mockResolvedValue(null);
+      // Also mock Jupiter to return null for all tokens
+      vi.spyOn(priceModule, 'getSolanaTokenPrice').mockResolvedValue(null);
 
       const solBalance = createSolBalance(2000000000, MOCK_OWNER);
       const result = await getWalletBalance(solBalance, MOCK_RAW_BALANCES, 'solana-mainnet');
@@ -1128,16 +1148,16 @@ describe('getWalletBalance', () => {
       const metadataSpy = vi
         .spyOn(tokensModule, 'getTokenMetadataByMints')
         .mockResolvedValue(MOCK_TOKEN_METADATA);
-      const priceSpy = vi
-        .spyOn(priceModule, 'getPricesByPlatform')
-        .mockResolvedValue(MOCK_TOKEN_PRICES);
+      // Jupiter price service is already mocked in beforeEach
+      const jupiterPriceSpy = vi.spyOn(priceModule, 'getSolanaTokenPrice');
 
       const solBalance = createSolBalance(1000000000, MOCK_OWNER);
       await getWalletBalance(solBalance, MOCK_RAW_BALANCES, 'solana-mainnet');
 
-      // Both should have been called
+      // Metadata should have been called once
       expect(metadataSpy).toHaveBeenCalledTimes(1);
-      expect(priceSpy).toHaveBeenCalledTimes(1);
+      // Jupiter price should have been called for SOL + each token (4 total)
+      expect(jupiterPriceSpy).toHaveBeenCalledTimes(4);
 
     });
   });
@@ -1192,8 +1212,22 @@ describe('getWalletBalance', () => {
   });
 
   describe('edge cases', () => {
+    // Map of token addresses to Jupiter price data (all lowercase)
+    const JUPITER_PRICE_MAP: Record<string, { usdPrice: number; priceChange24h: number | null }> = {
+      [SOL_CONSTANTS.ADDRESS.toLowerCase()]: { usdPrice: 100.5, priceChange24h: 5.2 },
+      epjfwdd5aufqssqem2qn1xzybapc8g4weggkzwytdt1v: { usdPrice: 1.0, priceChange24h: 0.01 }, // USDC
+      es9vmfrzacermjfrf4h2fyd4kconky11mcce8benwnyb: { usdPrice: 0.9999, priceChange24h: -0.02 }, // USDT
+      dezxaz8z7pnrnrjjz3wxborgixca6xjnb7yab1ppb263: { usdPrice: 0.00002145, priceChange24h: -12.5 }, // BONK
+    };
+
     beforeEach(() => {
       vi.clearAllMocks();
+      // Mock Jupiter price service
+      vi.spyOn(priceModule, 'getSolanaTokenPrice').mockImplementation(
+        async (address: string) => {
+          return JUPITER_PRICE_MAP[address.toLowerCase()] ?? null;
+        }
+      );
     });
 
     afterEach(() => {

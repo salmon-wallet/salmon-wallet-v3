@@ -14,7 +14,7 @@
  */
 
 import { getTokenMetadataByMints, type TokenMetadata } from './tokens';
-import { getPricesByPlatform, type TokenPrice } from './price';
+import { getSolanaTokenPrice, type TokenPrice } from './price';
 
 // Re-export types used by decorators for use in tests
 export type { TokenMetadata } from './tokens';
@@ -168,14 +168,41 @@ export function decorateBalanceList(
 /**
  * Decorate balances with price information
  *
+ * Supports two modes:
+ * 1. Solana mode (jupiterPrices provided): Uses Jupiter for both price and 24h change
+ * 2. Legacy mode (jupiterPrices not provided): Uses batch prices for both price and 24h change
+ *
  * @param balances - Token balances with metadata
- * @param prices - Price data array
+ * @param prices - Array of TokenPrice from batch endpoint (for legacy Bitcoin/Ethereum support)
+ * @param jupiterPrices - Optional map of address -> { price, priceChange24h } from Jupiter (Solana only)
  * @returns Balances with price information
  */
 export function decorateBalancePrices(
   balances: TokenBalance[],
-  prices: TokenPrice[] | null
+  prices: TokenPrice[] | null,
+  jupiterPrices?: Map<string, JupiterPriceData> | null
 ): TokenBalanceWithPrice[] {
+  // Solana mode: Use Jupiter for both price and 24h change
+  if (jupiterPrices && jupiterPrices.size > 0) {
+    return balances.map((balance) => {
+      // Get price data from Jupiter (by address)
+      const jupiterData = jupiterPrices.get(balance.address.toLowerCase());
+
+      if (jupiterData !== undefined) {
+        const usdBalance = balance.uiAmount * jupiterData.price;
+        return {
+          ...balance,
+          price: jupiterData.price,
+          usdBalance,
+          priceChange24h: jupiterData.priceChange24h ?? undefined,
+        };
+      }
+
+      return balance;
+    });
+  }
+
+  // Legacy mode: Use batch prices for both price and 24h change (for Bitcoin/Ethereum)
   if (!prices) {
     return balances;
   }
@@ -185,8 +212,10 @@ export function decorateBalancePrices(
   const priceByCoingeckoId = new Map<string, TokenPrice>();
 
   prices.forEach((price) => {
-    priceBySymbol.set(price.symbol.toLowerCase(), price);
     priceByCoingeckoId.set(price.id.toLowerCase(), price);
+    if (price.symbol) {
+      priceBySymbol.set(price.symbol.toLowerCase(), price);
+    }
   });
 
   return balances.map((balance) => {
@@ -259,6 +288,59 @@ export function calculate24HoursChange(
 }
 
 // ============================================================================
+// Price Fetching Functions
+// ============================================================================
+
+/**
+ * Jupiter price data with address and 24h change
+ */
+export interface JupiterPriceData {
+  /** USD price */
+  price: number;
+  /** 24h price change percentage */
+  priceChange24h: number | null;
+}
+
+/**
+ * Fetch real-time prices from Jupiter API for multiple Solana tokens
+ * Returns both price and 24h change from Jupiter
+ *
+ * @param addresses - Array of token mint addresses
+ * @param networkId - Network identifier
+ * @returns Map of address -> { price, priceChange24h }
+ */
+async function getJupiterPrices(
+  addresses: string[],
+  networkId: 'solana-mainnet' | 'solana-devnet' = 'solana-mainnet'
+): Promise<Map<string, JupiterPriceData>> {
+  if (addresses.length === 0) {
+    return new Map();
+  }
+
+  // Fetch Jupiter prices in parallel for all addresses
+  const priceResults = await Promise.all(
+    addresses.map(async (address) => {
+      const priceData = await getSolanaTokenPrice(address, networkId);
+      return { address, priceData };
+    })
+  );
+
+  // Create price map
+  const priceMap = new Map<string, JupiterPriceData>();
+  priceResults.forEach((result) => {
+    if (result.priceData !== null) {
+      priceMap.set(result.address.toLowerCase(), {
+        price: result.priceData.usdPrice,
+        priceChange24h: result.priceData.priceChange24h,
+      });
+    }
+  });
+
+  return priceMap;
+}
+
+
+// ============================================================================
 // Balance Retrieval Functions
 // ============================================================================
 
@@ -293,7 +375,7 @@ export function createSolBalance(lamports: number, owner: string): TokenBalance 
  * This function:
  * 1. Takes raw token balances (from getTokensByOwner)
  * 2. Fetches metadata for all tokens
- * 3. Fetches price data
+ * 3. Fetches price data from Jupiter (real-time prices + 24h change)
  * 4. Combines and sorts by USD value
  * 5. Calculates totals and 24h changes
  *
@@ -315,10 +397,14 @@ export async function getWalletBalance(
   // Get mint addresses for metadata lookup
   const mintAddresses = nonEmptyBalances.map((t) => t.mint);
 
-  // Fetch metadata and prices in parallel
-  const [tokenMetadata, prices] = await Promise.all([
+  // Include SOL address for price fetching
+  const allAddresses = [SOL_CONSTANTS.ADDRESS, ...mintAddresses];
+
+  // Fetch metadata and Jupiter prices in parallel
+  // Jupiter provides both real-time prices AND 24h change data
+  const [tokenMetadata, jupiterPrices] = await Promise.all([
     getTokenMetadataByMints(mintAddresses, networkId),
-    getPricesByPlatform('solana'),
+    getJupiterPrices(allAddresses, networkId),
   ]);
 
   // Decorate balances with metadata
@@ -327,10 +413,10 @@ export async function getWalletBalance(
   // Combine SOL and SPL tokens
   const allBalances = [solBalance, ...decoratedTokenBalances];
 
-  // Decorate with prices
-  const balancesWithPrices = decorateBalancePrices(allBalances, prices);
+  // Decorate with prices from Jupiter (includes both price and 24h change)
+  const balancesWithPrices = decorateBalancePrices(allBalances, null, jupiterPrices);
 
-  if (prices) {
+  if (jupiterPrices.size > 0) {
     // Sort by USD balance (SOL always first)
     const sortedBalances = balancesWithPrices.sort((a, b) => {
       // SOL always first
