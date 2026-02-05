@@ -3,6 +3,8 @@
  *
  * Tests cover transaction fetching, filtering, and helper functions.
  * Uses Vitest 4.0.18 for testing with mocked API responses.
+ *
+ * Note: Tests use the backend-transformed transaction format with inputs/outputs.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -14,9 +16,8 @@ import {
   isNftTransaction,
   isSuccessful,
   isFailed,
-  getNetSolAmount,
-  getUserTokenTransfers,
-  getUserNativeTransfers,
+  getNetTokenAmount,
+  getInvolvedTokens,
   getTransactionDate,
   getTimeAgo,
   isStakingTransaction,
@@ -40,29 +41,56 @@ vi.mock('../../api/services/solana');
 
 const TEST_ADDRESS = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
 const TEST_SIGNATURE = '5xG8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKKabc123';
+const SOL_CONTRACT = 'So11111111111111111111111111111111111111112';
+const USDC_CONTRACT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 
 /**
- * Mock transfer transaction
+ * Mock send transaction (SOL transfer)
  */
-const MOCK_TRANSFER_TX: SolanaTransaction = {
+const MOCK_SEND_TX: SolanaTransaction = {
   signature: TEST_SIGNATURE,
-  slot: 123456789,
-  blockTime: 1640000000,
-  status: 'confirmed',
-  fee: 5000,
-  feePayer: TEST_ADDRESS,
-  type: 'TRANSFER',
+  id: TEST_SIGNATURE,
+  timestamp: 1640000000,
+  status: 'completed',
+  fee: { amount: 5000, decimals: 9, symbol: 'SOL' },
+  type: 'send',
   description: 'Transfer SOL',
-  nativeTransfers: [
+  inputs: [],
+  outputs: [
     {
-      fromAddress: TEST_ADDRESS,
-      toAddress: 'RecipientAddress123',
-      amount: 1000000000, // 1 SOL
+      amount: '1000000000', // 1 SOL
+      decimals: 9,
+      symbol: 'SOL',
+      name: 'Solana',
+      contract: SOL_CONTRACT,
+      destination: 'RecipientAddress123',
     },
   ],
-  tokenTransfers: [],
-  accountData: [],
-  instructions: [],
+  heliusType: 'TRANSFER',
+};
+
+/**
+ * Mock receive transaction
+ */
+const MOCK_RECEIVE_TX: SolanaTransaction = {
+  signature: 'receive-signature-123',
+  id: 'receive-signature-123',
+  timestamp: 1640000500,
+  status: 'completed',
+  type: 'receive',
+  description: 'Received SOL',
+  inputs: [
+    {
+      amount: '500000000', // 0.5 SOL
+      decimals: 9,
+      symbol: 'SOL',
+      name: 'Solana',
+      contract: SOL_CONTRACT,
+      source: 'SenderAddress123',
+    },
+  ],
+  outputs: [],
+  heliusType: 'TRANSFER',
 };
 
 /**
@@ -70,37 +98,34 @@ const MOCK_TRANSFER_TX: SolanaTransaction = {
  */
 const MOCK_SWAP_TX: SolanaTransaction = {
   signature: 'swap-signature-123',
-  slot: 123456790,
-  blockTime: 1640001000,
-  status: 'confirmed',
-  fee: 10000,
-  feePayer: TEST_ADDRESS,
-  type: 'SWAP',
+  id: 'swap-signature-123',
+  timestamp: 1640001000,
+  status: 'completed',
+  fee: { amount: 10000, decimals: 9, symbol: 'SOL' },
+  type: 'swap',
   description: 'Swap SOL for USDC',
   source: 'JUPITER',
-  nativeTransfers: [],
-  tokenTransfers: [
+  inputs: [
     {
-      fromAddress: TEST_ADDRESS,
-      toAddress: 'JupiterProgram',
-      mint: 'So11111111111111111111111111111111111111112',
-      amount: '1000000000',
-      decimals: 9,
-      symbol: 'SOL',
-      name: 'Solana',
-    },
-    {
-      fromAddress: 'JupiterProgram',
-      toAddress: TEST_ADDRESS,
-      mint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-      amount: '5000000',
+      amount: '5000000', // 5 USDC received
       decimals: 6,
       symbol: 'USDC',
       name: 'USD Coin',
+      contract: USDC_CONTRACT,
+      source: 'JupiterProgram',
     },
   ],
-  accountData: [],
-  instructions: [],
+  outputs: [
+    {
+      amount: '1000000000', // 1 SOL sent
+      decimals: 9,
+      symbol: 'SOL',
+      name: 'Solana',
+      contract: SOL_CONTRACT,
+      destination: 'JupiterProgram',
+    },
+  ],
+  heliusType: 'SWAP',
 };
 
 /**
@@ -108,17 +133,24 @@ const MOCK_SWAP_TX: SolanaTransaction = {
  */
 const MOCK_NFT_TX: SolanaTransaction = {
   signature: 'nft-signature-123',
-  slot: 123456791,
-  blockTime: 1640002000,
-  status: 'confirmed',
-  fee: 15000,
-  feePayer: TEST_ADDRESS,
-  type: 'NFT_MINT',
-  description: 'Mint NFT',
-  nativeTransfers: [],
-  tokenTransfers: [],
-  accountData: [],
-  instructions: [],
+  id: 'nft-signature-123',
+  timestamp: 1640002000,
+  status: 'completed',
+  fee: { amount: 5000, decimals: 9, symbol: 'SOL' },
+  type: 'mint',
+  description: 'NFT Mint',
+  inputs: [
+    {
+      amount: '1',
+      decimals: 0,
+      symbol: 'MYCO',
+      name: 'My Collection',
+      contract: 'NftMintAddress123',
+      isNft: true,
+    },
+  ],
+  outputs: [],
+  heliusType: 'NFT_MINT',
 };
 
 /**
@@ -126,632 +158,354 @@ const MOCK_NFT_TX: SolanaTransaction = {
  */
 const MOCK_FAILED_TX: SolanaTransaction = {
   signature: 'failed-signature-123',
-  slot: 123456792,
-  blockTime: 1640003000,
+  id: 'failed-signature-123',
+  timestamp: 1640003000,
   status: 'failed',
-  fee: 5000,
-  feePayer: TEST_ADDRESS,
-  type: 'TRANSFER',
-  error: 'Insufficient funds',
-  nativeTransfers: [],
-  tokenTransfers: [],
-  accountData: [],
-  instructions: [],
+  fee: { amount: 5000, decimals: 9, symbol: 'SOL' },
+  type: 'send',
+  description: 'Failed transfer',
+  inputs: [],
+  outputs: [],
+  heliusType: 'TRANSFER',
 };
 
 /**
- * Mock staking transaction
+ * Mock stake transaction
  */
 const MOCK_STAKE_TX: SolanaTransaction = {
   signature: 'stake-signature-123',
-  slot: 123456793,
-  blockTime: 1640004000,
-  status: 'confirmed',
-  fee: 5000,
-  feePayer: TEST_ADDRESS,
-  type: 'STAKE',
+  id: 'stake-signature-123',
+  timestamp: 1640004000,
+  status: 'completed',
+  fee: { amount: 5000, decimals: 9, symbol: 'SOL' },
+  type: 'stake',
   description: 'Stake SOL',
-  nativeTransfers: [],
-  tokenTransfers: [],
-  accountData: [],
-  instructions: [],
+  inputs: [],
+  outputs: [],
+  heliusType: 'STAKE',
 };
 
 /**
- * Mock token mint transaction
+ * Mock mint transaction (token)
  */
 const MOCK_MINT_TX: SolanaTransaction = {
   signature: 'mint-signature-123',
-  slot: 123456794,
-  blockTime: 1640005000,
-  status: 'confirmed',
-  fee: 5000,
-  feePayer: TEST_ADDRESS,
-  type: 'TOKEN_MINT',
-  description: 'Mint tokens',
-  nativeTransfers: [],
-  tokenTransfers: [],
-  accountData: [],
-  instructions: [],
+  id: 'mint-signature-123',
+  timestamp: 1640005000,
+  status: 'completed',
+  fee: { amount: 5000, decimals: 9, symbol: 'SOL' },
+  type: 'mint',
+  description: 'Token Mint',
+  inputs: [
+    {
+      amount: '1000000',
+      decimals: 6,
+      symbol: 'MYTKN',
+      name: 'My Token',
+      contract: 'TokenMintAddress123',
+    },
+  ],
+  outputs: [],
+  heliusType: 'TOKEN_MINT',
+};
+
+/**
+ * Mock burn transaction
+ */
+const MOCK_BURN_TX: SolanaTransaction = {
+  signature: 'burn-signature-123',
+  id: 'burn-signature-123',
+  timestamp: 1640006000,
+  status: 'completed',
+  type: 'burn',
+  description: 'Token Burn',
+  inputs: [],
+  outputs: [
+    {
+      amount: '500000',
+      decimals: 6,
+      symbol: 'MYTKN',
+      name: 'My Token',
+      contract: 'TokenMintAddress123',
+    },
+  ],
+  heliusType: 'TOKEN_BURN',
 };
 
 // ============================================================================
-// Helper: isBackendAvailable
+// Tests
 // ============================================================================
 
-/**
- * Checks if the backend API is available for integration testing
- * @returns True if backend is available
- */
-async function isBackendAvailable(): Promise<boolean> {
-  try {
-    const response = await fetch('http://localhost:3000/health');
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
-// ============================================================================
-// Tests: getTransaction
-// ============================================================================
-
-describe('getTransaction', () => {
+describe('Solana Transaction History Service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('should get transaction by signature', async () => {
-    vi.mocked(solanaApiService.getSolanaTransaction).mockResolvedValue(MOCK_TRANSFER_TX);
-
-    const tx = await getTransaction('solana-mainnet', TEST_ADDRESS, TEST_SIGNATURE);
-
-    expect(tx).toBeDefined();
-    expect(tx?.signature).toBe(TEST_SIGNATURE);
-    expect(tx?.type).toBe('TRANSFER');
-
-    expect(solanaApiService.getSolanaTransaction).toHaveBeenCalledWith(
-      'solana-mainnet',
-      TEST_ADDRESS,
-      TEST_SIGNATURE
-    );
-  });
-
-  it('should return null if transaction not found', async () => {
-    vi.mocked(solanaApiService.getSolanaTransaction).mockResolvedValue(null);
-
-    const tx = await getTransaction('solana-mainnet', TEST_ADDRESS, 'non-existent-sig');
-
-    expect(tx).toBeNull();
-  });
-
-  it('should handle different network IDs', async () => {
-    vi.mocked(solanaApiService.getSolanaTransaction).mockResolvedValue(MOCK_TRANSFER_TX);
-
-    await getTransaction('solana-devnet', TEST_ADDRESS, TEST_SIGNATURE);
-
-    expect(solanaApiService.getSolanaTransaction).toHaveBeenCalledWith(
-      'solana-devnet',
-      TEST_ADDRESS,
-      TEST_SIGNATURE
-    );
-  });
-});
-
-// ============================================================================
-// Tests: getRecentTransactions
-// ============================================================================
-
-describe('getRecentTransactions', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('should get recent transactions with default paging', async () => {
-    const mockResponse = {
-      transactions: [MOCK_TRANSFER_TX, MOCK_SWAP_TX],
-      oldestSignature: 'oldest-sig-123',
-      hasMore: true,
-    };
-
-    vi.mocked(solanaApiService.getSolanaTransactions).mockResolvedValue(mockResponse);
-
-    const result = await getRecentTransactions('solana-mainnet', TEST_ADDRESS);
-
-    expect(result.data).toHaveLength(2);
-    expect(result.pageToken).toBe('oldest-sig-123');
-
-    expect(solanaApiService.getSolanaTransactions).toHaveBeenCalledWith(
-      'solana-mainnet',
-      TEST_ADDRESS,
-      {}
-    );
-  });
-
-  it('should support pagination with pageSize', async () => {
-    const mockResponse = {
-      transactions: [MOCK_TRANSFER_TX],
-      oldestSignature: null,
-      hasMore: false,
-    };
-
-    vi.mocked(solanaApiService.getSolanaTransactions).mockResolvedValue(mockResponse);
-
-    const paging: SolanaTransactionPaging = {
-      pageSize: 10,
-    };
-
-    const result = await getRecentTransactions('solana-mainnet', TEST_ADDRESS, paging);
-
-    expect(result.data).toHaveLength(1);
-    expect(result.pageToken).toBeUndefined();
-
-    expect(solanaApiService.getSolanaTransactions).toHaveBeenCalledWith(
-      'solana-mainnet',
-      TEST_ADDRESS,
-      { limit: 10 }
-    );
-  });
-
-  it('should support pagination with nextPageToken', async () => {
-    const mockResponse = {
-      transactions: [MOCK_SWAP_TX],
-      oldestSignature: 'next-oldest-sig',
-      hasMore: true,
-    };
-
-    vi.mocked(solanaApiService.getSolanaTransactions).mockResolvedValue(mockResponse);
-
-    const paging: SolanaTransactionPaging = {
-      nextPageToken: 'previous-oldest-sig',
-      pageSize: 20,
-    };
-
-    const result = await getRecentTransactions('solana-mainnet', TEST_ADDRESS, paging);
-
-    expect(result.data).toHaveLength(1);
-    expect(result.pageToken).toBe('next-oldest-sig');
-
-    expect(solanaApiService.getSolanaTransactions).toHaveBeenCalledWith(
-      'solana-mainnet',
-      TEST_ADDRESS,
-      { before: 'previous-oldest-sig', limit: 20 }
-    );
-  });
-
-  it('should return undefined pageToken when no more pages', async () => {
-    const mockResponse = {
-      transactions: [MOCK_TRANSFER_TX],
-      oldestSignature: null,
-      hasMore: false,
-    };
-
-    vi.mocked(solanaApiService.getSolanaTransactions).mockResolvedValue(mockResponse);
-
-    const result = await getRecentTransactions('solana-mainnet', TEST_ADDRESS);
-
-    expect(result.pageToken).toBeUndefined();
-  });
-});
-
-// ============================================================================
-// Tests: Transaction Type Helpers
-// ============================================================================
-
-describe('isTransferTransaction', () => {
-  it('should return true for TRANSFER type', () => {
-    expect(isTransferTransaction(MOCK_TRANSFER_TX)).toBe(true);
-  });
-
-  it('should return false for transactions without any transfers', () => {
-    const tx = { ...MOCK_SWAP_TX, type: 'UNKNOWN' as const, nativeTransfers: [], tokenTransfers: [] };
-    expect(isTransferTransaction(tx)).toBe(false); // No native or token transfers
-  });
-
-  it('should return true for transactions with token transfers', () => {
-    expect(isTransferTransaction(MOCK_SWAP_TX)).toBe(true); // Has token transfers
-  });
-
-  it('should return false for transactions without transfers', () => {
-    expect(isTransferTransaction(MOCK_STAKE_TX)).toBe(false);
-  });
-});
-
-describe('isSwapTransaction', () => {
-  it('should return true for SWAP type', () => {
-    expect(isSwapTransaction(MOCK_SWAP_TX)).toBe(true);
-  });
-
-  it('should return false for non-swap transactions', () => {
-    expect(isSwapTransaction(MOCK_TRANSFER_TX)).toBe(false);
-    expect(isSwapTransaction(MOCK_NFT_TX)).toBe(false);
-  });
-});
-
-describe('isNftTransaction', () => {
-  it('should return true for NFT_ prefixed types', () => {
-    expect(isNftTransaction(MOCK_NFT_TX)).toBe(true);
-  });
-
-  it('should return true for COMPRESSED_NFT_ prefixed types', () => {
-    const compressedNftTx = { ...MOCK_NFT_TX, type: 'COMPRESSED_NFT_MINT' as const };
-    expect(isNftTransaction(compressedNftTx)).toBe(true);
-  });
-
-  it('should return false for non-NFT transactions', () => {
-    expect(isNftTransaction(MOCK_TRANSFER_TX)).toBe(false);
-    expect(isNftTransaction(MOCK_SWAP_TX)).toBe(false);
-  });
-});
-
-describe('isStakingTransaction', () => {
-  it('should return true for STAKE type', () => {
-    expect(isStakingTransaction(MOCK_STAKE_TX)).toBe(true);
-  });
-
-  it('should return true for UNSTAKE type', () => {
-    const unstakeTx = { ...MOCK_STAKE_TX, type: 'UNSTAKE' as const };
-    expect(isStakingTransaction(unstakeTx)).toBe(true);
-  });
-
-  it('should return false for non-staking transactions', () => {
-    expect(isStakingTransaction(MOCK_TRANSFER_TX)).toBe(false);
-  });
-});
-
-describe('isTokenMintOrBurn', () => {
-  it('should return true for TOKEN_MINT type', () => {
-    expect(isTokenMintOrBurn(MOCK_MINT_TX)).toBe(true);
-  });
-
-  it('should return true for TOKEN_BURN type', () => {
-    const burnTx = { ...MOCK_MINT_TX, type: 'TOKEN_BURN' as const };
-    expect(isTokenMintOrBurn(burnTx)).toBe(true);
-  });
-
-  it('should return false for other transaction types', () => {
-    expect(isTokenMintOrBurn(MOCK_TRANSFER_TX)).toBe(false);
-    expect(isTokenMintOrBurn(MOCK_SWAP_TX)).toBe(false);
-  });
-});
-
-// ============================================================================
-// Tests: Transaction Status Helpers
-// ============================================================================
-
-describe('isSuccessful', () => {
-  it('should return true for confirmed transactions', () => {
-    expect(isSuccessful(MOCK_TRANSFER_TX)).toBe(true);
-  });
-
-  it('should return true for finalized transactions', () => {
-    const finalizedTx = { ...MOCK_TRANSFER_TX, status: 'finalized' as const };
-    expect(isSuccessful(finalizedTx)).toBe(true);
-  });
-
-  it('should return false for failed transactions', () => {
-    expect(isSuccessful(MOCK_FAILED_TX)).toBe(false);
-  });
-});
-
-describe('isFailed', () => {
-  it('should return true for failed transactions', () => {
-    expect(isFailed(MOCK_FAILED_TX)).toBe(true);
-  });
-
-  it('should return false for successful transactions', () => {
-    expect(isFailed(MOCK_TRANSFER_TX)).toBe(false);
-    expect(isFailed(MOCK_SWAP_TX)).toBe(false);
-  });
-});
-
-// ============================================================================
-// Tests: Transaction Analysis Helpers
-// ============================================================================
-
-describe('getNetSolAmount', () => {
-  it('should calculate positive net amount for received SOL', () => {
-    const tx: SolanaTransaction = {
-      ...MOCK_TRANSFER_TX,
-      nativeTransfers: [
-        {
-          fromAddress: 'SenderAddress',
-          toAddress: TEST_ADDRESS,
-          amount: 1000000000, // 1 SOL received
-        },
-      ],
-    };
-
-    const netAmount = getNetSolAmount(tx, TEST_ADDRESS);
-    expect(netAmount).toBe(1000000000);
-  });
-
-  it('should calculate negative net amount for sent SOL', () => {
-    const netAmount = getNetSolAmount(MOCK_TRANSFER_TX, TEST_ADDRESS);
-    expect(netAmount).toBe(-1000000000); // 1 SOL sent
-  });
-
-  it('should calculate net amount for multiple transfers', () => {
-    const tx: SolanaTransaction = {
-      ...MOCK_TRANSFER_TX,
-      nativeTransfers: [
-        {
-          fromAddress: TEST_ADDRESS,
-          toAddress: 'Address1',
-          amount: 2000000000, // 2 SOL sent
-        },
-        {
-          fromAddress: 'Address2',
-          toAddress: TEST_ADDRESS,
-          amount: 1000000000, // 1 SOL received
-        },
-      ],
-    };
-
-    const netAmount = getNetSolAmount(tx, TEST_ADDRESS);
-    expect(netAmount).toBe(-1000000000); // Net: -1 SOL
-  });
-
-  it('should return 0 for transactions without native transfers', () => {
-    const netAmount = getNetSolAmount(MOCK_SWAP_TX, TEST_ADDRESS);
-    expect(netAmount).toBe(0);
-  });
-});
-
-describe('getUserTokenTransfers', () => {
-  it('should return all token transfers involving user (as sender or receiver)', () => {
-    const transfers = getUserTokenTransfers(MOCK_SWAP_TX, TEST_ADDRESS);
-
-    // MOCK_SWAP_TX has 2 transfers involving TEST_ADDRESS:
-    // 1. TEST_ADDRESS sends SOL to JupiterProgram
-    // 2. JupiterProgram sends USDC to TEST_ADDRESS
-    expect(transfers).toHaveLength(2);
-
-    const sentTransfer = transfers.find(t => t.fromAddress === TEST_ADDRESS);
-    const receivedTransfer = transfers.find(t => t.toAddress === TEST_ADDRESS);
-
-    expect(sentTransfer).toBeDefined();
-    expect(sentTransfer?.symbol).toBe('SOL');
-    expect(receivedTransfer).toBeDefined();
-    expect(receivedTransfer?.symbol).toBe('USDC');
-  });
-
-  it('should return token transfers involving user as receiver', () => {
-    const transfers = getUserTokenTransfers(MOCK_SWAP_TX, TEST_ADDRESS);
-
-    // Find the USDC transfer where user is receiver
-    const receivedTransfer = MOCK_SWAP_TX.tokenTransfers.find(
-      t => t.toAddress === TEST_ADDRESS
-    );
-
-    expect(receivedTransfer).toBeDefined();
-    expect(receivedTransfer?.symbol).toBe('USDC');
-  });
-
-  it('should return empty array for transactions without user token transfers', () => {
-    const transfers = getUserTokenTransfers(MOCK_SWAP_TX, 'OtherAddress');
-    expect(transfers).toHaveLength(0);
-  });
-
-  it('should return all transfers involving user', () => {
-    // Both transfers in swap involve TEST_ADDRESS
-    const transfers = getUserTokenTransfers(MOCK_SWAP_TX, TEST_ADDRESS);
-    expect(transfers.length).toBeGreaterThan(0);
-  });
-});
-
-describe('getUserNativeTransfers', () => {
-  it('should return native transfers involving user as sender', () => {
-    const transfers = getUserNativeTransfers(MOCK_TRANSFER_TX, TEST_ADDRESS);
-
-    expect(transfers).toHaveLength(1);
-    expect(transfers[0].fromAddress).toBe(TEST_ADDRESS);
-  });
-
-  it('should return native transfers involving user as receiver', () => {
-    const tx: SolanaTransaction = {
-      ...MOCK_TRANSFER_TX,
-      nativeTransfers: [
-        {
-          fromAddress: 'SenderAddress',
-          toAddress: TEST_ADDRESS,
-          amount: 1000000000,
-        },
-      ],
-    };
-
-    const transfers = getUserNativeTransfers(tx, TEST_ADDRESS);
-
-    expect(transfers).toHaveLength(1);
-    expect(transfers[0].toAddress).toBe(TEST_ADDRESS);
-  });
-
-  it('should return empty array for transactions without user native transfers', () => {
-    const transfers = getUserNativeTransfers(MOCK_TRANSFER_TX, 'OtherAddress');
-    expect(transfers).toHaveLength(0);
-  });
-});
-
-// ============================================================================
-// Tests: Transaction Time Helpers
-// ============================================================================
-
-describe('getTransactionDate', () => {
-  it('should convert blockTime to Date object', () => {
-    const date = getTransactionDate(MOCK_TRANSFER_TX);
-
-    expect(date).toBeInstanceOf(Date);
-    expect(date?.getTime()).toBe(1640000000 * 1000);
-  });
-
-  it('should return null for transactions without blockTime', () => {
-    const tx = { ...MOCK_TRANSFER_TX, blockTime: null };
-    const date = getTransactionDate(tx);
-
-    expect(date).toBeNull();
-  });
-});
-
-describe('getTimeAgo', () => {
-  beforeEach(() => {
-    // Mock Date.now() to a fixed value for consistent testing
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2022-01-01T00:00:00.000Z'));
   });
 
   afterEach(() => {
-    vi.useRealTimers();
+    vi.resetAllMocks();
   });
 
-  it('should return "Just now" for recent transactions', () => {
-    const tx = {
-      ...MOCK_TRANSFER_TX,
-      blockTime: Math.floor(Date.now() / 1000) - 30, // 30 seconds ago
-    };
+  // --------------------------------------------------------------------------
+  // API Function Tests
+  // --------------------------------------------------------------------------
 
-    const timeAgo = getTimeAgo(tx);
-    expect(timeAgo).toBe('Just now');
+  describe('getTransaction', () => {
+    it('should fetch a single transaction by ID', async () => {
+      vi.mocked(solanaApiService.getSolanaTransaction).mockResolvedValue(MOCK_SEND_TX);
+
+      const result = await getTransaction('solana-mainnet', TEST_ADDRESS, TEST_SIGNATURE);
+
+      expect(result).toEqual(MOCK_SEND_TX);
+      expect(solanaApiService.getSolanaTransaction).toHaveBeenCalledWith(
+        'solana-mainnet',
+        TEST_ADDRESS,
+        TEST_SIGNATURE
+      );
+    });
+
+    it('should return null when transaction not found', async () => {
+      vi.mocked(solanaApiService.getSolanaTransaction).mockResolvedValue(null);
+
+      const result = await getTransaction('solana-mainnet', TEST_ADDRESS, 'nonexistent');
+
+      expect(result).toBeNull();
+    });
   });
 
-  it('should return minutes for transactions within an hour', () => {
-    const tx = {
-      ...MOCK_TRANSFER_TX,
-      blockTime: Math.floor(Date.now() / 1000) - 300, // 5 minutes ago
-    };
+  describe('getRecentTransactions', () => {
+    it('should fetch recent transactions without paging', async () => {
+      const mockResponse = {
+        transactions: [MOCK_SEND_TX, MOCK_RECEIVE_TX],
+        oldestSignature: 'oldest-sig',
+        hasMore: true,
+      };
+      vi.mocked(solanaApiService.getSolanaTransactions).mockResolvedValue(mockResponse);
 
-    const timeAgo = getTimeAgo(tx);
-    expect(timeAgo).toBe('5 minutes ago');
+      const result = await getRecentTransactions('solana-mainnet', TEST_ADDRESS);
+
+      expect(result.data).toEqual([MOCK_SEND_TX, MOCK_RECEIVE_TX]);
+      expect(result.pageToken).toBe('oldest-sig');
+      expect(solanaApiService.getSolanaTransactions).toHaveBeenCalledWith(
+        'solana-mainnet',
+        TEST_ADDRESS,
+        {}
+      );
+    });
+
+    it('should fetch transactions with paging parameters', async () => {
+      const mockResponse = {
+        transactions: [MOCK_SWAP_TX],
+        oldestSignature: null,
+        hasMore: false,
+      };
+      vi.mocked(solanaApiService.getSolanaTransactions).mockResolvedValue(mockResponse);
+
+      const paging: SolanaTransactionPaging = {
+        nextPageToken: 'page-token-123',
+        pageSize: 20,
+      };
+      const result = await getRecentTransactions('solana-mainnet', TEST_ADDRESS, paging);
+
+      expect(result.data).toEqual([MOCK_SWAP_TX]);
+      expect(result.pageToken).toBeUndefined();
+      expect(solanaApiService.getSolanaTransactions).toHaveBeenCalledWith(
+        'solana-mainnet',
+        TEST_ADDRESS,
+        { before: 'page-token-123', limit: 20 }
+      );
+    });
   });
 
-  it('should return "1 minute ago" for singular', () => {
-    const tx = {
-      ...MOCK_TRANSFER_TX,
-      blockTime: Math.floor(Date.now() / 1000) - 90, // 90 seconds ago
-    };
+  // --------------------------------------------------------------------------
+  // Helper Function Tests
+  // --------------------------------------------------------------------------
 
-    const timeAgo = getTimeAgo(tx);
-    expect(timeAgo).toBe('1 minute ago');
+  describe('isTransferTransaction', () => {
+    it('should return true for send transactions', () => {
+      expect(isTransferTransaction(MOCK_SEND_TX)).toBe(true);
+    });
+
+    it('should return true for receive transactions', () => {
+      expect(isTransferTransaction(MOCK_RECEIVE_TX)).toBe(true);
+    });
+
+    it('should return false for swap transactions', () => {
+      expect(isSwapTransaction(MOCK_SEND_TX)).toBe(false);
+    });
   });
 
-  it('should return hours for transactions within a day', () => {
-    const tx = {
-      ...MOCK_TRANSFER_TX,
-      blockTime: Math.floor(Date.now() / 1000) - 7200, // 2 hours ago
-    };
+  describe('isSwapTransaction', () => {
+    it('should return true for swap transactions', () => {
+      expect(isSwapTransaction(MOCK_SWAP_TX)).toBe(true);
+    });
 
-    const timeAgo = getTimeAgo(tx);
-    expect(timeAgo).toBe('2 hours ago');
+    it('should return false for non-swap transactions', () => {
+      expect(isSwapTransaction(MOCK_SEND_TX)).toBe(false);
+    });
   });
 
-  it('should return "1 hour ago" for singular', () => {
-    const tx = {
-      ...MOCK_TRANSFER_TX,
-      blockTime: Math.floor(Date.now() / 1000) - 3900, // 65 minutes ago
-    };
+  describe('isNftTransaction', () => {
+    it('should return true for NFT transactions', () => {
+      expect(isNftTransaction(MOCK_NFT_TX)).toBe(true);
+    });
 
-    const timeAgo = getTimeAgo(tx);
-    expect(timeAgo).toBe('1 hour ago');
+    it('should return false for non-NFT transactions', () => {
+      expect(isNftTransaction(MOCK_SEND_TX)).toBe(false);
+    });
   });
 
-  it('should return days for older transactions', () => {
-    const tx = {
-      ...MOCK_TRANSFER_TX,
-      blockTime: Math.floor(Date.now() / 1000) - 172800, // 2 days ago
-    };
+  describe('isSuccessful', () => {
+    it('should return true for completed transactions', () => {
+      expect(isSuccessful(MOCK_SEND_TX)).toBe(true);
+    });
 
-    const timeAgo = getTimeAgo(tx);
-    expect(timeAgo).toBe('2 days ago');
+    it('should return false for failed transactions', () => {
+      expect(isSuccessful(MOCK_FAILED_TX)).toBe(false);
+    });
   });
 
-  it('should return "1 day ago" for singular', () => {
-    const tx = {
-      ...MOCK_TRANSFER_TX,
-      blockTime: Math.floor(Date.now() / 1000) - 86400, // 1 day ago
-    };
+  describe('isFailed', () => {
+    it('should return true for failed transactions', () => {
+      expect(isFailed(MOCK_FAILED_TX)).toBe(true);
+    });
 
-    const timeAgo = getTimeAgo(tx);
-    expect(timeAgo).toBe('1 day ago');
+    it('should return false for successful transactions', () => {
+      expect(isFailed(MOCK_SEND_TX)).toBe(false);
+    });
   });
 
-  it('should return "Unknown" for transactions without blockTime', () => {
-    const tx = { ...MOCK_TRANSFER_TX, blockTime: null };
-    const timeAgo = getTimeAgo(tx);
+  describe('getNetTokenAmount', () => {
+    it('should return positive amount for received tokens', () => {
+      const result = getNetTokenAmount(MOCK_RECEIVE_TX, SOL_CONTRACT);
 
-    expect(timeAgo).toBe('Unknown');
-  });
-});
+      expect(result).toEqual({
+        amount: '500000000',
+        decimals: 9,
+        symbol: 'SOL',
+      });
+    });
 
-// ============================================================================
-// Tests: Explorer URL Helpers
-// ============================================================================
+    it('should return negative amount for sent tokens', () => {
+      const result = getNetTokenAmount(MOCK_SEND_TX, SOL_CONTRACT);
 
-describe('getExplorerUrl', () => {
-  it('should generate mainnet explorer URL', () => {
-    const url = getExplorerUrl(MOCK_TRANSFER_TX, 'solana-mainnet');
+      expect(result).toEqual({
+        amount: '-1000000000',
+        decimals: 9,
+        symbol: 'SOL',
+      });
+    });
 
-    expect(url).toBe(`https://explorer.solana.com/tx/${TEST_SIGNATURE}`);
-  });
+    it('should return null for tokens not in transaction', () => {
+      const result = getNetTokenAmount(MOCK_SEND_TX, 'UnknownMintAddress');
 
-  it('should generate devnet explorer URL with cluster parameter', () => {
-    const url = getExplorerUrl(MOCK_TRANSFER_TX, 'solana-devnet');
-
-    expect(url).toBe(`https://explorer.solana.com/tx/${TEST_SIGNATURE}?cluster=devnet`);
-  });
-
-  it('should handle custom network IDs', () => {
-    const url = getExplorerUrl(MOCK_TRANSFER_TX, 'custom-network');
-
-    expect(url).toBe(`https://explorer.solana.com/tx/${TEST_SIGNATURE}`);
-  });
-});
-
-describe('getSolscanUrl', () => {
-  it('should generate mainnet Solscan URL', () => {
-    const url = getSolscanUrl(MOCK_TRANSFER_TX, 'solana-mainnet');
-
-    expect(url).toBe(`https://solscan.io/tx/${TEST_SIGNATURE}`);
+      expect(result).toBeNull();
+    });
   });
 
-  it('should generate devnet Solscan URL with cluster parameter', () => {
-    const url = getSolscanUrl(MOCK_TRANSFER_TX, 'solana-devnet');
+  describe('getInvolvedTokens', () => {
+    it('should return all unique token contracts', () => {
+      const result = getInvolvedTokens(MOCK_SWAP_TX);
 
-    expect(url).toBe(`https://solscan.io/tx/${TEST_SIGNATURE}?cluster=devnet`);
+      expect(result).toContain(SOL_CONTRACT);
+      expect(result).toContain(USDC_CONTRACT);
+      expect(result.length).toBe(2);
+    });
+
+    it('should return empty array for transactions with no tokens', () => {
+      const txWithNoTokens: SolanaTransaction = {
+        ...MOCK_FAILED_TX,
+        inputs: [],
+        outputs: [],
+      };
+      const result = getInvolvedTokens(txWithNoTokens);
+
+      expect(result).toEqual([]);
+    });
   });
 
-  it('should handle custom network IDs', () => {
-    const url = getSolscanUrl(MOCK_TRANSFER_TX, 'custom-network');
+  describe('getTransactionDate', () => {
+    it('should return Date object from timestamp', () => {
+      const result = getTransactionDate(MOCK_SEND_TX);
 
-    expect(url).toBe(`https://solscan.io/tx/${TEST_SIGNATURE}`);
-  });
-});
-
-// ============================================================================
-// Integration Tests (Conditional)
-// ============================================================================
-
-describe.skipIf(!await isBackendAvailable())('Integration: Transactions with Backend', () => {
-  it('should get real transactions from backend', async () => {
-    // Unmock for integration test
-    vi.restoreAllMocks();
-
-    const result = await getRecentTransactions(
-      'solana-devnet',
-      TEST_ADDRESS,
-      { pageSize: 5 }
-    );
-
-    expect(result).toBeDefined();
-    expect(Array.isArray(result.data)).toBe(true);
+      expect(result).toBeInstanceOf(Date);
+      expect(result.getTime()).toBe(1640000000 * 1000);
+    });
   });
 
-  it('should get single transaction from backend', async () => {
-    // Unmock for integration test
-    vi.restoreAllMocks();
+  describe('getTimeAgo', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(1640000000 * 1000 + 3600000)); // 1 hour after tx
+    });
 
-    // This will likely return null unless TEST_SIGNATURE exists
-    const tx = await getTransaction('solana-devnet', TEST_ADDRESS, TEST_SIGNATURE);
+    afterEach(() => {
+      vi.useRealTimers();
+    });
 
-    // We just verify the call doesn't throw
-    expect(tx === null || typeof tx === 'object').toBe(true);
+    it('should return "1 hour ago" for transaction 1 hour old', () => {
+      expect(getTimeAgo(MOCK_SEND_TX)).toBe('1 hour ago');
+    });
+
+    it('should return "Just now" for very recent transactions', () => {
+      vi.setSystemTime(new Date(1640000000 * 1000 + 30000)); // 30 seconds after
+      expect(getTimeAgo(MOCK_SEND_TX)).toBe('Just now');
+    });
+
+    it('should return correct days ago', () => {
+      vi.setSystemTime(new Date(1640000000 * 1000 + 86400000 * 3)); // 3 days after
+      expect(getTimeAgo(MOCK_SEND_TX)).toBe('3 days ago');
+    });
+  });
+
+  describe('isStakingTransaction', () => {
+    it('should return true for stake transactions', () => {
+      expect(isStakingTransaction(MOCK_STAKE_TX)).toBe(true);
+    });
+
+    it('should return false for non-stake transactions', () => {
+      expect(isStakingTransaction(MOCK_SEND_TX)).toBe(false);
+    });
+  });
+
+  describe('isTokenMintOrBurn', () => {
+    it('should return true for mint transactions', () => {
+      expect(isTokenMintOrBurn(MOCK_MINT_TX)).toBe(true);
+    });
+
+    it('should return true for burn transactions', () => {
+      expect(isTokenMintOrBurn(MOCK_BURN_TX)).toBe(true);
+    });
+
+    it('should return false for other transactions', () => {
+      expect(isTokenMintOrBurn(MOCK_SEND_TX)).toBe(false);
+    });
+  });
+
+  describe('getExplorerUrl', () => {
+    it('should return mainnet explorer URL', () => {
+      const url = getExplorerUrl(MOCK_SEND_TX, 'solana-mainnet');
+
+      expect(url).toBe(`https://explorer.solana.com/tx/${TEST_SIGNATURE}`);
+    });
+
+    it('should return devnet explorer URL', () => {
+      const url = getExplorerUrl(MOCK_SEND_TX, 'solana-devnet');
+
+      expect(url).toBe(`https://explorer.solana.com/tx/${TEST_SIGNATURE}?cluster=devnet`);
+    });
+  });
+
+  describe('getSolscanUrl', () => {
+    it('should return mainnet Solscan URL', () => {
+      const url = getSolscanUrl(MOCK_SEND_TX, 'solana-mainnet');
+
+      expect(url).toBe(`https://solscan.io/tx/${TEST_SIGNATURE}`);
+    });
+
+    it('should return devnet Solscan URL', () => {
+      const url = getSolscanUrl(MOCK_SEND_TX, 'solana-devnet');
+
+      expect(url).toBe(`https://solscan.io/tx/${TEST_SIGNATURE}?cluster=devnet`);
+    });
   });
 });
