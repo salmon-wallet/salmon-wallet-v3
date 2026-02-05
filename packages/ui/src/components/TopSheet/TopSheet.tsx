@@ -57,6 +57,7 @@ import {
   borderRadius,
   fontSize,
 } from '@salmon/shared';
+import { ScalesBackground } from '../ScalesBackground';
 
 import type { TopSheetProps } from './types';
 
@@ -226,6 +227,9 @@ export function TopSheet({
           style={[styles.sheet, style]}
           edges={['top']}
         >
+          {/* Scales Background */}
+          <ScalesBackground />
+
           {/* Header (optional) */}
           {title && (
             <View style={styles.header}>
