@@ -144,17 +144,25 @@ export {
 // ============================================================================
 
 export {
-  // Types
+  // Types - Network
   type SolanaNetworkId,
+  // Types - Transaction (backend-transformed format)
+  type SolanaTransactionTokenAmount,
+  type SolanaTransactionFee,
+  type SolanaTransactionStatusBackend,
+  type SolanaTransactionTypeBackend,
+  type SolanaTransaction,
+  // Types - Transaction (legacy/raw format for blockchain module)
   type SolanaTokenTransfer,
   type SolanaNativeTransfer,
   type SolanaAccountData,
   type SolanaInstruction,
   type SolanaTransactionStatus,
   type SolanaTransactionType,
-  type SolanaTransaction,
+  // Types - Pagination
   type SolanaPagingParams,
   type SolanaTransactionsResponse,
+  // Types - Swap
   type SwapRouteInfo,
   type SwapOrderResponse,
   type SwapOrderParams,
@@ -224,3 +232,20 @@ export {
   createBridgeExchange,
   getBridgeTransaction,
 } from './bridge';
+
+// ============================================================================
+// Ethereum Service (ERC-20 Token Detection)
+// ============================================================================
+
+export {
+  // Types
+  type AlchemyTokenBalance,
+  type AlchemyTokenMetadata,
+  type DetectedERC20Token,
+  // Functions
+  getERC20TokenBalances,
+  getTokenMetadataBatch,
+  hexToBalance,
+  formatTokenBalance as formatERC20TokenBalance,
+  mergeTokenLists,
+} from './ethereum';
