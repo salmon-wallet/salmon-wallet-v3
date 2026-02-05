@@ -1,53 +1,87 @@
 import React from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
-import { colors } from '@salmon/shared';
+import { View, StyleSheet } from 'react-native';
+import ContentLoader, { Rect, Circle } from 'react-content-loader/native';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  borderWidth,
+  componentSizes,
+  s,
+  vs,
+} from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import type { TokenListSkeletonProps } from './types';
 
 /**
  * Skeleton placeholder for a single token item
+ * Uses react-content-loader for smooth shimmer animation
+ * Dimensions match TokenListItem exactly for seamless transition
  */
 const SkeletonItem: React.FC = () => {
-  // Use useMemo to create a stable Animated.Value that persists across renders
-  // This is the recommended pattern for React Native animations
-  const animatedValue = React.useMemo(() => new Animated.Value(0.3), []);
-
-  React.useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(animatedValue, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(animatedValue, {
-          toValue: 0.3,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    animation.start();
-
-    return () => animation.stop();
-  }, [animatedValue]);
+  // Calculate exact dimensions from TokenListItem
+  const tokenIconSize = s(componentSizes.tokenIcon);
+  const tokenIconRadius = tokenIconSize / 2;
+  const itemHeight = vs(spacing.md) * 2 + tokenIconSize; // paddingVertical * 2 + logo height
+  const itemWidth = 440 - s(spacing['2xl']) * 2; // Design width minus horizontal margins
 
   return (
-    <Animated.View style={[styles.item, { opacity: animatedValue }]}>
-      {/* Token logo skeleton */}
-      <View style={styles.logoSkeleton} />
+    <BlurContainer style={styles.glassWrapper} borderWidth={borderWidth.tokenListItem}>
+      <View style={styles.contentContainer}>
+        <ContentLoader
+          speed={1.5}
+          width={itemWidth}
+          height={itemHeight}
+          viewBox={`0 0 ${itemWidth} ${itemHeight}`}
+          backgroundColor={colors.skeleton.base}
+          foregroundColor={colors.skeleton.highlight}
+          accessibilityLabel="Loading token information"
+        >
+          {/* Token logo circle */}
+          <Circle cx={tokenIconRadius} cy={itemHeight / 2} r={tokenIconRadius} />
 
-      {/* Token info skeleton */}
-      <View style={styles.infoContainer}>
-        <View style={styles.nameSkeleton} />
-        <View style={styles.priceSkeleton} />
-      </View>
+          {/* Token name bar */}
+          <Rect
+            x={tokenIconSize + s(spacing.md)}
+            y={itemHeight / 2 - 18}
+            rx="4"
+            ry="4"
+            width="100"
+            height="18"
+          />
 
-      {/* Value info skeleton */}
-      <View style={styles.valueContainer}>
-        <View style={styles.usdSkeleton} />
-        <View style={styles.amountSkeleton} />
+          {/* Token price bar */}
+          <Rect
+            x={tokenIconSize + s(spacing.md)}
+            y={itemHeight / 2 + 6}
+            rx="4"
+            ry="4"
+            width="140"
+            height="15"
+          />
+
+          {/* USD value (right aligned) */}
+          <Rect
+            x={itemWidth - 80 - s(spacing.md)}
+            y={itemHeight / 2 - 20}
+            rx="4"
+            ry="4"
+            width="80"
+            height="24"
+          />
+
+          {/* Token amount (right aligned) */}
+          <Rect
+            x={itemWidth - 60 - s(spacing.md)}
+            y={itemHeight / 2 + 8}
+            rx="4"
+            ry="4"
+            width="60"
+            height="16"
+          />
+        </ContentLoader>
       </View>
-    </Animated.View>
+    </BlurContainer>
   );
 };
 
@@ -77,56 +111,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    backgroundColor: colors.background.tokenItem,
-    borderRadius: 17,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    marginBottom: 10,
-    marginHorizontal: 24,
-    gap: 16,
+  // Glass wrapper matching TokenListItem exactly
+  glassWrapper: {
+    borderRadius: borderRadius.lg,
+    marginBottom: vs(spacing.sm),
+    marginHorizontal: s(spacing['2xl']),
+    overflow: 'hidden',
   },
-  logoSkeleton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.skeleton.base,
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  nameSkeleton: {
-    width: 100,
-    height: 18,
-    borderRadius: 4,
-    backgroundColor: colors.skeleton.base,
-    marginBottom: 6,
-  },
-  priceSkeleton: {
-    width: 140,
-    height: 15,
-    borderRadius: 4,
-    backgroundColor: colors.skeleton.base,
-  },
-  valueContainer: {
-    alignItems: 'flex-end',
-  },
-  usdSkeleton: {
-    width: 80,
-    height: 24,
-    borderRadius: 4,
-    backgroundColor: colors.skeleton.base,
-    marginBottom: 4,
-  },
-  amountSkeleton: {
-    width: 60,
-    height: 16,
-    borderRadius: 4,
-    backgroundColor: colors.skeleton.base,
+  // Content container for proper padding
+  contentContainer: {
+    paddingHorizontal: s(spacing.md),
+    paddingVertical: vs(spacing.md),
   },
 });
 
