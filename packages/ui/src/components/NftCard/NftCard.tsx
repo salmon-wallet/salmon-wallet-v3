@@ -3,8 +3,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Animated,
-  Easing,
   Image,
   Platform,
   StyleSheet,
@@ -12,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ContentLoader, { Rect } from 'react-content-loader/native';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps, NftCardSkeletonProps } from './types';
 
@@ -232,69 +231,57 @@ const styles = StyleSheet.create({
 /**
  * NftCardSkeleton component for loading state
  *
- * Displays the orange gradient background with the name badge
- * but no image, matching the Figma skeleton design.
+ * Uses ContentLoader with proper skeleton colors to match the project's
+ * skeleton loading pattern. Replicates the visual structure of NftCard:
+ * - Main card background (rounded rectangle)
+ * - Name badge at bottom (rounded rectangle)
+ *
+ * Dimensions match NftCard: ~194x193px with 18px border radius
  */
 export const NftCardSkeleton = React.memo<NftCardSkeletonProps>(
   ({ style, testID, animated = true }) => {
-    const [pulseAnim] = useState(() => new Animated.Value(0.6));
+    // Card dimensions matching NftCard
+    const cardWidth = s(194);
+    const cardHeight = vs(193);
+    const cardBorderRadius = ms(18);
 
-    // Memoize gradient colors array to prevent unnecessary re-renders
-    const gradientColors = useMemo(
-      () => [...FALLBACK_GRADIENT.colors] as const,
-      []
-    );
-
-    // Memoize animated style to prevent object recreation on each render
-    const animatedStyle = useMemo(
-      () => [styles.container, style, animated && { opacity: pulseAnim }],
-      [style, animated, pulseAnim]
-    );
-
-    React.useEffect(() => {
-      if (!animated) return;
-
-      const animation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 800,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 0.6,
-            duration: 800,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      );
-
-      animation.start();
-      return () => animation.stop();
-    }, [animated]); // pulseAnim is stable (created once via useState)
+    // Badge dimensions
+    const badgeHeight = vs(25); // 6px padding * 2 + 13px text
+    const badgeBottom = vs(8);
+    const badgeHorizontal = s(8);
+    const badgeBorderRadius = ms(9);
 
     return (
-      <Animated.View style={animatedStyle} testID={testID}>
-        <LinearGradient
-          colors={gradientColors}
-          start={FALLBACK_GRADIENT.start}
-          end={FALLBACK_GRADIENT.end}
-          style={styles.fallbackGradient}
-        />
-        <View style={styles.nameBadgeContainer}>
-          <BlurContainer
-            style={styles.nameBadge}
-            blurIntensity={6}
-            backgroundColor="rgba(0, 0, 0, 0.6)"
-            borderColor="rgba(255, 92, 69, 0.8)"
-            borderWidth={0.5}
-          >
-            <Text style={styles.nameText}>NFT Name</Text>
-          </BlurContainer>
-        </View>
-      </Animated.View>
+      <View style={[styles.container, style]} testID={testID}>
+        <ContentLoader
+          speed={animated ? 1.5 : 0}
+          width={cardWidth}
+          height={cardHeight}
+          viewBox={`0 0 ${cardWidth} ${cardHeight}`}
+          backgroundColor={colors.skeleton.base}
+          foregroundColor={colors.skeleton.highlight}
+        >
+          {/* Main card background */}
+          <Rect
+            x="0"
+            y="0"
+            rx={cardBorderRadius}
+            ry={cardBorderRadius}
+            width={cardWidth}
+            height={cardHeight}
+          />
+
+          {/* Name badge at bottom */}
+          <Rect
+            x={badgeHorizontal}
+            y={cardHeight - badgeHeight - badgeBottom}
+            rx={badgeBorderRadius}
+            ry={badgeBorderRadius}
+            width={cardWidth - badgeHorizontal * 2}
+            height={badgeHeight}
+          />
+        </ContentLoader>
+      </View>
     );
   }
 );
