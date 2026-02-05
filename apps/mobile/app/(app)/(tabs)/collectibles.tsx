@@ -114,17 +114,27 @@ function nftToNftData(nft: Nft): NftData {
 
 /**
  * Skeleton grid for loading state
- * Uses NftCardSkeleton from @salmon/ui with orange gradient and badge
+ * Uses NftCardSkeleton from @salmon/ui with proper 2-column layout
+ * matching the FlatList numColumns={2} layout
  */
 const SkeletonGrid: React.FC = () => {
   return (
     <View style={styles.skeletonGrid}>
-      <NftCardSkeleton style={styles.skeletonCard} />
-      <NftCardSkeleton style={styles.skeletonCard} />
-      <NftCardSkeleton style={styles.skeletonCard} />
-      <NftCardSkeleton style={styles.skeletonCard} />
-      <NftCardSkeleton style={styles.skeletonCard} />
-      <NftCardSkeleton style={styles.skeletonCard} />
+      {/* Row 1 */}
+      <View style={styles.skeletonRow}>
+        <NftCardSkeleton style={styles.skeletonCard} />
+        <NftCardSkeleton style={styles.skeletonCard} />
+      </View>
+      {/* Row 2 */}
+      <View style={styles.skeletonRow}>
+        <NftCardSkeleton style={styles.skeletonCard} />
+        <NftCardSkeleton style={styles.skeletonCard} />
+      </View>
+      {/* Row 3 */}
+      <View style={styles.skeletonRow}>
+        <NftCardSkeleton style={styles.skeletonCard} />
+        <NftCardSkeleton style={styles.skeletonCard} />
+      </View>
     </View>
   );
 };
@@ -721,14 +731,17 @@ const styles = StyleSheet.create({
 
   // Skeleton
   skeletonGrid: {
+    // No flex needed, rows handle the layout
+  },
+  skeletonRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: GRID_GAP,
+    marginBottom: GRID_GAP,
   },
   skeletonCard: {
-    // NftCardSkeleton already has its own sizing (194x193)
-    // Just need to ensure proper spacing in grid
+    // Match the layout of real NFT cards in the FlatList
+    flex: 1,
+    maxWidth: `${(100 - 2) / 2}%`, // Account for gap
   },
 
   // NFT Detail Sheet
