@@ -244,9 +244,9 @@ export const gradients = {
     end: { x: 0.5, y: 1 },
   },
   /**
-   * Balance card Bitcoin Signet gradient
+   * Balance card Bitcoin Regtest gradient
    */
-  balanceCardBitcoinSignet: {
+  balanceCardBitcoinRegtest: {
     colors: ['#6C63FF', '#4A40B3', '#2A2466'] as const,
     start: { x: 0.5, y: 0 },
     end: { x: 0.5, y: 1 },
@@ -268,9 +268,9 @@ export const gradients = {
     end: { x: 0.5, y: 1 },
   },
   /**
-   * Balance card Ethereum Holesky gradient
+   * Balance card Ethereum Goerli gradient
    */
-  balanceCardEthereumHolesky: {
+  balanceCardEthereumGoerli: {
     colors: ['#FFA500', '#B37700', '#664400'] as const,
     start: { x: 0.5, y: 0 },
     end: { x: 0.5, y: 1 },
