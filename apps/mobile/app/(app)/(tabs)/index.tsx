@@ -25,11 +25,14 @@ import {
   Animated,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  Share,
+  Linking,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -66,6 +69,7 @@ import {
   TokenInformationSheet,
   ReceiveSheet,
   TransactionHistorySheet,
+  TransactionDetailModal,
   ScalesBackground,
   type BlockchainBalance,
   type BlockchainId,
@@ -259,6 +263,10 @@ export default function HomeScreen() {
 
   // TransactionHistorySheet visibility
   const [transactionHistoryVisible, setTransactionHistoryVisible] = useState(false);
+
+  // TransactionDetailModal state
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // Get account state and actions from shared context
   const [accountState, accountActions] = useAccountsContext();
@@ -723,6 +731,54 @@ export default function HomeScreen() {
     // TODO: Open in browser or in-app browser
   }, [networkId]);
 
+  // Handler for long press on transaction to open detail modal
+  const handleTransactionLongPress = useCallback((transaction: Transaction) => {
+    console.log('🔵 Long press detected on transaction:', transaction.id);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setSelectedTransaction(transaction);
+    setDetailModalVisible(true);
+  }, []);
+
+  // Handler to close detail modal
+  const handleDetailModalClose = useCallback(() => {
+    setDetailModalVisible(false);
+    // Clear selected transaction after animation
+    setTimeout(() => {
+      setSelectedTransaction(null);
+    }, 300);
+  }, []);
+
+  // Handler to view transaction in explorer (from detail modal)
+  const handleViewExplorer = useCallback((transaction: Transaction) => {
+    const explorerUrl = networkId === 'devnet'
+      ? `https://solscan.io/tx/${transaction.id}?cluster=devnet`
+      : `https://solscan.io/tx/${transaction.id}`;
+    Linking.openURL(explorerUrl);
+    handleDetailModalClose();
+  }, [networkId, handleDetailModalClose]);
+
+  // Handler to copy transaction hash (from detail modal)
+  const handleCopyHash = useCallback(async (hash: string) => {
+    await Clipboard.setStringAsync(hash);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // TODO: Show toast notification
+  }, []);
+
+  // Handler to share transaction (from detail modal)
+  const handleShareTransaction = useCallback(async (transaction: Transaction) => {
+    const explorerUrl = networkId === 'devnet'
+      ? `https://solscan.io/tx/${transaction.id}?cluster=devnet`
+      : `https://solscan.io/tx/${transaction.id}`;
+    try {
+      await Share.share({
+        message: `Check out this transaction: ${explorerUrl}`,
+        url: explorerUrl,
+      });
+    } catch (error) {
+      console.error('Failed to share transaction:', error);
+    }
+  }, [networkId]);
+
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
     setSelectedTokenChartPeriod(period);
   }, []);
@@ -1116,8 +1172,19 @@ export default function HomeScreen() {
         onLoadMore={transactionsLoadMore}
         hiddenBalance={hiddenBalance}
         onTransactionPress={handleTransactionPress}
+        onTransactionLongPress={handleTransactionLongPress}
         error={transactionsError}
         onRetry={transactionsRefresh}
+      />
+
+      {/* Transaction Detail Modal */}
+      <TransactionDetailModal
+        visible={detailModalVisible}
+        onClose={handleDetailModalClose}
+        transaction={selectedTransaction}
+        onViewExplorer={handleViewExplorer}
+        onCopyHash={handleCopyHash}
+        onShare={handleShareTransaction}
       />
     </View>
   );
