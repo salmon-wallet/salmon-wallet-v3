@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, ms, vs, s, spacing, fontSize, borderRadius } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
+import { SwapRouteVisualization } from './SwapRouteVisualization';
 import type { TransactionItemProps, TransactionType, TransactionTokenAmount } from './types';
 
 // ============================================================================
@@ -21,6 +23,9 @@ const FONT_FAMILY = {
 } as const;
 
 const HIDDEN_VALUE = '****';
+
+/** Maximum amounts to show before collapsing */
+const MAX_VISIBLE_AMOUNTS = 2;
 
 /**
  * Transaction type display configuration
@@ -144,8 +149,24 @@ function getDescription(
   type: TransactionType,
   inputs: TransactionTokenAmount[],
   outputs: TransactionTokenAmount[],
+  source?: string,
   description?: string
 ): string {
+  // For swaps, show route summary
+  if (type === 'swap') {
+    const outputSymbols = [...new Set(outputs.map(o => o.symbol))];
+    const inputSymbols = [...new Set(inputs.map(i => i.symbol))];
+
+    // Simple swap
+    if (outputSymbols.length <= 2 && inputSymbols.length <= 2) {
+      const route = `${outputSymbols.join(', ')} to ${inputSymbols.join(', ')}`;
+      return source ? `${route}` : route;
+    }
+
+    // Complex swap
+    return `${outputSymbols.length} tokens to ${inputSymbols.length} tokens`;
+  }
+
   // Use Helius description if available and meaningful
   if (description && description.length > 0 && !description.includes('Unknown')) {
     return description;
@@ -162,11 +183,6 @@ function getDescription(
         return `From ${truncateAddress(inputs[0].source)}`;
       }
       return 'Received tokens';
-    case 'swap':
-      if (outputs[0]?.symbol && inputs[0]?.symbol) {
-        return `${outputs[0].symbol} to ${inputs[0].symbol}`;
-      }
-      return 'Token swap';
     case 'mint':
       return 'Token minted';
     case 'burn':
@@ -191,7 +207,7 @@ function getDescription(
  */
 const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
   uri,
-  size = 32,
+  size = 40,
 }) => {
   if (uri) {
     return (
@@ -211,17 +227,41 @@ const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
 };
 
 /**
- * Swap tokens visualization (two overlapping logos)
+ * Swap tokens visualization (two overlapping logos) with type badge
  */
 const SwapTokenLogos: React.FC<{
   fromLogo?: string | null;
   toLogo?: string | null;
-}> = ({ fromLogo, toLogo }) => {
+  typeIcon: keyof typeof Ionicons.glyphMap;
+  typeColor: string;
+}> = ({ fromLogo, toLogo, typeIcon, typeColor }) => {
   return (
     <View style={styles.swapLogosContainer}>
-      <TokenLogo uri={fromLogo} size={28} />
+      <TokenLogo uri={fromLogo} size={34} />
       <View style={styles.swapLogoOverlap}>
-        <TokenLogo uri={toLogo} size={28} />
+        <TokenLogo uri={toLogo} size={34} />
+      </View>
+      {/* Type badge */}
+      <View style={[styles.typeBadge, { backgroundColor: typeColor }]}>
+        <Ionicons name={typeIcon} size={10} color="#FFFFFF" />
+      </View>
+    </View>
+  );
+};
+
+/**
+ * Token logo with type badge overlay
+ */
+const TokenLogoWithBadge: React.FC<{
+  uri?: string | null;
+  typeIcon: keyof typeof Ionicons.glyphMap;
+  typeColor: string;
+}> = ({ uri, typeIcon, typeColor }) => {
+  return (
+    <View style={styles.logoWithBadgeContainer}>
+      <TokenLogo uri={uri} size={40} />
+      <View style={[styles.typeBadge, styles.typeBadgeSingle, { backgroundColor: typeColor }]}>
+        <Ionicons name={typeIcon} size={10} color="#FFFFFF" />
       </View>
     </View>
   );
@@ -248,6 +288,17 @@ const AmountDisplay: React.FC<{
   );
 };
 
+/**
+ * Source/Protocol badge
+ */
+const SourceBadge: React.FC<{ source: string }> = ({ source }) => {
+  return (
+    <View style={styles.sourceBadge}>
+      <Text style={styles.sourceText}>{source}</Text>
+    </View>
+  );
+};
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -255,11 +306,10 @@ const AmountDisplay: React.FC<{
 /**
  * TransactionItem - Individual transaction row for the transaction list
  *
- * Displays:
- * - Transaction type icon
- * - Transaction type label and description
- * - Time since transaction
- * - Token amounts (inputs/outputs)
+ * Features:
+ * - Shows transaction type icon with token logos
+ * - Collapses multiple amounts with expandable route visualization
+ * - Badge showing source protocol (Jupiter, etc.)
  *
  * @example
  * ```tsx
@@ -273,35 +323,78 @@ const AmountDisplay: React.FC<{
 export const TransactionItem: React.FC<TransactionItemProps> = ({
   transaction,
   onPress,
+  onLongPressDetail,
   hiddenBalance = false,
   style,
 }) => {
-  const { type, timestamp, status, inputs, outputs, description } = transaction;
+  const { type, timestamp, status, inputs, outputs, description, source } = transaction;
   const config = TRANSACTION_TYPE_CONFIG[type] || TRANSACTION_TYPE_CONFIG.unknown;
 
+  // Expanded state for route visualization
+  const [expanded, setExpanded] = useState(false);
+
+  // Calculate if we should show collapsed view
+  const totalAmounts = inputs.length + outputs.length;
+  const isComplex = type === 'swap' && totalAmounts > MAX_VISIBLE_AMOUNTS;
+
+  // Check if this is a swap transaction (expandable)
+  const isSwap = type === 'swap';
+
   const handlePress = useCallback(() => {
-    onPress?.(transaction);
-  }, [onPress, transaction]);
+    if (isSwap) {
+      // Toggle expansion for all swaps (to see the route inline)
+      setExpanded(prev => !prev);
+    } else {
+      // Normal press behavior for non-swap transactions
+      onPress?.(transaction);
+    }
+  }, [isSwap, onPress, transaction]);
+
+  const handleLongPress = useCallback(() => {
+    // Long press opens the detail modal via callback
+    if (onLongPressDetail) {
+      onLongPressDetail(transaction);
+    }
+  }, [onLongPressDetail, transaction]);
 
   // Get description text
-  const descriptionText = getDescription(type, inputs, outputs, description);
+  const descriptionText = useMemo(
+    () => getDescription(type, inputs, outputs, source, description),
+    [type, inputs, outputs, source, description]
+  );
 
   // Determine which logo(s) to show
   const renderLogo = () => {
-    if (type === 'swap' && inputs[0]?.logo && outputs[0]?.logo) {
-      return <SwapTokenLogos fromLogo={outputs[0].logo} toLogo={inputs[0].logo} />;
+    // For swaps, try to show token logos with type badge
+    if (type === 'swap') {
+      if (inputs[0]?.logo && outputs[0]?.logo) {
+        return (
+          <SwapTokenLogos
+            fromLogo={outputs[0].logo}
+            toLogo={inputs[0].logo}
+            typeIcon={config.icon}
+            typeColor={config.color}
+          />
+        );
+      }
     }
 
-    // For other types, show the primary token logo
+    // For other types with token logo, show logo with type badge
     const primaryToken = type === 'receive' ? inputs[0] : outputs[0];
     if (primaryToken?.logo) {
-      return <TokenLogo uri={primaryToken.logo} />;
+      return (
+        <TokenLogoWithBadge
+          uri={primaryToken.logo}
+          typeIcon={config.icon}
+          typeColor={config.color}
+        />
+      );
     }
 
-    // Fallback to type icon
+    // Fallback to type icon only (no badge needed)
     return (
       <View style={[styles.iconContainer, { backgroundColor: `${config.color}20` }]}>
-        <Ionicons name={config.icon} size={18} color={config.color} />
+        <Ionicons name={config.icon} size={22} color={config.color} />
       </View>
     );
   };
@@ -311,13 +404,56 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
     if (status === 'failed') {
       return (
         <View style={styles.failedBadge}>
-          <Ionicons name="close-circle" size={14} color={colors.status.error} />
+          <Ionicons name="close-circle" size={16} color={colors.status.error} />
           <Text style={styles.failedText}>Failed</Text>
         </View>
       );
     }
 
-    // For swaps, show both output (negative) and input (positive)
+    if (status === 'pending') {
+      return (
+        <View style={styles.pendingBadge}>
+          <Ionicons name="time-outline" size={14} color={colors.status.warning} />
+          <Text style={styles.pendingText}>Pending</Text>
+        </View>
+      );
+    }
+
+    // For complex swaps, show simplified summary
+    if (isComplex) {
+      // Show first output and first input only
+      const firstOutput = outputs[0];
+      const firstInput = inputs[0];
+      const hiddenCount = totalAmounts - 2;
+
+      return (
+        <View style={styles.amountsContainer}>
+          {firstOutput && (
+            <AmountDisplay token={firstOutput} sign="-" hidden={hiddenBalance} />
+          )}
+          {firstInput && (
+            <AmountDisplay token={firstInput} sign="+" hidden={hiddenBalance} />
+          )}
+          {/* Expandable indicator */}
+          <TouchableOpacity
+            style={styles.expandBadge}
+            onPress={() => setExpanded(prev => !prev)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.expandText}>
+              {expanded ? 'Show less' : `+${hiddenCount} more`}
+            </Text>
+            <Ionicons
+              name={expanded ? 'chevron-up' : 'chevron-down'}
+              size={12}
+              color={colors.accent.primary}
+            />
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    // For simple swaps, show both output (negative) and input (positive)
     if (type === 'swap') {
       return (
         <View style={styles.amountsContainer}>
@@ -367,36 +503,62 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      style={[styles.container, style]}
-      onPress={handlePress}
-      activeOpacity={0.7}
-      accessibilityRole="button"
-      accessibilityLabel={`${config.label} transaction, ${descriptionText}`}
-    >
-      {/* Left: Logo/Icon */}
-      <View style={styles.logoSection}>
-        {renderLogo()}
-      </View>
+    <BlurContainer style={[styles.blurWrapper, style]}>
+      <TouchableOpacity
+        style={styles.container}
+        onPress={handlePress}
+        onLongPress={handleLongPress}
+        delayLongPress={400}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={`${config.label} transaction, ${descriptionText}`}
+        accessibilityHint={isSwap ? 'Tap to expand route details, long press for full details' : 'Long press for full details'}
+      >
+        {/* Left: Logo/Icon */}
+        <View style={styles.logoSection}>
+          {renderLogo()}
+        </View>
 
-      {/* Center: Type and description */}
-      <View style={styles.infoSection}>
-        <Text style={styles.typeText} numberOfLines={1}>
-          {config.label}
-        </Text>
-        <Text style={styles.descriptionText} numberOfLines={1}>
-          {descriptionText}
-        </Text>
-      </View>
+        {/* Center: Type and description */}
+        <View style={styles.infoSection}>
+          <View style={styles.typeRow}>
+            <Text style={styles.typeText} numberOfLines={1}>
+              {config.label}
+            </Text>
+            {source && <SourceBadge source={source} />}
+          </View>
+          <Text style={styles.descriptionText} numberOfLines={1}>
+            {descriptionText}
+          </Text>
+        </View>
 
-      {/* Right: Amounts and time */}
-      <View style={styles.rightSection}>
-        {renderAmounts()}
-        <Text style={styles.timeText}>
-          {formatTimestamp(timestamp)}
-        </Text>
-      </View>
-    </TouchableOpacity>
+        {/* Right: Amounts and time */}
+        <View style={styles.rightSection}>
+          {renderAmounts()}
+          <View style={styles.timeRow}>
+            <Text style={styles.timeText}>
+              {formatTimestamp(timestamp)}
+            </Text>
+            {isSwap && (
+              <Ionicons
+                name={expanded ? 'chevron-up' : 'chevron-down'}
+                size={14}
+                color={colors.text.tertiary}
+                style={styles.expandChevron}
+              />
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* Expandable route visualization for swaps */}
+      {type === 'swap' && (
+        <SwapRouteVisualization
+          transaction={transaction}
+          expanded={expanded}
+        />
+      )}
+    </BlurContainer>
   );
 };
 
@@ -405,14 +567,15 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 // ============================================================================
 
 const styles = StyleSheet.create({
+  blurWrapper: {
+    borderRadius: borderRadius.lg,
+    marginBottom: vs(12),
+  },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: vs(14),
-    paddingHorizontal: s(16),
-    backgroundColor: colors.background.tokenItem,
-    borderRadius: borderRadius.md,
-    marginBottom: vs(8),
+    paddingVertical: vs(18),
+    paddingHorizontal: s(18),
   },
   logoSection: {
     marginRight: s(12),
@@ -428,18 +591,40 @@ const styles = StyleSheet.create({
   swapLogosContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 44,
+    width: 54,
+    position: 'relative',
   },
   swapLogoOverlap: {
-    marginLeft: -12,
+    marginLeft: -14,
     borderWidth: 2,
     borderColor: colors.background.secondary,
-    borderRadius: 16,
+    borderRadius: 18,
+  },
+  logoWithBadgeContainer: {
+    position: 'relative',
+    width: 40,
+    height: 40,
+  },
+  typeBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.background.secondary,
+  },
+  typeBadgeSingle: {
+    top: -2,
+    right: -2,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -447,14 +632,32 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  typeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(6),
+    marginBottom: vs(4),
+  },
   typeText: {
-    fontSize: ms(fontSize.md),
+    fontSize: ms(fontSize.lg),
     fontFamily: FONT_FAMILY.medium,
     color: colors.text.primary,
-    marginBottom: vs(2),
+  },
+  sourceBadge: {
+    paddingHorizontal: s(6),
+    paddingVertical: vs(2),
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.sm,
+  },
+  sourceText: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.text.tertiary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   descriptionText: {
-    fontSize: ms(fontSize.sm),
+    fontSize: ms(fontSize.base),
     fontFamily: FONT_FAMILY.regular,
     color: colors.text.secondary,
   },
@@ -466,15 +669,22 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   amountText: {
-    fontSize: ms(fontSize.sm),
+    fontSize: ms(fontSize.base),
     fontFamily: FONT_FAMILY.medium,
-    marginBottom: vs(1),
+    marginBottom: vs(2),
+  },
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: vs(4),
   },
   timeText: {
-    fontSize: ms(fontSize.xs),
+    fontSize: ms(fontSize.sm),
     fontFamily: FONT_FAMILY.regular,
     color: colors.text.tertiary,
-    marginTop: vs(2),
+  },
+  expandChevron: {
+    marginLeft: s(4),
   },
   failedBadge: {
     flexDirection: 'row',
@@ -482,9 +692,34 @@ const styles = StyleSheet.create({
     gap: s(4),
   },
   failedText: {
-    fontSize: ms(fontSize.sm),
+    fontSize: ms(fontSize.base),
     fontFamily: FONT_FAMILY.medium,
     color: colors.status.error,
+  },
+  pendingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(4),
+    paddingHorizontal: s(8),
+    paddingVertical: vs(4),
+    backgroundColor: `${colors.status.warning}15`,
+    borderRadius: borderRadius.sm,
+  },
+  pendingText: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.status.warning,
+  },
+  expandBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(2),
+    marginTop: vs(4),
+  },
+  expandText: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.accent.primary,
   },
 });
 
