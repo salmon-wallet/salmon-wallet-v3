@@ -49,3 +49,12 @@ export {
   // Change formatting
   showAbsoluteChange,
 } from './formatting';
+
+// Date utilities
+export {
+  formatRelativeTime,
+  formatDate,
+  formatTime,
+  formatDateTime,
+  formatBlockNumber,
+} from './date';
