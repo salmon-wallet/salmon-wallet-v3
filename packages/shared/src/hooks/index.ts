@@ -124,3 +124,19 @@ export type {
   UseTransactionsOptions,
   UseTransactionsResult,
 } from './useTransactions';
+
+// Send transaction hook
+export {
+  useSendTransaction,
+  default as useSendTransactionDefault,
+} from './useSendTransaction';
+export type {
+  SendBlockchainType,
+  SendBlockchainAccount,
+  SendTokenInfo,
+  SendTransactionParams,
+  FeeEstimateResult,
+  SendTransactionStatus,
+  UseSendTransactionParams,
+  UseSendTransactionResult,
+} from './useSendTransaction';
