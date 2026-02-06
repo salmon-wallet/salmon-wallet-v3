@@ -31,6 +31,11 @@
 
 export { TransactionHistorySheet, default } from './TransactionHistorySheet';
 export { TransactionItem } from './TransactionItem';
+export { SwapRouteVisualization } from './SwapRouteVisualization';
+export { PriceImpactBadge } from './PriceImpactBadge';
+export { ConversionRateDisplay } from './ConversionRateDisplay';
+export { ExplorerLinkButton } from './ExplorerLinkButton';
+export { AddressCopyRow } from './AddressCopyRow';
 
 export type {
   TransactionHistorySheetProps,
@@ -40,4 +45,11 @@ export type {
   TransactionStatus,
   TransactionTokenAmount,
   TransactionFee,
+  SwapRouteHop,
+  SwapRoute,
 } from './types';
+
+export type { PriceImpactBadgeProps } from './PriceImpactBadge';
+export type { ConversionRateDisplayProps } from './ConversionRateDisplay';
+export type { ExplorerLinkButtonProps } from './ExplorerLinkButton';
+export type { AddressCopyRowProps } from './AddressCopyRow';

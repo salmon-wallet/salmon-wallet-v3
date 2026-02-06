@@ -187,3 +187,7 @@ export type {
   TransactionTokenAmount,
   TransactionFee,
 } from './TransactionHistorySheet';
+
+// TransactionDetailModal - Bottom sheet modal for transaction details
+export { TransactionDetailModal } from './TransactionDetailModal';
+export type { TransactionDetailModalProps } from './TransactionDetailModal';
