@@ -25,7 +25,16 @@ import ReanimatedAnimated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, ms, vs, s } from '@salmon/shared';
+import {
+  colors,
+  shadows,
+  borderRadius,
+  borderWidth,
+  componentSizes,
+  ms,
+  vs,
+  s,
+} from '@salmon/shared';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 import { TokenListItem } from '../TokenList';
@@ -336,7 +345,7 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
             pointerEvents="none"
           >
             <LinearGradient
-              colors={['#161c2d', 'transparent']}
+              colors={[colors.background.secondary, 'transparent']}
               style={StyleSheet.absoluteFill}
             />
           </Animated.View>
@@ -361,25 +370,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#000000',
+    backgroundColor: colors.sheet.backdrop,
   },
   sheetContainer: {
-    backgroundColor: '#161c2d',
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-    borderTopWidth: 0.75,
-    borderTopColor: '#404962',
+    backgroundColor: colors.background.secondary,
+    borderTopLeftRadius: borderRadius.card,
+    borderTopRightRadius: borderRadius.card,
+    borderTopWidth: borderWidth.sheet,
+    borderTopColor: colors.border.default,
     minHeight: '85%',
     maxHeight: '92%',
-    // Shadow
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 20,
+    ...shadows.sheet,
   },
   dragArea: {
     // This area is draggable
@@ -390,16 +391,16 @@ const styles = StyleSheet.create({
     paddingBottom: vs(8),
   },
   handle: {
-    width: s(70),
-    height: vs(6),
+    width: s(componentSizes.sheetHandleWidth),
+    height: vs(componentSizes.sheetHandleHeight),
     borderRadius: 75,
-    backgroundColor: '#b9b9b9',
-    opacity: 0.4,
+    backgroundColor: colors.sheet.handle,
+    opacity: componentSizes.sheetHandleOpacity,
   },
   title: {
     fontSize: ms(24),
     fontFamily: FONT_FAMILY.extraBold,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(15),
     letterSpacing: ms(-0.12, 0.3),
@@ -423,7 +424,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: vs(12) + vs(8) + ms(24) + vs(15), // handleContainer + title
-    height: 30,
+    height: componentSizes.sheetFadeGradientHeight,
     zIndex: 1,
   },
 });

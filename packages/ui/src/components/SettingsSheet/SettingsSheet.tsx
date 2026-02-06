@@ -49,6 +49,7 @@ import {
   spacing,
   borderRadius,
   fontSize,
+  componentSizes,
 } from '@salmon/shared';
 import type { SettingsScreen } from '@salmon/shared';
 
@@ -406,7 +407,7 @@ export function SettingsSheet({
           pointerEvents="none"
         >
           <LinearGradient
-            colors={['#161c2d', 'transparent']}
+            colors={[colors.background.secondary, 'transparent']}
             style={StyleSheet.absoluteFill}
           />
         </Animated.View>
@@ -501,7 +502,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    height: 30,
+    height: componentSizes.sheetFadeGradientHeight,
     zIndex: 1,
   },
 });

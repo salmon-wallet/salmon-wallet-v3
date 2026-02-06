@@ -11,27 +11,49 @@ import {
   BackHandler,
   Image,
   Animated,
+  Dimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedAnimated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  withSpring,
   Easing,
+  runOnJS,
+  interpolate,
 } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, gradients, ms, vs, s } from '@salmon/shared';
+import {
+  colors,
+  gradients,
+  shadows,
+  borderRadius,
+  borderWidth,
+  componentSizes,
+  ms,
+  vs,
+  s,
+} from '@salmon/shared';
 import { CallMadeSvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
 import { ScalesBackground } from '../ScalesBackground';
-import type { NftDetailSheetProps, NftAttribute, NftDetailData } from './types';
+import type { NftDetailSheetProps, NftAttribute } from './types';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Animation constants
 const ANIMATION_DURATION = 300;
 const BACKDROP_OPACITY = 0.8;
+const DRAG_THRESHOLD = 150;
+const SPRING_CONFIG = {
+  damping: 20,
+  stiffness: 200,
+  mass: 0.5,
+};
 
 // Font family constants
 const FONT_FAMILY = {
@@ -57,30 +79,6 @@ const BurnIcon: React.FC<{ size?: number; color?: string }> = ({
   );
 };
 
-/**
- * NftDetailSheet - Bottom sheet modal for NFT details
- *
- * Features:
- * - Slide-up animation from bottom
- * - Rounded top corners with border (35px radius)
- * - Drag handle indicator
- * - Large NFT image with shadow
- * - Description section with glass effect
- * - Attributes grid with 2 columns
- * - Send and Burn action buttons
- * - Backdrop with tap-to-dismiss
- *
- * @example
- * ```tsx
- * <NftDetailSheet
- *   visible={isVisible}
- *   onClose={() => setIsVisible(false)}
- *   nft={selectedNft}
- *   onSendPress={() => handleSend(selectedNft)}
- *   onBurnPress={() => handleBurn(selectedNft)}
- * />
- * ```
- */
 export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   visible,
   onClose,
@@ -90,15 +88,24 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   style,
 }) => {
   // Animation shared values
-  const translateY = useSharedValue(1000);
+  const translateY = useSharedValue(SCREEN_HEIGHT);
   const backdropOpacity = useSharedValue(0);
+  const dragY = useSharedValue(0);
+  const isDragging = useSharedValue(false);
 
   // Top fade gradient opacity
   const topFadeOpacity = useRef(new Animated.Value(0)).current;
 
+  // Close handler for worklet
+  const closeSheet = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
   // Handle visibility changes
   useEffect(() => {
     if (visible) {
+      // Reset drag position
+      dragY.value = 0;
       // Animate sheet up
       translateY.value = withTiming(0, {
         duration: ANIMATION_DURATION,
@@ -111,7 +118,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       });
     } else {
       // Animate sheet down
-      translateY.value = withTiming(1000, {
+      translateY.value = withTiming(SCREEN_HEIGHT, {
         duration: ANIMATION_DURATION,
         easing: Easing.in(Easing.cubic),
       });
@@ -121,7 +128,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
         easing: Easing.in(Easing.cubic),
       });
     }
-  }, [visible, translateY, backdropOpacity]);
+  }, [visible]);
 
   // Handle Android back button
   useEffect(() => {
@@ -137,6 +144,40 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
 
     return () => backHandler.remove();
   }, [visible, onClose]);
+
+  // Pan gesture for dragging the sheet
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      isDragging.value = true;
+    })
+    .onUpdate((event) => {
+      // Only allow dragging down (positive translationY)
+      if (event.translationY > 0) {
+        dragY.value = event.translationY;
+        // Update backdrop opacity based on drag
+        backdropOpacity.value = interpolate(
+          event.translationY,
+          [0, SCREEN_HEIGHT * 0.5],
+          [BACKDROP_OPACITY, 0]
+        );
+      }
+    })
+    .onEnd((event) => {
+      isDragging.value = false;
+      // If dragged past threshold or with high velocity, close the sheet
+      if (event.translationY > DRAG_THRESHOLD || event.velocityY > 500) {
+        translateY.value = withTiming(SCREEN_HEIGHT, {
+          duration: 200,
+          easing: Easing.out(Easing.cubic),
+        });
+        backdropOpacity.value = withTiming(0, { duration: 200 });
+        runOnJS(closeSheet)();
+      } else {
+        // Snap back to open position
+        dragY.value = withSpring(0, SPRING_CONFIG);
+        backdropOpacity.value = withSpring(BACKDROP_OPACITY, SPRING_CONFIG);
+      }
+    });
 
   // Handle backdrop press
   const handleBackdropPress = useCallback(() => {
@@ -156,13 +197,13 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   // Handle scroll to show/hide top fade gradient dynamically
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    const opacity = Math.min(offsetY / 30, 1);
+    const opacity = Math.min(offsetY / componentSizes.sheetFadeGradientHeight, 1);
     topFadeOpacity.setValue(opacity);
   }, [topFadeOpacity]);
 
   // Animated styles
   const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
+    transform: [{ translateY: translateY.value + dragY.value }],
   }));
 
   const backdropAnimatedStyle = useAnimatedStyle(() => ({
@@ -206,15 +247,20 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
           {/* Texture overlay */}
           <View style={styles.textureOverlay} />
 
-          {/* Drag Handle */}
-          <View style={styles.handleContainer}>
-            <View style={styles.handle} />
-          </View>
+          {/* Draggable Header Area */}
+          <GestureDetector gesture={panGesture}>
+            <ReanimatedAnimated.View style={styles.dragArea}>
+              {/* Drag Handle */}
+              <View style={styles.handleContainer}>
+                <View style={styles.handle} />
+              </View>
 
-          {/* NFT Name */}
-          <Text style={styles.nftName} numberOfLines={2}>
-            {nft.name}
-          </Text>
+              {/* NFT Name */}
+              <Text style={styles.nftName} numberOfLines={2}>
+                {nft.name}
+              </Text>
+            </ReanimatedAnimated.View>
+          </GestureDetector>
 
           {/* ScrollView Content */}
           <ScrollView
@@ -314,7 +360,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             pointerEvents="none"
           >
             <LinearGradient
-              colors={['#161c2d', 'transparent']}
+              colors={[colors.background.secondary, 'transparent']}
               style={StyleSheet.absoluteFill}
             />
           </Animated.View>
@@ -339,25 +385,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#000000',
+    backgroundColor: colors.sheet.backdrop,
   },
   sheetContainer: {
-    backgroundColor: '#161c2d',
-    borderTopLeftRadius: ms(26),
-    borderTopRightRadius: ms(26),
-    borderTopWidth: 1,
-    borderTopColor: '#404962',
+    backgroundColor: colors.background.secondary,
+    borderTopLeftRadius: ms(borderRadius.card),
+    borderTopRightRadius: ms(borderRadius.card),
+    borderTopWidth: borderWidth.sheet,
+    borderTopColor: colors.border.default,
     maxHeight: '90%',
     overflow: 'hidden',
-    // Shadow going up
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 15,
+    ...shadows.sheet,
   },
   textureOverlay: {
     position: 'absolute',
@@ -368,22 +406,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
     opacity: 0.4,
   },
+  dragArea: {
+    // This area is draggable
+  },
   handleContainer: {
     alignItems: 'center',
     paddingTop: vs(12),
     paddingBottom: vs(8),
   },
   handle: {
-    width: s(70),
-    height: vs(6),
+    width: s(componentSizes.sheetHandleWidth),
+    height: vs(componentSizes.sheetHandleHeight),
     borderRadius: 100,
-    backgroundColor: '#b9b9b9',
-    opacity: 0.4,
+    backgroundColor: colors.sheet.handle,
+    opacity: componentSizes.sheetHandleOpacity,
   },
   nftName: {
     fontSize: ms(24),
     fontFamily: FONT_FAMILY.extraBold,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(16),
     paddingHorizontal: s(18),
@@ -405,7 +446,6 @@ const styles = StyleSheet.create({
     width: s(406),
     height: s(406),
     borderRadius: ms(18),
-    // Shadow for image
     shadowColor: '#000000',
     shadowOffset: {
       width: 0,
@@ -417,9 +457,9 @@ const styles = StyleSheet.create({
   sectionContainer: {
     borderRadius: ms(9),
     borderWidth: 1,
-    borderColor: '#404962',
+    borderColor: colors.border.default,
     overflow: 'hidden',
-    backgroundColor: 'rgba(56, 63, 82, 0.1)',
+    backgroundColor: colors.background.tokenItem,
   },
   sectionContent: {
     padding: s(7),
@@ -427,7 +467,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: ms(12),
     fontFamily: FONT_FAMILY.bold,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginBottom: vs(8),
   },
   descriptionText: {
@@ -449,7 +489,7 @@ const styles = StyleSheet.create({
   attributeName: {
     fontSize: ms(12),
     fontFamily: FONT_FAMILY.black,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginBottom: vs(4),
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -507,7 +547,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: vs(12) + vs(8) + ms(24) + vs(16), // handleContainer + nftName
-    height: 30,
+    height: componentSizes.sheetFadeGradientHeight,
     zIndex: 1,
   },
 });

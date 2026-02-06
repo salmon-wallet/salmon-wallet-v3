@@ -1,4 +1,13 @@
-import { ms, s, vs } from '@salmon/shared';
+import {
+  colors,
+  shadows,
+  borderRadius,
+  borderWidth,
+  componentSizes,
+  ms,
+  s,
+  vs,
+} from '@salmon/shared';
 import React, { useCallback, useEffect } from 'react';
 import {
   BackHandler,
@@ -281,24 +290,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#000000',
+    backgroundColor: colors.sheet.backdrop,
   },
   sheetContainer: {
-    backgroundColor: '#161c2d',
-    borderTopLeftRadius: ms(26),
-    borderTopRightRadius: ms(26),
-    borderTopWidth: 0.75,
-    borderTopColor: '#404962',
+    backgroundColor: colors.background.secondary,
+    borderTopLeftRadius: ms(borderRadius.card),
+    borderTopRightRadius: ms(borderRadius.card),
+    borderTopWidth: borderWidth.sheet,
+    borderTopColor: colors.border.default,
     overflow: 'hidden',
-    // Shadow going up
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 15,
+    ...shadows.sheet,
   },
   dragArea: {
     // This area is draggable
@@ -309,16 +310,16 @@ const styles = StyleSheet.create({
     paddingBottom: vs(8),
   },
   handle: {
-    width: s(70),
-    height: vs(6),
+    width: s(componentSizes.sheetHandleWidth),
+    height: vs(componentSizes.sheetHandleHeight),
     borderRadius: 75,
-    backgroundColor: '#b9b9b9',
-    opacity: 0.4,
+    backgroundColor: colors.sheet.handle,
+    opacity: componentSizes.sheetHandleOpacity,
   },
   title: {
     fontSize: ms(24),
     fontFamily: FONT_FAMILY.extraBold,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: 0.24,
     lineHeight: ms(24 * 1.3),
@@ -339,7 +340,7 @@ const styles = StyleSheet.create({
   address: {
     fontSize: ms(14),
     fontFamily: FONT_FAMILY.semiBold,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: 0.14,
     lineHeight: ms(14 * 1.3),

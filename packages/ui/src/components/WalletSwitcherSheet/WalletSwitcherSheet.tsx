@@ -25,7 +25,7 @@
  * ```
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -33,8 +33,12 @@ import {
   StyleSheet,
   FlatList,
   Alert,
+  Animated,
   type ListRenderItemInfo,
+  type NativeSyntheticEvent,
+  type NativeScrollEvent,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { TopSheet } from '../TopSheet';
@@ -44,6 +48,7 @@ import {
   borderRadius,
   fontSize,
   lineHeight,
+  componentSizes,
   getAvatarColor,
   type Account,
 } from '@salmon/shared';
@@ -243,6 +248,16 @@ export function WalletSwitcherSheet({
 }: WalletSwitcherSheetProps): React.ReactElement {
   const { t } = useTranslation();
 
+  // Top fade gradient opacity
+  const topFadeOpacity = useRef(new Animated.Value(0)).current;
+
+  // Handle scroll to show/hide top fade gradient dynamically
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const opacity = Math.min(offsetY / componentSizes.sheetFadeGradientHeight, 1);
+    topFadeOpacity.setValue(opacity);
+  }, [topFadeOpacity]);
+
   // Determine if delete should be allowed (can't delete last account)
   const canDeleteAccounts = accounts.length > 1;
 
@@ -392,16 +407,31 @@ export function WalletSwitcherSheet({
       maxHeightPercentage={0.6}
       contentStyle={styles.content}
     >
-      <FlatList
-        data={accounts}
-        renderItem={renderAccountItem}
-        keyExtractor={keyExtractor}
-        ListFooterComponent={ListFooter}
-        ListEmptyComponent={ListEmpty}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+      <View style={styles.listWrapper}>
+        <FlatList
+          data={accounts}
+          renderItem={renderAccountItem}
+          keyExtractor={keyExtractor}
+          ListFooterComponent={ListFooter}
+          ListEmptyComponent={ListEmpty}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        />
+
+        {/* Top fade gradient */}
+        <Animated.View
+          style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+          pointerEvents="none"
+        >
+          <LinearGradient
+            colors={[colors.background.primary, 'transparent']}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
+      </View>
     </TopSheet>
   );
 }
@@ -414,6 +444,17 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 0,
     paddingVertical: 0,
+  },
+  listWrapper: {
+    flex: 1,
+  },
+  topFadeGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: componentSizes.sheetFadeGradientHeight,
+    zIndex: 1,
   },
   listContent: {
     paddingBottom: spacing.md,
