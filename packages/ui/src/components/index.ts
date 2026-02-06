@@ -191,3 +191,12 @@ export type {
 // TransactionDetailModal - Bottom sheet modal for transaction details
 export { TransactionDetailModal } from './TransactionDetailModal';
 export type { TransactionDetailModalProps } from './TransactionDetailModal';
+
+// SendSheet - Bottom sheet for sending tokens
+export { SendSheet } from './SendSheet';
+export type {
+  SendSheetProps,
+  SendToken,
+  SendStep,
+  SendBlockchainType as SendSheetBlockchainType,
+} from './SendSheet';
