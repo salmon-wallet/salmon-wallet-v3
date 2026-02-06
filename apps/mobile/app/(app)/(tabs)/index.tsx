@@ -70,6 +70,7 @@ import {
   ReceiveSheet,
   TransactionHistorySheet,
   TransactionDetailModal,
+  SendSheet,
   ScalesBackground,
   type BlockchainBalance,
   type BlockchainId,
@@ -260,6 +261,9 @@ export default function HomeScreen() {
 
   // ReceiveSheet visibility
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
+
+  // SendSheet visibility
+  const [sendSheetVisible, setSendSheetVisible] = useState(false);
 
   // TransactionHistorySheet visibility
   const [transactionHistoryVisible, setTransactionHistoryVisible] = useState(false);
@@ -676,8 +680,8 @@ export default function HomeScreen() {
   }, []);
 
   const handleSendPress = useCallback(() => {
-    router.push('/(app)/token-send');
-  }, [router]);
+    setSendSheetVisible(true);
+  }, []);
 
   const handleReceivePress = useCallback(() => {
     setReceiveSheetVisible(true);
@@ -686,6 +690,15 @@ export default function HomeScreen() {
   const handleReceiveSheetClose = useCallback(() => {
     setReceiveSheetVisible(false);
   }, []);
+
+  const handleSendSheetClose = useCallback(() => {
+    setSendSheetVisible(false);
+  }, []);
+
+  const handleSendSuccess = useCallback((_txId: string) => {
+    setSendSheetVisible(false);
+    refresh();
+  }, [refresh]);
 
   const handleReceiveSheetCopy = useCallback(async () => {
     if (activeBlockchainAccount) {
@@ -1159,6 +1172,17 @@ export default function HomeScreen() {
         onClose={handleReceiveSheetClose}
         address={address}
         onCopy={handleReceiveSheetCopy}
+      />
+
+      {/* Send Sheet */}
+      <SendSheet
+        visible={sendSheetVisible}
+        onClose={handleSendSheetClose}
+        tokens={tokens}
+        blockchain={getBaseBlockchain(currentBlockchain)}
+        account={activeBlockchainAccount}
+        onSuccess={handleSendSuccess}
+        showUnverifiedTokens={developerNetworks}
       />
 
       {/* Transaction History Sheet */}
