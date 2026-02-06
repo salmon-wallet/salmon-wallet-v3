@@ -96,6 +96,14 @@ export const shadows = {
     shadowRadius: 12,
     elevation: 8,
   },
+  /** Bottom sheet upward shadow */
+  sheet: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
+    elevation: 20,
+  },
 } as const;
 
 /**

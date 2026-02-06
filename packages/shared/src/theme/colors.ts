@@ -93,6 +93,10 @@ export const colors = {
     border: 'rgba(255, 255, 255, 0.1)',
     borderActive: '#FF5C45',
   },
+  sheet: {
+    backdrop: '#000000',
+    handle: '#b9b9b9',
+  },
   /**
    * QR Scanner colors
    */

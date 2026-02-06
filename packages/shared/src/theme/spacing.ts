@@ -150,6 +150,16 @@ export const componentSizes = {
   // TokenListItem (from Figma)
   /** Token icon size: 38px */
   tokenIcon: 38,
+
+  // Sheet/Modal components
+  /** Sheet drag handle width: 70px */
+  sheetHandleWidth: 70,
+  /** Sheet drag handle height: 6px */
+  sheetHandleHeight: 6,
+  /** Sheet drag handle opacity: 0.4 */
+  sheetHandleOpacity: 0.4,
+  /** Sheet top fade gradient height: 30px */
+  sheetFadeGradientHeight: 30,
 } as const;
 
 /**
@@ -177,6 +187,8 @@ export const borderWidth = {
   header: 1.38,
   /** 2px */
   medium: 2,
+  /** 0.75px - Sheet top border */
+  sheet: 0.75,
 } as const;
 
 export type Spacing = typeof spacing;
