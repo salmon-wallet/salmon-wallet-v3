@@ -41,15 +41,16 @@ import type { EthereumAccount } from '../blockchain/ethereum';
  * This allows useBalance to work with any supported blockchain.
  */
 export type BlockchainAccount = SolanaAccount | BitcoinAccount | EthereumAccount;
+import { getWalletBalance } from '../api/services/balance';
 import {
-  getWalletBalance,
   createSolBalance,
   calculate24HoursChange,
   type WalletBalance,
   type RawTokenBalance,
   type TokenBalanceWithPrice,
-} from '../api/services/balance';
+} from '../utils/balance';
 import { getPricesByPlatform } from '../api/services/price';
+import { getERC20TokenBalances } from '../api/services/ethereum';
 import { getEthBalance, ETH_CONSTANTS } from '../blockchain/ethereum/balance';
 import { detectAllTokens, type EthereumTokenBalance as EthTokenBalance } from '../blockchain/ethereum/tokens';
 import { getStorageItem, setStorageItem } from '../storage';
@@ -427,7 +428,7 @@ export function useBalance({
         // and falls back to featured tokens if the API is unavailable
         const [ethBalance, tokenDetectionResult, prices] = await Promise.all([
           getEthBalance(provider, walletAddress),
-          detectAllTokens(provider, walletAddress, networkId),
+          detectAllTokens(provider, walletAddress, networkId, getERC20TokenBalances),
           getPricesByPlatform('ethereum'),
         ]);
 

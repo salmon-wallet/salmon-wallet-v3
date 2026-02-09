@@ -7,11 +7,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   getERC20TokenBalances,
   getTokenMetadataBatch,
-  hexToBalance,
-  formatTokenBalance,
-  mergeTokenLists,
   type DetectedERC20Token,
 } from './ethereum';
+import {
+  hexToBalance,
+  formatERC20TokenBalance as formatTokenBalance,
+  mergeTokenLists,
+} from '../../utils/tokens';
 import * as clientModule from '../client';
 
 // ============================================================================

@@ -1,8 +1,7 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import type { BIP32Interface } from 'bip32';
-import { get } from '../../api/client';
-import { getPricesByPlatform, type TokenPrice } from '../../api/services/price';
-import { decorateBalancePrices } from '../../api/services/balance';
+import type { TokenPrice } from '../../api/services/price';
+import { decorateBalancePrices } from '../../utils/balance';
 
 /**
  * Bitcoin network environment types
@@ -45,6 +44,31 @@ export interface BitcoinKeyPair {
   publicKey: Uint8Array;
 }
 
+// ============================================================================
+// API Function Types (Dependency Injection)
+// ============================================================================
+
+export type FetchBitcoinBalanceFn = (
+  networkId: string,
+  address: string
+) => Promise<BitcoinBalanceItem[]>;
+
+export type FetchBitcoinPricesFn = (
+  platform: string
+) => Promise<TokenPrice[] | null>;
+
+export type FetchBitcoinTransactionFn = (
+  networkId: string,
+  address: string,
+  txId: string
+) => Promise<AccountTransaction>;
+
+export type FetchBitcoinRecentTransactionsFn = (
+  networkId: string,
+  address: string,
+  paging?: TransactionPaging
+) => Promise<AccountTransactionListResponse>;
+
 /**
  * Options for creating a BitcoinAccount instance
  */
@@ -59,6 +83,14 @@ export interface BitcoinAccountOptions {
   keyPair: BitcoinKeyPair;
   /** Original BIP32 node (for advanced operations) */
   node?: BIP32Interface;
+  /** Function to fetch balance from the API */
+  fetchBalance: FetchBitcoinBalanceFn;
+  /** Function to fetch prices */
+  fetchPrices: FetchBitcoinPricesFn;
+  /** Function to fetch a single transaction */
+  fetchTransaction: FetchBitcoinTransactionFn;
+  /** Function to fetch recent transactions */
+  fetchRecentTransactions: FetchBitcoinRecentTransactionsFn;
 }
 
 /**
@@ -235,6 +267,11 @@ export class BitcoinAccount {
   /** Original BIP32 node for advanced operations (optional) */
   private readonly node?: BIP32Interface;
 
+  private readonly fetchBalanceFn: FetchBitcoinBalanceFn;
+  private readonly fetchPricesFn: FetchBitcoinPricesFn;
+  private readonly fetchTransactionFn: FetchBitcoinTransactionFn;
+  private readonly fetchRecentTransactionsFn: FetchBitcoinRecentTransactionsFn;
+
   /**
    * Creates a new BitcoinAccount instance
    *
@@ -247,6 +284,10 @@ export class BitcoinAccount {
     this.keyPair = options.keyPair;
     this.address = options.keyPair.address;
     this.node = options.node;
+    this.fetchBalanceFn = options.fetchBalance;
+    this.fetchPricesFn = options.fetchPrices;
+    this.fetchTransactionFn = options.fetchTransaction;
+    this.fetchRecentTransactionsFn = options.fetchRecentTransactions;
   }
 
   /**
@@ -397,17 +438,7 @@ export class BitcoinAccount {
    * @returns Promise resolving to balance items array
    */
   private async fetchBitcoinBalance(): Promise<BitcoinBalanceItem[]> {
-    const url = `/v1/${this.network.id}/account/${this.address}/balance`;
-
-    const data = await get<BitcoinBalanceItem[]>(url, {
-      params: { include: 'logo' },
-    });
-
-    return data.map((token) => ({
-      ...token,
-      uiAmount: token.amount / Math.pow(10, token.decimals),
-      coingeckoId: 'bitcoin',
-    }));
+    return this.fetchBalanceFn(this.network.id, this.address);
   }
 
   /**
@@ -417,7 +448,7 @@ export class BitcoinAccount {
    */
   private async getPrices(): Promise<TokenPrice[] | null> {
     try {
-      return await getPricesByPlatform('bitcoin');
+      return await this.fetchPricesFn('bitcoin');
     } catch (e) {
       console.log('Could not get Bitcoin prices', (e as Error).message);
       return null;
@@ -565,8 +596,7 @@ export class BitcoinAccount {
    * @returns Promise resolving to transaction details
    */
   async getTransaction(id: string): Promise<AccountTransaction> {
-    const url = `/v1/${this.network.id}/account/${this.address}/transactions/${id}`;
-    return get<AccountTransaction>(url);
+    return this.fetchTransactionFn(this.network.id, this.address, id);
   }
 
   /**
@@ -578,19 +608,7 @@ export class BitcoinAccount {
   async getRecentTransactions(
     paging?: TransactionPaging
   ): Promise<AccountTransactionListResponse> {
-    const { nextPageToken, pageSize } = paging || {};
-
-    const url = `/v1/${this.network.id}/account/${this.address}/transactions`;
-
-    const params: Record<string, string | number> = {};
-    if (nextPageToken) {
-      params.pageToken = nextPageToken;
-    }
-    if (pageSize) {
-      params.pageSize = pageSize;
-    }
-
-    return get<AccountTransactionListResponse>(url, { params });
+    return this.fetchRecentTransactionsFn(this.network.id, this.address, paging);
   }
 
   // ============================================================================

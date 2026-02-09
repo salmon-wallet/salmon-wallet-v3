@@ -26,7 +26,7 @@ import { SmartCache, clearDomainCache, getDomainCache } from './useDomain';
 
 // Types
 import type { StoredAccount } from './useAccounts';
-import type { TokenBalanceWithPrice } from '../api/services/balance';
+import type { TokenBalanceWithPrice } from '../utils/balance';
 import type { TokenMetadata } from '../api/services/tokens';
 import type {
   StoredAddress,

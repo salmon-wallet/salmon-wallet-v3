@@ -20,6 +20,7 @@
 
 import axios from 'axios';
 import { apiClient } from '../client';
+import { normalizeIpfsUrl } from '../../utils/url';
 
 // ============================================================================
 // Types
@@ -142,39 +143,6 @@ function getCachedTokenList(): TokenListCache | null {
 
 function setCachedTokenList(tokens: TokenMetadata[], source: TokenListSource): void {
   tokenListCache = { tokens, source, timestamp: Date.now() };
-}
-
-// ============================================================================
-// IPFS URL Normalization
-// ============================================================================
-
-const IPFS_GATEWAYS = [
-  'https://cloudflare-ipfs.com/ipfs/',
-  'https://gateway.pinata.cloud/ipfs/',
-  'https://nftstorage.link/ipfs/',
-];
-
-/**
- * Normalize IPFS/Arweave URLs to use reliable gateways
- * @internal - Exported for testing
- */
-export function normalizeIpfsUrl(url: string | undefined | null): string | null {
-  if (!url) return null;
-
-  // Handle IPFS protocol URLs
-  if (url.startsWith('ipfs://')) {
-    const hash = url.replace('ipfs://', '');
-    return `${IPFS_GATEWAYS[0]}${hash}`;
-  }
-
-  // Handle Arweave protocol URLs
-  if (url.startsWith('ar://')) {
-    const hash = url.replace('ar://', '');
-    return `https://arweave.net/${hash}`;
-  }
-
-  // Already a valid HTTP URL
-  return url;
 }
 
 // ============================================================================

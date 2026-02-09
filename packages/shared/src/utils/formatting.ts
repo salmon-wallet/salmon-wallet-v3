@@ -282,3 +282,166 @@ export function showAbsoluteChange(
   }
   return `$${val}`;
 }
+
+// ============================================================================
+// Large Number & Display Formatting
+// ============================================================================
+
+export function formatLargeNumber(value: number | undefined | null): string {
+  if (value === undefined || value === null) return '-';
+  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(2)}B`;
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(2)}K`;
+  return value.toLocaleString();
+}
+
+export function formatUSD(value: number | undefined | null): string {
+  if (value === undefined || value === null) return '-';
+  return `$${formatLargeNumber(value)}`;
+}
+
+/**
+ * Format a raw blockchain amount (in smallest units like lamports/wei)
+ * with smart precision and K/M suffixes.
+ * Different from formatAmount() which returns a simple string.
+ */
+export function formatRawAmount(
+  amount: string | number,
+  decimals: number,
+  minThreshold: number = 0.000001
+): string {
+  const rawAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(rawAmount)) return '0';
+
+  const formattedAmount = rawAmount / Math.pow(10, decimals);
+
+  if (formattedAmount === 0) return '0';
+  if (formattedAmount < minThreshold) return `<${minThreshold}`;
+  if (formattedAmount >= 1000000) return `${(formattedAmount / 1000000).toFixed(2)}M`;
+  if (formattedAmount >= 1000) return `${(formattedAmount / 1000).toFixed(2)}K`;
+  if (formattedAmount >= 1) return formattedAmount.toFixed(4).replace(/\.?0+$/, '');
+
+  return formattedAmount.toFixed(6).replace(/\.?0+$/, '');
+}
+
+export function formatTokenBalance(
+  value: number | undefined | null,
+  decimals: number = 10
+): string {
+  if (value === undefined || value === null) return '0';
+  if (value === 0) return '0';
+  return value.toFixed(decimals).replace(/\.?0+$/, '');
+}
+
+export function formatUsdPrecise(
+  value: number | undefined | null,
+  decimals: number = 4
+): string {
+  if (value === undefined || value === null) return (0).toFixed(decimals);
+  return value.toFixed(decimals);
+}
+
+export function formatAmountWithSymbol(
+  amount: string | number,
+  symbol: string,
+  decimals: number = 8
+): string {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numAmount)) return `0 ${symbol}`;
+  const formatted = numAmount.toFixed(decimals).replace(/\.?0+$/, '');
+  return `${formatted} ${symbol}`;
+}
+
+export function formatPercentageCompact(
+  value: number | undefined | null
+): string {
+  if (value === undefined || value === null) return '-';
+  const sign = value >= 0 ? '+' : '';
+  return `${sign}${value.toFixed(2)}%`;
+}
+
+export function formatSolFee(lamports: number): string {
+  const sol = lamports / 1_000_000_000;
+  return `${sol.toFixed(7).replace(/\.?0+$/, '')} SOL`;
+}
+
+export function formatConversionRate(rate: string): string {
+  const numericRate = parseFloat(rate);
+  if (isNaN(numericRate) || numericRate === 0) return '0';
+  if (numericRate < 0.0001) return '<0.0001';
+  if (numericRate >= 1000) {
+    const kValue = numericRate / 1000;
+    return `${kValue.toFixed(2).replace(/\.?0+$/, '')}K`;
+  }
+  return numericRate.toFixed(4).replace(/\.?0+$/, '');
+}
+
+/**
+ * Format balance for display
+ *
+ * @param amount - Balance amount
+ * @param decimals - Number of decimal places to show
+ * @returns Formatted balance string
+ */
+export function formatBalance(amount: number, decimals: number = 4): string {
+  if (amount === 0) return '0';
+
+  if (amount < 0.0001) {
+    return '<0.0001';
+  }
+
+  if (amount >= 1000000) {
+    return `${(amount / 1000000).toFixed(2)}M`;
+  }
+
+  if (amount >= 1000) {
+    return `${(amount / 1000).toFixed(2)}K`;
+  }
+
+  return amount.toFixed(decimals);
+}
+
+/**
+ * Format USD value for display
+ *
+ * @param amount - USD amount
+ * @returns Formatted USD string
+ */
+export function formatUsdValue(amount: number | undefined): string {
+  if (amount === undefined || amount === null) {
+    return '-';
+  }
+
+  if (amount === 0) {
+    return '$0.00';
+  }
+
+  if (amount < 0.01) {
+    return '<$0.01';
+  }
+
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(2)}M`;
+  }
+
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(2)}K`;
+  }
+
+  return `$${amount.toFixed(2)}`;
+}
+
+/**
+ * Format percentage change
+ *
+ * @param percent - Percentage value
+ * @returns Formatted percentage string with sign
+ */
+export function formatPercentChange(percent: number | undefined): string {
+  if (percent === undefined || percent === null) {
+    return '-';
+  }
+
+  const sign = percent >= 0 ? '+' : '';
+  return `${sign}${percent.toFixed(2)}%`;
+}

@@ -68,11 +68,18 @@ export {
 // ============================================================================
 
 export {
+  // Functions (async, makes network calls)
+  getWalletBalance,
+} from './balance';
+
+// Re-export pure balance utilities from utils
+export {
   // Types
   type RawTokenBalance,
   type TokenBalance,
   type TokenBalanceWithPrice,
   type WalletBalance,
+  type JupiterPriceData,
   // Constants
   SOL_CONSTANTS,
   USDC_ADDRESS,
@@ -82,11 +89,7 @@ export {
   decorateBalancePrices,
   calculate24HoursChange,
   createSolBalance,
-  getWalletBalance,
-  formatBalance,
-  formatUsdValue,
-  formatPercentChange,
-} from './balance';
+} from '../../utils/balance';
 
 // ============================================================================
 // Marketplace Service
@@ -113,6 +116,11 @@ export {
   createBurnTransaction,
   getUserListings,
   getUserBids,
+  getCollectionGroupByFilter,
+  getCollectionById,
+  getCollectionItemsById,
+  getListedByOwner,
+  getBidsByOwner,
 } from './marketplace';
 
 // ============================================================================
@@ -138,6 +146,26 @@ export {
   getBitcoinTransaction,
   broadcastBitcoinTransaction,
 } from './bitcoin';
+
+// ============================================================================
+// Bitcoin Transfer Service
+// ============================================================================
+
+export {
+  fetchUtxos,
+  broadcastTransaction,
+} from './bitcoin-transfer';
+
+// ============================================================================
+// Bitcoin Account Service (DI adapters for BitcoinAccount)
+// ============================================================================
+
+export {
+  fetchBitcoinAccountBalance,
+  fetchBitcoinAccountPrices,
+  fetchBitcoinAccountTransaction,
+  fetchBitcoinAccountRecentTransactions,
+} from './bitcoin-account';
 
 // ============================================================================
 // Solana Service
@@ -245,9 +273,6 @@ export {
   // Functions
   getERC20TokenBalances,
   getTokenMetadataBatch,
-  hexToBalance,
-  formatTokenBalance as formatERC20TokenBalance,
-  mergeTokenLists,
 } from './ethereum';
 
 // ============================================================================
@@ -269,3 +294,43 @@ export {
   getRecentTransactions as getRecentMultichainTransactions,
   getAllTransactions as getAllMultichainTransactions,
 } from './transactions';
+
+// ============================================================================
+// Ethereum NFT Service
+// ============================================================================
+
+export {
+  // Types
+  type EthereumNftNetworkId,
+  type EthereumNftAttribute,
+  type EthereumNft,
+  // Functions
+  getEthereumNfts,
+  getEthereumNftById,
+} from './ethereum-nft';
+
+// ============================================================================
+// Solana NFT Service
+// ============================================================================
+
+export {
+  // Types
+  type SolanaNftNetworkId,
+  // Functions
+  getSolanaNfts,
+  getSolanaNftByAddress,
+} from './solana-nft';
+
+// ============================================================================
+// Bitcoin Ordinals Service
+// ============================================================================
+
+export {
+  // Types
+  type BitcoinOrdinalsNetworkId,
+  type OrdinalAttribute,
+  type BitcoinOrdinal,
+  // Functions
+  getBitcoinOrdinals,
+  getBitcoinOrdinalById,
+} from './bitcoin-nft';

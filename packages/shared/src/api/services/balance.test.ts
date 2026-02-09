@@ -5,22 +5,24 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  formatBalance,
-  formatUsdValue,
-  formatPercentChange,
   decorateBalanceList,
   decorateBalancePrices,
   calculate24HoursChange,
   createSolBalance,
-  getWalletBalance,
   SOL_CONSTANTS,
   LAMPORTS_PER_SOL,
   type RawTokenBalance,
   type TokenBalance,
   type TokenBalanceWithPrice,
-  type TokenMetadata,
-  type TokenPrice,
-} from './balance';
+} from '../../utils/balance';
+import { getWalletBalance } from './balance';
+import type { TokenMetadata } from './tokens';
+import type { TokenPrice } from './price';
+import {
+  formatBalance,
+  formatUsdValue,
+  formatPercentChange,
+} from '../../utils/formatting';
 import * as tokensModule from './tokens';
 import * as priceModule from './price';
 

@@ -31,7 +31,6 @@ vi.mock('../client', () => {
 
 // Now import the functions AFTER mocking
 import {
-  normalizeIpfsUrl,
   normalizeBackendTokens,
   normalizeJupiterTokens,
   getTokenList,
@@ -42,6 +41,7 @@ import {
   clearTokenListCache,
   getTokenListSource,
 } from './tokens';
+import { normalizeIpfsUrl } from '../../utils/url';
 import { apiClient } from '../client';
 import axios from 'axios';
 
@@ -173,9 +173,9 @@ describe('Token Service - Pure Functions', () => {
       expect(normalizeIpfsUrl('')).toBe(null);
     });
 
-    it('should convert IPFS protocol URL to Cloudflare gateway', () => {
+    it('should convert IPFS protocol URL to ipfs.io gateway', () => {
       const input = 'ipfs://QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM';
-      const expected = 'https://cloudflare-ipfs.com/ipfs/QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM';
+      const expected = 'https://ipfs.io/ipfs/QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM';
       expect(normalizeIpfsUrl(input)).toBe(expected);
     });
 
@@ -197,7 +197,7 @@ describe('Token Service - Pure Functions', () => {
 
     it('should handle IPFS URLs with short hashes', () => {
       const input = 'ipfs://Qm123';
-      const expected = 'https://cloudflare-ipfs.com/ipfs/Qm123';
+      const expected = 'https://ipfs.io/ipfs/Qm123';
       expect(normalizeIpfsUrl(input)).toBe(expected);
     });
 
@@ -245,14 +245,14 @@ describe('Token Service - Pure Functions', () => {
       const token = mockBackendTokens[1]; // Has icon field, no logo
       const result = normalizeBackendTokens([token]);
 
-      expect(result[0].logo).toBe('https://cloudflare-ipfs.com/ipfs/QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM');
+      expect(result[0].logo).toBe('https://ipfs.io/ipfs/QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM');
     });
 
     it('should normalize IPFS URLs in logo field', () => {
       const token = mockBackendTokens[1]; // Has IPFS icon
       const result = normalizeBackendTokens([token]);
 
-      expect(result[0].logo).toBe('https://cloudflare-ipfs.com/ipfs/QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM');
+      expect(result[0].logo).toBe('https://ipfs.io/ipfs/QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM');
     });
 
     it('should normalize Arweave URLs in logo field', () => {
@@ -360,7 +360,7 @@ describe('Token Service - Pure Functions', () => {
       const token = mockJupiterTokens[1]; // Has IPFS logoURI
       const result = normalizeJupiterTokens([token]);
 
-      expect(result[0].logo).toBe('https://cloudflare-ipfs.com/ipfs/QmUsdt123456789');
+      expect(result[0].logo).toBe('https://ipfs.io/ipfs/QmUsdt123456789');
     });
 
     it('should normalize Arweave URLs in logoURI field', () => {

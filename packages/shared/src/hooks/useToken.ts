@@ -21,7 +21,7 @@ import {
   TokenMetadata,
   NetworkId,
 } from '../api/services/tokens';
-import { TokenBalanceWithPrice } from '../api/services/balance';
+import { TokenBalanceWithPrice } from '../utils/balance';
 
 // ============================================================================
 // Types

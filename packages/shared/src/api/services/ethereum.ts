@@ -14,6 +14,7 @@
  */
 
 import { get } from '../client';
+import { lookupCoingeckoId } from '../../utils/tokens';
 
 // ============================================================================
 // Types
@@ -114,45 +115,8 @@ const ETHPLORER_API_URL = 'https://api.ethplorer.io';
  */
 const ETHPLORER_API_KEY = 'freekey';
 
-/**
- * Known token mappings for coingeckoId lookups
- * Maps lowercase contract address to coingeckoId
- */
-const KNOWN_COINGECKO_IDS: Record<string, string> = {
-  // Stablecoins
-  '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'usd-coin', // USDC
-  '0xdac17f958d2ee523a2206206994597c13d831ec7': 'tether', // USDT
-  '0x6b175474e89094c44da98b954eedec16991e0f68': 'dai', // DAI
-  '0x4fabb145d64652a948d72533023f6e7a623c7c53': 'binance-usd', // BUSD
-  '0x8e870d67f660d95d5be530380d0ec0bd388289e1': 'paxos-standard', // USDP
-  '0x056fd409e1d7a124bd7017459dfea2f387b6d5cd': 'gemini-dollar', // GUSD
-  '0x853d955acef822db058eb8505911ed77f175b99e': 'frax', // FRAX
-
-  // Wrapped tokens
-  '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'weth', // WETH
-  '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wrapped-bitcoin', // WBTC
-
-  // DeFi tokens
-  '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984': 'uniswap', // UNI
-  '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave', // AAVE
-  '0xc00e94cb662c3520282e6f5717214004a7f26888': 'compound-governance-token', // COMP
-  '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2': 'maker', // MKR
-  '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2': 'sushi', // SUSHI
-  '0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e': 'yearn-finance', // YFI
-  '0xd533a949740bb3306d119cc777fa900ba034cd52': 'curve-dao-token', // CRV
-  '0xba100000625a3754423978a60c9317c58a424e3d': 'balancer', // BAL
-  '0x111111111117dc0aa78b770fa6a738034120c302': '1inch', // 1INCH
-
-  // Other popular tokens
-  '0x514910771af9ca656af840dff83e8264ecf986ca': 'chainlink', // LINK
-  '0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce': 'shiba-inu', // SHIB
-  '0x4d224452801aced8b2f0aebe155379bb5d594381': 'apecoin', // APE
-  '0x3845badade8e6dff049820680d1f14bd3903a5d0': 'the-sandbox', // SAND
-  '0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0': 'matic-network', // MATIC (ERC20)
-  '0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axie-infinity', // AXS
-  '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da': 'gala', // GALA
-  '0x4e15361fd6b4bb609fa63c81a2be19d873717870': 'fantom', // FTM (ERC20)
-};
+// KNOWN_COINGECKO_IDS and lookupCoingeckoId have been moved to
+// packages/shared/src/utils/tokens.ts
 
 // ============================================================================
 // Primary API Functions
@@ -299,16 +263,6 @@ async function getEthplorerTokenBalances(
   }
 }
 
-/**
- * Look up CoinGecko ID for a token address
- *
- * @param address - Token contract address
- * @returns CoinGecko ID if known, undefined otherwise
- */
-function lookupCoingeckoId(address: string): string | undefined {
-  return KNOWN_COINGECKO_IDS[address.toLowerCase()];
-}
-
 // ============================================================================
 // Token Metadata Functions
 // ============================================================================
@@ -356,95 +310,3 @@ export async function getTokenMetadataBatch(
   return metadataMap;
 }
 
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Convert hex balance string to bigint
- *
- * @param hexBalance - Balance as hex string (e.g., "0x123")
- * @returns Balance as bigint
- */
-export function hexToBalance(hexBalance: string): bigint {
-  if (!hexBalance || hexBalance === '0x0' || hexBalance === '0x') {
-    return 0n;
-  }
-  return BigInt(hexBalance);
-}
-
-/**
- * Format token balance for display
- *
- * @param balance - Raw balance as bigint or string
- * @param decimals - Token decimals
- * @param displayDecimals - Number of decimals to show (default: 4)
- * @returns Formatted balance string
- */
-export function formatTokenBalance(
-  balance: bigint | string,
-  decimals: number,
-  displayDecimals: number = 4
-): string {
-  const balanceBigInt = typeof balance === 'string' ? BigInt(balance) : balance;
-  const divisor = BigInt(10 ** decimals);
-
-  const wholePart = balanceBigInt / divisor;
-  const fractionPart = balanceBigInt % divisor;
-
-  const fractionStr = fractionPart
-    .toString()
-    .padStart(decimals, '0')
-    .slice(0, displayDecimals);
-
-  const numValue = parseFloat(`${wholePart}.${fractionStr}`);
-
-  if (numValue === 0) return '0';
-  if (numValue < 0.0001) return '<0.0001';
-  if (numValue >= 1_000_000) return `${(numValue / 1_000_000).toFixed(2)}M`;
-  if (numValue >= 1000) return `${(numValue / 1000).toFixed(2)}K`;
-
-  return numValue.toFixed(displayDecimals);
-}
-
-/**
- * Merge featured tokens with detected tokens
- *
- * Combines automatically detected tokens with a list of featured tokens,
- * deduplicating by address.
- *
- * @param detectedTokens - Tokens detected via API
- * @param featuredTokens - Hardcoded featured tokens to check
- * @returns Combined array of tokens
- */
-export function mergeTokenLists(
-  detectedTokens: DetectedERC20Token[],
-  featuredTokens: Array<{ address: string; symbol: string; name: string; decimals: number; logoUri?: string; coingeckoId?: string }>
-): DetectedERC20Token[] {
-  const tokenMap = new Map<string, DetectedERC20Token>();
-
-  // Add detected tokens first (they have balances)
-  detectedTokens.forEach((token) => {
-    tokenMap.set(token.address.toLowerCase(), token);
-  });
-
-  // Featured tokens are only added if not already present (they may have zero balance)
-  featuredTokens.forEach((token) => {
-    const key = token.address.toLowerCase();
-    if (!tokenMap.has(key)) {
-      tokenMap.set(key, {
-        address: token.address,
-        name: token.name,
-        symbol: token.symbol,
-        decimals: token.decimals,
-        balance: '0',
-        uiAmount: 0,
-        logoUri: token.logoUri,
-        coingeckoId: token.coingeckoId,
-      });
-    }
-  });
-
-  // Return only tokens with non-zero balance
-  return Array.from(tokenMap.values()).filter((token) => token.uiAmount > 0);
-}
