@@ -8,7 +8,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import { colors, ms, vs, s, fontSize, borderRadius, spacing, formatBlockNumber, formatDateTime, getShortAddress } from '@salmon/shared';
 import type { Transaction, SwapRouteHop } from './types';
 import { PriceImpactBadge } from './PriceImpactBadge';
@@ -522,23 +522,39 @@ export const SwapRouteVisualization: React.FC<SwapRouteVisualizationProps> = ({
   transaction,
   expanded,
 }) => {
-  // Track measured content height
-  const contentHeight = useSharedValue(0);
-  const [measured, setMeasured] = useState(false);
-
-  // Only show for swaps
   if (transaction.type !== 'swap') {
     return null;
   }
 
+  return (
+    <SwapRouteVisualizationContent
+      transaction={transaction}
+      expanded={expanded}
+    />
+  );
+};
+
+/**
+ * Inner content component that safely uses all hooks unconditionally.
+ */
+const SwapRouteVisualizationContent: React.FC<SwapRouteVisualizationProps> = ({
+  transaction,
+  expanded,
+}) => {
+  // Track measured content height
+  const contentHeight = useSharedValue(0);
+  const [measured, setMeasured] = useState(false);
+
   // Handle content layout measurement
+  // contentHeight is a stable shared value (like a ref) — safe to omit from deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleContentLayout = useCallback((event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
     if (height > 0 && height !== contentHeight.value) {
       contentHeight.value = height;
       setMeasured(true);
     }
-  }, [contentHeight]);
+  }, []);
 
   // Animated styles for expand/collapse with dynamic height
   const animatedStyle = useAnimatedStyle(() => {
@@ -552,9 +568,6 @@ export const SwapRouteVisualization: React.FC<SwapRouteVisualizationProps> = ({
       overflow: 'hidden',
     };
   }, [expanded, measured]);
-
-  // Memoize route summary
-  const routeSummary = useMemo(() => buildRouteSummary(transaction), [transaction]);
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>

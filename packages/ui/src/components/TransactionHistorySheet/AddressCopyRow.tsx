@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import { colors, ms, vs, s, fontSize, borderRadius, getShortAddress } from '@salmon/shared';
 
 // ============================================================================

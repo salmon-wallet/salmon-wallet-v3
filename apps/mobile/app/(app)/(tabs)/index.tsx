@@ -32,7 +32,7 @@ import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../../utils/haptics';
 import { useTranslation } from 'react-i18next';
 
 import {
