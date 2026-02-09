@@ -1,7 +1,9 @@
-export function NftDetailSheet() {
-  return (
-    <div>
-      <h1>NftDetailSheet</h1>
-    </div>
-  );
-}
+/**
+ * NftDetailSheet - Re-exports NftDetailSheet from @salmon/ui-extension
+ *
+ * This thin wrapper re-exports the NftDetailSheet component so consumers
+ * in apps/extension can import it from the local sheets barrel.
+ */
+
+export { NftDetailSheet } from '@salmon/ui-extension';
+export type { NftDetailSheetProps, NftDetailData, NftAttribute } from '@salmon/ui-extension';

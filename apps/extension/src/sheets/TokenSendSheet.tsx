@@ -1,7 +1,10 @@
-export function TokenSendSheet() {
-  return (
-    <div>
-      <h1>TokenSendSheet</h1>
-    </div>
-  );
-}
+/**
+ * TokenSendSheet - Re-exports SendSheet from @salmon/ui-extension
+ *
+ * This thin wrapper re-exports the SendSheet component under the
+ * local name "TokenSendSheet" so consumers in apps/extension can
+ * import it with a name that matches the extension routing conventions.
+ */
+
+export { SendSheet as TokenSendSheet } from '@salmon/ui-extension';
+export type { SendSheetProps as TokenSendSheetProps } from '@salmon/ui-extension';
