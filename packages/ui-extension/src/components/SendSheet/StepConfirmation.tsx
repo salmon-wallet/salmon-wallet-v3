@@ -1,0 +1,396 @@
+/**
+ * StepConfirmation - Transaction confirmation step for the SendSheet (web/extension version)
+ *
+ * Migrated from packages/ui (React Native) to MUI styled components.
+ * Features:
+ * - Large token icon display
+ * - Amount display
+ * - Recipient address with copy-to-clipboard
+ * - Fee estimation
+ * - Confirm/Cancel/Retry action buttons
+ * - Loading and error states
+ */
+
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import ButtonBase from '@mui/material/ButtonBase';
+import CircularProgress from '@mui/material/CircularProgress';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
+import {
+  colors,
+  spacing,
+  gradients,
+  fontFamily,
+  fontWeight,
+  useSendTransaction,
+  copyToClipboard,
+} from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
+import type { StepConfirmationProps } from './types';
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const COPY_FEEDBACK_DURATION = 2000;
+
+// ============================================================================
+// Styled Components
+// ============================================================================
+
+const Container = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  justifyContent: 'space-between',
+  minHeight: 0,
+});
+
+const CenterContent = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingLeft: spacing.xl,
+  paddingRight: spacing.xl,
+});
+
+// Token Icon
+const TokenIconWrapper = styled(Box)({
+  marginBottom: spacing.lg,
+});
+
+const TokenIconImage = styled('img')({
+  width: 100,
+  height: 100,
+  borderRadius: 50,
+  objectFit: 'cover',
+});
+
+const TokenIconFallback = styled(Box)({
+  width: 100,
+  height: 100,
+  borderRadius: 50,
+  backgroundColor: colors.background.card,
+  border: `2px solid ${colors.border.default}`,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+const TokenIconFallbackText = styled(Typography)({
+  fontSize: 32,
+  fontWeight: 800,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+});
+
+// Amount
+const AmountText = styled(Typography)({
+  fontSize: 22,
+  fontWeight: fontWeight.bold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  textAlign: 'center',
+  marginBottom: spacing.xl,
+});
+
+// Address
+const AddressButton = styled(ButtonBase)({
+  maxWidth: '100%',
+  borderRadius: 8,
+  transition: 'opacity 0.15s ease',
+  '&:hover': {
+    opacity: 0.85,
+  },
+});
+
+const AddressContent = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderRadius: 8,
+  padding: `${spacing.lg}px ${spacing.lg}px`,
+  gap: spacing.md,
+  maxWidth: '100%',
+});
+
+const AddressText = styled(Typography)({
+  flex: 1,
+  fontSize: 12,
+  fontWeight: fontWeight.bold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+// Fee
+const FeeText = styled(Typography)({
+  fontSize: 13,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.secondary,
+  marginTop: spacing.lg,
+  textAlign: 'center',
+});
+
+// Error
+const ErrorText = styled(Typography)({
+  fontSize: 13,
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.status.error,
+  marginTop: spacing.md,
+  textAlign: 'center',
+});
+
+// Bottom Buttons
+const BottomButtons = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  paddingLeft: spacing.xl,
+  paddingRight: spacing.xl,
+  paddingBottom: spacing.xl,
+  paddingTop: spacing.md,
+  gap: spacing.md,
+});
+
+const CancelButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) => ({
+  flex: 1,
+  height: 48,
+  borderRadius: 12,
+  border: '1px solid rgba(255, 92, 69, 0.8)',
+  backgroundColor: '#1f232f',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  opacity: disabled ? 0.5 : 1,
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  transition: 'opacity 0.15s ease',
+  '&:hover': {
+    opacity: disabled ? 0.5 : 0.85,
+  },
+}));
+
+const CancelButtonText = styled(Typography)({
+  fontSize: 13,
+  fontWeight: fontWeight.semibold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+});
+
+const ConfirmButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) => ({
+  flex: 1,
+  height: 48,
+  borderRadius: 12,
+  overflow: 'hidden',
+  border: '1px solid rgba(255, 92, 69, 0.8)',
+  opacity: disabled ? 0.7 : 1,
+  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  transition: 'opacity 0.15s ease',
+  '&:hover': {
+    opacity: disabled ? 0.7 : 0.85,
+  },
+}));
+
+const ConfirmButtonGradient = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+  height: '100%',
+  background: gradients.primaryCSS,
+});
+
+const ConfirmButtonText = styled(Typography)({
+  fontSize: 13,
+  fontWeight: fontWeight.semibold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+});
+
+const SendingRow = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing.sm,
+});
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export function StepConfirmation({
+  token,
+  recipientAddress,
+  amount,
+  blockchain,
+  account,
+  onBack,
+  onCancel,
+  onSuccess,
+}: StepConfirmationProps) {
+  const [estimatedFee, setEstimatedFee] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const sendHook = useSendTransaction({ account, blockchain });
+
+  // Amount display
+  const amountDisplay = useMemo(() => {
+    const numAmount = parseFloat(amount);
+    return `${Number(numAmount.toFixed(6))} ${token.symbol}`;
+  }, [amount, token.symbol]);
+
+  // Estimate fee on mount
+  useEffect(() => {
+    const doEstimate = async () => {
+      const result = await sendHook.estimateFee({
+        token: {
+          address: token.address,
+          decimals: token.decimals ?? 9,
+          symbol: token.symbol,
+        },
+        recipientAddress,
+        amount: parseFloat(amount),
+      });
+      if (result) {
+        setEstimatedFee(result.fee);
+      }
+    };
+    doEstimate();
+  }, []); // Only on mount
+
+  // Handle confirm press
+  const handleConfirm = useCallback(async () => {
+    try {
+      const result = await sendHook.sendTransaction({
+        token: {
+          address: token.address,
+          decimals: token.decimals ?? 9,
+          symbol: token.symbol,
+        },
+        recipientAddress,
+        amount: parseFloat(amount),
+      });
+      onSuccess(result.txId);
+    } catch {
+      // Error is captured by the hook's error state
+    }
+  }, [sendHook, token, recipientAddress, amount, onSuccess]);
+
+  // Handle copy address
+  const handleCopy = useCallback(async () => {
+    const success = await copyToClipboard(recipientAddress);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION);
+    }
+  }, [recipientAddress]);
+
+  // Handle retry
+  const handleRetry = useCallback(() => {
+    sendHook.reset();
+  }, [sendHook]);
+
+  const isSending = sendHook.status === 'creating' || sendHook.status === 'sending';
+  const isFailed = sendHook.status === 'failed';
+
+  return (
+    <Container>
+      {/* Center content */}
+      <CenterContent>
+        {/* Large Token Icon */}
+        <TokenIconWrapper>
+          {token.logo ? (
+            <TokenIconImage
+              src={token.logo}
+              alt={token.symbol}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          ) : (
+            <TokenIconFallback>
+              <TokenIconFallbackText>
+                {token.symbol?.slice(0, 3).toUpperCase() || '?'}
+              </TokenIconFallbackText>
+            </TokenIconFallback>
+          )}
+        </TokenIconWrapper>
+
+        {/* Amount */}
+        <AmountText>{amountDisplay}</AmountText>
+
+        {/* Recipient Address */}
+        <AddressButton
+          onClick={handleCopy}
+          aria-label="Copy recipient address"
+        >
+          <BlurContainer style={{ borderRadius: 8 }}>
+            <AddressContent>
+              <AddressText title={recipientAddress}>
+                {recipientAddress}
+              </AddressText>
+              {copied ? (
+                <CheckIcon
+                  sx={{ fontSize: 20, color: colors.status.success, flexShrink: 0 }}
+                />
+              ) : (
+                <ContentCopyIcon
+                  sx={{ fontSize: 20, color: colors.text.secondary, flexShrink: 0 }}
+                />
+              )}
+            </AddressContent>
+          </BlurContainer>
+        </AddressButton>
+
+        {/* Fee Display */}
+        {estimatedFee && (
+          <FeeText>Network Fee: ~{estimatedFee}</FeeText>
+        )}
+
+        {/* Error Message */}
+        {isFailed && sendHook.error && (
+          <ErrorText>{sendHook.error}</ErrorText>
+        )}
+      </CenterContent>
+
+      {/* Bottom Buttons */}
+      <BottomButtons>
+        <CancelButton
+          onClick={isFailed ? onBack : onCancel}
+          disabled={isSending}
+        >
+          <CancelButtonText>CANCEL</CancelButtonText>
+        </CancelButton>
+
+        <ConfirmButton
+          onClick={isFailed ? handleRetry : handleConfirm}
+          disabled={isSending}
+        >
+          <ConfirmButtonGradient>
+            {isSending ? (
+              <SendingRow>
+                <CircularProgress size={16} sx={{ color: colors.text.primary }} />
+                <ConfirmButtonText>Sending...</ConfirmButtonText>
+              </SendingRow>
+            ) : (
+              <ConfirmButtonText>
+                {isFailed ? 'RETRY' : 'CONFIRM'}
+              </ConfirmButtonText>
+            )}
+          </ConfirmButtonGradient>
+        </ConfirmButton>
+      </BottomButtons>
+    </Container>
+  );
+}
+
+export default StepConfirmation;
