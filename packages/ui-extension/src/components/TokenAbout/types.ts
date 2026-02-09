@@ -1,0 +1,20 @@
+import type { CSSProperties } from 'react';
+
+/**
+ * Props for the TokenAbout component
+ * Displays a token's "About" section with description
+ */
+export interface TokenAboutProps {
+  /** Token description text */
+  description?: string;
+  /** Title text (default: "About") */
+  title?: string;
+  /** Whether the component is in loading state */
+  loading?: boolean;
+  /** Maximum number of lines to show before truncating (0 = no limit) */
+  maxLines?: number;
+  /** Optional custom styles for the container */
+  style?: CSSProperties;
+  /** Optional className for the container */
+  className?: string;
+}
