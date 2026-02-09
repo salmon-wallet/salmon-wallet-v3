@@ -248,7 +248,7 @@ function AccountListItem({
   const initials = useMemo(() => getInitials(account.name), [account.name]);
 
   // Get the primary address from the first available network account
-  const address = useMemo(() => {
+  const address = (() => {
     const networksAccounts = account.networksAccounts || {};
     const networkIds = Object.keys(networksAccounts);
 
@@ -263,12 +263,9 @@ function AccountListItem({
       }
     }
     return undefined;
-  }, [account.networksAccounts]);
+  })();
 
-  const truncatedAddress = useMemo(
-    () => getShortAddress(address, 6) || '...',
-    [address]
-  );
+  const truncatedAddress = getShortAddress(address, 6) || '...';
 
   const handleEditClick = useCallback(
     (event: React.MouseEvent) => {

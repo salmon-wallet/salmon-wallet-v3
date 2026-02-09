@@ -19,7 +19,6 @@ import {
   getLabelValue,
   hiddenValue,
   type LabelType,
-  type Token,
 } from '@salmon/shared';
 import { ChevronRightIcon } from '../Icon';
 import type { TokenListItemProps } from './types';

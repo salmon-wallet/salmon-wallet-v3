@@ -3,12 +3,10 @@
  *
  * Web version using MUI and @emotion/styled for browser extension
  */
-import { useCallback } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import { colors, spacing, borderRadius } from '@salmon/shared';
-import type { Token } from '@salmon/shared';
 import TokenListItem from './TokenListItem';
 import type { TokenListProps, TokenListSkeletonProps } from './types';
 

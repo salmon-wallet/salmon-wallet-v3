@@ -3,7 +3,7 @@
  *
  * Web version using recharts and MUI for browser extension
  */
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useId } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -245,8 +245,8 @@ export function PriceChart({
     return isPositivePerformance(data) ? CHART_COLORS.positive : CHART_COLORS.negative;
   }, [data, color]);
 
-  // Generate gradient ID unique to this instance
-  const gradientId = useMemo(() => `priceChartGradient-${Math.random().toString(36).substr(2, 9)}`, []);
+  // Generate gradient ID unique to this instance (useId for stable IDs)
+  const gradientId = useId().replace(/:/g, '') + 'priceChartGradient';
 
   // Handle period selection
   const handlePeriodPress = useCallback(

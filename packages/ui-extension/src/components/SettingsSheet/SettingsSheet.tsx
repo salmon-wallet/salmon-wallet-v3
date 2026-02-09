@@ -57,7 +57,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, spacing } from '@salmon/shared';
 import type { SettingsScreen } from '@salmon/shared';
 
 import type {
