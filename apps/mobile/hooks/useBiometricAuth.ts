@@ -14,8 +14,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import * as LocalAuthentication from 'expo-local-authentication';
-import * as SecureStore from 'expo-secure-store';
+import * as LocalAuthentication from '../utils/localAuthentication';
+import * as SecureStore from '../utils/secureStore';
 
 // ============================================================================
 // Constants

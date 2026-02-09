@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from '../../utils/secureStore';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from './config';
 
 const LANGUAGE_STORAGE_KEY = 'salmon_language_preference';
