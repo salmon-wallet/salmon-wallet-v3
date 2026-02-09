@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
   StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
@@ -17,6 +18,7 @@ import {
   ms,
   vs,
   s,
+  useAddressValidation,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepAddressAmountProps } from './types';
@@ -53,6 +55,18 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
 
+  // Address validation (connection is null until context is wired up)
+  const {
+    validationState,
+    isValidating,
+    isValid: isAddressValid,
+    message: addressMessage,
+    messageType: addressMessageType,
+  } = useAddressValidation(address, null, {
+    debounceMs: 500,
+    blockchain,
+  });
+
   // Parse balance
   const tokenBalance = useMemo(() => {
     return typeof token.uiAmount === 'string'
@@ -73,16 +87,12 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
     return `${Number(tokenBalance.toFixed(4))} ${token.symbol}`;
   }, [tokenBalance, token.symbol]);
 
-  // Validate form
+  // Validate form (address must be validated AND amount must be valid)
   const isValid = useMemo(() => {
     const numAmount = parseFloat(amount);
-    return (
-      address.trim().length > 0 &&
-      !isNaN(numAmount) &&
-      numAmount > 0 &&
-      numAmount <= tokenBalance
-    );
-  }, [address, amount, tokenBalance]);
+    const amountValid = !isNaN(numAmount) && numAmount > 0 && numAmount <= tokenBalance;
+    return isAddressValid && !isValidating && amountValid;
+  }, [isAddressValid, isValidating, amount, tokenBalance]);
 
   // Handle quick fill
   const handleQuickFill = useCallback(
@@ -163,7 +173,12 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
         {/* Recipient */}
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>Recipient</Text>
-          <BlurContainer style={styles.inputContainer}>
+          <BlurContainer style={[
+            styles.inputContainer,
+            validationState === 'invalid' && styles.inputContainerError,
+            validationState === 'warning' && styles.inputContainerWarning,
+            validationState === 'valid' && styles.inputContainerSuccess,
+          ]}>
             <TextInput
               style={styles.textInput}
               placeholder={addressPlaceholder}
@@ -175,7 +190,34 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
               autoComplete="off"
               spellCheck={false}
             />
+            {/* Validation indicator */}
+            {address.length > 0 && isValidating && (
+              <ActivityIndicator
+                size="small"
+                color={colors.text.secondary}
+                style={styles.validationIndicator}
+              />
+            )}
+            {address.length > 0 && !isValidating && validationState === 'valid' && (
+              <Text style={[styles.validationIndicator, styles.validIcon]}>{'\u2713'}</Text>
+            )}
+            {address.length > 0 && !isValidating && validationState === 'invalid' && (
+              <Text style={[styles.validationIndicator, styles.invalidIcon]}>{'\u2715'}</Text>
+            )}
+            {address.length > 0 && !isValidating && validationState === 'warning' && (
+              <Text style={[styles.validationIndicator, styles.warningIcon]}>{'\u26A0'}</Text>
+            )}
           </BlurContainer>
+          {/* Validation message */}
+          {addressMessage && (
+            <Text style={[
+              styles.validationMessage,
+              addressMessageType === 'error' && styles.validationMessageError,
+              addressMessageType === 'warning' && styles.validationMessageWarning,
+            ]}>
+              {addressMessage}
+            </Text>
+          )}
         </View>
 
         {/* Amount */}
@@ -309,16 +351,57 @@ const styles = StyleSheet.create({
     marginBottom: vs(8),
   },
   inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderRadius: ms(12),
     paddingHorizontal: s(14),
     height: vs(48),
-    justifyContent: 'center',
+  },
+  inputContainerError: {
+    borderWidth: 1,
+    borderColor: colors.status.error,
+  },
+  inputContainerWarning: {
+    borderWidth: 1,
+    borderColor: colors.status.warning,
+  },
+  inputContainerSuccess: {
+    borderWidth: 1,
+    borderColor: colors.status.success,
   },
   textInput: {
+    flex: 1,
     fontSize: ms(15),
     fontFamily: FONT_FAMILY.regular,
     color: colors.text.primary,
     paddingVertical: 0,
+  },
+  validationIndicator: {
+    marginLeft: s(8),
+  },
+  validIcon: {
+    fontSize: ms(16),
+    color: colors.status.success,
+  },
+  invalidIcon: {
+    fontSize: ms(16),
+    color: colors.status.error,
+  },
+  warningIcon: {
+    fontSize: ms(16),
+    color: colors.status.warning,
+  },
+  validationMessage: {
+    fontSize: ms(12),
+    fontFamily: FONT_FAMILY.regular,
+    color: colors.text.secondary,
+    marginTop: vs(4),
+  },
+  validationMessageError: {
+    color: colors.status.error,
+  },
+  validationMessageWarning: {
+    color: colors.status.warning,
   },
   // Amount
   amountInputContainer: {
