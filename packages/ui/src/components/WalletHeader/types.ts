@@ -14,6 +14,8 @@ export interface WalletHeaderProps {
   onSettingsPress?: () => void;
   /** Callback when wallet/account switcher button is pressed */
   onWalletPress?: () => void;
+  /** Developer mode - shows more address characters (8+8 instead of 4+4) */
+  developerMode?: boolean;
   /** Optional custom styles for the container */
   style?: ViewStyle;
 }

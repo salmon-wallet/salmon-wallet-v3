@@ -200,3 +200,55 @@ export type {
   SendStep,
   SendBlockchainType as SendSheetBlockchainType,
 } from './SendSheet';
+
+// SwapScreen - Swap and Bridge interface
+export {
+  SwapScreen,
+  SwapTabSelector,
+  SwapAmountInput,
+  SwapDetailRow,
+  SwapReviewCard,
+  SwapInputScreen,
+  SwapReviewScreen,
+} from './SwapScreen';
+export type {
+  SwapToken,
+  SwapQuote,
+  SwapTab,
+  SwapStep,
+  SwapChainType,
+  SwapScreenProps,
+  SwapTabSelectorProps,
+  SwapAmountInputProps,
+  SwapDetailRowProps,
+  SwapReviewCardProps,
+  SwapInputScreenProps,
+  SwapReviewScreenProps,
+  // Bridge types used in SwapScreen
+  BridgeTokenSimple,
+  BridgeEstimateSimple,
+  BridgeExchangeSimple,
+} from './SwapScreen';
+
+// BridgeScreen - Cross-chain bridge interface
+export {
+  BridgeScreen,
+  BridgeInputScreen,
+  BridgeRecipientScreen,
+  BridgeReviewScreen,
+  BridgeAmountInput,
+  RecipientAddressInput,
+} from './BridgeScreen';
+export type {
+  BridgeChain,
+  BridgeToken,
+  BridgeEstimate,
+  BridgeExchange,
+  BridgeStep,
+  BridgeScreenProps,
+  BridgeInputScreenProps,
+  BridgeRecipientScreenProps,
+  BridgeReviewScreenProps,
+  BridgeAmountInputProps,
+  RecipientAddressInputProps,
+} from './BridgeScreen';

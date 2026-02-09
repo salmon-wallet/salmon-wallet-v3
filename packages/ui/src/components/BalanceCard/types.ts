@@ -47,6 +47,8 @@ export interface BalanceCardCarouselProps {
   onBlockchainChange?: (blockchain: BlockchainId, index: number) => void;
   /** Currently active blockchain index (controlled mode) */
   activeIndex?: number;
+  /** Show network label (Devnet, Testnet, etc.) - typically enabled in developer mode */
+  showNetworkLabel?: boolean;
   /** Optional custom styles for the container */
   style?: ViewStyle;
   /** Test ID for testing */
@@ -91,6 +93,8 @@ export interface BalanceCardProps {
   totalCount?: number;
   /** Whether the card is in loading state */
   loading?: boolean;
+  /** Show network label (Devnet, Testnet, etc.) - typically enabled in developer mode */
+  showNetworkLabel?: boolean;
   /** Optional custom styles for the container */
   style?: ViewStyle;
 }

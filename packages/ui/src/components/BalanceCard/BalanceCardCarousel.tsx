@@ -97,6 +97,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   onToggleVisibility,
   onBlockchainChange,
   activeIndex: controlledIndex,
+  showNetworkLabel = false,
   style,
   testID,
 }) => {
@@ -215,20 +216,44 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   const labelType = getLabelValue(changePercent);
   const changeColor = colors.change[labelType];
 
-  // Render blockchain logo
+  // Render blockchain logo (handles all network variants)
   const renderLogo = (blockchain: BlockchainId) => {
     const iconSize = s(componentSizes.blockchainIcon);
+    // Map network variants to their base blockchain for icon selection
+    if (blockchain.startsWith('solana')) {
+      return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+    }
+    if (blockchain.startsWith('bitcoin')) {
+      return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
+    }
+    if (blockchain.startsWith('ethereum')) {
+      return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
+    }
+    return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+  };
+
+  // Get network label for non-mainnet networks (developer mode only)
+  const getNetworkLabel = (blockchain: BlockchainId): string | null => {
     switch (blockchain) {
-      case 'solana':
-        return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
-      case 'bitcoin':
-        return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
-      case 'ethereum':
-        return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
+      case 'solana-devnet':
+        return 'Devnet';
+      case 'solana-testnet':
+        return 'Testnet';
+      case 'bitcoin-testnet':
+        return 'Testnet';
+      case 'bitcoin-regtest':
+        return 'Regtest';
+      case 'ethereum-sepolia':
+        return 'Sepolia';
+      case 'ethereum-goerli':
+        return 'Goerli';
       default:
-        return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+        return null;
     }
   };
+
+  // Get network label if in developer mode
+  const networkLabel = showNetworkLabel ? getNetworkLabel(currentBlockchainId) : null;
 
   // Render balance with decimal opacity
   const renderBalance = () => {
@@ -271,6 +296,13 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
             <View style={styles.logoContainer}>
               {renderLogo(currentBlockchain?.network.blockchain || 'solana')}
             </View>
+
+            {/* Network label for non-mainnet networks (developer mode) */}
+            {networkLabel && (
+              <View style={styles.networkLabelContainer}>
+                <Text style={styles.networkLabelText}>{networkLabel}</Text>
+              </View>
+            )}
 
             {/* Balance with eye icon */}
             <View style={styles.balanceContainer}>
@@ -360,6 +392,19 @@ const styles = StyleSheet.create({
         elevation: shadows.logo.elevation,
       },
     }),
+  },
+  networkLabelContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing.xxs),
+    borderRadius: ms(borderRadius.sm),
+  },
+  networkLabelText: {
+    fontSize: ms(fontSize.xs),
+    fontWeight: '600',
+    color: colors.text.primary,
+    textTransform: 'uppercase',
+    letterSpacing: letterSpacing.wide,
   },
   balanceRow: {
     flexDirection: 'row',

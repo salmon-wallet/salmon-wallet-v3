@@ -6,12 +6,14 @@ import { ContentCopySvgIcon, SettingsSvgIcon, WalletSvgIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
 /**
- * Truncates an address to show first 4 and last 4 characters
- * Matches Figma format: "ABcd...XYZ1"
+ * Truncates an address to show first N and last N characters
+ * Normal mode: 4+4 characters (Figma format: "ABcd...XYZ1")
+ * Developer mode: 8+8 characters for more visibility
  */
-function truncateAddress(address: string): string {
+function truncateAddress(address: string, developerMode = false): string {
   if (!address || address.length < 10) return address;
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  const chars = developerMode ? 8 : 4;
+  return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 }
 
 /**
@@ -40,6 +42,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   onCopyAddress,
   onSettingsPress,
   onWalletPress,
+  developerMode = false,
   style,
 }) => {
   const insets = useSafeAreaInsets();
@@ -56,7 +59,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
     onWalletPress?.();
   }, [onWalletPress]);
 
-  const truncatedAddress = truncateAddress(address);
+  const truncatedAddress = truncateAddress(address, developerMode);
 
   // Format: "Account 1 (ABcd...XYZ1)" matching Figma
   const displayText = `${accountName} (${truncatedAddress})`;

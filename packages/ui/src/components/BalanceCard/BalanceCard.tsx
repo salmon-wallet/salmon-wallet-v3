@@ -94,13 +94,42 @@ const renderBlockchainLogo = (blockchain: BlockchainId) => {
   const iconSize = s(componentSizes.blockchainIcon);
   switch (blockchain) {
     case 'solana':
+    case 'solana-devnet':
+    case 'solana-testnet':
       return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
     case 'bitcoin':
+    case 'bitcoin-testnet':
+    case 'bitcoin-regtest':
       return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
     case 'ethereum':
+    case 'ethereum-sepolia':
+    case 'ethereum-goerli':
       return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
     default:
       return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+  }
+};
+
+/**
+ * Get network label for non-mainnet networks (Devnet, Testnet, etc.)
+ * Returns null for mainnet networks
+ */
+const getNetworkLabel = (blockchain: BlockchainId): string | null => {
+  switch (blockchain) {
+    case 'solana-devnet':
+      return 'Devnet';
+    case 'solana-testnet':
+      return 'Testnet';
+    case 'bitcoin-testnet':
+      return 'Testnet';
+    case 'bitcoin-regtest':
+      return 'Regtest';
+    case 'ethereum-sepolia':
+      return 'Sepolia';
+    case 'ethereum-goerli':
+      return 'Goerli';
+    default:
+      return null;
   }
 };
 
@@ -139,6 +168,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   currentIndex = 0,
   totalCount = 1,
   loading = false,
+  showNetworkLabel = false,
   style,
 }) => {
   const handleToggleVisibility = useCallback(() => {
@@ -157,6 +187,9 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   // Get gradient and scales color for current blockchain
   const gradient = getGradientForBlockchain(blockchain);
   const scalesColor = getScalesColorForBlockchain(blockchain);
+
+  // Get network label for non-mainnet networks (only shown in developer mode)
+  const networkLabel = showNetworkLabel ? getNetworkLabel(blockchain) : null;
 
   // Determine if change is positive
   const isPositive = changePercent >= 0;
@@ -263,6 +296,13 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         {renderBlockchainLogo(blockchain)}
       </View>
 
+      {/* Network label for non-mainnet networks (developer mode) */}
+      {networkLabel && (
+        <View style={styles.networkLabelContainer}>
+          <Text style={styles.networkLabelText}>{networkLabel}</Text>
+        </View>
+      )}
+
       {/* Balance display */}
       <View style={styles.balanceContainer}>
         {loading ? (
@@ -338,6 +378,20 @@ const styles = StyleSheet.create({
         elevation: shadows.logo.elevation,
       },
     }),
+  },
+  networkLabelContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing.xxs),
+    borderRadius: ms(borderRadius.sm),
+    marginTop: vs(spacing.xs),
+  },
+  networkLabelText: {
+    fontSize: ms(fontSize.xs),
+    fontWeight: '600',
+    color: colors.text.primary,
+    textTransform: 'uppercase',
+    letterSpacing: letterSpacing.wide,
   },
   balanceContainer: {
     alignItems: 'center',
