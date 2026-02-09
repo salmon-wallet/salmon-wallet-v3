@@ -267,7 +267,6 @@ export function HomePage() {
     if (targetPage) {
       setCurrentPage(targetPage);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

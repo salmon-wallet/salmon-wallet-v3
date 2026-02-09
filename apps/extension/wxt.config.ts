@@ -10,6 +10,7 @@ export default defineConfig({
       alias: {
         // Mock react-native modules for web extension build
         'react-native-fast-crypto': path.resolve(__dirname, 'src/stubs/react-native-fast-crypto.ts'),
+        'react-native': path.resolve(__dirname, 'src/stubs/react-native.ts'),
       },
     },
   }),

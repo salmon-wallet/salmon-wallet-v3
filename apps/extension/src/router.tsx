@@ -1,4 +1,4 @@
-import { createBrowserRouter, createMemoryRouter } from 'react-router-dom';
+import { createMemoryRouter } from 'react-router-dom';
 
 // TODO: Configure routes
 export const router = createMemoryRouter([
