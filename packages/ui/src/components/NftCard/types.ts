@@ -1,18 +1,19 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 
-/**
- * NFT data structure for display
- */
-export interface NftData {
-  /** Unique mint address of the NFT */
-  mint: string;
-  /** Display name of the NFT */
-  name: string;
-  /** Optional image URL for the NFT */
-  image?: string;
-  /** Optional collection name */
-  collectionName?: string;
-}
+// Import NFT types from shared package
+export type {
+  NftBlockchain,
+  NftAttribute,
+  NftDataBase,
+  NftData,
+  NftDataSimple,
+  SolanaNftData,
+  EthereumNftData,
+  BitcoinNftData,
+} from '@salmon/shared';
+
+// Re-import for local use
+import type { NftData } from '@salmon/shared';
 
 /**
  * Props for the NftCard component

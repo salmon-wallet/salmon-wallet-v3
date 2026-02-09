@@ -1,33 +1,14 @@
 import type { ViewStyle } from 'react-native';
+import type { NftData, NftAttribute } from '../NftCard/types';
+
+// Re-export for convenience
+export type { NftAttribute, NftData } from '../NftCard/types';
 
 /**
- * NFT attribute with trait type and value
+ * NFT detail data is the full NftData type
+ * The detail sheet can display all blockchain-specific fields
  */
-export interface NftAttribute {
-  /** The trait type/category */
-  trait_type: string;
-  /** The attribute value */
-  value: string;
-}
-
-/**
- * Extended NFT data structure for the detail sheet
- * Includes additional fields like description and attributes
- */
-export interface NftDetailData {
-  /** The NFT mint address */
-  mint: string;
-  /** NFT name */
-  name: string;
-  /** NFT image URL */
-  image?: string;
-  /** NFT description */
-  description?: string;
-  /** Collection name the NFT belongs to */
-  collectionName?: string;
-  /** Array of NFT attributes/traits */
-  attributes?: NftAttribute[];
-}
+export type NftDetailData = NftData;
 
 /**
  * Props for the NftDetailSheet component

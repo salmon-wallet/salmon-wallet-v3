@@ -1,20 +1,11 @@
-import { borderRadius, colors, fontSize, letterSpacing, ms, s, shadows, spacing, vs } from '@salmon/shared';
+import { borderRadius, colors, fontSize, letterSpacing, ms, s, shadows, spacing, vs, getShortAddress } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContentCopySvgIcon, SettingsSvgIcon, WalletSvgIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
-/**
- * Truncates an address to show first N and last N characters
- * Normal mode: 4+4 characters (Figma format: "ABcd...XYZ1")
- * Developer mode: 8+8 characters for more visibility
- */
-function truncateAddress(address: string, developerMode = false): string {
-  if (!address || address.length < 10) return address;
-  const chars = developerMode ? 8 : 4;
-  return `${address.slice(0, chars)}...${address.slice(-chars)}`;
-}
+
 
 /**
  * WalletHeader component for displaying account info and navigation
@@ -59,7 +50,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
     onWalletPress?.();
   }, [onWalletPress]);
 
-  const truncatedAddress = truncateAddress(address, developerMode);
+  const truncatedAddress = getShortAddress(address, developerMode ? 8 : 4) ?? address;
 
   // Format: "Account 1 (ABcd...XYZ1)" matching Figma
   const displayText = `${accountName} (${truncatedAddress})`;

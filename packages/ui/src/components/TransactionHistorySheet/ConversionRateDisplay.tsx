@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, s, fontSize } from '@salmon/shared';
+import { colors, ms, s, fontSize, formatConversionRate } from '@salmon/shared';
 
 // ============================================================================
 // Constants
@@ -33,35 +33,6 @@ export interface ConversionRateDisplayProps {
 // Helper Functions
 // ============================================================================
 
-/**
- * Format the conversion rate with appropriate precision and suffixes
- * - If rate > 1000: format with K suffix (e.g., "1.5K")
- * - If rate < 0.0001: show "<0.0001"
- * - Otherwise: show up to 4 decimal places, trimming trailing zeros
- */
-function formatRate(rate: string): string {
-  const numericRate = parseFloat(rate);
-
-  if (isNaN(numericRate) || numericRate === 0) {
-    return '0';
-  }
-
-  // Handle very small values
-  if (numericRate < 0.0001) {
-    return '<0.0001';
-  }
-
-  // Handle large values with K suffix
-  if (numericRate >= 1000) {
-    const kValue = numericRate / 1000;
-    // Format with up to 2 decimal places, trimming trailing zeros
-    return `${kValue.toFixed(2).replace(/\.?0+$/, '')}K`;
-  }
-
-  // Standard formatting: up to 4 decimal places, trimming trailing zeros
-  return numericRate.toFixed(4).replace(/\.?0+$/, '');
-}
-
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -87,7 +58,7 @@ export const ConversionRateDisplay: React.FC<ConversionRateDisplayProps> = ({
   size = 'medium',
   style,
 }) => {
-  const formattedRate = useMemo(() => formatRate(rate), [rate]);
+  const formattedRate = useMemo(() => formatConversionRate(rate), [rate]);
 
   const isSmall = size === 'small';
 

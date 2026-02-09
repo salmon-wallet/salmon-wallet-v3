@@ -149,11 +149,33 @@ export type { BlurContainerProps, BlurTint } from './BlurContainer';
 
 // NftCard - NFT display card for grid layouts
 export { NftCard, NftCardSkeleton } from './NftCard';
-export type { NftCardProps, NftCardSkeletonProps, NftData } from './NftCard';
+export type {
+  NftCardProps,
+  NftCardSkeletonProps,
+  NftData,
+  NftDataBase,
+  NftDataSimple,
+  NftBlockchain,
+  NftAttribute,
+  SolanaNftData,
+  EthereumNftData,
+  BitcoinNftData,
+} from './NftCard';
 
 // NftDetailSheet - Bottom sheet modal for NFT details
 export { NftDetailSheet } from './NftDetailSheet';
-export type { NftDetailSheetProps, NftDetailData, NftAttribute } from './NftDetailSheet';
+export type { NftDetailSheetProps, NftDetailData } from './NftDetailSheet';
+
+// NftCarouselSection - Netflix-style horizontal carousel for NFTs by blockchain
+export { NftCarouselSection, NftCarouselSectionSkeleton } from './NftCarouselSection';
+export type {
+  NftCarouselSectionProps,
+  NftCarouselSectionSkeletonProps,
+} from './NftCarouselSection';
+
+// NftSeeAllSheet - Bottom sheet with full NFT grid for a blockchain
+export { NftSeeAllSheet } from './NftSeeAllSheet';
+export type { NftSeeAllSheetProps } from './NftSeeAllSheet';
 
 // SVG Icons
 export {
@@ -252,3 +274,15 @@ export type {
   BridgeAmountInputProps,
   RecipientAddressInputProps,
 } from './BridgeScreen';
+
+// LockScreenOverlay - Animated lock screen overlay with slide animation
+export { LockScreenOverlay } from './LockScreenOverlay';
+export type {
+  LockScreenOverlayProps,
+  BiometricConfig,
+  BiometricAuthState,
+} from './LockScreenOverlay';
+
+// GlassTabBar - Glass-effect bottom tab bar with Liquid Glass support
+export { GlassTabBar } from './GlassTabBar';
+export type { GlassTabBarProps, TabConfig } from './GlassTabBar';

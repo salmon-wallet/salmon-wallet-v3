@@ -8,7 +8,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, ms, vs, s, formatTokenBalance, formatUsdPrecise } from '@salmon/shared';
 import type { BridgeAmountInputProps } from './types';
 
 const FONT_FAMILY = {
@@ -17,23 +17,6 @@ const FONT_FAMILY = {
   bold: 'DMSansBold',
   black: 'DMSansBlack',
 } as const;
-
-/**
- * Format a number to display with appropriate decimals
- */
-const formatBalance = (value: number | undefined, decimals = 10): string => {
-  if (value === undefined || value === null) return '0';
-  if (value === 0) return '0';
-  return value.toFixed(decimals).replace(/\.?0+$/, '');
-};
-
-/**
- * Format USD value
- */
-const formatUsd = (value: number | undefined): string => {
-  if (value === undefined || value === null) return '0.0000';
-  return value.toFixed(4);
-};
 
 /**
  * BridgeAmountInput - Input field for bridge amounts with token selector
@@ -107,10 +90,10 @@ export const BridgeAmountInput: React.FC<BridgeAmountInputProps> = ({
 
       {/* USD Value and Balance Row */}
       <View style={styles.infoRow}>
-        <Text style={styles.usdValue}>{formatUsd(usdValue)} USD</Text>
+        <Text style={styles.usdValue}>{formatUsdPrecise(usdValue)} USD</Text>
         {availableBalance !== undefined && token && (
           <Text style={styles.availableBalance}>
-            Available: {formatBalance(availableBalance)} {token.symbol}
+            Available: {formatTokenBalance(availableBalance)} {token.symbol}
           </Text>
         )}
       </View>
@@ -118,7 +101,7 @@ export const BridgeAmountInput: React.FC<BridgeAmountInputProps> = ({
       {/* Minimum Amount Warning */}
       {showMinAmountWarning && (
         <Text style={styles.minAmountWarning}>
-          Minimum amount: {formatBalance(minAmount)} {token?.symbol}
+          Minimum amount: {formatTokenBalance(minAmount)} {token?.symbol}
         </Text>
       )}
     </View>

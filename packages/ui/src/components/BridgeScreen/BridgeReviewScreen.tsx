@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { colors, spacing, borderRadius, borderWidth, gradients, ms, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, gradients, ms, vs, s, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeReviewScreenProps } from './types';
 
@@ -11,24 +11,6 @@ const FONT_FAMILY = {
   semiBold: 'DMSansSemiBold',
   extraBold: 'DMSansExtraBold',
 } as const;
-
-/**
- * Format amount with symbol
- */
-const formatAmountWithSymbol = (amount: string | number, symbol: string): string => {
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(numAmount)) return `0 ${symbol}`;
-  const formatted = numAmount.toFixed(8).replace(/\.?0+$/, '');
-  return `${formatted} ${symbol}`;
-};
-
-/**
- * Truncate address for display
- */
-const truncateAddress = (address: string, chars = 8): string => {
-  if (address.length <= chars * 2 + 3) return address;
-  return `${address.slice(0, chars)}...${address.slice(-chars)}`;
-};
 
 /**
  * BridgeDetailRow - A single row in the bridge details section
@@ -164,7 +146,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
         <View style={styles.detailsContainer}>
           <BridgeDetailRow
             label="Recipient"
-            value={truncateAddress(recipientAddress)}
+            value={getShortAddress(recipientAddress, 8) ?? ''}
           />
           <BridgeDetailRow
             label="From Network"

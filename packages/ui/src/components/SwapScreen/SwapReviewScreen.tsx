@@ -1,38 +1,17 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground } from 'react-native';
+import { borderRadius, colors, formatAmountWithSymbol, formatSolFee, gradients, ms, s, spacing, vs } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, ms, vs, s } from '@salmon/shared';
-import { SwapReviewCard } from './SwapReviewCard';
-import { SwapDetailRow } from './SwapDetailRow';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PrimaryButton, SecondaryButton } from '../Button';
+import { SwapDetailRow } from './SwapDetailRow';
+import { SwapReviewCard } from './SwapReviewCard';
 import type { SwapReviewScreenProps } from './types';
 
 const FONT_FAMILY = {
   semiBold: 'DMSansSemiBold',
 } as const;
 
-/**
- * Format amount with symbol
- */
-const formatAmountWithSymbol = (amount: number, symbol: string, decimals = 8): string => {
-  const formatted = amount.toFixed(decimals).replace(/\.?0+$/, '');
-  return `${formatted} ${symbol}`;
-};
-
-/**
- * Format fee percentage
- */
-const formatPercent = (value: number): string => {
-  return `${value.toFixed(2)}%`;
-};
-
-/**
- * Format SOL amount for fees
- */
-const formatSolFee = (lamports: number): string => {
-  const sol = lamports / 1_000_000_000;
-  return `${sol.toFixed(7).replace(/\.?0+$/, '')} SOL`;
-};
+const formatPercent = (value: number): string => `${value.toFixed(2)}%`;
 
 /**
  * SwapReviewScreen - Second step of swap flow

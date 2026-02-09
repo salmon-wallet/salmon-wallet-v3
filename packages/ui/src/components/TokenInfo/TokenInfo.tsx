@@ -5,6 +5,9 @@ import {
   fontSize,
   fontWeight,
   spacing,
+  formatLargeNumber,
+  formatUSD,
+  getShortAddress,
 } from '@salmon/shared';
 import * as Clipboard from 'expo-clipboard';
 import React, { useCallback } from 'react';
@@ -17,40 +20,6 @@ import {
   View,
 } from 'react-native';
 import type { TokenInfoProps } from './types';
-
-/**
- * Format large numbers for display (e.g., 1.5B, 2.3M, 150K)
- */
-function formatLargeNumber(value: number | undefined): string {
-  if (value === undefined || value === null) return '-';
-
-  if (value >= 1_000_000_000) {
-    return `${(value / 1_000_000_000).toFixed(2)}B`;
-  }
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(2)}M`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(2)}K`;
-  }
-  return value.toLocaleString();
-}
-
-/**
- * Format USD currency for display
- */
-function formatUSD(value: number | undefined): string {
-  if (value === undefined || value === null) return '-';
-  return `$${formatLargeNumber(value)}`;
-}
-
-/**
- * Truncate address for display
- */
-function truncateAddress(address: string): string {
-  if (address.length <= 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
 
 /**
  * TokenInfo component for displaying token information
@@ -204,7 +173,7 @@ export const TokenInfo: React.FC<TokenInfoProps> = ({
             accessibilityLabel="Copy contract address"
           >
             <Text style={styles.contractAddress}>
-              {truncateAddress(contractAddress)}
+              {getShortAddress(contractAddress, 6) ?? ''}
             </Text>
             <View style={styles.copyButton}>
               <Ionicons

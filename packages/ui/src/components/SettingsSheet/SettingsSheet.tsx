@@ -28,7 +28,7 @@
  * ```
  */
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -193,7 +193,7 @@ export function SettingsSheet({
   const { t } = useTranslation();
 
   // Top fade gradient opacity
-  const topFadeOpacity = useRef(new Animated.Value(0)).current;
+  const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
 
   /**
    * Handle settings option press

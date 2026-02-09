@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, ms, vs, s, fontSize, borderRadius, spacing, formatBlockNumber, formatDateTime, getShortAddress } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, borderRadius, spacing, formatBlockNumber, formatDateTime, getShortAddress, formatRawAmount, truncateHash } from '@salmon/shared';
 import type { Transaction, SwapRouteHop } from './types';
 import { PriceImpactBadge } from './PriceImpactBadge';
 import { ConversionRateDisplay } from './ConversionRateDisplay';
@@ -35,32 +35,6 @@ const COPIED_FEEDBACK_DURATION = 1500;
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-/**
- * Format amount with proper decimals
- */
-function formatAmount(amount: string, decimals: number): string {
-  const rawAmount = parseFloat(amount);
-  if (isNaN(rawAmount)) return '0';
-
-  const formattedAmount = rawAmount / Math.pow(10, decimals);
-
-  if (formattedAmount === 0) return '0';
-  if (formattedAmount < 0.0001) return '<0.0001';
-  if (formattedAmount >= 1000000) return `${(formattedAmount / 1000000).toFixed(2)}M`;
-  if (formattedAmount >= 1000) return `${(formattedAmount / 1000).toFixed(2)}K`;
-  if (formattedAmount >= 1) return formattedAmount.toFixed(4).replace(/\.?0+$/, '');
-
-  return formattedAmount.toFixed(6).replace(/\.?0+$/, '');
-}
-
-/**
- * Truncate a transaction hash for display
- */
-function truncateHash(hash: string): string {
-  if (!hash || hash.length < 16) return hash;
-  return `${hash.slice(0, 6)}...${hash.slice(-6)}`;
-}
 
 /**
  * Build route summary from transaction inputs/outputs
@@ -166,7 +140,7 @@ const RouteHop: React.FC<{ hop: SwapRouteHop; isLast: boolean }> = ({ hop, isLas
       <View style={styles.hopToken}>
         <TokenIcon uri={hop.inputToken.logo} size={20} />
         <Text style={styles.hopAmount} numberOfLines={1}>
-          {formatAmount(hop.inputToken.amount, hop.inputToken.decimals)} {hop.inputToken.symbol}
+          {formatRawAmount(hop.inputToken.amount, hop.inputToken.decimals, 0.0001)} {hop.inputToken.symbol}
         </Text>
       </View>
 
@@ -186,7 +160,7 @@ const RouteHop: React.FC<{ hop: SwapRouteHop; isLast: boolean }> = ({ hop, isLas
         <View style={styles.hopToken}>
           <TokenIcon uri={hop.outputToken.logo} size={20} />
           <Text style={styles.hopAmount} numberOfLines={1}>
-            {formatAmount(hop.outputToken.amount, hop.outputToken.decimals)} {hop.outputToken.symbol}
+            {formatRawAmount(hop.outputToken.amount, hop.outputToken.decimals, 0.0001)} {hop.outputToken.symbol}
           </Text>
         </View>
       )}
@@ -238,7 +212,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
             <View key={`out-${i}`} style={styles.routeTokenRow}>
               <TokenIcon uri={output.logo} size={18} />
               <Text style={styles.routeTokenText} numberOfLines={1}>
-                {formatAmount(output.amount, output.decimals)} {output.symbol}
+                {formatRawAmount(output.amount, output.decimals, 0.0001)} {output.symbol}
               </Text>
             </View>
           ))}
@@ -259,7 +233,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
             <View key={`in-${i}`} style={styles.routeTokenRow}>
               <TokenIcon uri={input.logo} size={18} />
               <Text style={styles.routeTokenText} numberOfLines={1}>
-                {formatAmount(input.amount, input.decimals)} {input.symbol}
+                {formatRawAmount(input.amount, input.decimals, 0.0001)} {input.symbol}
               </Text>
             </View>
           ))}

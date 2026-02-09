@@ -25,7 +25,7 @@
  * ```
  */
 
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -51,6 +51,7 @@ import {
   componentSizes,
   getAvatarColor,
   type Account,
+  getShortAddress,
 } from '@salmon/shared';
 
 import type {
@@ -72,16 +73,6 @@ const FONT_FAMILY = {
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-/**
- * Truncates an address to show first 6 and last 4 characters
- * @param address - The full address string
- * @returns Truncated address like "ABC123...XYZ9"
- */
-function truncateAddress(address: string): string {
-  if (!address || address.length <= 10) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
 
 /**
  * Gets the initials from an account name
@@ -146,7 +137,7 @@ function AccountListItem({
   const avatarColor = useMemo(() => getAvatarColor(account.id), [account.id]);
   const initials = useMemo(() => getInitials(account.name), [account.name]);
   const address = useMemo(() => getAccountAddress(account), [account]);
-  const truncatedAddress = useMemo(() => truncateAddress(address), [address]);
+  const truncatedAddress = useMemo(() => getShortAddress(address), [address]);
 
   return (
     <TouchableOpacity
@@ -249,7 +240,7 @@ export function WalletSwitcherSheet({
   const { t } = useTranslation();
 
   // Top fade gradient opacity
-  const topFadeOpacity = useRef(new Animated.Value(0)).current;
+  const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
 
   // Handle scroll to show/hide top fade gradient dynamically
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {

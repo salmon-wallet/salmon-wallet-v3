@@ -9,9 +9,11 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
+    "@react-navigation/bottom-tabs": ">=6.0.0",
     "@solana/web3.js": ">=1.90.0",
     "expo-blur": "*",
     "expo-haptics": "*",
+    "expo-status-bar": "*",
     "i18next": ">=23.0.0",
     "react": ">=18.0.0",
     "react-i18next": ">=14.0.0",
@@ -36,10 +38,12 @@
     "react-native-vector-icons": "^10.3.0"
   },
   "devDependencies": {
+    "@react-navigation/bottom-tabs": "^7.10.1",
     "@solana/web3.js": "^1.98.4",
     "@types/react": "~19.1.0",
     "expo": "~54.0.32",
     "expo-haptics": "^15.0.0",
+    "expo-status-bar": "~3.0.9",
     "react-native-gesture-handler": "^2.20.0",
     "react-native-safe-area-context": "^5.0.0",
     "typescript": "~5.9.2"

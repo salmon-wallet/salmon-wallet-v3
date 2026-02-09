@@ -23,7 +23,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, spacing, fontSize, borderRadius, formatBlockNumber, formatDateTime } from '@salmon/shared';
+import { colors, ms, vs, s, spacing, fontSize, borderRadius, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
@@ -140,40 +140,6 @@ const STATUS_CONFIG = {
 // Helper Functions
 // ============================================================================
 
-/**
- * Format a raw amount with decimals
- */
-function formatAmount(amount: string | number, decimals: number): string {
-  const rawAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(rawAmount)) return '0';
-
-  const formattedAmount = rawAmount / Math.pow(10, decimals);
-
-  if (formattedAmount === 0) return '0';
-  if (formattedAmount < 0.000001) return '<0.000001';
-  if (formattedAmount >= 1000000) return `${(formattedAmount / 1000000).toFixed(2)}M`;
-  if (formattedAmount >= 1000) return `${(formattedAmount / 1000).toFixed(2)}K`;
-  if (formattedAmount >= 1) return formattedAmount.toFixed(4).replace(/\.?0+$/, '');
-
-  return formattedAmount.toFixed(6).replace(/\.?0+$/, '');
-}
-
-/**
- * Format a timestamp to a full date string
- * @deprecated Use formatDateTime from @salmon/shared instead
- */
-function formatFullTimestamp(timestamp: number): string {
-  return formatDateTime(timestamp);
-}
-
-/**
- * Truncate a transaction hash for display
- */
-function truncateHash(hash: string): string {
-  if (!hash || hash.length < 16) return hash;
-  return `${hash.slice(0, 8)}...${hash.slice(-8)}`;
-}
-
 // ============================================================================
 // Sub-components
 // ============================================================================
@@ -210,7 +176,7 @@ const TokenAmountRow: React.FC<{
   sign: '+' | '-';
 }> = ({ token, sign }) => {
   const color = sign === '+' ? colors.change.positive : colors.change.negative;
-  const formattedAmount = formatAmount(token.amount, token.decimals);
+  const formattedAmount = formatRawAmount(token.amount, token.decimals);
 
   return (
     <View style={styles.tokenRow}>
@@ -245,7 +211,7 @@ const SwapVisualization: React.FC<{
       <View style={styles.swapTokenSection}>
         <TokenLogo uri={fromToken.logo} size={40} />
         <Text style={styles.swapAmount}>
-          {formatAmount(fromToken.amount, fromToken.decimals)}
+          {formatRawAmount(fromToken.amount, fromToken.decimals)}
         </Text>
         <Text style={styles.swapSymbol}>{fromToken.symbol}</Text>
       </View>
@@ -255,7 +221,7 @@ const SwapVisualization: React.FC<{
       <View style={styles.swapTokenSection}>
         <TokenLogo uri={toToken.logo} size={40} />
         <Text style={styles.swapAmount}>
-          {formatAmount(toToken.amount, toToken.decimals)}
+          {formatRawAmount(toToken.amount, toToken.decimals)}
         </Text>
         <Text style={styles.swapSymbol}>{toToken.symbol}</Text>
       </View>
@@ -601,7 +567,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 <View style={styles.sectionRow}>
                   <Text style={styles.sectionLabel}>Date & Time</Text>
                   <Text style={styles.sectionValue}>
-                    {formatFullTimestamp(transaction.timestamp)}
+                    {formatDateTime(transaction.timestamp)}
                   </Text>
                 </View>
               </BlurContainer>
@@ -721,7 +687,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   <View style={styles.sectionRow}>
                     <Text style={styles.sectionLabel}>Network Fee</Text>
                     <Text style={styles.sectionValue}>
-                      {formatAmount(transaction.fee.amount, transaction.fee.decimals)} {transaction.fee.symbol}
+                      {formatRawAmount(transaction.fee.amount, transaction.fee.decimals)} {transaction.fee.symbol}
                     </Text>
                   </View>
                 </BlurContainer>
@@ -731,7 +697,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               <BlurContainer style={styles.section}>
                 <View style={styles.sectionRow}>
                   <Text style={styles.sectionLabel}>Transaction Hash</Text>
-                  <Text style={styles.hashValue}>{truncateHash(transaction.id)}</Text>
+                  <Text style={styles.hashValue}>{truncateHash(transaction.id, 8)}</Text>
                 </View>
               </BlurContainer>
 

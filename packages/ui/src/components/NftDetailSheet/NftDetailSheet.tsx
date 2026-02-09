@@ -37,8 +37,20 @@ import {
   ms,
   vs,
   s,
+  isSolanaNft,
+  isEthereumNft,
+  isBitcoinNft,
+  getNftBlockchainLabel,
+  getSatRarityColor,
+  getShortAddress,
 } from '@salmon/shared';
-import { CallMadeSvgIcon } from '../Icon/SvgIcons';
+import {
+  CallMadeSvgIcon,
+  SolanaSvgIcon,
+  EthereumSvgIcon,
+  BitcoinSvgIcon,
+  ContentCopySvgIcon,
+} from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
 import { ScalesBackground } from '../ScalesBackground';
 import type { NftDetailSheetProps, NftAttribute } from './types';
@@ -220,6 +232,128 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
     );
   }, []);
 
+  // Get blockchain icon component
+  const getBlockchainIcon = useCallback(() => {
+    if (!nft) return null;
+
+    const iconSize = ms(16);
+    const iconColor = colors.text.primary;
+
+    if (isSolanaNft(nft)) {
+      return <SolanaSvgIcon size={iconSize} color={iconColor} />;
+    } else if (isEthereumNft(nft)) {
+      return <EthereumSvgIcon size={iconSize} color={iconColor} />;
+    } else if (isBitcoinNft(nft)) {
+      return <BitcoinSvgIcon size={iconSize} color={iconColor} />;
+    }
+    return null;
+  }, [nft]);
+
+  // Render blockchain-specific details
+  const renderBlockchainDetails = useCallback(() => {
+    if (!nft) return null;
+
+    // Solana-specific fields
+    if (isSolanaNft(nft)) {
+      return (
+        <>
+          {nft.tokenStandard && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Token Standard</Text>
+              <Text style={styles.detailValue}>{nft.tokenStandard}</Text>
+            </View>
+          )}
+          {nft.compressed !== undefined && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Compressed</Text>
+              <Text style={styles.detailValue}>{nft.compressed ? 'Yes' : 'No'}</Text>
+            </View>
+          )}
+          {nft.collectionVerified !== undefined && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Collection Verified</Text>
+              <Text style={styles.detailValue}>{nft.collectionVerified ? '✓' : '✗'}</Text>
+            </View>
+          )}
+          {nft.royaltyBps !== undefined && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Royalties</Text>
+              <Text style={styles.detailValue}>{(nft.royaltyBps / 100).toFixed(2)}%</Text>
+            </View>
+          )}
+        </>
+      );
+    }
+
+    // Ethereum-specific fields
+    if (isEthereumNft(nft)) {
+      return (
+        <>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Token Type</Text>
+            <Text style={styles.detailValue}>{nft.tokenType}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Contract</Text>
+            <View style={styles.detailValueWithCopy}>
+              <Text style={styles.detailValue}>{getShortAddress(nft.contractAddress, 6)}</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  // Copy functionality can be added here
+                }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <ContentCopySvgIcon size={ms(14)} color={colors.text.secondary} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Token ID</Text>
+            <Text style={styles.detailValue}>{getShortAddress(nft.tokenId, 6)}</Text>
+          </View>
+          {nft.balance !== undefined && nft.balance > 1 && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Balance</Text>
+              <Text style={styles.detailValue}>{nft.balance}</Text>
+            </View>
+          )}
+        </>
+      );
+    }
+
+    // Bitcoin-specific fields
+    if (isBitcoinNft(nft)) {
+      return (
+        <>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Inscription #</Text>
+            <Text style={styles.detailValue}>{nft.inscriptionNumber}</Text>
+          </View>
+          {nft.satRarity && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Rarity</Text>
+              <View style={[styles.rarityBadge, { backgroundColor: getSatRarityColor(nft.satRarity) }]}>
+                <Text style={styles.rarityText}>{nft.satRarity}</Text>
+              </View>
+            </View>
+          )}
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Content Type</Text>
+            <Text style={styles.detailValue}>{nft.contentType}</Text>
+          </View>
+          {nft.genesisHeight && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Genesis Block</Text>
+              <Text style={styles.detailValue}>{nft.genesisHeight}</Text>
+            </View>
+          )}
+        </>
+      );
+    }
+
+    return null;
+  }, [nft]);
+
   if (!visible || !nft) {
     return null;
   }
@@ -259,6 +393,20 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               <Text style={styles.nftName} numberOfLines={2}>
                 {nft.name}
               </Text>
+
+              {/* Blockchain Badge */}
+              <View style={styles.blockchainBadgeContainer}>
+                <BlurView
+                  intensity={10}
+                  tint="dark"
+                  style={styles.blockchainBadge}
+                >
+                  <View style={styles.blockchainBadgeContent}>
+                    {getBlockchainIcon()}
+                    <Text style={styles.blockchainLabel}>{getNftBlockchainLabel(nft)}</Text>
+                  </View>
+                </BlurView>
+              </View>
             </ReanimatedAnimated.View>
           </GestureDetector>
 
@@ -310,6 +458,18 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
                 </View>
               </BlurView>
             )}
+
+            {/* Details Section - Blockchain-specific fields */}
+            <BlurView
+              intensity={10}
+              tint="dark"
+              style={styles.sectionContainer}
+            >
+              <View style={styles.sectionContent}>
+                <Text style={styles.sectionTitle}>Details</Text>
+                {renderBlockchainDetails()}
+              </View>
+            </BlurView>
 
             {/* Action Buttons */}
             <View style={styles.actionButtonsContainer}>
@@ -426,9 +586,32 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.extraBold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(16),
+    marginBottom: vs(8),
     paddingHorizontal: s(18),
     letterSpacing: ms(-0.32, 0.3),
+  },
+  blockchainBadgeContainer: {
+    alignItems: 'center',
+    marginBottom: vs(16),
+  },
+  blockchainBadge: {
+    borderRadius: ms(12),
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    overflow: 'hidden',
+    backgroundColor: colors.background.tokenItem,
+  },
+  blockchainBadgeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: s(12),
+    paddingVertical: vs(6),
+    gap: s(6),
+  },
+  blockchainLabel: {
+    fontSize: ms(12),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.text.primary,
   },
   scrollView: {
     flex: 1,
@@ -498,6 +681,40 @@ const styles = StyleSheet.create({
     fontSize: ms(12),
     fontFamily: FONT_FAMILY.regular,
     color: colors.text.secondary,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: vs(8),
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.border.default,
+  },
+  detailLabel: {
+    fontSize: ms(12),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.text.secondary,
+  },
+  detailValue: {
+    fontSize: ms(12),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.text.primary,
+  },
+  detailValueWithCopy: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(8),
+  },
+  rarityBadge: {
+    paddingHorizontal: s(8),
+    paddingVertical: vs(4),
+    borderRadius: ms(6),
+  },
+  rarityText: {
+    fontSize: ms(11),
+    fontFamily: FONT_FAMILY.bold,
+    color: colors.text.primary,
+    textTransform: 'capitalize',
   },
   actionButtonsContainer: {
     flexDirection: 'row',

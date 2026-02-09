@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 
-import { GlassTabBar } from '@/components/navigation/GlassTabBar';
+import { GlassTabBar } from '@salmon/ui';
 
 /**
  * Tab Layout for Salmon Wallet

@@ -11,11 +11,10 @@ import { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import 'react-native-reanimated';
 
-// Force dark theme for the wallet app
-// import { useColorScheme } from '@/components/useColorScheme';
-import { LockScreenOverlay } from '@/components/LockScreenOverlay';
+import { LockScreenOverlay } from '@salmon/ui';
 import { I18nProvider } from '../src/i18n';
 import { AccountsProvider, useAccountsContext, getStashItem, type DerivedKeyCache } from '@salmon/shared';
+import { useBiometricAuth } from '../hooks/useBiometricAuth';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -76,6 +75,7 @@ function RootLayoutNav() {
   const [state, actions] = useAccountsContext();
   const segments = useSegments();
   const navigationState = useRootNavigationState();
+  const biometric = useBiometricAuth();
 
   // Track if we've done the initial navigation
   const [hasNavigated, setHasNavigated] = useState(false);
@@ -188,6 +188,7 @@ function RootLayoutNav() {
               onUnlockWithKey={handleUnlockWithKey}
               onGetDerivedKey={handleGetDerivedKey}
               onRemoveAllAccounts={handleRemoveAllAccounts}
+              biometric={biometric}
             />
           )}
         </View>

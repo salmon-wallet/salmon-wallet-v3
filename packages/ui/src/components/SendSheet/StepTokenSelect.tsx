@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -99,6 +99,8 @@ const TokenRow: React.FC<TokenRowProps> = React.memo(({ token, onPress }) => {
   );
 });
 
+TokenRow.displayName = 'TokenRow';
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -109,7 +111,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
   showUnverifiedTokens,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const topFadeOpacity = useRef(new Animated.Value(0)).current;
+  const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
 
   // Filter out unverified tokens unless developer mode is enabled
   const verifiedTokens = useMemo(() => {

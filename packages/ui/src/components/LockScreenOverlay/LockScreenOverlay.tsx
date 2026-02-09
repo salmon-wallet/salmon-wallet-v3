@@ -7,14 +7,14 @@
  *
  * Features:
  * - Password-based unlock with PBKDF2 key derivation
- * - Biometric unlock (Face ID / Touch ID) using cached derived key
+ * - Optional biometric unlock (Face ID / Touch ID) via injectable BiometricConfig
  * - Slide-down animation when locking (entering)
  * - Slide-up animation when unlocking (exiting)
  *
  * Animation:
  * - Lock: translateY from -screenHeight to 0 (slide down into view)
  * - Unlock: translateY from 0 to -screenHeight (slide up out of view)
- * - Duration: 400ms with cubic easing
+ * - Duration: 800ms with cubic easing
  */
 
 import { Ionicons } from '@expo/vector-icons';
@@ -27,9 +27,8 @@ import {
   ms,
   s,
   spacing,
-  vs
+  vs,
 } from '@salmon/shared';
-import { LoadingScreen } from '@salmon/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
@@ -57,7 +56,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useBiometricAuth } from '../hooks/useBiometricAuth';
+
+import { LoadingScreen } from '../LoadingScreen';
+import type { LockScreenOverlayProps } from './types';
 
 // ============================================================================
 // Font families for React Native (DM Sans loaded fonts)
@@ -76,32 +77,6 @@ const FONT_FAMILY = {
 const ANIMATION_DURATION = 800; // ms - slower for better visual effect
 
 // ============================================================================
-// Props
-// ============================================================================
-
-interface LockScreenOverlayProps {
-  /** Whether the wallet is currently locked */
-  locked: boolean;
-  /** Callback to attempt unlock with password */
-  onUnlock: (password: string) => Promise<boolean>;
-  /**
-   * Callback to unlock with cached derived key (for biometric unlock).
-   * The keyJson is the serialized DerivedKeyCache from a previous password unlock.
-   * Returns true if unlock succeeded.
-   */
-  onUnlockWithKey?: (keyJson: string) => Promise<boolean>;
-  /**
-   * Callback after successful password unlock to get the derived key.
-   * This key should be stored for future biometric unlocks.
-   */
-  onGetDerivedKey?: () => Promise<string | null>;
-  /** Callback to remove all accounts (reset wallet) */
-  onRemoveAllAccounts: () => Promise<void>;
-  /** Callback when animation completes after unlock */
-  onAnimationComplete?: () => void;
-}
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -112,6 +87,7 @@ export function LockScreenOverlay({
   onGetDerivedKey,
   onRemoveAllAccounts,
   onAnimationComplete,
+  biometric,
 }: LockScreenOverlayProps) {
   // Translation hook
   const { t } = useTranslation();
@@ -119,14 +95,12 @@ export function LockScreenOverlay({
   // Get screen dimensions reactively
   const { height: screenHeight } = useWindowDimensions();
 
-  // Biometric authentication hook
-  const {
-    state: biometricState,
-    authenticateWithBiometric,
-    storeKeyForBiometric,
-    enableBiometric,
-    refreshState: refreshBiometricState,
-  } = useBiometricAuth();
+  // Extract biometric properties (with safe defaults when not provided)
+  const biometricState = biometric?.state;
+  const authenticateWithBiometric = biometric?.authenticateWithBiometric;
+  const storeKeyForBiometric = biometric?.storeKeyForBiometric;
+  const enableBiometric = biometric?.enableBiometric ?? false;
+  const refreshBiometricState = biometric?.refreshState;
 
   // State
   const [password, setPassword] = useState('');
@@ -138,14 +112,14 @@ export function LockScreenOverlay({
 
   // Determine if biometric button should be shown
   const showBiometricButton =
-    biometricState.isAvailable &&
-    biometricState.hasStoredKey &&
+    biometricState?.isAvailable &&
+    biometricState?.hasStoredKey &&
     enableBiometric &&
     !!onUnlockWithKey;
 
   // Get the appropriate biometric icon
   const getBiometricIcon = () => {
-    switch (biometricState.biometricType) {
+    switch (biometricState?.biometricType) {
       case 'facial':
         return 'scan-outline'; // Face ID style icon
       case 'fingerprint':
@@ -159,7 +133,7 @@ export function LockScreenOverlay({
 
   // Get biometric label for accessibility
   const getBiometricLabel = () => {
-    switch (biometricState.biometricType) {
+    switch (biometricState?.biometricType) {
       case 'facial':
         return t('lock.use_face_id') || 'Use Face ID';
       case 'fingerprint':
@@ -240,7 +214,7 @@ export function LockScreenOverlay({
         setShowLoadingScreen(false); // Hide on error
       } else {
         // On successful password unlock, store the derived key for biometric
-        if (enableBiometric && onGetDerivedKey) {
+        if (enableBiometric && onGetDerivedKey && storeKeyForBiometric) {
           try {
             const keyJson = await onGetDerivedKey();
             if (keyJson) {
@@ -269,7 +243,7 @@ export function LockScreenOverlay({
    * Uses the cached derived key to unlock without PBKDF2 derivation.
    */
   const handleBiometricUnlock = useCallback(async () => {
-    if (!onUnlockWithKey) return;
+    if (!onUnlockWithKey || !authenticateWithBiometric) return;
 
     setIsLoading(true);
     setError(null);
@@ -304,7 +278,7 @@ export function LockScreenOverlay({
 
   // Refresh biometric state when component becomes visible
   useEffect(() => {
-    if (isVisible) {
+    if (isVisible && refreshBiometricState) {
       refreshBiometricState();
     }
   }, [isVisible, refreshBiometricState]);

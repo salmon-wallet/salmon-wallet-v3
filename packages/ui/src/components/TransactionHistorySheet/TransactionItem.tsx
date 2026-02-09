@@ -7,7 +7,7 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, spacing, fontSize, borderRadius } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getShortAddress } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
 import type { TransactionItemProps, TransactionType, TransactionTokenAmount } from './types';
@@ -90,59 +90,6 @@ const TRANSACTION_TYPE_CONFIG: Record<
 // ============================================================================
 
 /**
- * Format a raw amount with decimals
- */
-function formatAmount(amount: string | number, decimals: number): string {
-  const rawAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(rawAmount)) return '0';
-
-  const formattedAmount = rawAmount / Math.pow(10, decimals);
-
-  // Show up to 6 decimal places, but trim trailing zeros
-  if (formattedAmount === 0) return '0';
-  if (formattedAmount < 0.000001) return '<0.000001';
-  if (formattedAmount >= 1000000) return `${(formattedAmount / 1000000).toFixed(2)}M`;
-  if (formattedAmount >= 1000) return `${(formattedAmount / 1000).toFixed(2)}K`;
-  if (formattedAmount >= 1) return formattedAmount.toFixed(4).replace(/\.?0+$/, '');
-
-  // For small amounts, show more precision
-  return formattedAmount.toFixed(6).replace(/\.?0+$/, '');
-}
-
-/**
- * Format a timestamp to relative time or date string
- */
-function formatTimestamp(timestamp: number): string {
-  const now = Date.now() / 1000;
-  const diff = now - timestamp;
-
-  // Less than 1 minute ago
-  if (diff < 60) return 'Just now';
-  // Less than 1 hour ago
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  // Less than 24 hours ago
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  // Less than 7 days ago
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-
-  // Show full date for older transactions
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
-  });
-}
-
-/**
- * Truncate an address for display
- */
-function truncateAddress(address: string): string {
-  if (!address || address.length < 10) return address;
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
-}
-
-/**
  * Get description text for a transaction
  */
 function getDescription(
@@ -175,12 +122,12 @@ function getDescription(
   switch (type) {
     case 'send':
       if (outputs[0]?.destination) {
-        return `To ${truncateAddress(outputs[0].destination)}`;
+        return `To ${getShortAddress(outputs[0].destination, 4) ?? ''}`;
       }
       return 'Sent tokens';
     case 'receive':
       if (inputs[0]?.source) {
-        return `From ${truncateAddress(inputs[0].source)}`;
+        return `From ${getShortAddress(inputs[0].source, 4) ?? ''}`;
       }
       return 'Received tokens';
     case 'mint':
@@ -277,7 +224,7 @@ const AmountDisplay: React.FC<{
 }> = ({ token, sign, hidden }) => {
   const displayAmount = hidden
     ? `${sign} ${HIDDEN_VALUE} ${token.symbol}`
-    : `${sign} ${formatAmount(token.amount, token.decimals)} ${token.symbol}`;
+    : `${sign} ${formatRawAmount(token.amount, token.decimals)} ${token.symbol}`;
 
   const color = sign === '+' ? colors.change.positive : colors.change.negative;
 
@@ -537,7 +484,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
           {renderAmounts()}
           <View style={styles.timeRow}>
             <Text style={styles.timeText}>
-              {formatTimestamp(timestamp)}
+              {formatRelativeTimeCompact(timestamp)}
             </Text>
             {isSwap && (
               <Ionicons
