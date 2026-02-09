@@ -1,8 +1,6 @@
 import { randomBytes, secretbox } from 'tweetnacl';
 import bs58 from 'bs58';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - react-native-fast-crypto types are declared in types/crypto-modules.d.ts
-import { pbkdf2 } from 'react-native-fast-crypto';
+import { pbkdf2 } from './fastCrypto';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - crypto-js types are declared in types/crypto-modules.d.ts
 import CryptoJS from 'crypto-js';
