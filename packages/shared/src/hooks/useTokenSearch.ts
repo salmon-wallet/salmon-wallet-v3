@@ -1,5 +1,46 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import type { TokenSelectorToken, UseTokenSearchResult } from './types';
+
+/**
+ * Token data structure for token search/selection
+ */
+export interface TokenSelectorToken {
+  /** Token mint address (Solana) or contract address (EVM) */
+  mint?: string;
+  /** Token contract address */
+  address?: string;
+  /** Token display name */
+  name?: string;
+  /** Token symbol (e.g., SOL, USDC) */
+  symbol?: string;
+  /** Token logo URL */
+  logo?: string;
+  /** User's balance amount (formatted for display) */
+  uiAmount?: number;
+  /** Network identifier (e.g., 'solana', 'ethereum') */
+  network?: string;
+}
+
+/**
+ * Return type for useTokenSearch hook
+ */
+export interface UseTokenSearchResult {
+  /** Current search query */
+  searchQuery: string;
+  /** Set the search query */
+  setSearchQuery: (query: string) => void;
+  /** Tokens to display (filtered or search results) */
+  displayTokens: TokenSelectorToken[];
+  /** Whether a search is in progress */
+  isSearching: boolean;
+  /** Paginated tokens for display */
+  paginatedTokens: TokenSelectorToken[];
+  /** Whether there are more tokens to load */
+  hasMore: boolean;
+  /** Load more tokens */
+  loadMore: () => void;
+  /** Reset search state */
+  reset: () => void;
+}
 
 const PAGE_SIZE = 20;
 const DEBOUNCE_DELAY = 300;
@@ -136,3 +177,5 @@ export function useTokenSearch(
     reset,
   };
 }
+
+export default useTokenSearch;

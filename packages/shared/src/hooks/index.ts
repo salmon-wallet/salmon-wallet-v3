@@ -140,3 +140,60 @@ export type {
   UseSendTransactionParams,
   UseSendTransactionResult,
 } from './useSendTransaction';
+
+// Swap hook
+export {
+  useSwap,
+  default as useSwapDefault,
+} from './useSwap';
+export type {
+  SwapStatus,
+  UseSwapParams,
+  GetQuoteParams,
+  ParsedQuoteInfo,
+  UseSwapResult,
+} from './useSwap';
+
+// Bridge hook
+export {
+  useBridge,
+  default as useBridgeDefault,
+} from './useBridge';
+export type {
+  BridgeOperationStatus,
+  UseBridgeParams,
+  BridgeEstimate,
+  UseBridgeResult,
+  BridgeToken,
+  BridgeAvailableToken,
+  BridgeFeaturedToken,
+  BridgeExchange,
+  BridgeTransaction,
+  BridgeTransactionStatus,
+} from './useBridge';
+
+// Multi-chain tokens hook (for unified swap/bridge)
+export {
+  useMultiChainTokens,
+  default as useMultiChainTokensDefault,
+  getChainFromNetworkId,
+  isSameChain,
+  getSwapType,
+} from './useMultiChainTokens';
+export type {
+  ChainType,
+  UnifiedToken,
+  UseMultiChainTokensParams,
+  UseMultiChainTokensResult,
+} from './useMultiChainTokens';
+
+// Token search hook (used by TokenSelector in ui and ui-extension)
+export {
+  useTokenSearch,
+  default as useTokenSearchDefault,
+} from './useTokenSearch';
+export type {
+  TokenSelectorToken,
+  UseTokenSearchResult,
+} from './useTokenSearch';
+

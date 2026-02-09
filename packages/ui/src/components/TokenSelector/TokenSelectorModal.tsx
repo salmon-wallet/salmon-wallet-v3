@@ -14,7 +14,7 @@ import {
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 
-import { useTokenSearch } from './useTokenSearch';
+import { useTokenSearch } from '@salmon/shared';
 import type { TokenSelectorToken, TokenSelectorModalProps } from './types';
 
 const HIDDEN_VALUE = '******';
