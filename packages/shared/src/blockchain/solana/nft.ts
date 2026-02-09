@@ -17,7 +17,6 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import axios from 'axios';
-import { apiClient } from '../../api/client';
 import { normalizeIpfsUrl } from '../../utils';
 import type { SolanaNetwork } from './SolanaAccount';
 
@@ -222,6 +221,17 @@ export interface NftCollectionGroup {
   /** Thumbnail URL (first NFT's media) */
   thumb: string | null;
 }
+
+export type FetchNftsFromBackendFn = (
+  networkId: string,
+  publicKey: string,
+  noCache: boolean
+) => Promise<Nft[]>;
+
+export type FetchNftByAddressFn = (
+  networkId: string,
+  mintAddress: string
+) => Promise<Nft | null>;
 
 /**
  * Options for fetching NFTs
@@ -490,29 +500,17 @@ export async function getAllFromHeliusDirect(
 // Fallback Functions - Backend API
 // ============================================================================
 
-/**
- * Fetches NFTs from the backend API (fallback)
- *
- * @param network - The network configuration object
- * @param publicKey - The owner's public key
- * @param noCache - Whether to bypass cache
- * @returns Array of NFTs
- */
 async function getAllFromBackend(
   network: SolanaNetwork,
   publicKey: string,
-  noCache = false
+  noCache: boolean,
+  fetchNftsFromBackend: FetchNftsFromBackendFn
 ): Promise<Nft[]> {
   console.log(
     `[NFT Service] Fetching NFTs from backend for: ${publicKey} (noCache: ${noCache})`
   );
 
-  const { data } = await apiClient.get<Nft[]>(`/v1/${network.id}/nft`, {
-    params: { publicKey, noCache },
-    timeout: 15000,
-  });
-
-  return data;
+  return fetchNftsFromBackend(network.id, publicKey, noCache);
 }
 
 // ============================================================================
@@ -537,7 +535,8 @@ async function getAllFromBackend(
 export async function getAll(
   network: SolanaNetwork,
   publicKey: string,
-  noCache = false
+  noCache = false,
+  fetchNftsFromBackend: FetchNftsFromBackendFn = () => Promise.resolve([])
 ): Promise<Nft[]> {
   // PRIMARY: Try direct Helius API first
   try {
@@ -550,7 +549,7 @@ export async function getAll(
 
     // FALLBACK: Try backend endpoint if Helius fails
     try {
-      return await getAllFromBackend(network, publicKey, noCache);
+      return await getAllFromBackend(network, publicKey, noCache, fetchNftsFromBackend);
     } catch (backendError) {
       console.error(
         `[NFT Service] Both direct Helius API and backend endpoint failed: ${backendError instanceof Error ? backendError.message : 'Unknown error'}`
@@ -655,9 +654,10 @@ export function getNftsWithoutCollection(nfts: Nft[]): Nft[] {
  */
 export async function getAllGroupedByCollection(
   network: SolanaNetwork,
-  owner: string
+  owner: string,
+  fetchNftsFromBackend: FetchNftsFromBackendFn = () => Promise.resolve([])
 ): Promise<(NftCollectionGroup | Nft)[]> {
-  const nfts = await getAll(network, owner);
+  const nfts = await getAll(network, owner, false, fetchNftsFromBackend);
   const nftsByCollection = getNftsByCollection(nfts);
   const nftsWithoutCollection = getNftsWithoutCollection(nfts);
   return [...nftsByCollection, ...nftsWithoutCollection];
@@ -676,127 +676,15 @@ export async function getAllGroupedByCollection(
  */
 export async function getNftByAddress(
   network: SolanaNetwork,
-  mintAddress: string
+  mintAddress: string,
+  fetchNftByAddress: FetchNftByAddressFn = () => Promise.resolve(null)
 ): Promise<Nft | null> {
   try {
-    const { data } = await apiClient.get<Nft>(
-      `/v1/${network.id}/nft/${mintAddress}`
-    );
+    const data = await fetchNftByAddress(network.id, mintAddress);
     if (data?.collection) {
       return data;
     }
     return null;
-  } catch {
-    return null;
-  }
-}
-
-// ============================================================================
-// Marketplace Functions
-// ============================================================================
-
-/**
- * Fetches collection group by filter type
- *
- * @param network - The network configuration object
- * @param filterType - Filter type (e.g., 'trending', 'top')
- * @returns Collection group data or null
- */
-export async function getCollectionGroupByFilter(
-  network: SolanaNetwork,
-  filterType: string
-): Promise<unknown | null> {
-  try {
-    const { data } = await apiClient.get(
-      `/v1/${network.id}/nft/hyperspace/collections/${filterType}`
-    );
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Fetches a collection by ID
- *
- * @param network - The network configuration object
- * @param collectionId - The collection ID
- * @returns Collection data or null
- */
-export async function getCollectionById(
-  network: SolanaNetwork,
-  collectionId: string
-): Promise<unknown | null> {
-  try {
-    const { data } = await apiClient.get(
-      `/v1/${network.id}/nft/hyperspace/collection/${collectionId}`
-    );
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Fetches collection items by ID with pagination
- *
- * @param network - The network configuration object
- * @param collectionId - The collection ID
- * @param pageNumber - Page number for pagination
- * @returns Collection items or null
- */
-export async function getCollectionItemsById(
-  network: SolanaNetwork,
-  collectionId: string,
-  pageNumber: number
-): Promise<unknown | null> {
-  try {
-    const { data } = await apiClient.get(
-      `/v1/${network.id}/nft/hyperspace/collection/${collectionId}/items/${pageNumber}`
-    );
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Fetches listed NFTs by owner address
- *
- * @param network - The network configuration object
- * @param ownerAddress - The owner's address
- * @returns Listed NFTs or null
- */
-export async function getListedByOwner(
-  network: SolanaNetwork,
-  ownerAddress: string
-): Promise<unknown | null> {
-  try {
-    const { data } = await apiClient.get(
-      `/v1/${network.id}/nft/listed/${ownerAddress}`
-    );
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Fetches bids by owner address
- *
- * @param network - The network configuration object
- * @param ownerAddress - The owner's address
- * @returns Bids data or null
- */
-export async function getBidsByOwner(
-  network: SolanaNetwork,
-  ownerAddress: string
-): Promise<unknown | null> {
-  try {
-    const { data } = await apiClient.get(
-      `/v1/${network.id}/nft/bids/${ownerAddress}`
-    );
-    return data;
   } catch {
     return null;
   }

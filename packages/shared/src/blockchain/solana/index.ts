@@ -55,11 +55,6 @@ export {
   getCollections,
   getNftsByCollection,
   getNftsWithoutCollection,
-  getCollectionGroupByFilter,
-  getCollectionById,
-  getCollectionItemsById,
-  getListedByOwner,
-  getBidsByOwner,
   isCollection,
   isMoreThanOne,
   isBlacklisted,
@@ -77,6 +72,8 @@ export type {
   NftPaginatedResponse,
   NftCollectionGroup,
   GetNftsOptions,
+  FetchNftsFromBackendFn,
+  FetchNftByAddressFn,
 } from './nft';
 
 // Domain name services
@@ -105,11 +102,13 @@ export type {
   SwapQuote,
   SwapResult,
   GetSwapQuoteOptions,
+  GetSwapOrderFn,
+  ExecuteSwapApiFn,
+  GetTokenListFn,
 } from './swap';
 
 // Transaction history functions
 export {
-  getTransaction,
   getRecentTransactions,
   isTransferTransaction,
   isSwapTransaction,
@@ -129,6 +128,7 @@ export type {
   // Solana transaction types
   SolanaTransactionPaging,
   SolanaTransactionListResponse,
+  GetSolanaTransactionsFn,
   // Re-exported from API service (backend-transformed format)
   SolanaTransaction,
   SolanaTransactionsResponse,

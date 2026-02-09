@@ -15,10 +15,6 @@ import {
   getAllFromHeliusDirect,
   getAllGroupedByCollection,
   getNftByAddress,
-  getCollectionById,
-  getCollectionItemsById,
-  getListedByOwner,
-  getBidsByOwner,
   isBlacklisted,
   getCollections,
   getNftsByCollection,
@@ -28,7 +24,15 @@ import {
   type Nft,
   type NftCollectionGroup,
   type NftPaginatedResponse,
+  type FetchNftsFromBackendFn,
+  type FetchNftByAddressFn,
 } from './nft';
+import {
+  getCollectionById,
+  getCollectionItemsById,
+  getListedByOwner,
+  getBidsByOwner,
+} from '../../api/services/marketplace';
 import { SOLANA_NETWORKS } from './factory';
 
 // ============================================================================
@@ -579,18 +583,13 @@ describe('NFT API Functions', () => {
       // Helius fails
       const mockAxiosPost = vi.spyOn(axios, 'post').mockRejectedValueOnce(new Error('Helius error'));
 
-      // Backend succeeds
-      const mockApiGet = vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
-        data: [mockNft, mockNft2],
-      } as any);
+      // Backend succeeds via injected function
+      const mockFetchNfts: FetchNftsFromBackendFn = vi.fn().mockResolvedValueOnce([mockNft, mockNft2]);
 
-      const result = await getAll(network, testOwner);
+      const result = await getAll(network, testOwner, false, mockFetchNfts);
 
       expect(mockAxiosPost).toHaveBeenCalled();
-      expect(mockApiGet).toHaveBeenCalledWith(`/v1/${network.id}/nft`, {
-        params: { publicKey: testOwner, noCache: false },
-        timeout: 15000,
-      });
+      expect(mockFetchNfts).toHaveBeenCalledWith(network.id, testOwner, false);
 
       expect(result).toHaveLength(2);
     });
@@ -607,9 +606,10 @@ describe('NFT API Functions', () => {
 
     it('should throw if both Helius and backend fail', async () => {
       vi.spyOn(axios, 'post').mockRejectedValueOnce(new Error('Helius error'));
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error('Backend error'));
 
-      await expect(getAll(network, testOwner)).rejects.toThrow('Backend error');
+      const mockFetchNfts: FetchNftsFromBackendFn = vi.fn().mockRejectedValueOnce(new Error('Backend error'));
+
+      await expect(getAll(network, testOwner, false, mockFetchNfts)).rejects.toThrow('Backend error');
     });
   });
 
@@ -644,30 +644,26 @@ describe('NFT API Functions', () => {
   describe('getNftByAddress', () => {
     it('should fetch NFT by mint address', async () => {
       const mintAddress = 'HxFLKUAmAMLz1jtT3hbvCMELwH5H9tpM2QugP8sKyfhW';
-      const mockApiGet = vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
-        data: mockNft,
-      } as any);
+      const mockFetchNft: FetchNftByAddressFn = vi.fn().mockResolvedValueOnce(mockNft);
 
-      const result = await getNftByAddress(network, mintAddress);
+      const result = await getNftByAddress(network, mintAddress, mockFetchNft);
 
-      expect(mockApiGet).toHaveBeenCalledWith(`/v1/${network.id}/nft/${mintAddress}`);
+      expect(mockFetchNft).toHaveBeenCalledWith(network.id, mintAddress);
       expect(result).toEqual(mockNft);
     });
 
     it('should return null if NFT not found', async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error('Not found'));
+      const mockFetchNft: FetchNftByAddressFn = vi.fn().mockRejectedValueOnce(new Error('Not found'));
 
-      const result = await getNftByAddress(network, 'InvalidAddress');
+      const result = await getNftByAddress(network, 'InvalidAddress', mockFetchNft);
 
       expect(result).toBeNull();
     });
 
     it('should return null if NFT has no collection', async () => {
-      vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
-        data: { ...mockNft, collection: null },
-      } as any);
+      const mockFetchNft: FetchNftByAddressFn = vi.fn().mockResolvedValueOnce({ ...mockNft, collection: null });
 
-      const result = await getNftByAddress(network, 'test');
+      const result = await getNftByAddress(network, 'test', mockFetchNft);
 
       expect(result).toBeNull();
     });

@@ -21,6 +21,7 @@
  */
 
 import { apiClient, ApiError } from '../client';
+import type { SolanaNetwork } from '../../blockchain/solana/SolanaAccount';
 
 // ============================================================================
 // Types
@@ -387,5 +388,116 @@ export async function getUserBids(
     }
     console.error('[MarketplaceService] Failed to fetch user bids:', error);
     throw error;
+  }
+}
+
+// ============================================================================
+// Collection & Marketplace Query Functions
+// ============================================================================
+
+/**
+ * Fetches collection group by filter type
+ *
+ * @param network - The network configuration object
+ * @param filterType - Filter type (e.g., 'trending', 'top')
+ * @returns Collection group data or null
+ */
+export async function getCollectionGroupByFilter(
+  network: SolanaNetwork,
+  filterType: string
+): Promise<unknown | null> {
+  try {
+    const { data } = await apiClient.get(
+      `/v1/${network.id}/nft/hyperspace/collections/${filterType}`
+    );
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetches a collection by ID
+ *
+ * @param network - The network configuration object
+ * @param collectionId - The collection ID
+ * @returns Collection data or null
+ */
+export async function getCollectionById(
+  network: SolanaNetwork,
+  collectionId: string
+): Promise<unknown | null> {
+  try {
+    const { data } = await apiClient.get(
+      `/v1/${network.id}/nft/hyperspace/collection/${collectionId}`
+    );
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetches collection items by ID with pagination
+ *
+ * @param network - The network configuration object
+ * @param collectionId - The collection ID
+ * @param pageNumber - Page number for pagination
+ * @returns Collection items or null
+ */
+export async function getCollectionItemsById(
+  network: SolanaNetwork,
+  collectionId: string,
+  pageNumber: number
+): Promise<unknown | null> {
+  try {
+    const { data } = await apiClient.get(
+      `/v1/${network.id}/nft/hyperspace/collection/${collectionId}/items/${pageNumber}`
+    );
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetches listed NFTs by owner address
+ *
+ * @param network - The network configuration object
+ * @param ownerAddress - The owner's address
+ * @returns Listed NFTs or null
+ */
+export async function getListedByOwner(
+  network: SolanaNetwork,
+  ownerAddress: string
+): Promise<unknown | null> {
+  try {
+    const { data } = await apiClient.get(
+      `/v1/${network.id}/nft/listed/${ownerAddress}`
+    );
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetches bids by owner address
+ *
+ * @param network - The network configuration object
+ * @param ownerAddress - The owner's address
+ * @returns Bids data or null
+ */
+export async function getBidsByOwner(
+  network: SolanaNetwork,
+  ownerAddress: string
+): Promise<unknown | null> {
+  try {
+    const { data } = await apiClient.get(
+      `/v1/${network.id}/nft/bids/${ownerAddress}`
+    );
+    return data;
+  } catch {
+    return null;
   }
 }
