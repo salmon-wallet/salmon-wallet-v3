@@ -1,0 +1,356 @@
+/**
+ * TokenMarketData - Token market statistics display
+ *
+ * Web version using MUI and @emotion/styled for browser extension.
+ * Provides a glassmorphism container with market data rows.
+ */
+import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Skeleton from '@mui/material/Skeleton';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  fontFamily,
+  fontWeight,
+  fontSize,
+} from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
+import type { TokenMarketDataProps } from './types';
+
+/**
+ * Format large numbers for display (e.g., 1.5B, 2.3M, 150K)
+ */
+function formatLargeNumber(value: number | undefined | null): string {
+  if (value === undefined || value === null) return '-';
+
+  if (value >= 1_000_000_000) {
+    return `${(value / 1_000_000_000).toFixed(2)}B`;
+  }
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(2)}M`;
+  }
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(2)}K`;
+  }
+  return value.toLocaleString();
+}
+
+/**
+ * Format USD currency for display
+ */
+function formatUSD(value: number | undefined | null): string {
+  if (value === undefined || value === null) return '-';
+  return `$${formatLargeNumber(value)}`;
+}
+
+/**
+ * Format percentage for display
+ */
+function formatPercentage(value: number | undefined | null): string {
+  if (value === undefined || value === null) return '-';
+  const sign = value >= 0 ? '+' : '';
+  return `${sign}${value.toFixed(2)}%`;
+}
+
+/**
+ * Format date for display
+ */
+function formatDate(dateString: string | undefined): string {
+  if (!dateString) return '-';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return '-';
+  }
+}
+
+/* ── Styled components ─────────────────────────────────────────────── */
+
+const ContentContainer = styled(Box)({
+  padding: spacing.md,
+});
+
+const Title = styled(Typography)({
+  fontSize: fontSize.md,
+  fontWeight: fontWeight.semibold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  marginBottom: spacing.sm,
+});
+
+const RowsContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing.sm,
+});
+
+const Row = styled(Box)({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
+
+const RowLabel = styled(Typography)({
+  fontSize: fontSize.sm,
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: '#bdc3d1',
+});
+
+const RowValue = styled(Typography)({
+  fontSize: fontSize.sm,
+  fontWeight: fontWeight.semibold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+});
+
+/* ── Skeleton row helper ───────────────────────────────────────────── */
+
+const SkeletonRow = styled(Box)({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
+
+/* ── Sub-components ────────────────────────────────────────────────── */
+
+/**
+ * Single market data row component (label left, value right)
+ */
+function MarketDataRow({
+  label,
+  value,
+  valueColor,
+}: {
+  label: string;
+  value: string;
+  valueColor?: string;
+}) {
+  return (
+    <Row>
+      <RowLabel>{label}</RowLabel>
+      <RowValue sx={valueColor ? { color: valueColor } : undefined}>
+        {value}
+      </RowValue>
+    </Row>
+  );
+}
+
+/* ── Main component ────────────────────────────────────────────────── */
+
+/**
+ * TokenMarketData component for displaying token market statistics
+ *
+ * Features:
+ * - Glassmorphism container (BlurContainer)
+ * - Grid layout with market stats
+ * - Loading skeleton state
+ * - Formatted numbers (1.5B, 2.3M, etc.)
+ *
+ * @example
+ * ```tsx
+ * <TokenMarketData
+ *   data={{
+ *     marketCap: 50000000000,
+ *     volume24h: 1500000000,
+ *     circulatingSupply: 400000000,
+ *     totalSupply: 500000000,
+ *     ath: 260,
+ *     athChangePercentage: -50,
+ *   }}
+ *   symbol="SOL"
+ * />
+ * ```
+ */
+export function TokenMarketData({
+  data,
+  symbol,
+  title = 'Info',
+  loading = false,
+  style,
+  className,
+}: TokenMarketDataProps) {
+  if (loading) {
+    return (
+      <BlurContainer
+        style={{ borderRadius: borderRadius.lg, overflow: 'hidden', ...style }}
+        className={className}
+      >
+        <ContentContainer>
+          {/* Title skeleton */}
+          <Skeleton
+            variant="text"
+            width={40}
+            height={22}
+            sx={{ bgcolor: colors.skeleton.base, mb: `${spacing.sm}px` }}
+          />
+          {/* Row skeletons */}
+          {[1, 2, 3, 4, 5].map((i) => (
+            <SkeletonRow key={i} sx={{ mb: `${spacing.sm}px` }}>
+              <Skeleton
+                variant="text"
+                width={80 + i * 8}
+                height={18}
+                sx={{ bgcolor: colors.skeleton.base }}
+              />
+              <Skeleton
+                variant="text"
+                width={60}
+                height={18}
+                sx={{ bgcolor: colors.skeleton.base }}
+              />
+            </SkeletonRow>
+          ))}
+        </ContentContainer>
+      </BlurContainer>
+    );
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  const hasData =
+    data.marketCap !== undefined ||
+    data.volume24h !== undefined ||
+    data.circulatingSupply !== undefined ||
+    data.totalSupply !== undefined ||
+    data.maxSupply !== undefined ||
+    data.ath !== undefined ||
+    data.atl !== undefined;
+
+  if (!hasData) {
+    return null;
+  }
+
+  // Determine color for ATH change
+  const athChangeColor =
+    data.athChangePercentage !== undefined
+      ? data.athChangePercentage >= 0
+        ? colors.change.positive
+        : colors.change.negative
+      : undefined;
+
+  // Determine color for ATL change
+  const atlChangeColor =
+    data.atlChangePercentage !== undefined
+      ? data.atlChangePercentage >= 0
+        ? colors.change.positive
+        : colors.change.negative
+      : undefined;
+
+  return (
+    <BlurContainer
+      style={{ borderRadius: borderRadius.lg, overflow: 'hidden', ...style }}
+      className={className}
+    >
+      <ContentContainer>
+        <Title>{title}</Title>
+
+        <RowsContainer>
+          {/* Market Cap */}
+          {data.marketCap !== undefined && (
+            <MarketDataRow
+              label="Market Cap"
+              value={formatUSD(data.marketCap)}
+            />
+          )}
+
+          {/* Market Cap Rank */}
+          {data.marketCapRank !== undefined && data.marketCapRank !== null && (
+            <MarketDataRow label="Rank" value={`#${data.marketCapRank}`} />
+          )}
+
+          {/* 24h Volume */}
+          {data.volume24h !== undefined && (
+            <MarketDataRow
+              label="24h Volume"
+              value={formatUSD(data.volume24h)}
+            />
+          )}
+
+          {/* 24h High */}
+          {data.high24h !== undefined && (
+            <MarketDataRow label="24h High" value={formatUSD(data.high24h)} />
+          )}
+
+          {/* 24h Low */}
+          {data.low24h !== undefined && (
+            <MarketDataRow label="24h Low" value={formatUSD(data.low24h)} />
+          )}
+
+          {/* Circulating Supply */}
+          {data.circulatingSupply !== undefined && (
+            <MarketDataRow
+              label="Circulating Supply"
+              value={`${formatLargeNumber(data.circulatingSupply)}${symbol ? ` ${symbol}` : ''}`}
+            />
+          )}
+
+          {/* Total Supply */}
+          {data.totalSupply !== undefined && data.totalSupply !== null && (
+            <MarketDataRow
+              label="Total Supply"
+              value={`${formatLargeNumber(data.totalSupply)}${symbol ? ` ${symbol}` : ''}`}
+            />
+          )}
+
+          {/* Max Supply */}
+          {data.maxSupply !== undefined && data.maxSupply !== null && (
+            <MarketDataRow
+              label="Max Supply"
+              value={`${formatLargeNumber(data.maxSupply)}${symbol ? ` ${symbol}` : ''}`}
+            />
+          )}
+
+          {/* All-Time High */}
+          {data.ath !== undefined && (
+            <MarketDataRow label="All-Time High" value={formatUSD(data.ath)} />
+          )}
+
+          {/* ATH Change */}
+          {data.athChangePercentage !== undefined && (
+            <MarketDataRow
+              label="From ATH"
+              value={formatPercentage(data.athChangePercentage)}
+              valueColor={athChangeColor}
+            />
+          )}
+
+          {/* ATH Date */}
+          {data.athDate !== undefined && (
+            <MarketDataRow label="ATH Date" value={formatDate(data.athDate)} />
+          )}
+
+          {/* All-Time Low */}
+          {data.atl !== undefined && (
+            <MarketDataRow label="All-Time Low" value={formatUSD(data.atl)} />
+          )}
+
+          {/* ATL Change */}
+          {data.atlChangePercentage !== undefined && (
+            <MarketDataRow
+              label="From ATL"
+              value={formatPercentage(data.atlChangePercentage)}
+              valueColor={atlChangeColor}
+            />
+          )}
+
+          {/* ATL Date */}
+          {data.atlDate !== undefined && (
+            <MarketDataRow label="ATL Date" value={formatDate(data.atlDate)} />
+          )}
+        </RowsContainer>
+      </ContentContainer>
+    </BlurContainer>
+  );
+}
+
+export default TokenMarketData;
