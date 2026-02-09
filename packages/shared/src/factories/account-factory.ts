@@ -4,6 +4,11 @@
  * This factory consolidates account creation logic, similar to V2's
  * account-factory.js but adapted for V3's TypeScript architecture.
  *
+ * Supports multi-chain account derivation:
+ * - Solana (mainnet-beta, devnet, testnet)
+ * - Bitcoin (bitcoin, bitcoin-testnet)
+ * - Ethereum (ethereum, ethereum-goerli, ethereum-sepolia)
+ *
  * @module factories/account-factory
  */
 
@@ -13,10 +18,21 @@ import {
   SOLANA_NETWORKS,
   type SolanaAccount,
 } from '../blockchain/solana';
+import {
+  createBitcoinAccount,
+  BITCOIN_NETWORKS,
+  type BitcoinAccount,
+} from '../blockchain/bitcoin';
+import {
+  createEthereumAccount,
+  ETHEREUM_NETWORKS,
+  type EthereumAccount,
+} from '../blockchain/ethereum';
 import type {
   Account,
   NetworksAccounts,
   NetworkPathIndexes,
+  BlockchainAccount,
 } from '../hooks/useAccounts';
 
 // ============================================================================
@@ -52,6 +68,58 @@ export interface CreateAccountResult {
 }
 
 // ============================================================================
+// Blockchain Type Detection
+// ============================================================================
+
+/**
+ * Supported blockchain types
+ */
+type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
+
+/**
+ * Determines the blockchain type from a network ID.
+ *
+ * @param networkId - The network identifier
+ * @returns The blockchain type
+ */
+function getBlockchainType(networkId: string): BlockchainType {
+  // Check Bitcoin networks
+  if (BITCOIN_NETWORKS[networkId] || networkId.startsWith('bitcoin')) {
+    return 'bitcoin';
+  }
+
+  // Check Ethereum networks
+  if (ETHEREUM_NETWORKS[networkId] || networkId.startsWith('ethereum')) {
+    return 'ethereum';
+  }
+
+  // Default to Solana (for backwards compatibility)
+  return 'solana';
+}
+
+/**
+ * Maps a network ID to its corresponding network key in the networks object.
+ * Handles cases where the network ID differs from the key (e.g., 'bitcoin' -> 'mainnet').
+ */
+function getNetworkKey(networkId: string, blockchainType: BlockchainType): string {
+  switch (blockchainType) {
+    case 'bitcoin':
+      if (networkId === 'bitcoin') return 'mainnet';
+      if (networkId === 'bitcoin-testnet') return 'testnet';
+      if (networkId === 'bitcoin-regtest') return 'regtest';
+      return networkId;
+    case 'ethereum':
+      if (networkId === 'ethereum') return 'mainnet';
+      if (networkId === 'ethereum-goerli') return 'goerli';
+      if (networkId === 'ethereum-sepolia') return 'sepolia';
+      return networkId;
+    case 'solana':
+    default:
+      return networkId;
+  }
+}
+
+// ============================================================================
 // UUID Generation
 // ============================================================================
 
@@ -76,11 +144,60 @@ function generateAccountId(): string {
 // ============================================================================
 
 /**
+ * Creates a blockchain account for a specific network.
+ *
+ * Routes to the appropriate factory based on the blockchain type.
+ *
+ * @param networkId - The network identifier
+ * @param mnemonic - BIP39 mnemonic phrase
+ * @param index - Account derivation index
+ * @returns Promise resolving to the blockchain account, or null if network not found
+ */
+async function createBlockchainAccountForNetwork(
+  networkId: string,
+  mnemonic: string,
+  index: number
+): Promise<BlockchainAccount | null> {
+  const blockchainType = getBlockchainType(networkId);
+  const networkKey = getNetworkKey(networkId, blockchainType);
+
+  switch (blockchainType) {
+    case 'bitcoin': {
+      const network = BITCOIN_NETWORKS[networkKey];
+      if (!network) {
+        console.warn(`Unknown Bitcoin network: ${networkId}`);
+        return null;
+      }
+      return createBitcoinAccount({ network, mnemonic, index });
+    }
+
+    case 'ethereum': {
+      const network = ETHEREUM_NETWORKS[networkKey];
+      if (!network) {
+        console.warn(`Unknown Ethereum network: ${networkId}`);
+        return null;
+      }
+      return createEthereumAccount({ network, mnemonic, index });
+    }
+
+    case 'solana':
+    default: {
+      const network = SOLANA_NETWORKS[networkKey];
+      if (!network) {
+        console.warn(`Unknown Solana network: ${networkId}`);
+        return null;
+      }
+      return createSolanaAccount({ network, mnemonic, index });
+    }
+  }
+}
+
+/**
  * Creates an Account with derived blockchain accounts.
  *
  * This function:
  * - Generates a unique ID if not provided
- * - Creates blockchain accounts for specified networks
+ * - Creates blockchain accounts for specified networks (Solana, Bitcoin, Ethereum)
  * - Derives accounts from the mnemonic using BIP44 paths
  * - Returns a complete Account object ready for use
  *
@@ -89,15 +206,18 @@ function generateAccountId(): string {
  *
  * @example
  * ```typescript
+ * // Create account with all blockchains
  * const result = await createAccount({
  *   name: 'My Wallet',
  *   mnemonic: 'abandon abandon abandon...',
- *   networkIds: ['mainnet-beta', 'devnet'],
+ *   networkIds: ['mainnet-beta', 'bitcoin', 'ethereum'],
  * });
  *
  * console.log(result.account.id); // 'uuid-here'
  * console.log(result.account.name); // 'My Wallet'
- * console.log(result.blockchainAccounts['mainnet-beta'][0]); // SolanaAccount instance
+ * console.log(result.blockchainAccounts['mainnet-beta'][0]); // SolanaAccount
+ * console.log(result.blockchainAccounts['bitcoin'][0]); // BitcoinAccount
+ * console.log(result.blockchainAccounts['ethereum'][0]); // EthereumAccount
  * ```
  */
 export async function createAccount(
@@ -115,22 +235,21 @@ export async function createAccount(
   const networksAccounts: NetworksAccounts = {};
   const pathIndexes: NetworkPathIndexes = {};
 
-  // Create Solana accounts for each requested network
+  // Create accounts for each requested network (supports Solana, Bitcoin, Ethereum)
   for (const networkId of networkIds) {
-    const network = SOLANA_NETWORKS[networkId];
-    if (!network) {
-      console.warn(`Unknown network: ${networkId}, skipping`);
-      continue;
-    }
-
     try {
-      const solanaAccount = await createSolanaAccount({
-        network,
+      const blockchainAccount = await createBlockchainAccountForNetwork(
+        networkId,
         mnemonic,
-        index: startIndex,
-      });
+        startIndex
+      );
 
-      networksAccounts[networkId] = [solanaAccount];
+      if (!blockchainAccount) {
+        console.warn(`Skipping unknown network: ${networkId}`);
+        continue;
+      }
+
+      networksAccounts[networkId] = [blockchainAccount];
       pathIndexes[networkId] = [startIndex];
     } catch (error) {
       console.error(`Failed to create account for network ${networkId}:`, error);
@@ -175,33 +294,39 @@ export function generateAccountName(
  * Derives additional blockchain accounts for an existing account.
  * Useful for adding new networks or additional derivation paths.
  *
+ * Supports Solana, Bitcoin, and Ethereum networks.
+ *
  * @param mnemonic - BIP39 mnemonic phrase
  * @param networkId - Network to derive account for
  * @param index - Derivation index
- * @returns Promise resolving to SolanaAccount instance
+ * @returns Promise resolving to blockchain account instance
  *
  * @example
  * ```typescript
- * const account = await deriveBlockchainAccount(
- *   mnemonic,
- *   'mainnet-beta',
- *   1 // Second account (index 1)
- * );
+ * // Derive Solana account
+ * const solana = await deriveBlockchainAccount(mnemonic, 'mainnet-beta', 1);
+ *
+ * // Derive Bitcoin account
+ * const bitcoin = await deriveBlockchainAccount(mnemonic, 'bitcoin', 0);
+ *
+ * // Derive Ethereum account
+ * const ethereum = await deriveBlockchainAccount(mnemonic, 'ethereum', 0);
  * ```
  */
 export async function deriveBlockchainAccount(
   mnemonic: string,
   networkId: string,
   index: number
-): Promise<SolanaAccount> {
-  const network = SOLANA_NETWORKS[networkId];
-  if (!network) {
+): Promise<BlockchainAccount> {
+  const blockchainAccount = await createBlockchainAccountForNetwork(
+    networkId,
+    mnemonic,
+    index
+  );
+
+  if (!blockchainAccount) {
     throw new Error(`Unknown network: ${networkId}`);
   }
 
-  return createSolanaAccount({
-    network,
-    mnemonic,
-    index,
-  });
+  return blockchainAccount;
 }

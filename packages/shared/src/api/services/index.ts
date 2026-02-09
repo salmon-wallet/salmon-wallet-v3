@@ -249,3 +249,23 @@ export {
   formatTokenBalance as formatERC20TokenBalance,
   mergeTokenLists,
 } from './ethereum';
+
+// ============================================================================
+// Multi-chain Transaction Service
+// ============================================================================
+
+export {
+  // Types
+  type TransactionNetworkId,
+  type TransactionType,
+  type TransactionTokenAmount,
+  type TransactionFee,
+  type TransactionItem,
+  type TransactionPagingParams,
+  type TransactionsResponse,
+  // Functions - aliased to avoid conflicts with chain-specific services
+  getTransactions as getMultichainTransactions,
+  getTransaction as getMultichainTransaction,
+  getRecentTransactions as getRecentMultichainTransactions,
+  getAllTransactions as getAllMultichainTransactions,
+} from './transactions';
