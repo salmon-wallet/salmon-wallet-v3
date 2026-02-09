@@ -31,3 +31,8 @@ export interface SecondaryButtonProps extends ButtonBaseProps {
   /** Variant style */
   variant?: 'filled' | 'outline';
 }
+
+export interface TextButtonProps extends Omit<ButtonBaseProps, 'fullWidth'> {
+  /** Custom text color */
+  color?: string;
+}
