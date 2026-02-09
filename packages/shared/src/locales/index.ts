@@ -83,7 +83,7 @@ export const DEFAULT_LANGUAGE: LanguageCode = 'en';
  */
 export const LANGUAGE_NAMES: Record<LanguageCode, string> = {
   en: 'English',
-  es: 'Espanol',
+  es: 'Español',
 } as const;
 
 // ============================================================================

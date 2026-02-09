@@ -236,6 +236,9 @@ function transformMultichainTransaction(tx: TransactionItem): HistoryTransaction
       : undefined,
     inputs: tx.inputs,
     outputs: tx.outputs,
+    // Moralis enrichment fields
+    description: tx.description,
+    source: tx.source,
   };
 }
 

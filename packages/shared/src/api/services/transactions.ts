@@ -84,6 +84,12 @@ export interface TransactionItem {
   inputs: TransactionTokenAmount[];
   /** Tokens sent */
   outputs: TransactionTokenAmount[];
+  /** Human-readable description (Moralis summary) */
+  description?: string;
+  /** Source label (contract/protocol name) */
+  source?: string;
+  /** Transaction category (Moralis enrichment) */
+  category?: string;
 }
 
 /**

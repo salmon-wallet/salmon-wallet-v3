@@ -38,3 +38,8 @@ export const getShortAddress = (
 
   return `${start}...${end}`;
 };
+
+export function truncateHash(hash: string, chars: number = 6): string {
+  if (!hash || hash.length < chars * 2 + 3) return hash;
+  return `${hash.slice(0, chars)}...${hash.slice(-chars)}`;
+}
