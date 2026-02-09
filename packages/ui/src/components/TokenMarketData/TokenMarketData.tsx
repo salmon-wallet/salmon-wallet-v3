@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import ContentLoader, { Rect } from 'react-content-loader/native';
+import ContentLoader, { Rect } from '../../utils/ContentLoader';
 import { colors, ms, vs, s } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenMarketDataProps } from './types';

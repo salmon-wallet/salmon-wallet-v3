@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
-import ContentLoader, { Rect } from 'react-content-loader/native';
+import ContentLoader, { Rect } from '../../utils/ContentLoader';
 import { colors, spacing, borderRadius, PRICE_CHART_PERIODS } from '@salmon/shared';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
 import type { PriceChartProps } from './types';

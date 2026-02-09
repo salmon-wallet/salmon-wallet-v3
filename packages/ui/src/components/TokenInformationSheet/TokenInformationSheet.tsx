@@ -13,7 +13,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
-import ContentLoader, { Rect } from 'react-content-loader/native';
+import ContentLoader, { Rect } from '../../utils/ContentLoader';
 import ReanimatedAnimated, {
   useSharedValue,
   useAnimatedStyle,

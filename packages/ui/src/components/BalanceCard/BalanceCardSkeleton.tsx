@@ -1,4 +1,4 @@
-import ContentLoader, { Rect } from 'react-content-loader/native';
+import ContentLoader, { Rect } from '../../utils/ContentLoader';
 import { colors, ms, s, vs } from '@salmon/shared';
 import React from 'react';
 import { View } from 'react-native';

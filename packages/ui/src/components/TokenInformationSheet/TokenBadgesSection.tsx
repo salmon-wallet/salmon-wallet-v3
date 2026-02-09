@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { borderRadius, colors, ms, s, spacing, vs } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
-import ContentLoader, { Rect } from 'react-content-loader/native';
+import ContentLoader, { Rect } from '../../utils/ContentLoader';
 import { BlurContainer } from '../BlurContainer';
 
 interface TokenBadgesSectionProps {
