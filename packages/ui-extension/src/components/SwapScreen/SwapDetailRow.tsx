@@ -1,0 +1,82 @@
+/**
+ * SwapDetailRow - A single row in the swap details section
+ *
+ * Web version using MUI and @emotion/styled for browser extension.
+ * Uses BlurContainer instead of expo BlurView.
+ */
+import React from 'react';
+import { styled } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  fontFamily,
+  fontWeight,
+} from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
+import type { SwapDetailRowProps } from './types';
+
+// ============================================================================
+// Styled Components
+// ============================================================================
+
+const BlurContent = styled('div')({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: `${spacing.sm}px ${spacing.base}px`,
+  minHeight: 40,
+});
+
+const Label = styled(Typography)({
+  fontSize: 15,
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  letterSpacing: -0.075,
+  lineHeight: `${15 * 1.5}px`,
+});
+
+const Value = styled(Typography)({
+  fontSize: 15,
+  fontWeight: fontWeight.bold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  letterSpacing: -0.075,
+  lineHeight: `${15 * 1.5}px`,
+});
+
+// ============================================================================
+// SwapDetailRow Component
+// ============================================================================
+
+/**
+ * SwapDetailRow - A single row in the swap details section
+ * Displays label on left and value on right with glassmorphism effect
+ */
+export function SwapDetailRow({
+  label,
+  value,
+  style,
+}: SwapDetailRowProps): React.ReactElement {
+  return (
+    <BlurContainer
+      blurIntensity={5}
+      blurTint="dark"
+      style={{
+        borderRadius: borderRadius.md,
+        overflow: 'hidden',
+        ...style,
+      }}
+    >
+      <BlurContent>
+        <Label>{label}</Label>
+        <Value>{value}</Value>
+      </BlurContent>
+    </BlurContainer>
+  );
+}
+
+export default SwapDetailRow;
