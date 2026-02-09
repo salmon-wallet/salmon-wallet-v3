@@ -197,10 +197,16 @@ export default function PasswordScreen() {
       const accountName = generateAccountName(state.counter, t('wallet.name_template'));
 
       // Create account using factory
+      // Derives accounts for ALL networks (mainnet + devnet/testnet)
+      // This ensures accounts are ready when user enables developer mode later
       const { account } = await createAccount({
         name: accountName,
         mnemonic: params.mnemonic,
-        networkIds: ['mainnet-beta'],
+        networkIds: [
+          'mainnet-beta', 'devnet',           // Solana
+          'bitcoin', 'bitcoin-testnet',       // Bitcoin
+          'ethereum', 'ethereum-goerli',      // Ethereum
+        ],
         startIndex: 0,
       });
 

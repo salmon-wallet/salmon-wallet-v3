@@ -183,6 +183,29 @@ function getBlockchainFromNetwork(network: AnyNetwork): BlockchainId {
 }
 
 /**
+ * Maps context networkId to transaction API networkId format
+ */
+function getTransactionNetworkId(networkId: string | null): string {
+  if (!networkId) return 'solana-mainnet';
+
+  // Solana networks
+  if (networkId === 'mainnet-beta') return 'solana-mainnet';
+  if (networkId === 'devnet') return 'solana-devnet';
+
+  // Bitcoin networks
+  if (networkId === 'bitcoin' || networkId === 'mainnet') return 'bitcoin-mainnet';
+  if (networkId === 'bitcoin-testnet' || networkId === 'testnet') return 'bitcoin-testnet';
+
+  // Ethereum networks
+  if (networkId === 'ethereum') return 'ethereum-mainnet';
+  if (networkId === 'ethereum-sepolia' || networkId === 'sepolia') return 'ethereum-sepolia';
+  if (networkId === 'ethereum-goerli' || networkId === 'goerli') return 'ethereum-goerli';
+
+  // Default: assume the networkId is already in correct format
+  return networkId;
+}
+
+/**
  * Convert TokenBalanceWithPrice to Token for TokenList
  */
 function mapBalanceToToken(
@@ -303,9 +326,19 @@ export default function HomeScreen() {
   });
 
   // Get available networks filtered by developer mode
-  const { allNetworks } = useAvailableNetworks({
+  const { allNetworks: availableNetworks } = useAvailableNetworks({
     activeBlockchainAccount: userConfigAccount,
   });
+
+  // Filter networks to only include those the user has accounts for
+  // This prevents showing networks in the carousel that the user can't switch to
+  // (e.g., accounts created before multi-chain derivation won't have BTC/ETH)
+  const allNetworks = useMemo(() => {
+    if (!activeAccount?.networksAccounts) return availableNetworks;
+
+    const userNetworkIds = Object.keys(activeAccount.networksAccounts);
+    return availableNetworks.filter(network => userNetworkIds.includes(network.id));
+  }, [availableNetworks, activeAccount?.networksAccounts]);
 
   // Get adjacent network accounts for preloading
   const { adjacentAccounts, shouldPreload } = useAdjacentBalances({
@@ -343,7 +376,7 @@ export default function HomeScreen() {
     refresh: transactionsRefresh,
   } = useTransactions({
     address,
-    networkId: (networkId as 'mainnet-beta' | 'devnet') === 'mainnet-beta' ? 'solana-mainnet' : 'solana-devnet',
+    networkId: getTransactionNetworkId(networkId) as any,
     skip: !ready || !activeBlockchainAccount || !transactionHistoryVisible,
   });
 
@@ -962,6 +995,7 @@ export default function HomeScreen() {
         onToggleVisibility={toggleHidden}
         onBlockchainChange={handleBlockchainChange}
         activeIndex={activeBlockchainIndex}
+        showNetworkLabel={developerNetworks}
         style={styles.balanceCard}
       />
 
@@ -979,6 +1013,7 @@ export default function HomeScreen() {
     toggleHidden,
     handleBlockchainChange,
     activeBlockchainIndex,
+    developerNetworks,
     handleSendPress,
     handleReceivePress,
     handleActivityPress,
@@ -1125,6 +1160,7 @@ export default function HomeScreen() {
         onCopyAddress={handleCopyAddress}
         onSettingsPress={handleSettingsPress}
         onWalletPress={handleWalletPress}
+        developerMode={developerNetworks}
       />
 
       {/* Settings Sheet */}
