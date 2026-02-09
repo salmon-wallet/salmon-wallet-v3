@@ -1,10 +1,12 @@
 /**
  * useTransactions Hook
  *
- * Fetches and manages transaction history for a Solana wallet address.
- * Supports pagination, caching, and transforms API data to UI-friendly format.
+ * Fetches and manages transaction history for multi-chain wallet addresses.
+ * Supports Solana, Bitcoin, and Ethereum networks.
+ * Provides pagination, caching, and transforms API data to UI-friendly format.
  *
  * Features:
+ * - Multi-chain support (Solana, Bitcoin, Ethereum)
  * - Automatic pagination with "load more" functionality
  * - 30-second cache TTL for performance
  * - Direct mapping from backend response (already UI-formatted)
@@ -22,7 +24,7 @@
  *   refresh,
  * } = useTransactions({
  *   address: walletAddress,
- *   networkId: 'solana-mainnet',
+ *   networkId: 'solana-mainnet', // or 'bitcoin-mainnet', 'ethereum-mainnet', etc.
  * });
  * ```
  */
@@ -30,9 +32,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   getSolanaTransactions,
-  type SolanaNetworkId,
   type SolanaTransaction,
 } from '../api/services/solana';
+import {
+  getTransactions as getMultichainTransactions,
+  type TransactionNetworkId,
+  type TransactionItem,
+} from '../api/services/transactions';
 
 // ============================================================================
 // Types
@@ -122,13 +128,27 @@ export interface HistoryTransaction {
 }
 
 /**
+ * Blockchain type derived from network ID
+ */
+type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
+
+/**
+ * Determine blockchain type from network ID
+ */
+function getBlockchainFromNetworkId(networkId: string): BlockchainType {
+  if (networkId.startsWith('bitcoin')) return 'bitcoin';
+  if (networkId.startsWith('ethereum')) return 'ethereum';
+  return 'solana';
+}
+
+/**
  * Options for the useTransactions hook
  */
 export interface UseTransactionsOptions {
   /** Wallet address to fetch transactions for */
   address: string | undefined;
-  /** Network identifier */
-  networkId?: SolanaNetworkId;
+  /** Network identifier (supports Solana, Bitcoin, and Ethereum networks) */
+  networkId?: TransactionNetworkId;
   /** Initial page size */
   pageSize?: number;
   /** Whether to skip initial fetch */
@@ -174,13 +194,13 @@ const DEFAULT_PAGE_SIZE = 20;
 // ============================================================================
 
 /**
- * Transform a backend transaction to the UI HistoryTransaction format.
+ * Transform a Solana backend transaction to the UI HistoryTransaction format.
  *
  * Note: The backend already returns transactions in a UI-friendly format
  * with inputs/outputs instead of raw Helius format. This function does
  * a simple mapping with type assertions.
  */
-function transformTransaction(tx: SolanaTransaction): HistoryTransaction {
+function transformSolanaTransaction(tx: SolanaTransaction): HistoryTransaction {
   return {
     id: tx.id,
     timestamp: tx.timestamp,
@@ -192,6 +212,30 @@ function transformTransaction(tx: SolanaTransaction): HistoryTransaction {
     description: tx.description,
     source: tx.source,
     heliusType: tx.heliusType,
+  };
+}
+
+/**
+ * Transform a multi-chain (Bitcoin/Ethereum) transaction to the UI HistoryTransaction format.
+ *
+ * Note: The multi-chain API returns transactions in a similar format but with
+ * some differences in the fee structure (amount is string vs number).
+ */
+function transformMultichainTransaction(tx: TransactionItem): HistoryTransaction {
+  return {
+    id: tx.id,
+    timestamp: tx.timestamp,
+    status: tx.status as HistoryTransactionStatus,
+    type: tx.type as HistoryTransactionType,
+    fee: tx.fee
+      ? {
+          amount: Number(tx.fee.amount),
+          decimals: tx.fee.decimals,
+          symbol: tx.fee.symbol,
+        }
+      : undefined,
+    inputs: tx.inputs,
+    outputs: tx.outputs,
   };
 }
 
@@ -260,13 +304,34 @@ export function useTransactions({
       setError(null);
 
       try {
-        const response = await getSolanaTransactions(networkId, address, {
-          pageToken: isLoadMore ? oldestSignatureRef.current : undefined,
-          pageSize,
-        });
+        const blockchain = getBlockchainFromNetworkId(networkId);
+        let newTransactions: HistoryTransaction[];
+        let nextPageToken: string | undefined;
+        let hasMorePages: boolean;
 
-        // Transform transactions to UI format (simple mapping since backend is pre-formatted)
-        const newTransactions = response.transactions.map(transformTransaction);
+        if (blockchain === 'solana') {
+          // Use Solana-specific service
+          const response = await getSolanaTransactions(
+            networkId as 'solana-mainnet' | 'solana-devnet',
+            address,
+            {
+              pageToken: isLoadMore ? oldestSignatureRef.current : undefined,
+              pageSize,
+            }
+          );
+          newTransactions = response.transactions.map(transformSolanaTransaction);
+          nextPageToken = response.oldestSignature ?? undefined;
+          hasMorePages = response.hasMore;
+        } else {
+          // Use multi-chain service for Bitcoin and Ethereum
+          const response = await getMultichainTransactions(networkId, address, {
+            pageToken: isLoadMore ? oldestSignatureRef.current : undefined,
+            pageSize,
+          });
+          newTransactions = response.data.map(transformMultichainTransaction);
+          nextPageToken = response.pageToken;
+          hasMorePages = !!response.pageToken;
+        }
 
         if (isLoadMore) {
           // Append to existing transactions
@@ -278,8 +343,8 @@ export function useTransactions({
         }
 
         // Update pagination state
-        oldestSignatureRef.current = response.oldestSignature ?? undefined;
-        setHasMore(response.hasMore);
+        oldestSignatureRef.current = nextPageToken;
+        setHasMore(hasMorePages);
       } catch (err) {
         console.error('[useTransactions] Failed to fetch transactions:', err);
         setError(
