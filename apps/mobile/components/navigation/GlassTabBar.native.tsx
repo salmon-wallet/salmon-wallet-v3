@@ -2,9 +2,11 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors, componentSizes, gradients, ms, s, spacing, vs } from '@salmon/shared';
 import { GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '@salmon/ui';
 import { BlurView } from 'expo-blur';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,8 +15,20 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
- * Web version of GlassTabBar — uses BlurView only (no expo-glass-effect).
+ * Design specs from Figma (node 1698:4682, 1698:4683):
+ * - Outer container: padding-x 24px, gradient fade black→transparent
+ * - Glass pill: border-radius 62px, padding-x 45px, height 60px
+ * - Tab items: width ~49px, height 60px, padding-x 14px, gap 3px
+ * - Icons: Home 20x21, Grid 22x22, Swap 23x18
+ * - Labels: DM Sans SemiBold, 8px, tracking 0.16px, line-height 1.4
+ * - Active: #ff5c45, Inactive: rgba(255,255,255,0.6)
+ *
+ * iOS 26+: Uses native Liquid Glass effect via expo-glass-effect
+ * iOS < 26 / Android: Falls back to BlurView with enhanced glass simulation
  */
+
+// Check if native Liquid Glass is available (iOS 26+)
+const isNativeLiquidGlassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 interface TabConfig {
   name: string;
@@ -85,9 +99,18 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
 }
 
 /**
- * GlassPill — BlurView fallback for web (no Liquid Glass)
+ * GlassPill - Uses Liquid Glass on iOS 26+, BlurView fallback otherwise
  */
 function GlassPill({ children }: { children: React.ReactNode }) {
+  if (isNativeLiquidGlassAvailable) {
+    return (
+      <GlassView glassEffectStyle="clear" style={styles.glassContainer}>
+        {children}
+      </GlassView>
+    );
+  }
+
+  // Fallback for iOS < 26 and Android
   return (
     <BlurView
       intensity={80}
