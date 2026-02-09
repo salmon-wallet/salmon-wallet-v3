@@ -1,16 +1,17 @@
 /**
- * CollectiblesScreen - NFT Gallery
+ * CollectiblesScreen - NFT Gallery (Netflix-Style)
  *
- * Displays:
- * - Title header: "Collectibles"
- * - Grid of NFT cards (2 columns)
- * - NFT detail bottom sheet on tap
+ * Displays NFTs grouped by blockchain in horizontal carousels.
+ * - Always shows mainnet NFTs for all blockchains
+ * - When developer mode is enabled, also shows devnet/testnet NFTs
  *
  * Features:
  * - Pull-to-refresh
  * - Loading skeleton state
  * - Empty state
- * - Blockchain grouping (Solana primary)
+ * - "See All" sheets for each blockchain
+ * - Parallel multi-chain fetching
+ * - Developer mode support for test networks
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -18,88 +19,96 @@ import {
   StyleSheet,
   View,
   Text,
-  FlatList,
+  ScrollView,
   RefreshControl,
   ActivityIndicator,
-  Modal,
-  TouchableWithoutFeedback,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Platform,
-  BackHandler,
   Alert,
-  Dimensions,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  Easing,
-  runOnJS,
-  interpolate,
-} from 'react-native-reanimated';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import * as Clipboard from 'expo-clipboard';
 import {
   useAccountsContext,
+  useUserConfig,
   colors,
   componentSizes,
   vs,
   s,
   ms,
   getAllNfts,
+  getSolanaNfts,
   type Nft,
-  type SolanaNetwork,
   SOLANA_NETWORKS,
+  getEthereumNfts,
+  getBitcoinOrdinals,
+  ethereumNftToNftData,
+  bitcoinOrdinalToNftData,
+  type EthereumNft,
+  type BitcoinOrdinal,
 } from '@salmon/shared';
-import { NftCard, NftCardSkeleton, WalletHeader, ScalesBackground, type NftData } from '@salmon/ui';
+import {
+  WalletHeader,
+  ScalesBackground,
+  NftCarouselSection,
+  NftCarouselSectionSkeleton,
+  NftSeeAllSheet,
+  NftDetailSheet,
+  type NftData,
+  type NftBlockchain,
+  type NftDetailData,
+} from '@salmon/ui';
 
 // ============================================================================
 // Types
 // ============================================================================
 
+/**
+ * Extended blockchain key that includes network suffix for devnet/testnet
+ */
+type NftSectionKey =
+  | 'solana'
+  | 'solana-devnet'
+  | 'ethereum'
+  | 'ethereum-sepolia'
+  | 'bitcoin';
+
 interface NftSection {
-  title: string;
-  data: Nft[];
+  nfts: NftData[];
+  raw: Nft[] | EthereumNft[] | BitcoinOrdinal[];
+  loading: boolean;
+  blockchain: NftBlockchain;
+  networkLabel?: string; // e.g., "Devnet", "Sepolia"
+  isTestnet: boolean;
+}
+
+type NftsBySection = Record<NftSectionKey, NftSection>;
+
+interface SeeAllSheetState {
+  visible: boolean;
+  sectionKey: NftSectionKey | null;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-const NUM_COLUMNS = 2;
-const GRID_GAP = s(18);
-const HORIZONTAL_PADDING = s(18);
-const ANIMATION_DURATION = 300;
-const BACKDROP_OPACITY = 0.8;
-const DRAG_THRESHOLD = 150; // Pixels to drag before closing
-const SPRING_CONFIG = {
-  damping: 20,
-  stiffness: 200,
-  mass: 0.5,
+const INITIAL_SECTIONS: NftsBySection = {
+  solana: { nfts: [], raw: [], loading: true, blockchain: 'solana', isTestnet: false },
+  'solana-devnet': { nfts: [], raw: [], loading: false, blockchain: 'solana', networkLabel: 'Devnet', isTestnet: true },
+  ethereum: { nfts: [], raw: [], loading: true, blockchain: 'ethereum', isTestnet: false },
+  'ethereum-sepolia': { nfts: [], raw: [], loading: false, blockchain: 'ethereum', networkLabel: 'Sepolia', isTestnet: true },
+  bitcoin: { nfts: [], raw: [], loading: true, blockchain: 'bitcoin', isTestnet: false },
 };
-
-// Orange gradient for fallback
-const FALLBACK_GRADIENT_COLORS: [string, string] = ['rgb(255, 92, 69)', 'rgba(161, 42, 42, 0.9)'];
-const FALLBACK_GRADIENT_START = { x: 0.12, y: 0.5 };
-const FALLBACK_GRADIENT_END = { x: 0.83, y: 0.5 };
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
 /**
- * Convert Nft to NftData for NftCard component
+ * Convert Solana Nft to NftData for UI components
  */
-function nftToNftData(nft: Nft): NftData {
+function solanaNftToNftData(nft: Nft): NftData {
   return {
     mint: nft.mint.address,
     name: nft.name || 'Unnamed NFT',
@@ -108,283 +117,36 @@ function nftToNftData(nft: Nft): NftData {
   };
 }
 
-// ============================================================================
-// Skeleton Components
-// ============================================================================
-
 /**
- * Skeleton grid for loading state
- * Uses NftCardSkeleton from @salmon/ui with proper 2-column layout
- * matching the FlatList numColumns={2} layout
+ * Convert Solana Nft to NftDetailData for detail sheet
  */
-const SkeletonGrid: React.FC = () => {
-  return (
-    <View style={styles.skeletonGrid}>
-      {/* Row 1 */}
-      <View style={styles.skeletonRow}>
-        <NftCardSkeleton style={styles.skeletonCard} />
-        <NftCardSkeleton style={styles.skeletonCard} />
-      </View>
-      {/* Row 2 */}
-      <View style={styles.skeletonRow}>
-        <NftCardSkeleton style={styles.skeletonCard} />
-        <NftCardSkeleton style={styles.skeletonCard} />
-      </View>
-      {/* Row 3 */}
-      <View style={styles.skeletonRow}>
-        <NftCardSkeleton style={styles.skeletonCard} />
-        <NftCardSkeleton style={styles.skeletonCard} />
-      </View>
-    </View>
-  );
-};
-
-// ============================================================================
-// NFT Detail Sheet Component
-// ============================================================================
-
-interface NftDetailSheetProps {
-  visible: boolean;
-  onClose: () => void;
-  nft: Nft | null;
-  onSend: () => void;
-  onBurn: () => void;
+function solanaNftToDetailData(nft: Nft): NftDetailData {
+  return {
+    mint: nft.mint.address,
+    name: nft.name || 'Unnamed NFT',
+    image: nft.media || undefined,
+    description: nft.description || undefined,
+    collectionName: nft.collection?.name || undefined,
+    attributes: nft.extras?.attributes?.map((attr) => ({
+      trait_type: attr.trait_type,
+      value: String(attr.value),
+    })),
+  };
 }
 
-const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
-  visible,
-  onClose,
-  nft,
-  onSend,
-  onBurn,
-}) => {
-  const [imageLoading, setImageLoading] = useState(true);
-  const [imageError, setImageError] = useState(false);
+/**
+ * Get section title with optional network label
+ */
+function getSectionTitle(sectionKey: NftSectionKey, section: NftSection): string {
+  const baseNames: Record<NftBlockchain, string> = {
+    solana: 'Solana',
+    ethereum: 'Ethereum',
+    bitcoin: 'Bitcoin Ordinals',
+  };
 
-  // Animation shared values
-  const translateY = useSharedValue(SCREEN_HEIGHT);
-  const backdropOpacity = useSharedValue(0);
-  const dragY = useSharedValue(0);
-  const isDragging = useSharedValue(false);
-
-  // Close handler for worklet
-  const closeSheet = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
-  // Handle visibility changes
-  useEffect(() => {
-    if (visible) {
-      // Reset image states
-      setImageLoading(true);
-      setImageError(false);
-      // Reset drag position
-      dragY.value = 0;
-      // Animate sheet up
-      translateY.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-      // Fade in backdrop
-      backdropOpacity.value = withTiming(BACKDROP_OPACITY, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-    } else {
-      // Animate sheet down
-      translateY.value = withTiming(SCREEN_HEIGHT, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-      // Fade out backdrop
-      backdropOpacity.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-    }
-  }, [visible]);
-
-  // Handle Android back button
-  useEffect(() => {
-    if (Platform.OS !== 'android' || !visible) return;
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        onClose();
-        return true;
-      }
-    );
-
-    return () => backHandler.remove();
-  }, [visible, onClose]);
-
-  // Pan gesture for dragging the sheet
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      isDragging.value = true;
-    })
-    .onUpdate((event) => {
-      // Only allow dragging down (positive translationY)
-      if (event.translationY > 0) {
-        dragY.value = event.translationY;
-        // Update backdrop opacity based on drag
-        backdropOpacity.value = interpolate(
-          event.translationY,
-          [0, SCREEN_HEIGHT * 0.5],
-          [BACKDROP_OPACITY, 0]
-        );
-      }
-    })
-    .onEnd((event) => {
-      isDragging.value = false;
-      // If dragged past threshold or with high velocity, close the sheet
-      if (event.translationY > DRAG_THRESHOLD || event.velocityY > 500) {
-        translateY.value = withTiming(SCREEN_HEIGHT, {
-          duration: 200,
-          easing: Easing.out(Easing.cubic),
-        });
-        backdropOpacity.value = withTiming(0, { duration: 200 });
-        runOnJS(closeSheet)();
-      } else {
-        // Snap back to open position
-        dragY.value = withSpring(0, SPRING_CONFIG);
-        backdropOpacity.value = withSpring(BACKDROP_OPACITY, SPRING_CONFIG);
-      }
-    });
-
-  // Animated styles
-  const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value + dragY.value }],
-  }));
-
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
-
-  if (!visible || !nft) {
-    return null;
-  }
-
-  const showFallback = !nft.media || imageError;
-
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-      statusBarTranslucent
-    >
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={styles.sheetOverlay}>
-          {/* Backdrop */}
-          <TouchableWithoutFeedback onPress={onClose}>
-            <Animated.View style={[styles.sheetBackdrop, backdropAnimatedStyle]} />
-          </TouchableWithoutFeedback>
-
-          {/* Sheet Container */}
-          <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle]}>
-            {/* ScalesBackground */}
-            <ScalesBackground topOffset={0} />
-
-            {/* Draggable Header Area */}
-            <GestureDetector gesture={panGesture}>
-              <Animated.View style={styles.sheetDragArea}>
-                {/* Drag Handle */}
-                <View style={styles.sheetHandleContainer}>
-                  <View style={styles.sheetHandle} />
-                </View>
-
-                {/* Title */}
-                <Text style={styles.sheetTitle}>NFT Information</Text>
-              </Animated.View>
-            </GestureDetector>
-
-          {/* ScrollView Content */}
-          <ScrollView
-            style={styles.sheetScrollView}
-            contentContainerStyle={styles.sheetScrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* NFT Image */}
-            <View style={styles.nftImageContainer}>
-              {showFallback ? (
-                <LinearGradient
-                  colors={FALLBACK_GRADIENT_COLORS}
-                  start={FALLBACK_GRADIENT_START}
-                  end={FALLBACK_GRADIENT_END}
-                  style={styles.nftImageFallback}
-                />
-              ) : (
-                <>
-                  <Image
-                    source={{ uri: nft.media! }}
-                    style={styles.nftImage}
-                    resizeMode="cover"
-                    onLoadStart={() => setImageLoading(true)}
-                    onLoadEnd={() => setImageLoading(false)}
-                    onError={() => {
-                      setImageLoading(false);
-                      setImageError(true);
-                    }}
-                  />
-                  {imageLoading && (
-                    <View style={styles.nftImageLoading}>
-                      <ActivityIndicator size="large" color={colors.text.primary} />
-                    </View>
-                  )}
-                </>
-              )}
-            </View>
-
-            {/* NFT Name */}
-            <Text style={styles.nftName}>{nft.name || 'Unnamed NFT'}</Text>
-
-            {/* Collection Name */}
-            {nft.collection?.name && (
-              <Text style={styles.nftCollection}>{nft.collection.name}</Text>
-            )}
-
-            {/* Description */}
-            {nft.description && (
-              <View style={styles.descriptionContainer}>
-                <Text style={styles.descriptionLabel}>Description</Text>
-                <Text style={styles.descriptionText}>{nft.description}</Text>
-              </View>
-            )}
-
-            {/* Attributes */}
-            {nft.extras?.attributes && nft.extras.attributes.length > 0 && (
-              <View style={styles.attributesContainer}>
-                <Text style={styles.attributesLabel}>Attributes</Text>
-                <View style={styles.attributesGrid}>
-                  {nft.extras.attributes.map((attr, index) => (
-                    <View key={index} style={styles.attributeItem}>
-                      <Text style={styles.attributeType}>{attr.trait_type}</Text>
-                      <Text style={styles.attributeValue}>{String(attr.value)}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            {/* Action Buttons */}
-            <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity style={styles.sendButton} onPress={onSend}>
-                <Text style={styles.sendButtonText}>Send</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.burnButton} onPress={onBurn}>
-                <Text style={styles.burnButtonText}>Burn</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </Animated.View>
-      </View>
-      </GestureHandlerRootView>
-    </Modal>
-  );
-};
+  const baseName = baseNames[section.blockchain];
+  return section.networkLabel ? `${baseName} ${section.networkLabel}` : baseName;
+}
 
 // ============================================================================
 // Main Component
@@ -394,22 +156,49 @@ export default function CollectiblesScreen() {
   // Safe area insets for header positioning
   const insets = useSafeAreaInsets();
 
-  // State
-  const [nfts, setNfts] = useState<Nft[]>([]);
-  const [loading, setLoading] = useState(true);
+  // NFT state grouped by section (blockchain + network)
+  const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_SECTIONS);
+
+  // UI state
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedNft, setSelectedNft] = useState<Nft | null>(null);
-  const [sheetVisible, setSheetVisible] = useState(false);
+  const [seeAllSheet, setSeeAllSheet] = useState<SeeAllSheetState>({
+    visible: false,
+    sectionKey: null,
+  });
+  const [detailSheet, setDetailSheet] = useState<{
+    visible: boolean;
+    nft: NftDetailData | null;
+    sectionKey: NftSectionKey | null;
+  }>({
+    visible: false,
+    nft: null,
+    sectionKey: null,
+  });
 
   // Get account context
   const [accountState] = useAccountsContext();
-  const { ready, activeBlockchainAccount, networkId, activeAccount } = accountState;
+  const { ready, activeBlockchainAccount, activeAccount } = accountState;
+
+  // Get developer mode state
+  const userConfigAccount = useMemo(() => {
+    if (!activeBlockchainAccount) return undefined;
+    return {
+      network: {
+        environment: 'mainnet-beta' as const,
+        blockchain: 'solana' as const,
+      },
+    };
+  }, [activeBlockchainAccount]);
+
+  const { developerNetworks } = useUserConfig({
+    activeBlockchainAccount: userConfigAccount,
+  });
 
   // Get account info for header
   const accountName = activeAccount?.name || 'Wallet';
   const address = activeBlockchainAccount?.getReceiveAddress() || '';
 
-  // Calculate header offset for content (WalletHeader + title)
+  // Calculate header offset for content
   const headerOffset = insets.top + componentSizes.headerInnerHeight;
 
   // Header handlers
@@ -428,77 +217,230 @@ export default function CollectiblesScreen() {
     // Wallet switcher handled in home screen
   }, []);
 
-  // Get network configuration
-  const network = useMemo<SolanaNetwork | null>(() => {
-    if (!networkId) return SOLANA_NETWORKS['mainnet-beta'];
-    return SOLANA_NETWORKS[networkId as keyof typeof SOLANA_NETWORKS] || null;
-  }, [networkId]);
+  // Fetch all NFTs in parallel
+  const fetchAllNfts = useCallback(
+    async (isRefresh = false) => {
+      if (!activeBlockchainAccount || !activeAccount) return;
 
-  // Fetch NFTs
-  const fetchNfts = useCallback(async (isRefresh = false) => {
-    if (!activeBlockchainAccount || !network) return;
+      // Get Solana address from current account
+      const solanaAddress = activeBlockchainAccount.getReceiveAddress();
 
-    try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
+      // Get ETH and BTC addresses from multi-chain networksAccounts
+      const ethAccount = activeAccount.networksAccounts?.['ethereum']?.[0];
+      const ethAddress = ethAccount?.getReceiveAddress() ?? '';
+
+      const btcAccount = activeAccount.networksAccounts?.['bitcoin']?.[0];
+      const btcAddress = btcAccount?.getReceiveAddress() ?? '';
+
+      // Set loading state for mainnet sections
+      if (!isRefresh) {
+        setNftsBySections((prev) => ({
+          ...prev,
+          solana: { ...prev.solana, loading: true },
+          ethereum: { ...prev.ethereum, loading: true },
+          bitcoin: { ...prev.bitcoin, loading: true },
+          // Also set loading for testnet sections if developer mode is enabled
+          ...(developerNetworks && {
+            'solana-devnet': { ...prev['solana-devnet'], loading: true },
+            'ethereum-sepolia': { ...prev['ethereum-sepolia'], loading: true },
+          }),
+        }));
       }
 
-      const address = activeBlockchainAccount.getReceiveAddress();
-      const fetchedNfts = await getAllNfts(network, address);
-      setNfts(fetchedNfts);
-    } catch (error) {
-      console.error('[CollectiblesScreen] Failed to fetch NFTs:', error);
-      setNfts([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [activeBlockchainAccount, network]);
+      // Build fetch promises - ALWAYS fetch mainnet
+      const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] | EthereumNft[] | BitcoinOrdinal[] }>[] = [
+        // Mainnet fetches (always)
+        getAllNfts(SOLANA_NETWORKS['mainnet-beta'], solanaAddress, false, getSolanaNfts)
+          .then((result) => ({ key: 'solana' as NftSectionKey, result }))
+          .catch(() => ({ key: 'solana' as NftSectionKey, result: [] })),
 
-  // Fetch on mount and when account changes
+        (ethAddress ? getEthereumNfts('ethereum-mainnet', ethAddress) : Promise.resolve([]))
+          .then((result) => ({ key: 'ethereum' as NftSectionKey, result }))
+          .catch(() => ({ key: 'ethereum' as NftSectionKey, result: [] })),
+
+        (btcAddress ? getBitcoinOrdinals('bitcoin-mainnet', btcAddress) : Promise.resolve([]))
+          .then((result) => ({ key: 'bitcoin' as NftSectionKey, result }))
+          .catch(() => ({ key: 'bitcoin' as NftSectionKey, result: [] })),
+      ];
+
+      // Add testnet fetches if developer mode is enabled
+      if (developerNetworks) {
+        fetchPromises.push(
+          // Solana Devnet
+          getAllNfts(SOLANA_NETWORKS['devnet'], solanaAddress, false, getSolanaNfts)
+            .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
+            .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] })),
+
+          // Ethereum Sepolia
+          (ethAddress ? getEthereumNfts('ethereum-sepolia', ethAddress) : Promise.resolve([]))
+            .then((result) => ({ key: 'ethereum-sepolia' as NftSectionKey, result }))
+            .catch(() => ({ key: 'ethereum-sepolia' as NftSectionKey, result: [] })),
+        );
+      }
+
+      // Fetch all in parallel
+      const results = await Promise.all(fetchPromises);
+
+      // Process results
+      const newSections = { ...INITIAL_SECTIONS };
+
+      for (const { key, result } of results) {
+        const section = newSections[key];
+
+        if (key === 'solana' || key === 'solana-devnet') {
+          const solanaNfts = result as Nft[];
+          newSections[key] = {
+            ...section,
+            nfts: solanaNfts.map(solanaNftToNftData),
+            raw: solanaNfts,
+            loading: false,
+          };
+        } else if (key === 'ethereum' || key === 'ethereum-sepolia') {
+          const ethNfts = result as EthereumNft[];
+          newSections[key] = {
+            ...section,
+            nfts: ethNfts.map(ethereumNftToNftData),
+            raw: ethNfts,
+            loading: false,
+          };
+        } else if (key === 'bitcoin') {
+          const btcNfts = result as BitcoinOrdinal[];
+          newSections[key] = {
+            ...section,
+            nfts: btcNfts.map(bitcoinOrdinalToNftData),
+            raw: btcNfts,
+            loading: false,
+          };
+        }
+      }
+
+      // If developer mode is off, ensure testnet sections are empty and not loading
+      if (!developerNetworks) {
+        newSections['solana-devnet'] = { ...INITIAL_SECTIONS['solana-devnet'], loading: false };
+        newSections['ethereum-sepolia'] = { ...INITIAL_SECTIONS['ethereum-sepolia'], loading: false };
+      }
+
+      setNftsBySections(newSections);
+
+      if (isRefresh) {
+        setRefreshing(false);
+      }
+    },
+    [activeAccount, activeBlockchainAccount, developerNetworks]
+  );
+
+  // Fetch on mount and when account/developer mode changes
   useEffect(() => {
-    if (ready && activeBlockchainAccount && network) {
-      fetchNfts();
+    if (ready && activeBlockchainAccount && activeAccount) {
+      fetchAllNfts();
     }
-  }, [ready, activeBlockchainAccount, network, fetchNfts]);
+  }, [ready, activeBlockchainAccount, developerNetworks, fetchAllNfts]);
 
   // Handle pull-to-refresh
   const handleRefresh = useCallback(() => {
-    fetchNfts(true);
-  }, [fetchNfts]);
+    setRefreshing(true);
+    fetchAllNfts(true);
+  }, [fetchAllNfts]);
 
-  // Handle NFT press
-  const handleNftPress = useCallback((nft: Nft) => {
-    setSelectedNft(nft);
-    setSheetVisible(true);
+  // Handle NFT press - open detail sheet
+  const handleNftPress = useCallback(
+    (nftData: NftData, sectionKey: NftSectionKey) => {
+      const section = nftsBySections[sectionKey];
+      let detailData: NftDetailData | null = null;
+
+      if (section.blockchain === 'solana') {
+        const rawNft = (section.raw as Nft[]).find(
+          (n) => n.mint.address === nftData.mint
+        );
+        if (rawNft) {
+          detailData = solanaNftToDetailData(rawNft);
+        }
+      } else if (section.blockchain === 'ethereum') {
+        const rawNft = (section.raw as EthereumNft[]).find(
+          (n) => `${n.contractAddress}:${n.tokenId}` === nftData.mint
+        );
+        if (rawNft) {
+          detailData = {
+            mint: nftData.mint,
+            name: rawNft.name,
+            image: rawNft.image,
+            description: rawNft.description,
+            collectionName: rawNft.collectionName,
+            attributes: rawNft.attributes?.map((attr) => ({
+              trait_type: attr.trait_type,
+              value: String(attr.value),
+            })),
+          };
+        }
+      } else if (section.blockchain === 'bitcoin') {
+        const rawNft = (section.raw as BitcoinOrdinal[]).find(
+          (n) => n.inscriptionId === nftData.mint
+        );
+        if (rawNft) {
+          detailData = {
+            mint: nftData.mint,
+            name: rawNft.name,
+            image: rawNft.image,
+            description: rawNft.description,
+            collectionName: rawNft.collectionName,
+            attributes: rawNft.attributes?.map((attr) => ({
+              trait_type: attr.trait_type,
+              value: String(attr.value),
+            })),
+          };
+        }
+      }
+
+      if (detailData) {
+        setDetailSheet({
+          visible: true,
+          nft: detailData,
+          sectionKey,
+        });
+      }
+    },
+    [nftsBySections]
+  );
+
+  // Handle "See All" press - open full grid sheet
+  const handleSeeAllPress = useCallback((sectionKey: NftSectionKey) => {
+    setSeeAllSheet({
+      visible: true,
+      sectionKey,
+    });
   }, []);
 
-  // Handle sheet close
-  const handleSheetClose = useCallback(() => {
-    setSheetVisible(false);
-    // Clear selected NFT after animation completes
-    setTimeout(() => setSelectedNft(null), ANIMATION_DURATION);
+  // Handle detail sheet close
+  const handleDetailSheetClose = useCallback(() => {
+    setDetailSheet((prev) => ({ ...prev, visible: false }));
+    // Clear NFT data after animation
+    setTimeout(() => {
+      setDetailSheet({ visible: false, nft: null, sectionKey: null });
+    }, 300);
+  }, []);
+
+  // Handle see all sheet close
+  const handleSeeAllSheetClose = useCallback(() => {
+    setSeeAllSheet({ visible: false, sectionKey: null });
   }, []);
 
   // Handle Send button
   const handleSend = useCallback(() => {
-    if (selectedNft) {
+    if (detailSheet.nft) {
       Alert.alert(
         'Send NFT',
-        `Send "${selectedNft.name}" functionality coming soon!`,
+        `Send "${detailSheet.nft.name}" functionality coming soon!`,
         [{ text: 'OK' }]
       );
     }
-  }, [selectedNft]);
+  }, [detailSheet.nft]);
 
   // Handle Burn button
   const handleBurn = useCallback(() => {
-    if (selectedNft) {
+    if (detailSheet.nft) {
       Alert.alert(
         'Burn NFT',
-        `Are you sure you want to burn "${selectedNft.name}"? This action cannot be undone.`,
+        `Are you sure you want to burn "${detailSheet.nft.name}"? This action cannot be undone.`,
         [
           { text: 'Cancel', style: 'cancel' },
           {
@@ -511,76 +453,52 @@ export default function CollectiblesScreen() {
         ]
       );
     }
-  }, [selectedNft]);
+  }, [detailSheet.nft]);
 
-  // Group NFTs by blockchain (for future multi-chain support)
-  const sections = useMemo<NftSection[]>(() => {
-    if (nfts.length === 0) return [];
+  // Get ordered section keys to display
+  const visibleSectionKeys = useMemo<NftSectionKey[]>(() => {
+    const mainnetKeys: NftSectionKey[] = ['solana', 'ethereum', 'bitcoin'];
+    const testnetKeys: NftSectionKey[] = ['solana-devnet', 'ethereum-sepolia'];
 
-    // For now, all NFTs are Solana
-    return [
-      {
-        title: 'Solana',
-        data: nfts,
-      },
-    ];
-  }, [nfts]);
-
-  // Render NFT card item
-  const renderNftItem = useCallback(({ item }: { item: Nft }) => {
-    return (
-      <NftCard
-        nft={nftToNftData(item)}
-        onPress={() => handleNftPress(item)}
-        style={styles.nftCard}
-      />
-    );
-  }, [handleNftPress]);
-
-  // Render section header (for blockchain grouping)
-  const renderSectionHeader = useCallback((title: string) => {
-    // Only show header if we have multiple sections (future multi-chain)
-    if (sections.length <= 1) return null;
-
-    return (
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{title}</Text>
-      </View>
-    );
-  }, [sections.length]);
-
-  // Render header component (spacing for fixed header + section title)
-  const ListHeaderComponent = useMemo(() => (
-    <View style={[styles.headerContainer, { paddingTop: headerOffset + vs(8) }]}>
-      {/* Collectibles Title */}
-      <Text style={styles.pageTitle}>Collectibles</Text>
-      {sections.length > 0 && sections[0] && renderSectionHeader(sections[0].title)}
-    </View>
-  ), [sections, renderSectionHeader, headerOffset]);
-
-  // Render empty component
-  const ListEmptyComponent = useMemo(() => {
-    if (loading) {
-      return <SkeletonGrid />;
+    if (developerNetworks) {
+      // Interleave: mainnet then testnet for each blockchain
+      return ['solana', 'solana-devnet', 'ethereum', 'ethereum-sepolia', 'bitcoin'];
     }
 
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No Collectibles</Text>
-        <Text style={styles.emptySubtext}>
-          Your NFTs will appear here once you receive some
-        </Text>
-      </View>
+    return mainnetKeys;
+  }, [developerNetworks]);
+
+  // Check if all mainnet sections are loading
+  const isLoading =
+    nftsBySections.solana.loading &&
+    nftsBySections.ethereum.loading &&
+    nftsBySections.bitcoin.loading;
+
+  // Check if all visible sections are empty (after loading)
+  const isEmpty = useMemo(() => {
+    if (isLoading) return false;
+    return visibleSectionKeys.every(
+      (key) => nftsBySections[key].nfts.length === 0
     );
-  }, [loading]);
+  }, [isLoading, visibleSectionKeys, nftsBySections]);
 
-  // Key extractor for FlatList
-  const keyExtractor = useCallback((item: Nft) => item.mint.address, []);
+  // Get NFTs for current see all sheet
+  const seeAllNfts = useMemo(() => {
+    if (!seeAllSheet.sectionKey) return [];
+    return nftsBySections[seeAllSheet.sectionKey].nfts;
+  }, [seeAllSheet.sectionKey, nftsBySections]);
 
-  // All NFTs flattened for FlatList
-  const flattenedNfts = useMemo(() => {
-    return sections.flatMap(section => section.data);
-  }, [sections]);
+  // Get title and blockchain for see all sheet
+  const seeAllInfo = useMemo(() => {
+    if (!seeAllSheet.sectionKey) {
+      return { title: 'NFTs', blockchain: 'solana' as NftBlockchain };
+    }
+    const section = nftsBySections[seeAllSheet.sectionKey];
+    return {
+      title: getSectionTitle(seeAllSheet.sectionKey, section),
+      blockchain: section.blockchain,
+    };
+  }, [seeAllSheet.sectionKey, nftsBySections]);
 
   // Loading state - wait for account to be ready
   if (!ready) {
@@ -610,17 +528,15 @@ export default function CollectiblesScreen() {
         onCopyAddress={handleCopyAddress}
         onSettingsPress={handleSettingsPress}
         onWalletPress={handleWalletPress}
+        developerMode={developerNetworks}
       />
 
-      <FlatList
-        data={flattenedNfts}
-        renderItem={renderNftItem}
-        keyExtractor={keyExtractor}
-        numColumns={NUM_COLUMNS}
-        columnWrapperStyle={styles.columnWrapper}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={ListHeaderComponent}
-        ListEmptyComponent={ListEmptyComponent}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: headerOffset + vs(8) },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -630,16 +546,91 @@ export default function CollectiblesScreen() {
             colors={['#FF6B35']}
           />
         }
-      />
+      >
+        {/* Page Title */}
+        <Text style={styles.pageTitle}>Collectibles</Text>
+
+        {/* Developer Mode Banner */}
+        {developerNetworks && (
+          <View style={styles.devModeBanner}>
+            <Text style={styles.devModeBannerText}>
+              Developer Mode - Showing testnet NFTs
+            </Text>
+          </View>
+        )}
+
+        {/* Loading Skeletons */}
+        {isLoading && (
+          <>
+            <NftCarouselSectionSkeleton blockchain="solana" />
+            <NftCarouselSectionSkeleton blockchain="ethereum" />
+            <NftCarouselSectionSkeleton blockchain="bitcoin" />
+          </>
+        )}
+
+        {/* Empty State */}
+        {isEmpty && (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No Collectibles</Text>
+            <Text style={styles.emptySubtext}>
+              Your NFTs and Ordinals will appear here once you receive some
+            </Text>
+          </View>
+        )}
+
+        {/* Render visible sections */}
+        {visibleSectionKeys.map((sectionKey) => {
+          const section = nftsBySections[sectionKey];
+
+          // Skip if loading or empty
+          if (section.loading || section.nfts.length === 0) {
+            return null;
+          }
+
+          const title = getSectionTitle(sectionKey, section);
+
+          return (
+            <NftCarouselSection
+              key={sectionKey}
+              title={title}
+              blockchain={section.blockchain}
+              nfts={section.nfts}
+              onNftPress={(nft) => handleNftPress(nft, sectionKey)}
+              onSeeAllPress={() => handleSeeAllPress(sectionKey)}
+            />
+          );
+        })}
+      </ScrollView>
 
       {/* NFT Detail Sheet */}
       <NftDetailSheet
-        visible={sheetVisible}
-        onClose={handleSheetClose}
-        nft={selectedNft}
-        onSend={handleSend}
-        onBurn={handleBurn}
+        visible={detailSheet.visible}
+        onClose={handleDetailSheetClose}
+        nft={detailSheet.nft}
+        onSendPress={handleSend}
+        onBurnPress={handleBurn}
       />
+
+      {/* See All Sheet */}
+      {seeAllSheet.sectionKey && (
+        <NftSeeAllSheet
+          visible={seeAllSheet.visible}
+          onClose={handleSeeAllSheetClose}
+          title={seeAllInfo.title}
+          blockchain={seeAllInfo.blockchain}
+          nfts={seeAllNfts}
+          onNftPress={(nft) => {
+            // Close see all sheet and open detail sheet
+            const currentSectionKey = seeAllSheet.sectionKey;
+            handleSeeAllSheetClose();
+            setTimeout(() => {
+              if (currentSectionKey) {
+                handleNftPress(nft, currentSectionKey);
+              }
+            }, 350);
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -669,8 +660,11 @@ const styles = StyleSheet.create({
     fontSize: ms(16),
     marginTop: vs(16),
   },
-  headerContainer: {
-    paddingBottom: vs(16),
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: vs(componentSizes.tabBarScrollPadding),
   },
   pageTitle: {
     fontFamily: 'DMSans-SemiBold',
@@ -679,33 +673,24 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
     letterSpacing: 0.19,
+    marginBottom: vs(24),
+  },
+  devModeBanner: {
+    backgroundColor: 'rgba(255, 107, 53, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 53, 0.5)',
+    borderRadius: ms(8),
+    paddingVertical: vs(8),
+    paddingHorizontal: s(12),
+    marginHorizontal: s(18),
     marginBottom: vs(16),
   },
-  listContent: {
-    paddingHorizontal: HORIZONTAL_PADDING,
-    paddingBottom: vs(componentSizes.tabBarScrollPadding),
+  devModeBannerText: {
+    fontFamily: 'DMSans-Medium',
+    fontSize: ms(12),
+    color: '#FF6B35',
+    textAlign: 'center',
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    marginBottom: GRID_GAP,
-  },
-  nftCard: {
-    // NftCard has its own sizing, but ensure it fits in 2-column grid
-    flex: 1,
-    maxWidth: `${(100 - 2) / 2}%`, // Account for gap
-  },
-
-  // Section Header
-  sectionHeader: {
-    paddingVertical: vs(12),
-  },
-  sectionTitle: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(16),
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-
   // Empty State
   emptyContainer: {
     alignItems: 'center',
@@ -727,211 +712,5 @@ const styles = StyleSheet.create({
     fontSize: ms(14),
     color: 'rgba(255, 255, 255, 0.4)',
     textAlign: 'center',
-  },
-
-  // Skeleton
-  skeletonGrid: {
-    // No flex needed, rows handle the layout
-  },
-  skeletonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: GRID_GAP,
-  },
-  skeletonCard: {
-    // Match the layout of real NFT cards in the FlatList
-    flex: 1,
-    maxWidth: `${(100 - 2) / 2}%`, // Account for gap
-  },
-
-  // NFT Detail Sheet
-  sheetOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  sheetBackdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
-  },
-  sheetContainer: {
-    backgroundColor: '#161c2d',
-    borderTopLeftRadius: ms(26),
-    borderTopRightRadius: ms(26),
-    borderTopWidth: 0.75,
-    borderTopColor: '#404962',
-    height: '90%',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 20,
-  },
-  sheetDragArea: {
-    // This area is draggable
-  },
-  sheetHandleContainer: {
-    alignItems: 'center',
-    paddingTop: vs(12),
-    paddingBottom: vs(8),
-  },
-  sheetHandle: {
-    width: s(70),
-    height: vs(6),
-    borderRadius: 75,
-    backgroundColor: '#b9b9b9',
-    opacity: 0.4,
-  },
-  sheetTitle: {
-    fontSize: ms(24),
-    fontFamily: 'DMSansExtraBold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: vs(15),
-    letterSpacing: ms(-0.12, 0.3),
-  },
-  sheetScrollView: {
-    flex: 1,
-  },
-  sheetScrollContent: {
-    paddingHorizontal: s(18),
-    paddingBottom: vs(40),
-  },
-
-  // NFT Detail Content
-  nftImageContainer: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: ms(18),
-    overflow: 'hidden',
-    marginBottom: vs(16),
-    backgroundColor: colors.skeleton.base,
-  },
-  nftImage: {
-    width: '100%',
-    height: '100%',
-  },
-  nftImageFallback: {
-    width: '100%',
-    height: '100%',
-  },
-  nftImageLoading: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-  nftName: {
-    fontFamily: 'DMSansExtraBold',
-    fontSize: ms(24),
-    fontWeight: '800',
-    color: colors.text.primary,
-    marginBottom: vs(4),
-  },
-  nftCollection: {
-    fontFamily: 'DMSans-Medium',
-    fontSize: ms(16),
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginBottom: vs(16),
-  },
-
-  // Description
-  descriptionContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: ms(12),
-    padding: s(16),
-    marginBottom: vs(16),
-  },
-  descriptionLabel: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(14),
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.5)',
-    marginBottom: vs(8),
-  },
-  descriptionText: {
-    fontFamily: 'DMSans-Regular',
-    fontSize: ms(14),
-    color: colors.text.primary,
-    lineHeight: ms(20),
-  },
-
-  // Attributes
-  attributesContainer: {
-    marginBottom: vs(16),
-  },
-  attributesLabel: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(14),
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.5)',
-    marginBottom: vs(12),
-  },
-  attributesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: s(8),
-  },
-  attributeItem: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: ms(10),
-    paddingVertical: vs(8),
-    paddingHorizontal: s(12),
-    minWidth: s(80),
-  },
-  attributeType: {
-    fontFamily: 'DMSans-Medium',
-    fontSize: ms(11),
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.5)',
-    marginBottom: vs(2),
-    textTransform: 'uppercase',
-  },
-  attributeValue: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(13),
-    fontWeight: '600',
-    color: colors.text.primary,
-  },
-
-  // Action Buttons
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    gap: s(12),
-    marginTop: vs(8),
-  },
-  sendButton: {
-    flex: 1,
-    backgroundColor: '#FF6B35',
-    borderRadius: ms(12),
-    paddingVertical: vs(14),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sendButtonText: {
-    fontFamily: 'DMSans-Bold',
-    fontSize: ms(16),
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  burnButton: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: ms(12),
-    paddingVertical: vs(14),
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.3)',
-  },
-  burnButtonText: {
-    fontFamily: 'DMSans-Bold',
-    fontSize: ms(16),
-    fontWeight: '700',
-    color: '#FF5C45',
   },
 });

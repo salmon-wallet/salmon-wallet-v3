@@ -48,6 +48,12 @@ import {
   BITCOIN_NETWORKS,
 } from '../blockchain/bitcoin';
 import {
+  fetchBitcoinAccountBalance,
+  fetchBitcoinAccountPrices,
+  fetchBitcoinAccountTransaction,
+  fetchBitcoinAccountRecentTransactions,
+} from '../api/services/bitcoin-account';
+import {
   EthereumAccount,
   createEthereumAccount,
   type EthereumNetwork,
@@ -405,6 +411,12 @@ async function createBlockchainAccountForNetwork(
         network,
         mnemonic,
         index,
+        apiFunctions: {
+          fetchBalance: fetchBitcoinAccountBalance,
+          fetchPrices: fetchBitcoinAccountPrices,
+          fetchTransaction: fetchBitcoinAccountTransaction,
+          fetchRecentTransactions: fetchBitcoinAccountRecentTransactions,
+        },
       });
     }
     case 'ethereum': {

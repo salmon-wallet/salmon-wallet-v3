@@ -46,6 +46,8 @@ import {
   type SwapNetworkId,
   type GetSwapQuoteOptions,
 } from '../blockchain/solana/swap';
+import { getSwapOrder, executeSwapApi } from '../api/services/solana';
+import { getTokenList } from '../api/services/tokens';
 
 // ============================================================================
 // Types
@@ -264,7 +266,9 @@ export function useSwap({
         const fetchedQuote = await getSwapQuoteService(
           networkId,
           quoteParams,
-          options
+          options,
+          getSwapOrder,
+          getTokenList
         );
 
         setQuote(fetchedQuote);
@@ -320,7 +324,8 @@ export function useSwap({
       const result = await executeSwapService(
         quote,
         account.keyPair,
-        connection
+        connection,
+        executeSwapApi
       );
 
       if (result.status === 'success') {

@@ -22,7 +22,14 @@ import {
   createBitcoinAccount,
   BITCOIN_NETWORKS,
   type BitcoinAccount,
+  type BitcoinAccountApiFunctions,
 } from '../blockchain/bitcoin';
+import {
+  fetchBitcoinAccountBalance,
+  fetchBitcoinAccountPrices,
+  fetchBitcoinAccountTransaction,
+  fetchBitcoinAccountRecentTransactions,
+} from '../api/services/bitcoin-account';
 import {
   createEthereumAccount,
   ETHEREUM_NETWORKS,
@@ -120,6 +127,17 @@ function getNetworkKey(networkId: string, blockchainType: BlockchainType): strin
 }
 
 // ============================================================================
+// Bitcoin API Functions
+// ============================================================================
+
+const bitcoinApiFunctions: BitcoinAccountApiFunctions = {
+  fetchBalance: fetchBitcoinAccountBalance,
+  fetchPrices: fetchBitcoinAccountPrices,
+  fetchTransaction: fetchBitcoinAccountTransaction,
+  fetchRecentTransactions: fetchBitcoinAccountRecentTransactions,
+};
+
+// ============================================================================
 // UUID Generation
 // ============================================================================
 
@@ -168,7 +186,7 @@ async function createBlockchainAccountForNetwork(
         console.warn(`Unknown Bitcoin network: ${networkId}`);
         return null;
       }
-      return createBitcoinAccount({ network, mnemonic, index });
+      return createBitcoinAccount({ network, mnemonic, index, apiFunctions: bitcoinApiFunctions });
     }
 
     case 'ethereum': {

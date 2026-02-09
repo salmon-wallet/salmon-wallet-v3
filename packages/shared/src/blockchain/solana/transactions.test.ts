@@ -9,7 +9,6 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  getTransaction,
   getRecentTransactions,
   isTransferTransaction,
   isSwapTransaction,
@@ -26,14 +25,14 @@ import {
   getSolscanUrl,
   type SolanaTransaction,
   type SolanaTransactionPaging,
+  type GetSolanaTransactionsFn,
 } from './transactions';
-import * as solanaApiService from '../../api/services/solana';
 
 // ============================================================================
 // Mocks
 // ============================================================================
 
-vi.mock('../../api/services/solana');
+const mockGetSolanaTransactions = vi.fn<GetSolanaTransactionsFn>();
 
 // ============================================================================
 // Test Data
@@ -249,29 +248,6 @@ describe('Solana Transaction History Service', () => {
   // API Function Tests
   // --------------------------------------------------------------------------
 
-  describe('getTransaction', () => {
-    it('should fetch a single transaction by ID', async () => {
-      vi.mocked(solanaApiService.getSolanaTransaction).mockResolvedValue(MOCK_SEND_TX);
-
-      const result = await getTransaction('solana-mainnet', TEST_ADDRESS, TEST_SIGNATURE);
-
-      expect(result).toEqual(MOCK_SEND_TX);
-      expect(solanaApiService.getSolanaTransaction).toHaveBeenCalledWith(
-        'solana-mainnet',
-        TEST_ADDRESS,
-        TEST_SIGNATURE
-      );
-    });
-
-    it('should return null when transaction not found', async () => {
-      vi.mocked(solanaApiService.getSolanaTransaction).mockResolvedValue(null);
-
-      const result = await getTransaction('solana-mainnet', TEST_ADDRESS, 'nonexistent');
-
-      expect(result).toBeNull();
-    });
-  });
-
   describe('getRecentTransactions', () => {
     it('should fetch recent transactions without paging', async () => {
       const mockResponse = {
@@ -279,13 +255,18 @@ describe('Solana Transaction History Service', () => {
         oldestSignature: 'oldest-sig',
         hasMore: true,
       };
-      vi.mocked(solanaApiService.getSolanaTransactions).mockResolvedValue(mockResponse);
+      mockGetSolanaTransactions.mockResolvedValue(mockResponse);
 
-      const result = await getRecentTransactions('solana-mainnet', TEST_ADDRESS);
+      const result = await getRecentTransactions(
+        'solana-mainnet',
+        TEST_ADDRESS,
+        undefined,
+        mockGetSolanaTransactions
+      );
 
       expect(result.data).toEqual([MOCK_SEND_TX, MOCK_RECEIVE_TX]);
       expect(result.pageToken).toBe('oldest-sig');
-      expect(solanaApiService.getSolanaTransactions).toHaveBeenCalledWith(
+      expect(mockGetSolanaTransactions).toHaveBeenCalledWith(
         'solana-mainnet',
         TEST_ADDRESS,
         {}
@@ -298,17 +279,22 @@ describe('Solana Transaction History Service', () => {
         oldestSignature: null,
         hasMore: false,
       };
-      vi.mocked(solanaApiService.getSolanaTransactions).mockResolvedValue(mockResponse);
+      mockGetSolanaTransactions.mockResolvedValue(mockResponse);
 
       const paging: SolanaTransactionPaging = {
         nextPageToken: 'page-token-123',
         pageSize: 20,
       };
-      const result = await getRecentTransactions('solana-mainnet', TEST_ADDRESS, paging);
+      const result = await getRecentTransactions(
+        'solana-mainnet',
+        TEST_ADDRESS,
+        paging,
+        mockGetSolanaTransactions
+      );
 
       expect(result.data).toEqual([MOCK_SWAP_TX]);
       expect(result.pageToken).toBeUndefined();
-      expect(solanaApiService.getSolanaTransactions).toHaveBeenCalledWith(
+      expect(mockGetSolanaTransactions).toHaveBeenCalledWith(
         'solana-mainnet',
         TEST_ADDRESS,
         { before: 'page-token-123', limit: 20 }

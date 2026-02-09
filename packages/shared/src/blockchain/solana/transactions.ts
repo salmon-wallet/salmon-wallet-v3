@@ -3,28 +3,22 @@
  * Migrated from salmon-wallet-v2/src/adapter/services/solana/solana-transaction-service.js
  *
  * This module provides a blockchain-level interface for transaction history.
- * It delegates to the API service for actual API calls while providing
- * convenient helper functions for transaction analysis.
+ * It provides convenient helper functions for transaction analysis and
+ * adapter logic for converting between paging formats.
  *
  * Note: The backend returns transactions already transformed to UI format
  * with inputs/outputs arrays instead of raw Helius format.
- *
- * API Endpoints used:
- * - GET /v1/{networkId}/account/{address}/transactions - Get paginated transactions
- * - GET /v1/{networkId}/account/{address}/transactions/{txId} - Get single transaction
  */
 
-import {
-  getSolanaTransaction,
-  getSolanaTransactions,
-  type SolanaTransaction,
-  type SolanaTransactionsResponse,
-  type SolanaPagingParams,
-  type SolanaTransactionTokenAmount,
-  type SolanaTransactionFee,
-  type SolanaTransactionTypeBackend,
-  type SolanaTransactionStatusBackend,
-  type SolanaNetworkId,
+import type {
+  SolanaTransaction,
+  SolanaTransactionsResponse,
+  SolanaPagingParams,
+  SolanaTransactionTokenAmount,
+  SolanaTransactionFee,
+  SolanaTransactionTypeBackend,
+  SolanaTransactionStatusBackend,
+  SolanaNetworkId,
 } from '../../api/services/solana';
 
 // ============================================================================
@@ -67,64 +61,24 @@ export interface SolanaTransactionListResponse {
 }
 
 // ============================================================================
+// API Function Types
+// ============================================================================
+
+export type GetSolanaTransactionsFn = (
+  networkId: SolanaNetworkId,
+  address: string,
+  paging?: SolanaPagingParams
+) => Promise<SolanaTransactionsResponse>;
+
+// ============================================================================
 // API Functions (v2 compatible interface)
 // ============================================================================
 
-/**
- * Get a single transaction by ID
- *
- * @param networkId - The network ID (e.g., 'solana-mainnet', 'solana-devnet')
- * @param address - The account address to get transaction for
- * @param txId - The transaction signature/ID
- * @returns Transaction data or null if not found
- *
- * @example
- * ```typescript
- * const tx = await getTransaction(
- *   'solana-mainnet',
- *   'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK',
- *   '5xG8...abc'
- * );
- * if (tx) {
- *   console.log(`Transaction type: ${tx.type}`);
- * }
- * ```
- */
-export async function getTransaction(
-  networkId: string,
-  address: string,
-  txId: string
-): Promise<SolanaTransaction | null> {
-  return getSolanaTransaction(networkId as SolanaNetworkId, address, txId);
-}
-
-/**
- * Get recent transactions for an account with pagination support
- *
- * @param networkId - The network ID (e.g., 'solana-mainnet', 'solana-devnet')
- * @param address - The account address to get transactions for
- * @param paging - Optional pagination parameters
- * @returns Paginated transaction list response
- *
- * @example
- * ```typescript
- * // First page
- * const page1 = await getRecentTransactions('solana-mainnet', publicKey);
- * console.log(`Found ${page1.data.length} transactions`);
- *
- * // Next page (if available)
- * if (page1.pageToken) {
- *   const page2 = await getRecentTransactions('solana-mainnet', publicKey, {
- *     nextPageToken: page1.pageToken,
- *     pageSize: 20
- *   });
- * }
- * ```
- */
 export async function getRecentTransactions(
   networkId: string,
   address: string,
-  paging?: SolanaTransactionPaging
+  paging: SolanaTransactionPaging | undefined,
+  fetchTransactions: GetSolanaTransactionsFn
 ): Promise<SolanaTransactionListResponse> {
   const { nextPageToken, pageSize } = paging || {};
 
@@ -137,7 +91,7 @@ export async function getRecentTransactions(
     apiPaging.limit = pageSize;
   }
 
-  const response = await getSolanaTransactions(
+  const response = await fetchTransactions(
     networkId as SolanaNetworkId,
     address,
     apiPaging

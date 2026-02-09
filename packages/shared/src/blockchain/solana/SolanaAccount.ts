@@ -21,7 +21,11 @@ import {
   type ValidationResult as ServiceValidationResult,
 } from './validation';
 import {
-  getTransaction as getTransactionService,
+  getSolanaTransaction,
+  getSolanaTransactions,
+  type SolanaNetworkId,
+} from '../../api/services/solana';
+import {
   getRecentTransactions as getRecentTransactionsService,
   type SolanaTransaction,
   type SolanaTransactionPaging,
@@ -294,7 +298,7 @@ export class SolanaAccount {
    */
   async getTransaction(txId: string): Promise<SolanaTransaction | null> {
     const address = this.publicKey.toBase58();
-    return getTransactionService(this.network.id, address, txId);
+    return getSolanaTransaction(this.network.id as SolanaNetworkId, address, txId);
   }
 
   /**
@@ -307,7 +311,7 @@ export class SolanaAccount {
     paging?: SolanaTransactionPaging
   ): Promise<SolanaTransactionListResponse> {
     const address = this.publicKey.toBase58();
-    return getRecentTransactionsService(this.network.id, address, paging);
+    return getRecentTransactionsService(this.network.id, address, paging, getSolanaTransactions);
   }
 
   // ==========================================================================

@@ -51,6 +51,10 @@ import {
   getMaxSendableAmount,
   satoshisToBtc,
 } from '../blockchain/bitcoin/transfer';
+import {
+  fetchUtxos,
+  broadcastTransaction,
+} from '../api/services/bitcoin-transfer';
 
 // ============================================================================
 // Types
@@ -238,7 +242,7 @@ export function useSendTransaction({
       const address = btcAccount.getReceiveAddress();
       const network = btcAccount.network;
 
-      const utxos = await getUtxos(network, address);
+      const utxos = await getUtxos(network, address, fetchUtxos);
       // 2 outputs: recipient + change
       const fee = estimateBitcoinFee(utxos.length, 2);
       const feeInBtc = satoshisToBtc(fee);
@@ -348,6 +352,8 @@ export function useSendTransaction({
         signingKeyPair,
         params.recipientAddress,
         params.amount,
+        fetchUtxos,
+        broadcastTransaction,
       );
 
       if (!result.success) {

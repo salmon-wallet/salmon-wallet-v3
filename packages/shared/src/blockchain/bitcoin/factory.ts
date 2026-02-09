@@ -4,6 +4,10 @@ import {
   BitcoinNetwork,
   BitcoinKeyPair,
   BitcoinEnvironment,
+  type FetchBitcoinBalanceFn,
+  type FetchBitcoinPricesFn,
+  type FetchBitcoinTransactionFn,
+  type FetchBitcoinRecentTransactionsFn,
 } from './BitcoinAccount';
 import {
   deriveBitcoinKeypair,
@@ -24,6 +28,16 @@ export const BITCOIN_COIN_TYPE = COIN_TYPES.BTC;
 export const BITCOIN_TESTNET_COIN_TYPE = COIN_TYPES.TESTNET;
 
 /**
+ * API dependencies required for BitcoinAccount operations
+ */
+export interface BitcoinAccountApiFunctions {
+  fetchBalance: FetchBitcoinBalanceFn;
+  fetchPrices: FetchBitcoinPricesFn;
+  fetchTransaction: FetchBitcoinTransactionFn;
+  fetchRecentTransactions: FetchBitcoinRecentTransactionsFn;
+}
+
+/**
  * Options for creating a Bitcoin account from mnemonic
  */
 export interface CreateBitcoinAccountOptions {
@@ -33,6 +47,8 @@ export interface CreateBitcoinAccountOptions {
   mnemonic: string;
   /** Account derivation index (defaults to 0) */
   index?: number;
+  /** API dependency functions */
+  apiFunctions: BitcoinAccountApiFunctions;
 }
 
 /**
@@ -47,6 +63,8 @@ export interface DeriveBitcoinAccountsOptions {
   startIndex?: number;
   /** Number of accounts to derive (defaults to 1) */
   count?: number;
+  /** API dependency functions */
+  apiFunctions: BitcoinAccountApiFunctions;
 }
 
 /**
@@ -141,7 +159,7 @@ export function createKeyPairFromNode(
 export async function createBitcoinAccount(
   options: CreateBitcoinAccountOptions
 ): Promise<BitcoinAccount> {
-  const { network, mnemonic, index = 0 } = options;
+  const { network, mnemonic, index = 0, apiFunctions } = options;
 
   // Derive the BIP32 node from mnemonic
   const { node, path } = await deriveBitcoinKeypair(mnemonic, index);
@@ -158,6 +176,7 @@ export async function createBitcoinAccount(
     path,
     keyPair,
     node,
+    ...apiFunctions,
   });
 }
 
@@ -184,7 +203,7 @@ export async function createBitcoinAccount(
 export async function deriveBitcoinAccounts(
   options: DeriveBitcoinAccountsOptions
 ): Promise<BitcoinAccount[]> {
-  const { network, mnemonic, startIndex = 0, count = 1 } = options;
+  const { network, mnemonic, startIndex = 0, count = 1, apiFunctions } = options;
 
   const accounts: BitcoinAccount[] = [];
 
@@ -193,6 +212,7 @@ export async function deriveBitcoinAccounts(
       network,
       mnemonic,
       index: startIndex + i,
+      apiFunctions,
     });
     accounts.push(account);
   }
@@ -214,13 +234,15 @@ export async function deriveBitcoinAccounts(
 export function createBitcoinAccountFromKeyPair(
   network: BitcoinNetwork,
   keyPair: BitcoinKeyPair,
-  index: number = 0
+  index: number = 0,
+  apiFunctions: BitcoinAccountApiFunctions
 ): BitcoinAccount {
   return new BitcoinAccount({
     network,
     index,
     path: getBitcoinDerivationPath(index),
     keyPair,
+    ...apiFunctions,
   });
 }
 
@@ -252,7 +274,8 @@ export function createBitcoinAccountFromWIF(
   network: BitcoinNetwork,
   wif: string,
   address: string,
-  index: number = 0
+  index: number = 0,
+  apiFunctions: BitcoinAccountApiFunctions
 ): BitcoinAccount {
   // Validate that the address is valid for the network
   if (!BitcoinAccount.isValidAddress(address, network.config.network)) {
@@ -268,7 +291,7 @@ export function createBitcoinAccountFromWIF(
     publicKey: new Uint8Array(33), // Empty placeholder - signing would need the actual key
   };
 
-  return createBitcoinAccountFromKeyPair(network, keyPair, index);
+  return createBitcoinAccountFromKeyPair(network, keyPair, index, apiFunctions);
 }
 
 /**

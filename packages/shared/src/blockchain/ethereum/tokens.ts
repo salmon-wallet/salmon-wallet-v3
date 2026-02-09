@@ -18,10 +18,7 @@
 
 import { Contract, formatUnits } from 'ethers';
 import type { Provider } from 'ethers';
-import {
-  getERC20TokenBalances,
-  type DetectedERC20Token,
-} from '../../api/services/ethereum';
+import type { DetectedERC20Token } from '../../api/services/ethereum';
 
 // ============================================================================
 // Types
@@ -423,14 +420,15 @@ export interface TokenDetectionResult {
 export async function detectAllTokens(
   provider: Provider,
   address: string,
-  networkId: string = 'ethereum'
+  networkId: string = 'ethereum',
+  fetchTokenBalances: (address: string, networkId: string) => Promise<DetectedERC20Token[]> = () => Promise.resolve([])
 ): Promise<TokenDetectionResult> {
   let detectedTokens: EthereumTokenBalance[] = [];
   let usedAutomaticDetection = false;
 
   // Step 1: Try automatic detection via API
   try {
-    const apiTokens = await getERC20TokenBalances(address, networkId);
+    const apiTokens = await fetchTokenBalances(address, networkId);
 
     if (apiTokens.length > 0) {
       usedAutomaticDetection = true;
@@ -517,9 +515,10 @@ export async function detectAllTokens(
 export async function getAllTokensForOwner(
   provider: Provider,
   address: string,
-  networkId: string = 'ethereum'
+  networkId: string = 'ethereum',
+  fetchTokenBalances?: (address: string, networkId: string) => Promise<DetectedERC20Token[]>
 ): Promise<EthereumTokenBalance[]> {
-  const result = await detectAllTokens(provider, address, networkId);
+  const result = await detectAllTokens(provider, address, networkId, fetchTokenBalances);
   return result.allTokens;
 }
 

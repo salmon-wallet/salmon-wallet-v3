@@ -10,7 +10,7 @@
  * - Account derivation from mnemonic
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import * as bitcoin from 'bitcoinjs-lib';
 import {
   mapEnvironmentToNetwork,
@@ -31,21 +31,19 @@ import {
   sendBitcoin,
   DEFAULT_FEE_RATE,
 } from './transfer';
+import type { FetchUtxosFn, BroadcastTransactionFn } from './transfer';
+import type { BitcoinAccountApiFunctions } from './factory';
 
-// Mock the API module
-vi.mock('../../api', async () => {
-  const actual = await vi.importActual('../../api');
-  return {
-    ...actual as object,
-    get: vi.fn(),
-    post: vi.fn(),
-  };
-});
+// ============================================================================
+// Mock API Functions
+// ============================================================================
 
-// Mock the price service
-vi.mock('../../api/services/price', () => ({
-  getPricesByPlatform: vi.fn(),
-}));
+const mockApiFunctions: BitcoinAccountApiFunctions = {
+  fetchBalance: vi.fn().mockResolvedValue([]),
+  fetchPrices: vi.fn().mockResolvedValue(null),
+  fetchTransaction: vi.fn().mockResolvedValue({ id: 'mock-tx' }),
+  fetchRecentTransactions: vi.fn().mockResolvedValue({ items: [] }),
+};
 
 // ============================================================================
 // Test Constants
@@ -605,6 +603,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account.getReceiveAddress()).toBe(EXPECTED_ADDRESS_INDEX_0);
@@ -615,12 +614,14 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const account2 = await createBitcoinAccount({
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account1.getReceiveAddress()).toBe(account2.getReceiveAddress());
@@ -631,12 +632,14 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const account1 = await createBitcoinAccount({
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 1,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account0.getReceiveAddress()).not.toBe(account1.getReceiveAddress());
@@ -647,11 +650,13 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const accountDefault = await createBitcoinAccount({
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(accountExplicit.getReceiveAddress()).toBe(accountDefault.getReceiveAddress());
@@ -664,6 +669,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account.network.id).toBe('bitcoin');
@@ -676,6 +682,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account.path).toBe("m/44'/0'/0'/0/0");
@@ -686,6 +693,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 5,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account.path).toBe("m/44'/0'/5'/0/0");
@@ -696,6 +704,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 7,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account.index).toBe(7);
@@ -706,6 +715,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const publicKey = account.getPublicKey();
@@ -718,6 +728,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const wif = account.retrieveSecurePrivateKey();
@@ -732,6 +743,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const node = account.getBip32Node();
@@ -746,6 +758,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.testnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const address = account.getReceiveAddress();
@@ -758,12 +771,14 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const testnetAccount = await createBitcoinAccount({
         network: BITCOIN_NETWORKS.testnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(mainnetAccount.getReceiveAddress()).not.toBe(testnetAccount.getReceiveAddress());
@@ -776,6 +791,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const address = account.getReceiveAddress();
@@ -787,6 +803,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account.isValidAddressForNetwork('invalid')).toBe(false);
@@ -797,6 +814,7 @@ describe('createBitcoinAccount', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(account.isValidAddressForNetwork(SAMPLE_ADDRESSES.p2pkh_testnet)).toBe(false);
@@ -810,6 +828,7 @@ describe('createBitcoinAccount', () => {
           network: BITCOIN_NETWORKS.mainnet,
           mnemonic: 'invalid mnemonic phrase',
           index: 0,
+          apiFunctions: mockApiFunctions,
         })
       ).rejects.toThrow();
     });
@@ -820,6 +839,7 @@ describe('createBitcoinAccount', () => {
           network: BITCOIN_NETWORKS.mainnet,
           mnemonic: '',
           index: 0,
+          apiFunctions: mockApiFunctions,
         })
       ).rejects.toThrow();
     });
@@ -834,6 +854,7 @@ describe('createBitcoinAccount', () => {
           network: BITCOIN_NETWORKS.mainnet,
           mnemonic: TEST_MNEMONIC,
           index: i,
+          apiFunctions: mockApiFunctions,
         });
         addresses.add(account.getReceiveAddress());
       }
@@ -872,39 +893,12 @@ describe('BitcoinAccount.createBalance', () => {
 // ============================================================================
 
 describe('Bitcoin Transfer Integration Tests', () => {
-  // Helper to check if Docker backend is available
-  async function isBackendAvailable(): Promise<boolean> {
-    try {
-      const response = await fetch('http://localhost:3000/health', {
-        method: 'GET',
-        signal: AbortSignal.timeout(2000),
-      });
-      return response.ok;
-    } catch {
-      return false;
-    }
-  }
-
-  // Save original implementations
-  let originalGet: typeof import('../../api').get;
-
-  beforeEach(async () => {
-    // Import and save original implementation
-    const api = await import('../../api');
-    originalGet = api.get;
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   // ============================================================================
   // getUtxos Tests
   // ============================================================================
 
   describe('getUtxos', () => {
-    it('should fetch UTXOs with mocked API', async () => {
-      const api = await import('../../api');
+    it('should fetch UTXOs with injected fetch function', async () => {
       const { getUtxos } = await import('./transfer');
 
       const mockUtxos = [
@@ -920,37 +914,35 @@ describe('Bitcoin Transfer Integration Tests', () => {
         },
       ];
 
-      (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: mockUtxos });
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue(mockUtxos);
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
       const network = BITCOIN_NETWORKS.mainnet;
-      const utxos = await getUtxos(network, testAddress);
+      const utxos = await getUtxos(network, testAddress, mockFetchUtxos);
 
       expect(Array.isArray(utxos)).toBe(true);
       expect(utxos).toEqual(mockUtxos);
     });
 
     it('should handle empty UTXO list', async () => {
-      const api = await import('../../api');
       const { getUtxos } = await import('./transfer');
 
-      (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: [] });
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue([]);
 
       const network = BITCOIN_NETWORKS.mainnet;
-      const utxos = await getUtxos(network, 'unused-address');
+      const utxos = await getUtxos(network, 'unused-address', mockFetchUtxos);
 
       expect(utxos).toEqual([]);
     });
 
     it('should handle API errors gracefully', async () => {
-      const api = await import('../../api');
       const { getUtxos } = await import('./transfer');
 
-      (api.get as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('API Error'));
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockRejectedValue(new Error('API Error'));
 
       const network = BITCOIN_NETWORKS.mainnet;
 
-      await expect(getUtxos(network, 'test-address')).rejects.toThrow('API Error');
+      await expect(getUtxos(network, 'test-address', mockFetchUtxos)).rejects.toThrow('API Error');
     });
   });
 
@@ -965,13 +957,13 @@ describe('Bitcoin Transfer Integration Tests', () => {
     });
 
     it('should throw error when balance is insufficient', async () => {
-      const api = await import('../../api');
       const { createTransferTransaction } = await import('./transfer');
 
       const account = await createBitcoinAccount({
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const node = account.getBip32Node();
@@ -993,7 +985,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         },
       ];
 
-      (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: mockUtxos });
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue(mockUtxos);
 
       const receiverAddress = SAMPLE_ADDRESSES.p2pkh_mainnet;
       const amountBtc = 0.1; // Try to send 0.1 BTC
@@ -1003,7 +995,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
           BITCOIN_NETWORKS.mainnet,
           keyPair,
           receiverAddress,
-          amountBtc
+          amountBtc,
+          mockFetchUtxos
         )
       ).rejects.toThrow('Balance is too low');
     });
@@ -1013,6 +1006,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const node = account.getBip32Node();
@@ -1027,7 +1021,6 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
   describe('getMaxSendableAmount', () => {
     it('should calculate maximum sendable amount correctly', async () => {
-      const api = await import('../../api');
       const { getMaxSendableAmount } = await import('./transfer');
 
       const mockUtxos = [
@@ -1043,12 +1036,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         },
       ];
 
-      (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: mockUtxos });
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue(mockUtxos);
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
       const maxAmount = await getMaxSendableAmount(
         BITCOIN_NETWORKS.mainnet,
-        testAddress
+        testAddress,
+        DEFAULT_FEE_RATE,
+        mockFetchUtxos
       );
 
       // Total: 1,500,000 satoshis
@@ -1060,22 +1055,22 @@ describe('Bitcoin Transfer Integration Tests', () => {
     });
 
     it('should return 0 when no UTXOs available', async () => {
-      const api = await import('../../api');
       const { getMaxSendableAmount } = await import('./transfer');
 
-      (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: [] });
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue([]);
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
       const maxAmount = await getMaxSendableAmount(
         BITCOIN_NETWORKS.mainnet,
-        testAddress
+        testAddress,
+        DEFAULT_FEE_RATE,
+        mockFetchUtxos
       );
 
       expect(maxAmount).toBe(0);
     });
 
     it('should return 0 when balance is less than fee', async () => {
-      const api = await import('../../api');
       const { getMaxSendableAmount } = await import('./transfer');
 
       const mockUtxos = [
@@ -1086,19 +1081,20 @@ describe('Bitcoin Transfer Integration Tests', () => {
         },
       ];
 
-      (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: mockUtxos });
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue(mockUtxos);
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
       const maxAmount = await getMaxSendableAmount(
         BITCOIN_NETWORKS.mainnet,
-        testAddress
+        testAddress,
+        DEFAULT_FEE_RATE,
+        mockFetchUtxos
       );
 
       expect(maxAmount).toBe(0);
     });
 
     it('should use custom fee rate', async () => {
-      const api = await import('../../api');
       const { getMaxSendableAmount } = await import('./transfer');
 
       const mockUtxos = [
@@ -1109,24 +1105,22 @@ describe('Bitcoin Transfer Integration Tests', () => {
         },
       ];
 
-      const getSpy = (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: mockUtxos });
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue(mockUtxos);
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
 
       const maxWithDefault = await getMaxSendableAmount(
         BITCOIN_NETWORKS.mainnet,
         testAddress,
-        2
+        2,
+        mockFetchUtxos
       );
-
-      // Reset and call again with higher fee
-      getSpy.mockClear();
-      getSpy.mockResolvedValue({ data: mockUtxos });
 
       const maxWithHighFee = await getMaxSendableAmount(
         BITCOIN_NETWORKS.mainnet,
         testAddress,
-        10
+        10,
+        mockFetchUtxos
       );
 
       expect(maxWithHighFee).toBeLessThan(maxWithDefault);
@@ -1143,6 +1137,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(typeof account.getBalance).toBe('function');
@@ -1154,6 +1149,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       try {
@@ -1179,6 +1175,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const result = await account.validateDestinationAccount(SAMPLE_ADDRESSES.p2pkh_mainnet);
@@ -1193,6 +1190,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const result = await account.validateDestinationAccount(SAMPLE_ADDRESSES.p2wpkh_mainnet);
@@ -1207,6 +1205,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const result = await account.validateDestinationAccount('invalid-address');
@@ -1221,6 +1220,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const result = await account.validateDestinationAccount('');
@@ -1234,6 +1234,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const result = await account.validateDestinationAccount(SAMPLE_ADDRESSES.p2pkh_testnet);
@@ -1247,6 +1248,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const validP2SH = '3Kzh9qAqVWQhEsfQz7zEQL1EuSx5tyNLNS';
@@ -1268,6 +1270,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(typeof account.getRecentTransactions).toBe('function');
@@ -1279,6 +1282,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       try {
@@ -1298,6 +1302,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       try {
@@ -1321,6 +1326,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const node = account.getBip32Node();
@@ -1342,6 +1348,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const node = account.getBip32Node();
@@ -1360,6 +1367,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.testnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const node = account.getBip32Node();
@@ -1379,6 +1387,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const node = account.getBip32Node();
@@ -1397,12 +1406,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const account1 = await createBitcoinAccount({
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 1,
+        apiFunctions: mockApiFunctions,
       });
 
       const node0 = account0.getBip32Node();
@@ -1433,12 +1444,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
         BITCOIN_NETWORKS.mainnet,
         originalAccount.keyPair,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(newAccount.getReceiveAddress()).toBe(originalAccount.getReceiveAddress());
@@ -1451,12 +1464,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 5,
+        apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
         BITCOIN_NETWORKS.mainnet,
         originalAccount.keyPair,
-        5
+        5,
+        mockApiFunctions
       );
 
       expect(newAccount.index).toBe(5);
@@ -1468,11 +1483,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
         BITCOIN_NETWORKS.mainnet,
-        originalAccount.keyPair
+        originalAccount.keyPair,
+        0,
+        mockApiFunctions
       );
 
       expect(newAccount.index).toBe(0);
@@ -1483,12 +1501,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
         BITCOIN_NETWORKS.mainnet,
         originalAccount.keyPair,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(newAccount.retrieveSecurePrivateKey()).toBe(originalAccount.retrieveSecurePrivateKey());
@@ -1502,12 +1522,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.testnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
         BITCOIN_NETWORKS.testnet,
         originalAccount.keyPair,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(newAccount.network.environment).toBe('testnet');
@@ -1519,12 +1541,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
         BITCOIN_NETWORKS.mainnet,
         originalAccount.keyPair,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(newAccount.network.id).toBe('bitcoin');
@@ -1537,12 +1561,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
         BITCOIN_NETWORKS.mainnet,
         originalAccount.keyPair,
-        0
+        0,
+        mockApiFunctions
       );
 
       const address = newAccount.getReceiveAddress();
@@ -1561,6 +1587,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const wif = originalAccount.retrieveSecurePrivateKey();
@@ -1570,7 +1597,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
         BITCOIN_NETWORKS.mainnet,
         wif,
         address,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(newAccount.getReceiveAddress()).toBe(address);
@@ -1586,7 +1614,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
           BITCOIN_NETWORKS.mainnet,
           wif,
           invalidAddress,
-          0
+          0,
+          mockApiFunctions
         );
       }).toThrow('Invalid address for network: bitcoin');
     });
@@ -1599,7 +1628,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
           BITCOIN_NETWORKS.mainnet,
           wif,
           SAMPLE_ADDRESSES.p2pkh_testnet,
-          0
+          0,
+          mockApiFunctions
         );
       }).toThrow('Invalid address for network: bitcoin');
     });
@@ -1612,7 +1642,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
         BITCOIN_NETWORKS.mainnet,
         wif,
         address,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(account.getReceiveAddress()).toBe(address);
@@ -1625,7 +1656,9 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const account = createBitcoinAccountFromWIF(
         BITCOIN_NETWORKS.mainnet,
         wif,
-        address
+        address,
+        0,
+        mockApiFunctions
       );
 
       expect(account.index).toBe(0);
@@ -1639,7 +1672,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
         BITCOIN_NETWORKS.mainnet,
         wif,
         address,
-        5
+        5,
+        mockApiFunctions
       );
 
       expect(account.index).toBe(5);
@@ -1651,6 +1685,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.testnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const wif = originalAccount.retrieveSecurePrivateKey();
@@ -1660,7 +1695,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
         BITCOIN_NETWORKS.testnet,
         wif,
         address,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(newAccount.network.environment).toBe('testnet');
@@ -1675,7 +1711,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
         BITCOIN_NETWORKS.mainnet,
         wif,
         address,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(account.getReceiveAddress()).toBe(address);
@@ -1689,7 +1726,8 @@ describe('Bitcoin Transfer Integration Tests', () => {
         BITCOIN_NETWORKS.mainnet,
         wif,
         address,
-        0
+        0,
+        mockApiFunctions
       );
 
       expect(account.network.id).toBe('bitcoin');
@@ -1707,6 +1745,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const accounts = await deriveBitcoinAccounts({
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(accounts.length).toBe(1);
@@ -1719,6 +1758,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         count: 5,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(accounts.length).toBe(5);
@@ -1736,6 +1776,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         mnemonic: TEST_MNEMONIC,
         startIndex: 10,
         count: 3,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(accounts.length).toBe(3);
@@ -1749,6 +1790,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         count: 10,
+        apiFunctions: mockApiFunctions,
       });
 
       const addresses = accounts.map(acc => acc.getReceiveAddress());
@@ -1762,12 +1804,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         count: 3,
+        apiFunctions: mockApiFunctions,
       });
 
       const accounts2 = await deriveBitcoinAccounts({
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         count: 3,
+        apiFunctions: mockApiFunctions,
       });
 
       for (let i = 0; i < 3; i++) {
@@ -1780,6 +1824,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.testnet,
         mnemonic: TEST_MNEMONIC,
         count: 3,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(accounts.length).toBe(3);
@@ -1796,6 +1841,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         count: 3,
+        apiFunctions: mockApiFunctions,
       });
 
       for (const account of accounts) {
@@ -1814,6 +1860,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         count: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(accounts.length).toBe(0);
@@ -1824,6 +1871,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         count: 20,
+        apiFunctions: mockApiFunctions,
       });
 
       expect(accounts.length).toBe(20);
@@ -1836,6 +1884,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
           network: BITCOIN_NETWORKS.mainnet,
           mnemonic: 'invalid mnemonic',
           count: 1,
+          apiFunctions: mockApiFunctions,
         })
       ).rejects.toThrow();
     });
@@ -1845,6 +1894,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         count: 5,
+        apiFunctions: mockApiFunctions,
       });
 
       for (const account of accounts) {
@@ -1859,46 +1909,21 @@ describe('Bitcoin Transfer Integration Tests', () => {
   // ============================================================================
 
   describe('confirmTransferTransaction', () => {
-    // Helper to check if Docker backend is available
-    async function isBackendAvailable(): Promise<boolean> {
-      try {
-        const response = await fetch('http://localhost:3000/health', {
-          method: 'GET',
-          signal: AbortSignal.timeout(2000),
-        });
-        return response.ok;
-      } catch {
-        return false;
-      }
-    }
-
-    beforeEach(async () => {
-      // Import and save original implementation
-      const api = await import('../../api');
-    });
-
-    afterEach(() => {
-      vi.restoreAllMocks();
-    });
-
     it('should have confirmTransferTransaction function available', () => {
       expect(typeof confirmTransferTransaction).toBe('function');
     });
 
-    it('should broadcast transaction with mocked API', async () => {
-      const api = await import('../../api');
-
-      const mockResponse = {
+    it('should broadcast transaction with injected broadcast function', async () => {
+      const mockBroadcast: BroadcastTransactionFn = vi.fn().mockResolvedValue({
         txId: 'a'.repeat(64),
         success: true,
-      };
-
-      (api.post as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+      });
 
       const result = await confirmTransferTransaction(
         BITCOIN_NETWORKS.mainnet,
         EXPECTED_ADDRESS_INDEX_0,
-        '0100000001' // Dummy serialized tx
+        '0100000001', // Dummy serialized tx
+        mockBroadcast
       );
 
       expect(result.success).toBe(true);
@@ -1907,16 +1932,15 @@ describe('Bitcoin Transfer Integration Tests', () => {
     });
 
     it('should handle broadcast errors gracefully', async () => {
-      const api = await import('../../api');
-
-      (api.post as ReturnType<typeof vi.fn>).mockRejectedValue(
+      const mockBroadcast: BroadcastTransactionFn = vi.fn().mockRejectedValue(
         new Error('Network error')
       );
 
       const result = await confirmTransferTransaction(
         BITCOIN_NETWORKS.mainnet,
         EXPECTED_ADDRESS_INDEX_0,
-        '0100000001'
+        '0100000001',
+        mockBroadcast
       );
 
       expect(result.success).toBe(false);
@@ -1925,24 +1949,21 @@ describe('Bitcoin Transfer Integration Tests', () => {
     });
 
     it('should handle unknown error types', async () => {
-      const api = await import('../../api');
-
-      (api.post as ReturnType<typeof vi.fn>).mockRejectedValue('String error');
+      const mockBroadcast: BroadcastTransactionFn = vi.fn().mockRejectedValue('String error');
 
       const result = await confirmTransferTransaction(
         BITCOIN_NETWORKS.mainnet,
         EXPECTED_ADDRESS_INDEX_0,
-        '0100000001'
+        '0100000001',
+        mockBroadcast
       );
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Unknown error');
     });
 
-    it('should call correct API endpoint for mainnet', async () => {
-      const api = await import('../../api');
-
-      const mockPost = (api.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+    it('should pass correct networkId for mainnet', async () => {
+      const mockBroadcast: BroadcastTransactionFn = vi.fn().mockResolvedValue({
         txId: 'test-tx',
         success: true,
       });
@@ -1950,19 +1971,19 @@ describe('Bitcoin Transfer Integration Tests', () => {
       await confirmTransferTransaction(
         BITCOIN_NETWORKS.mainnet,
         EXPECTED_ADDRESS_INDEX_0,
-        '0100000001'
+        '0100000001',
+        mockBroadcast
       );
 
-      expect(mockPost).toHaveBeenCalledWith(
-        expect.stringContaining('/v1/bitcoin/account/'),
-        expect.objectContaining({ tx: '0100000001' })
+      expect(mockBroadcast).toHaveBeenCalledWith(
+        'bitcoin',
+        EXPECTED_ADDRESS_INDEX_0,
+        '0100000001'
       );
     });
 
-    it('should call correct API endpoint for testnet', async () => {
-      const api = await import('../../api');
-
-      const mockPost = (api.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+    it('should pass correct networkId for testnet', async () => {
+      const mockBroadcast: BroadcastTransactionFn = vi.fn().mockResolvedValue({
         txId: 'test-tx',
         success: true,
       });
@@ -1970,19 +1991,19 @@ describe('Bitcoin Transfer Integration Tests', () => {
       await confirmTransferTransaction(
         BITCOIN_NETWORKS.testnet,
         SAMPLE_ADDRESSES.p2pkh_testnet,
-        '0100000001'
+        '0100000001',
+        mockBroadcast
       );
 
-      expect(mockPost).toHaveBeenCalledWith(
-        expect.stringContaining('/v1/bitcoin-testnet/account/'),
-        expect.objectContaining({ tx: '0100000001' })
+      expect(mockBroadcast).toHaveBeenCalledWith(
+        'bitcoin-testnet',
+        SAMPLE_ADDRESSES.p2pkh_testnet,
+        '0100000001'
       );
     });
 
-    it('should include address in API path', async () => {
-      const api = await import('../../api');
-
-      const mockPost = (api.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+    it('should pass address to broadcast function', async () => {
+      const mockBroadcast: BroadcastTransactionFn = vi.fn().mockResolvedValue({
         txId: 'test-tx',
         success: true,
       });
@@ -1992,19 +2013,19 @@ describe('Bitcoin Transfer Integration Tests', () => {
       await confirmTransferTransaction(
         BITCOIN_NETWORKS.mainnet,
         testAddress,
-        '0100000001'
+        '0100000001',
+        mockBroadcast
       );
 
-      expect(mockPost).toHaveBeenCalledWith(
-        expect.stringContaining(testAddress),
-        expect.any(Object)
+      expect(mockBroadcast).toHaveBeenCalledWith(
+        expect.any(String),
+        testAddress,
+        '0100000001'
       );
     });
 
-    it('should pass serialized transaction in request body', async () => {
-      const api = await import('../../api');
-
-      const mockPost = (api.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+    it('should pass serialized transaction to broadcast function', async () => {
+      const mockBroadcast: BroadcastTransactionFn = vi.fn().mockResolvedValue({
         txId: 'test-tx',
         success: true,
       });
@@ -2014,12 +2035,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
       await confirmTransferTransaction(
         BITCOIN_NETWORKS.mainnet,
         EXPECTED_ADDRESS_INDEX_0,
-        serializedTx
+        serializedTx,
+        mockBroadcast
       );
 
-      expect(mockPost).toHaveBeenCalledWith(
+      expect(mockBroadcast).toHaveBeenCalledWith(
         expect.any(String),
-        expect.objectContaining({ tx: serializedTx })
+        EXPECTED_ADDRESS_INDEX_0,
+        serializedTx
       );
     });
   });
@@ -2029,28 +2052,6 @@ describe('Bitcoin Transfer Integration Tests', () => {
   // ============================================================================
 
   describe('sendBitcoin', () => {
-    // Helper to check if Docker backend is available
-    async function isBackendAvailable(): Promise<boolean> {
-      try {
-        const response = await fetch('http://localhost:3000/health', {
-          method: 'GET',
-          signal: AbortSignal.timeout(2000),
-        });
-        return response.ok;
-      } catch {
-        return false;
-      }
-    }
-
-    beforeEach(async () => {
-      // Import and save original implementation
-      const api = await import('../../api');
-    });
-
-    afterEach(() => {
-      vi.restoreAllMocks();
-    });
-
     it('should have sendBitcoin function available', () => {
       expect(typeof sendBitcoin).toBe('function');
     });
@@ -2062,12 +2063,11 @@ describe('Bitcoin Transfer Integration Tests', () => {
     });
 
     it('should handle insufficient balance error', async () => {
-      const api = await import('../../api');
-
       const account = await createBitcoinAccount({
         network: BITCOIN_NETWORKS.mainnet,
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockApiFunctions,
       });
 
       const node = account.getBip32Node();
@@ -2089,14 +2089,17 @@ describe('Bitcoin Transfer Integration Tests', () => {
         },
       ];
 
-      (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: mockUtxos });
+      const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue(mockUtxos);
+      const mockBroadcast: BroadcastTransactionFn = vi.fn();
 
       await expect(
         sendBitcoin(
           BITCOIN_NETWORKS.mainnet,
           keyPair,
           SAMPLE_ADDRESSES.p2pkh_mainnet,
-          0.1 // Try to send 0.1 BTC
+          0.1, // Try to send 0.1 BTC
+          mockFetchUtxos,
+          mockBroadcast
         )
       ).rejects.toThrow('Balance is too low');
     });

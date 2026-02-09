@@ -16,6 +16,11 @@ export type {
   AccountTransaction,
   AccountTransactionInput,
   AccountTransactionOutput,
+  // DI function types
+  FetchBitcoinBalanceFn,
+  FetchBitcoinPricesFn,
+  FetchBitcoinTransactionFn,
+  FetchBitcoinRecentTransactionsFn,
 } from './BitcoinAccount';
 
 // Factory functions and utilities
@@ -32,6 +37,7 @@ export {
   BITCOIN_NETWORKS,
 } from './factory';
 export type {
+  BitcoinAccountApiFunctions,
   CreateBitcoinAccountOptions,
   DeriveBitcoinAccountsOptions,
 } from './factory';
@@ -53,4 +59,6 @@ export type {
   TransferTransactionResult,
   BroadcastResult,
   SigningKeyPair,
+  FetchUtxosFn,
+  BroadcastTransactionFn,
 } from './transfer';

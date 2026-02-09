@@ -4,7 +4,7 @@
  *
  * Provides functionality for token swaps on Solana using the Salmon API.
  * This is the blockchain-level service that handles transaction signing and confirmation.
- * It uses the API-level service (api/services/solana.ts) for HTTP communication.
+ * API functions are injected via parameters to decouple from api/services/.
  *
  * Features:
  * - Get swap quotes with transaction data
@@ -12,10 +12,6 @@
  * - Transaction confirmation
  * - Automatic decimal handling
  * - Proper handling of SOL native token address
- *
- * API Endpoints (via api/services/solana.ts):
- * - GET /v1/{networkId}/ft/swap/order - Get swap quote
- * - POST /v1/{networkId}/ft/swap/execute - Execute swap
  */
 
 import {
@@ -23,14 +19,13 @@ import {
   Keypair,
   VersionedTransaction,
 } from '@solana/web3.js';
-import {
-  getSwapOrder,
-  executeSwapApi,
-  type SwapOrderResponse,
-  type SwapOrderParams,
-  type SolanaNetworkId,
+import type {
+  SwapOrderResponse,
+  SwapOrderParams,
+  SolanaNetworkId,
+  ApiSwapExecuteResponse,
 } from '../../api/services/solana';
-import { getTokenList, type TokenMetadata } from '../../api/services/tokens';
+import type { TokenMetadata } from '../../api/services/tokens';
 import { applyDecimals, SOL_ADDRESS } from './transfer';
 import type { SolanaNetwork } from './SolanaAccount';
 
@@ -96,6 +91,25 @@ export interface GetSwapQuoteOptions {
 }
 
 // ============================================================================
+// API Function Types
+// ============================================================================
+
+export type GetSwapOrderFn = (
+  networkId: SolanaNetworkId,
+  params: SwapOrderParams
+) => Promise<SwapOrderResponse | null>;
+
+export type ExecuteSwapApiFn = (
+  networkId: SolanaNetworkId,
+  signedTransaction: string,
+  requestId: string
+) => Promise<ApiSwapExecuteResponse>;
+
+export type GetTokenListFn = (
+  networkId: SolanaNetworkId
+) => Promise<TokenMetadata[]>;
+
+// ============================================================================
 // Helper Functions
 // ============================================================================
 
@@ -121,7 +135,8 @@ function normalizeTokenAddress(address: string, userPublicKey: string): string {
  */
 async function getTokenDecimals(
   tokenAddress: string,
-  networkId: SwapNetworkId = 'solana-mainnet'
+  networkId: SwapNetworkId = 'solana-mainnet',
+  fetchTokenList: GetTokenListFn = () => Promise.resolve([])
 ): Promise<number> {
   // SOL has 9 decimals
   if (tokenAddress === SOL_ADDRESS) {
@@ -129,7 +144,7 @@ async function getTokenDecimals(
   }
 
   try {
-    const tokens = await getTokenList(networkId);
+    const tokens = await fetchTokenList(networkId);
     const token = tokens.find((t: TokenMetadata) => t.address === tokenAddress);
     return token?.decimals ?? 9;
   } catch {
@@ -171,7 +186,9 @@ async function getTokenDecimals(
 export async function getSwapQuote(
   network: SolanaNetwork | { id: string } | SwapNetworkId,
   params: SwapQuoteParams,
-  options: GetSwapQuoteOptions = {}
+  options: GetSwapQuoteOptions = {},
+  fetchSwapOrder: GetSwapOrderFn,
+  fetchTokenList: GetTokenListFn = () => Promise.resolve([])
 ): Promise<SwapQuote> {
   const networkId = typeof network === 'string' ? network : network.id as SwapNetworkId;
   const { inputMint, outputMint, amount, publicKey, slippageBps, swapMode, dynamicSlippage, priorityLevel } = params;
@@ -183,7 +200,8 @@ export async function getSwapQuote(
   // Get input token decimals
   const decimals = options.inputDecimals ?? await getTokenDecimals(
     normalizedInputMint,
-    networkId
+    networkId,
+    fetchTokenList
   );
 
   // Convert amount to raw units (string for API)
@@ -201,7 +219,7 @@ export async function getSwapQuote(
     priorityLevel,
   };
 
-  const response = await getSwapOrder(networkId, apiParams);
+  const response = await fetchSwapOrder(networkId, apiParams);
 
   if (!response) {
     throw new Error('Failed to get swap quote: No route found');
@@ -240,7 +258,8 @@ export async function getSwapQuote(
 export async function executeSwap(
   quote: SwapQuote,
   keypair: Keypair,
-  connection?: Connection
+  connection: Connection | undefined,
+  submitSwap: ExecuteSwapApiFn
 ): Promise<SwapResult> {
   try {
     // Deserialize the transaction from the quote
@@ -254,7 +273,7 @@ export async function executeSwap(
     const signedTransactionBase64 = Buffer.from(transaction.serialize()).toString('base64');
 
     // Submit to the API
-    const response = await executeSwapApi(
+    const response = await submitSwap(
       quote.networkId,
       signedTransactionBase64,
       quote.requestId
@@ -339,10 +358,13 @@ export async function swap(
   network: SolanaNetwork | { id: string } | SwapNetworkId,
   params: SwapQuoteParams,
   keypair: Keypair,
-  connection?: Connection
+  connection: Connection | undefined,
+  fetchSwapOrder: GetSwapOrderFn,
+  submitSwap: ExecuteSwapApiFn,
+  fetchTokenList: GetTokenListFn = () => Promise.resolve([])
 ): Promise<SwapResult> {
-  const quote = await getSwapQuote(network, params);
-  return executeSwap(quote, keypair, connection);
+  const quote = await getSwapQuote(network, params, {}, fetchSwapOrder, fetchTokenList);
+  return executeSwap(quote, keypair, connection, submitSwap);
 }
 
 /**

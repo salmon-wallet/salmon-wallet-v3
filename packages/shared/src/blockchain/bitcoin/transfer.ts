@@ -15,7 +15,6 @@
 
 import * as bitcoin from 'bitcoinjs-lib';
 import type { BIP32Interface } from 'bip32';
-import { get, post, getApiUrl } from '../../api';
 import {
   BitcoinNetwork,
   BitcoinKeyPair,
@@ -40,14 +39,6 @@ export interface UTXO {
   rawTx?: string;
   /** Script pubkey hex */
   scriptPubKey?: string;
-}
-
-/**
- * API response wrapper for paginated UTXO list
- */
-interface UTXOResponse {
-  data: UTXO[];
-  nextPageToken?: string;
 }
 
 /**
@@ -90,6 +81,21 @@ interface ResolvedInputs {
   /** Total value of all inputs in satoshis */
   totalAmountAvailable: number;
 }
+
+// ============================================================================
+// API Function Types
+// ============================================================================
+
+export type FetchUtxosFn = (
+  networkId: string,
+  address: string
+) => Promise<UTXO[]>;
+
+export type BroadcastTransactionFn = (
+  networkId: string,
+  address: string,
+  serializedTx: string
+) => Promise<{ txId?: string; success: boolean }>;
 
 // ============================================================================
 // Constants
@@ -148,20 +154,15 @@ export function estimateBitcoinFee(
  *
  * @param network - Bitcoin network configuration
  * @param address - Bitcoin address to fetch UTXOs for
+ * @param fetchUtxos - Function to fetch UTXOs from the API
  * @returns Promise resolving to array of UTXOs
  */
 export async function getUtxos(
   network: BitcoinNetwork,
-  address: string
+  address: string,
+  fetchUtxos: FetchUtxosFn = () => Promise.resolve([])
 ): Promise<UTXO[]> {
-  const baseUrl = getApiUrl();
-  const url = `${baseUrl}/v1/${network.id}/account/${address}/utxo`;
-
-  const response = await get<UTXOResponse>(url, {
-    params: { pageSize: 100 },
-  });
-
-  return response.data;
+  return fetchUtxos(network.id, address);
 }
 
 /**
@@ -169,13 +170,15 @@ export async function getUtxos(
  *
  * @param network - Bitcoin network configuration
  * @param sourceAddress - Address to fetch UTXOs from
+ * @param fetchUtxos - Function to fetch UTXOs from the API
  * @returns Promise resolving to resolved inputs
  */
 async function resolveInputs(
   network: BitcoinNetwork,
-  sourceAddress: string
+  sourceAddress: string,
+  fetchUtxos: FetchUtxosFn
 ): Promise<ResolvedInputs> {
-  const utxos = await getUtxos(network, sourceAddress);
+  const utxos = await getUtxos(network, sourceAddress, fetchUtxos);
 
   const totalAmountAvailable = utxos.reduce(
     (total, utxo) => total + utxo.satoshis,
@@ -292,6 +295,7 @@ function buildTransaction(params: {
  * @param keyPair - Signing keypair with BIP32 node
  * @param receiverAddress - Recipient's Bitcoin address
  * @param amountBtc - Amount to send in BTC
+ * @param fetchUtxos - Function to fetch UTXOs from the API
  * @returns Promise resolving to transaction ID and serialized hex
  *
  * @example
@@ -315,7 +319,8 @@ function buildTransaction(params: {
  *   BITCOIN_NETWORKS.mainnet,
  *   keyPair,
  *   '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
- *   0.001 // 0.001 BTC
+ *   0.001, // 0.001 BTC
+ *   fetchUtxos
  * );
  *
  * console.log(`Transaction ID: ${result.txId}`);
@@ -325,7 +330,8 @@ export async function createTransferTransaction(
   network: BitcoinNetwork,
   keyPair: SigningKeyPair,
   receiverAddress: string,
-  amountBtc: number
+  amountBtc: number,
+  fetchUtxos: FetchUtxosFn = () => Promise.resolve([])
 ): Promise<TransferTransactionResult> {
   const sourceAddress = keyPair.address;
   const satoshiToSend = Math.floor(amountBtc * SATOSHIS_PER_BTC);
@@ -333,7 +339,8 @@ export async function createTransferTransaction(
   // Fetch UTXOs and calculate available balance
   const { inputs, totalAmountAvailable } = await resolveInputs(
     network,
-    sourceAddress
+    sourceAddress,
+    fetchUtxos
   );
 
   // Estimate fee (2 outputs: receiver + change)
@@ -382,6 +389,7 @@ export async function createTransferTransaction(
  * @param network - Bitcoin network configuration
  * @param address - Address associated with the transaction (for API routing)
  * @param serializedTx - Serialized transaction hex
+ * @param broadcast - Function to broadcast the transaction via the API
  * @returns Promise resolving to broadcast result
  *
  * @example
@@ -389,7 +397,8 @@ export async function createTransferTransaction(
  * const result = await confirmTransferTransaction(
  *   BITCOIN_NETWORKS.mainnet,
  *   senderAddress,
- *   signedTxHex
+ *   signedTxHex,
+ *   broadcastTransaction
  * );
  *
  * if (result.success) {
@@ -402,15 +411,11 @@ export async function createTransferTransaction(
 export async function confirmTransferTransaction(
   network: BitcoinNetwork,
   address: string,
-  serializedTx: string
+  serializedTx: string,
+  broadcast: BroadcastTransactionFn = () => Promise.resolve({ success: false, error: 'No broadcast function provided' })
 ): Promise<BroadcastResult> {
-  const baseUrl = getApiUrl();
-  const url = `${baseUrl}/v1/${network.id}/account/${address}/transactions`;
-
   try {
-    const response = await post<{ txId?: string; success?: boolean }>(url, {
-      tx: serializedTx,
-    });
+    const response = await broadcast(network.id, address, serializedTx);
 
     return {
       txId: response.txId,
@@ -434,6 +439,8 @@ export async function confirmTransferTransaction(
  * @param keyPair - Signing keypair with BIP32 node
  * @param receiverAddress - Recipient's Bitcoin address
  * @param amountBtc - Amount to send in BTC
+ * @param fetchUtxos - Function to fetch UTXOs from the API
+ * @param broadcast - Function to broadcast the transaction via the API
  * @returns Promise resolving to broadcast result with transaction ID
  *
  * @example
@@ -442,7 +449,9 @@ export async function confirmTransferTransaction(
  *   BITCOIN_NETWORKS.mainnet,
  *   keyPair,
  *   '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
- *   0.001
+ *   0.001,
+ *   fetchUtxos,
+ *   broadcastTransaction
  * );
  *
  * if (result.success) {
@@ -454,19 +463,23 @@ export async function sendBitcoin(
   network: BitcoinNetwork,
   keyPair: SigningKeyPair,
   receiverAddress: string,
-  amountBtc: number
+  amountBtc: number,
+  fetchUtxos: FetchUtxosFn = () => Promise.resolve([]),
+  broadcast: BroadcastTransactionFn = () => Promise.resolve({ success: false, error: 'No broadcast function provided' })
 ): Promise<BroadcastResult> {
   const { txId, serializedTx } = await createTransferTransaction(
     network,
     keyPair,
     receiverAddress,
-    amountBtc
+    amountBtc,
+    fetchUtxos
   );
 
   const result = await confirmTransferTransaction(
     network,
     keyPair.address,
-    serializedTx
+    serializedTx,
+    broadcast
   );
 
   return {
@@ -505,13 +518,16 @@ export function satoshisToBtc(satoshis: number): number {
  * @param network - Bitcoin network configuration
  * @param address - Source address
  * @param feeRate - Fee rate in satoshis per byte (default: 2)
+ * @param fetchUtxos - Function to fetch UTXOs from the API
  * @returns Promise resolving to maximum sendable amount in BTC
  *
  * @example
  * ```typescript
  * const maxAmount = await getMaxSendableAmount(
  *   BITCOIN_NETWORKS.mainnet,
- *   myAddress
+ *   myAddress,
+ *   2,
+ *   fetchUtxos
  * );
  * console.log(`Max sendable: ${maxAmount} BTC`);
  * ```
@@ -519,9 +535,10 @@ export function satoshisToBtc(satoshis: number): number {
 export async function getMaxSendableAmount(
   network: BitcoinNetwork,
   address: string,
-  feeRate: number = DEFAULT_FEE_RATE
+  feeRate: number = DEFAULT_FEE_RATE,
+  fetchUtxos: FetchUtxosFn = () => Promise.resolve([])
 ): Promise<number> {
-  const { inputs, totalAmountAvailable } = await resolveInputs(network, address);
+  const { inputs, totalAmountAvailable } = await resolveInputs(network, address, fetchUtxos);
 
   if (inputs.length === 0) {
     return 0;
