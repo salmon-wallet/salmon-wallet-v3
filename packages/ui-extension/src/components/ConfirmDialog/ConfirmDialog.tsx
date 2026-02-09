@@ -265,7 +265,7 @@ export function ConfirmDialog({
           setLoading(false);
           return;
         }
-      } catch (error) {
+      } catch {
         setPasswordError(t('errors.password_check_failed', 'Failed to verify password'));
         setLoading(false);
         return;
@@ -276,8 +276,8 @@ export function ConfirmDialog({
     try {
       await onConfirm();
       onClose();
-    } catch (error) {
-      console.error('Confirm action failed:', error);
+    } catch (err) {
+      console.error('Confirm action failed:', err);
     } finally {
       setLoading(false);
     }

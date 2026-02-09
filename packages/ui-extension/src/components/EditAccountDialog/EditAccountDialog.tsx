@@ -16,7 +16,6 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import CloseIcon from '@mui/icons-material/Close';
 import { colors, spacing, borderRadius } from '@salmon/shared';
 

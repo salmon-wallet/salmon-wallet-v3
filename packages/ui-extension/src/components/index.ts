@@ -246,3 +246,11 @@ export type {
   BridgeEstimateSimple,
   BridgeExchangeSimple,
 } from './SwapScreen';
+
+// ConfirmDialog - Reusable confirmation dialog for destructive actions
+export { ConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogProps } from './ConfirmDialog';
+
+// EditAccountDialog - Account name editing dialog
+export { EditAccountDialog } from './EditAccountDialog';
+export type { EditAccountDialogProps } from './EditAccountDialog';

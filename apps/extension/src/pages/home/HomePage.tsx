@@ -19,10 +19,10 @@ import {
   LockIcon,
   SettingsSheet,
   WalletSwitcherSheet,
+  EditAccountDialog,
+  ConfirmDialog,
 } from '@salmon/ui-extension';
 import IconButton from '@mui/material/IconButton';
-import { EditAccountDialog } from '../../components/EditAccountDialog';
-import { ConfirmDialog } from '../../components/ConfirmDialog';
 
 // Settings pages for navigation
 import { BackupPage } from '../settings/BackupPage';
