@@ -21,8 +21,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import type { Connection } from '@solana/web3.js';
-import { colors } from '@salmon/shared';
-import { useAddressValidation } from './useAddressValidation';
+import { colors, useAddressValidation } from '@salmon/shared';
 import type { InputAddressProps, ValidationState } from './types';
 
 // ============================================================================

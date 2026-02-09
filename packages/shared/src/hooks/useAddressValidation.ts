@@ -1,22 +1,85 @@
 /**
  * useAddressValidation Hook
- * Handles address validation with debounce for the InputAddress component
+ * Handles address validation with debounce for the InputAddress component.
  *
- * Migrated from salmon-wallet-v2/src/features/InputAddress/InputAddress.js
+ * Platform-agnostic hook that can be used by both React Native (ui)
+ * and React DOM (ui-extension) InputAddress components.
+ *
+ * Migrated from packages/ui and packages/ui-extension where identical
+ * copies lived alongside their respective InputAddress components.
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import type { Connection } from '@solana/web3.js';
 import {
   validateDestinationAccount,
   type ValidationResult,
-} from '@salmon/shared';
-import type {
-  ValidationState,
-  ValidationCallbackResult,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
-} from './types';
+} from '../blockchain/solana';
+
+/**
+ * Connection type derived from validateDestinationAccount's first parameter.
+ * This avoids a direct dependency on @solana/web3.js in consumer packages.
+ */
+type SolanaConnection = Parameters<typeof validateDestinationAccount>[0];
+
+/**
+ * Supported blockchain types for address validation
+ */
+export type BlockchainType = 'solana' | 'ethereum' | 'bitcoin';
+
+/**
+ * Validation state for the input address
+ */
+export type ValidationState = 'idle' | 'loading' | 'valid' | 'invalid' | 'warning';
+
+/**
+ * Validation callback result passed to onValidation
+ */
+export interface ValidationCallbackResult {
+  /** Whether the address is valid */
+  isValid: boolean;
+  /** The validation state */
+  state: ValidationState;
+  /** The full validation result from the blockchain service */
+  result: ValidationResult | null;
+  /** Resolved public key (for domain addresses) */
+  resolvedAddress?: string;
+  /** Whether the input is a domain name */
+  isDomain?: boolean;
+}
+
+/**
+ * Return type for useAddressValidation hook
+ */
+export interface UseAddressValidationReturn {
+  /** Current validation state */
+  validationState: ValidationState;
+  /** Full validation result */
+  validationResult: ValidationResult | null;
+  /** Whether validation is in progress */
+  isValidating: boolean;
+  /** Whether the address is valid */
+  isValid: boolean;
+  /** Resolved public key (for domains) */
+  resolvedAddress: string | null;
+  /** Whether the input is a domain */
+  isDomain: boolean;
+  /** Error/warning message for display */
+  message: string | null;
+  /** Message type (error or warning) */
+  messageType: 'error' | 'warning' | null;
+}
+
+/**
+ * Options for useAddressValidation hook
+ */
+export interface UseAddressValidationOptions {
+  /** Debounce delay in milliseconds (default: 500) */
+  debounceMs?: number;
+  /** Blockchain type for validation */
+  blockchain?: BlockchainType;
+  /** Callback when validation completes */
+  onValidation?: (result: ValidationCallbackResult) => void;
+}
 
 // Default debounce delay in milliseconds
 const DEFAULT_DEBOUNCE_MS = 500;
@@ -83,7 +146,7 @@ function getMessageType(result: ValidationResult | null): 'error' | 'warning' | 
  */
 export function useAddressValidation(
   address: string,
-  connection: Connection | null,
+  connection: SolanaConnection | null,
   options: UseAddressValidationOptions = {}
 ): UseAddressValidationReturn {
   const {
@@ -255,3 +318,5 @@ export function useAddressValidation(
     messageType,
   };
 }
+
+export default useAddressValidation;

@@ -197,3 +197,15 @@ export type {
   UseTokenSearchResult,
 } from './useTokenSearch';
 
+// Address validation hook (used by InputAddress in ui and ui-extension)
+export {
+  useAddressValidation,
+  default as useAddressValidationDefault,
+} from './useAddressValidation';
+export type {
+  BlockchainType,
+  ValidationState,
+  ValidationCallbackResult,
+  UseAddressValidationReturn,
+  UseAddressValidationOptions,
+} from './useAddressValidation';
