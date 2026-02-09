@@ -1,17 +1,13 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import { translations } from '@salmon/shared';
-
-// Available languages
-export const SUPPORTED_LANGUAGES = ['en', 'es'] as const;
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
-
-// Default language
-export const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
-
-// Storage key for persisting language preference
-export const LANGUAGE_STORAGE_KEY = 'salmon_language';
+import {
+  i18nResources,
+  DEFAULT_LANGUAGE,
+  AVAILABLE_LANGUAGES,
+  STORAGE_KEYS,
+  type LanguageCode,
+} from '@salmon/shared';
 
 // Initialize i18next
 i18n
@@ -21,16 +17,9 @@ i18n
   .use(initReactI18next)
   // Initialize configuration
   .init({
-    resources: {
-      en: {
-        translation: translations.en,
-      },
-      es: {
-        translation: translations.es,
-      },
-    },
+    resources: i18nResources,
     fallbackLng: DEFAULT_LANGUAGE,
-    supportedLngs: SUPPORTED_LANGUAGES,
+    supportedLngs: AVAILABLE_LANGUAGES,
 
     // Language detection options
     detection: {
@@ -39,7 +28,7 @@ i18n
       // Cache user language in localStorage
       caches: ['localStorage'],
       // Key used in localStorage
-      lookupLocalStorage: LANGUAGE_STORAGE_KEY,
+      lookupLocalStorage: STORAGE_KEYS.LANGUAGE,
     },
 
     interpolation: {
@@ -60,7 +49,7 @@ export default i18n;
  * Change the current language
  * @param language - The language code to switch to
  */
-export const changeLanguage = async (language: SupportedLanguage): Promise<void> => {
+export const changeLanguage = async (language: LanguageCode): Promise<void> => {
   await i18n.changeLanguage(language);
 };
 
@@ -68,15 +57,6 @@ export const changeLanguage = async (language: SupportedLanguage): Promise<void>
  * Get the current language
  * @returns The current language code
  */
-export const getCurrentLanguage = (): SupportedLanguage => {
-  return (i18n.language as SupportedLanguage) || DEFAULT_LANGUAGE;
-};
-
-/**
- * Check if a language is supported
- * @param language - The language code to check
- * @returns True if the language is supported
- */
-export const isLanguageSupported = (language: string): language is SupportedLanguage => {
-  return SUPPORTED_LANGUAGES.includes(language as SupportedLanguage);
+export const getCurrentLanguage = (): LanguageCode => {
+  return (i18n.language as LanguageCode) || DEFAULT_LANGUAGE;
 };

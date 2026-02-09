@@ -1,24 +1,23 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  changeLanguage,
-  getCurrentLanguage,
+  AVAILABLE_LANGUAGES,
   isLanguageSupported,
-  SUPPORTED_LANGUAGES,
-  type SupportedLanguage,
-} from './config';
+  type LanguageCode,
+} from '@salmon/shared';
+import { changeLanguage, getCurrentLanguage } from './config';
 
 export interface UseLanguageReturn {
   /** Current language code */
-  currentLanguage: SupportedLanguage;
+  currentLanguage: LanguageCode;
   /** All supported languages */
-  supportedLanguages: readonly SupportedLanguage[];
+  supportedLanguages: readonly LanguageCode[];
   /** Change the current language */
-  setLanguage: (lang: SupportedLanguage) => Promise<void>;
+  setLanguage: (lang: LanguageCode) => Promise<void>;
   /** Check if a language is supported */
-  isSupported: (lang: string) => lang is SupportedLanguage;
+  isSupported: (lang: string) => lang is LanguageCode;
   /** Get localized language name */
-  getLanguageName: (lang: SupportedLanguage) => string;
+  getLanguageName: (lang: LanguageCode) => string;
 }
 
 /**
@@ -27,7 +26,7 @@ export interface UseLanguageReturn {
  */
 export const useLanguage = (): UseLanguageReturn => {
   const { t, i18n } = useTranslation();
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>(getCurrentLanguage());
+  const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>(getCurrentLanguage());
 
   // Sync state when i18n language changes
   useEffect(() => {
@@ -43,13 +42,13 @@ export const useLanguage = (): UseLanguageReturn => {
     };
   }, [i18n]);
 
-  const setLanguage = useCallback(async (lang: SupportedLanguage): Promise<void> => {
+  const setLanguage = useCallback(async (lang: LanguageCode): Promise<void> => {
     await changeLanguage(lang);
     setCurrentLanguage(lang);
   }, []);
 
   const getLanguageName = useCallback(
-    (lang: SupportedLanguage): string => {
+    (lang: LanguageCode): string => {
       return t(`settings.languages.${lang}`);
     },
     [t]
@@ -57,7 +56,7 @@ export const useLanguage = (): UseLanguageReturn => {
 
   return {
     currentLanguage,
-    supportedLanguages: SUPPORTED_LANGUAGES,
+    supportedLanguages: AVAILABLE_LANGUAGES,
     setLanguage,
     isSupported: isLanguageSupported,
     getLanguageName,

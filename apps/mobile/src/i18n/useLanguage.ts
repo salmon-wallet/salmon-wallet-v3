@@ -1,19 +1,23 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as SecureStore from '../../utils/secureStore';
-import { SUPPORTED_LANGUAGES, SupportedLanguage } from './config';
-
-const LANGUAGE_STORAGE_KEY = 'salmon_language_preference';
+import {
+  LANGUAGE_NAMES,
+  AVAILABLE_LANGUAGES,
+  isLanguageSupported,
+  STORAGE_KEYS,
+  type LanguageCode,
+} from '@salmon/shared';
 
 /**
  * Get the stored language preference from SecureStore
  * This is exported for use in I18nProvider initialization
  */
-export async function getStoredLanguage(): Promise<SupportedLanguage | null> {
+export async function getStoredLanguage(): Promise<LanguageCode | null> {
   try {
-    const storedLanguage = await SecureStore.getItemAsync(LANGUAGE_STORAGE_KEY);
-    if (storedLanguage && (storedLanguage === 'en' || storedLanguage === 'es')) {
-      return storedLanguage as SupportedLanguage;
+    const storedLanguage = await SecureStore.getItemAsync(STORAGE_KEYS.LANGUAGE);
+    if (storedLanguage && isLanguageSupported(storedLanguage)) {
+      return storedLanguage;
     }
     return null;
   } catch (error) {
@@ -25,9 +29,9 @@ export async function getStoredLanguage(): Promise<SupportedLanguage | null> {
 /**
  * Store the language preference in SecureStore
  */
-async function storeLanguage(language: SupportedLanguage): Promise<void> {
+async function storeLanguage(language: LanguageCode): Promise<void> {
   try {
-    await SecureStore.setItemAsync(LANGUAGE_STORAGE_KEY, language);
+    await SecureStore.setItemAsync(STORAGE_KEYS.LANGUAGE, language);
   } catch (error) {
     console.warn('Failed to store language:', error);
   }
@@ -42,14 +46,14 @@ export function useLanguage() {
   const [isChanging, setIsChanging] = useState(false);
 
   // Get current language
-  const currentLanguage = i18n.language as SupportedLanguage;
+  const currentLanguage = i18n.language as LanguageCode;
 
   // Get display name for current language
-  const currentLanguageDisplay = SUPPORTED_LANGUAGES[currentLanguage] || SUPPORTED_LANGUAGES.en;
+  const currentLanguageDisplay = LANGUAGE_NAMES[currentLanguage] || LANGUAGE_NAMES.en;
 
   // Change language and persist to storage
   const changeLanguage = useCallback(
-    async (language: SupportedLanguage) => {
+    async (language: LanguageCode) => {
       if (language === currentLanguage) return;
 
       setIsChanging(true);
@@ -66,9 +70,9 @@ export function useLanguage() {
   );
 
   // Get list of available languages
-  const availableLanguages = Object.entries(SUPPORTED_LANGUAGES).map(([code, name]) => ({
-    code: code as SupportedLanguage,
-    name,
+  const availableLanguages = AVAILABLE_LANGUAGES.map((code) => ({
+    code,
+    name: LANGUAGE_NAMES[code],
     isSelected: code === currentLanguage,
   }));
 
@@ -78,7 +82,7 @@ export function useLanguage() {
     availableLanguages,
     changeLanguage,
     isChanging,
-    supportedLanguages: SUPPORTED_LANGUAGES,
+    languageNames: LANGUAGE_NAMES,
   };
 }
 
