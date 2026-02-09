@@ -31,7 +31,6 @@
     "i18next": "^25.6.2",
     "lodash-es": "^4.17.21",
     "micro-key-producer": "^0.8.2",
-    "react-native-fast-crypto": "^3.0.0",
     "salmon-wallet-standard": "^0.0.6",
     "tweetnacl": "^1.0.3"
   },
@@ -46,10 +45,14 @@
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "react-native": ">=0.70.0"
+    "react-native": ">=0.70.0",
+    "react-native-fast-crypto": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "react-native": {
+      "optional": true
+    },
+    "react-native-fast-crypto": {
       "optional": true
     }
   }
