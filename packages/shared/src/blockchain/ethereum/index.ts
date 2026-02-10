@@ -67,6 +67,18 @@ export type {
   DetectedERC20Token,
 } from './tokens';
 
+// Validation functions
+export {
+  validateDestinationAccount as validateEthereumDestinationAccount,
+  isEthereumAddress,
+  isEnsDomain,
+} from './validation';
+export type {
+  ValidationResult as EthereumValidationResult,
+  ValidationResultType as EthereumValidationResultType,
+  ValidationResultCode as EthereumValidationResultCode,
+} from './validation';
+
 // Transfer functions
 export {
   estimateTransferFee as estimateEthereumTransferFee,

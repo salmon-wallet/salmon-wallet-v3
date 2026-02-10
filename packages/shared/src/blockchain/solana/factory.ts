@@ -197,17 +197,24 @@ export function createSolanaAccountFromSecretKey(
 /**
  * Pre-defined network configurations for common Solana networks
  */
+// Allow overriding the default Solana RPC URL via environment variable
+// Set EXPO_PUBLIC_SOLANA_RPC_URL (mobile) or VITE_SOLANA_RPC_URL (extension)
+const customRpcUrl =
+  (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_SOLANA_RPC_URL) ||
+  (typeof process !== 'undefined' && process.env?.VITE_SOLANA_RPC_URL) ||
+  undefined;
+
 export const SOLANA_NETWORKS: Record<string, SolanaNetwork> = {
-  'mainnet-beta': {
-    id: 'mainnet-beta',
+  'solana-mainnet': {
+    id: 'solana-mainnet',
     name: 'Mainnet Beta',
     config: {
-      nodeUrl: 'https://api.mainnet-beta.solana.com',
+      nodeUrl: customRpcUrl || 'https://api.mainnet-beta.solana.com',
       commitment: 'confirmed',
     },
   },
-  devnet: {
-    id: 'devnet',
+  'solana-devnet': {
+    id: 'solana-devnet',
     name: 'Devnet',
     config: {
       nodeUrl: 'https://api.devnet.solana.com',

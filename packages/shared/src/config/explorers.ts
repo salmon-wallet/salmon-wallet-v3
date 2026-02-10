@@ -21,9 +21,9 @@ export type Blockchain = 'SOLANA' | 'BITCOIN' | 'ETHEREUM';
  */
 export type NetworkEnvironment =
   | 'mainnet'
-  | 'mainnet-beta'
+  | 'solana-mainnet'
   | 'testnet'
-  | 'devnet'
+  | 'solana-devnet'
   | 'sepolia';
 
 /**
@@ -132,15 +132,15 @@ const ETHEREUM_SEPOLIA_EXPLORERS: NetworkExplorers = {
  *
  * @example
  * ```typescript
- * const explorer = EXPLORERS.SOLANA['mainnet-beta'].SOLSCAN;
+ * const explorer = EXPLORERS.SOLANA['solana-mainnet'].SOLSCAN;
  * const txUrl = explorer.url.replace('{txId}', '5abc...');
  * ```
  */
 export const EXPLORERS: ExplorersConfig = {
   SOLANA: {
     mainnet: SOLANA_EXPLORERS,
-    'mainnet-beta': SOLANA_EXPLORERS,
-    devnet: SOLANA_EXPLORERS,
+    'solana-mainnet': SOLANA_EXPLORERS,
+    'solana-devnet': SOLANA_EXPLORERS,
   },
   BITCOIN: {
     mainnet: BITCOIN_MAINNET_EXPLORERS,
@@ -171,14 +171,14 @@ export const DEFAULT_EXPLORERS: DefaultExplorers = {
  * Gets the transaction URL for a specific explorer.
  *
  * @param blockchain - The blockchain (e.g., 'SOLANA', 'BITCOIN')
- * @param environment - The network environment (e.g., 'mainnet-beta', 'testnet')
+ * @param environment - The network environment (e.g., 'solana-mainnet', 'testnet')
  * @param explorerKey - The explorer key (e.g., 'SOLSCAN', 'BLOCKCYPHER')
  * @param txId - The transaction ID
  * @returns The complete transaction URL, or null if explorer not found
  *
  * @example
  * ```typescript
- * const url = getTransactionUrl('SOLANA', 'mainnet-beta', 'SOLSCAN', '5abc...');
+ * const url = getTransactionUrl('SOLANA', 'solana-mainnet', 'SOLSCAN', '5abc...');
  * // Returns: 'https://solscan.io/tx/5abc...'
  * ```
  */
@@ -199,12 +199,12 @@ export function getTransactionUrl(
  * Gets the list of available explorers for a blockchain and network.
  *
  * @param blockchain - The blockchain (e.g., 'SOLANA', 'BITCOIN')
- * @param environment - The network environment (e.g., 'mainnet-beta', 'testnet')
+ * @param environment - The network environment (e.g., 'solana-mainnet', 'testnet')
  * @returns Array of explorers with their keys, or empty array if not found
  *
  * @example
  * ```typescript
- * const explorers = getAvailableExplorers('SOLANA', 'mainnet-beta');
+ * const explorers = getAvailableExplorers('SOLANA', 'solana-mainnet');
  * // Returns: [{ key: 'SOLSCAN', name: 'Solscan', url: '...' }, ...]
  * ```
  */

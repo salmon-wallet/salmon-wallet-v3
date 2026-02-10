@@ -48,7 +48,7 @@ export interface SolanaNetworkConfig {
  * Network definition with ID and configuration
  */
 export interface SolanaNetwork {
-  /** Network identifier (e.g., 'mainnet-beta', 'devnet', 'testnet') */
+  /** Network identifier (e.g., 'solana-mainnet', 'solana-devnet') */
   id: string;
   /** Human-readable network name */
   name: string;

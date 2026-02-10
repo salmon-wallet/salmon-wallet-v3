@@ -65,7 +65,7 @@ export function getEthereumDerivationPath(index: number): string {
  * @example
  * ```typescript
  * const account = await createEthereumAccount({
- *   network: ETHEREUM_NETWORKS.mainnet,
+ *   network: ETHEREUM_NETWORKS['ethereum-mainnet'],
  *   mnemonic: 'your twelve word mnemonic phrase here...',
  *   index: 0
  * });
@@ -107,7 +107,7 @@ export async function createEthereumAccount(
  * ```typescript
  * // Derive 5 accounts starting from index 0
  * const accounts = await deriveEthereumAccounts({
- *   network: ETHEREUM_NETWORKS.mainnet,
+ *   network: ETHEREUM_NETWORKS['ethereum-mainnet'],
  *   mnemonic: 'your mnemonic...',
  *   startIndex: 0,
  *   count: 5
@@ -168,7 +168,7 @@ export function createEthereumAccountFromWallet(
  * @example
  * ```typescript
  * const account = createEthereumAccountFromPrivateKey(
- *   ETHEREUM_NETWORKS.mainnet,
+ *   ETHEREUM_NETWORKS['ethereum-mainnet'],
  *   '0x...',
  *   0
  * );
@@ -190,8 +190,8 @@ export function createEthereumAccountFromPrivateKey(
  * endpoints (Infura, Alchemy, or your own Salmon API endpoint).
  */
 export const ETHEREUM_NETWORKS: Record<string, EthereumNetwork> = {
-  mainnet: {
-    id: 'ethereum',
+  'ethereum-mainnet': {
+    id: 'ethereum-mainnet',
     name: 'Ethereum Mainnet',
     environment: 'mainnet' as EthereumEnvironment,
     config: {
@@ -199,7 +199,7 @@ export const ETHEREUM_NETWORKS: Record<string, EthereumNetwork> = {
       chainId: 1,
     },
   },
-  sepolia: {
+  'ethereum-sepolia': {
     id: 'ethereum-sepolia',
     name: 'Sepolia Testnet',
     environment: 'sepolia' as EthereumEnvironment,

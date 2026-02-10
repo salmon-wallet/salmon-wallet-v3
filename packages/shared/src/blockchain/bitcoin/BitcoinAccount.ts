@@ -518,7 +518,7 @@ export class BitcoinAccount {
         uiAmount: b.uiAmount || b.amount / Math.pow(10, b.decimals),
         symbol: b.symbol,
         name: b.name,
-        logo: b.logo || null,
+        logo: b.logo || undefined,
         address: b.mint || 'bitcoin',
         coingeckoId: b.coingeckoId,
       })),

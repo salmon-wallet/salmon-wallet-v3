@@ -146,7 +146,7 @@ export function createKeyPairFromNode(
  * @example
  * ```typescript
  * const account = await createBitcoinAccount({
- *   network: BITCOIN_NETWORKS.mainnet,
+ *   network: BITCOIN_NETWORKS['bitcoin-mainnet'],
  *   mnemonic: 'your twelve word mnemonic phrase here...',
  *   index: 0
  * });
@@ -191,7 +191,7 @@ export async function createBitcoinAccount(
  * ```typescript
  * // Derive 5 accounts starting from index 0
  * const accounts = await deriveBitcoinAccounts({
- *   network: BITCOIN_NETWORKS.mainnet,
+ *   network: BITCOIN_NETWORKS['bitcoin-mainnet'],
  *   mnemonic: 'your mnemonic...',
  *   startIndex: 0,
  *   count: 5
@@ -261,7 +261,7 @@ export function createBitcoinAccountFromKeyPair(
  * ```typescript
  * // When importing from WIF, you typically already know the address
  * const account = createBitcoinAccountFromWIF(
- *   BITCOIN_NETWORKS.mainnet,
+ *   BITCOIN_NETWORKS['bitcoin-mainnet'],
  *   'L1aW4aubDFB7yfras...',
  *   '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
  *   0
@@ -296,15 +296,15 @@ export function createBitcoinAccountFromWIF(
  * Pre-defined network configurations for common Bitcoin networks
  */
 export const BITCOIN_NETWORKS: Record<string, BitcoinNetwork> = {
-  mainnet: {
-    id: 'bitcoin',
+  'bitcoin-mainnet': {
+    id: 'bitcoin-mainnet',
     name: 'Bitcoin Mainnet',
     environment: 'mainnet',
     config: {
       network: bitcoin.networks.bitcoin,
     },
   },
-  testnet: {
+  'bitcoin-testnet': {
     id: 'bitcoin-testnet',
     name: 'Bitcoin Testnet',
     environment: 'testnet',
