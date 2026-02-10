@@ -204,8 +204,8 @@ export default function TabLayout() {
         pointerEvents="none"
       />
 
-      {/* Layer 3: Scales pattern background - on top of gradient and background */}
-      <ScalesBackground topOffset={insets.top} />
+      {/* Layer 3: Scales pattern background - starts below header */}
+      <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
 
       {/* Tab screens fill the remaining space */}
       <Tabs

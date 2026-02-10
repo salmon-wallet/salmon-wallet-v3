@@ -65,7 +65,7 @@ const CustomDarkTheme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    background: colors.background.primary, // #10131c - matches header
+    background: 'transparent', // Transparent to let layout backgrounds show through
     card: colors.background.primary,
   },
 };
