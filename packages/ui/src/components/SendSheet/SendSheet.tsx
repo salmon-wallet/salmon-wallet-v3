@@ -316,6 +316,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
                 <StepAddressAmount
                   token={selectedToken}
                   blockchain={blockchain}
+                  account={account}
                   onBack={handleBackToTokenSelect}
                   onReview={handleReview}
                   onCancel={handleClose}

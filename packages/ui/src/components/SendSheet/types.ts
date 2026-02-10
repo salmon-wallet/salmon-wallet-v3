@@ -58,6 +58,8 @@ export interface StepAddressAmountProps {
   token: SendToken;
   /** Blockchain type for address validation */
   blockchain: SendBlockchainType;
+  /** The active blockchain account (for obtaining provider/connection) */
+  account?: any;
   /** Navigate back to token selection */
   onBack: () => void;
   /** Proceed to confirmation */

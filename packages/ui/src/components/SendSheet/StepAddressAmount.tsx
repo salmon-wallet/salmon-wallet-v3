@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -48,6 +48,7 @@ const QUICK_FILL_OPTIONS = [
 export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   token,
   blockchain,
+  account,
   onBack,
   onReview,
   onCancel,
@@ -55,14 +56,38 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
 
-  // Address validation (connection is null until context is wired up)
+  // Resolve chain-specific connection/provider from account
+  const [chainConnection, setChainConnection] = useState<any>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const resolveConnection = async () => {
+      if (!account) return;
+      try {
+        if (blockchain === 'ethereum' && account.getProvider) {
+          const provider = await account.getProvider();
+          if (!cancelled) setChainConnection(provider);
+        } else if (blockchain === 'solana' && account.getConnection) {
+          const connection = await account.getConnection();
+          if (!cancelled) setChainConnection(connection);
+        }
+        // Bitcoin: no connection needed, chainConnection stays null
+      } catch (err) {
+        console.error('Failed to resolve chain connection:', err);
+      }
+    };
+    resolveConnection();
+    return () => { cancelled = true; };
+  }, [account, blockchain]);
+
+  // Address validation with chain-specific connection
   const {
     validationState,
     isValidating,
     isValid: isAddressValid,
     message: addressMessage,
     messageType: addressMessageType,
-  } = useAddressValidation(address, null, {
+  } = useAddressValidation(address, chainConnection, {
     debounceMs: 500,
     blockchain,
   });
