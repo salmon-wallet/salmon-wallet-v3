@@ -98,6 +98,7 @@ interface SalmonTokenBalance {
   decimals: number;
   amount: string;
   logoURI?: string;
+  logo?: string;
   coingeckoId?: string;
 }
 
@@ -129,12 +130,12 @@ const ETHPLORER_API_KEY = 'freekey';
  * to indexing services like Alchemy/Moralis.
  *
  * @param address - Wallet address to query
- * @param networkId - Network identifier (e.g., 'ethereum', 'ethereum-sepolia')
+ * @param networkId - Network identifier (e.g., 'ethereum-mainnet', 'ethereum-sepolia')
  * @returns Array of detected tokens with balances
  */
 export async function getERC20TokenBalances(
   address: string,
-  networkId: string = 'ethereum'
+  networkId: string = 'ethereum-mainnet'
 ): Promise<DetectedERC20Token[]> {
   try {
     // Try Salmon API first (proxies to Alchemy/other indexers)
@@ -144,7 +145,7 @@ export async function getERC20TokenBalances(
     }
 
     // Fall back to Ethplorer for mainnet
-    if (networkId === 'ethereum') {
+    if (networkId === 'ethereum-mainnet') {
       return await getEthplorerTokenBalances(address);
     }
 
@@ -153,7 +154,7 @@ export async function getERC20TokenBalances(
     console.warn('[ethereum-api] Failed to fetch token balances:', error);
 
     // Fall back to Ethplorer for mainnet on error
-    if (networkId === 'ethereum') {
+    if (networkId === 'ethereum-mainnet') {
       try {
         return await getEthplorerTokenBalances(address);
       } catch (fallbackError) {
@@ -195,7 +196,7 @@ async function getSalmonApiTokenBalances(
         decimals: token.decimals,
         balance: token.amount,
         uiAmount,
-        logoUri: token.logoURI,
+        logoUri: token.logoURI || token.logo,
         coingeckoId: token.coingeckoId || lookupCoingeckoId(token.address),
       };
     }).filter((token) => token.uiAmount > 0);
@@ -279,7 +280,7 @@ async function getEthplorerTokenBalances(
  */
 export async function getTokenMetadataBatch(
   addresses: string[],
-  networkId: string = 'ethereum'
+  networkId: string = 'ethereum-mainnet'
 ): Promise<Map<string, AlchemyTokenMetadata>> {
   const metadataMap = new Map<string, AlchemyTokenMetadata>();
 

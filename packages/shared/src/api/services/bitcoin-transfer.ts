@@ -6,7 +6,8 @@
  * to decouple it from the API layer.
  */
 
-import { get, post, getApiUrl } from '../';
+import { get, post } from '../client';
+import { getApiUrl } from '../config';
 import type { UTXO, FetchUtxosFn, BroadcastTransactionFn } from '../../blockchain/bitcoin/transfer';
 
 interface UTXOResponse {

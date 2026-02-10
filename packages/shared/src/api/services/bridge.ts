@@ -202,7 +202,7 @@ export async function getBridgeSupportedTokens(
     return data ?? null;
   } catch (error) {
     console.error('[BridgeService] Failed to fetch supported tokens:', error);
-    return null;
+    throw new Error(`Bridge fetch supported tokens failed: ${error instanceof Error ? error.message : error}`);
   }
 }
 
@@ -224,7 +224,7 @@ export async function getBridgeAvailableTokens(
     return data ?? null;
   } catch (error) {
     console.error('[BridgeService] Failed to fetch available tokens:', error);
-    return null;
+    throw new Error(`Bridge fetch available tokens failed: ${error instanceof Error ? error.message : error}`);
   }
 }
 
@@ -246,7 +246,7 @@ export async function getBridgeFeaturedTokens(
     return data ?? null;
   } catch (error) {
     console.error('[BridgeService] Failed to fetch featured tokens:', error);
-    return null;
+    throw new Error(`Bridge fetch featured tokens failed: ${error instanceof Error ? error.message : error}`);
   }
 }
 
@@ -272,7 +272,7 @@ export async function getBridgeEstimatedAmount(
     return data?.estimated_amount ?? null;
   } catch (error) {
     console.error('[BridgeService] Failed to fetch estimated amount:', error);
-    return null;
+    throw new Error(`Bridge fetch estimated amount failed: ${error instanceof Error ? error.message : error}`);
   }
 }
 
@@ -296,7 +296,7 @@ export async function getBridgeMinimalAmount(
     return data?.min_amount ?? null;
   } catch (error) {
     console.error('[BridgeService] Failed to fetch minimal amount:', error);
-    return null;
+    throw new Error(`Bridge fetch minimal amount failed: ${error instanceof Error ? error.message : error}`);
   }
 }
 
@@ -324,7 +324,7 @@ export async function createBridgeExchange(
     return data ?? null;
   } catch (error) {
     console.error('[BridgeService] Failed to create bridge exchange:', error);
-    return null;
+    throw new Error(`Bridge create exchange failed: ${error instanceof Error ? error.message : error}`);
   }
 }
 
@@ -346,6 +346,6 @@ export async function getBridgeTransaction(
     return data ?? null;
   } catch (error) {
     console.error('[BridgeService] Failed to fetch bridge transaction:', error);
-    return null;
+    throw new Error(`Bridge fetch transaction failed: ${error instanceof Error ? error.message : error}`);
   }
 }

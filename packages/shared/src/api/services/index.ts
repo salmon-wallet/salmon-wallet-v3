@@ -191,7 +191,6 @@ export {
   type SolanaPagingParams,
   type SolanaTransactionsResponse,
   // Types - Swap
-  type SwapRouteInfo,
   type SwapOrderResponse,
   type SwapOrderParams,
   type SwapExecuteRequest,

@@ -37,13 +37,13 @@ export interface TokenMetadata {
   /** Token decimals */
   decimals: number;
   /** Token logo URL */
-  logo: string | null;
+  logo?: string;
   /** Token address (mint address for Solana) */
   address: string;
   /** Chain ID (e.g., 101 for Solana mainnet) */
   chainId?: number;
   /** CoinGecko ID for price lookups */
-  coingeckoId?: string | null;
+  coingeckoId?: string;
   /** Token tags for categorization */
   tags?: string[];
 }
@@ -317,7 +317,7 @@ export async function getFeaturedTokenList(
         decimals: token.decimals,
         logo: normalizeIpfsUrl(token.logo || token.icon),
         address: token.address || token.id || '',
-        coingeckoId: token.coingeckoId || null,
+        coingeckoId: token.coingeckoId || undefined,
         tags: token.tags || [],
       }));
     }

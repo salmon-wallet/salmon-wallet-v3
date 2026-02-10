@@ -38,6 +38,12 @@ export type { TokenPrice } from './price';
  * Fetch real-time prices from Jupiter API for multiple Solana tokens
  * Returns both price and 24h change from Jupiter
  *
+ * RATE LIMIT PROTECTION:
+ * - Uses chunking strategy to prevent 429 errors
+ * - Divides addresses into chunks of 5
+ * - Processes chunks sequentially with 100ms delay between chunks
+ * - Processes addresses within each chunk in parallel
+ *
  * @param addresses - Array of token mint addresses
  * @param networkId - Network identifier
  * @returns Map of address -> { price, priceChange24h }
@@ -50,17 +56,40 @@ async function getJupiterPrices(
     return new Map();
   }
 
-  // Fetch Jupiter prices in parallel for all addresses
-  const priceResults = await Promise.all(
-    addresses.map(async (address) => {
-      const priceData = await getSolanaTokenPrice(address, networkId);
-      return { address, priceData };
-    })
-  );
+  const CHUNK_SIZE = 5; // Max 5 concurrent requests to avoid rate limiting
+  const CHUNK_DELAY_MS = 100; // 100ms delay between chunks
+
+  // Helper to process a chunk of addresses
+  const processChunk = async (chunk: string[]) => {
+    return Promise.all(
+      chunk.map(async (address) => {
+        const priceData = await getSolanaTokenPrice(address, networkId);
+        return { address, priceData };
+      })
+    );
+  };
+
+  // Split addresses into chunks
+  const chunks: string[][] = [];
+  for (let i = 0; i < addresses.length; i += CHUNK_SIZE) {
+    chunks.push(addresses.slice(i, i + CHUNK_SIZE));
+  }
+
+  // Process chunks sequentially with delay
+  const allResults: Array<{ address: string; priceData: Awaited<ReturnType<typeof getSolanaTokenPrice>> }> = [];
+  for (let i = 0; i < chunks.length; i++) {
+    const chunkResults = await processChunk(chunks[i]);
+    allResults.push(...chunkResults);
+
+    // Add delay between chunks (except after last chunk)
+    if (i < chunks.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, CHUNK_DELAY_MS));
+    }
+  }
 
   // Create price map
   const priceMap = new Map<string, JupiterPriceData>();
-  priceResults.forEach((result) => {
+  allResults.forEach((result) => {
     if (result.priceData !== null) {
       priceMap.set(result.address.toLowerCase(), {
         price: result.priceData.usdPrice,

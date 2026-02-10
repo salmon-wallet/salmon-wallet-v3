@@ -247,79 +247,87 @@ export interface SolanaTransactionsResponse {
 /**
  * Swap route info (simplified from Jupiter)
  */
-export interface SwapRouteInfo {
-  /** Input token mint address */
-  inputMint: string;
-  /** Output token mint address */
-  outputMint: string;
-  /** Input amount (raw, with decimals) */
-  inAmount: string;
-  /** Output amount (raw, with decimals) */
-  outAmount: string;
-  /** Other amount threshold (minimum received or maximum sent) */
-  otherAmountThreshold: string;
-  /** Swap mode ('ExactIn' or 'ExactOut') */
-  swapMode: 'ExactIn' | 'ExactOut';
-  /** Slippage in basis points */
-  slippageBps: number;
-  /** Price impact percentage (as string, e.g., '0.12') */
-  priceImpactPct: string;
-  /** Route plan details */
-  routePlan: Array<{
-    /** Swap info for this leg */
-    swapInfo: {
-      /** AMM key */
-      ammKey: string;
-      /** AMM label (e.g., 'Raydium', 'Orca') */
-      label: string;
-      /** Input mint for this leg */
-      inputMint: string;
-      /** Output mint for this leg */
-      outputMint: string;
-      /** Input amount for this leg */
-      inAmount: string;
-      /** Output amount for this leg */
-      outAmount: string;
-      /** Fee amount */
-      feeAmount: string;
-      /** Fee mint */
-      feeMint: string;
-    };
-    /** Percentage of input routed through this leg */
-    percent: number;
-  }>;
-  /** Context slot for quote validity */
-  contextSlot?: number;
-  /** Time taken to compute the quote (ms) */
-  timeTaken?: number;
-}
-
 /**
- * Swap order/quote response from the API
+ * Swap order/quote response from the API (Jupiter Ultra v1)
+ *
+ * Backend returns this structure after migrating to Jupiter Ultra API v1.
+ * All swap-related data is now in `custom` object, not in a `route` object.
  */
 export interface SwapOrderResponse {
-  /** Unique request ID for executing the swap */
-  requestId: string;
-  /** Route information */
-  route: SwapRouteInfo;
-  /** Serialized transaction (base64 encoded) */
-  swapTransaction: string;
-  /** Token info for input token */
-  inputToken?: {
-    symbol: string;
-    name: string;
+  /** DEX labels for each hop in the route (e.g., ['Orca', 'Raydium']) */
+  routeNames: string[];
+  /** Token symbols along the route (e.g., ['SOL', 'USDC']) */
+  routeSymbols: string[];
+  /** Fee information calculated by backend */
+  fee: {
+    /** Fee amount in lamports (for SOL) */
+    amount: number;
+    /** Fee token decimals (9 for SOL) */
     decimals: number;
-    logo?: string | null;
-  };
-  /** Token info for output token */
-  outputToken?: {
+    /** Fee token symbol (usually 'SOL') */
     symbol: string;
-    name: string;
-    decimals: number;
-    logo?: string | null;
+    /** Fee as percentage (e.g., 0.5 for 0.5%) */
+    percent: number;
   };
-  /** Expiration time (Unix timestamp) */
-  expiresAt?: number;
+  /** Input token details */
+  input: {
+    /** Input amount (raw, with decimals) */
+    amount: string;
+    /** Token decimals */
+    decimals: number;
+    /** Token symbol */
+    symbol: string;
+    /** Token name */
+    name?: string;
+    /** Token logo URL */
+    logo?: string;
+    /** Token mint address */
+    contract?: string;
+  };
+  /** Output token details */
+  output: {
+    /** Expected output amount (raw, with decimals) */
+    amount: string;
+    /** Token decimals */
+    decimals: number;
+    /** Token symbol */
+    symbol: string;
+    /** Token name */
+    name?: string;
+    /** Token logo URL */
+    logo?: string;
+    /** Token mint address */
+    contract?: string;
+  };
+  /** Custom fields from Jupiter Ultra API v1 */
+  custom: {
+    /** Base64 encoded unsigned transaction */
+    transaction: string;
+    /** Request ID for execute endpoint (REQUIRED) */
+    requestId: string;
+    /** Router used (e.g., 'iris', 'jupiterz', 'dflow', 'okx') */
+    router: string;
+    /** Price impact as percentage (e.g., 0.5 for 0.5%) */
+    priceImpact: number;
+    /** Total fees in basis points (e.g., 50 for 0.5%) */
+    feeBps: number;
+    /** Priority fee in lamports */
+    prioritizationFeeLamports: number;
+    /** Rent fee in lamports */
+    rentFeeLamports: number;
+    /** Whether swap is gasless */
+    gasless: boolean;
+    /** Slippage tolerance in basis points */
+    slippageBps: number;
+    /** Swap mode ('ExactIn' or 'ExactOut') */
+    swapMode: string;
+    /** Minimum output amount after slippage (raw, with decimals) */
+    otherAmountThreshold: string;
+    /** Input amount in USD */
+    inUsdValue?: number;
+    /** Output amount in USD */
+    outUsdValue?: number;
+  };
 }
 
 /**
@@ -360,12 +368,26 @@ export interface SwapExecuteRequest {
 export interface ApiSwapExecuteResponse {
   /** Transaction signature */
   signature: string;
-  /** Whether the swap was successful */
-  success: boolean;
+  /** Whether the swap was successful: "Success" or "Failed" */
+  status: string;
   /** Error message if swap failed */
   error?: string;
   /** Confirmation status */
   confirmationStatus?: 'processed' | 'confirmed' | 'finalized';
+  /** Slot number */
+  slot?: number;
+  /** Total input amount */
+  totalInputAmount?: number;
+  /** Total output amount */
+  totalOutputAmount?: number;
+  /** Actual input amount result */
+  inputAmountResult?: number;
+  /** Actual output amount result */
+  outputAmountResult?: number;
+  /** Swap events from the backend */
+  swapEvents?: unknown[];
+  /** Response code */
+  code?: string;
 }
 
 // ============================================================================
@@ -550,7 +572,7 @@ export async function executeSwapApi(
       console.error('[SolanaService] Failed to execute swap:', error.message);
       return {
         signature: '',
-        success: false,
+        status: 'Failed',
         error: error.message,
       };
     }
