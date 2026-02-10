@@ -107,14 +107,14 @@ function isDeadDomain(url: string): boolean {
  * normalizeIpfsUrl('https://cf-ipfs.com/ipfs/QmXXX') // 'https://ipfs.io/ipfs/QmXXX'
  *
  * // Dead domain
- * normalizeIpfsUrl('https://shdw-drive.genesysgo.net/xxx') // null
+ * normalizeIpfsUrl('https://shdw-drive.genesysgo.net/xxx') // undefined
  */
-export function normalizeIpfsUrl(url: string | undefined | null): string | null {
-  if (!url) return null;
+export function normalizeIpfsUrl(url: string | undefined | null): string | undefined {
+  if (!url) return undefined;
 
-  // Check for known dead domains - return null to skip these entirely
+  // Check for known dead domains - return undefined to skip these entirely
   if (isDeadDomain(url)) {
-    return null;
+    return undefined;
   }
 
   // Handle ipfs:// protocol
