@@ -44,11 +44,11 @@ export interface TokenBalance {
   /** Token name */
   name: string;
   /** Token logo URL */
-  logo: string | null;
+  logo?: string;
   /** Token address (same as mint) */
   address: string;
   /** CoinGecko ID for price lookups */
-  coingeckoId?: string | null;
+  coingeckoId?: string;
   /** Token tags */
   tags?: string[];
   /** Token program */
@@ -146,7 +146,7 @@ export function decorateBalanceList(
       uiAmount: balance.uiAmount,
       symbol: tokenMetadata?.symbol || 'UNKNOWN',
       name: tokenMetadata?.name || 'Unknown Token',
-      logo: tokenMetadata?.logo || null,
+      logo: tokenMetadata?.logo || undefined,
       address: balance.mint,
       coingeckoId: tokenMetadata?.coingeckoId,
       tags: tokenMetadata?.tags,

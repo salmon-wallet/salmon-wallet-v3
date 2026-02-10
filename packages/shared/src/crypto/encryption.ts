@@ -1,5 +1,5 @@
-import { randomBytes, secretbox } from 'tweetnacl';
 import bs58 from 'bs58';
+import { randomBytes, secretbox } from 'tweetnacl';
 import { pbkdf2 } from './fastCrypto';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - crypto-js types are declared in types/crypto-modules.d.ts
@@ -44,7 +44,7 @@ export interface LockedVault {
  * Configuration options for the lock function.
  */
 export interface LockOptions {
-  /** Number of PBKDF2 iterations (default: 600000, OWASP 2024 minimum) */
+  /** Number of PBKDF2 iterations (600000, OWASP 2024 minimum but using 100000) */
   iterations?: number;
   /** Digest algorithm for PBKDF2 (default: 'sha256') */
   digest?: DigestAlgorithm;
@@ -109,10 +109,9 @@ export class KeyDerivationError extends Error {
 
 /**
  * Default number of PBKDF2 iterations.
- * OWASP 2024 recommends minimum 600,000 for PBKDF2-HMAC-SHA256.
- * @see https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+ * Balances security with UX responsiveness for a mobile wallet.
  */
-const DEFAULT_ITERATIONS = 600000;
+const DEFAULT_ITERATIONS = 100000;
 
 /** Default digest algorithm */
 const DEFAULT_DIGEST: DigestAlgorithm = 'sha256';

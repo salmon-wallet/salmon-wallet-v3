@@ -5,9 +5,9 @@
  * account-factory.js but adapted for V3's TypeScript architecture.
  *
  * Supports multi-chain account derivation:
- * - Solana (mainnet-beta, devnet)
- * - Bitcoin (bitcoin, bitcoin-testnet)
- * - Ethereum (ethereum, ethereum-sepolia)
+ * - Solana (solana-mainnet, solana-devnet)
+ * - Bitcoin (bitcoin-mainnet, bitcoin-testnet)
+ * - Ethereum (ethereum-mainnet, ethereum-sepolia)
  *
  * @module factories/account-factory
  */
@@ -58,7 +58,7 @@ export interface CreateAccountOptions {
   avatar?: string;
   /** BIP39 mnemonic phrase */
   mnemonic: string;
-  /** Network IDs to create accounts for (defaults to ['mainnet-beta']) */
+  /** Network IDs to create accounts for (defaults to ['solana-mainnet']) */
   networkIds?: string[];
   /** Starting derivation index (defaults to 0) */
   startIndex?: number;
@@ -106,22 +106,11 @@ function getBlockchainType(networkId: string): BlockchainType {
 
 /**
  * Maps a network ID to its corresponding network key in the networks object.
- * Handles cases where the network ID differs from the key (e.g., 'bitcoin' -> 'mainnet').
+ * Handles cases where the network ID differs from the key (e.g., 'bitcoin-mainnet' -> 'bitcoin-mainnet').
  */
-function getNetworkKey(networkId: string, blockchainType: BlockchainType): string {
-  switch (blockchainType) {
-    case 'bitcoin':
-      if (networkId === 'bitcoin') return 'mainnet';
-      if (networkId === 'bitcoin-testnet') return 'testnet';
-      return networkId;
-    case 'ethereum':
-      if (networkId === 'ethereum') return 'mainnet';
-      if (networkId === 'ethereum-sepolia') return 'sepolia';
-      return networkId;
-    case 'solana':
-    default:
-      return networkId;
-  }
+function getNetworkKey(networkId: string, _blockchainType: BlockchainType): string {
+  // Network IDs match the keys in BITCOIN_NETWORKS, ETHEREUM_NETWORKS, and SOLANA_NETWORKS directly
+  return networkId;
 }
 
 // ============================================================================
@@ -226,14 +215,14 @@ async function createBlockchainAccountForNetwork(
  * const result = await createAccount({
  *   name: 'My Wallet',
  *   mnemonic: 'abandon abandon abandon...',
- *   networkIds: ['mainnet-beta', 'bitcoin', 'ethereum'],
+ *   networkIds: ['solana-mainnet', 'bitcoin-mainnet', 'ethereum-mainnet'],
  * });
  *
  * console.log(result.account.id); // 'uuid-here'
  * console.log(result.account.name); // 'My Wallet'
- * console.log(result.blockchainAccounts['mainnet-beta'][0]); // SolanaAccount
- * console.log(result.blockchainAccounts['bitcoin'][0]); // BitcoinAccount
- * console.log(result.blockchainAccounts['ethereum'][0]); // EthereumAccount
+ * console.log(result.blockchainAccounts['solana-mainnet'][0]); // SolanaAccount
+ * console.log(result.blockchainAccounts['bitcoin-mainnet'][0]); // BitcoinAccount
+ * console.log(result.blockchainAccounts['ethereum-mainnet'][0]); // EthereumAccount
  * ```
  */
 export async function createAccount(
@@ -244,7 +233,7 @@ export async function createAccount(
     name,
     avatar = getRandomAvatar(),
     mnemonic,
-    networkIds = ['mainnet-beta'],
+    networkIds = ['solana-mainnet'],
     startIndex = 0,
   } = options;
 
@@ -320,13 +309,13 @@ export function generateAccountName(
  * @example
  * ```typescript
  * // Derive Solana account
- * const solana = await deriveBlockchainAccount(mnemonic, 'mainnet-beta', 1);
+ * const solana = await deriveBlockchainAccount(mnemonic, 'solana-mainnet', 1);
  *
  * // Derive Bitcoin account
- * const bitcoin = await deriveBlockchainAccount(mnemonic, 'bitcoin', 0);
+ * const bitcoin = await deriveBlockchainAccount(mnemonic, 'bitcoin-mainnet', 0);
  *
  * // Derive Ethereum account
- * const ethereum = await deriveBlockchainAccount(mnemonic, 'ethereum', 0);
+ * const ethereum = await deriveBlockchainAccount(mnemonic, 'ethereum-mainnet', 0);
  * ```
  */
 export async function deriveBlockchainAccount(
