@@ -20,7 +20,6 @@ import {
   View,
   Text,
   ActivityIndicator,
-  Alert,
   ScrollView,
   Animated,
   NativeSyntheticEvent,
@@ -28,12 +27,9 @@ import {
   Share,
   Linking,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { Haptics } from '@salmon/ui';
-import { useTranslation } from 'react-i18next';
 
 import {
   useAccountsContext,
@@ -42,9 +38,10 @@ import {
   useAvailableNetworks,
   useAdjacentBalances,
   useTransactions,
-  getStashedPassword,
+  getShortAddress,
   colors,
   componentSizes,
+  spacing,
   vs,
   getMarketChart,
   getCoinInfo,
@@ -53,16 +50,13 @@ import {
   type PriceChartPeriod,
   type PriceDataPoint,
   type AnyNetwork,
+  type BalanceNetworkId,
 } from '@salmon/shared';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  WalletHeader,
   BalanceCardCarousel,
   ActionButtonRow,
   TokenList,
   TokenListItem,
-  SettingsSheet,
-  WalletSwitcherSheet,
   PriceChart,
   TokenAbout,
   TokenMarketData,
@@ -71,7 +65,8 @@ import {
   TransactionHistorySheet,
   TransactionDetailModal,
   SendSheet,
-  ScalesBackground,
+  SubAccountSelector,
+  type SubAccount,
   type BlockchainBalance,
   type BlockchainId,
   type MarketData,
@@ -124,16 +119,15 @@ function getBaseBlockchain(blockchainId: BlockchainId): BaseBlockchain {
 // Network ID to BlockchainId mapping
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
   // Solana networks
-  'mainnet-beta': 'solana',
-  'devnet': 'solana-devnet',
+  'solana-mainnet': 'solana',
+  'solana-devnet': 'solana-devnet',
 
   // Bitcoin networks
-  'bitcoin': 'bitcoin',
-  'mainnet': 'bitcoin',
+  'bitcoin-mainnet': 'bitcoin',
   'bitcoin-testnet': 'bitcoin-testnet',
 
   // Ethereum networks
-  'ethereum': 'ethereum',
+  'ethereum-mainnet': 'ethereum',
   'ethereum-sepolia': 'ethereum-sepolia',
 };
 
@@ -171,23 +165,11 @@ function getBlockchainFromNetwork(network: AnyNetwork): BlockchainId {
 }
 
 /**
- * Maps context networkId to transaction API networkId format
+ * Maps context networkId to transaction API networkId format.
+ * Since network IDs now match the API format directly, this is mostly a passthrough.
  */
 function getTransactionNetworkId(networkId: string | null): string {
   if (!networkId) return 'solana-mainnet';
-
-  // Solana networks
-  if (networkId === 'mainnet-beta') return 'solana-mainnet';
-  if (networkId === 'devnet') return 'solana-devnet';
-
-  // Bitcoin networks
-  if (networkId === 'bitcoin' || networkId === 'mainnet') return 'bitcoin-mainnet';
-  if (networkId === 'bitcoin-testnet' || networkId === 'testnet') return 'bitcoin-testnet';
-
-  // Ethereum networks
-  if (networkId === 'ethereum') return 'ethereum-mainnet';
-  if (networkId === 'ethereum-sepolia' || networkId === 'sepolia') return 'ethereum-sepolia';
-  // Default: assume the networkId is already in correct format
   return networkId;
 }
 
@@ -199,13 +181,13 @@ function mapBalanceToToken(
     address: string;
     symbol: string;
     name: string;
-    logo: string | null;
+    logo?: string;
     uiAmount: number;
     usdBalance?: number;
     price?: number;
     priceChange24h?: number;
     tags?: string[];
-    coingeckoId?: string | null;
+    coingeckoId?: string;
   }
 ): Token {
   // Check if token has 'verified' tag
@@ -237,21 +219,15 @@ function mapBalanceToToken(
 }
 
 export default function HomeScreen() {
-  const router = useRouter();
-  const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-
   // Top fade gradient opacity - animated based on scroll position
   const topFadeOpacity = useRef(new Animated.Value(0)).current;
 
-  // Settings sheet visibility
-  const [settingsVisible, setSettingsVisible] = useState(false);
-
-  // Wallet switcher sheet visibility
-  const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
-
   // Active blockchain index for carousel
   const [activeBlockchainIndex, setActiveBlockchainIndex] = useState(0);
+
+  // Sub-account switching state (for showing skeleton during switch)
+  const [switchingSubAccount, setSwitchingSubAccount] = useState(false);
+  const [pendingSubAccountIndex, setPendingSubAccountIndex] = useState<number | undefined>(undefined);
 
   // Bitcoin-specific data states
   const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
@@ -285,11 +261,10 @@ export default function HomeScreen() {
   const [accountState, accountActions] = useAccountsContext();
   const {
     ready,
-    accounts,
-    accountId,
     activeAccount,
     activeBlockchainAccount,
     networkId,
+    pathIndex,
   } = accountState;
 
   // User configuration (developer networks toggle)
@@ -297,17 +272,17 @@ export default function HomeScreen() {
   const userConfigAccount = activeBlockchainAccount
     ? {
         network: {
-          environment: (networkId || 'mainnet-beta') as 'mainnet-beta' | 'devnet',
+          environment: (networkId || 'solana-mainnet') as 'solana-mainnet' | 'solana-devnet',
           blockchain: 'solana',
         },
       }
     : {
         network: {
-          environment: 'mainnet-beta' as const,
+          environment: 'solana-mainnet' as const,
           blockchain: 'solana',
         },
       };
-  const { developerNetworks, toggleDeveloperNetworks } = useUserConfig({
+  const { developerNetworks } = useUserConfig({
     activeBlockchainAccount: userConfigAccount,
   });
 
@@ -346,7 +321,7 @@ export default function HomeScreen() {
     toggleHidden,
   } = useBalance({
     account: activeBlockchainAccount,
-    networkId: networkId as 'mainnet-beta' | 'devnet' | undefined,
+    networkId,
     skip: !ready || !activeBlockchainAccount,
   });
 
@@ -376,7 +351,7 @@ export default function HomeScreen() {
     refreshing: prevRefreshing,
   } = useBalance({
     account: adjacentAccounts.prevAccount,
-    networkId: prevNetwork?.id as 'mainnet-beta' | 'devnet' | undefined,
+    networkId: prevNetwork?.id as BalanceNetworkId | undefined,
     skip: !ready || !adjacentAccounts.prevAccount || !prevNetwork,
   });
 
@@ -390,7 +365,7 @@ export default function HomeScreen() {
     refreshing: nextRefreshing,
   } = useBalance({
     account: adjacentAccounts.nextAccount,
-    networkId: nextNetwork?.id as 'mainnet-beta' | 'devnet' | undefined,
+    networkId: nextNetwork?.id as BalanceNetworkId | undefined,
     skip: !ready || !adjacentAccounts.nextAccount || !nextNetwork,
   });
 
@@ -414,11 +389,12 @@ export default function HomeScreen() {
 
       if (isActiveNetwork) {
         // Active network: show current balance data
+        // Show loading during sub-account switch OR when balance is loading
         balanceData = {
-          usdTotal,
-          changePercent,
-          changeAmount,
-          loading: loading && !refreshing,
+          usdTotal: switchingSubAccount ? undefined : usdTotal,
+          changePercent: switchingSubAccount ? undefined : changePercent,
+          changeAmount: switchingSubAccount ? undefined : changeAmount,
+          loading: switchingSubAccount || (loading && !refreshing),
         };
       } else if (isPrevNetwork && prevNetwork) {
         // Previous network (index - 1): show preloaded data
@@ -460,6 +436,7 @@ export default function HomeScreen() {
     allNetworks,
     networkId,
     activeBlockchainIndex,
+    switchingSubAccount,
     // Current network balance
     usdTotal,
     changePercent,
@@ -482,10 +459,22 @@ export default function HomeScreen() {
     nextRefreshing,
   ]);
 
+  // Get current blockchain type for TokenList styling
+  const currentBlockchain = useMemo(() => {
+    const activeBalance = blockchainBalances[activeBlockchainIndex];
+    return activeBalance?.network.blockchain || 'solana';
+  }, [activeBlockchainIndex, blockchainBalances]);
+
   // Map balance tokens to TokenList format, filtering out spam/unknown tokens
   const tokenListItems = useMemo(() => {
     return tokens
       .filter((token) => {
+        // Tag-based spam filtering only applies to Solana (Jupiter tags)
+        // ETH and BTC tokens don't have a tag system
+        if (!currentBlockchain.startsWith('solana')) {
+          return true;
+        }
+
         // Check if token has meaningful tags (not just "unknown")
         const hasMeaningfulTags =
           token.tags &&
@@ -507,13 +496,57 @@ export default function HomeScreen() {
         return true;
       })
       .map(mapBalanceToToken);
-  }, [tokens, developerNetworks]);
+  }, [tokens, developerNetworks, currentBlockchain]);
 
-  // Get current blockchain type for TokenList styling
-  const currentBlockchain = useMemo(() => {
-    const activeBalance = blockchainBalances[activeBlockchainIndex];
-    return activeBalance?.network.blockchain || 'solana';
-  }, [activeBlockchainIndex, blockchainBalances]);
+  // Compute sub-accounts for the current network (for path index switching)
+  const subAccounts = useMemo((): SubAccount[] => {
+    if (!activeAccount || !networkId) return [];
+    const networkAccounts = activeAccount.networksAccounts[networkId];
+    if (!networkAccounts) return [];
+    return networkAccounts
+      .map((acc, idx) => acc ? { index: idx, address: getShortAddress(acc.getReceiveAddress(), 4) ?? '' } : null)
+      .filter((item): item is SubAccount => item !== null);
+  }, [activeAccount, networkId]);
+
+  // Debounce timer ref to prevent rapid sub-account switching from spamming API
+  const subAccountChangeTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleSubAccountChange = useCallback((index: number) => {
+    // Don't do anything if already on this account
+    if (index === pathIndex) return;
+
+    // Clear any pending change
+    if (subAccountChangeTimerRef.current) {
+      clearTimeout(subAccountChangeTimerRef.current);
+    }
+
+    // Immediately show switching state (activate skeletons)
+    setSwitchingSubAccount(true);
+    setPendingSubAccountIndex(index);
+
+    // Debounce the change by 300ms to prevent API spam on rapid taps
+    subAccountChangeTimerRef.current = setTimeout(() => {
+      accountActions.changePathIndex(index);
+      subAccountChangeTimerRef.current = null;
+    }, 300);
+  }, [accountActions, pathIndex]);
+
+  // Clear switching state when loading completes
+  useEffect(() => {
+    if (!loading && !refreshing && switchingSubAccount) {
+      setSwitchingSubAccount(false);
+      setPendingSubAccountIndex(undefined);
+    }
+  }, [loading, refreshing, switchingSubAccount]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (subAccountChangeTimerRef.current) {
+        clearTimeout(subAccountChangeTimerRef.current);
+      }
+    };
+  }, []);
 
   // Load Bitcoin chart data when user swipes to Bitcoin or changes period
   useEffect(() => {
@@ -686,18 +719,6 @@ export default function HomeScreen() {
   }, [bitcoinCoinInfo]);
 
   // Handlers
-  const handleCopyAddress = useCallback(async () => {
-    if (activeBlockchainAccount) {
-      const address = activeBlockchainAccount.getReceiveAddress();
-      await Clipboard.setStringAsync(address);
-      // TODO: Show toast notification
-    }
-  }, [activeBlockchainAccount]);
-
-  const handleSettingsPress = useCallback(() => {
-    setSettingsVisible(true);
-  }, []);
-
   const handleSendPress = useCallback(() => {
     setSendSheetVisible(true);
   }, []);
@@ -756,7 +777,7 @@ export default function HomeScreen() {
 
   const handleTransactionPress = useCallback((transaction: Transaction) => {
     // Open transaction in Solana Explorer
-    const explorerUrl = networkId === 'devnet'
+    const explorerUrl = networkId === 'solana-devnet'
       ? `https://explorer.solana.com/tx/${transaction.id}?cluster=devnet`
       : `https://explorer.solana.com/tx/${transaction.id}`;
     console.log('Opening transaction:', explorerUrl);
@@ -782,7 +803,7 @@ export default function HomeScreen() {
 
   // Handler to view transaction in explorer (from detail modal)
   const handleViewExplorer = useCallback((transaction: Transaction) => {
-    const explorerUrl = networkId === 'devnet'
+    const explorerUrl = networkId === 'solana-devnet'
       ? `https://solscan.io/tx/${transaction.id}?cluster=devnet`
       : `https://solscan.io/tx/${transaction.id}`;
     Linking.openURL(explorerUrl);
@@ -798,7 +819,7 @@ export default function HomeScreen() {
 
   // Handler to share transaction (from detail modal)
   const handleShareTransaction = useCallback(async (transaction: Transaction) => {
-    const explorerUrl = networkId === 'devnet'
+    const explorerUrl = networkId === 'solana-devnet'
       ? `https://solscan.io/tx/${transaction.id}?cluster=devnet`
       : `https://solscan.io/tx/${transaction.id}`;
     try {
@@ -833,142 +854,6 @@ export default function HomeScreen() {
     const opacity = Math.min(offsetY / 30, 1); // Fully visible after 30px scroll
     topFadeOpacity.setValue(opacity);
   }, [topFadeOpacity]);
-
-  const handleSettingsNavigate = useCallback((screen: string) => {
-    setSettingsVisible(false);
-    // Navigate to specific settings screen if needed
-    router.push(`/(app)/settings/${screen}` as any);
-  }, [router]);
-
-  const handleSettingsClose = useCallback(() => {
-    setSettingsVisible(false);
-  }, []);
-
-  // Wallet Switcher handlers
-  const handleWalletPress = useCallback(() => {
-    setWalletSwitcherVisible(true);
-  }, []);
-
-  const handleWalletSwitcherClose = useCallback(() => {
-    setWalletSwitcherVisible(false);
-  }, []);
-
-  const handleSelectAccount = useCallback(async (id: string) => {
-    await accountActions.changeAccount(id);
-    setWalletSwitcherVisible(false);
-  }, [accountActions]);
-
-  const handleAddAccount = useCallback(() => {
-    setWalletSwitcherVisible(false);
-    // Navigate to auth flow to add a new account
-    router.push('/(auth)');
-  }, [router]);
-
-  const handleEditAccount = useCallback((id: string) => {
-    setWalletSwitcherVisible(false);
-    // Navigate to account edit screen
-    router.push({
-      pathname: '/(app)/settings/account-edit',
-      params: { id },
-    } as any);
-  }, [router]);
-
-  const handleDeleteAccount = useCallback(async (id: string) => {
-    // The WalletSwitcherSheet already shows a confirmation dialog
-    // and handles closing itself, so we just need to call removeAccount
-    await accountActions.removeAccount(id);
-  }, [accountActions]);
-
-  /**
-   * Handle remove all wallets action from SettingsSheet
-   * Shows confirmation dialog before removing all accounts
-   */
-  const handleRemoveAllWallets = useCallback(() => {
-    Alert.alert(
-      t('settings.remove_all_title'),
-      t('settings.wallets.remove_all_wallets_description'),
-      [
-        {
-          text: t('actions.cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('actions.remove_all'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // Remove all accounts
-              await accountActions.removeAllAccounts();
-
-              // Navigate to onboarding/auth flow
-              router.replace('/(auth)');
-            } catch (error) {
-              console.error('Failed to remove all wallets:', error);
-              Alert.alert(
-                t('general.error'),
-                'Failed to remove wallets. Please try again.'
-              );
-            }
-          },
-        },
-      ]
-    );
-  }, [accountActions, router, t]);
-
-  /**
-   * Handle remove current wallet action from SettingsSheet
-   * Shows confirmation dialog and verifies password if required
-   */
-  const handleRemoveWallet = useCallback(async () => {
-    const { requiredLock, accounts } = accountState;
-    const currentAccount = activeAccount;
-
-    if (!currentAccount) return;
-
-    // Check if this is the last account
-    if (accounts.length <= 1) {
-      // If it's the last account, redirect to remove all wallets flow
-      handleRemoveAllWallets();
-      return;
-    }
-
-    // Show confirmation dialog
-    Alert.alert(
-      t('settings.remove_wallet_title'),
-      t('settings.wallets.remove_wallet_description'),
-      [
-        {
-          text: t('actions.cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('settings.confirm_remove'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // If password is required, get it from stash
-              let password: string | undefined;
-              if (requiredLock) {
-                password = await getStashedPassword();
-              }
-
-              // Remove the account
-              await accountActions.removeAccount(currentAccount.id, password);
-
-              // Account actions will automatically switch to another account
-              // No need to navigate, the UI will update
-            } catch (error) {
-              console.error('Failed to remove wallet:', error);
-              Alert.alert(
-                t('general.error'),
-                'Failed to remove wallet. Please try again.'
-              );
-            }
-          },
-        },
-      ]
-    );
-  }, [accountState, activeAccount, accountActions, handleRemoveAllWallets, t]);
 
   // Memoize the fixed header component (Balance Card + Action Buttons)
   // IMPORTANT: This hook must be called BEFORE any early returns to follow React's Rules of Hooks
@@ -1024,7 +909,6 @@ export default function HomeScreen() {
   if (!ready) {
     return (
       <View style={styles.loadingContainer}>
-        <StatusBar style="light" />
         <ActivityIndicator size="large" color="#FF6B35" />
         <Text style={styles.loadingText}>Loading wallet...</Text>
       </View>
@@ -1035,7 +919,6 @@ export default function HomeScreen() {
   if (!activeAccount || !activeBlockchainAccount) {
     return (
       <View style={styles.loadingContainer}>
-        <StatusBar style="light" />
         <Text style={styles.loadingText}>No account found</Text>
       </View>
     );
@@ -1046,16 +929,17 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
-
-      {/* Solid background for status bar area and entire screen */}
-      <View style={styles.solidBackground} />
-
-      {/* Scales pattern background - starts below header */}
-      <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
-
       {/* Fixed Header: Balance Card + Action Buttons */}
       {FixedHeaderComponent}
+
+      {/* Sub-account selector — only visible with 2+ derived accounts */}
+      <SubAccountSelector
+        accounts={subAccounts}
+        activeIndex={pathIndex}
+        onSelect={handleSubAccountChange}
+        pendingIndex={pendingSubAccountIndex}
+        style={styles.subAccountSelector}
+      />
 
       {/* Scrollable Token List or Bitcoin View */}
       <View style={styles.listContainer}>
@@ -1107,8 +991,8 @@ export default function HomeScreen() {
         ) : (
           // Normal token list for Solana/Ethereum
           <TokenList
-            tokens={tokenListItems}
-            loading={loading && tokenListItems.length === 0}
+            tokens={switchingSubAccount ? [] : tokenListItems}
+            loading={switchingSubAccount || (loading && tokenListItems.length === 0)}
             onTokenPress={handleTokenPress}
             hiddenBalance={hiddenBalance}
             ListEmptyComponent={ListEmptyComponent}
@@ -1131,46 +1015,6 @@ export default function HomeScreen() {
           />
         </Animated.View>
       </View>
-
-      {/* Bottom fade gradient - smooth transition before tab bar */}
-      <LinearGradient
-        colors={['transparent', colors.background.primary]}
-        style={styles.bottomFadeGradient}
-        pointerEvents="none"
-      />
-
-      {/* Header - Absolutely positioned above content */}
-      <WalletHeader
-        accountName={accountName}
-        address={address}
-        onCopyAddress={handleCopyAddress}
-        onSettingsPress={handleSettingsPress}
-        onWalletPress={handleWalletPress}
-        developerMode={developerNetworks}
-      />
-
-      {/* Settings Sheet */}
-      <SettingsSheet
-        visible={settingsVisible}
-        onClose={handleSettingsClose}
-        onNavigate={handleSettingsNavigate}
-        developerNetworksEnabled={developerNetworks}
-        onDeveloperNetworksToggle={toggleDeveloperNetworks}
-        onRemoveWallet={handleRemoveWallet}
-        onRemoveAllWallets={handleRemoveAllWallets}
-      />
-
-      {/* Wallet Switcher Sheet */}
-      <WalletSwitcherSheet
-        visible={walletSwitcherVisible}
-        onClose={handleWalletSwitcherClose}
-        accounts={accounts}
-        activeAccountId={accountId ?? ''}
-        onSelectAccount={handleSelectAccount}
-        onAddAccount={handleAddAccount}
-        onEditAccount={handleEditAccount}
-        onDeleteAccount={handleDeleteAccount}
-      />
 
       {/* Token Information Sheet */}
       {selectedToken && (
@@ -1239,16 +1083,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  solidBackground: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.background.primary,
-    zIndex: 0,
+    backgroundColor: 'transparent',
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1259,6 +1098,9 @@ const styles = StyleSheet.create({
   },
   fixedHeader: {
     // Fixed header containing balance card and action buttons
+  },
+  subAccountSelector: {
+    marginBottom: vs(spacing.md),
   },
   listContainer: {
     flex: 1,
@@ -1282,14 +1124,6 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     height: 30, // iOS standard fade height
-    zIndex: 1,
-  },
-  bottomFadeGradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 180,
-    bottom: 0,
     zIndex: 1,
   },
   emptyState: {
