@@ -20,16 +20,16 @@ vi.mock('./useUserConfig', () => ({
 
 vi.mock('../blockchain/solana/factory', () => ({
   SOLANA_NETWORKS: {
-    'mainnet-beta': {
-      id: 'mainnet-beta',
+    'solana-mainnet': {
+      id: 'solana-mainnet',
       name: 'Mainnet Beta',
       config: {
         nodeUrl: 'https://api.mainnet-beta.solana.com',
         commitment: 'confirmed',
       },
     },
-    devnet: {
-      id: 'devnet',
+    'solana-devnet': {
+      id: 'solana-devnet',
       name: 'Devnet',
       config: {
         nodeUrl: 'https://api.devnet.solana.com',
@@ -41,15 +41,15 @@ vi.mock('../blockchain/solana/factory', () => ({
 
 vi.mock('../blockchain/bitcoin/factory', () => ({
   BITCOIN_NETWORKS: {
-    mainnet: {
-      id: 'bitcoin',
+    'bitcoin-mainnet': {
+      id: 'bitcoin-mainnet',
       name: 'Bitcoin Mainnet',
       environment: 'mainnet',
       config: {
         network: {},
       },
     },
-    testnet: {
+    'bitcoin-testnet': {
       id: 'bitcoin-testnet',
       name: 'Bitcoin Testnet',
       environment: 'testnet',
@@ -62,8 +62,8 @@ vi.mock('../blockchain/bitcoin/factory', () => ({
 
 vi.mock('../blockchain/ethereum/factory', () => ({
   ETHEREUM_NETWORKS: {
-    mainnet: {
-      id: 'ethereum',
+    'ethereum-mainnet': {
+      id: 'ethereum-mainnet',
       name: 'Ethereum Mainnet',
       environment: 'mainnet',
       config: {
@@ -71,7 +71,7 @@ vi.mock('../blockchain/ethereum/factory', () => ({
         chainId: 1,
       },
     },
-    sepolia: {
+    'ethereum-sepolia': {
       id: 'ethereum-sepolia',
       name: 'Sepolia Testnet',
       environment: 'sepolia',
@@ -89,7 +89,7 @@ vi.mock('../blockchain/ethereum/factory', () => ({
 
 const mockActiveAccount: ActiveBlockchainAccount = {
   network: {
-    environment: 'mainnet-beta',
+    environment: 'solana-mainnet',
     blockchain: 'solana',
   },
 };
@@ -127,13 +127,13 @@ describe('useAvailableNetworks Hook', () => {
       });
     });
 
-    it('should return only mainnet networks for Solana (mainnet-beta)', () => {
+    it('should return only mainnet networks for Solana (solana-mainnet)', () => {
       const { result } = renderHook(() =>
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
       expect(result.current.networks.solana).toHaveLength(1);
-      expect(result.current.networks.solana[0].id).toBe('mainnet-beta');
+      expect(result.current.networks.solana[0].id).toBe('solana-mainnet');
     });
 
     it('should NOT return devnet or testnet for Solana', () => {
@@ -142,7 +142,7 @@ describe('useAvailableNetworks Hook', () => {
       );
 
       const networkIds = result.current.networks.solana.map(n => n.id);
-      expect(networkIds).not.toContain('devnet');
+      expect(networkIds).not.toContain('solana-devnet');
       expect(networkIds).not.toContain('testnet');
     });
 
@@ -203,15 +203,15 @@ describe('useAvailableNetworks Hook', () => {
       });
     });
 
-    it('should return all Solana networks (mainnet-beta, devnet)', () => {
+    it('should return all Solana networks (solana-mainnet, solana-devnet)', () => {
       const { result } = renderHook(() =>
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
       expect(result.current.networks.solana).toHaveLength(2);
       const networkIds = result.current.networks.solana.map(n => n.id);
-      expect(networkIds).toContain('mainnet-beta');
-      expect(networkIds).toContain('devnet');
+      expect(networkIds).toContain('solana-mainnet');
+      expect(networkIds).toContain('solana-devnet');
     });
 
     it('should return all Bitcoin networks (mainnet, testnet)', () => {

@@ -38,17 +38,17 @@ vi.mock('../storage', () => ({
 
 const MOCK_NETWORKS: AddressBookNetwork[] = [
   {
-    id: 'mainnet-beta',
+    id: 'solana-mainnet',
     name: 'Solana Mainnet',
     blockchain: 'solana',
   },
   {
-    id: 'bitcoin',
+    id: 'bitcoin-mainnet',
     name: 'Bitcoin Mainnet',
     blockchain: 'bitcoin',
   },
   {
-    id: 'ethereum',
+    id: 'ethereum-mainnet',
     name: 'Ethereum Mainnet',
     blockchain: 'ethereum',
   },
@@ -59,13 +59,13 @@ const MOCK_STORED_ADDRESSES = [
     address: 'SolanaAddress1111111111111111111111111111111',
     name: 'My Solana Wallet',
     domain: 'mysolana.sol',
-    networkId: 'mainnet-beta',
+    networkId: 'solana-mainnet',
   },
   {
     address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
     name: 'My Bitcoin Wallet',
     domain: null,
-    networkId: 'bitcoin',
+    networkId: 'bitcoin-mainnet',
   },
 ];
 
@@ -142,7 +142,7 @@ describe('useAddressbook Hook', () => {
       expect(state.addressBook).toHaveLength(2);
       expect(state.addressBook[0].address).toBe('SolanaAddress1111111111111111111111111111111');
       expect(state.addressBook[0].name).toBe('My Solana Wallet');
-      expect(state.addressBook[0].network.id).toBe('mainnet-beta');
+      expect(state.addressBook[0].network.id).toBe('solana-mainnet');
       expect(state.error).toBeUndefined();
     });
 
@@ -177,7 +177,7 @@ describe('useAddressbook Hook', () => {
         address: 'NewSolanaAddress11111111111111111111111111',
         name: 'New Contact',
         domain: 'newcontact.sol',
-        networkId: 'mainnet-beta',
+        networkId: 'solana-mainnet',
       };
 
       const [, actions] = result.current;
@@ -190,7 +190,7 @@ describe('useAddressbook Hook', () => {
       expect(state.addressBook).toHaveLength(1);
       expect(state.addressBook[0].address).toBe(newAddressInput.address);
       expect(state.addressBook[0].name).toBe(newAddressInput.name);
-      expect(state.addressBook[0].network.id).toBe('mainnet-beta');
+      expect(state.addressBook[0].network.id).toBe('solana-mainnet');
       expect(mockStorage.setItem).toHaveBeenCalledWith(
         'salmon_contacts',
         expect.any(Array)
@@ -291,7 +291,7 @@ describe('useAddressbook Hook', () => {
         address: 'SolanaAddress1111111111111111111111111111111',
         name: 'Updated Wallet Name',
         domain: 'updated.sol',
-        networkId: 'mainnet-beta',
+        networkId: 'solana-mainnet',
       };
 
       const [, actions] = result.current;
@@ -486,25 +486,25 @@ describe('Address Book Utility Functions', () => {
       address: 'SolanaAddress1',
       name: 'Solana Wallet 1',
       domain: 'solana1.sol',
-      network: { id: 'mainnet-beta', name: 'Solana Mainnet', blockchain: 'solana' },
+      network: { id: 'solana-mainnet', name: 'Solana Mainnet', blockchain: 'solana' },
     },
     {
       address: 'SolanaAddress2',
       name: 'Solana Wallet 2',
       domain: null,
-      network: { id: 'mainnet-beta', name: 'Solana Mainnet', blockchain: 'solana' },
+      network: { id: 'solana-mainnet', name: 'Solana Mainnet', blockchain: 'solana' },
     },
     {
       address: 'BitcoinAddress1',
       name: 'Bitcoin Wallet',
       domain: null,
-      network: { id: 'bitcoin', name: 'Bitcoin Mainnet', blockchain: 'bitcoin' },
+      network: { id: 'bitcoin-mainnet', name: 'Bitcoin Mainnet', blockchain: 'bitcoin' },
     },
     {
       address: 'EthAddress1',
       name: 'Ethereum Wallet',
       domain: 'myeth.eth',
-      network: { id: 'ethereum', name: 'Ethereum Mainnet', blockchain: 'ethereum' },
+      network: { id: 'ethereum-mainnet', name: 'Ethereum Mainnet', blockchain: 'ethereum' },
     },
   ];
 
@@ -531,9 +531,9 @@ describe('Address Book Utility Functions', () => {
 
   describe('filterByNetwork', () => {
     it('should filter addresses by network ID', () => {
-      const filtered = filterByNetwork(mockAddressBook, 'mainnet-beta');
+      const filtered = filterByNetwork(mockAddressBook, 'solana-mainnet');
       expect(filtered).toHaveLength(2);
-      expect(filtered.every((a) => a.network.id === 'mainnet-beta')).toBe(true);
+      expect(filtered.every((a) => a.network.id === 'solana-mainnet')).toBe(true);
     });
 
     it('should return empty array for non-existent network', () => {

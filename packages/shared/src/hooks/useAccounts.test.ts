@@ -36,14 +36,14 @@ vi.mock('../crypto/encryption', () => ({
 vi.mock('../blockchain/solana', () => ({
   createSolanaAccount: vi.fn(),
   SOLANA_NETWORKS: {
-    'mainnet-beta': {
-      id: 'mainnet-beta',
+    'solana-mainnet': {
+      id: 'solana-mainnet',
       name: 'Mainnet Beta',
       blockchain: 'SOLANA',
       environment: 'mainnet-beta',
     },
-    devnet: {
-      id: 'devnet',
+    'solana-devnet': {
+      id: 'solana-devnet',
       name: 'Devnet',
       blockchain: 'SOLANA',
       environment: 'devnet',
@@ -54,13 +54,13 @@ vi.mock('../blockchain/solana', () => ({
 vi.mock('../blockchain/bitcoin', () => ({
   createBitcoinAccount: vi.fn(),
   BITCOIN_NETWORKS: {
-    mainnet: {
-      id: 'bitcoin',
+    'bitcoin-mainnet': {
+      id: 'bitcoin-mainnet',
       name: 'Bitcoin Mainnet',
       blockchain: 'BITCOIN',
       environment: 'mainnet',
     },
-    testnet: {
+    'bitcoin-testnet': {
       id: 'bitcoin-testnet',
       name: 'Bitcoin Testnet',
       blockchain: 'BITCOIN',
@@ -72,13 +72,13 @@ vi.mock('../blockchain/bitcoin', () => ({
 vi.mock('../blockchain/ethereum', () => ({
   createEthereumAccount: vi.fn(),
   ETHEREUM_NETWORKS: {
-    mainnet: {
-      id: 'ethereum',
+    'ethereum-mainnet': {
+      id: 'ethereum-mainnet',
       name: 'Ethereum Mainnet',
       blockchain: 'ETHEREUM',
       environment: 'mainnet',
     },
-    sepolia: {
+    'ethereum-sepolia': {
       id: 'ethereum-sepolia',
       name: 'Sepolia Testnet',
       blockchain: 'ETHEREUM',
@@ -87,11 +87,26 @@ vi.mock('../blockchain/ethereum', () => ({
   },
 }));
 
-vi.mock('axios', () => ({
-  default: {
+vi.mock('axios', () => {
+  const mockInstance = {
     get: vi.fn(),
-  },
-}));
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn(),
+    interceptors: {
+      request: { use: vi.fn(), eject: vi.fn() },
+      response: { use: vi.fn(), eject: vi.fn() },
+    },
+  };
+  return {
+    default: {
+      create: vi.fn(() => mockInstance),
+      get: vi.fn(),
+      post: vi.fn(),
+    },
+  };
+});
 
 // ============================================================================
 // Test Data
@@ -105,7 +120,7 @@ const mockSolanaAccount = {
   path: "m/44'/501'/0'/0'",
   index: 0,
   network: {
-    id: 'mainnet-beta',
+    id: 'solana-mainnet',
     name: 'Mainnet Beta',
     blockchain: 'SOLANA',
   },
@@ -123,10 +138,10 @@ function createMockAccount(): Account {
     avatar: 'default',
     mnemonic: MOCK_MNEMONIC,
     pathIndexes: {
-      'mainnet-beta': [0],
+      'solana-mainnet': [0],
     },
     networksAccounts: {
-      'mainnet-beta': [mockSolanaAccount as any],
+      'solana-mainnet': [mockSolanaAccount as any],
     },
   };
 }
@@ -198,7 +213,7 @@ describe('useAccounts Hook', () => {
         if (key === 'salmon_accounts') return Promise.resolve(storedAccounts);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         if (key === 'salmon_active_path_index') return Promise.resolve(0);
         if (key === 'salmon_account_counter') return Promise.resolve(1);
         return Promise.resolve(null);
@@ -213,7 +228,7 @@ describe('useAccounts Hook', () => {
       const [state] = result.current;
       expect(state.accounts).toHaveLength(1);
       expect(state.accountId).toBe(mockAccount.id);
-      expect(state.networkId).toBe('mainnet-beta');
+      expect(state.networkId).toBe('solana-mainnet');
       expect(state.activeAccount).toBeDefined();
     });
 
@@ -261,7 +276,7 @@ describe('useAccounts Hook', () => {
         if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
         if (key === 'salmon_accounts') return Promise.resolve(storedAccounts);
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         if (key === 'salmon_account_counter') return Promise.resolve(1);
         return Promise.resolve(null);
       });
@@ -597,7 +612,7 @@ describe('useAccounts Hook', () => {
           [mockAccount2.id]: MOCK_MNEMONIC,
         });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount1.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         return Promise.resolve(null);
       });
 
@@ -710,7 +725,7 @@ describe('useAccounts Hook', () => {
           [mockAccount2.id]: MOCK_MNEMONIC,
         });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount1.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         return Promise.resolve(null);
       });
 
@@ -733,8 +748,8 @@ describe('useAccounts Hook', () => {
 
     it('should change active network', async () => {
       const mockAccount = createMockAccount();
-      mockAccount.networksAccounts['devnet'] = [mockSolanaAccount as any];
-      mockAccount.pathIndexes['devnet'] = [0];
+      mockAccount.networksAccounts['solana-devnet'] = [mockSolanaAccount as any];
+      mockAccount.pathIndexes['solana-devnet'] = [0];
 
       (storage.getStorageItem as any).mockImplementation((key: string) => {
         if (key === 'salmon_accounts') return Promise.resolve([{
@@ -745,7 +760,7 @@ describe('useAccounts Hook', () => {
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         return Promise.resolve(null);
       });
 
@@ -758,18 +773,18 @@ describe('useAccounts Hook', () => {
       const [, actions] = result.current;
 
       await act(async () => {
-        await actions.changeNetwork('devnet');
+        await actions.changeNetwork('solana-devnet');
       });
 
       const [state] = result.current;
-      expect(state.networkId).toBe('devnet');
-      expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_network_id', 'devnet');
+      expect(state.networkId).toBe('solana-devnet');
+      expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_network_id', 'solana-devnet');
     });
 
     it('should change path index', async () => {
       const mockAccount = createMockAccount();
-      mockAccount.networksAccounts['mainnet-beta'] = [mockSolanaAccount as any, mockSolanaAccount as any];
-      mockAccount.pathIndexes['mainnet-beta'] = [0, 1];
+      mockAccount.networksAccounts['solana-mainnet'] = [mockSolanaAccount as any, mockSolanaAccount as any];
+      mockAccount.pathIndexes['solana-mainnet'] = [0, 1];
 
       (storage.getStorageItem as any).mockImplementation((key: string) => {
         if (key === 'salmon_accounts') return Promise.resolve([{
@@ -780,7 +795,7 @@ describe('useAccounts Hook', () => {
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         if (key === 'salmon_active_path_index') return Promise.resolve(0);
         return Promise.resolve(null);
       });
@@ -806,8 +821,8 @@ describe('useAccounts Hook', () => {
   describe('switchNetwork', () => {
     it('should switch to a valid network and persist to storage', async () => {
       const mockAccount = createMockAccount();
-      mockAccount.networksAccounts['devnet'] = [mockSolanaAccount as any];
-      mockAccount.pathIndexes['devnet'] = [0];
+      mockAccount.networksAccounts['solana-devnet'] = [mockSolanaAccount as any];
+      mockAccount.pathIndexes['solana-devnet'] = [0];
 
       (storage.getStorageItem as any).mockImplementation((key: string) => {
         if (key === 'salmon_accounts') return Promise.resolve([{
@@ -818,7 +833,7 @@ describe('useAccounts Hook', () => {
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         return Promise.resolve(null);
       });
 
@@ -831,12 +846,12 @@ describe('useAccounts Hook', () => {
       const [, actions] = result.current;
 
       await act(async () => {
-        await actions.switchNetwork('devnet');
+        await actions.switchNetwork('solana-devnet');
       });
 
       const [state] = result.current;
-      expect(state.networkId).toBe('devnet');
-      expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_network_id', 'devnet');
+      expect(state.networkId).toBe('solana-devnet');
+      expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_network_id', 'solana-devnet');
     });
 
     it('should handle switching to an invalid network gracefully', async () => {
@@ -851,7 +866,7 @@ describe('useAccounts Hook', () => {
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         return Promise.resolve(null);
       });
 
@@ -869,7 +884,7 @@ describe('useAccounts Hook', () => {
 
       const [state] = result.current;
       // Should remain on the original network
-      expect(state.networkId).toBe('mainnet-beta');
+      expect(state.networkId).toBe('solana-mainnet');
     });
   });
 
@@ -886,7 +901,7 @@ describe('useAccounts Hook', () => {
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         return Promise.resolve(null);
       });
 
@@ -899,7 +914,7 @@ describe('useAccounts Hook', () => {
       const [, actions] = result.current;
       const networkId = actions.getNetworkId();
 
-      expect(networkId).toBe('mainnet-beta');
+      expect(networkId).toBe('solana-mainnet');
     });
 
     it('should return default network when none is set', async () => {
@@ -927,7 +942,7 @@ describe('useAccounts Hook', () => {
           pathIndexes: mockAccount.pathIndexes,
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         if (key === 'salmon_trusted_apps') return Promise.resolve({});
         return Promise.resolve(null);
       });
@@ -952,7 +967,7 @@ describe('useAccounts Hook', () => {
     it('should remove trusted app', async () => {
       const mockAccount = createMockAccount();
       const initialTrustedApps = {
-        'mainnet-beta': {
+        'solana-mainnet': {
           'example.com': { name: 'Example App', icon: 'icon.png' },
         },
       };
@@ -965,7 +980,7 @@ describe('useAccounts Hook', () => {
           pathIndexes: mockAccount.pathIndexes,
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         if (key === 'salmon_trusted_apps') return Promise.resolve(initialTrustedApps);
         return Promise.resolve(null);
       });
@@ -998,7 +1013,7 @@ describe('useAccounts Hook', () => {
           pathIndexes: mockAccount.pathIndexes,
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         if (key === 'salmon_custom_tokens') return Promise.resolve({});
         return Promise.resolve(null);
       });
@@ -1012,7 +1027,7 @@ describe('useAccounts Hook', () => {
       const [, actions] = result.current;
 
       await act(async () => {
-        await actions.importTokens('mainnet-beta', [
+        await actions.importTokens('solana-mainnet', [
           {
             address: 'TokenAddress1111111111111111111111111111',
             symbol: 'TKN',
@@ -1066,7 +1081,7 @@ describe('useAccounts Hook', () => {
         }]);
         if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
         if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
-        if (key === 'salmon_active_network_id') return Promise.resolve('mainnet-beta');
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
         if (key === 'salmon_active_path_index') return Promise.resolve(0);
         return Promise.resolve(null);
       });

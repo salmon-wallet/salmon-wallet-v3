@@ -187,12 +187,12 @@ describe('useRuntime Hook Logic', () => {
   describe('URL Context Parsing', () => {
     it('should parse URL hash parameters correctly', () => {
       const runtimeInfo = createWebRuntimeInfo({
-        hash: '#origin=https://example.com&network=mainnet-beta&action=connect',
+        hash: '#origin=https://example.com&network=solana-mainnet&action=connect',
         isExtension: true,
       });
 
       expect(runtimeInfo.context.get('origin')).toBe('https://example.com');
-      expect(runtimeInfo.context.get('network')).toBe('mainnet-beta');
+      expect(runtimeInfo.context.get('network')).toBe('solana-mainnet');
       expect(runtimeInfo.context.get('action')).toBe('connect');
     });
 

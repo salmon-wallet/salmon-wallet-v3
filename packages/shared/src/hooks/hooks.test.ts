@@ -93,8 +93,8 @@ vi.mock('../blockchain/solana', () => ({
     getPublicKey: () => ({ toBase58: () => 'MockSolanaAddress123456789' }),
   })),
   SOLANA_NETWORKS: {
-    'mainnet-beta': { id: 'mainnet-beta', name: 'Mainnet Beta', rpcUrl: 'https://api.mainnet-beta.solana.com' },
-    'devnet': { id: 'devnet', name: 'Devnet', rpcUrl: 'https://api.devnet.solana.com' },
+    'solana-mainnet': { id: 'solana-mainnet', name: 'Mainnet Beta', rpcUrl: 'https://api.mainnet-beta.solana.com' },
+    'solana-devnet': { id: 'solana-devnet', name: 'Devnet', rpcUrl: 'https://api.devnet.solana.com' },
     'testnet': { id: 'testnet', name: 'Testnet', rpcUrl: 'https://api.testnet.solana.com' },
   },
 }));
@@ -116,7 +116,7 @@ const MOCK_STORED_ACCOUNT: StoredAccount = {
   name: 'Test Account',
   avatar: 'default',
   pathIndexes: {
-    'mainnet-beta': [0],
+    'solana-mainnet': [0],
   },
 };
 
@@ -355,7 +355,7 @@ describe('Solana blockchain module', () => {
   it('should mock createSolanaAccount', async () => {
     const { createSolanaAccount, SOLANA_NETWORKS } = await import('../blockchain/solana');
     const account = await createSolanaAccount({
-      network: SOLANA_NETWORKS['mainnet-beta'],
+      network: SOLANA_NETWORKS['solana-mainnet'],
       mnemonic: 'test mnemonic',
       index: 0,
     });
@@ -366,8 +366,8 @@ describe('Solana blockchain module', () => {
 
   it('should have network configurations', async () => {
     const { SOLANA_NETWORKS } = await import('../blockchain/solana');
-    expect(SOLANA_NETWORKS).toHaveProperty('mainnet-beta');
-    expect(SOLANA_NETWORKS).toHaveProperty('devnet');
+    expect(SOLANA_NETWORKS).toHaveProperty('solana-mainnet');
+    expect(SOLANA_NETWORKS).toHaveProperty('solana-devnet');
     expect(SOLANA_NETWORKS).toHaveProperty('testnet');
   });
 });
@@ -442,20 +442,20 @@ describe('Domain service', () => {
 
 describe('Address book types and helpers', () => {
   const mockNetworks: AddressBookNetwork[] = [
-    { id: 'mainnet-beta', name: 'Mainnet Beta', blockchain: 'solana' },
-    { id: 'devnet', name: 'Devnet', blockchain: 'solana' },
+    { id: 'solana-mainnet', name: 'Mainnet Beta', blockchain: 'solana' },
+    { id: 'solana-devnet', name: 'Devnet', blockchain: 'solana' },
   ];
 
   it('should define StoredAddress type correctly', () => {
     const storedAddress: StoredAddress = {
       address: 'TestAddress123',
       name: 'Test Contact',
-      networkId: 'mainnet-beta',
+      networkId: 'solana-mainnet',
       domain: 'test.sol',
     };
 
     expect(storedAddress.address).toBe('TestAddress123');
-    expect(storedAddress.networkId).toBe('mainnet-beta');
+    expect(storedAddress.networkId).toBe('solana-mainnet');
     expect(storedAddress.domain).toBe('test.sol');
   });
 
@@ -467,7 +467,7 @@ describe('Address book types and helpers', () => {
       domain: 'test.sol',
     };
 
-    expect(address.network.id).toBe('mainnet-beta');
+    expect(address.network.id).toBe('solana-mainnet');
     expect(address.network.blockchain).toBe('solana');
   });
 
@@ -475,11 +475,11 @@ describe('Address book types and helpers', () => {
     const input: AddressInput = {
       address: 'NewAddress456',
       name: 'New Contact',
-      networkId: 'devnet',
+      networkId: 'solana-devnet',
     };
 
     expect(input.address).toBe('NewAddress456');
-    expect(input.networkId).toBe('devnet');
+    expect(input.networkId).toBe('solana-devnet');
   });
 });
 
@@ -494,13 +494,13 @@ describe('Account types', () => {
       name: 'My Wallet',
       avatar: 'avatar1',
       pathIndexes: {
-        'mainnet-beta': [0, 1],
-        'devnet': [0],
+        'solana-mainnet': [0, 1],
+        'solana-devnet': [0],
       },
     };
 
     expect(account.id).toBe('account_123');
-    expect(account.pathIndexes['mainnet-beta']).toEqual([0, 1]);
+    expect(account.pathIndexes['solana-mainnet']).toEqual([0, 1]);
   });
 });
 
@@ -575,7 +575,7 @@ describe('Integration scenarios', () => {
 
     // Create account
     const account = await createSolanaAccount({
-      network: SOLANA_NETWORKS['mainnet-beta'],
+      network: SOLANA_NETWORKS['solana-mainnet'],
       mnemonic: 'test mnemonic phrase',
       index: 0,
     });
@@ -642,10 +642,10 @@ describe('Integration scenarios', () => {
     const migratedAddress: StoredAddress = {
       name: legacyAddress.name,
       address: legacyAddress.address,
-      networkId: 'mainnet-beta', // Inferred from chain
+      networkId: 'solana-mainnet', // Inferred from chain
     };
 
-    expect(migratedAddress.networkId).toBe('mainnet-beta');
+    expect(migratedAddress.networkId).toBe('solana-mainnet');
     expect(migratedAddress.name).toBe('Old Contact');
   });
 });

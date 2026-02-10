@@ -28,7 +28,7 @@ vi.mock('../storage', () => ({
 
 const mockActiveAccount: ActiveBlockchainAccount = {
   network: {
-    environment: 'mainnet-beta',
+    environment: 'solana-mainnet',
     blockchain: 'solana',
   },
 };
@@ -278,7 +278,7 @@ describe('useUserConfig Hook', () => {
 
       const newAccount: ActiveBlockchainAccount = {
         network: {
-          environment: 'devnet',
+          environment: 'solana-devnet',
           blockchain: 'solana',
         },
       };
