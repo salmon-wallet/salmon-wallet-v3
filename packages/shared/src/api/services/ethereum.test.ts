@@ -21,7 +21,7 @@ import * as clientModule from '../client';
 // ============================================================================
 
 const MOCK_WALLET_ADDRESS = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb';
-const MOCK_NETWORK_ID = 'ethereum';
+const MOCK_NETWORK_ID = 'ethereum-mainnet';
 
 const MOCK_SALMON_API_RESPONSE = [
   {
@@ -366,7 +366,7 @@ describe('getTokenMetadataBatch', () => {
         name: 'USD Coin',
         symbol: 'USDC',
         decimals: 6,
-        logo: null,
+        logo: undefined,
       },
     ];
 

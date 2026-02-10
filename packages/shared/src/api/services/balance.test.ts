@@ -288,7 +288,7 @@ describe('decorateBalanceList', () => {
     // Should have UNKNOWN tokens
     expect(result[0].symbol).toBe('UNKNOWN');
     expect(result[0].name).toBe('Unknown Token');
-    expect(result[0].logo).toBe(null);
+    expect(result[0].logo).toBeUndefined();
   });
 
   it('should decorate balances with matching metadata', () => {
@@ -371,7 +371,7 @@ describe('decorateBalanceList', () => {
         symbol: 'TEST',
         name: 'Test Token',
         decimals: 9,
-        logo: null,
+        logo: undefined,
       },
     ];
 
@@ -387,7 +387,7 @@ describe('decorateBalanceList', () => {
 
     expect(result[0].coingeckoId).toBeUndefined();
     expect(result[0].tags).toBeUndefined();
-    expect(result[0].logo).toBe(null);
+    expect(result[0].logo).toBeUndefined();
   });
 });
 
@@ -462,7 +462,7 @@ describe('decorateBalancePrices', () => {
       uiAmount: 100,
       symbol: 'WRONG_SYMBOL',
       name: 'Test',
-      logo: null,
+      logo: undefined,
       address: 'TEST',
       coingeckoId: 'solana', // matches SOL by coingeckoId
     };
@@ -483,7 +483,7 @@ describe('decorateBalancePrices', () => {
       uiAmount: 100,
       symbol: 'USDC',
       name: 'Test',
-      logo: null,
+      logo: undefined,
       address: 'TEST',
     };
 
@@ -502,7 +502,7 @@ describe('decorateBalancePrices', () => {
       uiAmount: 100,
       symbol: 'USDC',
       name: 'Test',
-      logo: null,
+      logo: undefined,
       address: 'TEST',
       coingeckoId: 'USD-COIN',
     };
@@ -521,7 +521,7 @@ describe('decorateBalancePrices', () => {
       uiAmount: 100,
       symbol: 'UNKNOWN',
       name: 'Unknown Token',
-      logo: null,
+      logo: undefined,
       address: 'UNKNOWN',
     };
 
@@ -541,7 +541,7 @@ describe('decorateBalancePrices', () => {
       uiAmount: 1000,
       symbol: 'BONK',
       name: 'Bonk',
-      logo: null,
+      logo: undefined,
       address: 'BONK',
       coingeckoId: 'bonk',
     };
@@ -583,7 +583,7 @@ describe('calculate24HoursChange', () => {
         uiAmount: 1,
         symbol: 'SOL',
         name: 'Solana',
-        logo: null,
+        logo: undefined,
         address: SOL_CONSTANTS.ADDRESS,
         price: 100,
         usdBalance: 100,
@@ -611,7 +611,7 @@ describe('calculate24HoursChange', () => {
         uiAmount: 1000,
         symbol: 'BONK',
         name: 'Bonk',
-        logo: null,
+        logo: undefined,
         address: 'BONK',
         price: 0.00002145,
         usdBalance: 0.02145,
@@ -639,7 +639,7 @@ describe('calculate24HoursChange', () => {
         uiAmount: 2,
         symbol: 'SOL',
         name: 'Solana',
-        logo: null,
+        logo: undefined,
         address: SOL_CONSTANTS.ADDRESS,
         price: 100,
         usdBalance: 200,
@@ -653,7 +653,7 @@ describe('calculate24HoursChange', () => {
         uiAmount: 1000,
         symbol: 'USDC',
         name: 'USD Coin',
-        logo: null,
+        logo: undefined,
         address: 'USDC',
         price: 1.0,
         usdBalance: 1000,
@@ -683,7 +683,7 @@ describe('calculate24HoursChange', () => {
         uiAmount: 100,
         symbol: 'UNKNOWN',
         name: 'Unknown',
-        logo: null,
+        logo: undefined,
         address: 'UNKNOWN',
         price: 1.5,
         usdBalance: 150,
@@ -709,7 +709,7 @@ describe('calculate24HoursChange', () => {
         uiAmount: 1,
         symbol: 'SOL',
         name: 'Solana',
-        logo: null,
+        logo: undefined,
         address: SOL_CONSTANTS.ADDRESS,
         price: 100,
         usdBalance: 100,
@@ -723,7 +723,7 @@ describe('calculate24HoursChange', () => {
         uiAmount: 1,
         symbol: 'STABLE',
         name: 'Stable',
-        logo: null,
+        logo: undefined,
         address: 'STABLE',
         price: 50,
         usdBalance: 50,
@@ -760,7 +760,7 @@ describe('calculate24HoursChange', () => {
         uiAmount: 100,
         symbol: 'NO_PRICE',
         name: 'No Price',
-        logo: null,
+        logo: undefined,
         address: 'NO_PRICE',
         // No price or usdBalance
       },

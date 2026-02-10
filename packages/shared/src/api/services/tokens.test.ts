@@ -162,15 +162,15 @@ describe('Token Service - Pure Functions', () => {
 
   describe('normalizeIpfsUrl', () => {
     it('should handle null input', () => {
-      expect(normalizeIpfsUrl(null)).toBe(null);
+      expect(normalizeIpfsUrl(null)).toBeUndefined();
     });
 
     it('should handle undefined input', () => {
-      expect(normalizeIpfsUrl(undefined)).toBe(null);
+      expect(normalizeIpfsUrl(undefined)).toBeUndefined();
     });
 
     it('should handle empty string', () => {
-      expect(normalizeIpfsUrl('')).toBe(null);
+      expect(normalizeIpfsUrl('')).toBeUndefined();
     });
 
     it('should convert IPFS protocol URL to ipfs.io gateway', () => {
@@ -276,11 +276,11 @@ describe('Token Service - Pure Functions', () => {
       expect(result[0].address).toBe('4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R');
     });
 
-    it('should handle missing logo/icon as null', () => {
+    it('should handle missing logo/icon as undefined', () => {
       const token = mockBackendTokens[3]; // No logo or icon
       const result = normalizeBackendTokens([token]);
 
-      expect(result[0].logo).toBe(null);
+      expect(result[0].logo).toBeUndefined();
     });
 
     it('should handle missing tags as empty array', () => {
@@ -377,11 +377,11 @@ describe('Token Service - Pure Functions', () => {
       expect(result[0].coingeckoId).toBe('solana');
     });
 
-    it('should handle missing logoURI as null', () => {
+    it('should handle missing logoURI as undefined', () => {
       const token = mockJupiterTokens[3]; // No logoURI
       const result = normalizeJupiterTokens([token]);
 
-      expect(result[0].logo).toBe(null);
+      expect(result[0].logo).toBeUndefined();
     });
 
     it('should handle missing tags as empty array', () => {
@@ -491,14 +491,14 @@ describe('Token Service - Pure Functions', () => {
 
       // Both should have properly normalized logos
       backendResult.forEach(token => {
-        expect(token.logo === null || typeof token.logo === 'string').toBe(true);
+        expect(token.logo === undefined || typeof token.logo === 'string').toBe(true);
         if (token.logo) {
           expect(token.logo.startsWith('http')).toBe(true);
         }
       });
 
       jupiterResult.forEach(token => {
-        expect(token.logo === null || typeof token.logo === 'string').toBe(true);
+        expect(token.logo === undefined || typeof token.logo === 'string').toBe(true);
         if (token.logo) {
           expect(token.logo.startsWith('http')).toBe(true);
         }
@@ -546,7 +546,7 @@ describe('Token Service - Pure Functions', () => {
         expect(typeof token.name).toBe('string');
         expect(typeof token.decimals).toBe('number');
         expect(typeof token.address).toBe('string');
-        expect(token.logo === null || typeof token.logo === 'string').toBe(true);
+        expect(token.logo === undefined || typeof token.logo === 'string').toBe(true);
       });
 
       it('should deduplicate tokens by symbol prioritizing verified', async () => {
@@ -666,7 +666,7 @@ describe('Token Service - Pure Functions', () => {
         const result = await getFeaturedTokenList('solana-mainnet');
 
         expect(result.length).toBeGreaterThan(0);
-        expect(result[0].logo).toBe(null);
+        expect(result[0].logo).toBeUndefined();
       });
     });
 
