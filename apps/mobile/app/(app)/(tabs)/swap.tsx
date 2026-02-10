@@ -19,9 +19,6 @@
 
 import React, { useCallback, useMemo, useState, useRef } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator, Alert } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import * as Clipboard from 'expo-clipboard';
-import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -30,7 +27,6 @@ import {
   useMultiChainTokens,
   useSwap,
   useBridge,
-  useUserConfig,
   colors,
   componentSizes,
   searchTokens,
@@ -44,10 +40,6 @@ import {
   type UnifiedToken,
 } from '@salmon/shared';
 import {
-  WalletHeader,
-  SettingsSheet,
-  WalletSwitcherSheet,
-  ScalesBackground,
   SwapScreen,
   type SwapToken,
   type SwapQuote,
@@ -70,7 +62,7 @@ function mapToSwapToken(token: TokenMetadata, balance?: number, usdPrice?: numbe
     balance: balance || 0,
     usdPrice: usdPrice,
     chain: 'solana', // Search results are always Solana tokens
-    networkId: 'mainnet-beta',
+    networkId: 'solana-mainnet',
   };
 }
 
@@ -93,6 +85,7 @@ function unifiedToSwapToken(token: UnifiedToken): SwapToken {
 
 /**
  * Transform shared SwapQuote (from API) to UI SwapQuote format
+ * Updated for Jupiter Ultra v1 API structure
  */
 function transformQuoteForUI(
   quote: SharedSwapQuote,
@@ -100,22 +93,19 @@ function transformQuoteForUI(
   outToken: SwapToken,
   inputAmount: number
 ): SwapQuote {
-  const outputDecimals = quote.outputToken?.decimals ?? outToken.decimals;
+  const outputDecimals = quote.output?.decimals ?? outToken.decimals;
   const expectedOutput = getExpectedOutput(quote, outputDecimals);
   const minimumOutput = getMinimumOutput(quote, outputDecimals);
   const priceImpact = getPriceImpact(quote);
 
-  // Extract route labels from route plan
-  const routeLabels = quote.route.routePlan.map(leg => leg.swapInfo.label);
+  // Extract route labels from routeNames (backend provides this directly)
+  const routeLabels = quote.routeNames || [];
 
-  // Calculate fee info - estimate based on route
-  const totalFeeAmount = quote.route.routePlan.reduce(
-    (sum, leg) => sum + Number(leg.swapInfo.feeAmount || 0),
-    0
-  );
+  // Get fee info from backend calculation
+  const totalFeeAmount = quote.fee?.amount || 0;
 
   return {
-    requestId: quote.requestId,
+    requestId: quote.custom?.requestId || '',
     input: {
       amount: inputAmount,
       symbol: inToken.symbol,
@@ -134,66 +124,55 @@ function transformQuoteForUI(
     },
     fee: {
       amount: totalFeeAmount,
-      percent: 0.5, // Default fee percentage
-      symbol: 'SOL',
-      decimals: 9,
+      percent: quote.fee?.percent || 0.5, // Use backend fee or default to 0.5%
+      symbol: quote.fee?.symbol || 'SOL',
+      decimals: quote.fee?.decimals || 9,
     },
     details: {
-      router: routeLabels[0] || 'Jupiter',
+      router: quote.custom?.router || routeLabels[0] || 'Jupiter',
       priceImpact,
-      priorityFee: 0, // Will be determined by API
-      rentFee: 0, // Will be determined by API
-      slippageBps: quote.route.slippageBps,
+      priorityFee: quote.custom?.prioritizationFeeLamports || 0,
+      rentFee: quote.custom?.rentFeeLamports || 0,
+      slippageBps: quote.custom?.slippageBps || 50,
       minimumReceived: minimumOutput,
-      swapMode: quote.route.swapMode,
-      gasless: false,
-      feeBps: 50,
-      inUsdValue: inputAmount * (inToken.usdPrice || 0),
-      outUsdValue: expectedOutput * (outToken.usdPrice || 0),
+      swapMode: quote.custom?.swapMode || 'ExactIn',
+      gasless: quote.custom?.gasless || false,
+      feeBps: quote.custom?.feeBps || 50,
+      inUsdValue: quote.custom?.inUsdValue ?? (inputAmount * (inToken.usdPrice || 0)),
+      outUsdValue: quote.custom?.outUsdValue ?? (expectedOutput * (outToken.usdPrice || 0)),
     },
-    transaction: quote.swapTransaction,
+    transaction: quote.custom?.transaction || '',
     routeNames: routeLabels,
-    routeSymbols: [inToken.symbol, outToken.symbol],
+    routeSymbols: quote.routeSymbols || [inToken.symbol, outToken.symbol],
   };
 }
 
 export default function SwapScreenPage() {
-  const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-
-  // Settings sheet visibility
-  const [settingsVisible, setSettingsVisible] = useState(false);
-
-  // Wallet switcher sheet visibility
-  const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
 
   // Store the current quote from useSwap for execution
   const currentSharedQuoteRef = useRef<SharedSwapQuote | null>(null);
 
   // Get account state and actions from shared context
-  const [accountState, accountActions] = useAccountsContext();
+  const [accountState] = useAccountsContext();
   const {
     ready,
-    accounts,
-    accountId,
     activeAccount,
     activeBlockchainAccount,
     networkId,
   } = accountState;
 
-  // Get user config (developer mode)
-  const { developerNetworks } = useUserConfig({ skip: !ready });
-
   // Convert networkId to SwapNetworkId format
   const swapNetworkId: SwapNetworkId = useMemo(() => {
-    return networkId === 'devnet' ? 'solana-devnet' : 'solana-mainnet';
+    return networkId === 'solana-devnet' ? 'solana-devnet' : 'solana-mainnet';
   }, [networkId]);
 
   // Initialize useSwap hook with proper typing
   const {
     getQuote: getSwapQuote,
     executeSwap: executeSwapHook,
+    quote: swapQuote,
     status: swapStatus,
     error: swapError,
     reset: resetSwap,
@@ -230,58 +209,6 @@ export default function SwapScreenPage() {
   const featuredTokens: SwapToken[] = useMemo(() => {
     return topTokens.map(unifiedToSwapToken);
   }, [topTokens]);
-
-  // Handlers
-  const handleCopyAddress = useCallback(async () => {
-    if (activeBlockchainAccount) {
-      const address = activeBlockchainAccount.getReceiveAddress();
-      await Clipboard.setStringAsync(address);
-      // TODO: Show toast notification
-    }
-  }, [activeBlockchainAccount]);
-
-  const handleSettingsPress = useCallback(() => {
-    setSettingsVisible(true);
-  }, []);
-
-  const handleSettingsClose = useCallback(() => {
-    setSettingsVisible(false);
-  }, []);
-
-  const handleSettingsNavigate = useCallback((screen: string) => {
-    setSettingsVisible(false);
-    router.push(`/(app)/settings/${screen}` as any);
-  }, [router]);
-
-  const handleWalletPress = useCallback(() => {
-    setWalletSwitcherVisible(true);
-  }, []);
-
-  const handleWalletSwitcherClose = useCallback(() => {
-    setWalletSwitcherVisible(false);
-  }, []);
-
-  const handleSelectAccount = useCallback(async (id: string) => {
-    await accountActions.changeAccount(id);
-    setWalletSwitcherVisible(false);
-  }, [accountActions]);
-
-  const handleAddAccount = useCallback(() => {
-    setWalletSwitcherVisible(false);
-    router.push('/(auth)');
-  }, [router]);
-
-  const handleEditAccount = useCallback((id: string) => {
-    setWalletSwitcherVisible(false);
-    router.push({
-      pathname: '/(app)/settings/account-edit',
-      params: { id },
-    } as any);
-  }, [router]);
-
-  const handleDeleteAccount = useCallback(async (id: string) => {
-    await accountActions.removeAccount(id);
-  }, [accountActions]);
 
   // Swap handlers - Now using real useSwap hook
   const handleGetQuote = useCallback(async (
@@ -327,6 +254,13 @@ export default function SwapScreenPage() {
       throw new Error('No quote available. Please get a quote first.');
     }
 
+    // Verify hook's internal quote matches the displayed quote to prevent race conditions
+    // The hook's executeSwap() uses its own internal state, which could diverge from the ref
+    if (!swapQuote || swapQuote.custom?.requestId !== currentSharedQuoteRef.current.custom?.requestId) {
+      Alert.alert('Quote Expired', 'The quote has changed. Please try again.');
+      return { txId: '' };
+    }
+
     // Execute the swap using the real hook
     const result = await executeSwapHook();
 
@@ -338,7 +272,7 @@ export default function SwapScreenPage() {
     currentSharedQuoteRef.current = null;
 
     return { txId: result.txId || '' };
-  }, [activeBlockchainAccount, executeSwapHook]);
+  }, [activeBlockchainAccount, executeSwapHook, swapQuote]);
 
   const handleSwapSuccess = useCallback((txId: string) => {
     // Reset swap state
@@ -363,7 +297,7 @@ export default function SwapScreenPage() {
   }, [t, resetSwap]);
 
   const handleSearchTokens = useCallback(async (query: string): Promise<SwapToken[]> => {
-    const network = networkId === 'devnet' ? 'solana-devnet' : 'solana-mainnet';
+    const network = networkId === 'solana-devnet' ? 'solana-devnet' : 'solana-mainnet';
     try {
       const results = await searchTokens(query, network);
       return results.map((token) => mapToSwapToken(token));
@@ -479,7 +413,6 @@ export default function SwapScreenPage() {
   if (!ready) {
     return (
       <View style={styles.loadingContainer}>
-        <StatusBar style="light" />
         <ActivityIndicator size="large" color="#FF6B35" />
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
@@ -490,27 +423,15 @@ export default function SwapScreenPage() {
   if (!activeAccount || !activeBlockchainAccount) {
     return (
       <View style={styles.loadingContainer}>
-        <StatusBar style="light" />
         <Text style={styles.loadingText}>No account found</Text>
       </View>
     );
   }
 
-  const accountName = activeAccount.name || 'Account';
-  const address = activeBlockchainAccount.getReceiveAddress();
-
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
-
-      {/* Solid background for status bar area */}
-      <View style={styles.solidBackground} />
-
-      {/* Scales pattern background */}
-      <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
-
       {/* Swap Content */}
-      <View style={styles.contentContainer}>
+      <View style={[styles.contentContainer, { marginTop: insets.top + componentSizes.headerHeight }]}>
         <SwapScreen
           tokens={swapTokens}
           featuredTokens={featuredTokens}
@@ -530,35 +451,6 @@ export default function SwapScreenPage() {
           onBridgeError={handleBridgeError}
         />
       </View>
-
-      {/* Header - Absolutely positioned above content */}
-      <WalletHeader
-        accountName={accountName}
-        address={address}
-        onCopyAddress={handleCopyAddress}
-        onSettingsPress={handleSettingsPress}
-        onWalletPress={handleWalletPress}
-        developerMode={developerNetworks}
-      />
-
-      {/* Settings Sheet */}
-      <SettingsSheet
-        visible={settingsVisible}
-        onClose={handleSettingsClose}
-        onNavigate={handleSettingsNavigate}
-      />
-
-      {/* Wallet Switcher Sheet */}
-      <WalletSwitcherSheet
-        visible={walletSwitcherVisible}
-        onClose={handleWalletSwitcherClose}
-        accounts={accounts}
-        activeAccountId={accountId ?? ''}
-        onSelectAccount={handleSelectAccount}
-        onAddAccount={handleAddAccount}
-        onEditAccount={handleEditAccount}
-        onDeleteAccount={handleDeleteAccount}
-      />
     </View>
   );
 }
@@ -566,20 +458,14 @@ export default function SwapScreenPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  solidBackground: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.background.primary,
-    zIndex: 0,
+    backgroundColor: 'transparent',
   },
   contentContainer: {
     flex: 1,
-    marginTop: componentSizes.headerHeight,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
