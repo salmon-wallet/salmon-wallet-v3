@@ -192,6 +192,9 @@ export default function PasswordScreen() {
     setIsLoading(true);
     setError(null);
 
+    // Yield to UI thread so LoadingScreen renders before heavy crypto derivation
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     try {
       // Get counter from useAccounts state
       const accountName = generateAccountName(state.counter, t('wallet.name_template'));
@@ -203,9 +206,9 @@ export default function PasswordScreen() {
         name: accountName,
         mnemonic: params.mnemonic,
         networkIds: [
-          'mainnet-beta', 'devnet',           // Solana
-          'bitcoin', 'bitcoin-testnet',       // Bitcoin
-          'ethereum', 'ethereum-sepolia',     // Ethereum
+          'solana-mainnet', 'solana-devnet',  // Solana
+          'bitcoin-mainnet', 'bitcoin-testnet', // Bitcoin
+          'ethereum-mainnet', 'ethereum-sepolia', // Ethereum
         ],
         startIndex: 0,
       });
