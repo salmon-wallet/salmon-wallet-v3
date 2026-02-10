@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { NftData, NftBlockchain } from '../NftCard';
 
@@ -24,6 +25,8 @@ export interface NftCarouselSectionProps {
   style?: StyleProp<ViewStyle>;
   /** Test ID for testing */
   testID?: string;
+  /** Optional content to render between header and carousel (e.g., SubAccountSelector) */
+  renderBeforeCarousel?: ReactNode;
 }
 
 /**

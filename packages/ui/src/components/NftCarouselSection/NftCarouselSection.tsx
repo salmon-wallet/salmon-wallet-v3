@@ -160,6 +160,7 @@ export const NftCarouselSection: React.FC<NftCarouselSectionProps> = ({
   onSeeAllPress,
   style,
   testID,
+  renderBeforeCarousel,
 }) => {
   const handleNftPress = useCallback(
     (nft: NftData) => {
@@ -202,6 +203,9 @@ export const NftCarouselSection: React.FC<NftCarouselSectionProps> = ({
           </View>
         )}
       </TouchableOpacity>
+
+      {/* Optional content before carousel (e.g., SubAccountSelector) */}
+      {renderBeforeCarousel}
 
       {/* Carousel Content — single horizontal row */}
       <ScrollView

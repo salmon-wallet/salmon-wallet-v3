@@ -584,21 +584,22 @@ export default function CollectiblesScreen() {
           const subAccounts = sectionSubAccounts[sectionKey] ?? [];
 
           return (
-            <React.Fragment key={sectionKey}>
-              <SubAccountSelector
-                accounts={subAccounts}
-                activeIndex={sectionIndexes[sectionKey]}
-                onSelect={(index) => handleSectionIndexChange(sectionKey, index)}
-                style={styles.sectionSelector}
-              />
-              <NftCarouselSection
-                title={title}
-                blockchain={section.blockchain}
-                nfts={section.nfts}
-                onNftPress={(nft) => handleNftPress(nft, sectionKey)}
-                onSeeAllPress={() => handleSeeAllPress(sectionKey)}
-              />
-            </React.Fragment>
+            <NftCarouselSection
+              key={sectionKey}
+              title={title}
+              blockchain={section.blockchain}
+              nfts={section.nfts}
+              onNftPress={(nft) => handleNftPress(nft, sectionKey)}
+              onSeeAllPress={() => handleSeeAllPress(sectionKey)}
+              renderBeforeCarousel={
+                <SubAccountSelector
+                  accounts={subAccounts}
+                  activeIndex={sectionIndexes[sectionKey]}
+                  onSelect={(index) => handleSectionIndexChange(sectionKey, index)}
+                  style={styles.sectionSelector}
+                />
+              }
+            />
           );
         })}
       </ScrollView>
