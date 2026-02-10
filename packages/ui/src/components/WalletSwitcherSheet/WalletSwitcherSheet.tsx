@@ -98,7 +98,7 @@ function getAccountAddress(account: Account): string {
   const { networksAccounts } = account;
 
   // Try mainnet first
-  const mainnetAccounts = networksAccounts['mainnet-beta'];
+  const mainnetAccounts = networksAccounts['solana-mainnet'];
   if (mainnetAccounts) {
     const activeAccount = mainnetAccounts.find(Boolean);
     if (activeAccount) {

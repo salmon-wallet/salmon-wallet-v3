@@ -126,7 +126,7 @@ const getNetworkLabel = (blockchain: BlockchainId): string | null => {
  * @example
  * ```tsx
  * <BalanceCard
- *   network={{ id: 'mainnet-beta', name: 'Solana Mainnet' }}
+ *   network={{ id: 'solana-mainnet', name: 'Solana Mainnet' }}
  *   blockchain="solana"
  *   usdTotal={1234.56}
  *   changePercent={5.23}

@@ -4,7 +4,6 @@ import { colors, spacing, vs, s, ms } from '@salmon/shared';
 import { SwapInputScreen } from './SwapInputScreen';
 import { SwapReviewScreen } from './SwapReviewScreen';
 import { TokenSelectorModal } from '../TokenSelector';
-import { ScalesBackground } from '../ScalesBackground';
 import { BridgeRecipientScreen } from '../BridgeScreen/BridgeRecipientScreen';
 import { BridgeReviewScreen } from '../BridgeScreen/BridgeReviewScreen';
 import type {
@@ -23,14 +22,20 @@ const MIN_SWAP_USD = 1;
 // Debounce delay for quote fetching (ms)
 const QUOTE_DEBOUNCE_MS = 500;
 
+// Known token decimals for bridge tokens (default to 8 for unknown)
+const KNOWN_DECIMALS: Record<string, number> = { btc: 8, eth: 18, sol: 9, usdc: 6, usdt: 6, near: 24 };
+
 /**
  * Determines if a swap should use Jupiter (same-chain Solana) or StealthEX (cross-chain)
  */
 function getSwapMode(inToken: SwapToken | null, outToken: SwapToken | null): 'jupiter' | 'stealthex' | null {
   if (!inToken || !outToken) return null;
 
-  const inChain = inToken.chain || 'solana';
-  const outChain = outToken.chain || 'solana';
+  const inChain = inToken.chain;
+  const outChain = outToken.chain;
+
+  // Cannot determine swap mode if chain is unknown
+  if (!inChain || !outChain) return null;
 
   // Same chain Solana = Jupiter
   if (inChain === 'solana' && outChain === 'solana') {
@@ -204,7 +209,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
           address: t.symbol, // StealthEX uses symbols
           symbol: t.symbol,
           name: t.name,
-          decimals: 8, // Default for bridge
+          decimals: KNOWN_DECIMALS[t.symbol.toLowerCase()] ?? 8,
           logo: t.logo,
           chain: getChainFromNetwork(t.network),
           networkId: t.network,
@@ -220,6 +225,12 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
 
     loadBridgeTokens();
   }, [inToken, onGetAvailableTokens]);
+
+  // Stabilize callback identity with refs to avoid unnecessary re-fetches
+  const onGetQuoteRef = useRef(onGetQuote);
+  onGetQuoteRef.current = onGetQuote;
+  const onGetBridgeEstimateRef = useRef(onGetBridgeEstimate);
+  onGetBridgeEstimateRef.current = onGetBridgeEstimate;
 
   // Fetch quote/estimate when input changes
   useEffect(() => {
@@ -246,7 +257,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
       setIsLoadingQuote(true);
       quoteTimerRef.current = setTimeout(async () => {
         try {
-          const fetchedQuote = await onGetQuote(inToken, outToken, inAmount);
+          const fetchedQuote = await onGetQuoteRef.current(inToken, outToken, inAmount);
           setQuote(fetchedQuote);
           setOutAmount(fetchedQuote.output.amount.toString());
           setQuoteError(null);
@@ -258,12 +269,12 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
           setIsLoadingQuote(false);
         }
       }, QUOTE_DEBOUNCE_MS);
-    } else if (mode === 'stealthex' && onGetBridgeEstimate) {
+    } else if (mode === 'stealthex' && onGetBridgeEstimateRef.current) {
       // Fetch StealthEX estimate
       setIsLoadingEstimate(true);
       quoteTimerRef.current = setTimeout(async () => {
         try {
-          const estimate = await onGetBridgeEstimate(
+          const estimate = await onGetBridgeEstimateRef.current!(
             inToken.symbol,
             outToken.symbol,
             parseFloat(inAmount)
@@ -271,6 +282,8 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
           if (estimate) {
             setBridgeEstimate(estimate);
             setOutAmount(estimate.estimatedAmount.toString());
+          } else {
+            setQuoteError('Failed to get swap estimate');
           }
         } catch (error) {
           console.error('Failed to fetch estimate:', error);
@@ -286,7 +299,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
         clearTimeout(quoteTimerRef.current);
       }
     };
-  }, [inToken, outToken, inAmount, onGetQuote, onGetBridgeEstimate]);
+  }, [inToken, outToken, inAmount]);
 
   // Handle input token selection
   const handleInTokenSelect = useCallback((token: SwapToken) => {
@@ -394,7 +407,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
         onBridgeSuccess?.(exchange);
 
         Alert.alert(
-          'Bridge Initiated',
+          'Swap Initiated',
           `Please send ${inAmount} ${inToken.symbol} to:\n\n${exchange.depositAddress}\n\nYou will receive approximately ${exchange.amountOut} ${outToken.symbol}`,
           [{ text: 'OK' }]
         );
@@ -432,9 +445,9 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
       // For Solana input: show Solana tokens + available bridge tokens
       const solanaTokens = tokens.filter(t => (t.chain || 'solana') === 'solana');
       // Merge with bridge tokens, avoiding duplicates
-      const bridgeSymbols = new Set(availableOutTokens.map(t => t.symbol));
-      const uniqueSolanaTokens = solanaTokens.filter(t => !bridgeSymbols.has(t.symbol));
-      return [...uniqueSolanaTokens, ...availableOutTokens];
+      const solanaSymbols = new Set(solanaTokens.map(t => t.symbol.toLowerCase()));
+      const uniqueBridgeTokens = availableOutTokens.filter(t => !solanaSymbols.has(t.symbol.toLowerCase()));
+      return [...solanaTokens, ...uniqueBridgeTokens];
     } else {
       // For non-Solana input: only bridge tokens are available
       return availableOutTokens;
@@ -494,9 +507,6 @@ export const SwapScreen: React.FC<SwapScreenProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      {/* Background */}
-      <ScalesBackground style={styles.background} />
-
       {/* Input Screen */}
       {step === 'input' && (
         <SwapInputScreen
@@ -637,14 +647,7 @@ function getChainDisplayName(chain?: SwapChainType): string {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
-  },
-  background: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    backgroundColor: 'transparent',
   },
 });
 

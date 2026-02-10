@@ -25,7 +25,7 @@ export interface SwapToken {
   usdPrice?: number;
   /** Chain this token belongs to (for unified swap/bridge) */
   chain?: SwapChainType;
-  /** Network ID (e.g., 'mainnet-beta', 'bitcoin', 'ethereum') */
+  /** Network ID (e.g., 'solana-mainnet', 'bitcoin-mainnet', 'ethereum-mainnet') */
   networkId?: string;
 }
 

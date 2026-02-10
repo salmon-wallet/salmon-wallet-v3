@@ -74,14 +74,14 @@ export interface ExplorerLinkButtonProps {
  * <ExplorerLinkButton
  *   txHash="5abc..."
  *   blockchain="SOLANA"
- *   environment="mainnet-beta"
+ *   environment="solana-mainnet"
  * />
  *
  * // Menu mode with multiple explorers
  * <ExplorerLinkButton
  *   txHash="5abc..."
  *   blockchain="SOLANA"
- *   environment="mainnet-beta"
+ *   environment="solana-mainnet"
  *   showMenu
  * />
  *
@@ -89,7 +89,7 @@ export interface ExplorerLinkButtonProps {
  * <ExplorerLinkButton
  *   txHash="5abc..."
  *   blockchain="SOLANA"
- *   environment="mainnet-beta"
+ *   environment="solana-mainnet"
  *   explorerKey="SOLANA_FM"
  * />
  * ```
@@ -97,7 +97,7 @@ export interface ExplorerLinkButtonProps {
 export function ExplorerLinkButton({
   txHash,
   blockchain = 'SOLANA',
-  environment = 'mainnet-beta',
+  environment = 'solana-mainnet',
   explorerKey,
   showMenu = false,
   onPress,

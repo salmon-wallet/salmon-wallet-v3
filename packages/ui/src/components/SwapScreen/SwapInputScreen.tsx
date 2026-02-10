@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, ms, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
 import type { SwapInputScreenProps } from './types';
@@ -60,7 +60,10 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
           colors={canReview ? gradients.primaryButton.colors : gradients.disabled.colors}
           start={gradients.primaryButton.start}
           end={gradients.primaryButton.end}
-          style={styles.buttonGradient}
+          style={[
+            styles.buttonGradient,
+            canReview && styles.buttonGradientActive,
+          ]}
         >
           <PrimaryButton
             onPress={onReview}
@@ -87,7 +90,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: vs(spacing['2xl']),
+    bottom: vs(componentSizes.tabBarHeight + spacing.xl),
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -95,12 +98,15 @@ const styles = StyleSheet.create({
   buttonGradient: {
     borderRadius: borderRadius.lg,
     borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: 'transparent',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.64,
     shadowRadius: 12,
     elevation: 8,
+  },
+  buttonGradientActive: {
+    borderColor: 'rgba(255, 92, 69, 0.8)',
   },
   button: {
     minWidth: s(180),
