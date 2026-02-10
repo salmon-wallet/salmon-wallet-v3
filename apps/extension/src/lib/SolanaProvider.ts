@@ -85,7 +85,7 @@ export interface SignMessageResult {
 /**
  * Network type for transaction operations
  */
-export type Network = 'mainnet-beta' | 'devnet' | string;
+export type Network = 'solana-mainnet' | 'solana-devnet' | string;
 
 /**
  * Transaction type that can be either legacy or versioned
