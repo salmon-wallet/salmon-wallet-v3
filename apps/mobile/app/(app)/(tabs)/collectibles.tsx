@@ -24,10 +24,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import * as Clipboard from 'expo-clipboard';
 import {
   useAccountsContext,
   useUserConfig,
@@ -46,14 +43,15 @@ import {
   bitcoinOrdinalToNftData,
   type EthereumNft,
   type BitcoinOrdinal,
+  getShortAddress,
 } from '@salmon/shared';
 import {
-  WalletHeader,
-  ScalesBackground,
   NftCarouselSection,
   NftCarouselSectionSkeleton,
   NftSeeAllSheet,
   NftDetailSheet,
+  SubAccountSelector,
+  type SubAccount,
   type NftData,
   type NftBlockchain,
   type NftDetailData,
@@ -93,6 +91,25 @@ interface SeeAllSheetState {
 // Constants
 // ============================================================================
 
+/**
+ * Maps each UI section to its network account key in networksAccounts.
+ */
+const SECTION_TO_NETWORK: Record<NftSectionKey, string> = {
+  'solana': 'solana-mainnet',
+  'solana-devnet': 'solana-devnet',
+  'ethereum': 'ethereum-mainnet',
+  'ethereum-sepolia': 'ethereum-sepolia',
+  'bitcoin': 'bitcoin-mainnet',
+};
+
+const INITIAL_SECTION_INDEXES: Record<NftSectionKey, number> = {
+  'solana': 0,
+  'solana-devnet': 0,
+  'ethereum': 0,
+  'ethereum-sepolia': 0,
+  'bitcoin': 0,
+};
+
 const INITIAL_SECTIONS: NftsBySection = {
   solana: { nfts: [], raw: [], loading: true, blockchain: 'solana', isTestnet: false },
   'solana-devnet': { nfts: [], raw: [], loading: false, blockchain: 'solana', networkLabel: 'Devnet', isTestnet: true },
@@ -110,6 +127,7 @@ const INITIAL_SECTIONS: NftsBySection = {
  */
 function solanaNftToNftData(nft: Nft): NftData {
   return {
+    blockchain: 'solana',
     mint: nft.mint.address,
     name: nft.name || 'Unnamed NFT',
     image: nft.media || undefined,
@@ -122,6 +140,7 @@ function solanaNftToNftData(nft: Nft): NftData {
  */
 function solanaNftToDetailData(nft: Nft): NftDetailData {
   return {
+    blockchain: 'solana',
     mint: nft.mint.address,
     name: nft.name || 'Unnamed NFT',
     image: nft.media || undefined,
@@ -175,46 +194,48 @@ export default function CollectiblesScreen() {
     sectionKey: null,
   });
 
+  // Per-section sub-account index (each blockchain section can pick its own derived account)
+  const [sectionIndexes, setSectionIndexes] = useState<Record<NftSectionKey, number>>(INITIAL_SECTION_INDEXES);
+
   // Get account context
   const [accountState] = useAccountsContext();
   const { ready, activeBlockchainAccount, activeAccount } = accountState;
 
   // Get developer mode state
-  const userConfigAccount = useMemo(() => {
-    if (!activeBlockchainAccount) return undefined;
-    return {
-      network: {
-        environment: 'mainnet-beta' as const,
-        blockchain: 'solana' as const,
-      },
-    };
-  }, [activeBlockchainAccount]);
+  const userConfigAccount = useMemo(() => ({
+    network: {
+      environment: 'solana-mainnet' as const,
+      blockchain: 'solana' as const,
+    },
+  }), []);
 
   const { developerNetworks } = useUserConfig({
     activeBlockchainAccount: userConfigAccount,
   });
 
-  // Get account info for header
-  const accountName = activeAccount?.name || 'Wallet';
-  const address = activeBlockchainAccount?.getReceiveAddress() || '';
-
   // Calculate header offset for content
   const headerOffset = insets.top + componentSizes.headerInnerHeight;
 
-  // Header handlers
-  const handleCopyAddress = useCallback(async () => {
-    if (address) {
-      await Clipboard.setStringAsync(address);
-      Alert.alert('Copied', 'Address copied to clipboard');
+  // Build sub-account lists per section for the SubAccountSelector
+  const sectionSubAccounts = useMemo(() => {
+    if (!activeAccount) return {} as Record<NftSectionKey, SubAccount[]>;
+
+    const result = {} as Record<NftSectionKey, SubAccount[]>;
+    for (const [sectionKey, networkId] of Object.entries(SECTION_TO_NETWORK)) {
+      const accounts = activeAccount.networksAccounts?.[networkId] ?? [];
+      result[sectionKey as NftSectionKey] = accounts
+        .map((acc, idx) => acc ? {
+          index: idx,
+          address: getShortAddress(acc.getReceiveAddress(), 4) ?? '',
+        } : null)
+        .filter((item): item is SubAccount => item !== null);
     }
-  }, [address]);
+    return result;
+  }, [activeAccount]);
 
-  const handleSettingsPress = useCallback(() => {
-    // Settings handled in home screen
-  }, []);
-
-  const handleWalletPress = useCallback(() => {
-    // Wallet switcher handled in home screen
+  // Handle sub-account change per section → triggers refetch
+  const handleSectionIndexChange = useCallback((sectionKey: NftSectionKey, index: number) => {
+    setSectionIndexes((prev) => ({ ...prev, [sectionKey]: index }));
   }, []);
 
   // Fetch all NFTs in parallel
@@ -222,21 +243,17 @@ export default function CollectiblesScreen() {
     async (isRefresh = false) => {
       if (!activeBlockchainAccount || !activeAccount) return;
 
-      // Get addresses from multi-chain networksAccounts
-      // Solana mainnet
-      const solanaMainnetAccount = activeAccount.networksAccounts?.['mainnet-beta']?.[0];
+      // Get addresses using per-section selected sub-account index
+      const solanaMainnetAccount = activeAccount.networksAccounts?.['solana-mainnet']?.[sectionIndexes['solana']];
       const solanaAddress = solanaMainnetAccount?.getReceiveAddress() ?? '';
 
-      // Solana devnet (same address derivation, but fetch from correct account)
-      const solanaDevnetAccount = activeAccount.networksAccounts?.['devnet']?.[0];
+      const solanaDevnetAccount = activeAccount.networksAccounts?.['solana-devnet']?.[sectionIndexes['solana-devnet']];
       const solanaDevnetAddress = solanaDevnetAccount?.getReceiveAddress() ?? '';
 
-      // Ethereum (same address works for mainnet and sepolia)
-      const ethAccount = activeAccount.networksAccounts?.['ethereum']?.[0];
+      const ethAccount = activeAccount.networksAccounts?.['ethereum-mainnet']?.[sectionIndexes['ethereum']];
       const ethAddress = ethAccount?.getReceiveAddress() ?? '';
 
-      // Bitcoin mainnet
-      const btcAccount = activeAccount.networksAccounts?.['bitcoin']?.[0];
+      const btcAccount = activeAccount.networksAccounts?.['bitcoin-mainnet']?.[sectionIndexes['bitcoin']];
       const btcAddress = btcAccount?.getReceiveAddress() ?? '';
 
       // Set loading state for mainnet sections
@@ -258,7 +275,7 @@ export default function CollectiblesScreen() {
       const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] | EthereumNft[] | BitcoinOrdinal[] }>[] = [
         // Mainnet fetches (always, if address available)
         (solanaAddress
-          ? getAllNfts(SOLANA_NETWORKS['mainnet-beta'], solanaAddress, false, getSolanaNfts)
+          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, false, getSolanaNfts)
           : Promise.resolve([]))
           .then((result) => ({ key: 'solana' as NftSectionKey, result }))
           .catch(() => ({ key: 'solana' as NftSectionKey, result: [] })),
@@ -277,13 +294,17 @@ export default function CollectiblesScreen() {
         fetchPromises.push(
           // Solana Devnet
           (solanaDevnetAddress
-            ? getAllNfts(SOLANA_NETWORKS['devnet'], solanaDevnetAddress, false, getSolanaNfts)
+            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, false, getSolanaNfts)
             : Promise.resolve([]))
             .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
             .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] })),
 
-          // Ethereum Sepolia (same address as mainnet)
-          (ethAddress ? getEthereumNfts('ethereum-sepolia', ethAddress) : Promise.resolve([]))
+          // Ethereum Sepolia (uses its own section index)
+          (() => {
+            const sepoliaAccount = activeAccount.networksAccounts?.['ethereum-sepolia']?.[sectionIndexes['ethereum-sepolia']];
+            const sepoliaAddress = sepoliaAccount?.getReceiveAddress() ?? ethAddress;
+            return sepoliaAddress ? getEthereumNfts('ethereum-sepolia', sepoliaAddress) : Promise.resolve([]);
+          })()
             .then((result) => ({ key: 'ethereum-sepolia' as NftSectionKey, result }))
             .catch(() => ({ key: 'ethereum-sepolia' as NftSectionKey, result: [] })),
         );
@@ -337,7 +358,7 @@ export default function CollectiblesScreen() {
         setRefreshing(false);
       }
     },
-    [activeAccount, activeBlockchainAccount, developerNetworks]
+    [activeAccount, activeBlockchainAccount, developerNetworks, sectionIndexes]
   );
 
   // Fetch on mount and when account/developer mode changes
@@ -368,37 +389,17 @@ export default function CollectiblesScreen() {
         }
       } else if (section.blockchain === 'ethereum') {
         const rawNft = (section.raw as EthereumNft[]).find(
-          (n) => `${n.contractAddress}:${n.tokenId}` === nftData.mint
+          (n) => `${n.contract}:${n.mint}` === nftData.mint
         );
         if (rawNft) {
-          detailData = {
-            mint: nftData.mint,
-            name: rawNft.name,
-            image: rawNft.image,
-            description: rawNft.description,
-            collectionName: rawNft.collectionName,
-            attributes: rawNft.attributes?.map((attr) => ({
-              trait_type: attr.trait_type,
-              value: String(attr.value),
-            })),
-          };
+          detailData = ethereumNftToNftData(rawNft);
         }
       } else if (section.blockchain === 'bitcoin') {
         const rawNft = (section.raw as BitcoinOrdinal[]).find(
           (n) => n.inscriptionId === nftData.mint
         );
         if (rawNft) {
-          detailData = {
-            mint: nftData.mint,
-            name: rawNft.name,
-            image: rawNft.image,
-            description: rawNft.description,
-            collectionName: rawNft.collectionName,
-            attributes: rawNft.attributes?.map((attr) => ({
-              trait_type: attr.trait_type,
-              value: String(attr.value),
-            })),
-          };
+          detailData = bitcoinOrdinalToNftData(rawNft);
         }
       }
 
@@ -515,7 +516,6 @@ export default function CollectiblesScreen() {
   if (!ready) {
     return (
       <View style={styles.loadingContainer}>
-        <StatusBar style="light" />
         <ActivityIndicator size="large" color="#FF6B35" />
         <Text style={styles.loadingText}>Loading wallet...</Text>
       </View>
@@ -524,24 +524,6 @@ export default function CollectiblesScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
-
-      {/* Solid background for status bar area and entire screen */}
-      <View style={styles.solidBackground} />
-
-      {/* ScalesBackground */}
-      <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
-
-      {/* WalletHeader - Absolutely positioned above content */}
-      <WalletHeader
-        accountName={accountName}
-        address={address}
-        onCopyAddress={handleCopyAddress}
-        onSettingsPress={handleSettingsPress}
-        onWalletPress={handleWalletPress}
-        developerMode={developerNetworks}
-      />
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
@@ -559,7 +541,7 @@ export default function CollectiblesScreen() {
         }
       >
         {/* Page Title */}
-        <Text style={styles.pageTitle}>Collectibles</Text>
+        <Text style={styles.pageTitle}>My Collectibles</Text>
 
         {/* Developer Mode Banner */}
         {developerNetworks && (
@@ -599,16 +581,24 @@ export default function CollectiblesScreen() {
           }
 
           const title = getSectionTitle(sectionKey, section);
+          const subAccounts = sectionSubAccounts[sectionKey] ?? [];
 
           return (
-            <NftCarouselSection
-              key={sectionKey}
-              title={title}
-              blockchain={section.blockchain}
-              nfts={section.nfts}
-              onNftPress={(nft) => handleNftPress(nft, sectionKey)}
-              onSeeAllPress={() => handleSeeAllPress(sectionKey)}
-            />
+            <React.Fragment key={sectionKey}>
+              <SubAccountSelector
+                accounts={subAccounts}
+                activeIndex={sectionIndexes[sectionKey]}
+                onSelect={(index) => handleSectionIndexChange(sectionKey, index)}
+                style={styles.sectionSelector}
+              />
+              <NftCarouselSection
+                title={title}
+                blockchain={section.blockchain}
+                nfts={section.nfts}
+                onNftPress={(nft) => handleNftPress(nft, sectionKey)}
+                onSeeAllPress={() => handleSeeAllPress(sectionKey)}
+              />
+            </React.Fragment>
           );
         })}
       </ScrollView>
@@ -653,16 +643,11 @@ export default function CollectiblesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  solidBackground: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.background.primary,
-    zIndex: 0,
+    backgroundColor: 'transparent',
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -723,5 +708,8 @@ const styles = StyleSheet.create({
     fontSize: ms(14),
     color: 'rgba(255, 255, 255, 0.4)',
     textAlign: 'center',
+  },
+  sectionSelector: {
+    marginBottom: vs(8),
   },
 });
