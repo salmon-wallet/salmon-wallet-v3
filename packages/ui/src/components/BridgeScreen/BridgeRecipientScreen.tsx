@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, ms, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s } from '@salmon/shared';
 import { RecipientAddressInput } from './RecipientAddressInput';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -34,7 +34,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
 
       {/* Description */}
       <Text style={styles.description}>
-        Enter the address where you want to receive your bridged tokens
+        Enter the address where you want to receive your swapped tokens
         {targetChain ? ` on ${targetChain.name}` : ''}.
       </Text>
 
@@ -54,7 +54,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
       <View style={styles.infoBox}>
         <Text style={styles.infoTitle}>Important</Text>
         <Text style={styles.infoText}>
-          Make sure the address is correct. Bridge transactions cannot be reversed once initiated.
+          Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.
         </Text>
       </View>
 
@@ -70,7 +70,10 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
           colors={canContinue ? gradients.primaryButton.colors : gradients.disabled.colors}
           start={gradients.primaryButton.start}
           end={gradients.primaryButton.end}
-          style={styles.continueButtonGradient}
+          style={[
+            styles.continueButtonGradient,
+            canContinue && styles.continueButtonGradientActive,
+          ]}
         >
           <PrimaryButton
             onPress={onContinue}
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: s(spacing.md),
     position: 'absolute',
-    bottom: vs(spacing['2xl']),
+    bottom: vs(componentSizes.tabBarHeight + spacing.xl),
     left: s(spacing.headerPadding),
     right: s(spacing.headerPadding),
   },
@@ -154,12 +157,15 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: borderRadius.lg,
     borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: 'transparent',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.64,
     shadowRadius: 12,
     elevation: 8,
+  },
+  continueButtonGradientActive: {
+    borderColor: 'rgba(255, 92, 69, 0.8)',
   },
   continueButton: {
     height: vs(42),

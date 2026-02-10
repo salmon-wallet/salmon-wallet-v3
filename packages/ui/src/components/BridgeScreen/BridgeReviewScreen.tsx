@@ -122,7 +122,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
   return (
     <View style={[styles.container, style]}>
       {/* Title */}
-      <Text style={styles.title}>Bridge Review</Text>
+      <Text style={styles.title}>Swap Review</Text>
 
       {/* Scrollable Content */}
       <ScrollView
@@ -178,7 +178,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
         <View style={styles.warningBox}>
           <Text style={styles.warningTitle}>Please Note</Text>
           <Text style={styles.warningText}>
-            Bridge transactions typically take 10-30 minutes to complete. You will receive a deposit address after confirmation.
+            Cross-chain swaps typically take 10-30 minutes to complete. You will receive a deposit address after confirmation.
           </Text>
         </View>
       </ScrollView>
@@ -204,7 +204,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
             disabled={isConfirming}
             style={styles.confirmButton}
           >
-            Confirm Bridge
+            Confirm Swap
           </PrimaryButton>
         </LinearGradient>
       </View>
