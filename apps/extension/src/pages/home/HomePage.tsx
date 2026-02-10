@@ -180,7 +180,7 @@ export function HomePage() {
   const userConfig = useUserConfig({
     activeBlockchainAccount: {
       network: {
-        environment: (networkId || 'mainnet-beta') as 'mainnet-beta' | 'devnet',
+        environment: (networkId || 'solana-mainnet') as 'solana-mainnet' | 'solana-devnet',
         blockchain: 'solana',
       },
     },
@@ -214,7 +214,7 @@ export function HomePage() {
     toggleHidden,
   } = useBalance({
     account: activeBlockchainAccount,
-    networkId: networkId as 'mainnet-beta' | 'devnet' | undefined,
+    networkId: networkId as 'solana-mainnet' | 'solana-devnet' | undefined,
     skip: !ready || !activeBlockchainAccount,
   });
 
@@ -366,8 +366,8 @@ export function HomePage() {
 
   // Prepare network info for BalanceCard
   const networkInfo = useMemo(() => ({
-    id: networkId || 'mainnet-beta',
-    name: networkId === 'devnet' ? 'Devnet' : 'Solana Mainnet',
+    id: networkId || 'solana-mainnet',
+    name: networkId === 'solana-devnet' ? 'Devnet' : 'Solana Mainnet',
   }), [networkId]);
 
   // Transform tokens to match TokenList expected format
