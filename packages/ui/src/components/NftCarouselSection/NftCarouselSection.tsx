@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -17,13 +17,11 @@ import type { NftCarouselSectionProps, NftBlockchain } from './types';
 import type { NftData } from '../NftCard';
 import { NftCarouselSectionSkeleton } from './NftCarouselSectionSkeleton';
 
-// Card dimensions for carousel (smaller than grid cards)
-const CARD_WIDTH = s(140);
-const CARD_HEIGHT = vs(160);
-const CARD_BORDER_RADIUS = ms(14);
-const CARD_GAP = s(12);
-const ROW_GAP = vs(12);
-const MAX_VISIBLE_NFTS = 10; // 5 per row
+// Card dimensions for carousel (matches Figma node 1702:6142 — ~194x193pt)
+const CARD_WIDTH = s(194);
+const CARD_HEIGHT = vs(193);
+const CARD_BORDER_RADIUS = ms(18);
+const CARD_GAP = s(9);
 
 // Fallback gradient for NFTs without images
 const FALLBACK_GRADIENT = {
@@ -137,10 +135,10 @@ const MiniNftCard: React.FC<MiniNftCardProps> = ({ nft, onPress }) => {
 };
 
 /**
- * NftCarouselSection - Horizontal carousel with 2 rows of NFTs
+ * NftCarouselSection - Horizontal single-row carousel of NFTs
  *
- * Netflix-style horizontal scrolling carousel grouped by blockchain.
- * Shows up to 10 NFTs (5 per row), with "See All" button for more.
+ * Horizontal scrolling carousel grouped by blockchain.
+ * Cards peek at the edge to hint at scrollability.
  *
  * @example
  * ```tsx
@@ -184,11 +182,6 @@ export const NftCarouselSection: React.FC<NftCarouselSectionProps> = ({
     return null;
   }
 
-  // Split NFTs into two rows (max 5 per row, 10 total visible)
-  const visibleNfts = nfts.slice(0, MAX_VISIBLE_NFTS);
-  const row1 = visibleNfts.filter((_, i) => i % 2 === 0);
-  const row2 = visibleNfts.filter((_, i) => i % 2 === 1);
-
   return (
     <View style={[styles.container, style]} testID={testID}>
       {/* Section Header */}
@@ -210,37 +203,19 @@ export const NftCarouselSection: React.FC<NftCarouselSectionProps> = ({
         )}
       </TouchableOpacity>
 
-      {/* Carousel Content */}
+      {/* Carousel Content — single horizontal row */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.rowsContainer}>
-          {/* Row 1 */}
-          <View style={styles.row}>
-            {row1.map((nft) => (
-              <MiniNftCard
-                key={nft.mint}
-                nft={nft}
-                onPress={() => handleNftPress(nft)}
-              />
-            ))}
-          </View>
-
-          {/* Row 2 (if has items) */}
-          {row2.length > 0 && (
-            <View style={styles.row}>
-              {row2.map((nft) => (
-                <MiniNftCard
-                  key={nft.mint}
-                  nft={nft}
-                  onPress={() => handleNftPress(nft)}
-                />
-              ))}
-            </View>
-          )}
-        </View>
+        {nfts.map((nft) => (
+          <MiniNftCard
+            key={nft.mint}
+            nft={nft}
+            onPress={() => handleNftPress(nft)}
+          />
+        ))}
       </ScrollView>
     </View>
   );
@@ -280,12 +255,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: s(18),
-  },
-  rowsContainer: {
-    gap: ROW_GAP,
-  },
-  row: {
-    flexDirection: 'row',
     gap: CARD_GAP,
   },
   // Mini Card Styles
@@ -297,12 +266,12 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.4,
+        shadowRadius: 9,
       },
       android: {
-        elevation: 4,
+        elevation: 6,
       },
     }),
   },
@@ -327,21 +296,21 @@ const styles = StyleSheet.create({
   },
   nameBadgeContainer: {
     position: 'absolute',
-    bottom: vs(6),
-    left: s(6),
-    right: s(6),
+    bottom: vs(8),
+    left: s(8),
+    right: s(8),
     alignItems: 'center',
   },
   nameBadge: {
-    borderRadius: ms(7),
-    paddingVertical: vs(4),
-    paddingHorizontal: s(10),
+    borderRadius: ms(9),
+    paddingVertical: vs(6),
+    paddingHorizontal: s(16),
     width: '100%',
     overflow: 'hidden',
   },
   nameText: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(11),
+    fontSize: ms(13),
     fontWeight: '600',
     color: '#e0e0e0',
     textAlign: 'center',
