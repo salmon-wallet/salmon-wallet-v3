@@ -14,8 +14,11 @@ import Box from '@mui/material/Box';
 import { colors } from '@salmon/shared';
 import { SwapInputScreen } from './SwapInputScreen';
 import { SwapReviewScreen } from './SwapReviewScreen';
+import { BridgeRecipientScreen } from '../BridgeScreen/BridgeRecipientScreen';
+import { BridgeReviewScreen } from '../BridgeScreen/BridgeReviewScreen';
 import { TokenSelectorModal } from '../TokenSelector';
 import { ScalesBackground } from '../ScalesBackground';
+import type { BridgeChain, BridgeToken, BridgeEstimate } from '../BridgeScreen/types';
 import type {
   SwapScreenProps,
   SwapToken,
@@ -31,14 +34,17 @@ const MIN_SWAP_USD = 1;
 // Debounce delay for quote fetching (ms)
 const QUOTE_DEBOUNCE_MS = 500;
 
+const KNOWN_DECIMALS: Record<string, number> = { btc: 8, eth: 18, sol: 9, usdc: 6, usdt: 6, near: 24 };
+
 /**
  * Determines if a swap should use Jupiter (same-chain Solana) or StealthEX (cross-chain)
  */
 function getSwapMode(inToken: SwapToken | null, outToken: SwapToken | null): 'jupiter' | 'stealthex' | null {
   if (!inToken || !outToken) return null;
 
-  const inChain = inToken.chain || 'solana';
-  const outChain = outToken.chain || 'solana';
+  const inChain = inToken.chain;
+  const outChain = outToken.chain;
+  if (!inChain || !outChain) return null;
 
   // Same chain Solana = Jupiter
   if (inChain === 'solana' && outChain === 'solana') {
@@ -89,6 +95,18 @@ function getChainFromNetwork(network?: string): SwapChainType {
   if (n.includes('eth') || n.includes('ethereum')) return 'ethereum';
   if (n.includes('sol') || n.includes('solana')) return 'solana';
   return 'solana';
+}
+
+/**
+ * Get display name for a chain type
+ */
+function getChainDisplayName(chain?: SwapChainType): string {
+  switch (chain) {
+    case 'bitcoin': return 'Bitcoin';
+    case 'ethereum': return 'Ethereum';
+    case 'solana':
+    default: return 'Solana';
+  }
 }
 
 // ============================================================================
@@ -168,11 +186,19 @@ export function SwapScreen({
   const [showInTokenModal, setShowInTokenModal] = useState(false);
   const [showOutTokenModal, setShowOutTokenModal] = useState(false);
 
+  // Recipient state (for bridge)
+  const [recipientAddress, setRecipientAddress] = useState('');
+  const [addressError, setAddressError] = useState<string | null>(null);
+
   // Debounce timer ref
   const quoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Determine swap mode based on selected tokens
   const swapMode = useMemo(() => getSwapMode(inToken, outToken), [inToken, outToken]);
+
+  // Address validation for bridge target chain
+  const targetChain: SwapChainType | null = outToken?.chain || null;
+  const addressValidation = validateAddress(recipientAddress, targetChain);
 
   // Calculate USD value of input
   const inUsdValue = inToken?.usdPrice && inAmount
@@ -220,7 +246,7 @@ export function SwapScreen({
           address: t.symbol, // StealthEX uses symbols
           symbol: t.symbol,
           name: t.name,
-          decimals: 8, // Default for bridge
+          decimals: KNOWN_DECIMALS[t.symbol.toLowerCase()] ?? 8,
           logo: t.logo,
           chain: getChainFromNetwork(t.network),
           networkId: t.network,
@@ -234,6 +260,12 @@ export function SwapScreen({
 
     loadBridgeTokens();
   }, [inToken, onGetAvailableTokens]);
+
+  // Stabilize callback refs to avoid re-triggering the quote effect
+  const onGetQuoteRef = useRef(onGetQuote);
+  onGetQuoteRef.current = onGetQuote;
+  const onGetBridgeEstimateRef = useRef(onGetBridgeEstimate);
+  onGetBridgeEstimateRef.current = onGetBridgeEstimate;
 
   // Fetch quote/estimate when input changes
   useEffect(() => {
@@ -260,7 +292,7 @@ export function SwapScreen({
       setIsLoadingQuote(true);
       quoteTimerRef.current = setTimeout(async () => {
         try {
-          const fetchedQuote = await onGetQuote(inToken, outToken, inAmount);
+          const fetchedQuote = await onGetQuoteRef.current(inToken, outToken, inAmount);
           setQuote(fetchedQuote);
           setOutAmount(fetchedQuote.output.amount.toString());
           setQuoteError(null);
@@ -272,12 +304,12 @@ export function SwapScreen({
           setIsLoadingQuote(false);
         }
       }, QUOTE_DEBOUNCE_MS);
-    } else if (mode === 'stealthex' && onGetBridgeEstimate) {
+    } else if (mode === 'stealthex' && onGetBridgeEstimateRef.current) {
       // Fetch StealthEX estimate
       setIsLoadingEstimate(true);
       quoteTimerRef.current = setTimeout(async () => {
         try {
-          const estimate = await onGetBridgeEstimate(
+          const estimate = await onGetBridgeEstimateRef.current!(
             inToken.symbol,
             outToken.symbol,
             parseFloat(inAmount)
@@ -285,6 +317,8 @@ export function SwapScreen({
           if (estimate) {
             setBridgeEstimate(estimate);
             setOutAmount(estimate.estimatedAmount.toString());
+          } else {
+            setQuoteError('Failed to get swap estimate');
           }
         } catch (error) {
           console.error('Failed to fetch estimate:', error);
@@ -300,7 +334,7 @@ export function SwapScreen({
         clearTimeout(quoteTimerRef.current);
       }
     };
-  }, [inToken, outToken, inAmount, onGetQuote, onGetBridgeEstimate]);
+  }, [inToken, outToken, inAmount]);
 
   // Handle input token selection
   const handleInTokenSelect = useCallback((token: SwapToken) => {
@@ -331,14 +365,34 @@ export function SwapScreen({
   const handleReview = useCallback(() => {
     if (swapMode === 'jupiter' && quote) {
       setStep('review');
+    } else if (swapMode === 'stealthex') {
+      setStep('recipient');
     }
-    // Bridge mode would navigate to recipient step (not yet migrated)
   }, [swapMode, quote]);
+
+  // Handle continue from recipient to review (bridge)
+  const handleContinueToReview = useCallback(() => {
+    if (addressValidation.valid) {
+      setAddressError(null);
+      setStep('review');
+    } else {
+      setAddressError(addressValidation.error || 'Invalid address');
+    }
+  }, [addressValidation]);
+
+  // Handle back from recipient to input (bridge)
+  const handleBackFromRecipient = useCallback(() => {
+    setStep('input');
+  }, []);
 
   // Handle back from review
   const handleBackFromReview = useCallback(() => {
-    setStep('input');
-  }, []);
+    if (swapMode === 'stealthex') {
+      setStep('recipient');
+    } else {
+      setStep('input');
+    }
+  }, [swapMode]);
 
   // Handle confirm (Jupiter swap)
   const handleConfirmSwap = useCallback(async () => {
@@ -370,6 +424,45 @@ export function SwapScreen({
     }
   }, [quote, onSwap, onSuccess, onError]);
 
+  // Handle confirm (StealthEX bridge)
+  const handleConfirmBridge = useCallback(async () => {
+    if (!inToken || !outToken || !inAmount || !recipientAddress || !onCreateBridgeExchange) return;
+    setIsConfirming(true);
+    try {
+      const exchange = await onCreateBridgeExchange(
+        inToken.symbol,
+        outToken.symbol,
+        parseFloat(inAmount),
+        recipientAddress
+      );
+      if (exchange) {
+        setStep('success');
+        onBridgeSuccess?.(exchange);
+        window.alert(
+          `Swap Initiated!\n\nPlease send ${inAmount} ${inToken.symbol} to:\n${exchange.depositAddress}\n\nYou will receive approximately ${exchange.amountOut} ${outToken.symbol}`
+        );
+        setTimeout(() => {
+          setStep('input');
+          setInAmount('');
+          setOutAmount('');
+          setRecipientAddress('');
+          setBridgeEstimate(null);
+        }, 2000);
+      } else {
+        throw new Error('Failed to create bridge exchange');
+      }
+    } catch (error) {
+      console.error('Bridge failed:', error);
+      setStep('error');
+      onBridgeError?.(error as Error);
+      setTimeout(() => {
+        setStep('input');
+      }, 2000);
+    } finally {
+      setIsConfirming(false);
+    }
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onBridgeSuccess, onBridgeError]);
+
   // Build output tokens list based on input token
   const outputTokens = useMemo(() => {
     if (!inToken) return tokens;
@@ -380,9 +473,9 @@ export function SwapScreen({
       // For Solana input: show Solana tokens + available bridge tokens
       const solanaTokens = tokens.filter(t => (t.chain || 'solana') === 'solana');
       // Merge with bridge tokens, avoiding duplicates
-      const bridgeSymbols = new Set(availableOutTokens.map(t => t.symbol));
-      const uniqueSolanaTokens = solanaTokens.filter(t => !bridgeSymbols.has(t.symbol));
-      return [...uniqueSolanaTokens, ...availableOutTokens];
+      const solanaSymbols = new Set(solanaTokens.map(t => t.symbol.toLowerCase()));
+      const uniqueBridgeTokens = availableOutTokens.filter(t => !solanaSymbols.has(t.symbol.toLowerCase()));
+      return [...solanaTokens, ...uniqueBridgeTokens];
     } else {
       // For non-Solana input: only bridge tokens are available
       return availableOutTokens;
@@ -408,6 +501,37 @@ export function SwapScreen({
     uiAmount: t.balance || 0,
     network: t.networkId || (t.chain === 'bitcoin' ? 'Bitcoin' : t.chain === 'ethereum' ? 'Ethereum' : undefined),
   }));
+
+  // Bridge type conversions for BridgeRecipientScreen and BridgeReviewScreen
+  const bridgeTargetChain: BridgeChain | null = outToken ? {
+    id: outToken.networkId || outToken.chain || 'unknown',
+    name: getChainDisplayName(outToken.chain),
+    symbol: outToken.symbol,
+    logo: outToken.logo,
+  } : null;
+
+  const bridgeInToken: BridgeToken | null = inToken ? {
+    symbol: inToken.symbol,
+    name: inToken.name || inToken.symbol,
+    logo: inToken.logo,
+    network: inToken.networkId,
+    balance: inToken.balance,
+    usdPrice: inToken.usdPrice,
+  } : null;
+
+  const bridgeOutToken: BridgeToken | null = outToken ? {
+    symbol: outToken.symbol,
+    name: outToken.name || outToken.symbol,
+    logo: outToken.logo,
+    network: outToken.networkId,
+  } : null;
+
+  const bridgeEstimateForReview: BridgeEstimate | null = bridgeEstimate ? {
+    estimatedAmount: bridgeEstimate.estimatedAmount,
+    minAmount: bridgeEstimate.minAmount,
+    symbolIn: bridgeEstimate.symbolIn,
+    symbolOut: bridgeEstimate.symbolOut,
+  } : null;
 
   return (
     <Container style={style}>
@@ -441,6 +565,34 @@ export function SwapScreen({
           outToken={outToken}
           onBack={handleBackFromReview}
           onConfirm={handleConfirmSwap}
+          isConfirming={isConfirming}
+        />
+      )}
+
+      {/* Recipient Screen (Bridge only) */}
+      {step === 'recipient' && swapMode === 'stealthex' && (
+        <BridgeRecipientScreen
+          recipientAddress={recipientAddress}
+          onAddressChange={setRecipientAddress}
+          targetChain={bridgeTargetChain}
+          onBack={handleBackFromRecipient}
+          onContinue={handleContinueToReview}
+          isValidAddress={addressValidation.valid}
+          addressError={addressError}
+        />
+      )}
+
+      {/* Review Screen (StealthEX) */}
+      {step === 'review' && swapMode === 'stealthex' && bridgeInToken && bridgeOutToken && (
+        <BridgeReviewScreen
+          inToken={bridgeInToken}
+          outToken={bridgeOutToken}
+          inAmount={inAmount}
+          outAmount={outAmount}
+          recipientAddress={recipientAddress}
+          estimate={bridgeEstimateForReview}
+          onBack={handleBackFromReview}
+          onConfirm={handleConfirmBridge}
           isConfirming={isConfirming}
         />
       )}

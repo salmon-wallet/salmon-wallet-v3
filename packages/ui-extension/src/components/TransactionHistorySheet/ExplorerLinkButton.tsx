@@ -79,7 +79,7 @@ const StyledMenuItem = styled(MenuItem)({
 export function ExplorerLinkButton({
   txHash,
   blockchain = 'SOLANA',
-  environment = 'mainnet-beta',
+  environment = 'solana-mainnet',
   explorerKey,
   showMenu = false,
   onPress,

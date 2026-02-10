@@ -29,8 +29,8 @@ import type { BalanceCardProps } from './types';
  * Default network logos
  */
 const NETWORK_LOGOS: Record<string, string> = {
-  'mainnet-beta': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-  'devnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+  'solana-mainnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+  'solana-devnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
   'testnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
 };
 
@@ -160,7 +160,7 @@ const PaginationDot = styled(Box)<{ active?: boolean }>(({ active }) => ({
  * @example
  * ```tsx
  * <BalanceCard
- *   network={{ id: 'mainnet-beta', name: 'Solana Mainnet' }}
+ *   network={{ id: 'solana-mainnet', name: 'Solana Mainnet' }}
  *   usdTotal={1234.56}
  *   changePercent={5.23}
  *   changeAmount={61.45}
@@ -196,7 +196,7 @@ export function BalanceCard({
   const changeColor = LABEL_COLORS[labelType];
 
   // Get network logo
-  const networkLogo = network.logo || NETWORK_LOGOS[network.id] || NETWORK_LOGOS['mainnet-beta'];
+  const networkLogo = network.logo || NETWORK_LOGOS[network.id] || NETWORK_LOGOS['solana-mainnet'];
 
   // Format display values
   const displayBalance = hiddenBalance ? hiddenValue : showAmount(usdTotal);

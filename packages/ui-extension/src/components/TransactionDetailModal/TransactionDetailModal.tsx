@@ -979,7 +979,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <ExplorerLinkButton
             txHash={transaction.id}
             blockchain="SOLANA"
-            environment="mainnet-beta"
+            environment="solana-mainnet"
             showMenu
             onPress={(url, explorerName) => {
               if (onViewExplorer) {
