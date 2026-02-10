@@ -252,13 +252,10 @@ export type {
   BridgeExchangeSimple,
 } from './SwapScreen';
 
-// BridgeScreen - Cross-chain bridge interface
+// BridgeScreen - Cross-chain swap sub-screens (used by SwapScreen)
 export {
-  BridgeScreen,
-  BridgeInputScreen,
   BridgeRecipientScreen,
   BridgeReviewScreen,
-  BridgeAmountInput,
   RecipientAddressInput,
 } from './BridgeScreen';
 export type {
@@ -266,12 +263,8 @@ export type {
   BridgeToken,
   BridgeEstimate,
   BridgeExchange,
-  BridgeStep,
-  BridgeScreenProps,
-  BridgeInputScreenProps,
   BridgeRecipientScreenProps,
   BridgeReviewScreenProps,
-  BridgeAmountInputProps,
   RecipientAddressInputProps,
 } from './BridgeScreen';
 
@@ -286,3 +279,14 @@ export type {
 // GlassTabBar - Glass-effect bottom tab bar with Liquid Glass support
 export { GlassTabBar } from './GlassTabBar';
 export type { GlassTabBarProps, TabConfig } from './GlassTabBar';
+
+// DerivedAccountCard - Selectable card for derived account import screen
+export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
+export type {
+  DerivedAccountCardProps,
+  DerivedAccountCardSkeletonProps,
+} from './DerivedAccountCard';
+
+// SubAccountSelector - Horizontal pill selector for derived account path indexes
+export { SubAccountSelector } from './SubAccountSelector';
+export type { SubAccount, SubAccountSelectorProps } from './SubAccountSelector';
