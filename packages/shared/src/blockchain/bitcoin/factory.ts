@@ -79,8 +79,6 @@ export function mapEnvironmentToNetwork(
   switch (environment) {
     case 'testnet':
       return bitcoin.networks.testnet;
-    case 'regtest':
-      return bitcoin.networks.regtest;
     case 'mainnet':
     default:
       return bitcoin.networks.bitcoin;
@@ -312,14 +310,6 @@ export const BITCOIN_NETWORKS: Record<string, BitcoinNetwork> = {
     environment: 'testnet',
     config: {
       network: bitcoin.networks.testnet,
-    },
-  },
-  regtest: {
-    id: 'bitcoin-regtest',
-    name: 'Bitcoin Regtest',
-    environment: 'regtest',
-    config: {
-      network: bitcoin.networks.regtest,
     },
   },
 };

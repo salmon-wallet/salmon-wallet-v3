@@ -40,20 +40,14 @@ const getGradientForBlockchain = (blockchain: BlockchainId) => {
       return gradients.balanceCardSolana;
     case 'solana-devnet':
       return gradients.balanceCardSolanaDevnet;
-    case 'solana-testnet':
-      return gradients.balanceCardSolanaTestnet;
     case 'bitcoin':
       return gradients.balanceCardBitcoin;
     case 'bitcoin-testnet':
       return gradients.balanceCardBitcoinTestnet;
-    case 'bitcoin-regtest':
-      return gradients.balanceCardBitcoinRegtest;
     case 'ethereum':
       return gradients.balanceCardEthereum;
     case 'ethereum-sepolia':
       return gradients.balanceCardEthereumSepolia;
-    case 'ethereum-goerli':
-      return gradients.balanceCardEthereumGoerli;
     default:
       return gradients.balanceCardSolana;
   }
@@ -68,20 +62,14 @@ const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
       return 'rgba(153, 69, 255, 0.15)';   // Solana purple (#9945FF)
     case 'solana-devnet':
       return 'rgba(0, 255, 163, 0.15)';    // Solana Devnet green (#00FFA3)
-    case 'solana-testnet':
-      return 'rgba(3, 225, 255, 0.15)';    // Solana Testnet blue (#03E1FF)
     case 'bitcoin':
       return 'rgba(247, 147, 26, 0.15)';   // Bitcoin orange (#F7931A)
     case 'bitcoin-testnet':
       return 'rgba(255, 149, 0, 0.15)';    // Bitcoin Testnet orange (#FF9500)
-    case 'bitcoin-regtest':
-      return 'rgba(108, 99, 255, 0.15)';   // Bitcoin Regtest purple (#6C63FF)
     case 'ethereum':
       return 'rgba(98, 126, 234, 0.15)';   // Ethereum blue (#627EEA)
     case 'ethereum-sepolia':
       return 'rgba(76, 175, 80, 0.15)';    // Ethereum Sepolia green (#4CAF50)
-    case 'ethereum-goerli':
-      return 'rgba(255, 165, 0, 0.15)';    // Ethereum Goerli orange (#FFA500)
     default:
       return 'rgba(153, 69, 255, 0.15)';   // Solana purple (#9945FF)
   }
@@ -95,15 +83,12 @@ const renderBlockchainLogo = (blockchain: BlockchainId) => {
   switch (blockchain) {
     case 'solana':
     case 'solana-devnet':
-    case 'solana-testnet':
       return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
     case 'bitcoin':
     case 'bitcoin-testnet':
-    case 'bitcoin-regtest':
       return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
     case 'ethereum':
     case 'ethereum-sepolia':
-    case 'ethereum-goerli':
       return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
     default:
       return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
@@ -118,16 +103,10 @@ const getNetworkLabel = (blockchain: BlockchainId): string | null => {
   switch (blockchain) {
     case 'solana-devnet':
       return 'Devnet';
-    case 'solana-testnet':
-      return 'Testnet';
     case 'bitcoin-testnet':
       return 'Testnet';
-    case 'bitcoin-regtest':
-      return 'Regtest';
     case 'ethereum-sepolia':
       return 'Sepolia';
-    case 'ethereum-goerli':
-      return 'Goerli';
     default:
       return null;
   }

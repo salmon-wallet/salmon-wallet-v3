@@ -75,7 +75,6 @@ const ERC20_ABI = [
  */
 export const ETHEREUM_NETWORK_IDS = {
   MAINNET: 'ethereum',
-  GOERLI: 'ethereum-goerli',
   SEPOLIA: 'ethereum-sepolia',
 } as const;
 
@@ -167,7 +166,6 @@ const MAINNET_FEATURED_TOKENS: KnownToken[] = [
 const FEATURED_TOKENS_BY_NETWORK: Record<string, KnownToken[]> = {
   [ETHEREUM_NETWORK_IDS.MAINNET]: MAINNET_FEATURED_TOKENS,
   // Testnets typically don't have featured tokens
-  [ETHEREUM_NETWORK_IDS.GOERLI]: [],
   [ETHEREUM_NETWORK_IDS.SEPOLIA]: [],
 };
 

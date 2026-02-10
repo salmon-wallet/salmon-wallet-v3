@@ -180,7 +180,7 @@ export function HomePage() {
   const userConfig = useUserConfig({
     activeBlockchainAccount: {
       network: {
-        environment: (networkId || 'mainnet-beta') as 'mainnet-beta' | 'devnet' | 'testnet',
+        environment: (networkId || 'mainnet-beta') as 'mainnet-beta' | 'devnet',
         blockchain: 'solana',
       },
     },

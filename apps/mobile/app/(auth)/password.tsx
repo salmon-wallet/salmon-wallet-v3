@@ -205,7 +205,7 @@ export default function PasswordScreen() {
         networkIds: [
           'mainnet-beta', 'devnet',           // Solana
           'bitcoin', 'bitcoin-testnet',       // Bitcoin
-          'ethereum', 'ethereum-goerli',      // Ethereum
+          'ethereum', 'ethereum-sepolia',     // Ethereum
         ],
         startIndex: 0,
       });

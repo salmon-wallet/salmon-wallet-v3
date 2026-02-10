@@ -222,13 +222,20 @@ export default function CollectiblesScreen() {
     async (isRefresh = false) => {
       if (!activeBlockchainAccount || !activeAccount) return;
 
-      // Get Solana address from current account
-      const solanaAddress = activeBlockchainAccount.getReceiveAddress();
+      // Get addresses from multi-chain networksAccounts
+      // Solana mainnet
+      const solanaMainnetAccount = activeAccount.networksAccounts?.['mainnet-beta']?.[0];
+      const solanaAddress = solanaMainnetAccount?.getReceiveAddress() ?? '';
 
-      // Get ETH and BTC addresses from multi-chain networksAccounts
+      // Solana devnet (same address derivation, but fetch from correct account)
+      const solanaDevnetAccount = activeAccount.networksAccounts?.['devnet']?.[0];
+      const solanaDevnetAddress = solanaDevnetAccount?.getReceiveAddress() ?? '';
+
+      // Ethereum (same address works for mainnet and sepolia)
       const ethAccount = activeAccount.networksAccounts?.['ethereum']?.[0];
       const ethAddress = ethAccount?.getReceiveAddress() ?? '';
 
+      // Bitcoin mainnet
       const btcAccount = activeAccount.networksAccounts?.['bitcoin']?.[0];
       const btcAddress = btcAccount?.getReceiveAddress() ?? '';
 
@@ -249,8 +256,10 @@ export default function CollectiblesScreen() {
 
       // Build fetch promises - ALWAYS fetch mainnet
       const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] | EthereumNft[] | BitcoinOrdinal[] }>[] = [
-        // Mainnet fetches (always)
-        getAllNfts(SOLANA_NETWORKS['mainnet-beta'], solanaAddress, false, getSolanaNfts)
+        // Mainnet fetches (always, if address available)
+        (solanaAddress
+          ? getAllNfts(SOLANA_NETWORKS['mainnet-beta'], solanaAddress, false, getSolanaNfts)
+          : Promise.resolve([]))
           .then((result) => ({ key: 'solana' as NftSectionKey, result }))
           .catch(() => ({ key: 'solana' as NftSectionKey, result: [] })),
 
@@ -267,11 +276,13 @@ export default function CollectiblesScreen() {
       if (developerNetworks) {
         fetchPromises.push(
           // Solana Devnet
-          getAllNfts(SOLANA_NETWORKS['devnet'], solanaAddress, false, getSolanaNfts)
+          (solanaDevnetAddress
+            ? getAllNfts(SOLANA_NETWORKS['devnet'], solanaDevnetAddress, false, getSolanaNfts)
+            : Promise.resolve([]))
             .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
             .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] })),
 
-          // Ethereum Sepolia
+          // Ethereum Sepolia (same address as mainnet)
           (ethAddress ? getEthereumNfts('ethereum-sepolia', ethAddress) : Promise.resolve([]))
             .then((result) => ({ key: 'ethereum-sepolia' as NftSectionKey, result }))
             .catch(() => ({ key: 'ethereum-sepolia' as NftSectionKey, result: [] })),

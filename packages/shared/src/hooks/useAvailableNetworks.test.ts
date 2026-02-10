@@ -36,14 +36,6 @@ vi.mock('../blockchain/solana/factory', () => ({
         commitment: 'confirmed',
       },
     },
-    testnet: {
-      id: 'testnet',
-      name: 'Testnet',
-      config: {
-        nodeUrl: 'https://api.testnet.solana.com',
-        commitment: 'confirmed',
-      },
-    },
   },
 }));
 
@@ -65,14 +57,6 @@ vi.mock('../blockchain/bitcoin/factory', () => ({
         network: {},
       },
     },
-    regtest: {
-      id: 'bitcoin-regtest',
-      name: 'Bitcoin Regtest',
-      environment: 'regtest',
-      config: {
-        network: {},
-      },
-    },
   },
 }));
 
@@ -85,15 +69,6 @@ vi.mock('../blockchain/ethereum/factory', () => ({
       config: {
         rpcUrl: 'https://eth.llamarpc.com',
         chainId: 1,
-      },
-    },
-    goerli: {
-      id: 'ethereum-goerli',
-      name: 'Goerli Testnet',
-      environment: 'goerli',
-      config: {
-        rpcUrl: 'https://rpc.ankr.com/eth_goerli',
-        chainId: 5,
       },
     },
     sepolia: {
@@ -180,13 +155,12 @@ describe('useAvailableNetworks Hook', () => {
       expect(result.current.networks.bitcoin[0].environment).toBe('mainnet');
     });
 
-    it('should NOT return testnet or regtest for Bitcoin', () => {
+    it('should NOT return regtest for Bitcoin', () => {
       const { result } = renderHook(() =>
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
       const environments = result.current.networks.bitcoin.map(n => n.environment);
-      expect(environments).not.toContain('testnet');
       expect(environments).not.toContain('regtest');
     });
 
@@ -199,13 +173,12 @@ describe('useAvailableNetworks Hook', () => {
       expect(result.current.networks.ethereum[0].environment).toBe('mainnet');
     });
 
-    it('should NOT return goerli or sepolia for Ethereum', () => {
+    it('should NOT return sepolia for Ethereum', () => {
       const { result } = renderHook(() =>
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
       const environments = result.current.networks.ethereum.map(n => n.environment);
-      expect(environments).not.toContain('goerli');
       expect(environments).not.toContain('sepolia');
     });
   });
@@ -230,39 +203,36 @@ describe('useAvailableNetworks Hook', () => {
       });
     });
 
-    it('should return all Solana networks (mainnet-beta, devnet, testnet)', () => {
+    it('should return all Solana networks (mainnet-beta, devnet)', () => {
       const { result } = renderHook(() =>
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.solana).toHaveLength(3);
+      expect(result.current.networks.solana).toHaveLength(2);
       const networkIds = result.current.networks.solana.map(n => n.id);
       expect(networkIds).toContain('mainnet-beta');
       expect(networkIds).toContain('devnet');
-      expect(networkIds).toContain('testnet');
     });
 
-    it('should return all Bitcoin networks (mainnet, testnet, regtest)', () => {
+    it('should return all Bitcoin networks (mainnet, testnet)', () => {
       const { result } = renderHook(() =>
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.bitcoin).toHaveLength(3);
+      expect(result.current.networks.bitcoin).toHaveLength(2);
       const environments = result.current.networks.bitcoin.map(n => n.environment);
       expect(environments).toContain('mainnet');
       expect(environments).toContain('testnet');
-      expect(environments).toContain('regtest');
     });
 
-    it('should return all Ethereum networks (mainnet, goerli, sepolia)', () => {
+    it('should return all Ethereum networks (mainnet, sepolia)', () => {
       const { result } = renderHook(() =>
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.ethereum).toHaveLength(3);
+      expect(result.current.networks.ethereum).toHaveLength(2);
       const environments = result.current.networks.ethereum.map(n => n.environment);
       expect(environments).toContain('mainnet');
-      expect(environments).toContain('goerli');
       expect(environments).toContain('sepolia');
     });
   });
@@ -296,7 +266,7 @@ describe('useAvailableNetworks Hook', () => {
         result.current.networks.ethereum.length;
 
       expect(result.current.allNetworks).toHaveLength(expectedCount);
-      expect(result.current.allNetworks.length).toBe(9); // 3 + 3 + 3
+      expect(result.current.allNetworks.length).toBe(6); // 2 + 2 + 2
     });
 
     it('should contain flat list of only mainnet networks when developerNetworks is FALSE', () => {

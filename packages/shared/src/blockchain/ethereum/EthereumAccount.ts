@@ -3,7 +3,7 @@ import { JsonRpcProvider, Wallet, isAddress, getAddress } from 'ethers';
 /**
  * Ethereum network environment types
  */
-export type EthereumEnvironment = 'mainnet' | 'goerli' | 'sepolia';
+export type EthereumEnvironment = 'mainnet' | 'sepolia';
 
 /**
  * Network configuration for Ethereum connections
@@ -19,7 +19,7 @@ export interface EthereumNetworkConfig {
  * Network definition with ID and configuration
  */
 export interface EthereumNetwork {
-  /** Network identifier (e.g., 'ethereum', 'goerli', 'sepolia') */
+  /** Network identifier (e.g., 'ethereum', 'ethereum-sepolia') */
   id: string;
   /** Human-readable network name */
   name: string;

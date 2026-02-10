@@ -163,6 +163,17 @@ export const NftCarouselSection: React.FC<NftCarouselSectionProps> = ({
   style,
   testID,
 }) => {
+  const handleNftPress = useCallback(
+    (nft: NftData) => {
+      onNftPress?.(nft);
+    },
+    [onNftPress]
+  );
+
+  const handleSeeAllPress = useCallback(() => {
+    onSeeAllPress?.();
+  }, [onSeeAllPress]);
+
   // Show skeleton while loading
   if (loading) {
     return <NftCarouselSectionSkeleton blockchain={blockchain} style={style} testID={testID} />;
@@ -177,18 +188,6 @@ export const NftCarouselSection: React.FC<NftCarouselSectionProps> = ({
   const visibleNfts = nfts.slice(0, MAX_VISIBLE_NFTS);
   const row1 = visibleNfts.filter((_, i) => i % 2 === 0);
   const row2 = visibleNfts.filter((_, i) => i % 2 === 1);
-  const hasMore = nfts.length > MAX_VISIBLE_NFTS;
-
-  const handleNftPress = useCallback(
-    (nft: NftData) => {
-      onNftPress?.(nft);
-    },
-    [onNftPress]
-  );
-
-  const handleSeeAllPress = useCallback(() => {
-    onSeeAllPress?.();
-  }, [onSeeAllPress]);
 
   return (
     <View style={[styles.container, style]} testID={testID}>
