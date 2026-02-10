@@ -5,9 +5,9 @@ import type { NetworkInfo } from '@salmon/shared';
  * Supported blockchain types for the carousel
  */
 export type BlockchainId =
-  | 'solana' | 'solana-devnet' | 'solana-testnet'
-  | 'bitcoin' | 'bitcoin-testnet' | 'bitcoin-regtest'
-  | 'ethereum' | 'ethereum-sepolia' | 'ethereum-goerli';
+  | 'solana' | 'solana-devnet'
+  | 'bitcoin' | 'bitcoin-testnet'
+  | 'ethereum' | 'ethereum-sepolia';
 
 /**
  * Extended network info with blockchain type

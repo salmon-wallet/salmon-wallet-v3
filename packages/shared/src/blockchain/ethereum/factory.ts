@@ -199,15 +199,6 @@ export const ETHEREUM_NETWORKS: Record<string, EthereumNetwork> = {
       chainId: 1,
     },
   },
-  goerli: {
-    id: 'ethereum-goerli',
-    name: 'Goerli Testnet',
-    environment: 'goerli' as EthereumEnvironment,
-    config: {
-      rpcUrl: 'https://rpc.ankr.com/eth_goerli',
-      chainId: 5,
-    },
-  },
   sepolia: {
     id: 'ethereum-sepolia',
     name: 'Sepolia Testnet',

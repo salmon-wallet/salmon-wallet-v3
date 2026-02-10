@@ -72,9 +72,9 @@ const MAINNET_NETWORK_IDS = {
  * Mainnet networks are shown first, followed by dev/test networks.
  */
 const NETWORK_ORDER = {
-  solana: ['mainnet-beta', 'devnet', 'testnet'],
-  bitcoin: ['bitcoin', 'bitcoin-testnet', 'bitcoin-regtest'],
-  ethereum: ['ethereum', 'ethereum-sepolia', 'ethereum-goerli'],
+  solana: ['mainnet-beta', 'devnet'],
+  bitcoin: ['bitcoin', 'bitcoin-testnet'],
+  ethereum: ['ethereum', 'ethereum-sepolia'],
 };
 
 // ============================================================================

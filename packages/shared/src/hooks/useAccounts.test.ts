@@ -78,12 +78,6 @@ vi.mock('../blockchain/ethereum', () => ({
       blockchain: 'ETHEREUM',
       environment: 'mainnet',
     },
-    goerli: {
-      id: 'ethereum-goerli',
-      name: 'Goerli Testnet',
-      blockchain: 'ETHEREUM',
-      environment: 'goerli',
-    },
     sepolia: {
       id: 'ethereum-sepolia',
       name: 'Sepolia Testnet',

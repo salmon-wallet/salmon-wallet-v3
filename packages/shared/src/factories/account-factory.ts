@@ -5,9 +5,9 @@
  * account-factory.js but adapted for V3's TypeScript architecture.
  *
  * Supports multi-chain account derivation:
- * - Solana (mainnet-beta, devnet, testnet)
+ * - Solana (mainnet-beta, devnet)
  * - Bitcoin (bitcoin, bitcoin-testnet)
- * - Ethereum (ethereum, ethereum-goerli, ethereum-sepolia)
+ * - Ethereum (ethereum, ethereum-sepolia)
  *
  * @module factories/account-factory
  */
@@ -113,11 +113,9 @@ function getNetworkKey(networkId: string, blockchainType: BlockchainType): strin
     case 'bitcoin':
       if (networkId === 'bitcoin') return 'mainnet';
       if (networkId === 'bitcoin-testnet') return 'testnet';
-      if (networkId === 'bitcoin-regtest') return 'regtest';
       return networkId;
     case 'ethereum':
       if (networkId === 'ethereum') return 'mainnet';
-      if (networkId === 'ethereum-goerli') return 'goerli';
       if (networkId === 'ethereum-sepolia') return 'sepolia';
       return networkId;
     case 'solana':

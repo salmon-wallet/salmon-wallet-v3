@@ -214,12 +214,4 @@ export const SOLANA_NETWORKS: Record<string, SolanaNetwork> = {
       commitment: 'confirmed',
     },
   },
-  testnet: {
-    id: 'testnet',
-    name: 'Testnet',
-    config: {
-      nodeUrl: 'https://api.testnet.solana.com',
-      commitment: 'confirmed',
-    },
-  },
 };

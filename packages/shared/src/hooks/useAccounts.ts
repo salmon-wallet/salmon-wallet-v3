@@ -424,8 +424,6 @@ async function createBlockchainAccountForNetwork(
       let networkKey = 'mainnet';
       if (networkId === 'ethereum') {
         networkKey = 'mainnet';
-      } else if (networkId === 'ethereum-goerli') {
-        networkKey = 'goerli';
       } else if (networkId === 'ethereum-sepolia') {
         networkKey = 'sepolia';
       }

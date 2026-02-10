@@ -106,11 +106,6 @@ describe('mapEnvironmentToNetwork', () => {
     expect(network).toBe(bitcoin.networks.testnet);
   });
 
-  it('should map regtest environment correctly', () => {
-    const network = mapEnvironmentToNetwork('regtest');
-    expect(network).toBe(bitcoin.networks.regtest);
-  });
-
   it('should default to mainnet for unknown environment', () => {
     // @ts-expect-error - Testing invalid input
     const network = mapEnvironmentToNetwork('unknown');

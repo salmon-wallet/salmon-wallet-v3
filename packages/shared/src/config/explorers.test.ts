@@ -29,21 +29,6 @@ describe('Ethereum Explorers', () => {
     });
   });
 
-  describe('goerli explorer', () => {
-    it('should have ETHERSCAN explorer configured', () => {
-      const explorer = EXPLORERS.ETHEREUM.goerli?.ETHERSCAN;
-
-      expect(explorer).toBeDefined();
-      expect(explorer?.name).toBe('Etherscan Goerli');
-    });
-
-    it('should return correct Etherscan Goerli URL', () => {
-      const explorer = EXPLORERS.ETHEREUM.goerli?.ETHERSCAN;
-
-      expect(explorer?.url).toBe('https://goerli.etherscan.io/tx/{txId}');
-    });
-  });
-
   describe('sepolia explorer', () => {
     it('should have ETHERSCAN explorer configured', () => {
       const explorer = EXPLORERS.ETHEREUM.sepolia?.ETHERSCAN;
@@ -71,12 +56,6 @@ describe('getTransactionUrl for Ethereum', () => {
     const url = getTransactionUrl('ETHEREUM', 'mainnet', 'ETHERSCAN', testTxId);
 
     expect(url).toBe(`https://etherscan.io/tx/${testTxId}`);
-  });
-
-  it('should return correct URL for goerli transaction', () => {
-    const url = getTransactionUrl('ETHEREUM', 'goerli', 'ETHERSCAN', testTxId);
-
-    expect(url).toBe(`https://goerli.etherscan.io/tx/${testTxId}`);
   });
 
   it('should return correct URL for sepolia transaction', () => {

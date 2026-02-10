@@ -6,7 +6,7 @@ import { decorateBalancePrices } from '../../utils/balance';
 /**
  * Bitcoin network environment types
  */
-export type BitcoinEnvironment = 'mainnet' | 'testnet' | 'regtest';
+export type BitcoinEnvironment = 'mainnet' | 'testnet';
 
 /**
  * Network configuration for Bitcoin connections

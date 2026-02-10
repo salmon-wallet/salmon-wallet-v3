@@ -24,7 +24,6 @@ export type NetworkEnvironment =
   | 'mainnet-beta'
   | 'testnet'
   | 'devnet'
-  | 'goerli'
   | 'sepolia';
 
 /**
@@ -117,13 +116,6 @@ const ETHEREUM_MAINNET_EXPLORERS: NetworkExplorers = {
   },
 };
 
-const ETHEREUM_GOERLI_EXPLORERS: NetworkExplorers = {
-  ETHERSCAN: {
-    name: 'Etherscan Goerli',
-    url: 'https://goerli.etherscan.io/tx/{txId}',
-  },
-};
-
 const ETHEREUM_SEPOLIA_EXPLORERS: NetworkExplorers = {
   ETHERSCAN: {
     name: 'Etherscan Sepolia',
@@ -148,7 +140,6 @@ export const EXPLORERS: ExplorersConfig = {
   SOLANA: {
     mainnet: SOLANA_EXPLORERS,
     'mainnet-beta': SOLANA_EXPLORERS,
-    testnet: SOLANA_EXPLORERS,
     devnet: SOLANA_EXPLORERS,
   },
   BITCOIN: {
@@ -157,7 +148,6 @@ export const EXPLORERS: ExplorersConfig = {
   },
   ETHEREUM: {
     mainnet: ETHEREUM_MAINNET_EXPLORERS,
-    goerli: ETHEREUM_GOERLI_EXPLORERS,
     sepolia: ETHEREUM_SEPOLIA_EXPLORERS,
   },
 };

@@ -83,26 +83,20 @@ import {
 const BLOCKCHAIN_TO_COINGECKO: Record<BlockchainId, string> = {
   'solana': 'solana',
   'solana-devnet': 'solana',
-  'solana-testnet': 'solana',
   'bitcoin': 'bitcoin',
   'bitcoin-testnet': 'bitcoin',
-  'bitcoin-regtest': 'bitcoin',
   'ethereum': 'ethereum',
   'ethereum-sepolia': 'ethereum',
-  'ethereum-goerli': 'ethereum',
 };
 
 // Map blockchain to logo URL (outside component to avoid recreation)
 const BLOCKCHAIN_LOGOS: Record<BlockchainId, string> = {
   'solana': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
   'solana-devnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-  'solana-testnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
   'bitcoin': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
   'bitcoin-testnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
-  'bitcoin-regtest': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
   'ethereum': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
   'ethereum-sepolia': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
-  'ethereum-goerli': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
 };
 
 // Map period to days for API call (outside component to avoid recreation)
@@ -132,18 +126,15 @@ const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
   // Solana networks
   'mainnet-beta': 'solana',
   'devnet': 'solana-devnet',
-  'testnet': 'solana-testnet',
 
   // Bitcoin networks
   'bitcoin': 'bitcoin',
   'mainnet': 'bitcoin',
   'bitcoin-testnet': 'bitcoin-testnet',
-  'bitcoin-regtest': 'bitcoin-regtest',
 
   // Ethereum networks
   'ethereum': 'ethereum',
   'ethereum-sepolia': 'ethereum-sepolia',
-  'ethereum-goerli': 'ethereum-goerli',
 };
 
 /**
@@ -162,19 +153,16 @@ function getBlockchainFromNetwork(network: AnyNetwork): BlockchainId {
   // Fallback: check for partial matches
   if (networkId.includes('solana')) {
     if (networkId.includes('devnet')) return 'solana-devnet';
-    if (networkId.includes('testnet')) return 'solana-testnet';
     return 'solana';
   }
 
   if (networkId.includes('bitcoin')) {
     if (networkId.includes('testnet')) return 'bitcoin-testnet';
-    if (networkId.includes('regtest')) return 'bitcoin-regtest';
     return 'bitcoin';
   }
 
   if (networkId.includes('ethereum')) {
     if (networkId.includes('sepolia')) return 'ethereum-sepolia';
-    if (networkId.includes('goerli')) return 'ethereum-goerli';
     return 'ethereum';
   }
 
@@ -199,8 +187,6 @@ function getTransactionNetworkId(networkId: string | null): string {
   // Ethereum networks
   if (networkId === 'ethereum') return 'ethereum-mainnet';
   if (networkId === 'ethereum-sepolia' || networkId === 'sepolia') return 'ethereum-sepolia';
-  if (networkId === 'ethereum-goerli' || networkId === 'goerli') return 'ethereum-goerli';
-
   // Default: assume the networkId is already in correct format
   return networkId;
 }
@@ -311,7 +297,7 @@ export default function HomeScreen() {
   const userConfigAccount = activeBlockchainAccount
     ? {
         network: {
-          environment: (networkId || 'mainnet-beta') as 'mainnet-beta' | 'devnet' | 'testnet',
+          environment: (networkId || 'mainnet-beta') as 'mainnet-beta' | 'devnet',
           blockchain: 'solana',
         },
       }
