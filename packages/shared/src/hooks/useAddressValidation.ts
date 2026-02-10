@@ -11,15 +11,30 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
-  validateDestinationAccount,
+  validateDestinationAccount as validateSolanaAddress,
   type ValidationResult,
 } from '../blockchain/solana';
+import {
+  validateEthereumDestinationAccount as validateEthereumAddress,
+} from '../blockchain/ethereum';
 
 /**
- * Connection type derived from validateDestinationAccount's first parameter.
+ * Connection type derived from validateSolanaAddress's first parameter.
  * This avoids a direct dependency on @solana/web3.js in consumer packages.
  */
-type SolanaConnection = Parameters<typeof validateDestinationAccount>[0];
+type SolanaConnection = Parameters<typeof validateSolanaAddress>[0];
+
+/**
+ * Provider type derived from validateEthereumAddress's first parameter.
+ * This avoids a direct dependency on ethers in consumer packages.
+ */
+type EthereumProvider = Parameters<typeof validateEthereumAddress>[0];
+
+/**
+ * Union type for chain-specific connection/provider.
+ * Solana uses Connection, Ethereum uses Provider, Bitcoin needs no connection.
+ */
+type ChainConnection = SolanaConnection | EthereumProvider | null;
 
 /**
  * Supported blockchain types for address validation
@@ -86,12 +101,15 @@ const DEFAULT_DEBOUNCE_MS = 500;
 
 // Validation result code to message mapping
 const VALIDATION_MESSAGES: Record<string, string> = {
+  // Solana
   invalid: 'Invalid address format',
   invalid_domain: 'Could not resolve domain name',
   same_address: 'Cannot send to your own address',
   no_info: 'This account does not exist on-chain yet. The recipient will need to fund it.',
   off_curve_no_funds: 'This is a program-derived address without funds',
   off_curve_has_funds: 'This is a program-derived address',
+  // Ethereum
+  no_funds: 'This address has no ETH balance',
 };
 
 /**
@@ -146,7 +164,7 @@ function getMessageType(result: ValidationResult | null): 'error' | 'warning' | 
  */
 export function useAddressValidation(
   address: string,
-  connection: SolanaConnection | null,
+  connection: ChainConnection,
   options: UseAddressValidationOptions = {}
 ): UseAddressValidationReturn {
   const {
@@ -176,15 +194,44 @@ export function useAddressValidation(
     }
   }, []);
 
-  // Validate address function
+  // Helper to process validation result
+  const handleResult = useCallback(
+    (result: ValidationResult) => {
+      setValidationResult(result);
+      setIsValidating(false);
+
+      // Handle domain resolution
+      const isAddressDomain = result.addressType === 'DOMAIN';
+      setIsDomain(isAddressDomain);
+      setResolvedAddress(result.resolvedAddress || null);
+
+      // Call onValidation callback
+      if (onValidation) {
+        const callbackResult: ValidationCallbackResult = {
+          isValid: result.type === 'SUCCESS' || result.type === 'WARNING',
+          state: getValidationState(result, false),
+          result,
+          resolvedAddress: result.resolvedAddress,
+          isDomain: isAddressDomain,
+        };
+        onValidation(callbackResult);
+      }
+    },
+    [onValidation]
+  );
+
+  // Reset validation state
+  const reset = useCallback(() => {
+    setValidationResult(null);
+    setResolvedAddress(null);
+    setIsDomain(false);
+    setIsValidating(false);
+  }, []);
+
+  // Validate address function — multi-chain dispatch
   const validateAddress = useCallback(
     async (addressToValidate: string) => {
-      if (!connection) {
-        setValidationResult(null);
-        setResolvedAddress(null);
-        setIsDomain(false);
-        return;
-      }
+      const blockchain = options.blockchain || 'solana';
 
       // Create new abort controller for this validation
       abortControllerRef.current = new AbortController();
@@ -193,32 +240,39 @@ export function useAddressValidation(
       setValidationResult(null);
 
       try {
-        const result = await validateDestinationAccount(connection, addressToValidate);
+        let result: ValidationResult;
+
+        if (blockchain === 'solana') {
+          // Solana: requires Connection
+          if (!connection) { reset(); return; }
+          result = await validateSolanaAddress(connection as SolanaConnection, addressToValidate);
+        } else if (blockchain === 'ethereum') {
+          // Ethereum: requires Provider
+          if (!connection) { reset(); return; }
+          const ethResult = await validateEthereumAddress(connection as EthereumProvider, addressToValidate);
+          // Normalize Ethereum result to Solana ValidationResult shape
+          result = {
+            type: ethResult.type,
+            code: ethResult.code as ValidationResult['code'],
+            addressType: ethResult.addressType === 'ADDRESS' ? 'PUBLIC_KEY' : ethResult.addressType,
+            resolvedAddress: ethResult.resolvedAddress,
+          };
+        } else if (blockchain === 'bitcoin') {
+          // Bitcoin: basic format validation (no connection needed)
+          const isValid = /^(1|3|bc1|tb1|2|m|n)[a-zA-HJ-NP-Z0-9]{25,62}$/.test(addressToValidate);
+          result = isValid
+            ? { type: 'SUCCESS', code: 'valid', addressType: 'PUBLIC_KEY' }
+            : { type: 'ERROR', code: 'invalid' };
+        } else {
+          result = { type: 'ERROR', code: 'invalid' };
+        }
 
         // Check if request was aborted
         if (abortControllerRef.current?.signal.aborted) {
           return;
         }
 
-        setValidationResult(result);
-        setIsValidating(false);
-
-        // Handle domain resolution
-        const isAddressDomain = result.addressType === 'DOMAIN';
-        setIsDomain(isAddressDomain);
-        setResolvedAddress(result.resolvedAddress || null);
-
-        // Call onValidation callback
-        if (onValidation) {
-          const callbackResult: ValidationCallbackResult = {
-            isValid: result.type === 'SUCCESS' || result.type === 'WARNING',
-            state: getValidationState(result, false),
-            result,
-            resolvedAddress: result.resolvedAddress,
-            isDomain: isAddressDomain,
-          };
-          onValidation(callbackResult);
-        }
+        handleResult(result);
       } catch (error) {
         // Check if request was aborted
         if (abortControllerRef.current?.signal.aborted) {
@@ -245,7 +299,7 @@ export function useAddressValidation(
         }
       }
     },
-    [connection, onValidation]
+    [connection, options.blockchain, onValidation, handleResult, reset]
   );
 
   // Effect to handle address changes with debounce
