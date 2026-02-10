@@ -1,8 +1,10 @@
 /**
- * DerivedAccountsScreen - Search and import derived accounts with balance
+ * DerivedAccountsScreen - Search and import derived accounts across all networks
  *
- * This screen searches for derived accounts (indexes 1-9) that have a balance > 0.
- * It allows users to select which accounts to import into their wallet.
+ * This screen derives accounts (indexes 1-N) for every network the active account
+ * has using BIP-44 gap scanning (gap limit = 20). Index 1 of each network is
+ * always shown; subsequent indexes are only shown if they have balance.
+ * The user can select which ones to import into their wallet.
  *
  * Design: Dark gradient background with loading skeleton during search,
  * list of accounts with checkboxes, import and skip buttons.
@@ -18,23 +20,26 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Logo } from '@salmon/assets';
 import {
-  borderRadius,
   colors,
   componentSizes,
   contentPadding,
-  createSolanaAccount,
+  deriveBlockchainAccount,
   getShortAddress,
-  SOLANA_NETWORKS,
+  SATOSHIS_PER_BTC,
+  SolanaAccount,
+  BitcoinAccount,
   spacing,
   useAccountsContext,
-  type SolanaAccount,
+  type BlockchainAccount,
 } from '@salmon/shared';
+import { ethereum } from '@salmon/shared';
 import {
+  DerivedAccountCard,
+  DerivedAccountCardSkeleton,
   PrimaryButton,
   ScreenHeader,
   SecondaryButton,
 } from '@salmon/ui';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
@@ -44,88 +49,120 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+/**
+ * BIP-44 standard gap limit for address discovery.
+ * Stop scanning a network after finding this many consecutive empty accounts.
+ * See: https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki#address-gap-limit
+ */
+const GAP_LIMIT = 20;
+
+/**
+ * Only scan networks that produce unique keypairs.
+ * Solana devnet and Ethereum sepolia share keypairs with their mainnets,
+ * so we skip them during scanning and auto-mirror on import.
+ */
+const SCAN_NETWORKS = [
+  'solana-mainnet',
+  'bitcoin-mainnet',
+  'bitcoin-testnet',
+  'ethereum-mainnet',
+];
+
+/**
+ * Networks that share keypairs with a mainnet.
+ * When importing a mainnet account, also derive and import its mirror.
+ */
+const MIRROR_NETWORKS: Record<string, string> = {
+  'solana-mainnet': 'solana-devnet',
+  'ethereum-mainnet': 'ethereum-sepolia',
+};
+
+const NETWORK_DISPLAY: Record<string, { symbol: string; name: string; blockchain: string }> = {
+  'solana-mainnet': { symbol: 'SOL', name: 'Solana', blockchain: 'solana' },
+  'solana-devnet': { symbol: 'SOL', name: 'Solana Devnet', blockchain: 'solana' },
+  'bitcoin-mainnet': { symbol: 'BTC', name: 'Bitcoin', blockchain: 'bitcoin' },
+  'bitcoin-testnet': { symbol: 'BTC', name: 'Bitcoin Testnet', blockchain: 'bitcoin' },
+  'ethereum-mainnet': { symbol: 'ETH', name: 'Ethereum', blockchain: 'ethereum' },
+  'ethereum-sepolia': { symbol: 'ETH', name: 'Ethereum Sepolia', blockchain: 'ethereum' },
+};
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface DerivedAccountInfo {
-  account: SolanaAccount;
+  account: BlockchainAccount;
   address: string;
   path: string;
   index: number;
+  networkId: string;
+  networkName: string;
   balance: number;
-  balanceSol: number;
+  balanceFormatted: string;
+  currencySymbol: string;
   selected: boolean;
 }
 
 // ============================================================================
-// Skeleton Component
+// Helpers
 // ============================================================================
 
-function AccountSkeleton() {
-  return (
-    <View style={styles.skeletonCard}>
-      <View style={styles.skeletonCheckbox} />
-      <View style={styles.skeletonContent}>
-        <View style={styles.skeletonAddress} />
-        <View style={styles.skeletonPath} />
-      </View>
-      <View style={styles.skeletonBalance} />
-    </View>
-  );
+/**
+ * Fetches the balance for any blockchain account, returning a human-readable amount.
+ * Returns 0 on failure.
+ */
+async function getAccountBalance(
+  account: BlockchainAccount,
+  networkId: string,
+): Promise<number> {
+  const info = NETWORK_DISPLAY[networkId];
+  if (!info) return 0;
+
+  try {
+    if (info.blockchain === 'solana') {
+      const balanceInfo = await (account as SolanaAccount).getBalance();
+      return balanceInfo.sol;
+    }
+    if (info.blockchain === 'bitcoin') {
+      const satoshis = await (account as BitcoinAccount).getCredit();
+      return satoshis / SATOSHIS_PER_BTC;
+    }
+    if (info.blockchain === 'ethereum') {
+      const wei = await (account as ethereum.EthereumAccount).getCredit();
+      return Number(wei) / Number(ethereum.WEI_PER_ETH);
+    }
+  } catch {
+    // RPC error — return 0
+  }
+
+  return 0;
 }
+
+function formatBalance(balance: number, symbol: string): string {
+  if (balance === 0) return `0 ${symbol}`;
+  if (balance < 0.0001) return `<0.0001 ${symbol}`;
+  return `${balance.toFixed(4)} ${symbol}`;
+}
+
+// ============================================================================
+// Loading Skeleton
+// ============================================================================
 
 function LoadingSkeleton() {
   return (
     <View style={styles.skeletonContainer}>
-      <AccountSkeleton />
-      <AccountSkeleton />
-      <AccountSkeleton />
+      <DerivedAccountCardSkeleton />
+      <DerivedAccountCardSkeleton />
+      <DerivedAccountCardSkeleton />
     </View>
-  );
-}
-
-// ============================================================================
-// Account Card Component
-// ============================================================================
-
-interface AccountCardProps {
-  accountInfo: DerivedAccountInfo;
-  onToggle: (index: number) => void;
-}
-
-function AccountCard({ accountInfo, onToggle }: AccountCardProps) {
-  const { address, path, balanceSol, index, selected } = accountInfo;
-  const shortAddress = getShortAddress(address, 6) ?? address;
-
-  return (
-    <TouchableOpacity
-      style={[styles.accountCard, selected && styles.accountCardSelected]}
-      onPress={() => onToggle(index)}
-      activeOpacity={0.7}
-    >
-      {/* Checkbox */}
-      <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
-        {selected && <Ionicons name="checkmark" size={16} color={colors.text.primary} />}
-      </View>
-
-      {/* Account Info */}
-      <View style={styles.accountInfo}>
-        <Text style={styles.accountAddress}>{shortAddress}</Text>
-        <Text style={styles.accountPath}>{path}</Text>
-      </View>
-
-      {/* Balance */}
-      <View style={styles.balanceContainer}>
-        <Text style={styles.balanceValue}>{balanceSol.toFixed(4)}</Text>
-        <Text style={styles.balanceCurrency}>SOL</Text>
-      </View>
-    </TouchableOpacity>
   );
 }
 
@@ -141,84 +178,101 @@ export default function DerivedAccountsScreen() {
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [accounts, setAccounts] = useState<DerivedAccountInfo[]>([]);
-  const [searchProgress, setSearchProgress] = useState(0);
 
   // Get mnemonic from params or active account
   const mnemonic = params.mnemonic || activeAccount?.mnemonic;
 
   /**
-   * Search for derived accounts with balance
+   * Search for derived accounts across scan networks only.
+   * Skips devnet/sepolia since they share keypairs with mainnets.
    */
   useEffect(() => {
     const searchDerivedAccounts = async () => {
-      if (!mnemonic) {
+      if (!mnemonic || !activeAccount) {
         setLoading(false);
         return;
       }
 
       setLoading(true);
-      setSearchProgress(0);
 
-      const foundAccounts: DerivedAccountInfo[] = [];
-      const network = SOLANA_NETWORKS['mainnet-beta'];
+      // Only scan networks that produce unique keypairs
+      const networkIds = Object.keys(activeAccount.networksAccounts)
+        .filter((id) => SCAN_NETWORKS.includes(id));
 
-      // Search indexes 1-9 (index 0 is the main account)
-      for (let i = 1; i <= 9; i++) {
-        try {
-          setSearchProgress(i);
+      // BIP-44 gap scanning: sequential per network, parallel across networks.
+      // Scans until GAP_LIMIT consecutive empty accounts are found.
+      // Index 1 is always included; indexes 2+ only if they have balance.
+      const allResults = await Promise.all(
+        networkIds.map(async (networkId) => {
+          const networkAccounts: DerivedAccountInfo[] = [];
+          const info = NETWORK_DISPLAY[networkId] ?? {
+            symbol: '?',
+            name: networkId,
+            blockchain: 'unknown',
+          };
+          let consecutiveEmpty = 0;
+          let index = 1;
 
-          // Small delay to allow UI to update
-          await new Promise(resolve => setTimeout(resolve, 100));
+          while (consecutiveEmpty < GAP_LIMIT) {
+            // Yield to UI thread
+            await new Promise((resolve) => setTimeout(resolve, 1));
 
-          // Create derived account
-          const account = await createSolanaAccount({
-            network,
-            mnemonic,
-            index: i,
-          });
+            try {
+              const account = await deriveBlockchainAccount(mnemonic, networkId, index);
+              const address = account.getReceiveAddress();
+              const balance = await getAccountBalance(account, networkId);
 
-          const address = account.getReceiveAddress();
+              const isFirstIndex = index === 1;
+              const hasFunds = balance > 0;
 
-          // Check balance using account's built-in method
-          const balanceInfo = await account.getBalance();
+              if (hasFunds) {
+                consecutiveEmpty = 0;
+              } else {
+                consecutiveEmpty++;
+              }
 
-          if (balanceInfo.sol > 0) {
-            foundAccounts.push({
-              account,
-              address,
-              path: account.path,
-              index: i,
-              balance: Number(balanceInfo.lamports),
-              balanceSol: balanceInfo.sol,
-              selected: true, // Selected by default
-            });
+              // Always show index 1; for the rest, only show if funded
+              if (isFirstIndex || hasFunds) {
+                networkAccounts.push({
+                  account,
+                  address,
+                  path: account.path,
+                  index,
+                  networkId,
+                  networkName: info.name,
+                  balance,
+                  balanceFormatted: formatBalance(balance, info.symbol),
+                  currencySymbol: info.symbol,
+                  selected: hasFunds || isFirstIndex,
+                });
+              }
+            } catch (error) {
+              console.warn(`Error deriving ${networkId} index ${index}:`, error);
+              consecutiveEmpty++;
+            }
+
+            index++;
           }
 
-          // Disconnect the account if it won't be used to free resources
-          if (balanceInfo.sol <= 0) {
-            await account.disconnect();
-          }
-        } catch (error) {
-          console.warn(`Error checking account index ${i}:`, error);
-          // Continue searching other indexes
-        }
-      }
+          return networkAccounts;
+        }),
+      );
 
-      setAccounts(foundAccounts);
+      setAccounts(allResults.flat());
       setLoading(false);
     };
 
     searchDerivedAccounts();
-  }, [mnemonic]);
+  }, [mnemonic, activeAccount]);
 
   /**
-   * Toggle account selection
+   * Toggle account selection by composite key (networkId-index)
    */
-  const handleToggleAccount = useCallback((index: number) => {
-    setAccounts(prev =>
-      prev.map(acc =>
-        acc.index === index ? { ...acc, selected: !acc.selected } : acc
-      )
+  const handleToggleAccount = useCallback((key: string) => {
+    setAccounts((prev) =>
+      prev.map((acc) =>
+        `${acc.networkId}-${acc.index}` === key ? { ...acc, selected: !acc.selected } : acc,
+      ),
     );
   }, []);
 
@@ -237,14 +291,14 @@ export default function DerivedAccountsScreen() {
   }, []);
 
   /**
-   * Handle import selected accounts
+   * Handle import selected accounts.
+   * Also creates mirror accounts (devnet/sepolia) for mainnet selections.
    */
   const handleImport = useCallback(async () => {
-    if (!activeAccount) return;
+    if (!activeAccount || !mnemonic) return;
 
-    const selectedAccounts = accounts.filter(acc => acc.selected);
+    const selectedAccounts = accounts.filter((acc) => acc.selected);
     if (selectedAccounts.length === 0) {
-      // Nothing selected, just skip
       handleSkip();
       return;
     }
@@ -252,29 +306,44 @@ export default function DerivedAccountsScreen() {
     setImporting(true);
 
     try {
-      // Get the derived SolanaAccount instances
-      const newDerivedAccounts = selectedAccounts.map(acc => acc.account);
+      const newDerivedAccounts: BlockchainAccount[] = [];
 
-      // Add derived accounts to the active account
+      for (const acc of selectedAccounts) {
+        newDerivedAccounts.push(acc.account);
+
+        // Auto-create mirror account for devnet/sepolia
+        const mirrorNetworkId = MIRROR_NETWORKS[acc.networkId];
+        if (mirrorNetworkId && activeAccount.networksAccounts[mirrorNetworkId]) {
+          try {
+            const mirrorAccount = await deriveBlockchainAccount(
+              mnemonic,
+              mirrorNetworkId,
+              acc.index,
+            );
+            newDerivedAccounts.push(mirrorAccount);
+          } catch {
+            // Mirror derivation failed — skip silently
+          }
+        }
+      }
+
       await actions.editAccount(activeAccount.id, {
         newDerivedAccounts,
       });
 
-      // Navigate to main app
       router.replace('/(app)/(tabs)');
     } catch (error) {
       console.error('Failed to import derived accounts:', error);
-      // Still navigate even on error
       router.replace('/(app)/(tabs)');
     } finally {
       setImporting(false);
     }
-  }, [accounts, activeAccount, actions, handleSkip]);
+  }, [accounts, activeAccount, actions, handleSkip, mnemonic]);
 
   /**
    * Get selected count
    */
-  const selectedCount = accounts.filter(acc => acc.selected).length;
+  const selectedCount = accounts.filter((acc) => acc.selected).length;
 
   /**
    * Render content based on state
@@ -284,9 +353,7 @@ export default function DerivedAccountsScreen() {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.accent.primary} />
-          <Text style={styles.loadingText}>
-            Searching for accounts... ({searchProgress}/9)
-          </Text>
+          <Text style={styles.loadingText}>Searching for accounts...</Text>
           <LoadingSkeleton />
         </View>
       );
@@ -296,9 +363,9 @@ export default function DerivedAccountsScreen() {
       return (
         <View style={styles.emptyContainer}>
           <Ionicons name="wallet-outline" size={64} color={colors.text.placeholder} />
-          <Text style={styles.emptyTitle}>No Additional Accounts Found</Text>
+          <Text style={styles.emptyTitle}>No Derived Accounts Found</Text>
           <Text style={styles.emptySubtitle}>
-            We searched indexes 1-9 but found no accounts with balance.
+            Could not derive additional accounts from your seed phrase.
           </Text>
         </View>
       );
@@ -307,32 +374,37 @@ export default function DerivedAccountsScreen() {
     return (
       <View style={styles.accountsContainer}>
         <Text style={styles.foundText}>
-          Found {accounts.length} account{accounts.length !== 1 ? 's' : ''} with balance
+          Found {accounts.length} derived account{accounts.length !== 1 ? 's' : ''}
         </Text>
         <ScrollView
           style={styles.accountsList}
           contentContainerStyle={styles.accountsListContent}
           showsVerticalScrollIndicator={false}
         >
-          {accounts.map(acc => (
-            <AccountCard
-              key={acc.index}
-              accountInfo={acc}
-              onToggle={handleToggleAccount}
-            />
-          ))}
+          {accounts.map((acc) => {
+            const key = `${acc.networkId}-${acc.index}`;
+            return (
+              <DerivedAccountCard
+                key={key}
+                address={getShortAddress(acc.address, 6) ?? acc.address}
+                networkName={acc.networkName}
+                path={acc.path}
+                balanceFormatted={acc.balanceFormatted}
+                selected={acc.selected}
+                dimmed={acc.balance === 0}
+                blockchain={NETWORK_DISPLAY[acc.networkId]?.blockchain as 'solana' | 'bitcoin' | 'ethereum'}
+                onToggle={() => handleToggleAccount(key)}
+                testID={`derived-account-${key}`}
+              />
+            );
+          })}
         </ScrollView>
       </View>
     );
   };
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
+    <>
       <StatusBar style="light" />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* Header */}
@@ -353,7 +425,7 @@ export default function DerivedAccountsScreen() {
 
           {/* Subtitle */}
           <Text style={styles.subtitle}>
-            Search for additional accounts with balance derived from your seed phrase.
+            Search for additional accounts derived from your seed phrase.
           </Text>
 
           {/* Dynamic Content */}
@@ -361,20 +433,16 @@ export default function DerivedAccountsScreen() {
 
           {/* Buttons */}
           <View style={styles.buttonContainer}>
-            {/* Import Button - Only show if accounts found */}
             {accounts.length > 0 && (
               <PrimaryButton
                 onPress={handleImport}
                 disabled={loading || importing}
                 loading={importing}
               >
-                {selectedCount > 0
-                  ? `IMPORT SELECTED (${selectedCount})`
-                  : 'SKIP'}
+                {`IMPORT SELECTED (${selectedCount})`}
               </PrimaryButton>
             )}
 
-            {/* Skip Button */}
             <SecondaryButton
               onPress={handleSkip}
               disabled={importing}
@@ -384,7 +452,7 @@ export default function DerivedAccountsScreen() {
           </View>
         </View>
       </SafeAreaView>
-    </LinearGradient>
+    </>
   );
 }
 
@@ -393,9 +461,6 @@ export default function DerivedAccountsScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   safeArea: {
     flex: 1,
   },
@@ -486,101 +551,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
   },
 
-  // Account card
-  accountCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card.background,
-    borderRadius: borderRadius.xl,
-    borderWidth: 1,
-    borderColor: colors.card.border,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  accountCardSelected: {
-    borderColor: colors.card.borderActive,
-  },
-  checkbox: {
-    width: componentSizes.checkboxSize,
-    height: componentSizes.checkboxSize,
-    borderRadius: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.lg,
-  },
-  checkboxSelected: {
-    backgroundColor: colors.accent.primary,
-  },
-  accountInfo: {
-    flex: 1,
-  },
-  accountAddress: {
-    color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 16,
-  },
-  accountPath: {
-    color: colors.text.placeholder,
-    fontFamily: 'DMSansMedium',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  balanceContainer: {
-    alignItems: 'flex-end',
-  },
-  balanceValue: {
-    color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 16,
-  },
-  balanceCurrency: {
-    color: colors.text.placeholder,
-    fontFamily: 'DMSansMedium',
-    fontSize: 12,
-    marginTop: 2,
-  },
-
   // Skeleton
   skeletonContainer: {
     width: '100%',
-  },
-  skeletonCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.skeleton.base,
-    borderRadius: borderRadius.xl,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  skeletonCheckbox: {
-    width: componentSizes.checkboxSize,
-    height: componentSizes.checkboxSize,
-    borderRadius: 6,
-    backgroundColor: colors.skeleton.highlight,
-    marginRight: spacing.lg,
-  },
-  skeletonContent: {
-    flex: 1,
-  },
-  skeletonAddress: {
-    width: '60%',
-    height: 18,
-    borderRadius: borderRadius.sm,
-    backgroundColor: colors.skeleton.highlight,
-  },
-  skeletonPath: {
-    width: '40%',
-    height: 14,
-    borderRadius: borderRadius.sm,
-    backgroundColor: colors.skeleton.highlight,
-    marginTop: 6,
-  },
-  skeletonBalance: {
-    width: 60,
-    height: 18,
-    borderRadius: borderRadius.sm,
-    backgroundColor: colors.skeleton.highlight,
   },
 
   // Buttons
