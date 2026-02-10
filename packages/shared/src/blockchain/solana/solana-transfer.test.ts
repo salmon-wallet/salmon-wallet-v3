@@ -533,7 +533,7 @@ describe('requiresMemo', () => {
 // ============================================================================
 
 describe('SolanaAccount.validateDestinationAccount', () => {
-  const network = SOLANA_NETWORKS.devnet;
+  const network = SOLANA_NETWORKS['solana-devnet'];
 
   it('should validate a valid on-curve address with funds', async () => {
     const account = await createSolanaAccount({
@@ -655,7 +655,7 @@ describe('SolanaAccount.validateDestinationAccount', () => {
 // ============================================================================
 
 describe('SolanaAccount.getBalance', () => {
-  const network = SOLANA_NETWORKS.devnet;
+  const network = SOLANA_NETWORKS['solana-devnet'];
   let useRealBackend = false;
 
   beforeAll(async () => {

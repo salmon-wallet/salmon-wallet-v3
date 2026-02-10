@@ -613,7 +613,7 @@ describe('Featured Token Functions', () => {
 describe('Account Derivation', () => {
   it('should create account with deterministic address at index 0', async () => {
     const account = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
     });
@@ -630,13 +630,13 @@ describe('Account Derivation', () => {
 
   it('should create different addresses for different indices', async () => {
     const account0 = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
     });
 
     const account1 = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 1,
     });
@@ -651,19 +651,19 @@ describe('Account Derivation', () => {
 
   it('should derive account with correct network configuration', async () => {
     const account = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
     });
 
-    expect(account.network.id).toBe('ethereum');
+    expect(account.network.id).toBe('ethereum-mainnet');
     expect(account.network.environment).toBe('mainnet');
     expect(account.network.config.chainId).toBe(1);
   });
 
   it('should derive account with correct derivation path', async () => {
     const account = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 3,
     });
@@ -674,7 +674,7 @@ describe('Account Derivation', () => {
 
   it('should have valid public key', async () => {
     const account = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
     });
@@ -688,7 +688,7 @@ describe('Account Derivation', () => {
 
   it('should have accessible private key', async () => {
     const account = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
     });
@@ -701,13 +701,13 @@ describe('Account Derivation', () => {
 
   it('should create accounts for different networks with same mnemonic', async () => {
     const mainnetAccount = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
     });
 
     const sepoliaAccount = await createEthereumAccount({
-      network: ETHEREUM_NETWORKS.sepolia,
+      network: ETHEREUM_NETWORKS['ethereum-sepolia'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
     });
@@ -1182,7 +1182,7 @@ describe('EthereumAccount Integration Tests', () => {
 
     it('should validate valid EOA address', async () => {
       const account = await createEthereumAccount({
-        network: ETHEREUM_NETWORKS.mainnet,
+        network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
       });
@@ -1205,7 +1205,7 @@ describe('EthereumAccount Integration Tests', () => {
 
     it('should validate valid contract address', async () => {
       const account = await createEthereumAccount({
-        network: ETHEREUM_NETWORKS.mainnet,
+        network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
       });
@@ -1227,7 +1227,7 @@ describe('EthereumAccount Integration Tests', () => {
 
     it('should reject invalid address format', async () => {
       const account = await createEthereumAccount({
-        network: ETHEREUM_NETWORKS.mainnet,
+        network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
       });
@@ -1241,7 +1241,7 @@ describe('EthereumAccount Integration Tests', () => {
 
     it('should reject empty address', async () => {
       const account = await createEthereumAccount({
-        network: ETHEREUM_NETWORKS.mainnet,
+        network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
       });
@@ -1254,7 +1254,7 @@ describe('EthereumAccount Integration Tests', () => {
 
     it('should reject invalid address formats', async () => {
       const account = await createEthereumAccount({
-        network: ETHEREUM_NETWORKS.mainnet,
+        network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
       });
@@ -1268,7 +1268,7 @@ describe('EthereumAccount Integration Tests', () => {
 
     it('should handle mainnet RPC timeout gracefully', async () => {
       const account = await createEthereumAccount({
-        network: ETHEREUM_NETWORKS.mainnet,
+        network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
       });
@@ -1449,13 +1449,13 @@ describe('Factory - createEthereumAccountFromWallet', () => {
     const wallet = new Wallet(privateKey);
 
     const account = createEthereumAccountFromWallet(
-      ETHEREUM_NETWORKS.mainnet,
+      ETHEREUM_NETWORKS['ethereum-mainnet'],
       wallet,
       0
     );
 
     expect(account).toBeDefined();
-    expect(account.network.id).toBe('ethereum');
+    expect(account.network.id).toBe('ethereum-mainnet');
     expect(account.index).toBe(0);
     expect(account.path).toBe(`m/44'/60'/0'/0/0`);
   });
@@ -1465,7 +1465,7 @@ describe('Factory - createEthereumAccountFromWallet', () => {
     const wallet = new Wallet(privateKey);
 
     const account = createEthereumAccountFromWallet(
-      ETHEREUM_NETWORKS.mainnet,
+      ETHEREUM_NETWORKS['ethereum-mainnet'],
       wallet,
       5
     );
@@ -1478,7 +1478,7 @@ describe('Factory - createEthereumAccountFromWallet', () => {
     const privateKey = '0x0123456789012345678901234567890123456789012345678901234567890123';
     const wallet = new Wallet(privateKey);
 
-    const account = createEthereumAccountFromWallet(ETHEREUM_NETWORKS.mainnet, wallet);
+    const account = createEthereumAccountFromWallet(ETHEREUM_NETWORKS['ethereum-mainnet'], wallet);
 
     expect(account.index).toBe(0);
   });
@@ -1492,32 +1492,32 @@ describe('Factory - createEthereumAccountFromPrivateKey', () => {
   it('should create account from private key with 0x prefix', () => {
     const privateKey = '0x0123456789012345678901234567890123456789012345678901234567890123';
     const account = createEthereumAccountFromPrivateKey(
-      ETHEREUM_NETWORKS.mainnet,
+      ETHEREUM_NETWORKS['ethereum-mainnet'],
       privateKey,
       0
     );
 
     expect(account).toBeDefined();
-    expect(account.network.id).toBe('ethereum');
+    expect(account.network.id).toBe('ethereum-mainnet');
     expect(account.index).toBe(0);
   });
 
   it('should create account from private key without 0x prefix', () => {
     const privateKey = '0123456789012345678901234567890123456789012345678901234567890123';
     const account = createEthereumAccountFromPrivateKey(
-      ETHEREUM_NETWORKS.mainnet,
+      ETHEREUM_NETWORKS['ethereum-mainnet'],
       `0x${privateKey}`,
       0
     );
 
     expect(account).toBeDefined();
-    expect(account.network.id).toBe('ethereum');
+    expect(account.network.id).toBe('ethereum-mainnet');
   });
 
   it('should create account with custom index', () => {
     const privateKey = '0x0123456789012345678901234567890123456789012345678901234567890123';
     const account = createEthereumAccountFromPrivateKey(
-      ETHEREUM_NETWORKS.mainnet,
+      ETHEREUM_NETWORKS['ethereum-mainnet'],
       privateKey,
       3
     );
@@ -1527,7 +1527,7 @@ describe('Factory - createEthereumAccountFromPrivateKey', () => {
 
   it('should create account with default index', () => {
     const privateKey = '0x0123456789012345678901234567890123456789012345678901234567890123';
-    const account = createEthereumAccountFromPrivateKey(ETHEREUM_NETWORKS.mainnet, privateKey);
+    const account = createEthereumAccountFromPrivateKey(ETHEREUM_NETWORKS['ethereum-mainnet'], privateKey);
 
     expect(account.index).toBe(0);
   });
@@ -1540,7 +1540,7 @@ describe('Factory - createEthereumAccountFromPrivateKey', () => {
 describe('Factory - deriveEthereumAccounts', () => {
   it('should derive single account with default parameters', async () => {
     const accounts = await deriveEthereumAccounts({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
     });
 
@@ -1551,7 +1551,7 @@ describe('Factory - deriveEthereumAccounts', () => {
 
   it('should derive multiple accounts', async () => {
     const accounts = await deriveEthereumAccounts({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       startIndex: 0,
       count: 3,
@@ -1567,7 +1567,7 @@ describe('Factory - deriveEthereumAccounts', () => {
 
   it('should derive accounts starting from custom index', async () => {
     const accounts = await deriveEthereumAccounts({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       startIndex: 5,
       count: 2,
@@ -1581,7 +1581,7 @@ describe('Factory - deriveEthereumAccounts', () => {
 
   it('should derive accounts with different network', async () => {
     const accounts = await deriveEthereumAccounts({
-      network: ETHEREUM_NETWORKS.sepolia,
+      network: ETHEREUM_NETWORKS['ethereum-sepolia'],
       mnemonic: TEST_MNEMONIC,
       startIndex: 0,
       count: 2,
@@ -1596,7 +1596,7 @@ describe('Factory - deriveEthereumAccounts', () => {
 
   it('should derive unique addresses for each account', async () => {
     const accounts = await deriveEthereumAccounts({
-      network: ETHEREUM_NETWORKS.mainnet,
+      network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       startIndex: 0,
       count: 5,

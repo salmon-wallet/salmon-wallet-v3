@@ -705,23 +705,33 @@ describe('isMoreThanOne', () => {
 describe('getExpectedOutput', () => {
   const mockQuote: SwapQuote = {
     networkId: 'solana-mainnet',
-    swapTransaction: '',
-    requestId: 'test-request-id',
-    route: {
-      inputMint: 'So11111111111111111111111111111111111111112',
-      outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-      inAmount: '1000000000', // 1 SOL (9 decimals)
-      outAmount: '5000000', // 5 USDC (6 decimals)
-      otherAmountThreshold: '4950000', // With slippage
-      priceImpactPct: '0.12',
-      routePlan: [],
+    routeNames: ['Raydium'],
+    routeSymbols: ['SOL', 'USDC'],
+    fee: { amount: 5000, decimals: 9, symbol: 'SOL', percent: 0.5 },
+    input: {
+      amount: '1000000000',
+      decimals: 9,
+      symbol: 'SOL',
+      contract: 'So11111111111111111111111111111111111111112',
+    },
+    output: {
+      amount: '5000000',
+      decimals: 6,
+      symbol: 'USDC',
+      contract: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    },
+    custom: {
+      transaction: '',
+      requestId: 'test-request-id',
+      router: 'iris',
+      priceImpact: 0.12,
+      feeBps: 50,
+      prioritizationFeeLamports: 1000,
+      rentFeeLamports: 5616,
+      gasless: false,
       slippageBps: 50,
       swapMode: 'ExactIn',
-    },
-    outputToken: {
-      symbol: 'USDC',
-      name: 'USD Coin',
-      decimals: 6,
+      otherAmountThreshold: '4950000',
     },
   };
 
@@ -745,9 +755,12 @@ describe('getExpectedOutput', () => {
   });
 
   it('should default to 9 decimals when no decimals provided', () => {
-    const quoteWithoutDecimals = {
+    const quoteWithoutDecimals: SwapQuote = {
       ...mockQuote,
-      outputToken: undefined,
+      output: {
+        ...mockQuote.output!,
+        decimals: undefined as any,
+      },
     };
     const output = getExpectedOutput(quoteWithoutDecimals);
     expect(output).toBe(0.005); // 5000000 / 10^9 = 0.005
@@ -761,23 +774,33 @@ describe('getExpectedOutput', () => {
 describe('getMinimumOutput', () => {
   const mockQuote: SwapQuote = {
     networkId: 'solana-mainnet',
-    swapTransaction: '',
-    requestId: 'test-request-id',
-    route: {
-      inputMint: 'So11111111111111111111111111111111111111112',
-      outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-      inAmount: '1000000000', // 1 SOL (9 decimals)
-      outAmount: '5000000', // 5 USDC (6 decimals)
-      otherAmountThreshold: '4950000', // 4.95 USDC (with 0.5% slippage)
-      priceImpactPct: '0.12',
-      routePlan: [],
+    routeNames: ['Raydium'],
+    routeSymbols: ['SOL', 'USDC'],
+    fee: { amount: 5000, decimals: 9, symbol: 'SOL', percent: 0.5 },
+    input: {
+      amount: '1000000000',
+      decimals: 9,
+      symbol: 'SOL',
+      contract: 'So11111111111111111111111111111111111111112',
+    },
+    output: {
+      amount: '5000000',
+      decimals: 6,
+      symbol: 'USDC',
+      contract: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    },
+    custom: {
+      transaction: '',
+      requestId: 'test-request-id',
+      router: 'iris',
+      priceImpact: 0.12,
+      feeBps: 50,
+      prioritizationFeeLamports: 1000,
+      rentFeeLamports: 5616,
+      gasless: false,
       slippageBps: 50,
       swapMode: 'ExactIn',
-    },
-    outputToken: {
-      symbol: 'USDC',
-      name: 'USD Coin',
-      decimals: 6,
+      otherAmountThreshold: '4950000',
     },
   };
 
@@ -792,9 +815,12 @@ describe('getMinimumOutput', () => {
   });
 
   it('should handle missing outputToken decimals', () => {
-    const quoteWithoutDecimals = {
+    const quoteWithoutDecimals: SwapQuote = {
       ...mockQuote,
-      outputToken: undefined,
+      output: {
+        ...mockQuote.output!,
+        decimals: undefined as any,
+      },
     };
     const output = getMinimumOutput(quoteWithoutDecimals, 6);
     expect(output).toBe(4.95);
@@ -812,20 +838,35 @@ describe('getMinimumOutput', () => {
 // ============================================================================
 
 describe('getPriceImpact', () => {
-  const createMockQuote = (priceImpactPct: string): SwapQuote => ({
+  const createMockQuote = (priceImpact: string): SwapQuote => ({
     networkId: 'solana-mainnet',
-    swapTransaction: '',
-    requestId: 'test-request-id',
-    route: {
-      inputMint: 'So11111111111111111111111111111111111111112',
-      outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-      inAmount: '1000000000',
-      outAmount: '5000000',
-      otherAmountThreshold: '4950000',
-      priceImpactPct,
-      routePlan: [],
+    routeNames: ['Raydium'],
+    routeSymbols: ['SOL', 'USDC'],
+    fee: { amount: 5000, decimals: 9, symbol: 'SOL', percent: 0.5 },
+    input: {
+      amount: '1000000000',
+      decimals: 9,
+      symbol: 'SOL',
+      contract: 'So11111111111111111111111111111111111111112',
+    },
+    output: {
+      amount: '5000000',
+      decimals: 6,
+      symbol: 'USDC',
+      contract: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    },
+    custom: {
+      transaction: '',
+      requestId: 'test-request-id',
+      router: 'iris',
+      priceImpact: parseFloat(priceImpact),
+      feeBps: 50,
+      prioritizationFeeLamports: 1000,
+      rentFeeLamports: 5616,
+      gasless: false,
       slippageBps: 50,
       swapMode: 'ExactIn',
+      otherAmountThreshold: '4950000',
     },
   });
 
@@ -859,7 +900,7 @@ describe('getPriceImpact', () => {
 // ============================================================================
 
 describe('createSolanaAccount - Deterministic Derivation', () => {
-  const network = SOLANA_NETWORKS.devnet;
+  const network = SOLANA_NETWORKS['solana-devnet'];
 
   it('should derive account at index 0 with expected address', async () => {
     const account = await createSolanaAccount({

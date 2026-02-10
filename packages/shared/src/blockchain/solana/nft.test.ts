@@ -463,11 +463,13 @@ describe('NFT Pure Functions', () => {
 // ============================================================================
 
 describe('NFT API Functions', () => {
-  const network = SOLANA_NETWORKS['mainnet-beta'];
+  const network = SOLANA_NETWORKS['solana-mainnet'];
   const testOwner = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Set Helius API key for tests
+    vi.stubEnv('HELIUS_API_KEY', 'b91df46c-46f2-4d7e-b095-14220b8e4540');
     // Mock Connection.prototype.getParsedTokenAccountsByOwner to prevent real RPC calls
     // This is called by fetchToken2022Extensions in getAllFromHeliusDirect
     vi.spyOn(Connection.prototype, 'getParsedTokenAccountsByOwner').mockResolvedValue({
@@ -485,7 +487,7 @@ describe('NFT API Functions', () => {
       const result = await getAllFromHeliusDirect(network, testOwner);
 
       expect(mockAxiosPost).toHaveBeenCalledWith(
-        network.config.nodeUrl,
+        expect.stringContaining('helius-rpc.com'),
         expect.objectContaining({
           jsonrpc: '2.0',
           method: 'getAssetsByOwner',
@@ -776,7 +778,7 @@ describe('NFT API Functions', () => {
 // ============================================================================
 
 describe('NFT Integration Tests (optional)', () => {
-  const network = SOLANA_NETWORKS['mainnet-beta'];
+  const network = SOLANA_NETWORKS['solana-mainnet'];
   // Known Solana wallet with NFTs (replace with actual test wallet if available)
   const testOwner = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
 

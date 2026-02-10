@@ -595,7 +595,7 @@ describe('createBitcoinAccount', () => {
   describe('deterministic derivation', () => {
     it('should derive the same address for index 0 from known mnemonic', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -606,14 +606,14 @@ describe('createBitcoinAccount', () => {
 
     it('should derive consistent addresses for the same mnemonic', async () => {
       const account1 = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const account2 = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -624,14 +624,14 @@ describe('createBitcoinAccount', () => {
 
     it('should derive different addresses for different indices', async () => {
       const account0 = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const account1 = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 1,
         apiFunctions: mockApiFunctions,
@@ -642,14 +642,14 @@ describe('createBitcoinAccount', () => {
 
     it('should use index 0 by default', async () => {
       const accountExplicit = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const accountDefault = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         apiFunctions: mockApiFunctions,
       });
@@ -661,20 +661,20 @@ describe('createBitcoinAccount', () => {
   describe('account properties', () => {
     it('should have correct network configuration', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
-      expect(account.network.id).toBe('bitcoin');
+      expect(account.network.id).toBe('bitcoin-mainnet');
       expect(account.network.name).toBe('Bitcoin Mainnet');
       expect(account.network.environment).toBe('mainnet');
     });
 
     it('should have correct derivation path for index 0', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -685,7 +685,7 @@ describe('createBitcoinAccount', () => {
 
     it('should have correct derivation path for index 5', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 5,
         apiFunctions: mockApiFunctions,
@@ -696,7 +696,7 @@ describe('createBitcoinAccount', () => {
 
     it('should have correct index property', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 7,
         apiFunctions: mockApiFunctions,
@@ -707,7 +707,7 @@ describe('createBitcoinAccount', () => {
 
     it('should have valid public key', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -720,7 +720,7 @@ describe('createBitcoinAccount', () => {
 
     it('should have retrievable private key (WIF)', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -735,7 +735,7 @@ describe('createBitcoinAccount', () => {
 
     it('should have BIP32 node available', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -750,7 +750,7 @@ describe('createBitcoinAccount', () => {
   describe('testnet derivation', () => {
     it('should derive testnet address correctly', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.testnet,
+        network: BITCOIN_NETWORKS['bitcoin-testnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -763,14 +763,14 @@ describe('createBitcoinAccount', () => {
 
     it('should derive different addresses for mainnet vs testnet', async () => {
       const mainnetAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const testnetAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.testnet,
+        network: BITCOIN_NETWORKS['bitcoin-testnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -783,7 +783,7 @@ describe('createBitcoinAccount', () => {
   describe('address validation', () => {
     it('should validate its own address', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -795,7 +795,7 @@ describe('createBitcoinAccount', () => {
 
     it('should reject invalid addresses', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -806,7 +806,7 @@ describe('createBitcoinAccount', () => {
 
     it('should reject testnet addresses on mainnet account', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -820,7 +820,7 @@ describe('createBitcoinAccount', () => {
     it('should throw error for invalid mnemonic', async () => {
       await expect(
         createBitcoinAccount({
-          network: BITCOIN_NETWORKS.mainnet,
+          network: BITCOIN_NETWORKS['bitcoin-mainnet'],
           mnemonic: 'invalid mnemonic phrase',
           index: 0,
           apiFunctions: mockApiFunctions,
@@ -831,7 +831,7 @@ describe('createBitcoinAccount', () => {
     it('should throw error for empty mnemonic', async () => {
       await expect(
         createBitcoinAccount({
-          network: BITCOIN_NETWORKS.mainnet,
+          network: BITCOIN_NETWORKS['bitcoin-mainnet'],
           mnemonic: '',
           index: 0,
           apiFunctions: mockApiFunctions,
@@ -846,7 +846,7 @@ describe('createBitcoinAccount', () => {
 
       for (let i = 0; i < 5; i++) {
         const account = await createBitcoinAccount({
-          network: BITCOIN_NETWORKS.mainnet,
+          network: BITCOIN_NETWORKS['bitcoin-mainnet'],
           mnemonic: TEST_MNEMONIC,
           index: i,
           apiFunctions: mockApiFunctions,
@@ -912,7 +912,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue(mockUtxos);
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
-      const network = BITCOIN_NETWORKS.mainnet;
+      const network = BITCOIN_NETWORKS['bitcoin-mainnet'];
       const utxos = await getUtxos(network, testAddress, mockFetchUtxos);
 
       expect(Array.isArray(utxos)).toBe(true);
@@ -924,7 +924,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       const mockFetchUtxos: FetchUtxosFn = vi.fn().mockResolvedValue([]);
 
-      const network = BITCOIN_NETWORKS.mainnet;
+      const network = BITCOIN_NETWORKS['bitcoin-mainnet'];
       const utxos = await getUtxos(network, 'unused-address', mockFetchUtxos);
 
       expect(utxos).toEqual([]);
@@ -935,7 +935,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       const mockFetchUtxos: FetchUtxosFn = vi.fn().mockRejectedValue(new Error('API Error'));
 
-      const network = BITCOIN_NETWORKS.mainnet;
+      const network = BITCOIN_NETWORKS['bitcoin-mainnet'];
 
       await expect(getUtxos(network, 'test-address', mockFetchUtxos)).rejects.toThrow('API Error');
     });
@@ -955,7 +955,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const { createTransferTransaction } = await import('./transfer');
 
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -987,7 +987,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       await expect(
         createTransferTransaction(
-          BITCOIN_NETWORKS.mainnet,
+          BITCOIN_NETWORKS['bitcoin-mainnet'],
           keyPair,
           receiverAddress,
           amountBtc,
@@ -998,7 +998,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should require BIP32 node for signing', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1035,7 +1035,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
       const maxAmount = await getMaxSendableAmount(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         testAddress,
         DEFAULT_FEE_RATE,
         mockFetchUtxos
@@ -1056,7 +1056,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
       const maxAmount = await getMaxSendableAmount(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         testAddress,
         DEFAULT_FEE_RATE,
         mockFetchUtxos
@@ -1080,7 +1080,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
       const maxAmount = await getMaxSendableAmount(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         testAddress,
         DEFAULT_FEE_RATE,
         mockFetchUtxos
@@ -1105,14 +1105,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const testAddress = EXPECTED_ADDRESS_INDEX_0;
 
       const maxWithDefault = await getMaxSendableAmount(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         testAddress,
         2,
         mockFetchUtxos
       );
 
       const maxWithHighFee = await getMaxSendableAmount(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         testAddress,
         10,
         mockFetchUtxos
@@ -1129,7 +1129,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
   describe('BitcoinAccount.getBalance', () => {
     it('should have getBalance method defined', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1141,7 +1141,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
     it('should return balance structure when backend is available', async () => {
       // This test requires a running backend - skip if not available
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1167,7 +1167,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
   describe('BitcoinAccount.validateDestinationAccount', () => {
     it('should validate P2PKH address successfully', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1182,7 +1182,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should validate Bech32 address successfully', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1197,7 +1197,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should reject invalid address', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1212,7 +1212,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should reject empty address', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1226,7 +1226,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should reject testnet address on mainnet account', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1240,7 +1240,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should validate P2SH address', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1262,7 +1262,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
   describe('BitcoinAccount.getRecentTransactions', () => {
     it('should have getRecentTransactions method defined', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1274,7 +1274,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
     it('should return transactions structure when backend is available', async () => {
       // This test requires a running backend - skip if not available
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1294,7 +1294,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should accept pagination parameters', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1318,7 +1318,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
   describe('createKeyPairFromNode', () => {
     it('should create a keypair from a BIP32 node', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1340,7 +1340,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should create correct mainnet P2PKH address', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1359,7 +1359,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should create correct testnet P2PKH address', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.testnet,
+        network: BITCOIN_NETWORKS['bitcoin-testnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1379,7 +1379,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should have valid WIF for mainnet', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1398,14 +1398,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should create different keypairs for different indices', async () => {
       const account0 = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const account1 = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 1,
         apiFunctions: mockApiFunctions,
@@ -1436,14 +1436,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
   describe('createBitcoinAccountFromKeyPair', () => {
     it('should create an account from an existing keypair', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         originalAccount.keyPair,
         0,
         mockApiFunctions
@@ -1451,19 +1451,19 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       expect(newAccount.getReceiveAddress()).toBe(originalAccount.getReceiveAddress());
       expect(newAccount.index).toBe(0);
-      expect(newAccount.network.id).toBe('bitcoin');
+      expect(newAccount.network.id).toBe('bitcoin-mainnet');
     });
 
     it('should create account with custom index', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 5,
         apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         originalAccount.keyPair,
         5,
         mockApiFunctions
@@ -1475,14 +1475,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should default to index 0 when not specified', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         originalAccount.keyPair,
         0,
         mockApiFunctions
@@ -1493,14 +1493,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should preserve keypair properties', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         originalAccount.keyPair,
         0,
         mockApiFunctions
@@ -1514,14 +1514,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should work with testnet network', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.testnet,
+        network: BITCOIN_NETWORKS['bitcoin-testnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
-        BITCOIN_NETWORKS.testnet,
+        BITCOIN_NETWORKS['bitcoin-testnet'],
         originalAccount.keyPair,
         0,
         mockApiFunctions
@@ -1533,34 +1533,34 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should have correct network configuration', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         originalAccount.keyPair,
         0,
         mockApiFunctions
       );
 
-      expect(newAccount.network.id).toBe('bitcoin');
+      expect(newAccount.network.id).toBe('bitcoin-mainnet');
       expect(newAccount.network.name).toBe('Bitcoin Mainnet');
       expect(newAccount.network.environment).toBe('mainnet');
     });
 
     it('should validate addresses correctly', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
       });
 
       const newAccount = createBitcoinAccountFromKeyPair(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         originalAccount.keyPair,
         0,
         mockApiFunctions
@@ -1579,7 +1579,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
   describe('createBitcoinAccountFromWIF', () => {
     it('should create an account from WIF and address', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1589,7 +1589,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const address = originalAccount.getReceiveAddress();
 
       const newAccount = createBitcoinAccountFromWIF(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         wif,
         address,
         0,
@@ -1606,7 +1606,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       expect(() => {
         createBitcoinAccountFromWIF(
-          BITCOIN_NETWORKS.mainnet,
+          BITCOIN_NETWORKS['bitcoin-mainnet'],
           wif,
           invalidAddress,
           0,
@@ -1620,7 +1620,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       expect(() => {
         createBitcoinAccountFromWIF(
-          BITCOIN_NETWORKS.mainnet,
+          BITCOIN_NETWORKS['bitcoin-mainnet'],
           wif,
           SAMPLE_ADDRESSES.p2pkh_testnet,
           0,
@@ -1634,7 +1634,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const address = SAMPLE_ADDRESSES.p2pkh_mainnet;
 
       const account = createBitcoinAccountFromWIF(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         wif,
         address,
         0,
@@ -1649,7 +1649,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const address = SAMPLE_ADDRESSES.p2pkh_mainnet;
 
       const account = createBitcoinAccountFromWIF(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         wif,
         address,
         0,
@@ -1664,7 +1664,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const address = SAMPLE_ADDRESSES.p2pkh_mainnet;
 
       const account = createBitcoinAccountFromWIF(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         wif,
         address,
         5,
@@ -1677,7 +1677,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should work with testnet network', async () => {
       const originalAccount = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.testnet,
+        network: BITCOIN_NETWORKS['bitcoin-testnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -1687,7 +1687,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const address = originalAccount.getReceiveAddress();
 
       const newAccount = createBitcoinAccountFromWIF(
-        BITCOIN_NETWORKS.testnet,
+        BITCOIN_NETWORKS['bitcoin-testnet'],
         wif,
         address,
         0,
@@ -1703,7 +1703,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const address = SAMPLE_ADDRESSES.p2wpkh_mainnet;
 
       const account = createBitcoinAccountFromWIF(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         wif,
         address,
         0,
@@ -1718,14 +1718,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const address = SAMPLE_ADDRESSES.p2pkh_mainnet;
 
       const account = createBitcoinAccountFromWIF(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         wif,
         address,
         0,
         mockApiFunctions
       );
 
-      expect(account.network.id).toBe('bitcoin');
+      expect(account.network.id).toBe('bitcoin-mainnet');
       expect(account.network.name).toBe('Bitcoin Mainnet');
       expect(account.network.environment).toBe('mainnet');
     });
@@ -1738,7 +1738,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
   describe('deriveBitcoinAccounts', () => {
     it('should derive a single account by default', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         apiFunctions: mockApiFunctions,
       });
@@ -1750,7 +1750,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should derive multiple accounts', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         count: 5,
         apiFunctions: mockApiFunctions,
@@ -1767,7 +1767,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should derive accounts with custom start index', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         startIndex: 10,
         count: 3,
@@ -1782,7 +1782,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should derive unique addresses for each account', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         count: 10,
         apiFunctions: mockApiFunctions,
@@ -1796,14 +1796,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should derive deterministic addresses', async () => {
       const accounts1 = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         count: 3,
         apiFunctions: mockApiFunctions,
       });
 
       const accounts2 = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         count: 3,
         apiFunctions: mockApiFunctions,
@@ -1816,7 +1816,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should work with testnet', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.testnet,
+        network: BITCOIN_NETWORKS['bitcoin-testnet'],
         mnemonic: TEST_MNEMONIC,
         count: 3,
         apiFunctions: mockApiFunctions,
@@ -1833,7 +1833,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should derive accounts with valid keypairs', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         count: 3,
         apiFunctions: mockApiFunctions,
@@ -1852,7 +1852,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should handle count of 0', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         count: 0,
         apiFunctions: mockApiFunctions,
@@ -1863,7 +1863,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should handle large count', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         count: 20,
         apiFunctions: mockApiFunctions,
@@ -1876,7 +1876,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
     it('should throw error for invalid mnemonic', async () => {
       await expect(
         deriveBitcoinAccounts({
-          network: BITCOIN_NETWORKS.mainnet,
+          network: BITCOIN_NETWORKS['bitcoin-mainnet'],
           mnemonic: 'invalid mnemonic',
           count: 1,
           apiFunctions: mockApiFunctions,
@@ -1886,14 +1886,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should have all accounts on same network', async () => {
       const accounts = await deriveBitcoinAccounts({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         count: 5,
         apiFunctions: mockApiFunctions,
       });
 
       for (const account of accounts) {
-        expect(account.network.id).toBe('bitcoin');
+        expect(account.network.id).toBe('bitcoin-mainnet');
         expect(account.network.environment).toBe('mainnet');
       }
     });
@@ -1915,7 +1915,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       });
 
       const result = await confirmTransferTransaction(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         EXPECTED_ADDRESS_INDEX_0,
         '0100000001', // Dummy serialized tx
         mockBroadcast
@@ -1932,7 +1932,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       );
 
       const result = await confirmTransferTransaction(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         EXPECTED_ADDRESS_INDEX_0,
         '0100000001',
         mockBroadcast
@@ -1947,7 +1947,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const mockBroadcast: BroadcastTransactionFn = vi.fn().mockRejectedValue('String error');
 
       const result = await confirmTransferTransaction(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         EXPECTED_ADDRESS_INDEX_0,
         '0100000001',
         mockBroadcast
@@ -1964,14 +1964,14 @@ describe('Bitcoin Transfer Integration Tests', () => {
       });
 
       await confirmTransferTransaction(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         EXPECTED_ADDRESS_INDEX_0,
         '0100000001',
         mockBroadcast
       );
 
       expect(mockBroadcast).toHaveBeenCalledWith(
-        'bitcoin',
+        'bitcoin-mainnet',
         EXPECTED_ADDRESS_INDEX_0,
         '0100000001'
       );
@@ -1984,7 +1984,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       });
 
       await confirmTransferTransaction(
-        BITCOIN_NETWORKS.testnet,
+        BITCOIN_NETWORKS['bitcoin-testnet'],
         SAMPLE_ADDRESSES.p2pkh_testnet,
         '0100000001',
         mockBroadcast
@@ -2006,7 +2006,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const testAddress = '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2';
 
       await confirmTransferTransaction(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         testAddress,
         '0100000001',
         mockBroadcast
@@ -2028,7 +2028,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const serializedTx = '01000000abcdef';
 
       await confirmTransferTransaction(
-        BITCOIN_NETWORKS.mainnet,
+        BITCOIN_NETWORKS['bitcoin-mainnet'],
         EXPECTED_ADDRESS_INDEX_0,
         serializedTx,
         mockBroadcast
@@ -2059,7 +2059,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
     it('should handle insufficient balance error', async () => {
       const account = await createBitcoinAccount({
-        network: BITCOIN_NETWORKS.mainnet,
+        network: BITCOIN_NETWORKS['bitcoin-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
         apiFunctions: mockApiFunctions,
@@ -2089,7 +2089,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
 
       await expect(
         sendBitcoin(
-          BITCOIN_NETWORKS.mainnet,
+          BITCOIN_NETWORKS['bitcoin-mainnet'],
           keyPair,
           SAMPLE_ADDRESSES.p2pkh_mainnet,
           0.1, // Try to send 0.1 BTC

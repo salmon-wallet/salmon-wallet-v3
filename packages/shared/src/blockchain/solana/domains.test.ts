@@ -95,7 +95,7 @@ const TEST_DATA = {
 // ============================================================================
 
 describe('SPL Name Service (.sol domains)', () => {
-  const network = SOLANA_NETWORKS['mainnet-beta'];
+  const network = SOLANA_NETWORKS['solana-mainnet'];
   let connection: Connection;
 
   beforeEach(() => {
@@ -230,7 +230,7 @@ describe('SPL Name Service (.sol domains)', () => {
 // ============================================================================
 
 describe('AllDomains (multiple TLDs)', () => {
-  const network = SOLANA_NETWORKS['mainnet-beta'];
+  const network = SOLANA_NETWORKS['solana-mainnet'];
   let connection: Connection;
 
   beforeEach(() => {
@@ -349,7 +349,7 @@ describe('AllDomains (multiple TLDs)', () => {
 // ============================================================================
 
 describe('Combined Domain Functions', () => {
-  const network = SOLANA_NETWORKS['mainnet-beta'];
+  const network = SOLANA_NETWORKS['solana-mainnet'];
   let connection: Connection;
 
   beforeEach(() => {
@@ -470,7 +470,7 @@ describe('Combined Domain Functions', () => {
 // ============================================================================
 
 describe('Domain Error Handling', () => {
-  const network = SOLANA_NETWORKS['mainnet-beta'];
+  const network = SOLANA_NETWORKS['solana-mainnet'];
   let connection: Connection;
 
   beforeEach(() => {
@@ -524,7 +524,7 @@ describe('Domain Error Handling', () => {
 // ============================================================================
 
 describe('Domain Integration Tests (optional)', () => {
-  const network = SOLANA_NETWORKS['mainnet-beta'];
+  const network = SOLANA_NETWORKS['solana-mainnet'];
 
   it.skip('should resolve real .sol domain if RPC available', async () => {
     const connection = new Connection(network.config.nodeUrl);

@@ -54,44 +54,45 @@ function createMockVersionedTransactionBase64(payer: PublicKey): string {
 }
 
 const MOCK_SWAP_ORDER: SwapOrderResponse = {
-  requestId: 'test-request-id-123',
-  swapTransaction: 'base64-encoded-transaction-data',
-  route: {
-    inputMint: SOL_ADDRESS,
-    outputMint: USDC_MINT,
-    inAmount: '1000000000',
-    outAmount: '5000000',
-    otherAmountThreshold: '4950000',
-    swapMode: 'ExactIn',
-    slippageBps: 50,
-    priceImpactPct: '0.12',
-    routePlan: [
-      {
-        swapInfo: {
-          ammKey: 'test-amm-key',
-          label: 'Raydium',
-          inputMint: SOL_ADDRESS,
-          outputMint: USDC_MINT,
-          inAmount: '1000000000',
-          outAmount: '5000000',
-          feeAmount: '5000',
-          feeMint: USDC_MINT,
-        },
-        percent: 100,
-      },
-    ],
+  routeNames: ['Raydium'],
+  routeSymbols: ['SOL', 'USDC'],
+  fee: {
+    amount: 5000,
+    decimals: 9,
+    symbol: 'SOL',
+    percent: 0.5,
   },
-  inputToken: {
+  input: {
+    amount: '1000000000',
+    decimals: 9,
     symbol: 'SOL',
     name: 'Solana',
-    decimals: 9,
+    logo: 'https://example.com/sol.png',
+    contract: SOL_ADDRESS,
   },
-  outputToken: {
+  output: {
+    amount: '5000000',
+    decimals: 6,
     symbol: 'USDC',
     name: 'USD Coin',
-    decimals: 6,
+    logo: 'https://example.com/usdc.png',
+    contract: USDC_MINT,
   },
-  expiresAt: Date.now() + 60000,
+  custom: {
+    transaction: 'base64-encoded-transaction-data',
+    requestId: 'test-request-id-123',
+    router: 'iris',
+    priceImpact: 0.12,
+    feeBps: 50,
+    prioritizationFeeLamports: 1000,
+    rentFeeLamports: 5616,
+    gasless: false,
+    slippageBps: 50,
+    swapMode: 'ExactIn',
+    otherAmountThreshold: '4950000',
+    inUsdValue: 150.0,
+    outUsdValue: 5.0,
+  },
 };
 
 const MOCK_TOKEN_LIST: TokenMetadata[] = [
@@ -113,13 +114,13 @@ const MOCK_TOKEN_LIST: TokenMetadata[] = [
 
 const MOCK_SWAP_SUCCESS = {
   signature: '5xG8...signature',
-  success: true,
+  status: 'Success',
   confirmationStatus: 'confirmed' as const,
 };
 
 const MOCK_SWAP_FAILURE = {
   signature: '',
-  success: false,
+  status: 'Failed',
   error: 'Swap execution failed: Slippage exceeded',
 };
 
@@ -167,9 +168,9 @@ describe('getSwapQuote', () => {
 
     expect(quote).toBeDefined();
     expect(quote.networkId).toBe('solana-mainnet');
-    expect(quote.requestId).toBe('test-request-id-123');
-    expect(quote.route.inAmount).toBe('1000000000');
-    expect(quote.route.outAmount).toBe('5000000');
+    expect(quote.custom?.requestId).toBe('test-request-id-123');
+    expect(quote.input?.amount).toBe('1000000000');
+    expect(quote.output?.amount).toBe('5000000');
 
     expect(mockGetSwapOrder).toHaveBeenCalledWith(
       'solana-mainnet',
@@ -357,7 +358,8 @@ describe('executeSwap', () => {
       networkId: 'solana-mainnet',
     };
 
-    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
+    if (!quote.custom) quote.custom = {} as any;
+    quote.custom.transaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     const result = await executeSwap(quote, TEST_KEYPAIR, undefined, mockExecuteSwapApi);
 
@@ -375,7 +377,8 @@ describe('executeSwap', () => {
       networkId: 'solana-mainnet',
     };
 
-    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
+    if (!quote.custom) quote.custom = {} as any;
+    quote.custom.transaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     const result = await executeSwap(quote, TEST_KEYPAIR, undefined, mockExecuteSwapApi);
 
@@ -392,7 +395,8 @@ describe('executeSwap', () => {
       networkId: 'solana-mainnet',
     };
 
-    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
+    if (!quote.custom) quote.custom = {} as any;
+    quote.custom.transaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     const result = await executeSwap(quote, TEST_KEYPAIR, undefined, mockExecuteSwapApi);
 
@@ -407,7 +411,8 @@ describe('executeSwap', () => {
       networkId: 'solana-mainnet',
     };
 
-    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
+    if (!quote.custom) quote.custom = {} as any;
+    quote.custom.transaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     await executeSwap(quote, TEST_KEYPAIR, undefined, mockExecuteSwapApi);
 
@@ -422,10 +427,12 @@ describe('executeSwap', () => {
     const quote: SwapQuote = {
       ...MOCK_SWAP_ORDER,
       networkId: 'solana-mainnet',
-      requestId: 'custom-request-id',
+      custom: {
+        ...MOCK_SWAP_ORDER.custom,
+        requestId: 'custom-request-id',
+        transaction: createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey),
+      },
     };
-
-    quote.swapTransaction = createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey);
 
     await executeSwap(quote, TEST_KEYPAIR, undefined, mockExecuteSwapApi);
 
@@ -458,7 +465,10 @@ describe('swap', () => {
 
     const mockSwapOrder = {
       ...MOCK_SWAP_ORDER,
-      swapTransaction: createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey),
+      custom: {
+        ...MOCK_SWAP_ORDER.custom,
+        transaction: createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey),
+      },
     };
     mockGetSwapOrder.mockResolvedValue(mockSwapOrder);
 
@@ -489,7 +499,10 @@ describe('swap', () => {
   it('should propagate execution errors', async () => {
     const mockSwapOrder = {
       ...MOCK_SWAP_ORDER,
-      swapTransaction: createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey),
+      custom: {
+        ...MOCK_SWAP_ORDER.custom,
+        transaction: createMockVersionedTransactionBase64(TEST_KEYPAIR.publicKey),
+      },
     };
     mockGetSwapOrder.mockResolvedValue(mockSwapOrder);
     mockExecuteSwapApi.mockResolvedValue(MOCK_SWAP_FAILURE);
@@ -514,25 +527,8 @@ describe('swap', () => {
 
 describe('getExpectedOutput', () => {
   const mockQuote: SwapQuote = {
+    ...MOCK_SWAP_ORDER,
     networkId: 'solana-mainnet',
-    swapTransaction: '',
-    requestId: 'test-request-id',
-    route: {
-      inputMint: SOL_ADDRESS,
-      outputMint: USDC_MINT,
-      inAmount: '1000000000',
-      outAmount: '5000000',
-      otherAmountThreshold: '4950000',
-      priceImpactPct: '0.12',
-      routePlan: [],
-      slippageBps: 50,
-      swapMode: 'ExactIn',
-    },
-    outputToken: {
-      symbol: 'USDC',
-      name: 'USD Coin',
-      decimals: 6,
-    },
   };
 
   it('should calculate expected output using quote decimals', () => {
@@ -546,9 +542,12 @@ describe('getExpectedOutput', () => {
   });
 
   it('should default to 9 decimals when no decimals provided', () => {
-    const quoteWithoutDecimals = {
+    const quoteWithoutDecimals: SwapQuote = {
       ...mockQuote,
-      outputToken: undefined,
+      output: {
+        ...mockQuote.output!,
+        decimals: undefined as any, // Remove decimals to test default
+      },
     };
     const output = getExpectedOutput(quoteWithoutDecimals);
     expect(output).toBe(0.005);
@@ -557,25 +556,8 @@ describe('getExpectedOutput', () => {
 
 describe('getMinimumOutput', () => {
   const mockQuote: SwapQuote = {
+    ...MOCK_SWAP_ORDER,
     networkId: 'solana-mainnet',
-    swapTransaction: '',
-    requestId: 'test-request-id',
-    route: {
-      inputMint: SOL_ADDRESS,
-      outputMint: USDC_MINT,
-      inAmount: '1000000000',
-      outAmount: '5000000',
-      otherAmountThreshold: '4950000',
-      priceImpactPct: '0.12',
-      routePlan: [],
-      slippageBps: 50,
-      swapMode: 'ExactIn',
-    },
-    outputToken: {
-      symbol: 'USDC',
-      name: 'USD Coin',
-      decimals: 6,
-    },
   };
 
   it('should calculate minimum output using quote decimals', () => {
@@ -596,20 +578,12 @@ describe('getMinimumOutput', () => {
 });
 
 describe('getPriceImpact', () => {
-  const createMockQuote = (priceImpactPct: string): SwapQuote => ({
+  const createMockQuote = (priceImpact: string): SwapQuote => ({
+    ...MOCK_SWAP_ORDER,
     networkId: 'solana-mainnet',
-    swapTransaction: '',
-    requestId: 'test-request-id',
-    route: {
-      inputMint: SOL_ADDRESS,
-      outputMint: USDC_MINT,
-      inAmount: '1000000000',
-      outAmount: '5000000',
-      otherAmountThreshold: '4950000',
-      priceImpactPct,
-      routePlan: [],
-      slippageBps: 50,
-      swapMode: 'ExactIn',
+    custom: {
+      ...MOCK_SWAP_ORDER.custom,
+      priceImpact: parseFloat(priceImpact),
     },
   });
 
@@ -658,8 +632,8 @@ describe.skipIf(!await isBackendAvailable())('Integration: Swap with Backend', (
     const quote = await getSwapQuote('solana-devnet', params, {}, getSwapOrder, getTokenList);
 
     expect(quote).toBeDefined();
-    expect(quote.requestId).toBeDefined();
-    expect(quote.route.inputMint).toBe(SOL_ADDRESS);
-    expect(quote.route.outputMint).toBe(USDC_MINT);
+    expect(quote.custom?.requestId).toBeDefined();
+    expect(quote.input?.contract).toBe(SOL_ADDRESS);
+    expect(quote.output?.contract).toBe(USDC_MINT);
   });
 });
