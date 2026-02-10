@@ -143,8 +143,14 @@ function RootLayoutNav() {
     } else {
       // Accounts exist - but don't navigate to app if locked
       // The lock screen overlay will be shown first, and only after
-      // successful unlock should we navigate to the app
-      if (!inAppGroup && !hasNavigated && !state.locked) {
+      // successful unlock should we navigate to the app.
+      // Also skip redirect when user is on post-creation auth screens
+      // (password, success, derived-accounts) — they're still in the
+      // creation flow and should finish before being sent to the app.
+      const isPostCreationScreen = inAuthGroup &&
+        ['password', 'success', 'derived-accounts'].includes(segments[1] as string);
+
+      if (!inAppGroup && !hasNavigated && !state.locked && !isPostCreationScreen) {
         // Only auto-navigate to app on initial load when not locked
         router.replace('/(app)/(tabs)');
         setHasNavigated(true);
