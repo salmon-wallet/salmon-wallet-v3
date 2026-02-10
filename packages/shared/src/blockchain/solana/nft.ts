@@ -43,7 +43,7 @@ function getHeliusApiKey(): string | undefined {
  * Get Helius RPC URL for a given network
  * Returns the Helius DAS API endpoint if API key is configured
  *
- * @param networkId - The network ID (mainnet-beta, devnet, etc.)
+ * @param networkId - The network ID (solana-mainnet, solana-devnet, etc.)
  * @returns The Helius RPC URL or null if not configured
  */
 function getHeliusRpcUrl(networkId: string): string | null {
@@ -55,8 +55,8 @@ function getHeliusRpcUrl(networkId: string): string | null {
 
   // Map network IDs to Helius endpoints
   const heliusEndpoints: Record<string, string> = {
-    'mainnet-beta': `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
-    'devnet': `https://devnet.helius-rpc.com/?api-key=${apiKey}`,
+    'solana-mainnet': `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
+    'solana-devnet': `https://devnet.helius-rpc.com/?api-key=${apiKey}`,
   };
 
   return heliusEndpoints[networkId] || null;

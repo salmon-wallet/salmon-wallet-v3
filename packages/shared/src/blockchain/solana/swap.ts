@@ -262,8 +262,12 @@ export async function executeSwap(
   submitSwap: ExecuteSwapApiFn
 ): Promise<SwapResult> {
   try {
-    // Deserialize the transaction from the quote
-    const transactionBuffer = Buffer.from(quote.swapTransaction, 'base64');
+    // Deserialize the transaction from the quote (Jupiter Ultra v1: custom.transaction)
+    const transaction64 = quote.custom?.transaction;
+    if (!transaction64) {
+      throw new Error('No transaction found in quote');
+    }
+    const transactionBuffer = Buffer.from(transaction64, 'base64');
     const transaction = VersionedTransaction.deserialize(transactionBuffer);
 
     // Sign the transaction
@@ -273,14 +277,15 @@ export async function executeSwap(
     const signedTransactionBase64 = Buffer.from(transaction.serialize()).toString('base64');
 
     // Submit to the API
+    const requestId = quote.custom?.requestId || '';
     const response = await submitSwap(
       quote.networkId,
       signedTransactionBase64,
-      quote.requestId
+      requestId
     );
 
     // Handle API response
-    if (response.success && response.signature) {
+    if (response.status === 'Success' && response.signature) {
       // If a connection is provided, do additional on-chain confirmation
       if (connection) {
         try {
@@ -375,8 +380,9 @@ export async function swap(
  * @returns Human-readable output amount
  */
 export function getExpectedOutput(quote: SwapQuote, outputDecimals?: number): number {
-  const decimals = outputDecimals ?? quote.outputToken?.decimals ?? 9;
-  return Number(quote.route.outAmount) / (10 ** decimals);
+  const decimals = outputDecimals ?? quote.output?.decimals ?? 9;
+  const amount = quote.output?.amount || '0';
+  return Number(amount) / (10 ** decimals);
 }
 
 /**
@@ -387,8 +393,9 @@ export function getExpectedOutput(quote: SwapQuote, outputDecimals?: number): nu
  * @returns Human-readable minimum output amount
  */
 export function getMinimumOutput(quote: SwapQuote, outputDecimals?: number): number {
-  const decimals = outputDecimals ?? quote.outputToken?.decimals ?? 9;
-  return Number(quote.route.otherAmountThreshold) / (10 ** decimals);
+  const decimals = outputDecimals ?? quote.output?.decimals ?? 9;
+  const threshold = quote.custom?.otherAmountThreshold || '0';
+  return Number(threshold) / (10 ** decimals);
 }
 
 /**
@@ -398,7 +405,7 @@ export function getMinimumOutput(quote: SwapQuote, outputDecimals?: number): num
  * @returns Price impact as a percentage (e.g., 0.12 for 0.12%)
  */
 export function getPriceImpact(quote: SwapQuote): number {
-  return parseFloat(quote.route.priceImpactPct);
+  return quote.custom?.priceImpact || 0;
 }
 
 // Re-export SOL_ADDRESS for convenience

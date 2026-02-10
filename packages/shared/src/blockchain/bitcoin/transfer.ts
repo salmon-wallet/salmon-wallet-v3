@@ -303,7 +303,7 @@ function buildTransaction(params: {
  * import { createBitcoinAccount, BITCOIN_NETWORKS } from '@salmon/shared';
  *
  * const account = await createBitcoinAccount({
- *   network: BITCOIN_NETWORKS.mainnet,
+ *   network: BITCOIN_NETWORKS['bitcoin-mainnet'],
  *   mnemonic: 'your mnemonic...',
  * });
  *
@@ -316,7 +316,7 @@ function buildTransaction(params: {
  * };
  *
  * const result = await createTransferTransaction(
- *   BITCOIN_NETWORKS.mainnet,
+ *   BITCOIN_NETWORKS['bitcoin-mainnet'],
  *   keyPair,
  *   '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
  *   0.001, // 0.001 BTC
@@ -395,7 +395,7 @@ export async function createTransferTransaction(
  * @example
  * ```typescript
  * const result = await confirmTransferTransaction(
- *   BITCOIN_NETWORKS.mainnet,
+ *   BITCOIN_NETWORKS['bitcoin-mainnet'],
  *   senderAddress,
  *   signedTxHex,
  *   broadcastTransaction
@@ -446,7 +446,7 @@ export async function confirmTransferTransaction(
  * @example
  * ```typescript
  * const result = await sendBitcoin(
- *   BITCOIN_NETWORKS.mainnet,
+ *   BITCOIN_NETWORKS['bitcoin-mainnet'],
  *   keyPair,
  *   '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
  *   0.001,
@@ -524,7 +524,7 @@ export function satoshisToBtc(satoshis: number): number {
  * @example
  * ```typescript
  * const maxAmount = await getMaxSendableAmount(
- *   BITCOIN_NETWORKS.mainnet,
+ *   BITCOIN_NETWORKS['bitcoin-mainnet'],
  *   myAddress,
  *   2,
  *   fetchUtxos

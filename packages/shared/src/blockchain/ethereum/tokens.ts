@@ -74,7 +74,7 @@ const ERC20_ABI = [
  * Network IDs for Ethereum networks
  */
 export const ETHEREUM_NETWORK_IDS = {
-  MAINNET: 'ethereum',
+  MAINNET: 'ethereum-mainnet',
   SEPOLIA: 'ethereum-sepolia',
 } as const;
 
@@ -287,12 +287,12 @@ export async function getTokensByOwner(
  *
  * Returns a hardcoded list of commonly used tokens for the given network.
  *
- * @param networkId - Network identifier (e.g., 'ethereum', 'ethereum-goerli')
+ * @param networkId - Network identifier (e.g., 'ethereum-mainnet', 'ethereum-sepolia')
  * @returns List of featured tokens
  *
  * @example
  * ```typescript
- * const tokens = getFeaturedTokens('ethereum');
+ * const tokens = getFeaturedTokens('ethereum-mainnet');
  * // Returns: [{ address: '0x...', symbol: 'WETH', ... }, ...]
  * ```
  */
@@ -403,12 +403,12 @@ export interface TokenDetectionResult {
  *
  * @param provider - Ethers.js provider
  * @param address - User's Ethereum address
- * @param networkId - Network identifier (e.g., 'ethereum')
+ * @param networkId - Network identifier (e.g., 'ethereum-mainnet')
  * @returns Token detection result with all found tokens
  *
  * @example
  * ```typescript
- * const result = await detectAllTokens(provider, userAddress, 'ethereum');
+ * const result = await detectAllTokens(provider, userAddress, 'ethereum-mainnet');
  * console.log(`Found ${result.allTokens.length} tokens`);
  * result.allTokens.forEach(token => {
  *   console.log(`${token.symbol}: ${token.uiAmount}`);
@@ -418,7 +418,7 @@ export interface TokenDetectionResult {
 export async function detectAllTokens(
   provider: Provider,
   address: string,
-  networkId: string = 'ethereum',
+  networkId: string = 'ethereum-mainnet',
   fetchTokenBalances: (address: string, networkId: string) => Promise<DetectedERC20Token[]> = () => Promise.resolve([])
 ): Promise<TokenDetectionResult> {
   let detectedTokens: EthereumTokenBalance[] = [];
@@ -513,7 +513,7 @@ export async function detectAllTokens(
 export async function getAllTokensForOwner(
   provider: Provider,
   address: string,
-  networkId: string = 'ethereum',
+  networkId: string = 'ethereum-mainnet',
   fetchTokenBalances?: (address: string, networkId: string) => Promise<DetectedERC20Token[]>
 ): Promise<EthereumTokenBalance[]> {
   const result = await detectAllTokens(provider, address, networkId, fetchTokenBalances);
