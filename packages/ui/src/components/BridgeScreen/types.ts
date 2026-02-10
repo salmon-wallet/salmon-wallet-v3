@@ -69,75 +69,6 @@ export interface BridgeExchange {
 }
 
 /**
- * Current step in bridge flow
- */
-export type BridgeStep = 'input' | 'recipient' | 'review' | 'processing' | 'success' | 'error';
-
-/**
- * Props for ChainSelector component
- */
-export interface ChainSelectorProps {
-  /** Selected chain */
-  chain: BridgeChain | null;
-  /** Available chains */
-  chains: BridgeChain[];
-  /** Callback when chain is selected */
-  onSelect: (chain: BridgeChain) => void;
-  /** Label above selector */
-  label?: string;
-  /** Custom style */
-  style?: ViewStyle;
-  /** Whether selector is disabled */
-  disabled?: boolean;
-}
-
-/**
- * Props for BridgeTokenSelector component
- */
-export interface BridgeTokenSelectorProps {
-  /** Selected token */
-  token: BridgeToken | null;
-  /** Callback when token selector is pressed */
-  onPress: () => void;
-  /** Label (e.g., "From", "To") */
-  label?: string;
-  /** Custom style */
-  style?: ViewStyle;
-  /** Show loading state */
-  isLoading?: boolean;
-}
-
-/**
- * Props for BridgeAmountInput component
- */
-export interface BridgeAmountInputProps {
-  /** Label above the input (e.g., "You Send", "You Receive") */
-  label: string;
-  /** Current amount value */
-  value: string;
-  /** Callback when amount changes */
-  onChangeValue: (value: string) => void;
-  /** Selected token */
-  token: BridgeToken | null;
-  /** Callback when token selector is pressed */
-  onTokenPress: () => void;
-  /** USD value of the amount */
-  usdValue?: number;
-  /** Available balance (for "You Send" input) */
-  availableBalance?: number;
-  /** Whether input is editable */
-  editable?: boolean;
-  /** Placeholder text */
-  placeholder?: string;
-  /** Custom style */
-  style?: ViewStyle;
-  /** Show loading state for amount */
-  isLoading?: boolean;
-  /** Minimum amount required */
-  minAmount?: number;
-}
-
-/**
  * Props for RecipientAddressInput component
  */
 export interface RecipientAddressInputProps {
@@ -157,38 +88,6 @@ export interface RecipientAddressInputProps {
   error?: string | null;
   /** Callback when address validation completes */
   onValidation?: (result: { isValid: boolean; message: string | null }) => void;
-}
-
-/**
- * Props for BridgeInputScreen sub-component
- */
-export interface BridgeInputScreenProps {
-  /** Source token (what user is sending) */
-  inToken: BridgeToken | null;
-  /** Destination token (what user receives) */
-  outToken: BridgeToken | null;
-  /** Input amount */
-  inAmount: string;
-  /** Output amount (estimated) */
-  outAmount: string;
-  /** Callback when input amount changes */
-  onInAmountChange: (value: string) => void;
-  /** Callback when source token selector is pressed */
-  onInTokenPress: () => void;
-  /** Callback when destination token selector is pressed */
-  onOutTokenPress: () => void;
-  /** USD value of input */
-  inUsdValue?: number;
-  /** Whether estimate is loading */
-  isLoadingEstimate?: boolean;
-  /** Minimum amount required */
-  minAmount?: number;
-  /** Whether Continue button is enabled */
-  canContinue: boolean;
-  /** Callback for Continue button */
-  onContinue: () => void;
-  /** Custom style */
-  style?: ViewStyle;
 }
 
 /**
@@ -235,41 +134,6 @@ export interface BridgeReviewScreenProps {
   onConfirm: () => void;
   /** Whether confirm is in progress */
   isConfirming?: boolean;
-  /** Custom style */
-  style?: ViewStyle;
-}
-
-/**
- * Props for main BridgeScreen component
- */
-export interface BridgeScreenProps {
-  /** User's tokens for selection (source tokens) */
-  tokens: BridgeToken[];
-  /** Featured source tokens */
-  featuredTokens?: BridgeToken[];
-  /** Callback to get available destination tokens */
-  onGetAvailableTokens: (sourceSymbol: string) => Promise<BridgeToken[]>;
-  /** Callback to get bridge estimate */
-  onGetEstimate: (
-    symbolIn: string,
-    symbolOut: string,
-    amount: number
-  ) => Promise<BridgeEstimate | null>;
-  /** Callback to create bridge exchange */
-  onCreateExchange: (
-    symbolIn: string,
-    symbolOut: string,
-    amount: number,
-    addressTo: string
-  ) => Promise<BridgeExchange | null>;
-  /** Callback when bridge succeeds */
-  onSuccess?: (exchange: BridgeExchange) => void;
-  /** Callback when bridge fails */
-  onError?: (error: Error) => void;
-  /** Callback to search source tokens */
-  onSearchTokens?: (query: string) => Promise<BridgeToken[]>;
-  /** Initial source token */
-  initialInToken?: BridgeToken;
   /** Custom style */
   style?: ViewStyle;
 }
