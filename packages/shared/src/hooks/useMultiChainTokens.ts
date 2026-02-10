@@ -48,7 +48,7 @@ export interface UnifiedToken {
   usdBalance?: number;
   /** Chain this token belongs to */
   chain: ChainType;
-  /** Network ID (e.g., 'mainnet-beta', 'bitcoin', 'ethereum') */
+  /** Network ID (e.g., 'solana-mainnet', 'bitcoin-mainnet', 'ethereum-mainnet') */
   networkId: string;
 }
 
@@ -101,9 +101,9 @@ export interface UseMultiChainTokensResult {
 
 /** Network IDs for each chain */
 const NETWORK_IDS: Record<ChainType, string> = {
-  solana: 'mainnet-beta',
-  bitcoin: 'bitcoin',
-  ethereum: 'ethereum',
+  solana: 'solana-mainnet',
+  bitcoin: 'bitcoin-mainnet',
+  ethereum: 'ethereum-mainnet',
 };
 
 // ============================================================================

@@ -161,30 +161,31 @@ export interface UseSwapResult {
 
 /**
  * Parse quote into UI-friendly format
+ * Updated for Jupiter Ultra v1 API structure
  */
 function parseQuoteInfo(quote: SwapQuote): ParsedQuoteInfo {
-  const outputDecimals = quote.outputToken?.decimals ?? 9;
+  const outputDecimals = quote.output?.decimals ?? 9;
 
   return {
     expectedOutput: getExpectedOutput(quote, outputDecimals),
     minimumOutput: getMinimumOutput(quote, outputDecimals),
     priceImpact: getPriceImpact(quote),
-    inputToken: quote.inputToken ? {
-      symbol: quote.inputToken.symbol,
-      name: quote.inputToken.name,
-      decimals: quote.inputToken.decimals,
-      logo: quote.inputToken.logo,
+    inputToken: quote.input ? {
+      symbol: quote.input.symbol,
+      name: quote.input.name || '',
+      decimals: quote.input.decimals,
+      logo: quote.input.logo || undefined,
     } : undefined,
-    outputToken: quote.outputToken ? {
-      symbol: quote.outputToken.symbol,
-      name: quote.outputToken.name,
-      decimals: quote.outputToken.decimals,
-      logo: quote.outputToken.logo,
+    outputToken: quote.output ? {
+      symbol: quote.output.symbol,
+      name: quote.output.name || '',
+      decimals: quote.output.decimals,
+      logo: quote.output.logo || undefined,
     } : undefined,
     route: {
-      slippageBps: quote.route.slippageBps,
-      swapMode: quote.route.swapMode,
-      routeLabels: quote.route.routePlan.map(leg => leg.swapInfo.label),
+      slippageBps: quote.custom?.slippageBps || 50,
+      swapMode: (quote.custom?.swapMode || 'ExactIn') as 'ExactIn' | 'ExactOut',
+      routeLabels: quote.routeNames || [],
     },
   };
 }

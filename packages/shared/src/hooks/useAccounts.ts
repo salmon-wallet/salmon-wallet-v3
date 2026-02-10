@@ -356,7 +356,7 @@ async function getNetworks(): Promise<AnyNetwork[]> {
 
 /**
  * Determines the blockchain type from a network ID.
- * @param networkId - The network identifier (e.g., 'mainnet-beta', 'bitcoin', 'ethereum')
+ * @param networkId - The network identifier (e.g., 'solana-mainnet', 'bitcoin-mainnet', 'ethereum-mainnet')
  * @returns The blockchain type ('solana', 'bitcoin', or 'ethereum')
  */
 function getBlockchainTypeFromNetworkId(networkId: string): 'solana' | 'bitcoin' | 'ethereum' {
@@ -406,7 +406,7 @@ async function createBlockchainAccountForNetwork(
 
   switch (blockchainType) {
     case 'bitcoin': {
-      const network = BITCOIN_NETWORKS[networkId] || BITCOIN_NETWORKS.mainnet;
+      const network = BITCOIN_NETWORKS[networkId] || BITCOIN_NETWORKS['bitcoin-mainnet'];
       return createBitcoinAccount({
         network,
         mnemonic,
@@ -421,9 +421,9 @@ async function createBlockchainAccountForNetwork(
     }
     case 'ethereum': {
       // Map network ID to ETHEREUM_NETWORKS key
-      let networkKey = 'mainnet';
-      if (networkId === 'ethereum') {
-        networkKey = 'mainnet';
+      let networkKey = 'ethereum-mainnet';
+      if (networkId === 'ethereum-mainnet') {
+        networkKey = 'ethereum-mainnet';
       } else if (networkId === 'ethereum-sepolia') {
         networkKey = 'sepolia';
       }
@@ -461,7 +461,7 @@ async function createAccount(options: CreateAccountOptions): Promise<Account> {
   // Default to Solana mainnet if no path indexes provided
   const defaultPathIndexes = Object.keys(pathIndexes).length > 0
     ? pathIndexes
-    : { 'mainnet-beta': [0] };
+    : { 'solana-mainnet': [0] };
 
   // Create blockchain accounts for each network and path index
   for (const [networkId, indexes] of Object.entries(defaultPathIndexes)) {
@@ -777,8 +777,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       if (firstAccount) {
         newAccountId = firstAccount.id;
         const availableNetworks = Object.keys(firstAccount.pathIndexes);
-        newNetworkId = availableNetworks.includes('mainnet-beta')
-          ? 'mainnet-beta'
+        newNetworkId = availableNetworks.includes('solana-mainnet')
+          ? 'solana-mainnet'
           : availableNetworks[0];
         newPathIndex = firstAccount.pathIndexes[newNetworkId]?.find(
           (n): n is number => typeof n === 'number'
@@ -884,8 +884,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     if (!defaultNetworkId && loadedAccounts.length > 0) {
       const firstAccount = loadedAccounts[0];
       const availableNetworks = Object.keys(firstAccount.networksAccounts);
-      defaultNetworkId = availableNetworks.includes('mainnet-beta')
-        ? 'mainnet-beta'
+      defaultNetworkId = availableNetworks.includes('solana-mainnet')
+        ? 'solana-mainnet'
         : availableNetworks[0];
     }
 
@@ -1218,8 +1218,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       const availableNetworks = Object.keys(account.networksAccounts);
       const newNetworkId =
         networkId ??
-        (availableNetworks.includes('mainnet-beta')
-          ? 'mainnet-beta'
+        (availableNetworks.includes('solana-mainnet')
+          ? 'solana-mainnet'
           : availableNetworks[0]);
 
       const newMnemonics = newAccounts.reduce(

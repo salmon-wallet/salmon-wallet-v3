@@ -24,7 +24,7 @@
  * ```tsx
  * const { balance, loading, error, refresh, hiddenBalance, toggleHidden } = useBalance({
  *   account: activeBlockchainAccount,
- *   networkId: 'mainnet-beta',
+ *   networkId: 'solana-mainnet',
  * });
  * ```
  */
@@ -62,7 +62,13 @@ import { getStorageItem, setStorageItem } from '../storage';
 /**
  * Network ID for balance queries
  */
-export type NetworkId = 'solana-mainnet' | 'solana-devnet' | 'mainnet-beta' | 'devnet';
+export type NetworkId =
+  | 'solana-mainnet'
+  | 'solana-devnet'
+  | 'ethereum-mainnet'
+  | 'ethereum-sepolia'
+  | 'bitcoin-mainnet'
+  | 'bitcoin-testnet';
 
 /**
  * Options for the useBalance hook
@@ -192,15 +198,6 @@ function isEthereumAccount(account: BlockchainAccount): account is EthereumAccou
 // ============================================================================
 
 /**
- * Normalizes network ID to API format (for Solana)
- */
-function normalizeNetworkId(networkId: NetworkId): 'solana-mainnet' | 'solana-devnet' {
-  if (networkId === 'mainnet-beta') return 'solana-mainnet';
-  if (networkId === 'devnet') return 'solana-devnet';
-  return networkId as 'solana-mainnet' | 'solana-devnet';
-}
-
-/**
  * Fetches all SPL token balances for a wallet
  */
 async function fetchTokenBalances(
@@ -278,7 +275,7 @@ async function fetchTokenBalances(
  */
 export function useBalance({
   account,
-  networkId = 'mainnet-beta',
+  networkId = 'solana-mainnet',
   skip = false,
 }: UseBalanceOptions): UseBalanceResult {
   const [balance, setBalance] = useState<WalletBalance | null>(null);
@@ -337,11 +334,11 @@ export function useBalance({
       const tokenBalances = await fetchTokenBalances(connection, publicKey);
 
       // Get complete wallet balance with prices
-      const normalizedNetworkId = normalizeNetworkId(networkId);
+      // networkId is safe to narrow here because fetchSolanaBalance is only called for Solana accounts
       const walletBalance = await getWalletBalance(
         solTokenBalance,
         tokenBalances,
-        normalizedNetworkId
+        networkId as 'solana-mainnet' | 'solana-devnet'
       );
 
       return walletBalance;
@@ -368,7 +365,7 @@ export function useBalance({
           uiAmount: item.uiAmount || item.amount / Math.pow(10, item.decimals),
           symbol: item.symbol,
           name: item.name,
-          logo: item.logo || null,
+          logo: item.logo || undefined,
           address: item.mint || 'bitcoin',
           coingeckoId: item.coingeckoId || 'bitcoin',
           price: item.price,
@@ -514,7 +511,7 @@ export function useBalance({
             uiAmount: tokenUiAmount,
             symbol: token.symbol,
             name: token.name,
-            logo: token.logoUri || null,
+            logo: token.logoUri || undefined,
             address: token.address,
             coingeckoId: coingeckoId,
             price: tokenPrice,

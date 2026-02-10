@@ -62,9 +62,9 @@ export interface UseAvailableNetworksResult {
  * These are always shown regardless of developer mode setting.
  */
 const MAINNET_NETWORK_IDS = {
-  solana: ['mainnet-beta'],
-  bitcoin: ['mainnet'],
-  ethereum: ['mainnet'],
+  solana: ['solana-mainnet'],
+  bitcoin: ['bitcoin-mainnet'],
+  ethereum: ['ethereum-mainnet'],
 };
 
 /**
@@ -72,9 +72,9 @@ const MAINNET_NETWORK_IDS = {
  * Mainnet networks are shown first, followed by dev/test networks.
  */
 const NETWORK_ORDER = {
-  solana: ['mainnet-beta', 'devnet'],
-  bitcoin: ['bitcoin', 'bitcoin-testnet'],
-  ethereum: ['ethereum', 'ethereum-sepolia'],
+  solana: ['solana-mainnet', 'solana-devnet'],
+  bitcoin: ['bitcoin-mainnet', 'bitcoin-testnet'],
+  ethereum: ['ethereum-mainnet', 'ethereum-sepolia'],
 };
 
 // ============================================================================

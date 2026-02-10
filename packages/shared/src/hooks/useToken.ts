@@ -40,9 +40,9 @@ export interface TokenData extends Partial<TokenMetadata> {
   /** Token decimals */
   decimals?: number;
   /** Token logo URL */
-  logo?: string | null;
+  logo?: string;
   /** CoinGecko ID for price lookups */
-  coingeckoId?: string | null;
+  coingeckoId?: string;
   /** Token tags for categorization */
   tags?: string[];
   /** Human-readable balance */

@@ -265,7 +265,7 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
         ]);
 
         if (estimatedAmount === null || minAmount === null) {
-          throw new Error('Failed to get bridge estimate');
+          throw new Error('Bridge estimate returned empty data: estimated amount or minimum amount is unavailable');
         }
 
         const result: BridgeEstimate = {
@@ -307,7 +307,7 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
         const result = await createBridgeExchange(symbolIn, symbolOut, amount, addressTo);
 
         if (!result) {
-          throw new Error('Failed to create bridge exchange');
+          throw new Error('Bridge exchange returned empty data: no exchange details received from server');
         }
 
         setExchange(result);
@@ -336,7 +336,7 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
         const tx = await getBridgeTransaction(id);
 
         if (!tx) {
-          throw new Error('Transaction not found');
+          throw new Error('Bridge transaction returned empty data: transaction not found or unavailable');
         }
 
         setTransaction(tx);

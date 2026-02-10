@@ -47,7 +47,7 @@ export type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
  * This is a minimal interface to support address book functionality.
  */
 export interface AddressBookNetwork {
-  /** Unique network identifier (e.g., 'mainnet-beta', 'bitcoin', 'ethereum') */
+  /** Unique network identifier (e.g., 'solana-mainnet', 'bitcoin-mainnet', 'ethereum-mainnet') */
   id: string;
   /** Human-readable network name */
   name: string;
@@ -266,14 +266,14 @@ function migrateLegacyAddress(
  * await addAddress({
  *   address: 'So11111111111111111111111111111111111111112',
  *   name: 'My Solana Wallet',
- *   networkId: 'mainnet-beta',
+ *   networkId: 'solana-mainnet',
  * });
  *
  * // Edit an existing address
  * await editAddress('So11111111111111111111111111111111111111112', {
  *   address: 'So11111111111111111111111111111111111111112',
  *   name: 'Updated Name',
- *   networkId: 'mainnet-beta',
+ *   networkId: 'solana-mainnet',
  * });
  *
  * // Remove an address
