@@ -290,3 +290,7 @@ export type {
 // SubAccountSelector - Horizontal pill selector for derived account path indexes
 export { SubAccountSelector } from './SubAccountSelector';
 export type { SubAccount, SubAccountSelectorProps } from './SubAccountSelector';
+
+// SettingsScreenLayout - Reusable layout for settings screens
+export { SettingsScreenLayout } from './SettingsScreenLayout';
+export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';
