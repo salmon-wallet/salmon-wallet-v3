@@ -281,9 +281,6 @@ export {
 export {
   // Types
   type TransactionNetworkId,
-  type TransactionType,
-  type TransactionTokenAmount,
-  type TransactionFee,
   type TransactionItem,
   type TransactionPagingParams,
   type TransactionsResponse,

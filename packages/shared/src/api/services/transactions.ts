@@ -10,6 +10,11 @@
  */
 
 import { apiClient, ApiError } from '../client';
+import type {
+  TransactionType,
+  TransactionTokenAmount,
+  TransactionFee,
+} from '../../types/transaction';
 
 // ============================================================================
 // Types
@@ -26,45 +31,6 @@ export type TransactionNetworkId =
   | 'bitcoin-testnet'
   | 'ethereum-mainnet'
   | 'ethereum-sepolia';
-
-/**
- * Transaction type classification
- */
-export type TransactionType = 'send' | 'receive' | 'swap' | 'unknown';
-
-/**
- * Token amount within a transaction (input or output)
- */
-export interface TransactionTokenAmount {
-  /** Raw amount (in smallest unit) */
-  amount: string;
-  /** Token decimals */
-  decimals: number;
-  /** Token symbol */
-  symbol: string;
-  /** Token name */
-  name?: string;
-  /** Token logo URL */
-  logo?: string | null;
-  /** Token contract address */
-  contract: string;
-  /** Source address (for receives) */
-  source?: string;
-  /** Destination address (for sends) */
-  destination?: string;
-}
-
-/**
- * Transaction fee information
- */
-export interface TransactionFee {
-  /** Fee amount (raw, in smallest unit) */
-  amount: string;
-  /** Fee decimals */
-  decimals: number;
-  /** Fee token symbol (e.g., 'BTC', 'ETH') */
-  symbol: string;
-}
 
 /**
  * Single transaction item from the API
