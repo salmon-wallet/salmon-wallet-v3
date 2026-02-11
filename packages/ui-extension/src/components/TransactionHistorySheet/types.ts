@@ -6,7 +6,13 @@
  */
 
 import type React from 'react';
-import type { Blockchain, NetworkEnvironment, Transaction } from '@salmon/shared';
+import type {
+  Blockchain,
+  NetworkEnvironment,
+  Transaction,
+  TransactionItemPropsBase,
+  TransactionHistorySheetPropsBase,
+} from '@salmon/shared';
 
 // Re-export shared types for convenience
 export type {
@@ -23,55 +29,25 @@ export type {
 } from '@salmon/shared';
 
 /**
- * Props for TransactionItem component
+ * Props for TransactionItem component (Web/Extension)
  */
-export interface TransactionItemProps {
-  /** Transaction data */
-  transaction: Transaction;
-  /** Press handler */
-  onPress?: (transaction: Transaction) => void;
+export interface TransactionItemProps
+  extends TransactionItemPropsBase<React.CSSProperties> {
   /** Click handler to open detail view */
   onDetailClick?: (transaction: Transaction) => void;
-  /** Whether to hide balance values */
-  hiddenBalance?: boolean;
   /** Additional CSS class */
   className?: string;
-  /** Additional inline styles */
-  style?: React.CSSProperties;
 }
 
 /**
- * Props for TransactionHistorySheet component
+ * Props for TransactionHistorySheet component (Web/Extension)
  */
-export interface TransactionHistorySheetProps {
-  /** Whether the sheet is visible */
-  visible: boolean;
-  /** Callback when sheet is closed */
-  onClose: () => void;
-  /** Transactions to display */
-  transactions: Transaction[];
-  /** Whether transactions are loading */
-  loading?: boolean;
-  /** Whether more transactions are being fetched */
-  loadingMore?: boolean;
-  /** Callback to load more transactions */
-  onLoadMore?: () => void;
-  /** Whether there are more transactions to load */
-  hasMore?: boolean;
-  /** Whether balance values should be hidden */
-  hiddenBalance?: boolean;
-  /** Callback when a transaction is pressed */
-  onTransactionPress?: (transaction: Transaction) => void;
+export interface TransactionHistorySheetProps
+  extends TransactionHistorySheetPropsBase<React.CSSProperties> {
   /** Callback when a transaction detail is requested */
   onTransactionDetailClick?: (transaction: Transaction) => void;
-  /** Error message to display */
-  error?: string | null;
-  /** Callback to retry loading */
-  onRetry?: () => void;
   /** Additional CSS class for the dialog */
   className?: string;
-  /** Additional inline styles for the dialog paper */
-  style?: React.CSSProperties;
 }
 
 /**
