@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { TokenSelectorToken, UseTokenSearchResult } from '../types/ui/token-selector';
+import { filterTokensLocally } from '../utils/tokens';
 
 // Re-export types for backward compatibility
 export type { TokenSelectorToken, UseTokenSearchResult };
@@ -7,22 +8,6 @@ export type { TokenSelectorToken, UseTokenSearchResult };
 const PAGE_SIZE = 20;
 const DEBOUNCE_DELAY = 300;
 const MIN_SEARCH_LENGTH = 3;
-
-/**
- * Filters tokens locally by name or symbol
- */
-const filterTokensLocally = (tokens: TokenSelectorToken[], query: string): TokenSelectorToken[] => {
-  if (query.length < MIN_SEARCH_LENGTH) {
-    return tokens;
-  }
-
-  const lowerQuery = query.toLowerCase();
-  return tokens.filter(
-    (token) =>
-      (token.name || '').toLowerCase().includes(lowerQuery) ||
-      (token.symbol || '').toLowerCase().includes(lowerQuery)
-  );
-};
 
 /**
  * Hook for managing token search with debounce and pagination

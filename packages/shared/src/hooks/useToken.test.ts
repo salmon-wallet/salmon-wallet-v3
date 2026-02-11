@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useToken } from './useToken';
-import type { TokenMetadata } from '../api/services';
+import type { TokenMetadata } from '../types/token';
 import type { TokenBalanceWithPrice } from '../utils/balance';
 import * as tokensService from '../api/services/tokens';
 

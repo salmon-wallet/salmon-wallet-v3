@@ -37,32 +37,27 @@ import type { SolanaAccount } from '../blockchain/solana';
 import {
   getSwapQuote as getSwapQuoteService,
   executeSwap as executeSwapService,
-  getExpectedOutput,
-  getMinimumOutput,
-  getPriceImpact,
-  type SwapQuote,
-  type SwapQuoteParams,
-  type SwapResult,
-  type SwapNetworkId,
-  type GetSwapQuoteOptions,
+  parseQuoteInfo,
 } from '../blockchain/solana/swap';
 import { getSwapOrder, executeSwapApi } from '../api/services/solana';
 import { getTokenList } from '../api/services/tokens';
+import type {
+  SwapQuote,
+  SwapQuoteParams,
+  SwapResult,
+  SwapNetworkId,
+  GetSwapQuoteOptions,
+  SwapStatus,
+  GetQuoteParams,
+  ParsedQuoteInfo,
+} from '../types/swap';
+
+// Re-export for backwards compatibility
+export type { SwapStatus, GetQuoteParams, ParsedQuoteInfo };
 
 // ============================================================================
 // Types
 // ============================================================================
-
-/**
- * Status of the swap operation
- */
-export type SwapStatus =
-  | 'idle'
-  | 'getting-quote'
-  | 'quote-ready'
-  | 'executing'
-  | 'success'
-  | 'failed';
 
 /**
  * Parameters for the useSwap hook
@@ -72,63 +67,6 @@ export interface UseSwapParams {
   account: SolanaAccount | undefined;
   /** Network ID for swap operations */
   networkId: SwapNetworkId;
-}
-
-/**
- * Parameters for getting a swap quote
- */
-export interface GetQuoteParams {
-  /** Input token mint address */
-  inputMint: string;
-  /** Output token mint address */
-  outputMint: string;
-  /** Amount in human-readable format (e.g., 1.5 for 1.5 SOL) */
-  amount: number;
-  /** Slippage tolerance in basis points (default: 50 = 0.5%) */
-  slippageBps?: number;
-  /** Input token decimals (optional, fetched if not provided) */
-  inputDecimals?: number;
-  /** Swap mode (default: 'ExactIn') */
-  swapMode?: 'ExactIn' | 'ExactOut';
-  /** Use dynamic slippage */
-  dynamicSlippage?: boolean;
-  /** Priority fee level */
-  priorityLevel?: 'none' | 'low' | 'medium' | 'high' | 'veryHigh';
-}
-
-/**
- * Parsed quote information for UI display
- */
-export interface ParsedQuoteInfo {
-  /** Expected output amount (human-readable) */
-  expectedOutput: number;
-  /** Minimum output after slippage (human-readable) */
-  minimumOutput: number;
-  /** Price impact percentage */
-  priceImpact: number;
-  /** Input token info */
-  inputToken?: {
-    symbol: string;
-    name: string;
-    decimals: number;
-    logo?: string | null;
-  };
-  /** Output token info */
-  outputToken?: {
-    symbol: string;
-    name: string;
-    decimals: number;
-    logo?: string | null;
-  };
-  /** Route information */
-  route: {
-    /** Slippage in basis points */
-    slippageBps: number;
-    /** Swap mode */
-    swapMode: 'ExactIn' | 'ExactOut';
-    /** Route plan labels */
-    routeLabels: string[];
-  };
 }
 
 /**
@@ -153,41 +91,6 @@ export interface UseSwapResult {
   reset: () => void;
   /** Clear just the quote (for refresh) */
   clearQuote: () => void;
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Parse quote into UI-friendly format
- * Updated for Jupiter Ultra v1 API structure
- */
-function parseQuoteInfo(quote: SwapQuote): ParsedQuoteInfo {
-  const outputDecimals = quote.output?.decimals ?? 9;
-
-  return {
-    expectedOutput: getExpectedOutput(quote, outputDecimals),
-    minimumOutput: getMinimumOutput(quote, outputDecimals),
-    priceImpact: getPriceImpact(quote),
-    inputToken: quote.input ? {
-      symbol: quote.input.symbol,
-      name: quote.input.name || '',
-      decimals: quote.input.decimals,
-      logo: quote.input.logo || undefined,
-    } : undefined,
-    outputToken: quote.output ? {
-      symbol: quote.output.symbol,
-      name: quote.output.name || '',
-      decimals: quote.output.decimals,
-      logo: quote.output.logo || undefined,
-    } : undefined,
-    route: {
-      slippageBps: quote.custom?.slippageBps || 50,
-      swapMode: (quote.custom?.swapMode || 'ExactIn') as 'ExactIn' | 'ExactOut',
-      routeLabels: quote.routeNames || [],
-    },
-  };
 }
 
 // ============================================================================

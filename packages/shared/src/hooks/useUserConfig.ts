@@ -20,32 +20,14 @@ import {
   type ExplorerWithKey,
   type DefaultExplorers,
 } from '../config/explorers';
+import type { UserConfig, ActiveBlockchainAccount } from '../types/account';
+
+// Re-export for backwards compatibility
+export type { UserConfig, ActiveBlockchainAccount };
 
 // ============================================================================
 // Types
 // ============================================================================
-
-/**
- * User configuration stored in persistent storage.
- */
-export interface UserConfig {
-  /** Selected explorer for each blockchain */
-  explorers: DefaultExplorers;
-  /** Whether to show developer/test networks */
-  developerNetworks: boolean;
-}
-
-/**
- * Active blockchain account information needed by the hook.
- */
-export interface ActiveBlockchainAccount {
-  network: {
-    /** Network environment (mainnet, testnet, devnet) */
-    environment: NetworkEnvironment;
-    /** Blockchain type (solana, bitcoin, etc.) */
-    blockchain: string;
-  };
-}
 
 /**
  * Parameters for the useUserConfig hook.

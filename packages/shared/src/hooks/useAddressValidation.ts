@@ -10,13 +10,15 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import {
-  validateDestinationAccount as validateSolanaAddress,
-  type ValidationResult,
-} from '../blockchain/solana';
-import {
-  validateEthereumDestinationAccount as validateEthereumAddress,
-} from '../blockchain/ethereum';
+import { validateDestinationAccount as validateSolanaAddress } from '../blockchain/solana';
+import { validateEthereumDestinationAccount as validateEthereumAddress } from '../blockchain/ethereum';
+import type { BlockchainType } from '../types/blockchain';
+import type { ValidationResult, ValidationState, ValidationCallbackResult } from '../types/validation';
+import { VALIDATION_MESSAGES, getValidationState, getMessageType } from '../utils/validation';
+
+// Re-export domain types for backward compatibility
+export type { BlockchainType } from '../types/blockchain';
+export type { ValidationState, ValidationCallbackResult } from '../types/validation';
 
 /**
  * Connection type derived from validateSolanaAddress's first parameter.
@@ -35,32 +37,6 @@ type EthereumProvider = Parameters<typeof validateEthereumAddress>[0];
  * Solana uses Connection, Ethereum uses Provider, Bitcoin needs no connection.
  */
 type ChainConnection = SolanaConnection | EthereumProvider | null;
-
-/**
- * Supported blockchain types for address validation
- */
-export type BlockchainType = 'solana' | 'ethereum' | 'bitcoin';
-
-/**
- * Validation state for the input address
- */
-export type ValidationState = 'idle' | 'loading' | 'valid' | 'invalid' | 'warning';
-
-/**
- * Validation callback result passed to onValidation
- */
-export interface ValidationCallbackResult {
-  /** Whether the address is valid */
-  isValid: boolean;
-  /** The validation state */
-  state: ValidationState;
-  /** The full validation result from the blockchain service */
-  result: ValidationResult | null;
-  /** Resolved public key (for domain addresses) */
-  resolvedAddress?: string;
-  /** Whether the input is a domain name */
-  isDomain?: boolean;
-}
 
 /**
  * Return type for useAddressValidation hook
@@ -98,48 +74,6 @@ export interface UseAddressValidationOptions {
 
 // Default debounce delay in milliseconds
 const DEFAULT_DEBOUNCE_MS = 500;
-
-// Validation result code to message mapping
-const VALIDATION_MESSAGES: Record<string, string> = {
-  // Solana
-  invalid: 'Invalid address format',
-  invalid_domain: 'Could not resolve domain name',
-  same_address: 'Cannot send to your own address',
-  no_info: 'This account does not exist on-chain yet. The recipient will need to fund it.',
-  off_curve_no_funds: 'This is a program-derived address without funds',
-  off_curve_has_funds: 'This is a program-derived address',
-  // Ethereum
-  no_funds: 'This address has no ETH balance',
-};
-
-/**
- * Maps ValidationResult to ValidationState
- */
-function getValidationState(result: ValidationResult | null, isValidating: boolean): ValidationState {
-  if (isValidating) return 'loading';
-  if (!result) return 'idle';
-
-  switch (result.type) {
-    case 'SUCCESS':
-      return 'valid';
-    case 'WARNING':
-      return 'warning';
-    case 'ERROR':
-      return 'invalid';
-    default:
-      return 'idle';
-  }
-}
-
-/**
- * Gets the message type for styling
- */
-function getMessageType(result: ValidationResult | null): 'error' | 'warning' | null {
-  if (!result) return null;
-  if (result.type === 'ERROR') return 'error';
-  if (result.type === 'WARNING') return 'warning';
-  return null;
-}
 
 /**
  * Hook for validating addresses with debounce

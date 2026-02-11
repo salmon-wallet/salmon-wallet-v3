@@ -31,16 +31,17 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import type { SolanaAccount } from '../blockchain/solana';
 import type { BitcoinAccount } from '../blockchain/bitcoin';
 import type { EthereumAccount } from '../blockchain/ethereum';
+import type { BlockchainAccount, NetworkId } from '../types/blockchain';
+import { isSolanaAccount, isBitcoinAccount, isEthereumAccount } from '../utils/account';
+import { removeDecimals } from '../utils/decimals';
 
-/**
- * Union type for all supported blockchain account types.
- * This allows useBalance to work with any supported blockchain.
- */
-export type BlockchainAccount = SolanaAccount | BitcoinAccount | EthereumAccount;
+// Re-export domain types for backward compatibility
+export type { BlockchainAccount } from '../types/blockchain';
+export type { NetworkId } from '../types/blockchain';
 import { getWalletBalance } from '../api/services/balance';
 import {
   createSolBalance,
@@ -51,24 +52,14 @@ import {
 } from '../utils/balance';
 import { getPricesByPlatform } from '../api/services/price';
 import { getERC20TokenBalances } from '../api/services/ethereum';
-import { getEthBalance, ETH_CONSTANTS } from '../blockchain/ethereum/balance';
+import { getEthBalance } from '../blockchain/ethereum/balance';
+import { ETH_CONSTANTS } from '../utils/tokens';
 import { detectAllTokens, type EthereumTokenBalance as EthTokenBalance } from '../blockchain/ethereum/tokens';
-import { getStorageItem, setStorageItem } from '../storage';
+import { getStorageItem, setStorageItem, STORAGE_KEYS } from '../storage';
 
 // ============================================================================
 // Types
 // ============================================================================
-
-/**
- * Network ID for balance queries
- */
-export type NetworkId =
-  | 'solana-mainnet'
-  | 'solana-devnet'
-  | 'ethereum-mainnet'
-  | 'ethereum-sepolia'
-  | 'bitcoin-mainnet'
-  | 'bitcoin-testnet';
 
 /**
  * Options for the useBalance hook
@@ -118,80 +109,6 @@ export interface UseBalanceResult {
 
 /** Cache TTL in milliseconds (60 seconds) */
 const CACHE_TTL = 60 * 1000;
-
-/** Storage key for balance visibility preference */
-const HIDDEN_BALANCE_KEY = 'salmon_hidden_balance';
-
-/** Token-2022 program ID */
-const TOKEN_2022_PROGRAM_ID = new PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
-
-// ============================================================================
-// Account Type Detection
-// ============================================================================
-
-/**
- * Type of blockchain for account routing
- */
-type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
-
-/**
- * Detects the blockchain type from an account instance.
- * Uses duck typing to identify the account type based on characteristic methods/properties.
- *
- * @param account - The blockchain account to identify
- * @returns The blockchain type ('solana', 'bitcoin', or 'ethereum')
- */
-function getAccountBlockchainType(account: BlockchainAccount): BlockchainType {
-  // Check for SolanaAccount - has getConnection that returns Connection (Solana-specific)
-  // and getPublicKey returns PublicKey (Solana type)
-  if ('getConnection' in account && 'getPublicKey' in account) {
-    const publicKey = account.getPublicKey();
-    // SolanaAccount.getPublicKey() returns PublicKey (an object with toBase58 method)
-    // EthereumAccount.getPublicKey() returns a string (hex)
-    // BitcoinAccount.getPublicKey() returns Uint8Array
-    if (typeof publicKey === 'object' && publicKey !== null && 'toBase58' in publicKey) {
-      return 'solana';
-    }
-    // EthereumAccount has getConnection but getPublicKey returns string
-    if (typeof publicKey === 'string') {
-      return 'ethereum';
-    }
-  }
-
-  // Check for BitcoinAccount - has keyPair property with address
-  if ('keyPair' in account) {
-    return 'bitcoin';
-  }
-
-  // Check for EthereumAccount - has wallet property
-  if ('wallet' in account) {
-    return 'ethereum';
-  }
-
-  // Default to Solana for backwards compatibility
-  return 'solana';
-}
-
-/**
- * Type guard to check if account is a SolanaAccount
- */
-function isSolanaAccount(account: BlockchainAccount): account is SolanaAccount {
-  return getAccountBlockchainType(account) === 'solana';
-}
-
-/**
- * Type guard to check if account is a BitcoinAccount
- */
-function isBitcoinAccount(account: BlockchainAccount): account is BitcoinAccount {
-  return getAccountBlockchainType(account) === 'bitcoin';
-}
-
-/**
- * Type guard to check if account is an EthereumAccount
- */
-function isEthereumAccount(account: BlockchainAccount): account is EthereumAccount {
-  return getAccountBlockchainType(account) === 'ethereum';
-}
 
 // ============================================================================
 // Helper Functions
@@ -292,7 +209,7 @@ export function useBalance({
   useEffect(() => {
     const loadHiddenPreference = async () => {
       try {
-        const hidden = await getStorageItem<boolean>(HIDDEN_BALANCE_KEY);
+        const hidden = await getStorageItem<boolean>(STORAGE_KEYS.HIDDEN_BALANCE);
         if (hidden !== null) {
           setHiddenBalance(hidden);
         }
@@ -310,7 +227,7 @@ export function useBalance({
     const newValue = !hiddenBalance;
     setHiddenBalance(newValue);
     try {
-      await setStorageItem(HIDDEN_BALANCE_KEY, newValue);
+      await setStorageItem(STORAGE_KEYS.HIDDEN_BALANCE, newValue);
     } catch {
       // Ignore storage errors for preference
     }
@@ -362,7 +279,7 @@ export function useBalance({
           owner: bitcoinAccount.getReceiveAddress(),
           amount: item.amount,
           decimals: item.decimals,
-          uiAmount: item.uiAmount || item.amount / Math.pow(10, item.decimals),
+          uiAmount: item.uiAmount || removeDecimals(item.amount, item.decimals),
           symbol: item.symbol,
           name: item.name,
           logo: item.logo || undefined,

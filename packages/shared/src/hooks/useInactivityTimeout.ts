@@ -18,6 +18,7 @@ import {
   getLastActivity,
   isSessionTimedOut,
 } from '../storage/stash';
+import { isReactNative, isWebEnvironment } from '../utils/platform';
 
 // ============================================================================
 // Constants
@@ -106,30 +107,6 @@ export interface UseInactivityTimeoutResult {
 }
 
 // ============================================================================
-// Platform Detection
-// ============================================================================
-
-/**
- * Detects if running in a React Native environment.
- */
-const isReactNative = (): boolean => {
-  return (
-    typeof navigator !== 'undefined' && navigator.product === 'ReactNative'
-  );
-};
-
-/**
- * Detects if running in a web browser environment.
- */
-const isWebEnvironment = (): boolean => {
-  return (
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined' &&
-    !isReactNative()
-  );
-};
-
-// ============================================================================
 // Hook Implementation
 // ============================================================================
 
@@ -192,7 +169,7 @@ const isWebEnvironment = (): boolean => {
  *   const { isActive } = useInactivityTimeout({
  *     timeoutMs: 10 * 60 * 1000, // 10 minutes
  *     onTimeout: () => {
- *       lockWallet();
+ *       // lock the wallet and show lock screen
  *       showLockScreen();
  *     },
  *   });

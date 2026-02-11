@@ -14,30 +14,11 @@ import { useUserConfig, type UseUserConfigParams } from './useUserConfig';
 import { SOLANA_NETWORKS } from '../blockchain/solana/factory';
 import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/factory';
 import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/factory';
-import type { SolanaNetwork } from '../blockchain/solana/SolanaAccount';
-import type { BitcoinNetwork } from '../blockchain/bitcoin/BitcoinAccount';
-import type { EthereumNetwork } from '../blockchain/ethereum/EthereumAccount';
+import type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
+import { MAINNET_NETWORK_IDS, sortNetworks, filterNetworks } from '../utils/network';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * A network from any supported blockchain.
- */
-export type AnyNetwork = SolanaNetwork | BitcoinNetwork | EthereumNetwork;
-
-/**
- * Networks grouped by blockchain.
- */
-export interface NetworksByBlockchain {
-  /** Available Solana networks */
-  solana: SolanaNetwork[];
-  /** Available Bitcoin networks */
-  bitcoin: BitcoinNetwork[];
-  /** Available Ethereum networks */
-  ethereum: EthereumNetwork[];
-}
+// Re-export domain types for backward compatibility
+export type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
 
 /**
  * Return type for the useAvailableNetworks hook.
@@ -58,16 +39,6 @@ export interface UseAvailableNetworksResult {
 // ============================================================================
 
 /**
- * Network IDs that are considered mainnet networks.
- * These are always shown regardless of developer mode setting.
- */
-const MAINNET_NETWORK_IDS = {
-  solana: ['solana-mainnet'],
-  bitcoin: ['bitcoin-mainnet'],
-  ethereum: ['ethereum-mainnet'],
-};
-
-/**
  * Desired network order for each blockchain.
  * Mainnet networks are shown first, followed by dev/test networks.
  */
@@ -76,102 +47,6 @@ const NETWORK_ORDER = {
   bitcoin: ['bitcoin-mainnet', 'bitcoin-testnet'],
   ethereum: ['ethereum-mainnet', 'ethereum-sepolia'],
 };
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Sorts networks according to a predefined order.
- * Networks not in the order list are placed at the end in their original order.
- */
-function sortNetworks<T extends { id: string }>(
-  networks: T[],
-  order: string[]
-): T[] {
-  return networks.sort((a, b) => {
-    const aIndex = order.indexOf(a.id);
-    const bIndex = order.indexOf(b.id);
-
-    // If both are in the order list, sort by their position
-    if (aIndex !== -1 && bIndex !== -1) {
-      return aIndex - bIndex;
-    }
-
-    // If only a is in the order list, it comes first
-    if (aIndex !== -1) {
-      return -1;
-    }
-
-    // If only b is in the order list, it comes first
-    if (bIndex !== -1) {
-      return 1;
-    }
-
-    // If neither is in the order list, maintain original order
-    return 0;
-  });
-}
-
-/**
- * Filters Solana networks based on whether developer mode is enabled.
- */
-function filterSolanaNetworks(
-  networks: Record<string, SolanaNetwork>,
-  mainnetIds: string[],
-  developerNetworks: boolean
-): SolanaNetwork[] {
-  const filtered = Object.entries(networks)
-    .filter(([key, network]) => {
-      if (developerNetworks) {
-        return true;
-      }
-      return mainnetIds.includes(key) || mainnetIds.includes(network.id);
-    })
-    .map(([, network]) => network);
-
-  return sortNetworks(filtered, NETWORK_ORDER.solana);
-}
-
-/**
- * Filters Bitcoin networks based on whether developer mode is enabled.
- */
-function filterBitcoinNetworks(
-  networks: Record<string, BitcoinNetwork>,
-  mainnetIds: string[],
-  developerNetworks: boolean
-): BitcoinNetwork[] {
-  const filtered = Object.entries(networks)
-    .filter(([key, network]) => {
-      if (developerNetworks) {
-        return true;
-      }
-      return mainnetIds.includes(key) || mainnetIds.includes(network.id);
-    })
-    .map(([, network]) => network);
-
-  return sortNetworks(filtered, NETWORK_ORDER.bitcoin);
-}
-
-/**
- * Filters Ethereum networks based on whether developer mode is enabled.
- */
-function filterEthereumNetworks(
-  networks: Record<string, EthereumNetwork>,
-  mainnetIds: string[],
-  developerNetworks: boolean
-): EthereumNetwork[] {
-  const filtered = Object.entries(networks)
-    .filter(([key, network]) => {
-      if (developerNetworks) {
-        return true;
-      }
-      return mainnetIds.includes(key) || mainnetIds.includes(network.id);
-    })
-    .map(([, network]) => network);
-
-  return sortNetworks(filtered, NETWORK_ORDER.ethereum);
-}
 
 // ============================================================================
 // Hook Implementation
@@ -232,20 +107,23 @@ export function useAvailableNetworks(
 
   const networks = useMemo<NetworksByBlockchain>(() => {
     return {
-      solana: filterSolanaNetworks(
+      solana: filterNetworks(
         SOLANA_NETWORKS,
         MAINNET_NETWORK_IDS.solana,
-        developerNetworks
+        developerNetworks,
+        NETWORK_ORDER.solana
       ),
-      bitcoin: filterBitcoinNetworks(
+      bitcoin: filterNetworks(
         BITCOIN_NETWORKS,
         MAINNET_NETWORK_IDS.bitcoin,
-        developerNetworks
+        developerNetworks,
+        NETWORK_ORDER.bitcoin
       ),
-      ethereum: filterEthereumNetworks(
+      ethereum: filterNetworks(
         ETHEREUM_NETWORKS,
         MAINNET_NETWORK_IDS.ethereum,
-        developerNetworks
+        developerNetworks,
+        NETWORK_ORDER.ethereum
       ),
     };
   }, [developerNetworks]);

@@ -21,19 +21,19 @@ import { Connection, PublicKey } from '@solana/web3.js';
 // Storage
 import * as storage from '../storage';
 
-// SmartCache from useDomain
-import { SmartCache, clearDomainCache, getDomainCache } from './useDomain';
+// SmartCache from utils/cache
+import { SmartCache } from '../utils/cache';
 
 // Types
 import type { StoredAccount } from './useAccounts';
 import type { TokenBalanceWithPrice } from '../utils/balance';
-import type { TokenMetadata } from '../api/services/tokens';
+import type { TokenMetadata } from '../types/token';
 import type {
   StoredAddress,
   Address,
   AddressInput,
   AddressBookNetwork,
-} from './useAddressbook';
+} from '../types/address';
 
 // Mock modules
 vi.mock('../storage', () => ({
@@ -52,17 +52,26 @@ vi.mock('../storage', () => ({
     removeItem: vi.fn(),
   })),
   STORAGE_KEYS: {
-    VAULT: 'salmon_vault',
-    SETTINGS: 'salmon_settings',
+    COUNTER: 'salmon_account_counter',
     ACCOUNTS: 'salmon_accounts',
-    ACTIVE_ACCOUNT: 'salmon_active_account',
-    TOKENS: 'salmon_tokens',
-    CONTACTS: 'salmon_contacts',
-    TX_HISTORY: 'salmon_tx_history',
-    NETWORK: 'salmon_network',
-    NFT_CACHE: 'salmon_nft_cache',
-    PRICE_CACHE: 'salmon_price_cache',
+    MNEMONICS: 'salmon_mnemonics',
+    ACCOUNT_ID: 'salmon_active_account_id',
+    NETWORK_ID: 'salmon_active_network_id',
+    PATH_INDEX: 'salmon_active_path_index',
+    TRUSTED_APPS: 'salmon_trusted_apps',
+    CUSTOM_TOKENS: 'salmon_custom_tokens',
+    CONNECTION: 'salmon_connection',
+    SETTINGS: 'salmon_settings',
     LANGUAGE: 'salmon_language',
+    CONTACTS: 'salmon_contacts',
+    WALLETS: 'salmon_wallets',
+    ACTIVE: 'salmon_active',
+    ENDPOINTS: 'salmon_endpoints',
+  },
+  STASH_KEYS: {
+    PASSWORD: 'password',
+    DERIVED_KEY: 'derived_key_cache',
+    LAST_ACTIVITY: 'salmon_last_activity',
   },
 }));
 
@@ -240,25 +249,6 @@ describe('SmartCache', () => {
   });
 });
 
-describe('Domain cache utility functions', () => {
-  beforeEach(() => {
-    clearDomainCache();
-  });
-
-  it('should clear the global domain cache', () => {
-    const cache = getDomainCache();
-    cache.set('test', 'value');
-    expect(cache.has('test')).toBe(true);
-
-    clearDomainCache();
-    expect(cache.has('test')).toBe(false);
-  });
-
-  it('should return the domain cache instance', () => {
-    const cache = getDomainCache();
-    expect(cache).toBeInstanceOf(SmartCache);
-  });
-});
 
 // ============================================================================
 // Storage Integration Tests
@@ -274,7 +264,7 @@ describe('Storage module integration', () => {
     expect(storage.STORAGE_KEYS.LANGUAGE).toBe('salmon_language');
     expect(storage.STORAGE_KEYS.CONTACTS).toBe('salmon_contacts');
     expect(storage.STORAGE_KEYS.ACCOUNTS).toBe('salmon_accounts');
-    expect(storage.STORAGE_KEYS.VAULT).toBe('salmon_vault');
+    expect(storage.STORAGE_KEYS.MNEMONICS).toBe('salmon_mnemonics');
   });
 
   it('should mock getStorageItem correctly', async () => {
@@ -589,7 +579,7 @@ describe('Integration scenarios', () => {
     // Store account data
     (storage.setStorageItem as any).mockResolvedValue(undefined);
     await storage.setStorageItem('salmon_accounts', [MOCK_STORED_ACCOUNT]);
-    await storage.setStorageItem('salmon_vault', encrypted);
+    await storage.setStorageItem('salmon_mnemonics', encrypted);
 
     expect(storage.setStorageItem).toHaveBeenCalledTimes(2);
   });

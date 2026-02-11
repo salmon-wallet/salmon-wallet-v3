@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { RuntimeInfo } from './types';
+import type { RuntimeInfo } from './useRuntime';
 
 // Type declarations for browser extension global APIs
 // These are only available in extension contexts

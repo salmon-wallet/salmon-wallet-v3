@@ -12,8 +12,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { RuntimeInfo } from './types';
-import { ADAPTER_PREFIXES } from './types';
+import type { RuntimeInfo } from './useRuntime';
+import { ADAPTER_PREFIXES } from './useRuntime';
 
 // ============================================================================
 // Test Helper Functions

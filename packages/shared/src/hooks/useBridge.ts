@@ -43,30 +43,24 @@ import {
   getBridgeFeaturedTokens,
   createBridgeExchange,
   getBridgeTransaction,
-  type BridgeToken,
-  type BridgeAvailableToken,
-  type BridgeFeaturedToken,
-  type BridgeExchange,
-  type BridgeTransaction,
-  type BridgeTransactionStatus,
 } from '../api/services/bridge';
+import type {
+  BridgeToken,
+  BridgeAvailableToken,
+  BridgeFeaturedToken,
+  BridgeExchange,
+  BridgeTransaction,
+  BridgeTransactionStatus,
+  BridgeOperationStatus,
+  BridgeEstimate,
+} from '../types/bridge';
+
+// Re-export for backwards compatibility
+export type { BridgeOperationStatus, BridgeEstimate };
 
 // ============================================================================
 // Types
 // ============================================================================
-
-/**
- * Status of the bridge operation
- */
-export type BridgeOperationStatus =
-  | 'idle'
-  | 'loading-tokens'
-  | 'getting-estimate'
-  | 'creating-exchange'
-  | 'exchange-created'
-  | 'checking-status'
-  | 'success'
-  | 'failed';
 
 /**
  * Parameters for the useBridge hook
@@ -74,20 +68,6 @@ export type BridgeOperationStatus =
 export interface UseBridgeParams {
   /** Network to load supported tokens for (optional) */
   network?: string;
-}
-
-/**
- * Estimate result with minimum amount
- */
-export interface BridgeEstimate {
-  /** Estimated output amount */
-  estimatedAmount: number;
-  /** Minimum required input amount */
-  minAmount: number;
-  /** Input symbol */
-  symbolIn: string;
-  /** Output symbol */
-  symbolOut: string;
 }
 
 /**
@@ -390,15 +370,5 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
     reset,
   };
 }
-
-// Re-export types from bridge service for convenience
-export type {
-  BridgeToken,
-  BridgeAvailableToken,
-  BridgeFeaturedToken,
-  BridgeExchange,
-  BridgeTransaction,
-  BridgeTransactionStatus,
-};
 
 export default useBridge;

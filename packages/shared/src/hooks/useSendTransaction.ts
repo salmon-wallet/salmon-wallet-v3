@@ -25,104 +25,56 @@
 
 import { useState, useCallback } from 'react';
 import { PublicKey } from '@solana/web3.js';
+import { isSolanaAccount, isBitcoinAccount, isEthereumAccount } from '../utils/account';
 import type { SolanaAccount } from '../blockchain/solana';
 import type { BitcoinAccount } from '../blockchain/bitcoin';
 import type { EthereumAccount } from '../blockchain/ethereum';
 import {
   createTransfer as solanaCreateTransfer,
   estimateFee as solanaEstimateFee,
-  isNativeSol,
-  removeDecimals,
   SOL_ADDRESS,
 } from '../blockchain/solana/transfer';
 import {
   sendTransaction as ethSendTransaction,
   estimateTransferFee as ethEstimateTransferFee,
-  isNativeEth,
   formatAmount as ethFormatAmount,
-  createNativeToken,
-  createERC20Token,
-  ETH_ADDRESS,
 } from '../blockchain/ethereum/transfer';
 import {
   sendBitcoin,
   estimateBitcoinFee,
   getUtxos,
   getMaxSendableAmount,
-  satoshisToBtc,
 } from '../blockchain/bitcoin/transfer';
+import { removeDecimals, satoshisToBtc } from '../utils/decimals';
+import { isNativeSol, isNativeEth, createNativeToken, createERC20Token, ETH_ADDRESS } from '../utils/tokens';
 import {
   fetchUtxos,
   broadcastTransaction,
 } from '../api/services/bitcoin-transfer';
+
+import type { BlockchainType, BlockchainAccount } from '../types/blockchain';
+import type {
+  SendTokenInfo,
+  SendTransactionParams,
+  FeeEstimateResult,
+  SendTransactionStatus,
+} from '../types/send';
+
+// Re-export domain types for backward compatibility
+export type { SendTokenInfo, SendTransactionParams, FeeEstimateResult, SendTransactionStatus } from '../types/send';
 
 // ============================================================================
 // Types
 // ============================================================================
 
 /**
- * Blockchain type for routing
- */
-export type SendBlockchainType = 'solana' | 'bitcoin' | 'ethereum';
-
-/**
- * Union type for all supported blockchain account types
- */
-export type SendBlockchainAccount = SolanaAccount | BitcoinAccount | EthereumAccount;
-
-/**
- * Token information for the send flow
- */
-export interface SendTokenInfo {
-  /** Token address/mint */
-  address: string;
-  /** Token decimals */
-  decimals: number;
-  /** Token symbol */
-  symbol: string;
-}
-
-/**
- * Parameters for fee estimation and transaction execution
- */
-export interface SendTransactionParams {
-  /** Token to send */
-  token: SendTokenInfo;
-  /** Recipient address */
-  recipientAddress: string;
-  /** Amount in human-readable format */
-  amount: number;
-}
-
-/**
- * Fee estimation result
- */
-export interface FeeEstimateResult {
-  /** Fee amount in native token units (e.g., "0.000005") */
-  fee: string;
-  /** Fee amount in USD */
-  feeUsd?: string;
-}
-
-/**
- * Transaction status for the send flow
- */
-export type SendTransactionStatus =
-  | 'idle'
-  | 'estimating-fee'
-  | 'creating'
-  | 'sending'
-  | 'success'
-  | 'failed';
-
-/**
  * Hook parameters
  */
 export interface UseSendTransactionParams {
   /** The blockchain account instance */
-  account: SendBlockchainAccount | undefined;
+  account: BlockchainAccount | undefined;
   /** Blockchain type for routing */
-  blockchain: SendBlockchainType;
+  blockchain: BlockchainType;
 }
 
 /**
@@ -139,32 +91,6 @@ export interface UseSendTransactionResult {
   error: string | null;
   /** Reset the hook state */
   reset: () => void;
-}
-
-// ============================================================================
-// Account Type Detection (same pattern as useBalance.ts)
-// ============================================================================
-
-function isSolanaAccount(account: SendBlockchainAccount): account is SolanaAccount {
-  if ('getConnection' in account && 'getPublicKey' in account) {
-    const publicKey = (account as SolanaAccount).getPublicKey();
-    if (typeof publicKey === 'object' && publicKey !== null && 'toBase58' in publicKey) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function isBitcoinAccount(account: SendBlockchainAccount): account is BitcoinAccount {
-  return 'keyPair' in account && !('getConnection' in account);
-}
-
-function isEthereumAccount(account: SendBlockchainAccount): account is EthereumAccount {
-  return 'wallet' in account || (
-    'getConnection' in account &&
-    'getPublicKey' in account &&
-    typeof (account as any).getPublicKey() === 'string'
-  );
 }
 
 // ============================================================================

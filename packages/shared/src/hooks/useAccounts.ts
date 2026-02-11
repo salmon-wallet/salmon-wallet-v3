@@ -24,6 +24,8 @@ import {
   setStashItem,
   removeStashItem,
   updateLastActivity,
+  STORAGE_KEYS,
+  STASH_KEYS,
 } from '../storage';
 import {
   lock,
@@ -37,144 +39,59 @@ import {
 } from '../crypto/encryption';
 import {
   SolanaAccount,
-  createSolanaAccount,
   type SolanaNetwork,
   SOLANA_NETWORKS,
 } from '../blockchain/solana';
 import {
   BitcoinAccount,
-  createBitcoinAccount,
   type BitcoinNetwork,
   BITCOIN_NETWORKS,
 } from '../blockchain/bitcoin';
 import {
-  fetchBitcoinAccountBalance,
-  fetchBitcoinAccountPrices,
-  fetchBitcoinAccountTransaction,
-  fetchBitcoinAccountRecentTransactions,
-} from '../api/services/bitcoin-account';
-import {
   EthereumAccount,
-  createEthereumAccount,
   type EthereumNetwork,
   ETHEREUM_NETWORKS,
 } from '../blockchain/ethereum';
 import { getApiUrl } from '../api/config';
-import { getPathIndex } from '../utils';
+import {
+  getPathIndex,
+  getBlockchainFromNetworkId,
+  generateAccountId,
+  createBlockchainAccountForNetwork,
+} from '../utils';
+import { getRandomAvatar } from '../utils/avatar';
+import type {
+  BlockchainAccount,
+  AnyNetwork,
+} from '../types/blockchain';
+import type {
+  NetworkPathIndexes,
+  NetworksAccounts,
+  StoredAccount,
+  Account,
+  EditAccountParams,
+  ConnectionInfo,
+  RestoreAccountOptions,
+} from '../types/account';
+import type { TrustedApp, TrustedApps } from '../types/trusted-app';
+import type { TokenInfo, CustomTokens, TokenToImport } from '../types/token';
+
+// Re-export domain types for backward compatibility
+export type { BlockchainAccount } from '../types/blockchain';
+export type {
+  NetworkPathIndexes,
+  NetworksAccounts,
+  StoredAccount,
+  Account,
+  EditAccountParams,
+  ConnectionInfo,
+} from '../types/account';
+export type { TrustedApp, TrustedApps } from '../types/trusted-app';
+export type { TokenInfo, CustomTokens, TokenToImport } from '../types/token';
 
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
-
-/**
- * Unified blockchain account type that can represent accounts from any supported blockchain.
- * This allows the account management system to work with Solana, Bitcoin, and Ethereum accounts.
- */
-export type BlockchainAccount = SolanaAccount | BitcoinAccount | EthereumAccount;
-
-/**
- * Represents the path indexes for each network in an account.
- * Key is the network ID (e.g., 'solana-mainnet'), value is an array of account indexes.
- */
-export type NetworkPathIndexes = Record<string, (number | null)[]>;
-
-/**
- * Represents the network accounts (blockchain account instances) for each network.
- * Key is the network ID, value is an array of blockchain account instances.
- * Supports SolanaAccount, BitcoinAccount, and EthereumAccount.
- */
-export type NetworksAccounts = Record<string, (BlockchainAccount | null)[]>;
-
-/**
- * Serializable account data for storage.
- * Contains only the data needed to reconstruct accounts (no instances).
- */
-export interface StoredAccount {
-  /** Unique identifier for the account */
-  id: string;
-  /** User-defined name for the account */
-  name: string;
-  /** Avatar identifier */
-  avatar: string;
-  /** Path indexes by network ID */
-  pathIndexes: NetworkPathIndexes;
-}
-
-/**
- * Full account with loaded blockchain account instances.
- */
-export interface Account extends StoredAccount {
-  /** The mnemonic phrase for this account */
-  mnemonic: string;
-  /** Loaded blockchain account instances by network */
-  networksAccounts: NetworksAccounts;
-}
-
-/**
- * Trusted app metadata.
- */
-export interface TrustedApp {
-  /** App display name */
-  name?: string;
-  /** App icon URL */
-  icon?: string;
-}
-
-/**
- * Trusted apps indexed by domain, grouped by network.
- */
-export type TrustedApps = Record<string, Record<string, TrustedApp>>;
-
-/**
- * Custom token metadata (without address as key).
- */
-export interface TokenInfo {
-  /** Token symbol */
-  symbol?: string;
-  /** Token name */
-  name?: string;
-  /** Token decimals */
-  decimals?: number;
-  /** Logo URI */
-  logoURI?: string;
-}
-
-/**
- * Custom tokens indexed by address, grouped by network.
- */
-export type CustomTokens = Record<string, Record<string, TokenInfo>>;
-
-/**
- * Token to import with address.
- */
-export interface TokenToImport extends TokenInfo {
-  /** Token mint address */
-  address: string;
-}
-
-/**
- * Active connection info for external apps.
- */
-export interface ConnectionInfo {
-  /** Blockchain type */
-  blockchain: string;
-  /** Network environment */
-  environment: string;
-  /** Connected address */
-  address: string;
-}
-
-/**
- * Parameters for editing an account.
- */
-export interface EditAccountParams {
-  /** New name for the account */
-  name?: string;
-  /** New avatar for the account */
-  avatar?: string;
-  /** New derived accounts to add (supports any blockchain type) */
-  newDerivedAccounts?: BlockchainAccount[];
-}
 
 /**
  * State returned by useAccounts hook.
@@ -247,39 +164,6 @@ export interface UseAccountsActions {
 }
 
 // ============================================================================
-// Storage Keys
-// ============================================================================
-
-/**
- * Storage keys for account-related data.
- */
-const STORAGE_KEYS = {
-  COUNTER: 'salmon_account_counter',
-  ACCOUNTS: 'salmon_accounts',
-  MNEMONICS: 'salmon_mnemonics',
-  ACCOUNT_ID: 'salmon_active_account_id',
-  NETWORK_ID: 'salmon_active_network_id',
-  PATH_INDEX: 'salmon_active_path_index',
-  TRUSTED_APPS: 'salmon_trusted_apps',
-  TOKENS: 'salmon_custom_tokens',
-  CONNECTION: 'salmon_connection',
-  // Legacy keys for migration
-  WALLETS: 'salmon_wallets',
-  ACTIVE: 'salmon_active',
-  ENDPOINTS: 'salmon_endpoints',
-} as const;
-
-/**
- * Stash keys for session data.
- */
-const STASH_KEYS = {
-  PASSWORD: 'password',
-  ACTIVE_AT: 'active_at',
-  /** Cached derived key for PBKDF2 optimization (avoids re-derivation) */
-  DERIVED_KEY: 'derived_key_cache',
-} as const;
-
-// ============================================================================
 // Helper Functions
 // ============================================================================
 
@@ -326,11 +210,6 @@ function invertBy<T extends Record<string, string>>(obj: T): Record<string, stri
 }
 
 /**
- * Union type for all supported network configurations.
- */
-type AnyNetwork = SolanaNetwork | BitcoinNetwork | EthereumNetwork;
-
-/**
  * Gets available networks configuration for all supported blockchains.
  * Returns Solana, Bitcoin, and Ethereum networks.
  */
@@ -355,107 +234,13 @@ async function getNetworks(): Promise<AnyNetwork[]> {
 }
 
 /**
- * Determines the blockchain type from a network ID.
- * @param networkId - The network identifier (e.g., 'solana-mainnet', 'bitcoin-mainnet', 'ethereum-mainnet')
- * @returns The blockchain type ('solana', 'bitcoin', or 'ethereum')
- */
-function getBlockchainTypeFromNetworkId(networkId: string): 'solana' | 'bitcoin' | 'ethereum' {
-  // Check Bitcoin networks
-  if (BITCOIN_NETWORKS[networkId] || networkId.startsWith('bitcoin')) {
-    return 'bitcoin';
-  }
-
-  // Check Ethereum networks
-  if (ETHEREUM_NETWORKS[networkId] || networkId.startsWith('ethereum')) {
-    return 'ethereum';
-  }
-
-  // Default to Solana for backwards compatibility
-  return 'solana';
-}
-
-// ============================================================================
-// Account Factory
-// ============================================================================
-
-/**
- * Options for creating an account.
- */
-interface CreateAccountOptions {
-  name?: string;
-  avatar?: string;
-  mnemonic: string;
-  pathIndexes?: NetworkPathIndexes;
-}
-
-/**
- * Creates a blockchain account for the specified network and index.
- * Routes to the correct factory based on the blockchain type.
- *
- * @param networkId - The network identifier
- * @param mnemonic - The BIP39 mnemonic phrase
- * @param index - The account derivation index
- * @returns Promise resolving to the created blockchain account
- */
-async function createBlockchainAccountForNetwork(
-  networkId: string,
-  mnemonic: string,
-  index: number
-): Promise<BlockchainAccount | null> {
-  const blockchainType = getBlockchainTypeFromNetworkId(networkId);
-
-  switch (blockchainType) {
-    case 'bitcoin': {
-      const network = BITCOIN_NETWORKS[networkId] || BITCOIN_NETWORKS['bitcoin-mainnet'];
-      return createBitcoinAccount({
-        network,
-        mnemonic,
-        index,
-        apiFunctions: {
-          fetchBalance: fetchBitcoinAccountBalance,
-          fetchPrices: fetchBitcoinAccountPrices,
-          fetchTransaction: fetchBitcoinAccountTransaction,
-          fetchRecentTransactions: fetchBitcoinAccountRecentTransactions,
-        },
-      });
-    }
-    case 'ethereum': {
-      // Map network ID to ETHEREUM_NETWORKS key
-      let networkKey = 'ethereum-mainnet';
-      if (networkId === 'ethereum-mainnet') {
-        networkKey = 'ethereum-mainnet';
-      } else if (networkId === 'ethereum-sepolia') {
-        networkKey = 'sepolia';
-      }
-      const network = ETHEREUM_NETWORKS[networkKey];
-      if (!network) return null;
-      return createEthereumAccount({
-        network,
-        mnemonic,
-        index,
-      });
-    }
-    case 'solana':
-    default: {
-      const network = SOLANA_NETWORKS[networkId];
-      if (!network) return null;
-      return createSolanaAccount({
-        network,
-        mnemonic,
-        index,
-      });
-    }
-  }
-}
-
-/**
  * Creates a new account with the given options.
  * Supports creating accounts for Solana, Bitcoin, and Ethereum networks.
  */
-async function createAccount(options: CreateAccountOptions): Promise<Account> {
+async function restoreAccount(options: RestoreAccountOptions): Promise<Account> {
   const { name, avatar, mnemonic, pathIndexes = {} } = options;
 
-  const id = `account_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const id = generateAccountId();
   const networksAccounts: NetworksAccounts = {};
 
   // Default to Solana mainnet if no path indexes provided
@@ -495,7 +280,7 @@ async function createAccount(options: CreateAccountOptions): Promise<Account> {
   return {
     id,
     name: name ?? `Account ${id.slice(-4)}`,
-    avatar: avatar ?? 'default',
+    avatar: avatar ?? getRandomAvatar(),
     mnemonic,
     pathIndexes: defaultPathIndexes,
     networksAccounts,
@@ -505,13 +290,13 @@ async function createAccount(options: CreateAccountOptions): Promise<Account> {
 /**
  * Creates multiple accounts from stored data.
  */
-async function createManyAccounts(
+async function restoreManyAccounts(
   data: Array<StoredAccount & { mnemonic: string }>
 ): Promise<Account[]> {
   const accounts: Account[] = [];
 
   for (const item of data) {
-    const account = await createAccount({
+    const account = await restoreAccount({
       mnemonic: item.mnemonic,
       pathIndexes: item.pathIndexes,
     });
@@ -740,7 +525,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         }
       }
 
-      const account = await createAccount({
+      const account = await restoreAccount({
         name,
         avatar,
         mnemonic,
@@ -801,7 +586,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     await setStorageItem(STORAGE_KEYS.NETWORK_ID, newNetworkId);
     await setStorageItem(STORAGE_KEYS.PATH_INDEX, newPathIndex);
     await setStorageItem(STORAGE_KEYS.TRUSTED_APPS, newTrustedApps);
-    await setStorageItem(STORAGE_KEYS.TOKENS, newTokens);
+    await setStorageItem(STORAGE_KEYS.CUSTOM_TOKENS, newTokens);
 
     // Remove legacy storage
     await removeStorageItem(STORAGE_KEYS.WALLETS);
@@ -853,7 +638,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     setNetworkId(storedNetworkId ?? null);
     setPathIndex((await getStorageItem<number>(STORAGE_KEYS.PATH_INDEX)) ?? 0);
     setTrustedApps((await getStorageItem<TrustedApps>(STORAGE_KEYS.TRUSTED_APPS)) ?? {});
-    setTokens((await getStorageItem<CustomTokens>(STORAGE_KEYS.TOKENS)) ?? {});
+    setTokens((await getStorageItem<CustomTokens>(STORAGE_KEYS.CUSTOM_TOKENS)) ?? {});
 
     setLoaded(true);
   }, []);
@@ -873,7 +658,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     const storedCounter = await getStorageItem<number>(STORAGE_KEYS.COUNTER);
     setCounter(storedCounter ?? 0);
 
-    const loadedAccounts = await createManyAccounts(data);
+    const loadedAccounts = await restoreManyAccounts(data);
     setAccounts(loadedAccounts);
 
     const storedAccountId = await getStorageItem<string>(STORAGE_KEYS.ACCOUNT_ID);
@@ -893,7 +678,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     setNetworkId(defaultNetworkId ?? null);
     setPathIndex((await getStorageItem<number>(STORAGE_KEYS.PATH_INDEX)) ?? 0);
     setTrustedApps((await getStorageItem<TrustedApps>(STORAGE_KEYS.TRUSTED_APPS)) ?? {});
-    setTokens((await getStorageItem<CustomTokens>(STORAGE_KEYS.TOKENS)) ?? {});
+    setTokens((await getStorageItem<CustomTokens>(STORAGE_KEYS.CUSTOM_TOKENS)) ?? {});
 
     // Save default network if not stored
     if (!storedNetworkId && defaultNetworkId) {
@@ -1102,7 +887,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     const updateConnection = async (): Promise<void> => {
       if (activeBlockchainAccount && networkId) {
         const { network } = activeBlockchainAccount;
-        const blockchainType = getBlockchainTypeFromNetworkId(networkId);
+        const blockchainType = getBlockchainFromNetworkId(networkId);
         const connectionInfo: ConnectionInfo = {
           blockchain: blockchainType.toUpperCase(),
           environment: network.id,
@@ -1308,7 +1093,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     await removeStorageItem(STORAGE_KEYS.NETWORK_ID);
     await removeStorageItem(STORAGE_KEYS.PATH_INDEX);
     await removeStorageItem(STORAGE_KEYS.TRUSTED_APPS);
-    await removeStorageItem(STORAGE_KEYS.TOKENS);
+    await removeStorageItem(STORAGE_KEYS.CUSTOM_TOKENS);
     await removeStorageItem(STORAGE_KEYS.CONNECTION);
 
     // Clear session data including cached key
@@ -1433,7 +1218,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
       const newTokens = { ...tokens };
       merge(newTokens, { [targetNetworkId]: importedTokens });
-      await setStorageItem(STORAGE_KEYS.TOKENS, newTokens);
+      await setStorageItem(STORAGE_KEYS.CUSTOM_TOKENS, newTokens);
       setTokens(newTokens);
     },
     [tokens]

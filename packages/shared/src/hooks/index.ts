@@ -1,6 +1,10 @@
 /**
  * Hooks module for shared React hooks.
  *
+ * Domain types (BlockchainType, Account, TokenInfo, etc.) are now exported
+ * from '../types' rather than from individual hooks. Only hook-specific
+ * contract types (Use* prefixed) are re-exported here.
+ *
  * @module hooks
  */
 
@@ -10,25 +14,7 @@ export {
   default as useAccountsDefault,
 } from './useAccounts';
 
-// Types
 export type {
-  // Account types
-  BlockchainAccount,
-  NetworkPathIndexes,
-  NetworksAccounts,
-  StoredAccount,
-  Account,
-  // Trusted apps and tokens
-  TrustedApp,
-  TrustedApps,
-  TokenInfo,
-  CustomTokens,
-  TokenToImport,
-  // Connection
-  ConnectionInfo,
-  // Actions
-  EditAccountParams,
-  // Hook return types
   UseAccountsState,
   UseAccountsActions,
 } from './useAccounts';
@@ -40,8 +26,6 @@ export {
 } from './useUserConfig';
 
 export type {
-  UserConfig,
-  ActiveBlockchainAccount,
   UseUserConfigParams,
   UseUserConfigResult,
 } from './useUserConfig';
@@ -60,8 +44,8 @@ export type {
 
 // Runtime detection hook
 export { default as useRuntime } from './useRuntime';
-export type { RuntimeInfo } from './types';
-export { ADAPTER_PREFIXES } from './types';
+export type { RuntimeInfo } from './useRuntime';
+export { ADAPTER_PREFIXES } from './useRuntime';
 
 // Language management hook
 export { useLanguage, default as useLanguageDefault } from './useLanguage';
@@ -83,8 +67,6 @@ export {
   default as useAvailableNetworksDefault,
 } from './useAvailableNetworks';
 export type {
-  AnyNetwork,
-  NetworksByBlockchain,
   UseAvailableNetworksResult,
 } from './useAvailableNetworks';
 
@@ -94,7 +76,6 @@ export {
   default as useBalanceDefault,
 } from './useBalance';
 export type {
-  NetworkId as BalanceNetworkId,
   UseBalanceOptions,
   UseBalanceResult,
 } from './useBalance';
@@ -126,12 +107,6 @@ export {
   default as useSendTransactionDefault,
 } from './useSendTransaction';
 export type {
-  SendBlockchainType,
-  SendBlockchainAccount,
-  SendTokenInfo,
-  SendTransactionParams,
-  FeeEstimateResult,
-  SendTransactionStatus,
   UseSendTransactionParams,
   UseSendTransactionResult,
 } from './useSendTransaction';
@@ -142,10 +117,7 @@ export {
   default as useSwapDefault,
 } from './useSwap';
 export type {
-  SwapStatus,
   UseSwapParams,
-  GetQuoteParams,
-  ParsedQuoteInfo,
   UseSwapResult,
 } from './useSwap';
 
@@ -155,16 +127,8 @@ export {
   default as useBridgeDefault,
 } from './useBridge';
 export type {
-  BridgeOperationStatus,
   UseBridgeParams,
-  BridgeEstimate,
   UseBridgeResult,
-  BridgeToken,
-  BridgeAvailableToken,
-  BridgeFeaturedToken,
-  BridgeExchange,
-  BridgeTransaction,
-  BridgeTransactionStatus,
 } from './useBridge';
 
 // Multi-chain tokens hook (for unified swap/bridge)
@@ -172,12 +136,9 @@ export {
   useMultiChainTokens,
   default as useMultiChainTokensDefault,
   getChainFromNetworkId,
-  isSameChain,
-  getSwapType,
 } from './useMultiChainTokens';
 export type {
   ChainType,
-  UnifiedToken,
   UseMultiChainTokensParams,
   UseMultiChainTokensResult,
 } from './useMultiChainTokens';
@@ -198,9 +159,6 @@ export {
   default as useAddressValidationDefault,
 } from './useAddressValidation';
 export type {
-  BlockchainType,
-  ValidationState,
-  ValidationCallbackResult,
   UseAddressValidationReturn,
   UseAddressValidationOptions,
 } from './useAddressValidation';

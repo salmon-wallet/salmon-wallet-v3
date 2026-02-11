@@ -21,43 +21,56 @@
  */
 
 import { useMemo } from 'react';
-import type { RuntimeInfo } from './types';
+import { isReactNative, isExtension } from '../utils/platform';
+
+// ============================================================================
+// Types (inlined from former hooks/types.ts)
+// ============================================================================
 
 /**
- * Detects if running in a React Native environment.
+ * Runtime information interface for the useRuntime hook.
+ * This interface provides platform-agnostic runtime context
+ * for detecting adapter mode and connection context.
  */
-const isReactNative = (): boolean => {
-  return (
-    typeof navigator !== 'undefined' &&
-    navigator.product === 'ReactNative'
-  );
-};
+export interface RuntimeInfo {
+  /**
+   * Indicates if the runtime is ready and initialized.
+   * On web/extension, this is always true.
+   * On React Native, this is true after the initial URL has been resolved.
+   */
+  ready: boolean;
+
+  /**
+   * URL context parameters parsed from the hash or deep link.
+   * Used for extracting connection parameters from the URL.
+   */
+  context: URLSearchParams;
+
+  /**
+   * Reference to the window opener (web only).
+   * Null on React Native platforms.
+   */
+  opener: Window | null;
+
+  /**
+   * Indicates if the app was opened in adapter mode.
+   * Adapter mode is used when the wallet is invoked by a dApp
+   * to sign transactions or connect.
+   */
+  isAdapter: boolean;
+}
 
 /**
- * Checks if the current environment is a browser extension.
- * Uses dynamic property access to avoid type conflicts with WXT's auto-generated types.
+ * Adapter URL prefixes used to detect adapter mode on React Native.
  */
-const isExtension = (): boolean => {
-  if (typeof window === 'undefined') return false;
+export const ADAPTER_PREFIXES = [
+  'solana-wallet:',
+  'https://salmonwallet.io/adapter',
+] as const;
 
-  // Use dynamic property access to check for Chrome extension APIs
-  // This avoids type conflicts with WXT's browser global type declarations
-  const globalObj = globalThis as Record<string, unknown>;
-
-  // Check for Chrome extension APIs
-  const chromeObj = globalObj['chrome'] as { runtime?: { id?: string } } | undefined;
-  if (chromeObj?.runtime?.id) {
-    return true;
-  }
-
-  // Check for browser extension APIs (Firefox, etc.)
-  const browserObj = globalObj['browser'] as { runtime?: { id?: string } } | undefined;
-  if (browserObj?.runtime?.id) {
-    return true;
-  }
-
-  return false;
-};
+// ============================================================================
+// Hook Implementation
+// ============================================================================
 
 /**
  * Web implementation of useRuntime.
@@ -96,23 +109,6 @@ const useRuntimeWeb = (): RuntimeInfo => {
  *   - `context`: URL parameters for the connection
  *   - `opener`: Reference to window.opener (web only)
  *   - `isAdapter`: Whether running in adapter/dApp connection mode
- *
- * @example
- * ```tsx
- * function WalletConnect() {
- *   const { ready, isAdapter, context } = useRuntime();
- *
- *   useEffect(() => {
- *     if (ready && isAdapter) {
- *       const origin = context.get('origin');
- *       console.log('Connected from dApp:', origin);
- *     }
- *   }, [ready, isAdapter, context]);
- *
- *   if (!ready) return <Loading />;
- *   return <WalletUI />;
- * }
- * ```
  */
 const useRuntime = (): RuntimeInfo => {
   // In environments where React Native is detected at runtime,

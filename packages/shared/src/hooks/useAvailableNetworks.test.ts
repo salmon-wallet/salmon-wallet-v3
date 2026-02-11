@@ -44,6 +44,7 @@ vi.mock('../blockchain/bitcoin/factory', () => ({
     'bitcoin-mainnet': {
       id: 'bitcoin-mainnet',
       name: 'Bitcoin Mainnet',
+      networkId: 'bitcoin-mainnet',
       environment: 'mainnet',
       config: {
         network: {},
@@ -52,6 +53,7 @@ vi.mock('../blockchain/bitcoin/factory', () => ({
     'bitcoin-testnet': {
       id: 'bitcoin-testnet',
       name: 'Bitcoin Testnet',
+      networkId: 'bitcoin-testnet',
       environment: 'testnet',
       config: {
         network: {},
@@ -65,6 +67,7 @@ vi.mock('../blockchain/ethereum/factory', () => ({
     'ethereum-mainnet': {
       id: 'ethereum-mainnet',
       name: 'Ethereum Mainnet',
+      networkId: 'ethereum-mainnet',
       environment: 'mainnet',
       config: {
         rpcUrl: 'https://eth.llamarpc.com',
@@ -74,6 +77,7 @@ vi.mock('../blockchain/ethereum/factory', () => ({
     'ethereum-sepolia': {
       id: 'ethereum-sepolia',
       name: 'Sepolia Testnet',
+      networkId: 'ethereum-sepolia',
       environment: 'sepolia',
       config: {
         rpcUrl: 'https://rpc.sepolia.org',

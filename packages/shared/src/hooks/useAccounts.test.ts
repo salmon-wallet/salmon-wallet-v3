@@ -23,12 +23,36 @@ vi.mock('../storage', () => ({
   setStashItem: vi.fn(),
   removeStashItem: vi.fn(),
   updateLastActivity: vi.fn(),
+  STORAGE_KEYS: {
+    COUNTER: 'salmon_account_counter',
+    ACCOUNTS: 'salmon_accounts',
+    MNEMONICS: 'salmon_mnemonics',
+    ACCOUNT_ID: 'salmon_active_account_id',
+    NETWORK_ID: 'salmon_active_network_id',
+    PATH_INDEX: 'salmon_active_path_index',
+    TRUSTED_APPS: 'salmon_trusted_apps',
+    CUSTOM_TOKENS: 'salmon_custom_tokens',
+    CONNECTION: 'salmon_connection',
+    SETTINGS: 'salmon_settings',
+    CURRENCY: 'salmon_currency',
+    LANGUAGE: 'salmon_language',
+    CONTACTS: 'salmon_contacts',
+    WALLETS: 'salmon_wallets',
+    ACTIVE: 'salmon_active',
+    ENDPOINTS: 'salmon_endpoints',
+  },
+  STASH_KEYS: {
+    PASSWORD: 'password',
+    DERIVED_KEY: 'derived_key_cache',
+    LAST_ACTIVITY: 'salmon_last_activity',
+  },
 }));
 
 vi.mock('../crypto/encryption', () => ({
   lock: vi.fn(),
   unlock: vi.fn(),
   unlockAndGetKey: vi.fn(),
+  unlockWithKey: vi.fn(),
   lockWithKey: vi.fn(),
   isKeyCacheValid: vi.fn(),
 }));

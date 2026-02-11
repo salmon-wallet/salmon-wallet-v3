@@ -14,43 +14,21 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { Account } from './useAccounts';
-import { useBalance, type BlockchainAccount } from './useBalance';
+import type { Account } from '../types/account';
+import type { BlockchainAccount, BlockchainType } from '../types/blockchain';
+import type { UnifiedToken } from '../types/token';
+import { useBalance } from './useBalance';
+import { getBlockchainFromNetworkId } from '../utils/account';
+import { MAINNET_NETWORK_ID } from '../utils/network';
+import { isSameChain as isSameChainUtil, getSwapType as getSwapTypeUtil } from '../utils/swap';
 
-// ============================================================================
-// Types
-// ============================================================================
-
+// Re-export domain types for backward compatibility
 /**
- * Chain identifier for unified tokens
+ * Chain identifier for unified tokens.
+ * Alias of the canonical BlockchainType.
  */
-export type ChainType = 'solana' | 'bitcoin' | 'ethereum';
-
-/**
- * Unified token format that works across all chains
- */
-export interface UnifiedToken {
-  /** Token symbol (e.g., "SOL", "BTC", "ETH", "USDC") */
-  symbol: string;
-  /** Token name */
-  name: string;
-  /** Token address/mint (or symbol for native tokens) */
-  address: string;
-  /** Token decimals */
-  decimals: number;
-  /** Token logo URL */
-  logo?: string;
-  /** User's balance of this token */
-  balance: number;
-  /** USD price per token */
-  usdPrice?: number;
-  /** USD value of balance */
-  usdBalance?: number;
-  /** Chain this token belongs to */
-  chain: ChainType;
-  /** Network ID (e.g., 'solana-mainnet', 'bitcoin-mainnet', 'ethereum-mainnet') */
-  networkId: string;
-}
+export type ChainType = BlockchainType;
+export type { UnifiedToken } from '../types/token';
 
 /**
  * Balance data for a single chain
@@ -99,51 +77,30 @@ export interface UseMultiChainTokensResult {
 // Constants
 // ============================================================================
 
-/** Network IDs for each chain */
-const NETWORK_IDS: Record<ChainType, string> = {
-  solana: 'solana-mainnet',
-  bitcoin: 'bitcoin-mainnet',
-  ethereum: 'ethereum-mainnet',
-};
+/** Network IDs for each chain (uses canonical source) */
+const NETWORK_IDS = MAINNET_NETWORK_ID;
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
 /**
- * Determines the chain type from a network ID
+ * Determines the chain type from a network ID.
+ * Re-exported alias for backward compatibility.
  */
-export function getChainFromNetworkId(networkId: string): ChainType {
-  if (networkId.startsWith('bitcoin') || networkId === 'bitcoin') {
-    return 'bitcoin';
-  }
-  if (networkId.startsWith('ethereum') || networkId === 'ethereum') {
-    return 'ethereum';
-  }
-  return 'solana';
-}
+export const getChainFromNetworkId = getBlockchainFromNetworkId;
 
 /**
- * Determines if two tokens are on the same chain
+ * Determines if two tokens are on the same chain.
+ * Re-exported from utils/swap for backward compatibility.
  */
-export function isSameChain(tokenA: UnifiedToken, tokenB: UnifiedToken): boolean {
-  return tokenA.chain === tokenB.chain;
-}
+export const isSameChain = isSameChainUtil;
 
 /**
- * Determines the swap type based on input and output tokens
+ * Determines the swap type based on input and output tokens.
+ * Re-exported from utils/swap for backward compatibility.
  */
-export function getSwapType(
-  inToken: UnifiedToken,
-  outToken: UnifiedToken
-): 'jupiter' | 'stealthex' {
-  // Same chain Solana swap uses Jupiter
-  if (inToken.chain === 'solana' && outToken.chain === 'solana') {
-    return 'jupiter';
-  }
-  // Cross-chain or non-Solana uses StealthEX
-  return 'stealthex';
-}
+export const getSwapType = getSwapTypeUtil;
 
 // ============================================================================
 // Single Chain Balance Hook

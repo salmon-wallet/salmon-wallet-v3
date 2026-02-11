@@ -32,63 +32,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   getSolanaTransactions,
-  type SolanaTransaction,
 } from '../api/services/solana';
 import {
   getTransactions as getMultichainTransactions,
-  type TransactionNetworkId,
-  type TransactionItem,
 } from '../api/services/transactions';
-import type {
-  TransactionType,
-  TransactionDisplayStatus,
-  TransactionTokenAmount,
-  TransactionFee,
-} from '../types/transaction';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Processed transaction for display in the UI
- */
-export interface Transaction {
-  /** Transaction ID (signature) */
-  id: string;
-  /** Unix timestamp in seconds */
-  timestamp: number;
-  /** Transaction status */
-  status: TransactionDisplayStatus;
-  /** Transaction type */
-  type: TransactionType;
-  /** Fee information */
-  fee?: TransactionFee;
-  /** Inputs (tokens received) */
-  inputs: TransactionTokenAmount[];
-  /** Outputs (tokens sent) */
-  outputs: TransactionTokenAmount[];
-  /** Human-readable description from Helius */
-  description?: string;
-  /** Source protocol (e.g., 'JUPITER', 'MAGIC_EDEN') */
-  source?: string;
-  /** Original Helius transaction type */
-  heliusType?: string;
-}
-
-/**
- * Blockchain type derived from network ID
- */
-type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
-
-/**
- * Determine blockchain type from network ID
- */
-function getBlockchainFromNetworkId(networkId: string): BlockchainType {
-  if (networkId.startsWith('bitcoin')) return 'bitcoin';
-  if (networkId.startsWith('ethereum')) return 'ethereum';
-  return 'solana';
-}
+import type { NetworkId } from '../types/blockchain';
+import type { Transaction } from '../types/transaction';
+import { getBlockchainFromNetworkId } from '../utils/account';
+import { transformSolanaTransaction, transformMultichainTransaction } from '../utils/transactions';
 
 /**
  * Options for the useTransactions hook
@@ -97,7 +48,7 @@ export interface UseTransactionsOptions {
   /** Wallet address to fetch transactions for */
   address: string | undefined;
   /** Network identifier (supports Solana, Bitcoin, and Ethereum networks) */
-  networkId?: TransactionNetworkId;
+  networkId?: NetworkId;
   /** Initial page size */
   pageSize?: number;
   /** Whether to skip initial fetch */
@@ -137,59 +88,6 @@ const CACHE_TTL = 30 * 1000;
 
 /** Default page size */
 const DEFAULT_PAGE_SIZE = 20;
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Transform a Solana backend transaction to the UI Transaction format.
- *
- * Note: The backend already returns transactions in a UI-friendly format
- * with inputs/outputs instead of raw Helius format. This function does
- * a simple mapping with type assertions.
- */
-function transformSolanaTransaction(tx: SolanaTransaction): Transaction {
-  return {
-    id: tx.id,
-    timestamp: tx.timestamp,
-    status: tx.status as TransactionDisplayStatus,
-    type: tx.type as TransactionType,
-    fee: tx.fee ?? undefined,
-    inputs: tx.inputs,
-    outputs: tx.outputs,
-    description: tx.description,
-    source: tx.source,
-    heliusType: tx.heliusType,
-  };
-}
-
-/**
- * Transform a multi-chain (Bitcoin/Ethereum) transaction to the UI Transaction format.
- *
- * Note: The multi-chain API returns transactions in a similar format but with
- * some differences in the fee structure (amount is string vs number).
- */
-function transformMultichainTransaction(tx: TransactionItem): Transaction {
-  return {
-    id: tx.id,
-    timestamp: tx.timestamp,
-    status: tx.status as TransactionDisplayStatus,
-    type: tx.type as TransactionType,
-    fee: tx.fee
-      ? {
-          amount: Number(tx.fee.amount),
-          decimals: tx.fee.decimals,
-          symbol: tx.fee.symbol,
-        }
-      : undefined,
-    inputs: tx.inputs,
-    outputs: tx.outputs,
-    // Moralis enrichment fields
-    description: tx.description,
-    source: tx.source,
-  };
-}
 
 // ============================================================================
 // Hook Implementation

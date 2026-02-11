@@ -16,11 +16,9 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  getTokenByAddress,
-  TokenMetadata,
-  NetworkId,
-} from '../api/services/tokens';
+import { getTokenByAddress } from '../api/services/tokens';
+import type { TokenMetadata } from '../types/token';
+import type { SolanaNetworkId } from '../types/blockchain';
 import { TokenBalanceWithPrice } from '../utils/balance';
 
 // ============================================================================
@@ -64,7 +62,7 @@ export interface UseTokenOptions {
   /** Token mint address to fetch */
   tokenId: string;
   /** Network identifier */
-  networkId?: NetworkId;
+  networkId?: SolanaNetworkId;
   /** Optional: Pre-loaded balance items to search from */
   balanceItems?: TokenBalanceWithPrice[];
   /** Skip fetching metadata (useful when only balance is needed from balanceItems) */
