@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextLayoutEventData, NativeSyntheticEvent } from 'react-native';
-import ContentLoader, { Rect } from '../../utils/ContentLoader';
+import { ContentLoader, Rect } from '@salmon/shared';
 import { colors, ms, vs, s } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenAboutProps } from './types';

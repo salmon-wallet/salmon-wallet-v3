@@ -184,6 +184,9 @@ export {
 // Transaction transform utilities
 export { transformSolanaTransaction, transformMultichainTransaction } from './transactions';
 
+// Content loader (platform-split: native uses react-content-loader/native, web uses SVG)
+export { default as ContentLoader, ContentLoader as NamedContentLoader, Rect, Circle } from './ContentLoader';
+
 // NFT utilities
 export {
   isImageContent,
