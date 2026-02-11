@@ -1,0 +1,70 @@
+/**
+ * StandardHeader - Title bar with close button
+ *
+ * Used by: ReceiveSheet, WalletSwitcherSheet, TransactionHistorySheet, TokenInformationSheet
+ *
+ * @example
+ * ```tsx
+ * <BaseSheetDialog.StandardHeader title="Receive" />
+ * ```
+ */
+
+import React from 'react';
+import { styled } from '@mui/material/styles';
+import DialogTitle from '@mui/material/DialogTitle';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import { colors, spacing } from '@salmon/shared';
+import { useBaseSheetDialog } from './BaseSheetDialog';
+import type { StandardHeaderProps } from './types';
+
+// ============================================================================
+// Styled Components
+// ============================================================================
+
+const StyledDialogTitle = styled(DialogTitle)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: `${spacing.lg}px ${spacing.xl}px`,
+  borderBottom: `1px solid ${colors.border.default}`,
+  position: 'relative',
+  zIndex: 1,
+});
+
+const TitleText = styled(Typography)({
+  fontSize: 20,
+  fontWeight: 800,
+  color: colors.text.primary,
+  letterSpacing: 0.24,
+});
+
+const CloseButton = styled(IconButton)({
+  color: colors.text.secondary,
+  padding: spacing.xs,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+});
+
+// ============================================================================
+// Component
+// ============================================================================
+
+/**
+ * StandardHeader - Title bar with close button
+ */
+export function StandardHeader({ title, onClose }: StandardHeaderProps): React.ReactElement {
+  const context = useBaseSheetDialog();
+  const handleClose = onClose || context.onClose;
+
+  return (
+    <StyledDialogTitle>
+      <TitleText>{title}</TitleText>
+      <CloseButton onClick={handleClose} aria-label="Close">
+        <CloseIcon />
+      </CloseButton>
+    </StyledDialogTitle>
+  );
+}
