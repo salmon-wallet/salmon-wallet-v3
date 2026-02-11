@@ -33,7 +33,6 @@ export type {
   StepTokenSelectProps,
   StepAddressAmountPropsBase,
   StepConfirmationProps,
-  SendBlockchainType,
 } from './send-sheet';
 
 // Transaction History
@@ -57,3 +56,53 @@ export type {
 
 // Action Button Row
 export type { ActionButtonBase, ActionButtonRowPropsBase } from './action-button-row';
+
+// Step Indicator
+export type { StepIndicatorProps } from './step-indicator';
+
+// QR Code
+export type { QRCodePropsBase } from './qr-code';
+
+// Receive Sheet
+export type { ReceiveSheetPropsBase } from './receive-sheet';
+
+// Token About
+export type { TokenAboutPropsBase } from './token-about';
+
+// Token Features
+export type { TokenFeaturesPropsBase } from './token-features';
+
+// Blur Container
+export type { BlurTint, BlurContainerPropsBase } from './blur-container';
+
+// Gradient Background
+export type { GradientBackgroundPropsBase } from './gradient-background';
+
+// Bridge Screen
+// Note: BridgeChain, BridgeToken, BridgeEstimate, BridgeExchange are UI-specific
+// data shapes that differ from the API/domain types in types/bridge.ts.
+// They are not re-exported here to avoid name collisions — import them
+// directly from '@salmon/shared/types/ui/bridge-screen' if needed.
+export type {
+  RecipientAddressInputPropsBase,
+  BridgeRecipientScreenPropsBase,
+  BridgeReviewScreenPropsBase,
+} from './bridge-screen';
+
+// Token Information Sheet
+export type {
+  TokenInformationSheetPropsBase,
+  TokenBadgesSectionPropsBase,
+} from './token-information-sheet';
+
+// Transaction Detail Modal
+export type { TransactionDetailModalPropsBase } from './transaction-detail-modal';
+
+// Wallet Header
+export type { WalletHeaderPropsBase } from './wallet-header';
+
+// Wallet Switcher Sheet
+export type {
+  WalletSwitcherSheetPropsBase,
+  AccountListItemPropsBase,
+} from './wallet-switcher-sheet';

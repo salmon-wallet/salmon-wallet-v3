@@ -1,7 +1,5 @@
-import type {
-  ValidationCallbackResult,
-  BlockchainType,
-} from '../../hooks/useAddressValidation';
+import type { BlockchainType } from '../blockchain';
+import type { ValidationCallbackResult } from '../validation';
 
 /**
  * Props for the InputAddress component (base - platform-agnostic)

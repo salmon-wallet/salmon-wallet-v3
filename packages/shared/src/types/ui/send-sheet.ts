@@ -1,7 +1,5 @@
 import type { Token } from '../index';
-import type { SendBlockchainType } from '../../hooks/useSendTransaction';
-
-export type { SendBlockchainType };
+import type { BlockchainType } from '../blockchain';
 
 /**
  * Steps in the send flow
@@ -27,7 +25,7 @@ export interface SendSheetPropsBase<TStyle = any> {
   /** Available tokens from useBalance */
   tokens: SendToken[];
   /** Blockchain type for address validation and transfer routing */
-  blockchain: SendBlockchainType;
+  blockchain: BlockchainType;
   /** The active blockchain account */
   account: any;
   /** Callback when transaction completes successfully */
@@ -57,7 +55,7 @@ export interface StepAddressAmountPropsBase {
   /** Selected token */
   token: SendToken;
   /** Blockchain type for address validation */
-  blockchain: SendBlockchainType;
+  blockchain: BlockchainType;
   /** Navigate back to token selection */
   onBack: () => void;
   /** Proceed to confirmation */
@@ -77,7 +75,7 @@ export interface StepConfirmationProps {
   /** Amount to send (human-readable) */
   amount: string;
   /** Blockchain type */
-  blockchain: SendBlockchainType;
+  blockchain: BlockchainType;
   /** The active blockchain account */
   account: any;
   /** Navigate back to address/amount */
