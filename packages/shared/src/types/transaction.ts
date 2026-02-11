@@ -33,7 +33,7 @@ export type TransactionDisplayStatus = 'completed' | 'failed' | 'pending';
  * NFT attribute for metadata
  * Re-export from blockchain/solana/nft for convenience
  */
-export type { NftAttribute } from '../blockchain/solana/nft';
+export type { NftAttribute } from './nft';
 
 /**
  * Token amount in a transaction
@@ -65,7 +65,7 @@ export interface TransactionTokenAmount {
   /** NFT media URL (image/video) */
   nftMedia?: string;
   /** NFT metadata attributes */
-  nftAttributes?: import('../blockchain/solana/nft').NftAttribute[];
+  nftAttributes?: import('./nft').NftAttribute[];
 }
 
 /**
@@ -358,4 +358,217 @@ export function isTransactionSuccess(status: TransactionStatus): boolean {
  */
 export function isTransactionFailed(status: TransactionStatus): boolean {
   return status === TRANSACTION_STATUS.FAIL;
+}
+
+// ============================================================================
+// Solana transaction types (moved from api/services/solana.ts)
+// ============================================================================
+
+/**
+ * Token transfer within a Solana transaction
+ */
+export interface SolanaTokenTransfer {
+  /** Source address */
+  fromAddress: string;
+  /** Destination address */
+  toAddress: string;
+  /** Token mint address */
+  mint: string;
+  /** Transfer amount (raw, without decimals) */
+  amount: string;
+  /** Token decimals */
+  decimals: number;
+  /** Token symbol (if available) */
+  symbol?: string;
+  /** Token name (if available) */
+  name?: string;
+  /** Token logo URL (if available) */
+  logo?: string | null;
+}
+
+/**
+ * Native SOL transfer within a transaction
+ */
+export interface SolanaNativeTransfer {
+  /** Source address */
+  fromAddress: string;
+  /** Destination address */
+  toAddress: string;
+  /** Transfer amount in lamports */
+  amount: number;
+}
+
+/**
+ * Account data change in a Solana transaction
+ */
+export interface SolanaAccountData {
+  /** Account address */
+  account: string;
+  /** Native balance change in lamports */
+  nativeBalanceChange: number;
+  /** Token balance changes */
+  tokenBalanceChanges: Array<{
+    mint: string;
+    rawTokenAmount: {
+      tokenAmount: string;
+      decimals: number;
+    };
+    userAccount: string;
+  }>;
+}
+
+/**
+ * Instruction within a Solana transaction
+ */
+export interface SolanaInstruction {
+  /** Program ID that owns the instruction */
+  programId: string;
+  /** Accounts involved in the instruction */
+  accounts: string[];
+  /** Instruction data (base58 encoded) */
+  data: string;
+  /** Inner instructions (for CPI calls) */
+  innerInstructions?: SolanaInstruction[];
+}
+
+/**
+ * Transaction status (RPC format - uppercase)
+ * @deprecated Use TransactionDisplayStatus instead (lowercase from backend)
+ */
+export type SolanaTransactionStatus = 'confirmed' | 'finalized' | 'failed';
+
+/**
+ * Transaction type classification (Helius format - uppercase)
+ * Used for filtering API requests
+ */
+export type SolanaTransactionType =
+  | 'TRANSFER'
+  | 'SWAP'
+  | 'NFT_SALE'
+  | 'NFT_LISTING'
+  | 'NFT_CANCEL_LISTING'
+  | 'NFT_BID'
+  | 'NFT_CANCEL_BID'
+  | 'NFT_MINT'
+  | 'NFT_BURN'
+  | 'TOKEN_MINT'
+  | 'TOKEN_BURN'
+  | 'STAKE'
+  | 'UNSTAKE'
+  | 'COMPRESSED_NFT_MINT'
+  | 'COMPRESSED_NFT_TRANSFER'
+  | 'UNKNOWN';
+
+/**
+ * Solana transaction from the API (backend-transformed format)
+ *
+ * Note: The backend returns transactions already transformed to UI format.
+ * This differs from raw Helius format (which has nativeTransfers/tokenTransfers).
+ */
+export interface SolanaTransaction {
+  /** Wallet address */
+  address?: string;
+  /** Transaction signature (unique identifier) */
+  signature: string;
+  /** Transaction ID (same as signature) */
+  id: string;
+  /** Unix timestamp in seconds */
+  timestamp: number;
+  /** Transaction status (lowercase from backend) */
+  status: TransactionDisplayStatus;
+  /** Transaction fee (null if user didn't pay fee) */
+  fee?: TransactionFee | null;
+  /** Transaction type (lowercase from backend) */
+  type: TransactionType;
+  /** Tokens received */
+  inputs: TransactionTokenAmount[];
+  /** Tokens sent */
+  outputs: TransactionTokenAmount[];
+  /** Human-readable description from Helius */
+  description?: string;
+  /** Source protocol (e.g., 'JUPITER', 'MAGIC_EDEN', 'PHANTOM') */
+  source?: string;
+  /** Transaction events */
+  events?: Record<string, unknown>;
+  /** Original Helius transaction type (uppercase) */
+  heliusType?: string;
+}
+
+/**
+ * Pagination parameters for Solana transaction queries
+ */
+export interface SolanaPagingParams {
+  /** Page token for cursor-based pagination (from previous response's oldestSignature) */
+  pageToken?: string;
+  /** Number of items per page (max 100) */
+  pageSize?: number;
+  /** Transaction type filter */
+  type?: SolanaTransactionType;
+  // Legacy aliases for backwards compatibility
+  /** @deprecated Use pageToken instead */
+  before?: string;
+  /** @deprecated Use pageSize instead */
+  limit?: number;
+}
+
+/**
+ * Paginated Solana transaction response
+ */
+export interface SolanaTransactionsResponse {
+  /** Array of transactions */
+  transactions: SolanaTransaction[];
+  /** Signature of the oldest transaction (use as 'before' for next page) */
+  oldestSignature?: string | null;
+  /** Whether there are more transactions to fetch */
+  hasMore: boolean;
+}
+
+// ============================================================================
+// Multi-chain transaction types (moved from api/services/transactions.ts)
+// ============================================================================
+
+/**
+ * Single transaction item from the multi-chain API
+ */
+export interface TransactionItem {
+  /** Transaction ID (hash) */
+  id: string;
+  /** Unix timestamp in seconds */
+  timestamp: number;
+  /** Transaction status */
+  status: string;
+  /** Transaction type classification */
+  type: TransactionType;
+  /** Transaction fee (null if user didn't pay fee) */
+  fee?: TransactionFee;
+  /** Tokens received */
+  inputs: TransactionTokenAmount[];
+  /** Tokens sent */
+  outputs: TransactionTokenAmount[];
+  /** Human-readable description (Moralis summary) */
+  description?: string;
+  /** Source label (contract/protocol name) */
+  source?: string;
+  /** Transaction category (Moralis enrichment) */
+  category?: string;
+}
+
+/**
+ * Pagination parameters for multi-chain transaction queries
+ */
+export interface TransactionPagingParams {
+  /** Number of items per page (max 100) */
+  pageSize?: number;
+  /** Page token for cursor-based pagination */
+  pageToken?: string;
+}
+
+/**
+ * Paginated multi-chain transaction response from the API
+ */
+export interface TransactionsResponse {
+  /** Array of transactions */
+  data: TransactionItem[];
+  /** Token for fetching the next page */
+  pageToken?: string;
 }

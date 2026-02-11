@@ -116,3 +116,36 @@ export function getAvatarColor(id: string): string {
   const index = Math.abs(hash) % AVATAR_COLORS.length;
   return AVATAR_COLORS[index];
 }
+
+// ============================================================================
+// Feature flag types (moved from api/services/switch.ts)
+// ============================================================================
+
+/**
+ * Individual feature switch configuration
+ */
+export interface Switch {
+  /** Unique identifier for the switch */
+  id: string;
+  /** Human-readable name of the feature */
+  name: string;
+  /** Whether the feature is enabled */
+  enabled: boolean;
+  /** Optional description of the feature */
+  description?: string;
+  /** Optional metadata for the switch */
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Response from the switches API endpoint
+ */
+export interface SwitchesResponse {
+  /** Array of feature switches */
+  switches: Switch[];
+}
+
+/**
+ * Map of switch IDs to their enabled state for quick lookup
+ */
+export type SwitchMap = Record<string, boolean>;
