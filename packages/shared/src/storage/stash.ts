@@ -13,6 +13,7 @@
  */
 
 import type { Stash, Platform } from './types';
+import { STASH_KEYS } from './types';
 
 // ============================================================================
 // Constants
@@ -430,54 +431,12 @@ export async function clearStash(): Promise<void> {
 // ============================================================================
 
 /**
- * Stores the user's password in the stash for the current session.
- *
- * The password is stored in memory only and will be cleared when
- * the app is closed or the user locks the wallet.
- *
- * @param password - The user's password
- */
-export async function stashPassword(password: string): Promise<void> {
-  await setStashItem('salmon_password', password);
-}
-
-/**
- * Retrieves the stashed password for the current session.
- *
- * @returns The password, or undefined if not stashed
- */
-export async function getStashedPassword(): Promise<string | undefined> {
-  return getStashItem<string>('salmon_password');
-}
-
-/**
- * Checks if a password is currently stashed (wallet is unlocked).
- *
- * @returns True if the wallet is unlocked (password is stashed)
- */
-export async function isWalletUnlocked(): Promise<boolean> {
-  const password = await getStashedPassword();
-  return password !== undefined;
-}
-
-/**
- * Clears the stashed password (locks the wallet).
- *
- * This removes only the password, leaving other session data intact.
- * For a full logout, use clearStash() instead.
- */
-export async function lockWallet(): Promise<void> {
-  await removeStashItem('salmon_password');
-  await removeStashItem('salmon_mnemonic');
-}
-
-/**
  * Updates the last activity timestamp.
  *
  * This is used for auto-lock functionality based on inactivity.
  */
 export async function updateLastActivity(): Promise<void> {
-  await setStashItem('salmon_last_activity', Date.now());
+  await setStashItem(STASH_KEYS.LAST_ACTIVITY, Date.now());
 }
 
 /**
@@ -486,7 +445,7 @@ export async function updateLastActivity(): Promise<void> {
  * @returns The timestamp of last activity, or undefined if not set
  */
 export async function getLastActivity(): Promise<number | undefined> {
-  return getStashItem<number>('salmon_last_activity');
+  return getStashItem<number>(STASH_KEYS.LAST_ACTIVITY);
 }
 
 /**

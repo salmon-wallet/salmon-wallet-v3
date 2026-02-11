@@ -175,30 +175,45 @@ export interface Stash {
  * what data is stored where.
  */
 export const STORAGE_KEYS = {
-  /** Encrypted wallet vault containing mnemonic and keys */
-  VAULT: 'salmon_vault',
-  /** User settings and preferences */
-  SETTINGS: 'salmon_settings',
-  /** List of wallet accounts */
+  // -- Account management (useAccounts) --
+  /** Account creation counter */
+  COUNTER: 'salmon_account_counter',
+  /** Serialized account list */
   ACCOUNTS: 'salmon_accounts',
-  /** Selected/active account index */
-  ACTIVE_ACCOUNT: 'salmon_active_account',
-  /** Token list and custom tokens */
-  TOKENS: 'salmon_tokens',
-  /** Address book / contacts */
-  CONTACTS: 'salmon_contacts',
-  /** Transaction history cache */
-  TX_HISTORY: 'salmon_tx_history',
-  /** Network configuration (mainnet/devnet) */
-  NETWORK: 'salmon_network',
-  /** NFT metadata cache */
-  NFT_CACHE: 'salmon_nft_cache',
-  /** Price cache */
-  PRICE_CACHE: 'salmon_price_cache',
-  /** User's preferred language */
-  LANGUAGE: 'salmon_language',
-  /** User's preferred display currency */
+  /** Encrypted or plain mnemonics keyed by account ID */
+  MNEMONICS: 'salmon_mnemonics',
+  /** Currently active account ID */
+  ACCOUNT_ID: 'salmon_active_account_id',
+  /** Currently active network ID */
+  NETWORK_ID: 'salmon_active_network_id',
+  /** Currently active derivation path index */
+  PATH_INDEX: 'salmon_active_path_index',
+  /** Trusted dApp permissions per network */
+  TRUSTED_APPS: 'salmon_trusted_apps',
+  /** User-imported custom tokens per network */
+  CUSTOM_TOKENS: 'salmon_custom_tokens',
+  /** Active connection info for external apps */
+  CONNECTION: 'salmon_connection',
+
+  // -- User preferences --
+  /** User settings and preferences (useUserConfig) */
+  SETTINGS: 'salmon_settings',
+  /** Preferred display currency (e.g. 'USD', 'EUR') */
   CURRENCY: 'salmon_currency',
+  /** User's preferred language (useLanguage) */
+  LANGUAGE: 'salmon_language',
+  /** Address book / contacts (useAddressbook) */
+  CONTACTS: 'salmon_contacts',
+  /** Balance visibility preference */
+  HIDDEN_BALANCE: 'salmon_hidden_balance',
+
+  // -- Legacy keys (v2 → v3 migration, removed after upgrade) --
+  /** @deprecated Legacy wallet list */
+  WALLETS: 'salmon_wallets',
+  /** @deprecated Legacy active wallet index */
+  ACTIVE: 'salmon_active',
+  /** @deprecated Legacy endpoint configuration */
+  ENDPOINTS: 'salmon_endpoints',
 } as const;
 
 /**
@@ -218,15 +233,11 @@ export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
  */
 export const STASH_KEYS = {
   /** User's decryption password (cleared on lock) */
-  PASSWORD: 'salmon_password',
-  /** Session token for authenticated requests */
-  SESSION_TOKEN: 'salmon_session',
+  PASSWORD: 'password',
+  /** Cached PBKDF2 derived key for fast re-encryption */
+  DERIVED_KEY: 'derived_key_cache',
   /** Timestamp of last activity (for auto-lock) */
   LAST_ACTIVITY: 'salmon_last_activity',
-  /** Temporarily decrypted mnemonic (cleared after use) */
-  MNEMONIC: 'salmon_mnemonic',
-  /** Pending transaction for signing */
-  PENDING_TX: 'salmon_pending_tx',
 } as const;
 
 /**

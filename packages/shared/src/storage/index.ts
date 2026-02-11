@@ -99,10 +99,6 @@ export {
   removeStashItem,
   clearStash,
   // Session management helpers
-  stashPassword,
-  getStashedPassword,
-  isWalletUnlocked,
-  lockWallet,
   updateLastActivity,
   getLastActivity,
   isSessionTimedOut,
