@@ -4,6 +4,7 @@ export { SwapTabSelector } from './SwapTabSelector';
 export { SwapAmountInput } from './SwapAmountInput';
 export { SwapDetailRow } from './SwapDetailRow';
 export { SwapReviewCard } from './SwapReviewCard';
+export { SwapReviewButtons } from './SwapReviewButtons';
 export { SwapInputScreen } from './SwapInputScreen';
 export { SwapReviewScreen } from './SwapReviewScreen';
 
@@ -26,3 +27,4 @@ export type {
   BridgeEstimateSimple,
   BridgeExchangeSimple,
 } from './types';
+export type { SwapReviewButtonsProps } from './SwapReviewButtons';
