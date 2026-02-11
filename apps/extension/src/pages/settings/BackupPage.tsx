@@ -15,11 +15,9 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -27,6 +25,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius, useAccounts } from '@salmon/shared';
+import { SettingsPageLayout } from '../../components/SettingsPageLayout';
 
 // ============================================================================
 // Types
@@ -41,36 +40,7 @@ export interface BackupPageProps {
 // Styled Components
 // ============================================================================
 
-const Container = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: '100vh',
-  backgroundColor: colors.background.primary,
-});
-
-const Header = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  padding: `${spacing.md}px ${spacing.lg}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-});
-
-const BackButton = styled(IconButton)({
-  color: colors.text.secondary,
-  marginRight: spacing.sm,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const Title = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-});
-
-const Content = styled(Box)({
-  flex: 1,
+const PageContent = styled(Box)({
   padding: spacing.lg,
   display: 'flex',
   flexDirection: 'column',
@@ -225,15 +195,11 @@ export function BackupPage({ onBack }: BackupPageProps): React.ReactElement {
   const hasNoMnemonic = !mnemonic || words.length === 0;
 
   return (
-    <Container>
-      <Header>
-        <BackButton onClick={onBack} aria-label={t('actions.back', 'Back')}>
-          <ArrowBackIcon />
-        </BackButton>
-        <Title>{t('settings.backup', 'Backup Wallet')}</Title>
-      </Header>
-
-      <Content>
+    <SettingsPageLayout
+      title={t('settings.backup', 'Backup Wallet')}
+      onBack={onBack}
+    >
+      <PageContent>
         <WarningAlert
           severity="warning"
           icon={<WarningAmberIcon />}
@@ -329,8 +295,8 @@ export function BackupPage({ onBack }: BackupPageProps): React.ReactElement {
             </Box>
           </>
         )}
-      </Content>
-    </Container>
+      </PageContent>
+    </SettingsPageLayout>
   );
 }
 

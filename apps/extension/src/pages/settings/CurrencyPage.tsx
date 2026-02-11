@@ -18,12 +18,11 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckIcon from '@mui/icons-material/Check';
 import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius, getStorage, STORAGE_KEYS } from '@salmon/shared';
+import { SettingsPageLayout } from '../../components/SettingsPageLayout';
 
 // ============================================================================
 // Types
@@ -73,39 +72,6 @@ const DEFAULT_CURRENCY = 'usd';
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const Container = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: '100vh',
-  backgroundColor: colors.background.primary,
-});
-
-const Header = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  padding: `${spacing.md}px ${spacing.lg}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-});
-
-const BackButton = styled(IconButton)({
-  color: colors.text.secondary,
-  marginRight: spacing.sm,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const Title = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-});
-
-const Content = styled(Box)({
-  flex: 1,
-  overflowY: 'auto',
-});
 
 const StyledList = styled(List)({
   padding: `${spacing.sm}px 0`,
@@ -193,30 +159,22 @@ export function CurrencyPage({ onBack }: CurrencyPageProps): React.ReactElement 
 
   if (isLoading) {
     return (
-      <Container>
-        <Header>
-          <BackButton onClick={onBack} aria-label={t('actions.back', 'Back')}>
-            <ArrowBackIcon />
-          </BackButton>
-          <Title>{t('settings.currency', 'Display Currency')}</Title>
-        </Header>
+      <SettingsPageLayout
+        title={t('settings.currency', 'Display Currency')}
+        onBack={onBack}
+      >
         <LoadingContainer>
           <CircularProgress size={24} sx={{ color: colors.accent.primary }} />
         </LoadingContainer>
-      </Container>
+      </SettingsPageLayout>
     );
   }
 
   return (
-    <Container>
-      <Header>
-        <BackButton onClick={onBack} aria-label={t('actions.back', 'Back')}>
-          <ArrowBackIcon />
-        </BackButton>
-        <Title>{t('settings.currency', 'Display Currency')}</Title>
-      </Header>
-
-      <Content>
+    <SettingsPageLayout
+      title={t('settings.currency', 'Display Currency')}
+      onBack={onBack}
+    >
         <StyledList>
           {CURRENCIES.map((currency) => {
             const isSelected = selectedCurrency === currency.code;
@@ -253,8 +211,7 @@ export function CurrencyPage({ onBack }: CurrencyPageProps): React.ReactElement 
             );
           })}
         </StyledList>
-      </Content>
-    </Container>
+    </SettingsPageLayout>
   );
 }
 

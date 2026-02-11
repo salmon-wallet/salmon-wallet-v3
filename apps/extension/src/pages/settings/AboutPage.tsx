@@ -17,9 +17,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import LanguageIcon from '@mui/icons-material/Language';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -30,6 +28,7 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius } from '@salmon/shared';
+import { SettingsPageLayout } from '../../components/SettingsPageLayout';
 
 // ============================================================================
 // Types
@@ -113,39 +112,6 @@ const SOCIAL_LINKS: LinkItem[] = [
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const Container = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: '100vh',
-  backgroundColor: colors.background.primary,
-});
-
-const Header = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  padding: `${spacing.md}px ${spacing.lg}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-});
-
-const BackButton = styled(IconButton)({
-  color: colors.text.secondary,
-  marginRight: spacing.sm,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const Title = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-});
-
-const Content = styled(Box)({
-  flex: 1,
-  overflowY: 'auto',
-});
 
 const LogoSection = styled(Box)({
   display: 'flex',
@@ -259,15 +225,10 @@ export function AboutPage({ onBack }: AboutPageProps): React.ReactElement {
   );
 
   return (
-    <Container>
-      <Header>
-        <BackButton onClick={onBack} aria-label={t('actions.back', 'Back')}>
-          <ArrowBackIcon />
-        </BackButton>
-        <Title>{t('settings.about', 'About')}</Title>
-      </Header>
-
-      <Content>
+    <SettingsPageLayout
+      title={t('settings.about', 'About')}
+      onBack={onBack}
+    >
         <LogoSection>
           <LogoContainer>
             <Box
@@ -316,8 +277,7 @@ export function AboutPage({ onBack }: AboutPageProps): React.ReactElement {
             'Made with love by the Salmon team'
           )}
         </FooterText>
-      </Content>
-    </Container>
+    </SettingsPageLayout>
   );
 }
 
