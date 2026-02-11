@@ -18,11 +18,10 @@ import {
   contentPadding,
   DerivedKeyCache,
   getStashItem,
+  STASH_KEYS,
 } from '@salmon/shared';
 import { getSessionKey, storeSessionKey, clearSessionKey } from '../../utils/sessionKeyCache';
 
-/** Stash key used by useAccounts for cached derived key */
-const DERIVED_KEY_STASH_KEY = 'derived_key_cache';
 
 interface LockPageProps {
   onUnlock: (password: string) => Promise<boolean>;
@@ -109,7 +108,7 @@ export function LockPage({ onUnlock, onUnlockWithCachedKey, onRemoveAllAccounts 
         // On success, retrieve the derived key from stash and store in session
         // This enables instant unlock for subsequent opens during this browser session
         try {
-          const derivedKey = await getStashItem<DerivedKeyCache>(DERIVED_KEY_STASH_KEY);
+          const derivedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
           if (derivedKey) {
             await storeSessionKey(derivedKey);
           }

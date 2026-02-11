@@ -1,6 +1,8 @@
 // Background service worker for Salmon Wallet extension
 // Handles message passing between content scripts, popup, and dApps
 
+import { STORAGE_KEYS, STASH_KEYS } from '@salmon/shared';
+
 // Type definitions
 interface MessageData {
   id: string;
@@ -174,7 +176,7 @@ export default defineBackground(() => {
     sendResponse: ResponseHandler
   ): Promise<void> => {
     chrome.storage.local.get(
-      ['connection', 'network_id', 'trusted_apps'],
+      [STORAGE_KEYS.CONNECTION, STORAGE_KEYS.NETWORK_ID, STORAGE_KEYS.TRUSTED_APPS],
       async (result) => {
         const tabId = await getActiveTabId();
 
@@ -184,9 +186,9 @@ export default defineBackground(() => {
         };
 
         const data: StorageData = {
-          connection: JSON.parse(result.connection || 'null'),
-          networkId: JSON.parse(result.network_id || 'null'),
-          trustedApps: JSON.parse(result.trusted_apps || 'null'),
+          connection: JSON.parse(result[STORAGE_KEYS.CONNECTION] || 'null'),
+          networkId: JSON.parse(result[STORAGE_KEYS.NETWORK_ID] || 'null'),
+          trustedApps: JSON.parse(result[STORAGE_KEYS.TRUSTED_APPS] || 'null'),
         };
 
         const connection = await getConnection(sender.origin || '', data);
@@ -235,7 +237,7 @@ export default defineBackground(() => {
     } else if (message.data.method === 'set') {
       if (message.data.key) {
         stashedValues.set(message.data.key, message.data.value);
-        if (['password', 'active_at'].includes(message.data.key)) {
+        if (message.data.key === STASH_KEYS.PASSWORD || message.data.key === STASH_KEYS.LAST_ACTIVITY) {
           chrome.alarms.create('salmon_lock_alarm', { delayInMinutes: 5 });
         }
       }
@@ -287,7 +289,7 @@ export default defineBackground(() => {
   // Alarm listener for session timeout (auto-lock after 5 minutes of inactivity)
   chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'salmon_lock_alarm') {
-      stashedValues.delete('password');
+      stashedValues.delete(STASH_KEYS.PASSWORD);
     }
   });
 

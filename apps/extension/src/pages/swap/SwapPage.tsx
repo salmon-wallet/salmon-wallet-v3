@@ -1,7 +1,329 @@
+/**
+ * SwapPage - Token swap and bridge interface for extension
+ *
+ * Wrapper around SwapScreen from @salmon/ui-extension.
+ * Wires useSwap, useBridge, useMultiChainTokens hooks.
+ */
+import { useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+import {
+  colors,
+  spacing,
+  fontFamily,
+  getExpectedOutput,
+  getMinimumOutput,
+  getPriceImpact,
+  searchTokens,
+  useAccountsContext,
+  useBridge,
+  useMultiChainTokens,
+  useSwap,
+  type SwapQuote as SharedSwapQuote,
+  type SolanaAccount,
+  type SwapNetworkId,
+  type TokenMetadata,
+  type UnifiedToken,
+} from '@salmon/shared';
+import {
+  SwapScreen,
+  type BridgeEstimateSimple,
+  type BridgeExchangeSimple,
+  type BridgeTokenSimple,
+  type SwapChainType,
+  type SwapQuote,
+  type SwapToken,
+} from '@salmon/ui-extension';
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function mapToSwapToken(token: TokenMetadata, balance?: number, usdPrice?: number): SwapToken {
+  return {
+    address: token.address,
+    symbol: token.symbol,
+    name: token.name,
+    decimals: token.decimals,
+    logo: token.logo || undefined,
+    balance: balance || 0,
+    usdPrice: usdPrice,
+    chain: 'solana',
+    networkId: 'solana-mainnet',
+  };
+}
+
+function unifiedToSwapToken(token: UnifiedToken): SwapToken {
+  return {
+    address: token.address,
+    symbol: token.symbol,
+    name: token.name,
+    decimals: token.decimals,
+    logo: token.logo,
+    balance: token.balance,
+    usdPrice: token.usdPrice,
+    chain: token.chain as SwapChainType,
+    networkId: token.networkId,
+  };
+}
+
+// ============================================================================
+// Styled Components
+// ============================================================================
+
+const Container = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const LoadingContainer = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+  gap: spacing.lg,
+});
+
+const LoadingText = styled(Typography)({
+  color: colors.text.secondary,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontSize: 16,
+});
+
+// ============================================================================
+// Component
+// ============================================================================
+
 export function SwapPage() {
+  const { t } = useTranslation();
+  const currentSharedQuoteRef = useRef<SharedSwapQuote | null>(null);
+
+  const [accountState] = useAccountsContext();
+  const { ready, activeAccount, activeBlockchainAccount, networkId } = accountState;
+
+  const swapNetworkId: SwapNetworkId = useMemo(() => {
+    return networkId === 'solana-devnet' ? 'solana-devnet' : 'solana-mainnet';
+  }, [networkId]);
+
+  const {
+    getQuote: getSwapQuote,
+    executeSwap: executeSwapHook,
+    quote: swapQuote,
+    error: swapError,
+    reset: resetSwap,
+  } = useSwap({
+    account: activeBlockchainAccount as SolanaAccount | undefined,
+    networkId: swapNetworkId,
+  });
+
+  const {
+    getAvailableTokens: getBridgeAvailableTokens,
+    getEstimate: getBridgeEstimate,
+    createExchange: createBridgeExchange,
+    reset: resetBridge,
+  } = useBridge();
+
+  const {
+    tokens: multiChainTokens,
+    featuredTokens: topTokens,
+    loading,
+  } = useMultiChainTokens({
+    activeAccount,
+    skip: !ready || !activeAccount,
+  });
+
+  const swapTokens: SwapToken[] = useMemo(() => {
+    return multiChainTokens.map(unifiedToSwapToken);
+  }, [multiChainTokens]);
+
+  const featuredTokens: SwapToken[] = useMemo(() => {
+    return topTokens.map(unifiedToSwapToken);
+  }, [topTokens]);
+
+  // Swap handlers
+  const handleGetQuote = useCallback(async (
+    inToken: SwapToken,
+    outToken: SwapToken,
+    amount: string,
+  ): Promise<SwapQuote> => {
+    if (!activeBlockchainAccount) throw new Error('No active account');
+
+    const inputAmount = parseFloat(amount);
+    if (isNaN(inputAmount) || inputAmount <= 0) throw new Error('Invalid amount');
+
+    const quote = await getSwapQuote({
+      inputMint: inToken.address,
+      outputMint: outToken.address,
+      amount: inputAmount,
+      inputDecimals: inToken.decimals,
+      slippageBps: 50,
+    });
+
+    if (!quote) throw new Error(swapError || 'Failed to get swap quote.');
+
+    currentSharedQuoteRef.current = quote;
+    return quote as unknown as SwapQuote;
+  }, [activeBlockchainAccount, getSwapQuote, swapError]);
+
+  const handleSwap = useCallback(async (quote: SwapQuote): Promise<{ txId: string }> => {
+    if (!activeBlockchainAccount) throw new Error('No active account');
+    if (!currentSharedQuoteRef.current) throw new Error('No quote available.');
+
+    const result = await executeSwapHook();
+    if (result.status === 'fail') throw new Error(result.error || 'Swap failed');
+
+    currentSharedQuoteRef.current = null;
+    return { txId: result.txId || '' };
+  }, [activeBlockchainAccount, executeSwapHook]);
+
+  const handleSwapSuccess = useCallback(() => {
+    resetSwap();
+  }, [resetSwap]);
+
+  const handleSwapError = useCallback(() => {
+    resetSwap();
+  }, [resetSwap]);
+
+  const handleSearchTokens = useCallback(async (query: string): Promise<SwapToken[]> => {
+    const network = networkId === 'solana-devnet' ? 'solana-devnet' : 'solana-mainnet';
+    try {
+      const results = await searchTokens(query, network);
+      return results.map((token) => mapToSwapToken(token));
+    } catch {
+      return [];
+    }
+  }, [networkId]);
+
+  // Bridge handlers
+  const bridgeTokens: BridgeTokenSimple[] = useMemo(() => {
+    return multiChainTokens.map((token) => ({
+      symbol: token.symbol,
+      name: token.name,
+      logo: token.logo,
+      network: token.chain,
+      balance: token.balance,
+      usdPrice: token.usdPrice,
+    }));
+  }, [multiChainTokens]);
+
+  const bridgeFeaturedTokens: BridgeTokenSimple[] = useMemo(() => {
+    return topTokens.map((token) => ({
+      symbol: token.symbol,
+      name: token.name,
+      logo: token.logo,
+      network: token.chain,
+      balance: token.balance,
+      usdPrice: token.usdPrice,
+    }));
+  }, [topTokens]);
+
+  const handleGetAvailableTokens = useCallback(async (sourceSymbol: string): Promise<BridgeTokenSimple[]> => {
+    try {
+      const tokens = await getBridgeAvailableTokens(sourceSymbol);
+      if (!tokens) return [];
+      return tokens.map((t) => ({
+        symbol: t.symbol,
+        name: t.name,
+        logo: t.image,
+        network: t.network,
+      }));
+    } catch {
+      return [];
+    }
+  }, [getBridgeAvailableTokens]);
+
+  const handleGetBridgeEstimate = useCallback(async (
+    symbolIn: string,
+    symbolOut: string,
+    amount: number,
+  ): Promise<BridgeEstimateSimple | null> => {
+    try {
+      const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount);
+      if (!estimate) return null;
+      return {
+        estimatedAmount: estimate.estimatedAmount,
+        minAmount: estimate.minAmount,
+        symbolIn: estimate.symbolIn,
+        symbolOut: estimate.symbolOut,
+      };
+    } catch {
+      return null;
+    }
+  }, [getBridgeEstimate]);
+
+  const handleCreateBridgeExchange = useCallback(async (
+    symbolIn: string,
+    symbolOut: string,
+    amount: number,
+    addressTo: string,
+  ): Promise<BridgeExchangeSimple | null> => {
+    try {
+      const exchange = await createBridgeExchange(symbolIn, symbolOut, amount, addressTo);
+      if (!exchange) return null;
+      return {
+        id: exchange.id,
+        depositAddress: exchange.payinAddress,
+        amountIn: exchange.amountExpectedFrom,
+        amountOut: exchange.amountExpectedTo,
+        symbolIn: exchange.currencyFrom,
+        symbolOut: exchange.currencyTo,
+        addressTo: exchange.payoutAddress,
+        status: exchange.status,
+      };
+    } catch {
+      return null;
+    }
+  }, [createBridgeExchange]);
+
+  const handleBridgeSuccess = useCallback(() => {
+    resetBridge();
+  }, [resetBridge]);
+
+  const handleBridgeError = useCallback(() => {
+    resetBridge();
+  }, [resetBridge]);
+
+  if (!ready) {
+    return (
+      <LoadingContainer>
+        <CircularProgress sx={{ color: colors.accent.primary }} />
+        <LoadingText>Loading...</LoadingText>
+      </LoadingContainer>
+    );
+  }
+
+  if (!activeAccount || !activeBlockchainAccount) {
+    return (
+      <LoadingContainer>
+        <LoadingText>No account found</LoadingText>
+      </LoadingContainer>
+    );
+  }
+
   return (
-    <div>
-      <h1>SwapPage</h1>
-    </div>
+    <Container>
+      <SwapScreen
+        tokens={swapTokens}
+        featuredTokens={featuredTokens}
+        onGetQuote={handleGetQuote}
+        onSwap={handleSwap}
+        onSuccess={handleSwapSuccess}
+        onError={handleSwapError}
+        onSearchTokens={handleSearchTokens}
+        initialInToken={swapTokens[0]}
+        bridgeTokens={bridgeTokens}
+        bridgeFeaturedTokens={bridgeFeaturedTokens}
+        onGetAvailableTokens={handleGetAvailableTokens}
+        onGetBridgeEstimate={handleGetBridgeEstimate}
+        onCreateBridgeExchange={handleCreateBridgeExchange}
+        onBridgeSuccess={handleBridgeSuccess}
+        onBridgeError={handleBridgeError}
+      />
+    </Container>
   );
 }

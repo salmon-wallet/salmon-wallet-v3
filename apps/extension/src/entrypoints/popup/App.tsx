@@ -1,14 +1,30 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useAccounts, useInactivityTimeout, DerivedKeyCache } from '@salmon/shared';
 import { LockPage } from '../../pages/lock/LockPage';
 import { HomePage } from '../../pages/home/HomePage';
 import { SelectOptionsPage } from '../../pages/auth/SelectOptionsPage';
+import { CreateWalletPage } from '../../pages/auth/CreateWalletPage';
+import { RecoverWalletPage } from '../../pages/auth/RecoverWalletPage';
+import { PasswordPage } from '../../pages/auth/PasswordPage';
+import { SuccessPage } from '../../pages/auth/SuccessPage';
+import { DerivedAccountsPage } from '../../pages/auth/DerivedAccountsPage';
 import { clearSessionKey } from '../../utils/sessionKeyCache';
 
-/**
- * Loading spinner component shown during initialization.
- * Uses inline styles for instant rendering without CSS loading delays.
- */
+// ============================================================================
+// Types
+// ============================================================================
+
+type AuthStep = 'select' | 'create' | 'recover' | 'password' | 'success' | 'derived';
+
+interface AuthData {
+  mnemonic: string;
+  flowType: 'create' | 'recover';
+}
+
+// ============================================================================
+// Loading Spinner
+// ============================================================================
+
 function LoadingSpinner() {
   return (
     <div style={styles.loadingContainer}>
@@ -17,42 +33,50 @@ function LoadingSpinner() {
   );
 }
 
+// ============================================================================
+// Main App
+// ============================================================================
+
 /**
  * Main App component that handles wallet state and routing.
  *
  * State machine:
  * 1. Loading (ready = false) -> Show loading spinner
- * 2. No accounts (ready = true, accounts.length = 0) -> Show onboarding
- * 3. Locked (ready = true, locked = true) -> Show lock screen
- * 4. Unlocked (ready = true, locked = false) -> Show home
- *
- * Transitions are instant (no animations) to provide a snappy UX.
- * The unlock action shows a loading state in the button only.
+ * 2. No accounts (ready = true, accounts.length = 0) -> Show auth flow
+ * 3. Auth flow in progress (justCreatedRef = true) -> Show auth flow
+ * 4. Locked (ready = true, locked = true) -> Show lock screen
+ * 5. Unlocked (ready = true, locked = false) -> Show home
  */
 function App() {
   const [state, actions] = useAccounts();
   const { ready, locked, accounts } = state;
 
+  // Auth flow state
+  const [authStep, setAuthStep] = useState<AuthStep>('select');
+  const [authData, setAuthData] = useState<AuthData | null>(null);
+
+  // Prevents premature transition to HomePage after account creation
+  // (accounts.length becomes > 0 but we're still in the auth flow)
+  const justCreatedRef = useRef(false);
+
   // Set up inactivity timeout for auto-lock
-  // Only enabled when wallet is unlocked and has accounts
-  // Note: We don't clear the session key on auto-lock - the user can still
-  // instantly unlock with the session key until the browser session ends
   useInactivityTimeout({
-    timeoutMs: 5 * 60 * 1000, // 5 minutes
+    timeoutMs: 5 * 60 * 1000,
     onTimeout: () => {
       actions.lockAccounts();
     },
-    enabled: ready && !locked && accounts.length > 0,
+    enabled: ready && !locked && accounts.length > 0 && !justCreatedRef.current,
   });
 
   // Handler for removing all accounts from lock screen
-  // After removal, accounts.length will be 0 and app will show onboarding
   const handleRemoveAllAccounts = useCallback(async () => {
     await clearSessionKey();
     await actions.removeAllAccounts();
+    setAuthStep('select');
+    setAuthData(null);
   }, [actions]);
 
-  // Handler for unlocking with a cached derived key (instant unlock)
+  // Handler for unlocking with a cached derived key
   const handleUnlockWithCachedKey = useCallback(
     async (keyCache: DerivedKeyCache): Promise<boolean> => {
       return actions.unlockWithCachedKey(keyCache);
@@ -60,19 +84,122 @@ function App() {
     [actions]
   );
 
-  // Show loading spinner during initialization
-  // This is a brief moment while checking stash for existing password
+  // ---- Auth flow handlers ----
+
+  const handleCreateWallet = useCallback(() => {
+    setAuthStep('create');
+  }, []);
+
+  const handleRecoverWallet = useCallback(() => {
+    setAuthStep('recover');
+  }, []);
+
+  const handleAuthBack = useCallback(() => {
+    setAuthStep('select');
+    setAuthData(null);
+  }, []);
+
+  const handleCreateComplete = useCallback((mnemonic: string) => {
+    setAuthData({ mnemonic, flowType: 'create' });
+    setAuthStep('password');
+  }, []);
+
+  const handleRecoverComplete = useCallback((mnemonic: string) => {
+    setAuthData({ mnemonic, flowType: 'recover' });
+    setAuthStep('password');
+  }, []);
+
+  const handlePasswordSuccess = useCallback(() => {
+    justCreatedRef.current = true;
+    setAuthStep('success');
+  }, []);
+
+  const handlePasswordBack = useCallback(() => {
+    if (authData?.flowType === 'create') {
+      setAuthStep('create');
+    } else {
+      setAuthStep('recover');
+    }
+  }, [authData]);
+
+  const handleGoToWallet = useCallback(() => {
+    justCreatedRef.current = false;
+    setAuthStep('select');
+    setAuthData(null);
+  }, []);
+
+  const handleCheckDerived = useCallback(() => {
+    setAuthStep('derived');
+  }, []);
+
+  const handleDerivedComplete = useCallback(() => {
+    justCreatedRef.current = false;
+    setAuthStep('select');
+    setAuthData(null);
+  }, []);
+
+  const handleDerivedBack = useCallback(() => {
+    setAuthStep('success');
+  }, []);
+
+  // ---- Rendering ----
+
   if (!ready) {
     return <LoadingSpinner />;
   }
 
-  // No accounts - show onboarding/setup flow
-  if (accounts.length === 0) {
-    return <SelectOptionsPage />;
+  // Show auth flow when no accounts exist or when we just created one
+  if (accounts.length === 0 || justCreatedRef.current) {
+    switch (authStep) {
+      case 'create':
+        return (
+          <CreateWalletPage
+            onComplete={handleCreateComplete}
+            onBack={handleAuthBack}
+          />
+        );
+      case 'recover':
+        return (
+          <RecoverWalletPage
+            onComplete={handleRecoverComplete}
+            onBack={handleAuthBack}
+          />
+        );
+      case 'password':
+        if (!authData) return <SelectOptionsPage onCreateWallet={handleCreateWallet} onRecoverWallet={handleRecoverWallet} />;
+        return (
+          <PasswordPage
+            mnemonic={authData.mnemonic}
+            flowType={authData.flowType}
+            onSuccess={handlePasswordSuccess}
+            onBack={handlePasswordBack}
+          />
+        );
+      case 'success':
+        return (
+          <SuccessPage
+            onGoToWallet={handleGoToWallet}
+            onCheckDerived={handleCheckDerived}
+          />
+        );
+      case 'derived':
+        return (
+          <DerivedAccountsPage
+            onComplete={handleDerivedComplete}
+            onBack={handleDerivedBack}
+          />
+        );
+      default:
+        return (
+          <SelectOptionsPage
+            onCreateWallet={handleCreateWallet}
+            onRecoverWallet={handleRecoverWallet}
+          />
+        );
+    }
   }
 
-  // Wallet is locked - show lock screen
-  // Transition to unlocked state is instant (no fade animation)
+  // Wallet is locked
   if (locked) {
     return (
       <LockPage
@@ -83,13 +210,14 @@ function App() {
     );
   }
 
-  // Wallet is unlocked - show main app
+  // Wallet is unlocked
   return <HomePage />;
 }
 
-/**
- * Inline styles for instant rendering without CSS loading delays.
- */
+// ============================================================================
+// Styles
+// ============================================================================
+
 const styles: Record<string, React.CSSProperties> = {
   loadingContainer: {
     display: 'flex',

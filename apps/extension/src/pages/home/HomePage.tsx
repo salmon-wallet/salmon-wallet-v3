@@ -9,6 +9,7 @@ import {
   useUserConfig,
   colors,
   spacing,
+  fontFamily,
   type SettingsScreen,
 } from '@salmon/shared';
 import {
@@ -28,6 +29,15 @@ import IconButton from '@mui/material/IconButton';
 import { BackupPage } from '../settings/BackupPage';
 import { CurrencyPage } from '../settings/CurrencyPage';
 import { AboutPage } from '../settings/AboutPage';
+
+// Tab content pages
+import { CollectiblesPage } from '../collectibles/CollectiblesPage';
+import { SwapPage } from '../swap/SwapPage';
+
+/**
+ * Active tab within the main app view
+ */
+type ActiveTab = 'home' | 'collectibles' | 'swap';
 
 /**
  * Available page views within HomePage
@@ -113,6 +123,31 @@ const EmptyStateSubtext = styled(Typography)({
   color: 'rgba(255, 255, 255, 0.4)',
 });
 
+const TabBar = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  borderBottom: `1px solid ${colors.border.default}`,
+  paddingLeft: spacing.lg,
+  paddingRight: spacing.lg,
+});
+
+const TabButton = styled('button')<{ active: boolean }>(({ active }) => ({
+  flex: 1,
+  padding: `${spacing.md}px 0`,
+  background: 'none',
+  border: 'none',
+  borderBottom: active ? `2px solid ${colors.accent.primary}` : '2px solid transparent',
+  color: active ? colors.text.primary : colors.text.secondary,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontWeight: active ? 600 : 400,
+  fontSize: 14,
+  cursor: 'pointer',
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    color: colors.text.primary,
+  },
+}));
+
 /**
  * Placeholder page for settings screens not yet fully implemented
  */
@@ -186,6 +221,9 @@ export function HomePage() {
     },
   });
   const { developerNetworks, toggleDeveloperNetworks } = userConfig;
+
+  // Active tab state
+  const [activeTab, setActiveTab] = useState<ActiveTab>('home');
 
   // Current page view state for navigation
   const [currentPage, setCurrentPage] = useState<PageView>('home');
@@ -465,48 +503,74 @@ export function HomePage() {
         </LockButton>
       </HeaderRow>
 
+      {/* Tab Bar */}
+      <TabBar>
+        <TabButton active={activeTab === 'home'} onClick={() => setActiveTab('home')}>
+          {t('tabs.home', 'Home')}
+        </TabButton>
+        <TabButton active={activeTab === 'collectibles'} onClick={() => setActiveTab('collectibles')}>
+          {t('tabs.collectibles', 'Collectibles')}
+        </TabButton>
+        <TabButton active={activeTab === 'swap'} onClick={() => setActiveTab('swap')}>
+          {t('tabs.swap', 'Swap')}
+        </TabButton>
+      </TabBar>
+
       <Main>
-        {/* Balance Card */}
-        <BalanceCard
-          network={networkInfo}
-          usdTotal={usdTotal}
-          changePercent={changePercent}
-          changeAmount={changeAmount}
-          hiddenBalance={hiddenBalance}
-          onToggleVisibility={toggleHidden}
-          loading={loading && usdTotal === undefined}
-        />
-
-        {/* Action Buttons */}
-        <ActionButtonRow
-          onSendPress={handleSendPress}
-          onReceivePress={handleReceivePress}
-          onActivityPress={handleActivityPress}
-        />
-
-        {/* Token List Section */}
-        <TokenSection>
-          <SectionTitle>{t('home.assets', 'Assets')}</SectionTitle>
-
-          {formattedTokens.length > 0 || loading ? (
-            <TokenList
-              tokens={formattedTokens}
-              loading={loading && formattedTokens.length === 0}
-              onTokenPress={handleTokenPress}
+        {activeTab === 'home' && (
+          <>
+            {/* Balance Card */}
+            <BalanceCard
+              network={networkInfo}
+              usdTotal={usdTotal}
+              changePercent={changePercent}
+              changeAmount={changeAmount}
               hiddenBalance={hiddenBalance}
-              maxHeight={400}
+              onToggleVisibility={toggleHidden}
+              loading={loading && usdTotal === undefined}
             />
-          ) : (
-            <EmptyState>
-              <EmptyStateText>
-                {t('home.no_tokens', 'No tokens found')}
-              </EmptyStateText>
-              <EmptyStateSubtext>
-                {t('home.no_tokens_hint', 'Your tokens will appear here once you receive some')}
-              </EmptyStateSubtext>
-            </EmptyState>
-          )}
-        </TokenSection>
+
+            {/* Action Buttons */}
+            <ActionButtonRow
+              onSendPress={handleSendPress}
+              onReceivePress={handleReceivePress}
+              onActivityPress={handleActivityPress}
+            />
+
+            {/* Token List Section */}
+            <TokenSection>
+              <SectionTitle>{t('home.assets', 'Assets')}</SectionTitle>
+
+              {formattedTokens.length > 0 || loading ? (
+                <TokenList
+                  tokens={formattedTokens}
+                  loading={loading && formattedTokens.length === 0}
+                  onTokenPress={handleTokenPress}
+                  hiddenBalance={hiddenBalance}
+                  maxHeight={400}
+                />
+              ) : (
+                <EmptyState>
+                  <EmptyStateText>
+                    {t('home.no_tokens', 'No tokens found')}
+                  </EmptyStateText>
+                  <EmptyStateSubtext>
+                    {t('home.no_tokens_hint', 'Your tokens will appear here once you receive some')}
+                  </EmptyStateSubtext>
+                </EmptyState>
+              )}
+            </TokenSection>
+          </>
+        )}
+
+        {activeTab === 'collectibles' && (
+          <CollectiblesPage
+            activeBlockchainAccount={activeBlockchainAccount}
+            networkId={networkId}
+          />
+        )}
+
+        {activeTab === 'swap' && <SwapPage />}
       </Main>
 
       {/* Settings Sheet */}
