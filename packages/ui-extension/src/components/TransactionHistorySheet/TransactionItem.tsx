@@ -46,94 +46,67 @@ const MAX_VISIBLE_AMOUNTS = 2;
 
 interface TypeConfig {
   label: string;
-  icon: React.ReactNode;
+  IconComponent: React.ComponentType<{ sx?: any }>;
   color: string;
 }
 
-function getTypeConfig(type: TransactionType): TypeConfig {
-  const iconSize = 22;
-  const badgeIconSize = 10;
+const TYPE_CONFIGS: Record<TransactionType, TypeConfig> = {
+  send: {
+    label: 'Sent',
+    IconComponent: ArrowUpwardIcon,
+    color: colors.change.negative,
+  },
+  receive: {
+    label: 'Received',
+    IconComponent: ArrowDownwardIcon,
+    color: colors.change.positive,
+  },
+  swap: {
+    label: 'Swapped',
+    IconComponent: SwapHorizIcon,
+    color: colors.palette.purple,
+  },
+  mint: {
+    label: 'Minted',
+    IconComponent: AddCircleOutlineIcon,
+    color: colors.palette.cyan,
+  },
+  burn: {
+    label: 'Burned',
+    IconComponent: LocalFireDepartmentIcon,
+    color: colors.palette.orange,
+  },
+  stake: {
+    label: 'Staked',
+    IconComponent: LockIcon,
+    color: colors.palette.green,
+  },
+  loan: {
+    label: 'Loan',
+    IconComponent: AccountBalanceWalletIcon,
+    color: colors.palette.amber,
+  },
+  interaction: {
+    label: 'Interaction',
+    IconComponent: WidgetsIcon,
+    color: colors.palette.blue,
+  },
+  unknown: {
+    label: 'Unknown',
+    IconComponent: HelpOutlineIcon,
+    color: colors.text.secondary,
+  },
+};
 
-  switch (type) {
-    case 'send':
-      return {
-        label: 'Sent',
-        icon: <ArrowUpwardIcon sx={{ fontSize: iconSize }} />,
-        color: colors.change.negative,
-      };
-    case 'receive':
-      return {
-        label: 'Received',
-        icon: <ArrowDownwardIcon sx={{ fontSize: iconSize }} />,
-        color: colors.change.positive,
-      };
-    case 'swap':
-      return {
-        label: 'Swapped',
-        icon: <SwapHorizIcon sx={{ fontSize: iconSize }} />,
-        color: colors.palette.purple,
-      };
-    case 'mint':
-      return {
-        label: 'Minted',
-        icon: <AddCircleOutlineIcon sx={{ fontSize: iconSize }} />,
-        color: colors.palette.cyan,
-      };
-    case 'burn':
-      return {
-        label: 'Burned',
-        icon: <LocalFireDepartmentIcon sx={{ fontSize: iconSize }} />,
-        color: colors.palette.orange,
-      };
-    case 'stake':
-      return {
-        label: 'Staked',
-        icon: <LockIcon sx={{ fontSize: iconSize }} />,
-        color: colors.palette.green,
-      };
-    case 'loan':
-      return {
-        label: 'Loan',
-        icon: <AccountBalanceWalletIcon sx={{ fontSize: iconSize }} />,
-        color: colors.palette.amber,
-      };
-    case 'interaction':
-      return {
-        label: 'Interaction',
-        icon: <WidgetsIcon sx={{ fontSize: iconSize }} />,
-        color: colors.palette.blue,
-      };
-    default:
-      return {
-        label: 'Unknown',
-        icon: <HelpOutlineIcon sx={{ fontSize: iconSize }} />,
-        color: colors.text.secondary,
-      };
-  }
-}
+function getTypeConfig(type: TransactionType): TypeConfig & { icon: React.ReactNode; badgeIcon: React.ReactNode } {
+  const config = TYPE_CONFIGS[type] || TYPE_CONFIGS.unknown;
+  const { IconComponent } = config;
 
-function getTypeBadgeIcon(type: TransactionType): React.ReactNode {
-  const size = 10;
-  switch (type) {
-    case 'send':
-      return <ArrowUpwardIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-    case 'receive':
-      return <ArrowDownwardIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-    case 'swap':
-      return <SwapHorizIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-    case 'mint':
-      return <AddCircleOutlineIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-    case 'burn':
-      return <LocalFireDepartmentIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-    case 'stake':
-      return <LockIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-    case 'loan':
-      return <AccountBalanceWalletIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-    case 'interaction':
-      return <WidgetsIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-    default:
-      return <HelpOutlineIcon sx={{ fontSize: size, color: '#FFFFFF' }} />;
-  }
+  return {
+    ...config,
+    icon: <IconComponent sx={{ fontSize: 22 }} />,
+    badgeIcon: <IconComponent sx={{ fontSize: 10, color: '#FFFFFF' }} />,
+  };
 }
 
 // ============================================================================
@@ -532,7 +505,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
             <TokenLogo uri={inputs[0].logo} size={34} />
           </SwapLogoOverlap>
           <TypeBadge sx={{ backgroundColor: config.color }}>
-            {getTypeBadgeIcon(type)}
+            {config.badgeIcon}
           </TypeBadge>
         </SwapLogosContainer>
       );
@@ -544,7 +517,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
         <LogoWithBadgeContainer>
           <TokenLogo uri={primaryToken.logo} size={40} />
           <TypeBadgeSingle sx={{ backgroundColor: config.color }}>
-            {getTypeBadgeIcon(type)}
+            {config.badgeIcon}
           </TypeBadgeSingle>
         </LogoWithBadgeContainer>
       );
@@ -557,8 +530,21 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
     );
   };
 
+  // Helper to render token amounts
+  const renderTokenAmounts = (tokens: TransactionTokenAmount[], sign: '+' | '-') => {
+    return tokens.map((token, i) => (
+      <AmountDisplay
+        key={`${sign}-${i}`}
+        token={token}
+        sign={sign}
+        hidden={hiddenBalance}
+      />
+    ));
+  };
+
   // Render amounts
   const renderAmounts = () => {
+    // Status badges
     if (status === 'failed') {
       return (
         <FailedBadge>
@@ -577,6 +563,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       );
     }
 
+    // Complex swap with expand toggle
     if (isComplex) {
       const firstOutput = outputs[0];
       const firstInput = inputs[0];
@@ -609,47 +596,14 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       );
     }
 
-    if (type === 'swap') {
-      return (
-        <AmountsContainer>
-          {outputs.map((output, i) => (
-            <AmountDisplay key={`out-${i}`} token={output} sign="-" hidden={hiddenBalance} />
-          ))}
-          {inputs.map((input, i) => (
-            <AmountDisplay key={`in-${i}`} token={input} sign="+" hidden={hiddenBalance} />
-          ))}
-        </AmountsContainer>
-      );
-    }
-
-    if (type === 'send') {
-      return (
-        <AmountsContainer>
-          {outputs.map((output, i) => (
-            <AmountDisplay key={`out-${i}`} token={output} sign="-" hidden={hiddenBalance} />
-          ))}
-        </AmountsContainer>
-      );
-    }
-
-    if (type === 'receive') {
-      return (
-        <AmountsContainer>
-          {inputs.map((input, i) => (
-            <AmountDisplay key={`in-${i}`} token={input} sign="+" hidden={hiddenBalance} />
-          ))}
-        </AmountsContainer>
-      );
-    }
+    // Type-specific amount rendering
+    const showOutputs = type !== 'receive';
+    const showInputs = type !== 'send';
 
     return (
       <AmountsContainer>
-        {outputs.map((output, i) => (
-          <AmountDisplay key={`out-${i}`} token={output} sign="-" hidden={hiddenBalance} />
-        ))}
-        {inputs.map((input, i) => (
-          <AmountDisplay key={`in-${i}`} token={input} sign="+" hidden={hiddenBalance} />
-        ))}
+        {showOutputs && renderTokenAmounts(outputs, '-')}
+        {showInputs && renderTokenAmounts(inputs, '+')}
       </AmountsContainer>
     );
   };

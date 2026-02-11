@@ -346,8 +346,21 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
     );
   };
 
+  // Helper to render token amounts
+  const renderTokenAmounts = (tokens: TransactionTokenAmount[], sign: '+' | '-') => {
+    return tokens.map((token, i) => (
+      <AmountDisplay
+        key={`${sign}-${i}`}
+        token={token}
+        sign={sign}
+        hidden={hiddenBalance}
+      />
+    ));
+  };
+
   // Render amount changes
   const renderAmounts = () => {
+    // Status badges
     if (status === 'failed') {
       return (
         <View style={styles.failedBadge}>
@@ -366,9 +379,8 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       );
     }
 
-    // For complex swaps, show simplified summary
+    // Complex swap with expand toggle
     if (isComplex) {
-      // Show first output and first input only
       const firstOutput = outputs[0];
       const firstInput = inputs[0];
       const hiddenCount = totalAmounts - 2;
@@ -381,7 +393,6 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
           {firstInput && (
             <AmountDisplay token={firstInput} sign="+" hidden={hiddenBalance} />
           )}
-          {/* Expandable indicator */}
           <TouchableOpacity
             style={styles.expandBadge}
             onPress={() => setExpanded(prev => !prev)}
@@ -400,51 +411,14 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       );
     }
 
-    // For simple swaps, show both output (negative) and input (positive)
-    if (type === 'swap') {
-      return (
-        <View style={styles.amountsContainer}>
-          {outputs.map((output, i) => (
-            <AmountDisplay key={`out-${i}`} token={output} sign="-" hidden={hiddenBalance} />
-          ))}
-          {inputs.map((input, i) => (
-            <AmountDisplay key={`in-${i}`} token={input} sign="+" hidden={hiddenBalance} />
-          ))}
-        </View>
-      );
-    }
+    // Type-specific amount rendering
+    const showOutputs = type !== 'receive';
+    const showInputs = type !== 'send';
 
-    // For sends, show outputs as negative
-    if (type === 'send') {
-      return (
-        <View style={styles.amountsContainer}>
-          {outputs.map((output, i) => (
-            <AmountDisplay key={`out-${i}`} token={output} sign="-" hidden={hiddenBalance} />
-          ))}
-        </View>
-      );
-    }
-
-    // For receives, show inputs as positive
-    if (type === 'receive') {
-      return (
-        <View style={styles.amountsContainer}>
-          {inputs.map((input, i) => (
-            <AmountDisplay key={`in-${i}`} token={input} sign="+" hidden={hiddenBalance} />
-          ))}
-        </View>
-      );
-    }
-
-    // For other types, show any amounts available
     return (
       <View style={styles.amountsContainer}>
-        {outputs.map((output, i) => (
-          <AmountDisplay key={`out-${i}`} token={output} sign="-" hidden={hiddenBalance} />
-        ))}
-        {inputs.map((input, i) => (
-          <AmountDisplay key={`in-${i}`} token={input} sign="+" hidden={hiddenBalance} />
-        ))}
+        {showOutputs && renderTokenAmounts(outputs, '-')}
+        {showInputs && renderTokenAmounts(inputs, '+')}
       </View>
     );
   };
