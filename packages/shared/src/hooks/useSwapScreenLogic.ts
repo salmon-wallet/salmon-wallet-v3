@@ -14,6 +14,7 @@ import type {
   BridgeEstimateSimple,
   BridgeExchangeSimple,
 } from '../types/swap';
+import type { TokenSelectorToken } from '../types/ui/token-selector';
 import type {
   BridgeChain,
   BridgeToken,
@@ -90,6 +91,9 @@ export interface UseSwapScreenLogicReturn {
   // Handlers
   handleInTokenSelect: (token: SwapToken) => void;
   handleOutTokenSelect: (token: SwapToken) => void;
+  handleInTokenModalSelect: (token: TokenSelectorToken) => void;
+  handleOutTokenModalSelect: (token: TokenSelectorToken) => void;
+  handleSearchTokens: ((query: string) => Promise<TokenSelectorToken[]>) | undefined;
   handleReview: () => void;
   handleContinueToReview: () => void;
   handleBackFromRecipient: () => void;
@@ -291,6 +295,24 @@ export function useSwapScreenLogic({
     }
   }, [inToken]);
 
+  // Modal-level handlers: convert TokenSelectorToken → SwapToken and delegate
+  const handleInTokenModalSelect = useCallback((token: TokenSelectorToken) => {
+    const originalToken = tokens.find(
+      (t) => t.address === (token.mint || token.address)
+    );
+    handleInTokenSelect({
+      address: token.mint || token.address || '',
+      symbol: token.symbol || '',
+      name: token.name,
+      decimals: originalToken?.decimals || 9,
+      logo: token.logo,
+      balance: token.uiAmount,
+      usdPrice: originalToken?.usdPrice,
+      chain: originalToken?.chain,
+      networkId: originalToken?.networkId,
+    });
+  }, [tokens, handleInTokenSelect]);
+
   const handleReview = useCallback(() => {
     if (swapMode === 'jupiter' && quote) {
       setStep('review');
@@ -405,6 +427,36 @@ export function useSwapScreenLogic({
     }
   }, [inToken, tokens, availableOutTokens]);
 
+  // Modal-level handler for output token (needs outputTokens, so defined after it)
+  const handleOutTokenModalSelect = useCallback((token: TokenSelectorToken) => {
+    const originalToken = outputTokens.find(
+      (t) => t.address === (token.mint || token.address) || t.symbol === token.symbol
+    );
+    handleOutTokenSelect({
+      address: token.mint || token.address || '',
+      symbol: token.symbol || '',
+      name: token.name,
+      decimals: originalToken?.decimals || 9,
+      logo: token.logo,
+      balance: token.uiAmount,
+      usdPrice: originalToken?.usdPrice,
+      chain: originalToken?.chain,
+      networkId: originalToken?.networkId || token.network,
+    });
+  }, [outputTokens, handleOutTokenSelect]);
+
+  // Search wrapper: converts SwapToken[] → TokenSelectorToken[]
+  const handleSearchTokens = onSearchTokens
+    ? async (query: string): Promise<TokenSelectorToken[]> => {
+        const results = await onSearchTokens(query);
+        return results.map((t) => ({
+          ...t,
+          mint: t.address,
+          uiAmount: t.balance || 0,
+        }));
+      }
+    : undefined;
+
   const modalInTokens = tokens.map((t) => ({
     ...t,
     mint: t.address,
@@ -494,6 +546,9 @@ export function useSwapScreenLogic({
 
     handleInTokenSelect,
     handleOutTokenSelect,
+    handleInTokenModalSelect,
+    handleOutTokenModalSelect,
+    handleSearchTokens,
     handleReview,
     handleContinueToReview,
     handleBackFromRecipient,

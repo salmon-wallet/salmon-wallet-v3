@@ -16,10 +16,6 @@ import { TokenSelectorModal } from '../TokenSelector';
 import { ScalesBackground } from '../ScalesBackground';
 import type { SwapScreenProps } from './types';
 
-// ============================================================================
-// Styled Components
-// ============================================================================
-
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
@@ -38,16 +34,8 @@ const BackgroundWrapper = styled(Box)({
   pointerEvents: 'none',
 });
 
-// ============================================================================
-// SwapScreen Component
-// ============================================================================
-
 export function SwapScreen(props: SwapScreenProps): React.ReactElement {
-  const {
-    style,
-    tokens,
-    onSearchTokens,
-  } = props;
+  const { style } = props;
 
   const logic = useSwapScreenLogic({
     ...props,
@@ -60,12 +48,10 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
 
   return (
     <Container style={style}>
-      {/* Background */}
       <BackgroundWrapper>
         <ScalesBackground />
       </BackgroundWrapper>
 
-      {/* Input Screen */}
       {logic.step === 'input' && (
         <SwapInputScreen
           inToken={logic.inToken}
@@ -82,7 +68,6 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
         />
       )}
 
-      {/* Review Screen (Jupiter) */}
       {logic.step === 'review' && logic.swapMode === 'jupiter' && logic.quote && logic.inToken && logic.outToken && (
         <SwapReviewScreen
           quote={logic.quote}
@@ -94,7 +79,6 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
         />
       )}
 
-      {/* Recipient Screen (Bridge only) */}
       {logic.step === 'recipient' && logic.swapMode === 'stealthex' && (
         <BridgeRecipientScreen
           recipientAddress={logic.recipientAddress}
@@ -107,7 +91,6 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
         />
       )}
 
-      {/* Review Screen (StealthEX) */}
       {logic.step === 'review' && logic.swapMode === 'stealthex' && logic.bridgeInToken && logic.bridgeOutToken && (
         <BridgeReviewScreen
           inToken={logic.bridgeInToken}
@@ -122,60 +105,21 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
         />
       )}
 
-      {/* Input Token Selection Modal */}
       <TokenSelectorModal
         visible={logic.showInTokenModal}
         onClose={() => logic.setShowInTokenModal(false)}
         tokens={logic.modalInTokens}
         featuredTokens={logic.modalFeaturedTokens}
-        onSelect={(token) => {
-          const originalToken = tokens.find(
-            (t) => t.address === (token.mint || token.address)
-          );
-          logic.handleInTokenSelect({
-            address: token.mint || token.address || '',
-            symbol: token.symbol || '',
-            name: token.name,
-            decimals: originalToken?.decimals || 9,
-            logo: token.logo,
-            balance: token.uiAmount,
-            usdPrice: originalToken?.usdPrice,
-            chain: originalToken?.chain,
-            networkId: originalToken?.networkId,
-          });
-        }}
-        onSearch={onSearchTokens ? async (query) => {
-          const results = await onSearchTokens(query);
-          return results.map((t) => ({
-            ...t,
-            mint: t.address,
-            uiAmount: t.balance || 0,
-          }));
-        } : undefined}
+        onSelect={logic.handleInTokenModalSelect}
+        onSearch={logic.handleSearchTokens}
         showNetworkChip={true}
       />
 
-      {/* Output Token Selection Modal */}
       <TokenSelectorModal
         visible={logic.showOutTokenModal}
         onClose={() => logic.setShowOutTokenModal(false)}
         tokens={logic.modalOutTokens}
-        onSelect={(token) => {
-          const originalToken = logic.outputTokens.find(
-            (t) => t.address === (token.mint || token.address) || t.symbol === token.symbol
-          );
-          logic.handleOutTokenSelect({
-            address: token.mint || token.address || '',
-            symbol: token.symbol || '',
-            name: token.name,
-            decimals: originalToken?.decimals || 9,
-            logo: token.logo,
-            balance: token.uiAmount,
-            usdPrice: originalToken?.usdPrice,
-            chain: originalToken?.chain,
-            networkId: originalToken?.networkId || token.network,
-          });
-        }}
+        onSelect={logic.handleOutTokenModalSelect}
         showNetworkChip={true}
         hiddenBalance={logic.swapMode === 'stealthex'}
       />
