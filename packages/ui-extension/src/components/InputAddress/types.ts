@@ -9,12 +9,14 @@
  * @salmon/shared and re-exported from the barrel index.ts for backwards compat.
  */
 
+import type { CSSProperties } from 'react';
 import type {
   BlockchainType,
   ValidationCallbackResult,
   ValidationState,
   UseAddressValidationReturn,
   UseAddressValidationOptions,
+  InputAddressPropsBase,
 } from '@salmon/shared';
 
 // Re-export shared types so existing local imports still work
@@ -27,29 +29,9 @@ export type {
 } from '@salmon/shared';
 
 /**
- * Props for the InputAddress component (web version)
+ * Props for the InputAddress component (Web/Extension)
  */
-export interface InputAddressProps {
-  /** Current address value */
-  address: string;
-  /** Callback when address changes */
-  onChange: (address: string) => void;
-  /** Callback when validation completes */
-  onValidation?: (result: ValidationCallbackResult) => void;
-  /** Placeholder text */
-  placeholder?: string;
-  /** Blockchain type for validation context */
-  blockchain?: BlockchainType;
-  /** Label to show above input (e.g., "To") */
-  label?: string;
-  /** Whether the input is disabled */
-  disabled?: boolean;
-  /** Custom error message to display */
-  errorMessage?: string;
-  /** Test ID for testing */
-  testID?: string;
+export interface InputAddressProps extends InputAddressPropsBase<CSSProperties> {
   /** Additional CSS class */
   className?: string;
-  /** Additional styles */
-  style?: React.CSSProperties;
 }

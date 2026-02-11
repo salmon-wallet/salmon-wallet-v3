@@ -5,5 +5,6 @@
 
 export * from './transaction';
 export * from './ui';
+export * from './ui/index';
 export * from './icons';
 export * from './settings';

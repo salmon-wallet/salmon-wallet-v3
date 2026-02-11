@@ -14,6 +14,7 @@ import type {
   ValidationState,
   UseAddressValidationReturn,
   UseAddressValidationOptions,
+  InputAddressPropsBase,
 } from '@salmon/shared';
 
 // Re-export shared types so existing local imports still work
@@ -26,25 +27,8 @@ export type {
 } from '@salmon/shared';
 
 /**
- * Props for the InputAddress component
+ * Props for the InputAddress component (React Native)
  */
-export interface InputAddressProps extends Omit<TextInputProps, 'value' | 'onChangeText' | 'onChange'> {
-  /** Current address value */
-  address: string;
-  /** Callback when address changes */
-  onChange: (address: string) => void;
-  /** Callback when validation completes */
-  onValidation?: (result: ValidationCallbackResult) => void;
-  /** Placeholder text */
-  placeholder?: string;
-  /** Blockchain type for validation context */
-  blockchain?: BlockchainType;
-  /** Label to show above input (e.g., "To") */
-  label?: string;
-  /** Whether the input is disabled */
-  disabled?: boolean;
-  /** Custom error message to display */
-  errorMessage?: string;
-  /** Test ID for testing */
-  testID?: string;
-}
+export interface InputAddressProps
+  extends InputAddressPropsBase<TextInputProps['style']>,
+    Omit<TextInputProps, 'value' | 'onChangeText' | 'onChange' | 'style'> {}
