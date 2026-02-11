@@ -14,94 +14,31 @@
  */
 
 import { Contract, formatUnits, type Provider } from 'ethers';
+import {
+  ETH_CONSTANTS,
+  ERC20_ABI,
+} from '../../utils/tokens';
+import { formatBalance } from '../../utils/formatting';
+import type {
+  EthereumOnChainTokenBalance,
+  EthereumWalletBalance,
+  BalanceLookupToken,
+  EthereumTokenBalanceResult,
+} from '../../types/balance';
 
-// ============================================================================
-// Types
-// ============================================================================
+// Re-export canonical types from types/balance
+export type { EthereumOnChainTokenBalance, EthereumWalletBalance, BalanceLookupToken, EthereumTokenBalanceResult };
 
-/**
- * Balance information for ETH or ERC20 token
- */
-export interface EthereumTokenBalance {
-  /** Token contract address (empty string for native ETH) */
-  address: string;
-  /** Token symbol (e.g., 'ETH', 'USDC') */
-  symbol: string;
-  /** Token decimals */
-  decimals: number;
-  /** Raw balance in smallest unit (wei for ETH) */
-  balance: bigint;
-  /** Human-readable formatted balance */
-  formattedBalance: string;
-}
+// Backwards-compatible aliases
+/** @deprecated Use `EthereumOnChainTokenBalance` from `types/balance` instead. */
+export type EthereumTokenBalance = EthereumOnChainTokenBalance;
+/** @deprecated Use `BalanceLookupToken` from `types/balance` instead. */
+export type TokenInfo = BalanceLookupToken;
 
-/**
- * Complete wallet balance with native ETH and tokens
- */
-export interface EthereumWalletBalance {
-  /** Native ETH balance */
-  native: EthereumTokenBalance;
-  /** ERC20 token balances */
-  tokens: EthereumTokenBalance[];
-  /** Total USD value (would need price service integration) */
-  totalUsd?: number;
-}
-
-/**
- * Token information for balance lookup
- */
-export interface TokenInfo {
-  /** Token contract address */
-  address: string;
-  /** Token symbol */
-  symbol?: string;
-  /** Token decimals (fetched from contract if not provided) */
-  decimals?: number;
-}
-
-/**
- * Result from getEthereumTokenBalance including raw and token info
- */
-export interface EthereumTokenBalanceResult {
-  /** Token contract address */
-  address: string;
-  /** Token symbol */
-  symbol: string;
-  /** Token decimals */
-  decimals: number;
-  /** Raw balance in smallest unit */
-  balance: bigint;
-  /** Human-readable formatted balance */
-  formattedBalance: string;
-  /** Whether the balance fetch was successful */
-  success: boolean;
-  /** Error message if fetch failed */
-  error?: string;
-}
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-/** ETH token constants */
-export const ETH_CONSTANTS = {
-  DECIMALS: 18,
-  SYMBOL: 'ETH',
-  NAME: 'Ethereum',
-  ADDRESS: '', // Native ETH has no contract address
-  COINGECKO_ID: 'ethereum',
-} as const;
-
-/** Minimal ERC20 ABI for balance operations */
-export const ERC20_ABI = [
-  'function balanceOf(address owner) view returns (uint256)',
-  'function decimals() view returns (uint8)',
-  'function symbol() view returns (string)',
-  'function name() view returns (string)',
-] as const;
-
-/** Wei per ETH (bigint) */
-export const WEI_PER_ETH_BIGINT = 1_000_000_000_000_000_000n;
+// Note: ETH_CONSTANTS, ERC20_ABI are canonical in utils/tokens
+// Note: WEI_PER_ETH_BIGINT is canonical in utils/decimals
+// Note: ethToWei, weiToEth are canonical in utils/decimals
+// Note: isZeroBalance, compareBalances are canonical in utils/balance
 
 // ============================================================================
 // Native ETH Balance Functions
@@ -327,68 +264,7 @@ export function formatBalanceDisplay(
   decimals: number,
   displayDecimals: number = 4
 ): string {
-  const formatted = formatUnits(balance, decimals);
-  const numValue = parseFloat(formatted);
-
-  if (numValue === 0) return '0';
-
-  if (numValue < 0.0001) {
-    return '<0.0001';
-  }
-
-  if (numValue >= 1_000_000) {
-    return `${(numValue / 1_000_000).toFixed(2)}M`;
-  }
-
-  if (numValue >= 1000) {
-    return `${(numValue / 1000).toFixed(2)}K`;
-  }
-
-  return numValue.toFixed(displayDecimals);
+  const numValue = parseFloat(formatUnits(balance, decimals));
+  return formatBalance(numValue, displayDecimals);
 }
 
-/**
- * Convert ETH to wei
- *
- * @param ethAmount - Amount in ETH
- * @returns Amount in wei as bigint
- */
-export function ethToWei(ethAmount: number | string): bigint {
-  const amountStr = typeof ethAmount === 'number' ? ethAmount.toString() : ethAmount;
-  const [whole, fraction = ''] = amountStr.split('.');
-  const paddedFraction = fraction.padEnd(18, '0').slice(0, 18);
-  return BigInt(whole + paddedFraction);
-}
-
-/**
- * Convert wei to ETH
- *
- * @param weiAmount - Amount in wei
- * @returns Amount in ETH as string
- */
-export function weiToEth(weiAmount: bigint): string {
-  return formatUnits(weiAmount, 18);
-}
-
-/**
- * Check if a balance is zero
- *
- * @param balance - Balance to check
- * @returns True if balance is zero
- */
-export function isZeroBalance(balance: bigint): boolean {
-  return balance === 0n;
-}
-
-/**
- * Compare two balances
- *
- * @param a - First balance
- * @param b - Second balance
- * @returns -1 if a < b, 0 if a === b, 1 if a > b
- */
-export function compareBalances(a: bigint, b: bigint): number {
-  if (a < b) return -1;
-  if (a > b) return 1;
-  return 0;
-}

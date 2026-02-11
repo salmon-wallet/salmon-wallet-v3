@@ -3,12 +3,9 @@ import {
   BitcoinAccount,
   BitcoinNetwork,
   BitcoinKeyPair,
-  BitcoinEnvironment,
-  type FetchBitcoinBalanceFn,
-  type FetchBitcoinPricesFn,
-  type FetchBitcoinTransactionFn,
-  type FetchBitcoinRecentTransactionsFn,
 } from './BitcoinAccount';
+import type { BitcoinAccountApiFunctions } from '../../types/transfer';
+import type { BitcoinNetworkId } from '../../types/blockchain';
 import {
   deriveBitcoinKeypair,
   COIN_TYPES,
@@ -26,16 +23,6 @@ export const BITCOIN_COIN_TYPE = COIN_TYPES.BTC;
  * SLIP-0044 coin type for Bitcoin Testnet
  */
 export const BITCOIN_TESTNET_COIN_TYPE = COIN_TYPES.TESTNET;
-
-/**
- * API dependencies required for BitcoinAccount operations
- */
-export interface BitcoinAccountApiFunctions {
-  fetchBalance: FetchBitcoinBalanceFn;
-  fetchPrices: FetchBitcoinPricesFn;
-  fetchTransaction: FetchBitcoinTransactionFn;
-  fetchRecentTransactions: FetchBitcoinRecentTransactionsFn;
-}
 
 /**
  * Options for creating a Bitcoin account from mnemonic
@@ -68,13 +55,28 @@ export interface DeriveBitcoinAccountsOptions {
 }
 
 /**
- * Maps a network environment to the bitcoinjs-lib network configuration.
+ * Maps a network ID to the bitcoinjs-lib network configuration.
  *
- * @param environment - Network environment type
+ * @param networkId - Bitcoin network identifier
  * @returns bitcoinjs-lib Network configuration
  */
+export function mapNetworkIdToLibNetwork(
+  networkId: BitcoinNetworkId
+): bitcoin.Network {
+  switch (networkId) {
+    case 'bitcoin-testnet':
+      return bitcoin.networks.testnet;
+    case 'bitcoin-mainnet':
+    default:
+      return bitcoin.networks.bitcoin;
+  }
+}
+
+/**
+ * @deprecated Use `mapNetworkIdToLibNetwork` instead.
+ */
 export function mapEnvironmentToNetwork(
-  environment: BitcoinEnvironment
+  environment: 'mainnet' | 'testnet'
 ): bitcoin.Network {
   switch (environment) {
     case 'testnet':
@@ -299,6 +301,7 @@ export const BITCOIN_NETWORKS: Record<string, BitcoinNetwork> = {
   'bitcoin-mainnet': {
     id: 'bitcoin-mainnet',
     name: 'Bitcoin Mainnet',
+    networkId: 'bitcoin-mainnet',
     environment: 'mainnet',
     config: {
       network: bitcoin.networks.bitcoin,
@@ -307,6 +310,7 @@ export const BITCOIN_NETWORKS: Record<string, BitcoinNetwork> = {
   'bitcoin-testnet': {
     id: 'bitcoin-testnet',
     name: 'Bitcoin Testnet',
+    networkId: 'bitcoin-testnet',
     environment: 'testnet',
     config: {
       network: bitcoin.networks.testnet,

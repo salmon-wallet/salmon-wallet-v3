@@ -14,63 +14,22 @@
  */
 
 import * as bitcoin from 'bitcoinjs-lib';
-import type { BIP32Interface } from 'bip32';
 import {
   BitcoinNetwork,
-  BitcoinKeyPair,
-  SATOSHIS_PER_BTC,
 } from './BitcoinAccount';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Unspent Transaction Output (UTXO) from the API
- */
-export interface UTXO {
-  /** Transaction ID containing this UTXO */
-  txid: string;
-  /** Output index within the transaction */
-  vout: number;
-  /** Value in satoshis */
-  satoshis: number;
-  /** Raw transaction hex (for non-SegWit inputs) */
-  rawTx?: string;
-  /** Script pubkey hex */
-  scriptPubKey?: string;
-}
-
-/**
- * Result of creating a transfer transaction
- */
-export interface TransferTransactionResult {
-  /** Transaction ID (hash) */
-  txId: string;
-  /** Serialized transaction hex for broadcasting */
-  serializedTx: string;
-}
-
-/**
- * Result of broadcasting a transaction
- */
-export interface BroadcastResult {
-  /** Transaction ID if successful */
-  txId?: string;
-  /** Success indicator */
-  success: boolean;
-  /** Error message if failed */
-  error?: string;
-}
-
-/**
- * Bitcoin keypair with signing capability
- * Extends BitcoinKeyPair with the BIP32 node for signing
- */
-export interface SigningKeyPair extends BitcoinKeyPair {
-  /** BIP32 node for signing transactions */
-  node: BIP32Interface;
-}
+import {
+  btcToSatoshis,
+  satoshisToBtc,
+  SATOSHIS_PER_BTC,
+} from '../../utils/decimals';
+import type {
+  UTXO,
+  TransferTransactionResult,
+  BroadcastResult,
+  SigningKeyPair,
+  FetchUtxosFn,
+  BroadcastTransactionFn,
+} from '../../types/transfer';
 
 /**
  * Resolved inputs for transaction building
@@ -81,21 +40,6 @@ interface ResolvedInputs {
   /** Total value of all inputs in satoshis */
   totalAmountAvailable: number;
 }
-
-// ============================================================================
-// API Function Types
-// ============================================================================
-
-export type FetchUtxosFn = (
-  networkId: string,
-  address: string
-) => Promise<UTXO[]>;
-
-export type BroadcastTransactionFn = (
-  networkId: string,
-  address: string,
-  serializedTx: string
-) => Promise<{ txId?: string; success: boolean }>;
 
 // ============================================================================
 // Constants
@@ -492,25 +436,7 @@ export async function sendBitcoin(
 // Utility Functions
 // ============================================================================
 
-/**
- * Converts BTC to satoshis.
- *
- * @param btc - Amount in BTC
- * @returns Amount in satoshis
- */
-export function btcToSatoshis(btc: number): number {
-  return Math.floor(btc * SATOSHIS_PER_BTC);
-}
-
-/**
- * Converts satoshis to BTC.
- *
- * @param satoshis - Amount in satoshis
- * @returns Amount in BTC
- */
-export function satoshisToBtc(satoshis: number): number {
-  return satoshis / SATOSHIS_PER_BTC;
-}
+export { btcToSatoshis, satoshisToBtc };
 
 /**
  * Calculates the maximum sendable amount after fees.

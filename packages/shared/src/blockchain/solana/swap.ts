@@ -19,76 +19,27 @@ import {
   Keypair,
   VersionedTransaction,
 } from '@solana/web3.js';
-import type {
-  SwapOrderResponse,
-  SwapOrderParams,
-  SolanaNetworkId,
-  ApiSwapExecuteResponse,
-} from '../../api/services/solana';
-import type { TokenMetadata } from '../../api/services/tokens';
-import { applyDecimals, SOL_ADDRESS } from './transfer';
+import type { SolanaNetworkId } from '../../types/blockchain';
+import type { SwapOrderResponse, SwapOrderParams, ApiSwapExecuteResponse } from '../../types/swap';
+import type { TokenMetadata } from '../../types/token';
+import { applyDecimals } from '../../utils/decimals';
+import { isNativeSol } from '../../utils/tokens';
+import { SOL_CONSTANTS } from '../../utils/balance';
+
+const SOL_ADDRESS = SOL_CONSTANTS.ADDRESS;
 import type { SolanaNetwork } from './SolanaAccount';
 
 // ============================================================================
-// Types
+// Types (imported from canonical source)
 // ============================================================================
 
-/**
- * Network identifier for swap operations
- */
-export type SwapNetworkId = SolanaNetworkId;
-
-/**
- * Parameters for requesting a swap quote (high-level, with human-readable amounts)
- */
-export interface SwapQuoteParams {
-  /** Input token mint address (use SOL_ADDRESS for native SOL) */
-  inputMint: string;
-  /** Output token mint address (use SOL_ADDRESS for native SOL) */
-  outputMint: string;
-  /** Amount to swap in human-readable format (will be converted using decimals) */
-  amount: number;
-  /** Public key of the wallet performing the swap */
-  publicKey: string;
-  /** Slippage tolerance in basis points (optional, default: 50 = 0.5%) */
-  slippageBps?: number;
-  /** Swap mode (optional, default: 'ExactIn') */
-  swapMode?: 'ExactIn' | 'ExactOut';
-  /** Use dynamic slippage (optional) */
-  dynamicSlippage?: boolean;
-  /** Priority fee level (optional) */
-  priorityLevel?: 'none' | 'low' | 'medium' | 'high' | 'veryHigh';
-}
-
-/**
- * Swap quote response - wraps the API response with additional context
- */
-export interface SwapQuote extends SwapOrderResponse {
-  /** Network ID used for this quote */
-  networkId: SwapNetworkId;
-}
-
-/**
- * Result of a swap operation
- */
-export interface SwapResult {
-  /** Transaction ID (signature) */
-  txId: string | null;
-  /** Swap status */
-  status: 'success' | 'fail';
-  /** Error message if swap failed */
-  error?: string;
-  /** Confirmation status from the network */
-  confirmationStatus?: 'processed' | 'confirmed' | 'finalized';
-}
-
-/**
- * Options for swap quote request
- */
-export interface GetSwapQuoteOptions {
-  /** Token decimals (if known, avoids token list lookup) */
-  inputDecimals?: number;
-}
+import type {
+  SwapNetworkId,
+  SwapQuote,
+  SwapQuoteParams,
+  SwapResult,
+  GetSwapQuoteOptions,
+} from '../../types/swap';
 
 // ============================================================================
 // API Function Types
@@ -406,6 +357,37 @@ export function getMinimumOutput(quote: SwapQuote, outputDecimals?: number): num
  */
 export function getPriceImpact(quote: SwapQuote): number {
   return quote.custom?.priceImpact || 0;
+}
+
+/**
+ * Parse quote into UI-friendly format.
+ * Updated for Jupiter Ultra v1 API structure.
+ */
+export function parseQuoteInfo(quote: SwapQuote): import('../../types/swap').ParsedQuoteInfo {
+  const outputDecimals = quote.output?.decimals ?? 9;
+
+  return {
+    expectedOutput: getExpectedOutput(quote, outputDecimals),
+    minimumOutput: getMinimumOutput(quote, outputDecimals),
+    priceImpact: getPriceImpact(quote),
+    inputToken: quote.input ? {
+      symbol: quote.input.symbol,
+      name: quote.input.name || '',
+      decimals: quote.input.decimals,
+      logo: quote.input.logo || undefined,
+    } : undefined,
+    outputToken: quote.output ? {
+      symbol: quote.output.symbol,
+      name: quote.output.name || '',
+      decimals: quote.output.decimals,
+      logo: quote.output.logo || undefined,
+    } : undefined,
+    route: {
+      slippageBps: quote.custom?.slippageBps || 50,
+      swapMode: (quote.custom?.swapMode || 'ExactIn') as 'ExactIn' | 'ExactOut',
+      routeLabels: quote.routeNames || [],
+    },
+  };
 }
 
 // Re-export SOL_ADDRESS for convenience

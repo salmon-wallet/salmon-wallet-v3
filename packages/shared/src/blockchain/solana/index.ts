@@ -33,11 +33,9 @@ export {
   requiresMemo,
   confirmTransaction,
   airdrop,
-  applyDecimals,
-  removeDecimals,
-  isNativeSol,
   SOL_ADDRESS,
 } from './transfer';
+// Note: applyDecimals, removeDecimals, isNativeSol are now canonical in utils/
 export type {
   TransferOptions,
   TransferResult,
@@ -59,22 +57,7 @@ export {
   isMoreThanOne,
   isBlacklisted,
 } from './nft';
-export type {
-  Nft,
-  NftMint,
-  NftCollection,
-  NftEdition,
-  NftCreator,
-  NftAttribute,
-  NftExtras,
-  Token2022Extension,
-  NftPagination,
-  NftPaginatedResponse,
-  NftCollectionGroup,
-  GetNftsOptions,
-  FetchNftsFromBackendFn,
-  FetchNftByAddressFn,
-} from './nft';
+// NFT types are defined in types/nft.ts — import from there directly
 
 // Domain name services
 export {
@@ -95,17 +78,10 @@ export {
   getExpectedOutput,
   getMinimumOutput,
   getPriceImpact,
+  parseQuoteInfo,
 } from './swap';
-export type {
-  SwapNetworkId,
-  SwapQuoteParams,
-  SwapQuote,
-  SwapResult,
-  GetSwapQuoteOptions,
-  GetSwapOrderFn,
-  ExecuteSwapApiFn,
-  GetTokenListFn,
-} from './swap';
+// Swap types are defined in types/swap.ts — import from there directly
+// DI function types (GetSwapOrderFn, ExecuteSwapApiFn, GetTokenListFn) remain in ./swap
 
 // Transaction history functions
 export {
@@ -121,9 +97,8 @@ export {
   getTimeAgo,
   isStakingTransaction,
   isTokenMintOrBurn,
-  getExplorerUrl,
-  getSolscanUrl,
 } from './transactions';
+// Note: getExplorerUrl, getSolscanUrl are now canonical in utils/
 export type {
   // Solana transaction types
   SolanaTransactionPaging,
@@ -133,10 +108,10 @@ export type {
   SolanaTransaction,
   SolanaTransactionsResponse,
   SolanaPagingParams,
-  SolanaTransactionTokenAmount,
-  SolanaTransactionFee,
-  SolanaTransactionTypeBackend,
-  SolanaTransactionStatusBackend,
+  TransactionTokenAmount,
+  TransactionFee,
+  TransactionType,
+  TransactionDisplayStatus,
 } from './transactions';
 
 // Validation functions

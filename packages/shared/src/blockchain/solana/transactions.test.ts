@@ -428,8 +428,8 @@ describe('Solana Transaction History Service', () => {
       vi.useRealTimers();
     });
 
-    it('should return "1 hour ago" for transaction 1 hour old', () => {
-      expect(getTimeAgo(MOCK_SEND_TX)).toBe('1 hour ago');
+    it('should return "1h ago" for transaction 1 hour old', () => {
+      expect(getTimeAgo(MOCK_SEND_TX)).toBe('1h ago');
     });
 
     it('should return "Just now" for very recent transactions', () => {
@@ -439,7 +439,7 @@ describe('Solana Transaction History Service', () => {
 
     it('should return correct days ago', () => {
       vi.setSystemTime(new Date(1640000000 * 1000 + 86400000 * 3)); // 3 days after
-      expect(getTimeAgo(MOCK_SEND_TX)).toBe('3 days ago');
+      expect(getTimeAgo(MOCK_SEND_TX)).toBe('3d ago');
     });
   });
 

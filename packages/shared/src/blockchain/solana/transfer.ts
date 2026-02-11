@@ -44,12 +44,21 @@ import {
 } from '@solana/spl-token';
 import { createMemoInstruction } from '@solana/spl-memo';
 
+import {
+  applyDecimals,
+  removeDecimals,
+} from '../../utils/decimals';
+import {
+  isNativeSol,
+} from '../../utils/tokens';
+import { SOL_CONSTANTS } from '../../utils/balance';
+
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** Native SOL mint address (wrapped SOL) */
-export const SOL_ADDRESS = 'So11111111111111111111111111111111111111112';
+export const SOL_ADDRESS = SOL_CONSTANTS.ADDRESS;
 
 // ============================================================================
 // Types
@@ -93,42 +102,6 @@ export interface TransferFeeInfo {
   maximumFee: bigint;
   /** Fee basis points */
   transferFeeBasisPoints: number;
-}
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Applies decimals to convert human-readable amount to raw amount
- *
- * @param amount - Human-readable amount
- * @param decimals - Number of decimal places
- * @returns Raw amount in smallest unit
- */
-export function applyDecimals(amount: number, decimals: number): number {
-  return Math.round(parseFloat(amount.toString()) * 10 ** decimals);
-}
-
-/**
- * Converts raw amount to human-readable amount
- *
- * @param amount - Raw amount in smallest unit
- * @param decimals - Number of decimal places
- * @returns Human-readable amount
- */
-export function removeDecimals(amount: number | bigint, decimals: number): number {
-  return Number(amount) / 10 ** decimals;
-}
-
-/**
- * Checks if an address is the native SOL address
- *
- * @param address - Token address to check
- * @returns True if address is native SOL
- */
-export function isNativeSol(address: string | null | undefined): boolean {
-  return address === null || address === undefined || address === SOL_ADDRESS;
 }
 
 /**

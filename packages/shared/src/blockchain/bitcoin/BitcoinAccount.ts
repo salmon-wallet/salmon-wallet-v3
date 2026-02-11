@@ -1,10 +1,26 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import type { BIP32Interface } from 'bip32';
-import type { TokenPrice } from '../../api/services/price';
+import type { TokenPrice } from '../../types/price';
 import { decorateBalancePrices } from '../../utils/balance';
+import { SATOSHIS_PER_BTC } from '../../utils/decimals';
+import type {
+  BitcoinBalanceItem,
+  TransactionPaging,
+  AccountTransaction,
+  AccountTransactionListResponse,
+  FetchBitcoinBalanceFn,
+  FetchBitcoinPricesFn,
+  FetchBitcoinTransactionFn,
+  FetchBitcoinRecentTransactionsFn,
+} from '../../types/transfer';
+import type {
+  BitcoinAccountBalance,
+  BitcoinWalletBalance,
+} from '../../types/balance';
+import type { BitcoinNetworkId } from '../../types/blockchain';
 
 /**
- * Bitcoin network environment types
+ * @deprecated Use `BitcoinNetworkId` from `types/blockchain` instead.
  */
 export type BitcoinEnvironment = 'mainnet' | 'testnet';
 
@@ -22,12 +38,16 @@ export interface BitcoinNetworkConfig {
  * Network definition with ID and configuration
  */
 export interface BitcoinNetwork {
-  /** Network identifier (e.g., 'bitcoin', 'testnet') */
-  id: string;
+  /** Network identifier (e.g., 'bitcoin-mainnet', 'bitcoin-testnet') */
+  id: BitcoinNetworkId;
   /** Human-readable network name */
   name: string;
-  /** Network environment type */
-  environment: BitcoinEnvironment;
+  /** Network ID for environment identification */
+  networkId: BitcoinNetworkId;
+  /**
+   * @deprecated Use `networkId` instead. Will be removed in a future version.
+   */
+  environment?: BitcoinEnvironment;
   /** Network configuration */
   config: BitcoinNetworkConfig;
 }
@@ -43,31 +63,6 @@ export interface BitcoinKeyPair {
   /** Raw public key (33 bytes compressed) */
   publicKey: Uint8Array;
 }
-
-// ============================================================================
-// API Function Types (Dependency Injection)
-// ============================================================================
-
-export type FetchBitcoinBalanceFn = (
-  networkId: string,
-  address: string
-) => Promise<BitcoinBalanceItem[]>;
-
-export type FetchBitcoinPricesFn = (
-  platform: string
-) => Promise<TokenPrice[] | null>;
-
-export type FetchBitcoinTransactionFn = (
-  networkId: string,
-  address: string,
-  txId: string
-) => Promise<AccountTransaction>;
-
-export type FetchBitcoinRecentTransactionsFn = (
-  networkId: string,
-  address: string,
-  paging?: TransactionPaging
-) => Promise<AccountTransactionListResponse>;
 
 /**
  * Options for creating a BitcoinAccount instance
@@ -93,17 +88,8 @@ export interface BitcoinAccountOptions {
   fetchRecentTransactions: FetchBitcoinRecentTransactionsFn;
 }
 
-/**
- * Simple balance information for a Bitcoin account (satoshis and BTC).
- * This is distinct from BitcoinBalance in the API service which has
- * confirmed/unconfirmed breakdown.
- */
-export interface BitcoinAccountBalance {
-  /** Balance in satoshis */
-  satoshis: bigint;
-  /** Balance in BTC */
-  btc: number;
-}
+// Re-export for backwards compatibility
+export type { BitcoinAccountBalance } from '../../types/balance';
 
 /**
  * Result of destination address validation
@@ -117,123 +103,8 @@ export interface AddressValidationResult {
   addressType?: string;
 }
 
-/**
- * Raw balance item from the API
- */
-export interface BitcoinBalanceItem {
-  /** Token/coin identifier */
-  mint?: string;
-  /** Balance amount in smallest unit */
-  amount: number;
-  /** Decimal places */
-  decimals: number;
-  /** Token symbol */
-  symbol: string;
-  /** Token name */
-  name: string;
-  /** Logo URL */
-  logo?: string;
-  /** UI-formatted amount */
-  uiAmount?: number;
-  /** CoinGecko ID for price lookup */
-  coingeckoId?: string;
-  /** Current price in USD */
-  price?: number;
-  /** USD balance value */
-  usdBalance?: number;
-  /** 24h price change percentage */
-  priceChange24h?: number;
-}
-
-/**
- * Wallet balance response with totals
- */
-export interface BitcoinWalletBalance {
-  /** Total USD value */
-  usdTotal?: number;
-  /** 24h change in USD */
-  last24HoursChange?: number;
-  /** Balance items */
-  items: BitcoinBalanceItem[];
-}
-
-/**
- * Pagination parameters for transaction queries
- */
-export interface TransactionPaging {
-  /** Token for fetching next page */
-  nextPageToken?: string;
-  /** Number of items per page */
-  pageSize?: number;
-}
-
-/**
- * Paginated transaction list response for account queries
- */
-export interface AccountTransactionListResponse {
-  /** List of transactions */
-  items: AccountTransaction[];
-  /** Token for next page (if more results exist) */
-  nextPageToken?: string;
-}
-
-/**
- * Transaction details for display in account context.
- * This is a simplified view used by the UI layer.
- */
-export interface AccountTransaction {
-  /** Transaction ID (txid) */
-  id: string;
-  /** Transaction hash */
-  hash?: string;
-  /** Block height */
-  blockHeight?: number;
-  /** Confirmation count */
-  confirmations?: number;
-  /** Transaction timestamp */
-  timestamp?: number;
-  /** Transaction fee in satoshis */
-  fee?: number;
-  /** Transaction inputs */
-  inputs?: AccountTransactionInput[];
-  /** Transaction outputs */
-  outputs?: AccountTransactionOutput[];
-  /** Transaction amount (relative to account) */
-  amount?: number;
-  /** Transaction type (send/receive) */
-  type?: 'send' | 'receive';
-}
-
-/**
- * Transaction input for account display
- */
-export interface AccountTransactionInput {
-  /** Previous transaction output address */
-  address?: string;
-  /** Amount in satoshis */
-  value?: number;
-  /** Previous transaction ID */
-  txid?: string;
-  /** Previous output index */
-  vout?: number;
-}
-
-/**
- * Transaction output for account display
- */
-export interface AccountTransactionOutput {
-  /** Recipient address */
-  address?: string;
-  /** Amount in satoshis */
-  value?: number;
-  /** Output index */
-  n?: number;
-}
-
-/**
- * Satoshis per Bitcoin constant
- */
-export const SATOSHIS_PER_BTC = 100_000_000;
+// Re-export for backwards compatibility
+export type { BitcoinWalletBalance } from '../../types/balance';
 
 /**
  * BitcoinAccount provides core functionality for interacting with the Bitcoin blockchain.

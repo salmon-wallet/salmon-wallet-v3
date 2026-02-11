@@ -2,7 +2,6 @@ import { HDNodeWallet, Wallet } from 'ethers';
 import {
   EthereumAccount,
   EthereumNetwork,
-  EthereumEnvironment,
 } from './EthereumAccount';
 
 /**
@@ -193,7 +192,8 @@ export const ETHEREUM_NETWORKS: Record<string, EthereumNetwork> = {
   'ethereum-mainnet': {
     id: 'ethereum-mainnet',
     name: 'Ethereum Mainnet',
-    environment: 'mainnet' as EthereumEnvironment,
+    networkId: 'ethereum-mainnet',
+    environment: 'mainnet',
     config: {
       rpcUrl: 'https://eth.llamarpc.com',
       chainId: 1,
@@ -202,7 +202,8 @@ export const ETHEREUM_NETWORKS: Record<string, EthereumNetwork> = {
   'ethereum-sepolia': {
     id: 'ethereum-sepolia',
     name: 'Sepolia Testnet',
-    environment: 'sepolia' as EthereumEnvironment,
+    networkId: 'ethereum-sepolia',
+    environment: 'sepolia',
     config: {
       rpcUrl: 'https://rpc.sepolia.org',
       chainId: 11155111,

@@ -19,30 +19,15 @@
 import { Contract, formatUnits } from 'ethers';
 import type { Provider } from 'ethers';
 import type { DetectedERC20Token } from '../../api/services/ethereum';
+import type {
+  EthereumToken as _EthereumToken,
+  EthereumTokenBalance as _EthereumTokenBalance,
+  TokenDetectionResult as _TokenDetectionResult,
+} from '../../types/token';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Represents an ERC-20 token with its metadata
- */
-export interface EthereumToken {
-  address: string;
-  symbol: string;
-  name: string;
-  decimals: number;
-  logoUri?: string;
-  coingeckoId?: string;
-}
-
-/**
- * Represents a token with its balance
- */
-export interface EthereumTokenBalance extends EthereumToken {
-  balance: bigint;
-  uiAmount: string;
-}
+// Re-export canonical types from types/token
+export type EthereumToken = _EthereumToken;
+export type EthereumTokenBalance = _EthereumTokenBalance;
 
 /**
  * Known token entry for featured tokens
@@ -70,16 +55,16 @@ const ERC20_ABI = [
   'function balanceOf(address owner) view returns (uint256)',
 ];
 
+// Re-export EthereumNetworkId from canonical location
+export type { EthereumNetworkId } from '../../types/blockchain';
+
 /**
  * Network IDs for Ethereum networks
  */
 export const ETHEREUM_NETWORK_IDS = {
-  MAINNET: 'ethereum-mainnet',
-  SEPOLIA: 'ethereum-sepolia',
-} as const;
-
-export type EthereumNetworkId =
-  (typeof ETHEREUM_NETWORK_IDS)[keyof typeof ETHEREUM_NETWORK_IDS];
+  MAINNET: 'ethereum-mainnet' as const,
+  SEPOLIA: 'ethereum-sepolia' as const,
+};
 
 /**
  * Featured tokens for Ethereum Mainnet
@@ -376,19 +361,8 @@ export function formatTokenBalance(balance: bigint, decimals: number): string {
 // Automatic Token Detection Functions
 // ============================================================================
 
-/**
- * Result of automatic token detection
- */
-export interface TokenDetectionResult {
-  /** Tokens detected via API indexing (all tokens user holds) */
-  detectedTokens: EthereumTokenBalance[];
-  /** Tokens from featured list with balances fetched via RPC */
-  featuredTokens: EthereumTokenBalance[];
-  /** Combined and deduplicated list of all tokens with non-zero balance */
-  allTokens: EthereumTokenBalance[];
-  /** Whether automatic detection was used (vs. RPC-only fallback) */
-  usedAutomaticDetection: boolean;
-}
+// Re-export from types/token
+export type TokenDetectionResult = _TokenDetectionResult;
 
 /**
  * Automatically detect all ERC-20 tokens for a wallet

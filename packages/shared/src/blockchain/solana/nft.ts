@@ -19,6 +19,22 @@ import { TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import axios from 'axios';
 import { normalizeIpfsUrl } from '../../utils';
 import type { SolanaNetwork } from './SolanaAccount';
+import type {
+  Nft,
+  NftMint,
+  NftCollection,
+  NftEdition,
+  NftCreator,
+  NftAttribute,
+  NftExtras,
+  Token2022Extension,
+  NftPagination,
+  NftPaginatedResponse,
+  NftCollectionGroup,
+  FetchNftsFromBackendFn,
+  FetchNftByAddressFn,
+  GetNftsOptions,
+} from '../../types/nft';
 
 // ============================================================================
 // Helius API Configuration
@@ -63,190 +79,7 @@ function getHeliusRpcUrl(networkId: string): string | null {
 }
 
 // ============================================================================
-// Types
-// ============================================================================
-
-/**
- * NFT mint information
- */
-export interface NftMint {
-  /** Mint address */
-  address: string;
-}
-
-/**
- * NFT collection information
- */
-export interface NftCollection {
-  /** Collection key/address */
-  key: string;
-  /** Whether the collection is verified */
-  verified: boolean;
-  /** Collection name (optional, may come from metadata) */
-  name?: string;
-}
-
-/**
- * NFT edition information
- */
-export interface NftEdition {
-  /** Whether this is the original edition */
-  isOriginal: boolean;
-}
-
-/**
- * NFT creator information
- */
-export interface NftCreator {
-  /** Creator address */
-  address: string;
-  /** Creator share percentage */
-  share: number;
-  /** Whether the creator is verified */
-  verified: boolean;
-}
-
-/**
- * NFT attribute/trait
- */
-export interface NftAttribute {
-  /** Trait type/name */
-  trait_type: string;
-  /** Trait value */
-  value: string | number;
-}
-
-/**
- * NFT extra metadata
- */
-export interface NftExtras {
-  /** NFT attributes/traits */
-  attributes: NftAttribute[];
-  /** Additional properties from metadata */
-  properties: Record<string, unknown>;
-  /** NFT creators */
-  creators: NftCreator[];
-}
-
-/**
- * Token2022 extension information
- */
-export interface Token2022Extension {
-  /** Extension type */
-  extension: string;
-  /** Extension state */
-  state: Record<string, unknown>;
-}
-
-/**
- * Complete NFT data structure
- */
-export interface Nft {
-  /** Mint information */
-  mint: NftMint;
-  /** Owner address */
-  owner: string;
-  /** NFT name */
-  name: string;
-  /** NFT symbol */
-  symbol: string;
-  /** Metadata URI */
-  uri: string;
-  /** Raw JSON metadata */
-  json: Record<string, unknown>;
-  /** Update authority address */
-  updateAuthorityAddress: string | null;
-  /** Seller fee basis points (royalties) */
-  sellerFeeBasisPoints: number;
-  /** Collection information */
-  collection: NftCollection | null;
-  /** Edition information */
-  edition: NftEdition | null;
-  /** Token standard (e.g., 'ProgrammableNFT', 'NonFungible') */
-  tokenStandard: string | null;
-  /** Media URL (image, video, etc.) */
-  media: string | null;
-  /** NFT description */
-  description: string;
-  /** Whether the NFT is compressed (cNFT) */
-  compressed: boolean;
-  /** Extra metadata */
-  extras: NftExtras;
-  /** Token2022 extensions (if applicable) */
-  extensions: Token2022Extension[];
-  /** Whether the NFT is blacklisted */
-  blacklisted?: boolean;
-  /** Whether the NFT has pending operations */
-  pending?: boolean;
-  /** Marketplace info (if listed) */
-  marketInfo?: Record<string, unknown>;
-}
-
-/**
- * Pagination information
- */
-export interface NftPagination {
-  /** Total number of NFTs */
-  total: number;
-  /** Page size limit */
-  limit: number;
-  /** Current offset */
-  offset: number;
-  /** Whether there are more NFTs to fetch */
-  hasMore: boolean;
-  /** Offset for next page (null if no more pages) */
-  nextOffset: number | null;
-}
-
-/**
- * Paginated NFT response
- */
-export interface NftPaginatedResponse {
-  /** Array of NFTs */
-  data: Nft[];
-  /** Pagination information */
-  pagination: NftPagination;
-}
-
-/**
- * NFT collection group (for grouped display)
- */
-export interface NftCollectionGroup {
-  /** Collection name */
-  collection: string;
-  /** Number of NFTs in collection */
-  length: number;
-  /** NFTs in this collection */
-  items: Nft[];
-  /** Thumbnail URL (first NFT's media) */
-  thumb: string | null;
-}
-
-export type FetchNftsFromBackendFn = (
-  networkId: string,
-  publicKey: string,
-  noCache: boolean
-) => Promise<Nft[]>;
-
-export type FetchNftByAddressFn = (
-  networkId: string,
-  mintAddress: string
-) => Promise<Nft | null>;
-
-/**
- * Options for fetching NFTs
- */
-export interface GetNftsOptions {
-  /** Number of NFTs to fetch (default: 50, max: 100) */
-  limit?: number;
-  /** Offset for pagination (default: 0) */
-  offset?: number;
-  /** Whether to bypass cache (default: false) */
-  noCache?: boolean;
-}
-
-// ============================================================================
-// Helius DAS API Types
+// Helius DAS API Types (internal)
 // ============================================================================
 
 /**

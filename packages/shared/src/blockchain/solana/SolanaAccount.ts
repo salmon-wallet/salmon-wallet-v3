@@ -18,13 +18,14 @@ import {
 } from './domains';
 import {
   validateDestinationAccount as validateDestination,
-  type ValidationResult as ServiceValidationResult,
+  type ValidationResult,
 } from './validation';
 import {
   getSolanaTransaction,
   getSolanaTransactions,
-  type SolanaNetworkId,
 } from '../../api/services/solana';
+import type { SolanaNetworkId } from '../../types/blockchain';
+import type { SolanaAccountBalance } from '../../types/balance';
 import {
   getRecentTransactions as getRecentTransactionsService,
   type SolanaTransaction,
@@ -71,22 +72,14 @@ export interface SolanaAccountOptions {
 }
 
 /**
- * Balance information for a Solana account
+ * @deprecated Use `SolanaAccountBalance` from `types/balance` instead.
  */
-export interface SolanaBalance {
-  /** Balance in lamports */
-  lamports: bigint;
-  /** Balance in SOL */
-  sol: number;
-}
+export type SolanaBalance = SolanaAccountBalance;
 
 // Re-export types from services for convenience
 export type { SolanaTransactionPaging, SolanaTransactionListResponse, SolanaTransaction } from './transactions';
 
-/**
- * Validation result for destination address (alias for service type)
- */
-export type ValidationResult = ServiceValidationResult;
+export type { ValidationResult };
 
 /**
  * SolanaAccount provides core functionality for interacting with the Solana blockchain.

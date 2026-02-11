@@ -16,74 +16,28 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
 import { getPublicKeyFromDomain } from './domains';
+import type {
+  ValidationResult,
+  ValidationResultType,
+  ValidationResultCode,
+  AddressType,
+} from '../../types/validation';
+import { VALIDATION_RESULTS } from '../../types/validation';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Validation result type indicating success, warning, or error
- */
-export type ValidationResultType = 'SUCCESS' | 'WARNING' | 'ERROR';
-
-/**
- * Validation result codes
- *
- * SUCCESS codes:
- * - 'valid' - Normal valid account with funds
- * - 'off_curve_no_funds' - Off-curve address (PDA) without funds
- * - 'off_curve_has_funds' - Off-curve address (PDA) with funds
- *
- * WARNING codes:
- * - 'no_info' - Valid address but account doesn't exist on-chain
- *
- * ERROR codes:
- * - 'invalid' - Invalid public key format
- * - 'same_address' - Address matches the sender (if applicable)
- * - 'invalid_domain' - Domain could not be resolved
- */
-export type ValidationResultCode =
-  | 'valid'
-  | 'off_curve_no_funds'
-  | 'off_curve_has_funds'
-  | 'no_info'
-  | 'invalid'
-  | 'same_address'
-  | 'invalid_domain';
-
-/**
- * Address type indicator
- */
-export type AddressType = 'PUBLIC_KEY' | 'DOMAIN';
-
-/**
- * Validation result returned by validateDestinationAccount
- */
-export interface ValidationResult {
-  /** Result category: SUCCESS, WARNING, or ERROR */
-  type: ValidationResultType;
-  /** Specific result code */
-  code: ValidationResultCode;
-  /** Type of address that was validated (only present on success) */
-  addressType?: AddressType;
-  /** Resolved public key (only present when domain is resolved) */
-  resolvedAddress?: string;
-}
+export type { ValidationResult, ValidationResultType, ValidationResultCode, AddressType };
 
 // ============================================================================
 // Result Constants
 // ============================================================================
 
+// Shared constants from types/validation
+const { VALID_DOMAIN, NO_INFO, INVALID_ADDRESS, INVALID_DOMAIN } = VALIDATION_RESULTS;
+
+// Chain-specific constants
 const VALID_ACCOUNT: ValidationResult = {
   type: 'SUCCESS',
   code: 'valid',
   addressType: 'PUBLIC_KEY',
-};
-
-const VALID_DOMAIN: ValidationResult = {
-  type: 'SUCCESS',
-  code: 'valid',
-  addressType: 'DOMAIN',
 };
 
 const OFF_CURVE_NO_FUNDS: ValidationResult = {
@@ -96,21 +50,6 @@ const OFF_CURVE_HAS_FUNDS: ValidationResult = {
   type: 'SUCCESS',
   code: 'off_curve_has_funds',
   addressType: 'PUBLIC_KEY',
-};
-
-const NO_INFO: ValidationResult = {
-  type: 'WARNING',
-  code: 'no_info',
-};
-
-const INVALID_ADDRESS: ValidationResult = {
-  type: 'ERROR',
-  code: 'invalid',
-};
-
-const INVALID_DOMAIN: ValidationResult = {
-  type: 'ERROR',
-  code: 'invalid_domain',
 };
 
 // ============================================================================

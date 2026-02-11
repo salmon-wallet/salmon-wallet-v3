@@ -1,5 +1,6 @@
 // Ethereum Account
-export { EthereumAccount, WEI_PER_ETH } from './EthereumAccount';
+export { EthereumAccount } from './EthereumAccount';
+// Note: WEI_PER_ETH removed — use WEI_PER_ETH_BIGINT from utils/decimals
 export type {
   EthereumNetwork,
   EthereumNetworkConfig,
@@ -31,14 +32,10 @@ export {
   getEthereumTokenBalances,
   getBalance,
   formatBalanceDisplay,
-  ethToWei,
-  weiToEth,
-  isZeroBalance,
-  compareBalances,
-  ETH_CONSTANTS,
-  ERC20_ABI,
-  WEI_PER_ETH_BIGINT,
 } from './balance';
+// Note: ETH_CONSTANTS, ERC20_ABI → utils/tokens
+// Note: WEI_PER_ETH_BIGINT, ethToWei, weiToEth → utils/decimals
+// Note: isZeroBalance, compareBalances → utils/balance
 export type {
   EthereumTokenBalance as BalanceEthereumTokenBalance,
   EthereumWalletBalance,
@@ -62,10 +59,10 @@ export {
 export type {
   EthereumToken,
   EthereumTokenBalance,
-  EthereumNetworkId,
   TokenDetectionResult,
   DetectedERC20Token,
 } from './tokens';
+// Note: EthereumNetworkId is canonical in types/blockchain — import from there directly
 
 // Validation functions
 export {
@@ -85,19 +82,13 @@ export {
   createTransferTransaction as createEthereumTransferTransaction,
   sendTransaction as sendEthereumTransaction,
   confirmTransaction as confirmEthereumTransaction,
-  isNativeEth,
-  parseAmount as parseEthereumAmount,
   formatAmount as formatEthereumAmount,
-  createNativeToken as createEthereumNativeToken,
-  createERC20Token,
-  createERC721Token,
-  createERC1155Token,
-  ETH_ADDRESS,
-  ETH_ADDRESS_ALT,
 } from './transfer';
+// Note: isNativeEth, createNativeToken, createERC20Token, createERC721Token,
+// createERC1155Token, ETH_ADDRESS, ETH_ADDRESS_ALT → utils/tokens
+// Note: TokenType, TransferToken → utils/tokens
+// Note: parseAmount → utils/decimals
 export type {
-  TokenType as EthereumTokenType,
-  TransferToken as EthereumTransferToken,
   TransferOptions as EthereumTransferOptions,
   TransferResult as EthereumTransferResult,
   GasEstimate as EthereumGasEstimate,

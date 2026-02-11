@@ -21,10 +21,23 @@ import {
   Provider,
   TransactionResponse,
   TransactionReceipt,
-  parseUnits,
   formatUnits,
   Interface,
 } from 'ethers';
+import {
+  parseAmount,
+} from '../../utils/decimals';
+import {
+  ETH_ADDRESS,
+  ETH_ADDRESS_ALT,
+  isNativeEth,
+  type TokenType,
+  type TransferToken,
+  createNativeToken,
+  createERC20Token,
+  createERC721Token,
+  createERC1155Token,
+} from '../../utils/tokens';
 
 // ============================================================================
 // Minimal ABIs (inline to avoid separate files)
@@ -57,32 +70,8 @@ const ERC1155_ABI = [
 // Constants
 // ============================================================================
 
-/** Null address representing native ETH */
-export const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-/** Alternative null address for native ETH */
-export const ETH_ADDRESS_ALT = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-/** Token types supported by the transfer service */
-export type TokenType = 'native' | 'erc20' | 'erc721' | 'erc1155';
-
-/**
- * Token information for transfers
- */
-export interface TransferToken {
-  /** Contract address (ETH_ADDRESS for native ETH) */
-  address: string;
-  /** Token decimals (18 for ETH, varies for ERC20) */
-  decimals: number;
-  /** Token symbol (e.g., 'ETH', 'USDC') */
-  symbol?: string;
-  /** Token type */
-  type: TokenType;
-}
+// Note: ETH_ADDRESS, ETH_ADDRESS_ALT are canonical in utils/tokens — import from there directly
+// Note: TokenType, TransferToken are canonical in utils/tokens — import from there directly
 
 /**
  * Options for transfer transactions
@@ -134,28 +123,8 @@ export interface GasEstimate {
 // Utility Functions
 // ============================================================================
 
-/**
- * Checks if an address represents native ETH
- *
- * @param address - Token address to check
- * @returns True if address is native ETH
- */
-export function isNativeEth(address: string | null | undefined): boolean {
-  if (!address) return true;
-  const normalized = address.toLowerCase();
-  return normalized === ETH_ADDRESS.toLowerCase() || normalized === ETH_ADDRESS_ALT.toLowerCase();
-}
-
-/**
- * Parses a human-readable amount to wei/smallest unit
- *
- * @param amount - Human-readable amount (e.g., '1.5')
- * @param decimals - Token decimals
- * @returns Amount in smallest unit
- */
-export function parseAmount(amount: string | number, decimals: number): bigint {
-  return parseUnits(amount.toString(), decimals);
-}
+// Note: isNativeEth is canonical in utils/tokens — import from there directly
+// Note: parseAmount is canonical in utils/decimals — import from there directly
 
 /**
  * Formats wei/smallest unit to human-readable amount
@@ -544,74 +513,5 @@ export async function confirmTransaction(
   return receipt;
 }
 
-// ============================================================================
-// Token Factory Functions
-// ============================================================================
-
-/**
- * Creates an TransferToken object for native ETH
- *
- * @param decimals - Decimals (default: 18)
- * @returns TransferToken for native ETH
- */
-export function createNativeToken(decimals: number = 18): TransferToken {
-  return {
-    address: ETH_ADDRESS,
-    decimals,
-    symbol: 'ETH',
-    type: 'native',
-  };
-}
-
-/**
- * Creates an TransferToken object for an ERC20 token
- *
- * @param address - Token contract address
- * @param decimals - Token decimals
- * @param symbol - Token symbol (optional)
- * @returns TransferToken for ERC20
- */
-export function createERC20Token(
-  address: string,
-  decimals: number,
-  symbol?: string
-): TransferToken {
-  return {
-    address,
-    decimals,
-    symbol,
-    type: 'erc20',
-  };
-}
-
-/**
- * Creates an TransferToken object for an ERC721 NFT
- *
- * @param address - NFT contract address
- * @param symbol - Collection symbol (optional)
- * @returns TransferToken for ERC721
- */
-export function createERC721Token(address: string, symbol?: string): TransferToken {
-  return {
-    address,
-    decimals: 0,
-    symbol,
-    type: 'erc721',
-  };
-}
-
-/**
- * Creates an TransferToken object for an ERC1155 multi-token
- *
- * @param address - Multi-token contract address
- * @param symbol - Collection symbol (optional)
- * @returns TransferToken for ERC1155
- */
-export function createERC1155Token(address: string, symbol?: string): TransferToken {
-  return {
-    address,
-    decimals: 0,
-    symbol,
-    type: 'erc1155',
-  };
-}
+// Note: createNativeToken, createERC20Token, createERC721Token, createERC1155Token
+// are canonical in utils/tokens — import from there directly

@@ -22,17 +22,15 @@ import {
   createKeyPairFromNode,
   BITCOIN_NETWORKS,
 } from './factory';
-import { BitcoinAccount, SATOSHIS_PER_BTC } from './BitcoinAccount';
+import { BitcoinAccount } from './BitcoinAccount';
 import {
   estimateBitcoinFee,
-  btcToSatoshis,
-  satoshisToBtc,
   confirmTransferTransaction,
   sendBitcoin,
   DEFAULT_FEE_RATE,
 } from './transfer';
-import type { FetchUtxosFn, BroadcastTransactionFn } from './transfer';
-import type { BitcoinAccountApiFunctions } from './factory';
+import { SATOSHIS_PER_BTC, btcToSatoshis, satoshisToBtc } from '../../utils/decimals';
+import type { FetchUtxosFn, BroadcastTransactionFn, BitcoinAccountApiFunctions } from '../../types/transfer';
 
 // ============================================================================
 // Mock API Functions

@@ -1,5 +1,6 @@
 // Bitcoin Account
-export { BitcoinAccount, SATOSHIS_PER_BTC } from './BitcoinAccount';
+export { BitcoinAccount } from './BitcoinAccount';
+// Note: SATOSHIS_PER_BTC is now canonical in utils/decimals
 export type {
   BitcoinNetwork,
   BitcoinNetworkConfig,
@@ -7,21 +8,12 @@ export type {
   BitcoinAccountBalance,
   BitcoinKeyPair,
   BitcoinEnvironment,
-  // New types for v3 methods
   AddressValidationResult,
-  BitcoinBalanceItem,
   BitcoinWalletBalance,
-  TransactionPaging,
-  AccountTransactionListResponse,
-  AccountTransaction,
-  AccountTransactionInput,
-  AccountTransactionOutput,
-  // DI function types
-  FetchBitcoinBalanceFn,
-  FetchBitcoinPricesFn,
-  FetchBitcoinTransactionFn,
-  FetchBitcoinRecentTransactionsFn,
 } from './BitcoinAccount';
+// Note: BitcoinBalanceItem, TransactionPaging, AccountTransaction,
+// AccountTransactionListResponse, FetchBitcoin*Fn, BitcoinAccountApiFunctions
+// are canonical in types/transfer — import from there directly
 
 // Factory functions and utilities
 export {
@@ -30,6 +22,7 @@ export {
   createBitcoinAccountFromWIF,
   deriveBitcoinAccounts,
   createKeyPairFromNode,
+  mapNetworkIdToLibNetwork,
   mapEnvironmentToNetwork,
   getBitcoinDerivationPath,
   BITCOIN_COIN_TYPE,
@@ -37,7 +30,6 @@ export {
   BITCOIN_NETWORKS,
 } from './factory';
 export type {
-  BitcoinAccountApiFunctions,
   CreateBitcoinAccountOptions,
   DeriveBitcoinAccountsOptions,
 } from './factory';
@@ -50,15 +42,7 @@ export {
   estimateBitcoinFee,
   getUtxos,
   getMaxSendableAmount,
-  btcToSatoshis,
-  satoshisToBtc,
   DEFAULT_FEE_RATE,
 } from './transfer';
-export type {
-  UTXO,
-  TransferTransactionResult,
-  BroadcastResult,
-  SigningKeyPair,
-  FetchUtxosFn,
-  BroadcastTransactionFn,
-} from './transfer';
+// Note: btcToSatoshis, satoshisToBtc are now canonical in utils/decimals
+// Transfer types are defined in types/transfer.ts — import from there directly

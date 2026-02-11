@@ -14,15 +14,14 @@ import { getSolanaDerivationPath, createSolanaAccount } from './factory';
 
 // Transfer utilities
 import {
-  applyDecimals,
-  removeDecimals,
-  isNativeSol,
   SOL_ADDRESS,
   createSolTransaction,
   createSplTransaction,
   estimateFee,
   requiresMemo
 } from './transfer';
+import { applyDecimals, removeDecimals } from '../../utils/decimals';
+import { isNativeSol } from '../../utils/tokens';
 
 // SolanaAccount class
 import { SolanaAccount } from './SolanaAccount';
@@ -34,12 +33,12 @@ import {
   getNftsWithoutCollection,
   isCollection,
   isMoreThanOne,
-  type Nft,
-  type NftCollectionGroup,
 } from './nft';
+import type { Nft, NftCollectionGroup } from '../../types/nft';
 
 // Swap utilities
-import { getExpectedOutput, getMinimumOutput, getPriceImpact, type SwapQuote } from './swap';
+import { getExpectedOutput, getMinimumOutput, getPriceImpact } from './swap';
+import type { SwapQuote } from '../../types/swap';
 
 // Import SOLANA_NETWORKS for network configuration
 import { SOLANA_NETWORKS } from './factory';

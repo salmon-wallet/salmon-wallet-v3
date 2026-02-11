@@ -21,12 +21,14 @@ import {
   getNftsWithoutCollection,
   isCollection,
   isMoreThanOne,
-  type Nft,
-  type NftCollectionGroup,
-  type NftPaginatedResponse,
-  type FetchNftsFromBackendFn,
-  type FetchNftByAddressFn,
 } from './nft';
+import type {
+  Nft,
+  NftCollectionGroup,
+  NftPaginatedResponse,
+  FetchNftsFromBackendFn,
+  FetchNftByAddressFn,
+} from '../../types/nft';
 import {
   getCollectionById,
   getCollectionItemsById,

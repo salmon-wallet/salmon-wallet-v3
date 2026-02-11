@@ -1,7 +1,10 @@
 import { JsonRpcProvider, Wallet, isAddress, getAddress } from 'ethers';
+import { WEI_PER_ETH_BIGINT } from '../../utils/decimals';
+import type { EthereumAccountBalance } from '../../types/balance';
+import type { EthereumNetworkId } from '../../types/blockchain';
 
 /**
- * Ethereum network environment types
+ * @deprecated Use `EthereumNetworkId` from `types/blockchain` instead.
  */
 export type EthereumEnvironment = 'mainnet' | 'sepolia';
 
@@ -19,12 +22,16 @@ export interface EthereumNetworkConfig {
  * Network definition with ID and configuration
  */
 export interface EthereumNetwork {
-  /** Network identifier (e.g., 'ethereum', 'ethereum-sepolia') */
-  id: string;
+  /** Network identifier (e.g., 'ethereum-mainnet', 'ethereum-sepolia') */
+  id: EthereumNetworkId;
   /** Human-readable network name */
   name: string;
-  /** Network environment type */
-  environment: EthereumEnvironment;
+  /** Network ID for environment identification */
+  networkId: EthereumNetworkId;
+  /**
+   * @deprecated Use `networkId` instead. Will be removed in a future version.
+   */
+  environment?: EthereumEnvironment;
   /** Network configuration */
   config: EthereumNetworkConfig;
 }
@@ -44,14 +51,9 @@ export interface EthereumAccountOptions {
 }
 
 /**
- * Balance information for an Ethereum account
+ * @deprecated Use `EthereumAccountBalance` from `types/balance` instead.
  */
-export interface EthereumBalance {
-  /** Balance in wei */
-  wei: bigint;
-  /** Balance in ETH */
-  eth: number;
-}
+export type EthereumBalance = EthereumAccountBalance;
 
 /**
  * Result of destination address validation for Ethereum
@@ -65,10 +67,6 @@ export interface EthereumAddressValidationResult {
   addressType?: string;
 }
 
-/**
- * Wei per ETH constant
- */
-export const WEI_PER_ETH = BigInt('1000000000000000000');
 
 /**
  * EthereumAccount provides core functionality for interacting with the Ethereum blockchain.
@@ -256,7 +254,7 @@ export class EthereumAccount {
    * @returns Amount in ETH
    */
   static weiToEth(wei: bigint): number {
-    return Number(wei) / Number(WEI_PER_ETH);
+    return Number(wei) / Number(WEI_PER_ETH_BIGINT);
   }
 
   /**
@@ -266,7 +264,7 @@ export class EthereumAccount {
    * @returns Amount in wei
    */
   static ethToWei(eth: number): bigint {
-    return BigInt(Math.floor(eth * Number(WEI_PER_ETH)));
+    return BigInt(Math.floor(eth * Number(WEI_PER_ETH_BIGINT)));
   }
 
   // ============================================================================

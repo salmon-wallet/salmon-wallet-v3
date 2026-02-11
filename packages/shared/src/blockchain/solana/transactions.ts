@@ -10,16 +10,24 @@
  * with inputs/outputs arrays instead of raw Helius format.
  */
 
+import { formatRelativeTimeCompact } from '../../utils/date';
+import {
+  getExplorerUrl as _getExplorerUrl,
+  getSolscanUrl as _getSolscanUrl,
+} from '../../utils/url';
+
 import type {
   SolanaTransaction,
   SolanaTransactionsResponse,
   SolanaPagingParams,
-  SolanaTransactionTokenAmount,
-  SolanaTransactionFee,
-  SolanaTransactionTypeBackend,
-  SolanaTransactionStatusBackend,
-  SolanaNetworkId,
 } from '../../api/services/solana';
+import type { SolanaNetworkId } from '../../types/blockchain';
+import type {
+  TransactionTokenAmount,
+  TransactionFee,
+  TransactionType,
+  TransactionDisplayStatus,
+} from '../../types/transaction';
 
 // ============================================================================
 // Re-export API types for convenience
@@ -29,10 +37,10 @@ export type {
   SolanaTransaction,
   SolanaTransactionsResponse,
   SolanaPagingParams,
-  SolanaTransactionTokenAmount,
-  SolanaTransactionFee,
-  SolanaTransactionTypeBackend,
-  SolanaTransactionStatusBackend,
+  TransactionTokenAmount,
+  TransactionFee,
+  TransactionType,
+  TransactionDisplayStatus,
   SolanaNetworkId,
 };
 
@@ -216,28 +224,10 @@ export function getTransactionDate(tx: SolanaTransaction): Date {
 /**
  * Get a human-readable time ago string for a transaction
  * @param tx - Transaction to get time ago for
- * @returns Human-readable time ago string (e.g., "2 hours ago")
+ * @returns Human-readable time ago string (e.g., "2h ago")
  */
 export function getTimeAgo(tx: SolanaTransaction): string {
-  const now = Date.now();
-  const txTime = tx.timestamp * 1000;
-  const diff = now - txTime;
-
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (days > 0) {
-    return days === 1 ? '1 day ago' : `${days} days ago`;
-  }
-  if (hours > 0) {
-    return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
-  }
-  if (minutes > 0) {
-    return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`;
-  }
-  return 'Just now';
+  return formatRelativeTimeCompact(tx.timestamp);
 }
 
 /**
@@ -265,8 +255,7 @@ export function isTokenMintOrBurn(tx: SolanaTransaction): boolean {
  * @returns Solana explorer URL for the transaction
  */
 export function getExplorerUrl(tx: SolanaTransaction, networkId: string): string {
-  const cluster = networkId === 'solana-devnet' ? '?cluster=devnet' : '';
-  return `https://explorer.solana.com/tx/${tx.signature}${cluster}`;
+  return _getExplorerUrl(tx.signature, networkId);
 }
 
 /**
@@ -276,6 +265,5 @@ export function getExplorerUrl(tx: SolanaTransaction, networkId: string): string
  * @returns Solscan explorer URL for the transaction
  */
 export function getSolscanUrl(tx: SolanaTransaction, networkId: string): string {
-  const cluster = networkId === 'solana-devnet' ? '?cluster=devnet' : '';
-  return `https://solscan.io/tx/${tx.signature}${cluster}`;
+  return _getSolscanUrl(tx.signature, networkId);
 }

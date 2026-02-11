@@ -17,25 +17,32 @@ import {
   createEthereumAccountFromPrivateKey,
   deriveEthereumAccounts,
 } from './factory';
-import { EthereumAccount, WEI_PER_ETH } from './EthereumAccount';
+import { EthereumAccount } from './EthereumAccount';
+import { WEI_PER_ETH_BIGINT } from '../../utils/decimals';
+import {
+  formatAmount,
+} from './transfer';
+import {
+  formatBalanceDisplay,
+} from './balance';
 import {
   ETH_ADDRESS,
   ETH_ADDRESS_ALT,
   isNativeEth,
-  parseAmount,
-  formatAmount,
   createNativeToken,
   createERC20Token,
   createERC721Token,
   createERC1155Token,
-} from './transfer';
+} from '../../utils/tokens';
 import {
+  parseAmount,
   ethToWei,
   weiToEth,
+} from '../../utils/decimals';
+import {
   isZeroBalance,
   compareBalances,
-  formatBalanceDisplay,
-} from './balance';
+} from '../../utils/balance';
 import {
   getFeaturedTokenBySymbol,
   getFeaturedTokenByAddress,
@@ -724,8 +731,8 @@ describe('Account Derivation', () => {
 
 describe('EthereumAccount Static Methods', () => {
   describe('weiToEth / ethToWei', () => {
-    it('should use WEI_PER_ETH constant correctly', () => {
-      expect(WEI_PER_ETH).toBe(1_000_000_000_000_000_000n);
+    it('should use WEI_PER_ETH_BIGINT constant correctly', () => {
+      expect(WEI_PER_ETH_BIGINT).toBe(1_000_000_000_000_000_000n);
     });
 
     it('should convert wei to ETH', () => {

@@ -13,95 +13,34 @@
  */
 
 import { isAddress, type Provider } from 'ethers';
+import type {
+  ValidationResult,
+  ValidationResultType,
+  ValidationResultCode,
+  AddressType,
+} from '../../types/validation';
+import { VALIDATION_RESULTS } from '../../types/validation';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Validation result type indicating success, warning, or error
- */
-export type ValidationResultType = 'SUCCESS' | 'WARNING' | 'ERROR';
-
-/**
- * Validation result codes
- *
- * SUCCESS codes:
- * - 'valid' - Normal valid address with funds
- * - 'no_funds' - Valid address but no ETH balance
- *
- * WARNING codes:
- * - 'no_info' - Valid address but no on-chain data available
- *
- * ERROR codes:
- * - 'invalid' - Invalid address format
- * - 'same_address' - Address matches the sender (if applicable)
- * - 'invalid_domain' - ENS domain could not be resolved
- */
-export type ValidationResultCode =
-  | 'valid'
-  | 'no_funds'
-  | 'no_info'
-  | 'invalid'
-  | 'same_address'
-  | 'invalid_domain';
-
-/**
- * Address type indicator
- */
-export type AddressType = 'ADDRESS' | 'DOMAIN';
-
-/**
- * Validation result returned by validateDestinationAccount
- */
-export interface ValidationResult {
-  /** Result category: SUCCESS, WARNING, or ERROR */
-  type: ValidationResultType;
-  /** Specific result code */
-  code: ValidationResultCode;
-  /** Type of address that was validated (only present on success) */
-  addressType?: AddressType;
-  /** Resolved address (only present when domain is resolved) */
-  resolvedAddress?: string;
-  /** Balance in wei (only present when address is validated) */
-  balance?: bigint;
-}
+export type { ValidationResult, ValidationResultType, ValidationResultCode, AddressType };
 
 // ============================================================================
 // Result Constants
 // ============================================================================
 
+// Shared constants from types/validation
+const { VALID_DOMAIN, NO_INFO, INVALID_ADDRESS, INVALID_DOMAIN } = VALIDATION_RESULTS;
+
+// Chain-specific constants
 const VALID_ACCOUNT: ValidationResult = {
   type: 'SUCCESS',
   code: 'valid',
   addressType: 'ADDRESS',
 };
 
-const VALID_DOMAIN: ValidationResult = {
-  type: 'SUCCESS',
-  code: 'valid',
-  addressType: 'DOMAIN',
-};
-
 const NO_FUNDS: ValidationResult = {
   type: 'SUCCESS',
   code: 'no_funds',
   addressType: 'ADDRESS',
-};
-
-const NO_INFO: ValidationResult = {
-  type: 'WARNING',
-  code: 'no_info',
-};
-
-const INVALID_ADDRESS: ValidationResult = {
-  type: 'ERROR',
-  code: 'invalid',
-};
-
-const INVALID_DOMAIN: ValidationResult = {
-  type: 'ERROR',
-  code: 'invalid_domain',
 };
 
 // ============================================================================

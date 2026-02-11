@@ -15,14 +15,12 @@ import {
   getMinimumOutput,
   getPriceImpact,
   SOL_ADDRESS,
-  type SwapQuote,
-  type SwapQuoteParams,
   type GetSwapOrderFn,
   type ExecuteSwapApiFn,
   type GetTokenListFn,
 } from './swap';
-import type { SwapOrderResponse } from '../../api/services/solana';
-import type { TokenMetadata } from '../../api/services/tokens';
+import type { SwapQuote, SwapQuoteParams, SwapOrderResponse } from '../../types/swap';
+import type { TokenMetadata } from '../../types/token';
 
 // ============================================================================
 // Test Data
