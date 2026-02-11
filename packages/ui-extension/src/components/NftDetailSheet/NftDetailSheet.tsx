@@ -25,8 +25,6 @@
 
 import React, { useCallback } from 'react';
 import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
@@ -44,78 +42,12 @@ import {
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
-import { ScalesBackground } from '../ScalesBackground';
+import { BaseSheetDialog } from '../BaseSheetDialog';
 import type { NftDetailSheetProps, NftAttribute } from './types';
 
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const StyledDialog = styled(Dialog)({
-  '& .MuiDialog-paper': {
-    backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.border.default}`,
-    minWidth: 380,
-    maxWidth: 440,
-    maxHeight: '85vh',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-});
-
-const HandleContainer = styled(Box)({
-  display: 'flex',
-  justifyContent: 'center',
-  paddingTop: spacing.md,
-  paddingBottom: spacing.sm,
-  position: 'relative',
-  zIndex: 2,
-});
-
-const Handle = styled(Box)({
-  width: 70,
-  height: 6,
-  borderRadius: 100,
-  backgroundColor: colors.sheet.handle,
-  opacity: 0.4,
-});
-
-const NftName = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: fontSize['2xl'],
-  fontWeight: 800,
-  color: colors.text.primary,
-  textAlign: 'center',
-  marginBottom: spacing.lg,
-  paddingLeft: spacing.headerPadding,
-  paddingRight: spacing.headerPadding,
-  letterSpacing: -0.32,
-  position: 'relative',
-  zIndex: 2,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  display: '-webkit-box',
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: 'vertical',
-});
-
-const StyledDialogContent = styled(DialogContent)({
-  padding: 0,
-  overflowY: 'auto',
-  position: 'relative',
-  zIndex: 1,
-  '&::-webkit-scrollbar': {
-    width: 4,
-  },
-  '&::-webkit-scrollbar-track': {
-    background: 'transparent',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: colors.border.default,
-    borderRadius: 2,
-  },
-});
 
 const ContentContainer = styled(Box)({
   display: 'flex',
@@ -285,48 +217,22 @@ export function NftDetailSheet({
   }
 
   return (
-    <StyledDialog
-      open={visible}
+    <BaseSheetDialog
+      visible={visible}
       onClose={onClose}
-      aria-labelledby="nft-detail-title"
+      size="medium"
+      colorScheme="secondary"
+      showScalesBackground={true}
+      ariaLabelledBy="nft-detail-title"
       className={className}
-      PaperProps={{
-        style,
-      }}
-      slotProps={{
-        backdrop: {
-          sx: {
-            backgroundColor: colors.dialog.overlay,
-          },
-        },
-      }}
+      style={style}
     >
-      {/* Scales Background - positioned behind content */}
-      <Box
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: 'none',
-          overflow: 'hidden',
-          borderRadius: `${borderRadius.xl}px`,
-        }}
-      >
-        <ScalesBackground />
-      </Box>
+      <BaseSheetDialog.HandleHeader
+        title={nft.name}
+        showBackButton={false}
+      />
 
-      {/* Drag Handle (decorative in web) */}
-      <HandleContainer>
-        <Handle />
-      </HandleContainer>
-
-      {/* NFT Name */}
-      <NftName id="nft-detail-title">
-        {nft.name}
-      </NftName>
-
-      {/* Scrollable Content */}
-      <StyledDialogContent>
+      <BaseSheetDialog.Content padding="none">
         <ContentContainer>
           {/* NFT Image */}
           {nft.image && (
@@ -414,8 +320,8 @@ export function NftDetailSheet({
             </BlurContainer>
           </ActionButtonsContainer>
         </ContentContainer>
-      </StyledDialogContent>
-    </StyledDialog>
+      </BaseSheetDialog.Content>
+    </BaseSheetDialog>
   );
 }
 

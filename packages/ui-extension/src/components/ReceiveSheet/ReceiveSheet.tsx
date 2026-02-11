@@ -12,24 +12,18 @@
 
 import React, { useCallback, useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import ButtonBase from '@mui/material/ButtonBase';
-import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import {
   colors,
   spacing,
-  borderRadius,
   copyToClipboard,
 } from '@salmon/shared';
 import { QRCode } from '../QRCode';
-import { ScalesBackground } from '../ScalesBackground';
+import { BaseSheetDialog } from '../BaseSheetDialog';
 import type { ReceiveSheetProps } from './types';
 
 // ============================================================================
@@ -44,62 +38,11 @@ const COPY_FEEDBACK_DURATION = 2000;
 // Styled Components
 // ============================================================================
 
-const StyledDialog = styled(Dialog)({
-  '& .MuiDialog-paper': {
-    backgroundColor: colors.dialog.background,
-    borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.dialog.border}`,
-    minWidth: 360,
-    maxWidth: 400,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-});
-
-const StyledDialogTitle = styled(DialogTitle)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: `${spacing.lg}px ${spacing.xl}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-  position: 'relative',
-  zIndex: 1,
-});
-
-const TitleText = styled(Typography)({
-  fontSize: 20,
-  fontWeight: 800,
-  color: colors.text.primary,
-  letterSpacing: 0.24,
-});
-
-const CloseButton = styled(IconButton)({
-  color: colors.text.secondary,
-  padding: spacing.xs,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const StyledDialogContent = styled(DialogContent)({
+const ContentWrapper = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: `${spacing.xl}px ${spacing.xl}px ${spacing['2xl']}px`,
   gap: spacing.xl,
-  position: 'relative',
-  zIndex: 1,
-});
-
-const BackgroundWrapper = styled(Box)({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  overflow: 'hidden',
-  zIndex: 0,
-  pointerEvents: 'none',
 });
 
 const QRContainer = styled(Box)({
@@ -197,57 +140,53 @@ export function ReceiveSheet({
   }, [onCopy, address]);
 
   return (
-    <StyledDialog
-      open={visible}
+    <BaseSheetDialog
+      visible={visible}
       onClose={onClose}
-      aria-labelledby="receive-sheet-title"
+      size="small"
+      colorScheme="dialog"
+      showScalesBackground={true}
+      ariaLabelledBy="receive-sheet-title"
       className={className}
-      PaperProps={{ style }}
+      style={style}
     >
-      {/* Decorative background */}
-      <BackgroundWrapper>
-        <ScalesBackground />
-      </BackgroundWrapper>
+      <BaseSheetDialog.StandardHeader title="Receive" />
 
-      {/* Title Bar */}
-      <StyledDialogTitle id="receive-sheet-title">
-        <TitleText>Receive</TitleText>
-        <CloseButton onClick={onClose} aria-label="Close">
-          <CloseIcon />
-        </CloseButton>
-      </StyledDialogTitle>
+      <BaseSheetDialog.Content
+        padding="xl"
+        style={{ paddingBottom: spacing['2xl'] }}
+      >
+        <ContentWrapper>
+          {/* QR Code */}
+          <QRContainer>
+            <QRCode
+              value={address}
+              size={QR_SIZE}
+              backgroundColor="#FFFFFF"
+              color="#000000"
+            />
+          </QRContainer>
 
-      {/* Content */}
-      <StyledDialogContent>
-        {/* QR Code */}
-        <QRContainer>
-          <QRCode
-            value={address}
-            size={QR_SIZE}
-            backgroundColor="#FFFFFF"
-            color="#000000"
-          />
-        </QRContainer>
+          {/* Full Address */}
+          <AddressText>{address}</AddressText>
 
-        {/* Full Address */}
-        <AddressText>{address}</AddressText>
-
-        {/* Copy Button */}
-        <CopyButton
-          onClick={handleCopy}
-          aria-label="Copy address"
-        >
-          {copied ? (
-            <CheckIcon sx={{ fontSize: 20, color: '#000000' }} />
-          ) : (
-            <ContentCopyIcon sx={{ fontSize: 20, color: '#000000' }} />
-          )}
-          <CopyButtonText>
-            {copied ? 'Copied!' : 'Copy address'}
-          </CopyButtonText>
-        </CopyButton>
-      </StyledDialogContent>
-    </StyledDialog>
+          {/* Copy Button */}
+          <CopyButton
+            onClick={handleCopy}
+            aria-label="Copy address"
+          >
+            {copied ? (
+              <CheckIcon sx={{ fontSize: 20, color: '#000000' }} />
+            ) : (
+              <ContentCopyIcon sx={{ fontSize: 20, color: '#000000' }} />
+            )}
+            <CopyButtonText>
+              {copied ? 'Copied!' : 'Copy address'}
+            </CopyButtonText>
+          </CopyButton>
+        </ContentWrapper>
+      </BaseSheetDialog.Content>
+    </BaseSheetDialog>
   );
 }
 

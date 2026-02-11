@@ -14,95 +14,21 @@
 
 import React, { useCallback, useRef } from 'react';
 import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Skeleton from '@mui/material/Skeleton';
-import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { colors, spacing, borderRadius } from '@salmon/shared';
-import { ScalesBackground } from '../ScalesBackground';
+import { colors, spacing } from '@salmon/shared';
+import { BaseSheetDialog } from '../BaseSheetDialog';
 import { TransactionItem } from './TransactionItem';
 import type { TransactionHistorySheetProps, Transaction } from './types';
 
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const StyledDialog = styled(Dialog)({
-  '& .MuiDialog-paper': {
-    backgroundColor: colors.dialog.background,
-    borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.dialog.border}`,
-    minWidth: 380,
-    maxWidth: 440,
-    maxHeight: '85vh',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-});
-
-const BackgroundWrapper = styled(Box)({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  overflow: 'hidden',
-  zIndex: 0,
-  pointerEvents: 'none',
-});
-
-const StyledDialogTitle = styled(DialogTitle)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: `${spacing.lg}px ${spacing.xl}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-  position: 'relative',
-  zIndex: 1,
-});
-
-const TitleText = styled(Typography)({
-  fontSize: 20,
-  fontWeight: 800,
-  color: colors.text.primary,
-  letterSpacing: -0.12,
-});
-
-const CloseButton = styled(IconButton)({
-  color: colors.text.secondary,
-  padding: spacing.xs,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const StyledDialogContent = styled(DialogContent)({
-  padding: `${spacing.md}px ${spacing.lg}px ${spacing.xl}px`,
-  overflowY: 'auto',
-  position: 'relative',
-  zIndex: 1,
-  '&::-webkit-scrollbar': {
-    width: 6,
-  },
-  '&::-webkit-scrollbar-track': {
-    backgroundColor: 'transparent',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 3,
-  },
-  '&::-webkit-scrollbar-thumb:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-});
 
 // Skeleton styles
 const SkeletonItem = styled(Box)({
@@ -360,72 +286,65 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
   );
 
   return (
-    <StyledDialog
-      open={visible}
+    <BaseSheetDialog
+      visible={visible}
       onClose={onClose}
-      aria-labelledby="transaction-history-title"
+      size="medium"
+      colorScheme="dialog"
+      showScalesBackground={true}
+      ariaLabelledBy="transaction-history-title"
       className={className}
-      PaperProps={{ style }}
+      style={style}
     >
-      {/* Decorative background */}
-      <BackgroundWrapper>
-        <ScalesBackground />
-      </BackgroundWrapper>
+      <BaseSheetDialog.StandardHeader title="Transaction History" />
 
-      {/* Title Bar */}
-      <StyledDialogTitle id="transaction-history-title">
-        <TitleText>Transaction History</TitleText>
-        <CloseButton onClick={onClose} aria-label="Close">
-          <CloseIcon />
-        </CloseButton>
-      </StyledDialogTitle>
-
-      {/* Content */}
-      <StyledDialogContent
-        ref={scrollRef}
-        onScroll={handleScroll}
+      <BaseSheetDialog.Content
+        padding="md"
+        style={{ paddingBottom: spacing.xl, paddingLeft: spacing.lg, paddingRight: spacing.lg }}
       >
-        {/* Error State */}
-        {error && !loading && (
-          <ErrorState message={error} onRetry={onRetry} />
-        )}
+        <Box ref={scrollRef} onScroll={handleScroll}>
+          {/* Error State */}
+          {error && !loading && (
+            <ErrorState message={error} onRetry={onRetry} />
+          )}
 
-        {/* Loading State */}
-        {loading && !error && (
-          <TransactionListSkeleton count={6} />
-        )}
+          {/* Loading State */}
+          {loading && !error && (
+            <TransactionListSkeleton count={6} />
+          )}
 
-        {/* Empty State */}
-        {!loading && !error && transactions.length === 0 && (
-          <EmptyState />
-        )}
+          {/* Empty State */}
+          {!loading && !error && transactions.length === 0 && (
+            <EmptyState />
+          )}
 
-        {/* Transaction List */}
-        {!loading && !error && transactions.length > 0 && (
-          <Box>
-            {transactions.map((transaction) => (
-              <TransactionItem
-                key={transaction.id}
-                transaction={transaction}
-                onPress={handleTransactionPress}
-                onDetailClick={handleTransactionDetailClick}
-                hiddenBalance={hiddenBalance}
-              />
-            ))}
-
-            {/* Loading more indicator */}
-            {loadingMore && (
-              <LoadingMoreContainer>
-                <CircularProgress
-                  size={24}
-                  sx={{ color: colors.accent.primary }}
+          {/* Transaction List */}
+          {!loading && !error && transactions.length > 0 && (
+            <Box>
+              {transactions.map((transaction) => (
+                <TransactionItem
+                  key={transaction.id}
+                  transaction={transaction}
+                  onPress={handleTransactionPress}
+                  onDetailClick={handleTransactionDetailClick}
+                  hiddenBalance={hiddenBalance}
                 />
-              </LoadingMoreContainer>
-            )}
-          </Box>
-        )}
-      </StyledDialogContent>
-    </StyledDialog>
+              ))}
+
+              {/* Loading more indicator */}
+              {loadingMore && (
+                <LoadingMoreContainer>
+                  <CircularProgress
+                    size={24}
+                    sx={{ color: colors.accent.primary }}
+                  />
+                </LoadingMoreContainer>
+              )}
+            </Box>
+          )}
+        </Box>
+      </BaseSheetDialog.Content>
+    </BaseSheetDialog>
   );
 };
 

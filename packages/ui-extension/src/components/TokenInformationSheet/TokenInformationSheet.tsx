@@ -29,87 +29,25 @@
 
 import React, { useCallback } from 'react';
 import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
 import Skeleton from '@mui/material/Skeleton';
-import CloseIcon from '@mui/icons-material/Close';
 
 import {
   colors,
   spacing,
-  borderRadius,
 } from '@salmon/shared';
 
 import { PriceChart } from '../PriceChart';
 import { TokenListItem } from '../TokenList';
 import { TokenMarketData } from '../TokenMarketData';
 import { TokenAbout } from '../TokenAbout';
-import { ScalesBackground } from '../ScalesBackground';
+import { BaseSheetDialog } from '../BaseSheetDialog';
 import { TokenBadgesSection } from './TokenBadgesSection';
 import type { TokenInformationSheetProps } from './types';
 
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const StyledDialog = styled(Dialog)({
-  '& .MuiDialog-paper': {
-    backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.border.default}`,
-    minWidth: 380,
-    maxWidth: 440,
-    maxHeight: '85vh',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-});
-
-const StyledDialogTitle = styled(DialogTitle)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: `${spacing.lg}px ${spacing.xl}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-  position: 'relative',
-  zIndex: 2,
-});
-
-const TitleText = styled(Typography)({
-  fontSize: 20,
-  fontWeight: 800,
-  color: colors.text.primary,
-  letterSpacing: -0.12,
-});
-
-const CloseButton = styled(IconButton)({
-  color: colors.text.secondary,
-  padding: spacing.xs,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const StyledDialogContent = styled(DialogContent)({
-  padding: 0,
-  overflowY: 'auto',
-  position: 'relative',
-  zIndex: 1,
-  '&::-webkit-scrollbar': {
-    width: 4,
-  },
-  '&::-webkit-scrollbar-track': {
-    background: 'transparent',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: colors.border.default,
-    borderRadius: 2,
-  },
-});
 
 const ContentContainer = styled(Box)({
   display: 'flex',
@@ -217,46 +155,19 @@ export function TokenInformationSheet({
   }, []);
 
   return (
-    <StyledDialog
-      open={visible}
+    <BaseSheetDialog
+      visible={visible}
       onClose={onClose}
-      aria-labelledby="token-information-title"
+      size="medium"
+      colorScheme="secondary"
+      showScalesBackground={true}
+      ariaLabelledBy="token-information-title"
       className={className}
-      PaperProps={{
-        style,
-      }}
-      slotProps={{
-        backdrop: {
-          sx: {
-            backgroundColor: colors.dialog.overlay,
-          },
-        },
-      }}
+      style={style}
     >
-      {/* Scales Background - positioned behind content */}
-      <Box
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: 'none',
-          overflow: 'hidden',
-          borderRadius: `${borderRadius.xl}px`,
-        }}
-      >
-        <ScalesBackground />
-      </Box>
+      <BaseSheetDialog.StandardHeader title="Token Information" />
 
-      {/* Title Header */}
-      <StyledDialogTitle id="token-information-title">
-        <TitleText>Token Information</TitleText>
-        <CloseButton onClick={onClose} aria-label="Close">
-          <CloseIcon />
-        </CloseButton>
-      </StyledDialogTitle>
-
-      {/* Scrollable Content */}
-      <StyledDialogContent>
+      <BaseSheetDialog.Content padding="none">
         <ContentContainer>
           {/* PriceChart - full width */}
           {(loading || chartData.length > 0) && (
@@ -300,8 +211,8 @@ export function TokenInformationSheet({
             loading={loading}
           />
         </ContentContainer>
-      </StyledDialogContent>
-    </StyledDialog>
+      </BaseSheetDialog.Content>
+    </BaseSheetDialog>
   );
 }
 

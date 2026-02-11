@@ -24,19 +24,11 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {
-  colors,
-  spacing,
-  borderRadius,
-  fontFamily,
   useSendTransaction,
 } from '@salmon/shared';
-import { ScalesBackground } from '../ScalesBackground';
+import { BaseSheetDialog } from '../BaseSheetDialog';
 import { StepTokenSelect } from './StepTokenSelect';
 import { StepAddressAmount } from './StepAddressAmount';
 import { StepConfirmation } from './StepConfirmation';
@@ -45,87 +37,6 @@ import type { SendSheetProps, SendStep, SendToken } from './types';
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const StyledDialog = styled(Dialog)({
-  '& .MuiDialog-paper': {
-    backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.border.default}`,
-    minWidth: 380,
-    maxWidth: 420,
-    height: '85vh',
-    maxHeight: 700,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-});
-
-const BackgroundWrapper = styled(Box)({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  overflow: 'hidden',
-  zIndex: 0,
-  pointerEvents: 'none',
-});
-
-const HeaderArea = styled(Box)({
-  position: 'relative',
-  zIndex: 1,
-});
-
-const HandleContainer = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingTop: spacing.md,
-  paddingBottom: spacing.sm,
-});
-
-const Handle = styled(Box)({
-  width: 36,
-  height: 4,
-  borderRadius: 75,
-  backgroundColor: colors.sheet.handle,
-  opacity: 0.6,
-});
-
-const TitleRow = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingLeft: spacing.xl,
-  paddingRight: spacing.xl,
-  marginBottom: spacing.lg,
-  position: 'relative',
-  minHeight: 32,
-});
-
-const BackButton = styled(IconButton)({
-  position: 'absolute',
-  left: spacing.xl,
-  zIndex: 1,
-  color: colors.text.primary,
-  padding: spacing.xs,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const TitleText = styled(Typography)({
-  fontSize: 24,
-  fontWeight: 800,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.primary,
-  textAlign: 'center',
-  flex: 1,
-  letterSpacing: -0.12,
-});
 
 const ContentArea = styled(Box)({
   flex: 1,
@@ -245,42 +156,24 @@ export function SendSheet({
   const showBackButton = step !== 'token-select' || skipTokenSelect;
 
   return (
-    <StyledDialog
-      open={visible}
+    <BaseSheetDialog
+      visible={visible}
       onClose={handleClose}
-      aria-labelledby="send-sheet-title"
+      size="large"
+      colorScheme="secondary"
+      showScalesBackground={true}
+      ariaLabelledBy="send-sheet-title"
       className={className}
-      PaperProps={{ style }}
+      style={style}
     >
-      {/* Decorative background */}
-      <BackgroundWrapper>
-        <ScalesBackground />
-      </BackgroundWrapper>
+      <BaseSheetDialog.HandleHeader
+        title="Send"
+        showBackButton={showBackButton}
+        onBack={handleBackPress}
+      />
 
-      {/* Header Area */}
-      <HeaderArea>
-        {/* Drag Handle (decorative in web) */}
-        <HandleContainer>
-          <Handle />
-        </HandleContainer>
-
-        {/* Title Row with Back Button */}
-        <TitleRow>
-          {showBackButton && (
-            <BackButton
-              onClick={handleBackPress}
-              aria-label="Go back"
-              size="small"
-            >
-              <ArrowBackIcon sx={{ fontSize: 24 }} />
-            </BackButton>
-          )}
-          <TitleText id="send-sheet-title">Send</TitleText>
-        </TitleRow>
-      </HeaderArea>
-
-      {/* Content */}
-      <ContentArea>
+      <BaseSheetDialog.Content padding="none">
+        <ContentArea>
         {step === 'token-select' && (
           <StepTokenSelect
             tokens={tokens}
@@ -311,8 +204,9 @@ export function SendSheet({
             onSuccess={handleSuccess}
           />
         )}
-      </ContentArea>
-    </StyledDialog>
+        </ContentArea>
+      </BaseSheetDialog.Content>
+    </BaseSheetDialog>
   );
 }
 

@@ -10,8 +10,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
@@ -27,7 +25,6 @@ import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import CloseIcon from '@mui/icons-material/Close';
 import {
   colors,
   spacing,
@@ -35,6 +32,7 @@ import {
   getShortAddress,
   getAvatarColor,
 } from '@salmon/shared';
+import { BaseSheetDialog } from '../BaseSheetDialog';
 
 import type { WalletSwitcherSheetProps, AccountListItemProps } from './types';
 
@@ -57,44 +55,6 @@ function getInitials(name: string): string {
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const StyledDialog = styled(Dialog)({
-  '& .MuiDialog-paper': {
-    backgroundColor: colors.dialog.background,
-    borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.dialog.border}`,
-    minWidth: 360,
-    maxWidth: 400,
-    maxHeight: '80vh',
-  },
-});
-
-const StyledDialogTitle = styled(DialogTitle)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: `${spacing.lg}px ${spacing.xl}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-});
-
-const TitleText = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-});
-
-const CloseButton = styled(IconButton)({
-  color: colors.text.secondary,
-  padding: spacing.xs,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const StyledDialogContent = styled(DialogContent)({
-  padding: 0,
-  overflowY: 'auto',
-});
 
 const StyledList = styled(List)({
   padding: `${spacing.sm}px 0`,
@@ -399,21 +359,19 @@ export function WalletSwitcherSheet({
   return (
     <>
       {/* Main Wallet Switcher Dialog */}
-      <StyledDialog
-        open={visible}
+      <BaseSheetDialog
+        visible={visible}
         onClose={onClose}
-        aria-labelledby="wallet-switcher-title"
+        size="small"
+        colorScheme="dialog"
+        showScalesBackground={false}
+        ariaLabelledBy="wallet-switcher-title"
       >
-        <StyledDialogTitle id="wallet-switcher-title">
-          <TitleText>
-            {t('walletSwitcher.title', 'Your Wallets')}
-          </TitleText>
-          <CloseButton onClick={onClose} aria-label="Close">
-            <CloseIcon />
-          </CloseButton>
-        </StyledDialogTitle>
+        <BaseSheetDialog.StandardHeader
+          title={t('walletSwitcher.title', 'Your Wallets')}
+        />
 
-        <StyledDialogContent>
+        <BaseSheetDialog.Content padding="none">
           <StyledList>
             {accounts.map((account) => (
               <AccountListItem
@@ -435,8 +393,8 @@ export function WalletSwitcherSheet({
           >
             {t('walletSwitcher.addAccount', 'Add New Account')}
           </AddAccountButton>
-        </StyledDialogContent>
-      </StyledDialog>
+        </BaseSheetDialog.Content>
+      </BaseSheetDialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog

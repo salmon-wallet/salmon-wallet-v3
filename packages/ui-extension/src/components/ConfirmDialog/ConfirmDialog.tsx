@@ -13,18 +13,8 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
-import CloseIcon from '@mui/icons-material/Close';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { spacing } from '@salmon/shared';
+import { BaseDialog, MessageText } from '../BaseDialog';
 
 // ============================================================================
 // Types
@@ -57,135 +47,9 @@ export interface ConfirmDialogProps {
 // Styled Components
 // ============================================================================
 
-const StyledDialog = styled(Dialog)({
-  '& .MuiDialog-paper': {
-    backgroundColor: colors.dialog.background,
-    borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.dialog.border}`,
-    minWidth: 340,
-    maxWidth: 400,
-  },
-});
-
-const StyledDialogTitle = styled(DialogTitle)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: `${spacing.lg}px ${spacing.xl}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-});
-
-const TitleContainer = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing.sm,
-});
-
-const TitleText = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-});
-
-const WarningIcon = styled(WarningAmberIcon)({
-  color: colors.status.error,
-  fontSize: 24,
-});
-
-const CloseButton = styled(IconButton)({
-  color: colors.text.secondary,
-  padding: spacing.xs,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const StyledDialogContent = styled(DialogContent)({
-  padding: `${spacing.xl}px`,
-});
-
-const MessageText = styled(Typography)({
-  fontSize: 14,
-  color: colors.text.secondary,
-  lineHeight: 1.6,
-  textAlign: 'center',
-});
-
 const PasswordSection = styled('div')({
   marginTop: spacing.lg,
 });
-
-const StyledTextField = styled(TextField)({
-  '& .MuiOutlinedInput-root': {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius.md,
-    color: colors.text.primary,
-    '& fieldset': {
-      borderColor: colors.border.default,
-    },
-    '&:hover fieldset': {
-      borderColor: colors.border.light,
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: colors.accent.primary,
-    },
-    '&.Mui-error fieldset': {
-      borderColor: colors.status.error,
-    },
-  },
-  '& .MuiInputLabel-root': {
-    color: colors.text.secondary,
-    '&.Mui-focused': {
-      color: colors.accent.primary,
-    },
-    '&.Mui-error': {
-      color: colors.status.error,
-    },
-  },
-  '& .MuiOutlinedInput-input': {
-    color: colors.text.primary,
-  },
-  '& .MuiFormHelperText-root': {
-    color: colors.status.error,
-  },
-});
-
-const StyledDialogActions = styled(DialogActions)({
-  padding: `${spacing.md}px ${spacing.xl}px ${spacing.xl}px`,
-  gap: spacing.md,
-});
-
-const CancelButton = styled(Button)({
-  flex: 1,
-  backgroundColor: colors.button.secondaryBackground,
-  color: colors.button.secondaryText,
-  textTransform: 'none',
-  fontWeight: 600,
-  padding: `${spacing.sm}px ${spacing.lg}px`,
-  borderRadius: borderRadius.md,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-});
-
-const ConfirmButton = styled(Button)<{ isDanger?: boolean }>(({ isDanger }) => ({
-  flex: 1,
-  backgroundColor: isDanger ? colors.status.error : colors.accent.primary,
-  color: '#FFFFFF',
-  textTransform: 'none',
-  fontWeight: 600,
-  padding: `${spacing.sm}px ${spacing.lg}px`,
-  borderRadius: borderRadius.md,
-  '&:hover': {
-    backgroundColor: isDanger ? '#DC2626' : '#FF7A64',
-  },
-  '&:disabled': {
-    backgroundColor: isDanger
-      ? 'rgba(239, 68, 68, 0.3)'
-      : 'rgba(255, 92, 69, 0.3)',
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-}));
 
 // ============================================================================
 // Component
@@ -284,8 +148,8 @@ export function ConfirmDialog({
   }, [loading, requirePassword, validatePassword, password, t, onConfirm, onClose]);
 
   const handlePasswordChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPassword(event.target.value);
+    (value: string) => {
+      setPassword(value);
       if (passwordError) {
         setPasswordError(null);
       }
@@ -305,59 +169,47 @@ export function ConfirmDialog({
   const canConfirm = !requirePassword || password.length > 0;
 
   return (
-    <StyledDialog
-      open={visible}
+    <BaseDialog
+      visible={visible}
       onClose={onClose}
-      aria-labelledby="confirm-dialog-title"
+      ariaLabelledBy="confirm-dialog-title"
     >
-      <StyledDialogTitle id="confirm-dialog-title">
-        <TitleContainer>
-          {isDanger && <WarningIcon />}
-          <TitleText>{title}</TitleText>
-        </TitleContainer>
-        <CloseButton onClick={onClose} aria-label="Close">
-          <CloseIcon />
-        </CloseButton>
-      </StyledDialogTitle>
+      <BaseDialog.Header title={title} showWarning={isDanger} />
 
-      <StyledDialogContent>
+      <BaseDialog.Content>
         <MessageText>{message}</MessageText>
 
         {requirePassword && (
           <PasswordSection>
-            <StyledTextField
-              fullWidth
+            <BaseDialog.TextField
               type="password"
               label={t('general.password', 'Password')}
               value={password}
               onChange={handlePasswordChange}
               onKeyDown={handleKeyDown}
               error={!!passwordError}
-              helperText={passwordError}
+              helperText={passwordError || undefined}
               disabled={loading}
               autoFocus
             />
           </PasswordSection>
         )}
-      </StyledDialogContent>
+      </BaseDialog.Content>
 
-      <StyledDialogActions>
-        <CancelButton onClick={onClose} disabled={loading}>
+      <BaseDialog.Actions>
+        <BaseDialog.CancelButton onClick={onClose} disabled={loading}>
           {cancelText || t('actions.cancel', 'Cancel')}
-        </CancelButton>
-        <ConfirmButton
+        </BaseDialog.CancelButton>
+        <BaseDialog.ActionButton
           isDanger={isDanger}
           onClick={handleConfirm}
-          disabled={!canConfirm || loading}
+          disabled={!canConfirm}
+          loading={loading}
         >
-          {loading ? (
-            <CircularProgress size={20} sx={{ color: 'inherit' }} />
-          ) : (
-            confirmText || t('actions.confirm', 'Confirm')
-          )}
-        </ConfirmButton>
-      </StyledDialogActions>
-    </StyledDialog>
+          {confirmText || t('actions.confirm', 'Confirm')}
+        </BaseDialog.ActionButton>
+      </BaseDialog.Actions>
+    </BaseDialog>
   );
 }
 
