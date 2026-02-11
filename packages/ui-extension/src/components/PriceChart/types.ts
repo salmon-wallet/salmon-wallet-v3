@@ -1,24 +1,10 @@
 import type { CSSProperties } from 'react';
-import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
+import type { PriceChartPropsBase } from '@salmon/shared';
 
 /**
- * Props for the PriceChart component
+ * Props for the PriceChart component (Web/Extension)
  */
-export interface PriceChartProps {
-  /** Price history data points */
-  data: PriceDataPoint[];
-  /** Currently selected time period */
-  selectedPeriod: PriceChartPeriod;
-  /** Callback when time period is changed */
-  onPeriodChange: (period: PriceChartPeriod) => void;
-  /** Whether the chart is in loading state */
-  loading?: boolean;
-  /** Custom line color (defaults to green for positive, red for negative) */
-  color?: string;
-  /** Chart height in pixels (default: 200) */
-  height?: number;
-  /** Optional custom styles for the container */
-  style?: CSSProperties;
+export interface PriceChartProps extends PriceChartPropsBase<CSSProperties> {
   /** Optional CSS class name */
   className?: string;
 }
