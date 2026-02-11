@@ -20,16 +20,6 @@
 // ============================================================================
 
 export {
-  // Types
-  type TokenPrice,
-  type TopToken,
-  type ChartDataPoint,
-  type MarketChartData,
-  type CoinMarketData,
-  type CoinLinks,
-  type CoinInfo,
-  type PricePlatform,
-  type NetworkId as PriceNetworkId,
   // Functions
   getPricesByPlatform,
   getPricesByIds,
@@ -47,11 +37,6 @@ export {
 // ============================================================================
 
 export {
-  // Types
-  type TokenMetadata,
-  type TokenListItem,
-  type TokenListSource,
-  type NetworkId as TokenNetworkId,
   // Functions
   getTokenList,
   getFeaturedTokenList,
@@ -72,41 +57,11 @@ export {
   getWalletBalance,
 } from './balance';
 
-// Re-export pure balance utilities from utils
-export {
-  // Types
-  type RawTokenBalance,
-  type TokenBalance,
-  type TokenBalanceWithPrice,
-  type WalletBalance,
-  type JupiterPriceData,
-  // Constants
-  SOL_CONSTANTS,
-  USDC_ADDRESS,
-  LAMPORTS_PER_SOL,
-  // Functions
-  decorateBalanceList,
-  decorateBalancePrices,
-  calculate24HoursChange,
-  createSolBalance,
-} from '../../utils/balance';
-
 // ============================================================================
 // Marketplace Service
 // ============================================================================
 
 export {
-  // Types
-  type NetworkId as MarketplaceNetworkId,
-  type ListNftParams,
-  type UnlistNftParams,
-  type BuyNftParams,
-  type PlaceBidParams,
-  type CancelBidParams,
-  type BurnNftParams,
-  type TransactionResponse,
-  type NftListing,
-  type NftBid,
   // Functions
   createListingTransaction,
   createUnlistTransaction,
@@ -129,7 +84,6 @@ export {
 
 export {
   // Types
-  type BitcoinNetworkId,
   type BitcoinBalance,
   type BitcoinUtxo,
   type BitcoinTransactionInput,
@@ -172,13 +126,9 @@ export {
 // ============================================================================
 
 export {
-  // Types - Network
-  type SolanaNetworkId,
   // Types - Transaction (backend-transformed format)
-  type SolanaTransactionTokenAmount,
-  type SolanaTransactionFee,
-  type SolanaTransactionStatusBackend,
-  type SolanaTransactionTypeBackend,
+  // Note: SolanaTransaction uses TransactionTokenAmount, TransactionFee,
+  // TransactionDisplayStatus, TransactionType from types/transaction.ts
   type SolanaTransaction,
   // Types - Transaction (legacy/raw format for blockchain module)
   type SolanaTokenTransfer,
@@ -190,11 +140,8 @@ export {
   // Types - Pagination
   type SolanaPagingParams,
   type SolanaTransactionsResponse,
-  // Types - Swap
-  type SwapOrderResponse,
-  type SwapOrderParams,
-  type SwapExecuteRequest,
-  type ApiSwapExecuteResponse,
+  // Note: Swap types (SwapOrderParams, SwapExecuteRequest, ApiSwapExecuteResponse)
+  // are in types/swap.ts - import from @salmon/shared
   // Functions - Transactions
   getSolanaTransactions,
   getSolanaTransaction,
@@ -211,9 +158,6 @@ export {
 // ============================================================================
 
 export {
-  // Types
-  type DappMetadata,
-  type GetMetadataParams,
   // Functions
   getMetadata as getDappMetadata,
 } from './dapp';
@@ -223,10 +167,6 @@ export {
 // ============================================================================
 
 export {
-  // Types
-  type Switch,
-  type SwitchesResponse,
-  type SwitchMap,
   // Functions
   getSwitches,
   getSwitch,
@@ -241,15 +181,6 @@ export {
 // ============================================================================
 
 export {
-  // Types
-  type BridgeToken,
-  type BridgeAvailableToken,
-  type BridgeFeaturedToken,
-  type BridgeEstimateResponse,
-  type BridgeMinimalResponse,
-  type BridgeExchange,
-  type BridgeTransaction,
-  type BridgeTransactionStatus,
   // Functions
   getBridgeSupportedTokens,
   getBridgeAvailableTokens,
@@ -280,7 +211,6 @@ export {
 
 export {
   // Types
-  type TransactionNetworkId,
   type TransactionItem,
   type TransactionPagingParams,
   type TransactionsResponse,
@@ -297,7 +227,6 @@ export {
 
 export {
   // Types
-  type EthereumNftNetworkId,
   type EthereumNftAttribute,
   type EthereumNft,
   // Functions
@@ -310,8 +239,6 @@ export {
 // ============================================================================
 
 export {
-  // Types
-  type SolanaNftNetworkId,
   // Functions
   getSolanaNfts,
   getSolanaNftByAddress,
@@ -323,10 +250,20 @@ export {
 
 export {
   // Types
-  type BitcoinOrdinalsNetworkId,
   type OrdinalAttribute,
   type BitcoinOrdinal,
   // Functions
   getBitcoinOrdinals,
   getBitcoinOrdinalById,
 } from './bitcoin-nft';
+
+// ============================================================================
+// Network Service
+// ============================================================================
+
+export {
+  // Functions
+  getNetworks,
+  getNetwork,
+  clearNetworksCache,
+} from './network';

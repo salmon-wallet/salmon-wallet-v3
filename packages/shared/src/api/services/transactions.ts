@@ -11,72 +11,18 @@
 
 import { apiClient, ApiError } from '../client';
 import type {
-  TransactionType,
-  TransactionTokenAmount,
-  TransactionFee,
+  TransactionItem,
+  TransactionPagingParams,
+  TransactionsResponse,
 } from '../../types/transaction';
+import type { NetworkId } from '../../types/blockchain';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Supported network identifiers for multi-chain transactions
- * Note: Solana networks are handled in solana.ts
- */
-export type TransactionNetworkId =
-  | 'solana-mainnet'
-  | 'solana-devnet'
-  | 'bitcoin-mainnet'
-  | 'bitcoin-testnet'
-  | 'ethereum-mainnet'
-  | 'ethereum-sepolia';
-
-/**
- * Single transaction item from the API
- */
-export interface TransactionItem {
-  /** Transaction ID (hash) */
-  id: string;
-  /** Unix timestamp in seconds */
-  timestamp: number;
-  /** Transaction status */
-  status: string;
-  /** Transaction type classification */
-  type: TransactionType;
-  /** Transaction fee (null if user didn't pay fee) */
-  fee?: TransactionFee;
-  /** Tokens received */
-  inputs: TransactionTokenAmount[];
-  /** Tokens sent */
-  outputs: TransactionTokenAmount[];
-  /** Human-readable description (Moralis summary) */
-  description?: string;
-  /** Source label (contract/protocol name) */
-  source?: string;
-  /** Transaction category (Moralis enrichment) */
-  category?: string;
-}
-
-/**
- * Pagination parameters for transaction queries
- */
-export interface TransactionPagingParams {
-  /** Number of items per page (max 100) */
-  pageSize?: number;
-  /** Page token for cursor-based pagination */
-  pageToken?: string;
-}
-
-/**
- * Paginated transaction response from the API
- */
-export interface TransactionsResponse {
-  /** Array of transactions */
-  data: TransactionItem[];
-  /** Token for fetching the next page */
-  pageToken?: string;
-}
+// Re-export types for backwards compatibility
+export type {
+  TransactionItem,
+  TransactionPagingParams,
+  TransactionsResponse,
+} from '../../types/transaction';
 
 // ============================================================================
 // API Functions
@@ -93,7 +39,7 @@ export interface TransactionsResponse {
  * @returns Paginated transaction response
  */
 export async function getTransactions(
-  networkId: TransactionNetworkId,
+  networkId: NetworkId,
   address: string,
   options?: TransactionPagingParams
 ): Promise<TransactionsResponse> {
@@ -137,7 +83,7 @@ export async function getTransactions(
  * @returns Transaction data, or null if not found
  */
 export async function getTransaction(
-  networkId: TransactionNetworkId,
+  networkId: NetworkId,
   address: string,
   txId: string
 ): Promise<TransactionItem | null> {
@@ -168,7 +114,7 @@ export async function getTransaction(
  * @returns Array of recent transactions
  */
 export async function getRecentTransactions(
-  networkId: TransactionNetworkId,
+  networkId: NetworkId,
   address: string,
   count: number = 10
 ): Promise<TransactionItem[]> {
@@ -191,7 +137,7 @@ export async function getRecentTransactions(
  * @returns Array of all transactions up to the limit
  */
 export async function getAllTransactions(
-  networkId: TransactionNetworkId,
+  networkId: NetworkId,
   address: string,
   maxTransactions: number = 100
 ): Promise<TransactionItem[]> {

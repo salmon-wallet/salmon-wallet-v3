@@ -8,7 +8,7 @@
 
 import { get, post } from '../client';
 import { getApiUrl } from '../config';
-import type { UTXO, FetchUtxosFn, BroadcastTransactionFn } from '../../blockchain/bitcoin/transfer';
+import type { UTXO, FetchUtxosFn, BroadcastTransactionFn } from '../../types/transfer';
 
 interface UTXOResponse {
   data: UTXO[];

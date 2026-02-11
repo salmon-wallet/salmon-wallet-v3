@@ -10,39 +10,7 @@
  */
 
 import { staticApiClient } from '../client';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Individual feature switch configuration
- */
-export interface Switch {
-  /** Unique identifier for the switch */
-  id: string;
-  /** Human-readable name of the feature */
-  name: string;
-  /** Whether the feature is enabled */
-  enabled: boolean;
-  /** Optional description of the feature */
-  description?: string;
-  /** Optional metadata for the switch */
-  metadata?: Record<string, unknown>;
-}
-
-/**
- * Response from the switches API endpoint
- */
-export interface SwitchesResponse {
-  /** Array of feature switches */
-  switches: Switch[];
-}
-
-/**
- * Map of switch IDs to their enabled state for quick lookup
- */
-export type SwitchMap = Record<string, boolean>;
+import type { Switch, SwitchMap } from '../../types/settings';
 
 // ============================================================================
 // Cache

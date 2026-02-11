@@ -20,7 +20,6 @@ export {
   type ApiResponse,
   type ApiErrorResponse,
   type ApiClientConfig,
-  type Network,
 
   // Error class
   ApiError,
@@ -29,11 +28,6 @@ export {
   createApiClient,
   apiClient,
   staticApiClient,
-
-  // Network service functions
-  getNetworks,
-  getNetwork,
-  clearNetworksCache,
 
   // Typed request helpers
   get,
@@ -52,12 +46,3 @@ export {
 
 // Services exports
 export * from './services';
-
-// Cache exports
-export {
-  CACHE_TYPES,
-  type CacheType,
-  cache,
-  invalidate,
-  clearAllCache,
-} from './cache';

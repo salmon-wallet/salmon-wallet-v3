@@ -15,56 +15,11 @@
 
 import { get } from '../client';
 import { lookupCoingeckoId } from '../../utils/tokens';
+import { removeDecimals } from '../../utils/decimals';
+import type { AlchemyTokenBalance, AlchemyTokenMetadata, DetectedERC20Token } from '../../types/token';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Token balance from Alchemy API
- */
-export interface AlchemyTokenBalance {
-  /** Token contract address */
-  contractAddress: string;
-  /** Raw balance in hex */
-  tokenBalance: string;
-}
-
-/**
- * Token metadata from Alchemy API
- */
-export interface AlchemyTokenMetadata {
-  /** Token name */
-  name: string;
-  /** Token symbol */
-  symbol: string;
-  /** Number of decimals */
-  decimals: number;
-  /** Logo URL */
-  logo: string | null;
-}
-
-/**
- * Detected ERC-20 token with balance and metadata
- */
-export interface DetectedERC20Token {
-  /** Token contract address */
-  address: string;
-  /** Token name */
-  name: string;
-  /** Token symbol */
-  symbol: string;
-  /** Token decimals */
-  decimals: number;
-  /** Raw balance as string (in smallest unit) */
-  balance: string;
-  /** Human-readable balance */
-  uiAmount: number;
-  /** Logo URL if available */
-  logoUri?: string;
-  /** CoinGecko ID for price lookups */
-  coingeckoId?: string;
-}
+// Re-export types for backwards compatibility
+export type { AlchemyTokenBalance, AlchemyTokenMetadata, DetectedERC20Token } from '../../types/token';
 
 /**
  * Response from Ethplorer API (free public API)
@@ -187,7 +142,7 @@ async function getSalmonApiTokenBalances(
 
     return response.map((token) => {
       const rawBalance = BigInt(token.amount);
-      const uiAmount = Number(rawBalance) / Math.pow(10, token.decimals);
+      const uiAmount = removeDecimals(rawBalance, token.decimals);
 
       return {
         address: token.address,
@@ -244,7 +199,7 @@ async function getEthplorerTokenBalances(
           ? parseInt(token.decimals, 10)
           : token.decimals;
         const rawBalance = token.rawBalance || '0';
-        const uiAmount = Number(BigInt(rawBalance)) / Math.pow(10, decimals);
+        const uiAmount = removeDecimals(BigInt(rawBalance), decimals);
 
         return {
           address: token.address,

@@ -6,63 +6,11 @@
  */
 
 import { get } from '../client';
+import type { EthereumNetworkId } from '../../types/blockchain';
+import type { EthereumNft } from '../../types/nft';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Network ID for Ethereum NFT queries
- */
-export type EthereumNftNetworkId = 'ethereum-mainnet' | 'ethereum-sepolia';
-
-/**
- * NFT attribute from metadata
- */
-export interface EthereumNftAttribute {
-  trait_type: string;
-  value: string | number;
-}
-
-/**
- * Ethereum NFT data structure (matches backend response)
- */
-export interface EthereumNft {
-  /** Token standard (ERC721 or ERC1155) */
-  standard: 'ERC721' | 'ERC1155';
-  /** Contract address */
-  contract: string;
-  /** Token ID within the contract */
-  mint: string;
-  /** Owner address */
-  owner: string;
-  /** NFT name */
-  name: string;
-  /** NFT description */
-  description?: string;
-  /** Token symbol */
-  symbol?: string;
-  /** Token URI */
-  uri?: string;
-  /** Media/image URL */
-  media?: string;
-  /** Collection info */
-  collection?: {
-    name: string;
-    slug?: string;
-  };
-  /** Extra metadata */
-  extras: {
-    properties?: {
-      tokenType?: string;
-      contractDeployer?: string;
-    };
-    attributes?: EthereumNftAttribute[];
-    creators?: Array<{ address: string; share?: number }>;
-  };
-  /** Whether NFT is blacklisted */
-  blacklisted?: boolean;
-}
+// Re-export types for backwards compatibility
+export type { EthereumNftAttribute, EthereumNft } from '../../types/nft';
 
 /**
  * Response from Salmon API for Ethereum NFTs (same as EthereumNft)
@@ -89,7 +37,7 @@ type SalmonEthereumNftResponse = EthereumNft;
  * ```
  */
 export async function getEthereumNfts(
-  networkId: EthereumNftNetworkId,
+  networkId: EthereumNetworkId,
   address: string
 ): Promise<EthereumNft[]> {
   try {
@@ -114,7 +62,7 @@ export async function getEthereumNfts(
  * @returns NFT details or null if not found
  */
 export async function getEthereumNftById(
-  networkId: EthereumNftNetworkId,
+  networkId: EthereumNetworkId,
   contractAddress: string,
   tokenId: string
 ): Promise<EthereumNft | null> {

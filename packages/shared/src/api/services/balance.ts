@@ -23,12 +23,10 @@ import {
   type RawTokenBalance,
   type TokenBalance,
   type WalletBalance,
-  type JupiterPriceData,
 } from '../../utils/balance';
+import type { JupiterApiPriceData } from '../../types/price';
 
-// Re-export types used by decorators for use in tests
-export type { TokenMetadata } from './tokens';
-export type { TokenPrice } from './price';
+// Note: TokenMetadata is in types/token, TokenPrice is in api/services/price
 
 // ============================================================================
 // Price Fetching Functions
@@ -46,12 +44,12 @@ export type { TokenPrice } from './price';
  *
  * @param addresses - Array of token mint addresses
  * @param networkId - Network identifier
- * @returns Map of address -> { price, priceChange24h }
+ * @returns Map of address -> { usdPrice, priceChange24h }
  */
 async function getJupiterPrices(
   addresses: string[],
   networkId: 'solana-mainnet' | 'solana-devnet' = 'solana-mainnet'
-): Promise<Map<string, JupiterPriceData>> {
+): Promise<Map<string, JupiterApiPriceData>> {
   if (addresses.length === 0) {
     return new Map();
   }
@@ -87,14 +85,11 @@ async function getJupiterPrices(
     }
   }
 
-  // Create price map
-  const priceMap = new Map<string, JupiterPriceData>();
+  // Create price map (store API response directly)
+  const priceMap = new Map<string, JupiterApiPriceData>();
   allResults.forEach((result) => {
     if (result.priceData !== null) {
-      priceMap.set(result.address.toLowerCase(), {
-        price: result.priceData.usdPrice,
-        priceChange24h: result.priceData.priceChange24h,
-      });
+      priceMap.set(result.address.toLowerCase(), result.priceData);
     }
   });
 

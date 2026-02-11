@@ -281,63 +281,6 @@ export const staticApiClient = createApiClient({
 });
 
 // ============================================================================
-// Network Service (migrated from network-service.js)
-// ============================================================================
-
-/**
- * Network information type
- */
-export interface Network {
-  id: string;
-  name: string;
-  symbol?: string;
-  decimals?: number;
-  rpcUrl?: string;
-  explorerUrl?: string;
-  [key: string]: unknown;
-}
-
-// Cache for networks data
-let networksPromise: Promise<Network[]> | null = null;
-
-/**
- * Get all available networks from the static API
- * Results are cached for the lifetime of the application
- */
-export async function getNetworks(): Promise<Network[]> {
-  if (networksPromise) {
-    return networksPromise;
-  }
-
-  networksPromise = staticApiClient
-    .get<Network[]>('/v1/networks')
-    .then(({ data }) => data);
-
-  try {
-    return await networksPromise;
-  } catch (error) {
-    // Clear cache on error so it can be retried
-    networksPromise = null;
-    throw error;
-  }
-}
-
-/**
- * Get a specific network by ID
- */
-export async function getNetwork(id: string): Promise<Network | undefined> {
-  const networks = await getNetworks();
-  return networks.find((network) => network.id === id);
-}
-
-/**
- * Clear the networks cache to force a refresh on next request
- */
-export function clearNetworksCache(): void {
-  networksPromise = null;
-}
-
-// ============================================================================
 // Typed Request Helpers
 // ============================================================================
 

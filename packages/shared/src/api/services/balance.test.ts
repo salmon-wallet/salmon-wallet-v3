@@ -16,8 +16,8 @@ import {
   type TokenBalanceWithPrice,
 } from '../../utils/balance';
 import { getWalletBalance } from './balance';
-import type { TokenMetadata } from './tokens';
-import type { TokenPrice } from './price';
+import type { TokenMetadata } from '../../types/token';
+import type { TokenPrice } from '../../types/price';
 import {
   formatBalance,
   formatUsdValue,

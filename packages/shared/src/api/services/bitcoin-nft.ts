@@ -6,78 +6,11 @@
  */
 
 import { get } from '../client';
+import type { BitcoinNetworkId } from '../../types/blockchain';
+import type { BitcoinOrdinal } from '../../types/nft';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Network ID for Bitcoin Ordinals queries
- */
-export type BitcoinOrdinalsNetworkId = 'bitcoin-mainnet' | 'bitcoin-testnet';
-
-/**
- * Ordinal attribute from metadata
- */
-export interface OrdinalAttribute {
-  trait_type: string;
-  value: string | number;
-}
-
-/**
- * Bitcoin Ordinal/Inscription data structure (matches backend response)
- */
-export interface BitcoinOrdinal {
-  /** Standard type */
-  standard: 'ORDINAL';
-  /** Inscription ID */
-  inscriptionId: string;
-  /** Sequential inscription number */
-  inscriptionNumber: number;
-  /** Same as inscriptionId, for consistency */
-  mint: string;
-  /** Owner Bitcoin address */
-  owner: string;
-  /** Ordinal name */
-  name: string;
-  /** Description */
-  description?: string;
-  /** Content MIME type */
-  contentType: string;
-  /** Content URI */
-  uri?: string;
-  /** Media/preview image URL */
-  media?: string;
-  /** Sat rarity (common, uncommon, rare, epic, legendary, mythic) */
-  satRarity: string;
-  /** Collection info */
-  collection?: {
-    name: string;
-    symbol?: string;
-    slug?: string;
-  };
-  /** Extra metadata */
-  extras: {
-    /** Ordinal sat number */
-    sat?: number;
-    /** Genesis transaction ID */
-    genesisTransaction?: string;
-    /** Genesis block height */
-    genesisHeight?: number;
-    /** UTXO output */
-    output?: string;
-    /** Output value in sats */
-    outputValue?: number;
-    /** Ordinal attributes/traits */
-    attributes?: OrdinalAttribute[];
-    properties?: {
-      inscriptionNumber?: number;
-      contentType?: string;
-    };
-  };
-  /** Whether ordinal is blacklisted */
-  blacklisted?: boolean;
-}
+// Re-export types for backwards compatibility
+export type { OrdinalAttribute, BitcoinOrdinal } from '../../types/nft';
 
 /**
  * Response from Salmon API for Bitcoin Ordinals (same as BitcoinOrdinal)
@@ -104,7 +37,7 @@ type SalmonBitcoinOrdinalResponse = BitcoinOrdinal;
  * ```
  */
 export async function getBitcoinOrdinals(
-  networkId: BitcoinOrdinalsNetworkId,
+  networkId: BitcoinNetworkId,
   address: string
 ): Promise<BitcoinOrdinal[]> {
   try {
@@ -128,7 +61,7 @@ export async function getBitcoinOrdinals(
  * @returns Ordinal details or null if not found
  */
 export async function getBitcoinOrdinalById(
-  networkId: BitcoinOrdinalsNetworkId,
+  networkId: BitcoinNetworkId,
   inscriptionId: string
 ): Promise<BitcoinOrdinal | null> {
   try {

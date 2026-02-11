@@ -1,15 +1,17 @@
 import { get } from '../client';
 import { getPricesByPlatform } from './price';
+import { removeDecimals } from '../../utils/decimals';
 import type {
   BitcoinBalanceItem,
   AccountTransaction,
   AccountTransactionListResponse,
   TransactionPaging,
+  BitcoinAccountApiFunctions,
   FetchBitcoinBalanceFn,
   FetchBitcoinPricesFn,
   FetchBitcoinTransactionFn,
   FetchBitcoinRecentTransactionsFn,
-} from '../../blockchain/bitcoin/BitcoinAccount';
+} from '../../types/transfer';
 
 export const fetchBitcoinAccountBalance: FetchBitcoinBalanceFn = async (
   networkId: string,
@@ -23,7 +25,7 @@ export const fetchBitcoinAccountBalance: FetchBitcoinBalanceFn = async (
 
   return data.map((token) => ({
     ...token,
-    uiAmount: token.amount / Math.pow(10, token.decimals),
+    uiAmount: removeDecimals(token.amount, token.decimals),
     coingeckoId: 'bitcoin',
   }));
 };
@@ -61,4 +63,15 @@ export const fetchBitcoinAccountRecentTransactions: FetchBitcoinRecentTransactio
   }
 
   return get<AccountTransactionListResponse>(url, { params });
+};
+
+/**
+ * Pre-wired Bitcoin API functions for account creation.
+ * Centralizes the dependency injection wiring so callers don't repeat it.
+ */
+export const bitcoinApiFunctions: BitcoinAccountApiFunctions = {
+  fetchBalance: fetchBitcoinAccountBalance,
+  fetchPrices: fetchBitcoinAccountPrices,
+  fetchTransaction: fetchBitcoinAccountTransaction,
+  fetchRecentTransactions: fetchBitcoinAccountRecentTransactions,
 };

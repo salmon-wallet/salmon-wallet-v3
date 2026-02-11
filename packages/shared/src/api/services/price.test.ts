@@ -68,13 +68,14 @@ import {
   findTokenPrice,
   clearPriceCache,
   getPriceCacheStatus,
-  type TokenPrice,
-  type TopToken,
-  type MarketChartData,
-  type CoinInfo,
-  type PricePlatform,
-  type NetworkId,
 } from './price';
+import type {
+  TokenPrice,
+  TopToken,
+  MarketChartData,
+  CoinInfo,
+  PricePlatform,
+} from '../../types/price';
 import { apiClient, staticApiClient, ApiError } from '../client';
 
 // Get access to the mocked functions

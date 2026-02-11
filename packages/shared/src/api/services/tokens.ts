@@ -21,37 +21,8 @@
 import axios from 'axios';
 import { apiClient } from '../client';
 import { normalizeIpfsUrl } from '../../utils/url';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Token metadata from the API
- */
-export interface TokenMetadata {
-  /** Token symbol (e.g., 'SOL', 'USDC') */
-  symbol: string;
-  /** Token name */
-  name: string;
-  /** Token decimals */
-  decimals: number;
-  /** Token logo URL */
-  logo?: string;
-  /** Token address (mint address for Solana) */
-  address: string;
-  /** Chain ID (e.g., 101 for Solana mainnet) */
-  chainId?: number;
-  /** CoinGecko ID for price lookups */
-  coingeckoId?: string;
-  /** Token tags for categorization */
-  tags?: string[];
-}
-
-/**
- * Token list item (same as metadata for compatibility)
- */
-export type TokenListItem = TokenMetadata;
+import type { SolanaNetworkId } from '../../types/blockchain';
+import type { TokenMetadata, TokenListSource } from '../../types/token';
 
 /**
  * Raw token data from Jupiter API
@@ -94,15 +65,8 @@ interface CdnTokenList {
   tokens: JupiterToken[];
 }
 
-/**
- * Token list source for debugging
- */
-export type TokenListSource = 'backend' | 'jupiter' | 'cdn';
 
-/**
- * Network identifier
- */
-export type NetworkId = 'solana-mainnet' | 'solana-devnet';
+// NetworkId is imported from types/blockchain as SolanaNetworkId
 
 // ============================================================================
 // Constants
@@ -161,7 +125,7 @@ function setCachedTokenList(tokens: TokenMetadata[], source: TokenListSource): v
  * @returns Object with tokens and source
  */
 async function retrieveTokenList(
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<{ tokens: TokenMetadata[]; source: TokenListSource }> {
   // Check cache first
   const cached = getCachedTokenList();
@@ -250,7 +214,7 @@ export function normalizeJupiterTokens(tokens: JupiterToken[]): TokenMetadata[] 
  * @returns Array of deduplicated token metadata
  */
 export async function getTokenList(
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TokenMetadata[]> {
   const { tokens } = await retrieveTokenList(networkId);
 
@@ -303,7 +267,7 @@ export async function getTokenList(
  * @returns Array of featured token metadata
  */
 export async function getFeaturedTokenList(
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TokenMetadata[]> {
   try {
     const { data } = await apiClient.get<BackendToken[]>(
@@ -340,7 +304,7 @@ export async function getFeaturedTokenList(
  */
 export async function getTokenMetadataByMints(
   mintAddresses: string[],
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TokenMetadata[]> {
   if (!mintAddresses || mintAddresses.length === 0) {
     return [];
@@ -409,7 +373,7 @@ export async function getTokenMetadataByMints(
  * @returns Array of verified token metadata
  */
 export async function getVerifiedTokens(
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TokenMetadata[]> {
   try {
     const { data } = await apiClient.get<BackendToken[]>(`/v1/${networkId}/ft/verified`);
@@ -439,7 +403,7 @@ export async function getVerifiedTokens(
  */
 export async function searchTokens(
   query: string,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TokenMetadata[]> {
   if (!query || query.length < 3) {
     return [];
@@ -482,7 +446,7 @@ export async function searchTokens(
  */
 export async function getTokenByAddress(
   address: string,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TokenMetadata | null> {
   // Try batch endpoint first (single token)
   const result = await getTokenMetadataByMints([address], networkId);

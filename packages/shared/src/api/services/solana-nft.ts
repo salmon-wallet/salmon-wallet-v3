@@ -5,13 +5,7 @@
  */
 
 import { apiClient } from '../client';
-import type { Nft } from '../../blockchain/solana/nft';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export type SolanaNftNetworkId = 'mainnet-beta' | 'devnet';
+import type { Nft } from '../../types/nft';
 
 // ============================================================================
 // API Functions

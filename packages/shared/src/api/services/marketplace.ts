@@ -22,137 +22,18 @@
 
 import { apiClient, ApiError } from '../client';
 import type { SolanaNetwork } from '../../blockchain/solana/SolanaAccount';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Network identifier for marketplace operations
- */
-export type NetworkId = 'solana-mainnet' | 'solana-devnet';
-
-/**
- * Parameters for creating a listing transaction
- */
-export interface ListNftParams {
-  /** NFT token/mint address */
-  tokenAddress: string;
-  /** Seller's wallet address */
-  sellerAddress: string;
-  /** Listing price in SOL */
-  price: number;
-}
-
-/**
- * Parameters for removing a listing
- */
-export interface UnlistNftParams {
-  /** NFT token/mint address */
-  tokenAddress: string;
-  /** Seller's wallet address */
-  sellerAddress: string;
-}
-
-/**
- * Parameters for buying an NFT
- */
-export interface BuyNftParams {
-  /** NFT token/mint address */
-  tokenAddress: string;
-  /** Buyer's wallet address */
-  buyerAddress: string;
-  /** Purchase price in SOL */
-  price: number;
-}
-
-/**
- * Parameters for placing a bid
- */
-export interface PlaceBidParams {
-  /** NFT token/mint address */
-  tokenAddress: string;
-  /** Bidder's wallet address */
-  buyerAddress: string;
-  /** Bid amount in SOL */
-  price: number;
-}
-
-/**
- * Parameters for canceling a bid
- */
-export interface CancelBidParams {
-  /** NFT token/mint address */
-  tokenAddress: string;
-  /** Bidder's wallet address */
-  buyerAddress: string;
-}
-
-/**
- * Parameters for burning an NFT
- */
-export interface BurnNftParams {
-  /** NFT mint address */
-  mintAddress: string;
-  /** Owner's wallet address */
-  ownerAddress: string;
-}
-
-/**
- * Response containing a serialized transaction
- */
-export interface TransactionResponse {
-  /** Base64 encoded serialized transaction */
-  transaction: string;
-  /** Optional message or instruction */
-  message?: string;
-}
-
-/**
- * NFT listing information
- */
-export interface NftListing {
-  /** NFT token/mint address */
-  tokenAddress: string;
-  /** Seller's wallet address */
-  sellerAddress: string;
-  /** Listing price in SOL */
-  price: number;
-  /** Marketplace where listed */
-  marketplace?: string;
-  /** Listing creation timestamp */
-  createdAt?: string;
-  /** NFT metadata (if available) */
-  metadata?: {
-    name?: string;
-    image?: string;
-    collection?: string;
-  };
-}
-
-/**
- * Bid information
- */
-export interface NftBid {
-  /** NFT token/mint address */
-  tokenAddress: string;
-  /** Bidder's wallet address */
-  buyerAddress: string;
-  /** Bid amount in SOL */
-  price: number;
-  /** Marketplace where bid was placed */
-  marketplace?: string;
-  /** Bid creation timestamp */
-  createdAt?: string;
-  /** Bid expiration timestamp */
-  expiresAt?: string;
-  /** NFT metadata (if available) */
-  metadata?: {
-    name?: string;
-    image?: string;
-    collection?: string;
-  };
-}
+import type { SolanaNetworkId } from '../../types/blockchain';
+import type {
+  ListNftParams,
+  UnlistNftParams,
+  BuyNftParams,
+  PlaceBidParams,
+  CancelBidParams,
+  BurnNftParams,
+  MarketplaceTransactionResponse as TransactionResponse,
+  NftListing,
+  NftBid,
+} from '../../types/nft';
 
 // ============================================================================
 // Marketplace Transaction Functions
@@ -169,7 +50,7 @@ export interface NftBid {
  */
 export async function createListingTransaction(
   params: ListNftParams,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TransactionResponse> {
   const { tokenAddress, sellerAddress, price } = params;
 
@@ -198,7 +79,7 @@ export async function createListingTransaction(
  */
 export async function createUnlistTransaction(
   params: UnlistNftParams,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TransactionResponse> {
   const { tokenAddress, sellerAddress } = params;
 
@@ -226,7 +107,7 @@ export async function createUnlistTransaction(
  */
 export async function createBuyTransaction(
   params: BuyNftParams,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TransactionResponse> {
   const { tokenAddress, buyerAddress, price } = params;
 
@@ -255,7 +136,7 @@ export async function createBuyTransaction(
  */
 export async function createBidTransaction(
   params: PlaceBidParams,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TransactionResponse> {
   const { tokenAddress, buyerAddress, price } = params;
 
@@ -284,7 +165,7 @@ export async function createBidTransaction(
  */
 export async function createCancelBidTransaction(
   params: CancelBidParams,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TransactionResponse> {
   const { tokenAddress, buyerAddress } = params;
 
@@ -312,7 +193,7 @@ export async function createCancelBidTransaction(
  */
 export async function createBurnTransaction(
   params: BurnNftParams,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<TransactionResponse> {
   const { mintAddress, ownerAddress } = params;
 
@@ -344,7 +225,7 @@ export async function createBurnTransaction(
  */
 export async function getUserListings(
   ownerAddress: string,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<NftListing[]> {
   try {
     const { data } = await apiClient.get<NftListing[]>(
@@ -373,7 +254,7 @@ export async function getUserListings(
  */
 export async function getUserBids(
   ownerAddress: string,
-  networkId: NetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<NftBid[]> {
   try {
     const { data } = await apiClient.get<NftBid[]>(

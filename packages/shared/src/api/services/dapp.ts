@@ -10,32 +10,7 @@
  */
 
 import { apiClient } from '../client';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * DApp metadata response from the backend
- */
-export interface DappMetadata {
-  /** DApp icon URL (favicon or custom icon) */
-  icon?: string;
-  /** DApp name or title */
-  name?: string;
-  /** DApp description */
-  description?: string;
-  /** DApp URL (canonical) */
-  url?: string;
-}
-
-/**
- * Parameters for fetching dApp metadata
- */
-export interface GetMetadataParams {
-  /** The URL of the dApp to fetch metadata for */
-  url: string;
-}
+import type { DappMetadata } from '../../types/trusted-app';
 
 // ============================================================================
 // DApp Service Functions
