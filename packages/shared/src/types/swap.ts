@@ -335,6 +335,11 @@ export type SwapTab = 'swap' | 'bridge';
 export type SwapStepBase = 'input' | 'review' | 'processing' | 'success' | 'error';
 
 /**
+ * Full step type for SwapScreen (includes bridge recipient step)
+ */
+export type SwapScreenStep = SwapStepBase | 'recipient';
+
+/**
  * Bridge token type (simplified for SwapScreen integration)
  */
 export interface BridgeTokenSimple {

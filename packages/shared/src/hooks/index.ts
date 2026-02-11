@@ -165,3 +165,10 @@ export type {
 
 // Open link hook (used by settings screens)
 export { useOpenLink } from './useOpenLink';
+
+// SwapScreen logic hook (shared between mobile & extension)
+export { useSwapScreenLogic } from './useSwapScreenLogic';
+export type {
+  UseSwapScreenLogicOptions,
+  UseSwapScreenLogicReturn,
+} from './useSwapScreenLogic';

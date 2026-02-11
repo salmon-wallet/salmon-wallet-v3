@@ -27,6 +27,18 @@ export function getBlockchainFromNetworkId(networkId: string): BlockchainType {
   return 'solana';
 }
 
+/**
+ * Returns the human-readable display name for a blockchain type.
+ */
+export function getChainDisplayName(chain?: BlockchainType | string): string {
+  switch (chain) {
+    case 'bitcoin': return 'Bitcoin';
+    case 'ethereum': return 'Ethereum';
+    case 'solana':
+    default: return 'Solana';
+  }
+}
+
 // ============================================================================
 // Account Type Detection (duck typing)
 // ============================================================================

@@ -17,6 +17,7 @@ export type {
   SwapToken,
   SwapTab,
   SwapStepBase,
+  SwapScreenStep,
   BridgeTokenSimple,
   BridgeEstimateSimple,
   BridgeExchangeSimple,
@@ -31,12 +32,14 @@ import type {
   SwapReviewScreenProps as SwapReviewScreenPropsBase,
   SwapInputScreenProps as SwapInputScreenPropsBase,
   SwapScreenProps as SwapScreenPropsBase,
+  SwapScreenStep,
 } from '@salmon/shared';
 
 /**
- * Current step in swap flow (Web version - includes recipient step)
+ * Current step in swap flow (Web version)
+ * @deprecated Use SwapScreenStep from @salmon/shared instead
  */
-export type SwapStep = 'input' | 'recipient' | 'review' | 'processing' | 'success' | 'error';
+export type SwapStep = SwapScreenStep;
 
 /**
  * Props for SwapTabSelector component (Web)

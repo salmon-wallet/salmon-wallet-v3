@@ -105,6 +105,19 @@ export function createERC1155Token(address: string, symbol?: string): TransferTo
 }
 
 // ============================================================================
+// Known Token Decimals (fallback for bridge tokens without API metadata)
+// ============================================================================
+
+export const KNOWN_DECIMALS: Record<string, number> = {
+  btc: 8,
+  eth: 18,
+  sol: 9,
+  usdc: 6,
+  usdt: 6,
+  near: 24,
+};
+
+// ============================================================================
 // Token Search / Filtering
 // ============================================================================
 

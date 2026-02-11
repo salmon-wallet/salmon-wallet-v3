@@ -5,6 +5,7 @@ export { normalizeIpfsUrl, DEAD_DOMAINS, getExplorerUrl, getSolscanUrl } from '.
 export {
   getPathIndex,
   getBlockchainFromNetworkId,
+  getChainDisplayName,
   getAccountBlockchainType,
   isSolanaAccount,
   isBitcoinAccount,
@@ -93,6 +94,8 @@ export {
 
 // Token utilities
 export {
+  // Known decimals (bridge token fallback)
+  KNOWN_DECIMALS,
   // Token search
   filterTokensLocally,
   // CoinGecko
@@ -170,7 +173,13 @@ export {
 export { VALIDATION_MESSAGES, getValidationState, getMessageType } from './validation';
 
 // Swap utilities
-export { isSameChain, getSwapType } from './swap';
+export {
+  isSameChain,
+  getSwapType,
+  getSwapMode,
+  getChainFromNetwork,
+  validateAddress,
+} from './swap';
 
 // Transaction transform utilities
 export { transformSolanaTransaction, transformMultichainTransaction } from './transactions';

@@ -1,0 +1,504 @@
+/**
+ * useSwapScreenLogic — shared hook for SwapScreen (mobile & extension).
+ *
+ * Extracts all duplicated state, effects, computed values, and handlers
+ * so that platform components only provide JSX + platform-specific alerts.
+ */
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import type {
+  SwapScreenProps,
+  SwapToken,
+  SwapQuote,
+  SwapScreenStep,
+  SwapChainType,
+  BridgeEstimateSimple,
+  BridgeExchangeSimple,
+} from '../types/swap';
+import type {
+  BridgeChain,
+  BridgeToken,
+  BridgeEstimate,
+} from '../types/ui/bridge-screen';
+import { getSwapMode, validateAddress, getChainFromNetwork } from '../utils/swap';
+import { getChainDisplayName } from '../utils/account';
+import { KNOWN_DECIMALS } from '../utils/tokens';
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const MIN_SWAP_USD = 1;
+const QUOTE_DEBOUNCE_MS = 500;
+
+// ============================================================================
+// Hook options
+// ============================================================================
+
+export interface UseSwapScreenLogicOptions extends SwapScreenProps<any> {
+  /**
+   * Platform-specific callback invoked when a bridge exchange is created.
+   * Mobile uses Alert.alert; extension uses window.alert.
+   */
+  onBridgeInitiated?: (exchange: BridgeExchangeSimple, inAmount: string, inSymbol: string, outSymbol: string) => void;
+}
+
+// ============================================================================
+// Return type
+// ============================================================================
+
+export interface UseSwapScreenLogicReturn {
+  // State
+  step: SwapScreenStep;
+  inToken: SwapToken | null;
+  outToken: SwapToken | null;
+  inAmount: string;
+  outAmount: string;
+  quote: SwapQuote | null;
+  bridgeEstimate: BridgeEstimateSimple | null;
+  isLoadingQuote: boolean;
+  isLoadingEstimate: boolean;
+  recipientAddress: string;
+  addressError: string | null;
+  isConfirming: boolean;
+  showInTokenModal: boolean;
+  showOutTokenModal: boolean;
+
+  // Computed
+  swapMode: 'jupiter' | 'stealthex' | null;
+  inUsdValue: number;
+  canReview: boolean;
+  outputTokens: SwapToken[];
+  addressValidation: { valid: boolean; error: string | null };
+
+  // Modal token lists (with mint/uiAmount for TokenSelectorModal compat)
+  modalInTokens: (SwapToken & { mint: string; uiAmount: number })[];
+  modalFeaturedTokens: (SwapToken & { mint: string; uiAmount: number })[];
+  modalOutTokens: (SwapToken & { mint: string; uiAmount: number; network?: string })[];
+
+  // Bridge type conversions
+  bridgeTargetChain: BridgeChain | null;
+  bridgeInToken: BridgeToken | null;
+  bridgeOutToken: BridgeToken | null;
+  bridgeEstimateForReview: BridgeEstimate | null;
+
+  // Setters
+  setInAmount: (v: string) => void;
+  setRecipientAddress: (v: string) => void;
+  setShowInTokenModal: (v: boolean) => void;
+  setShowOutTokenModal: (v: boolean) => void;
+
+  // Handlers
+  handleInTokenSelect: (token: SwapToken) => void;
+  handleOutTokenSelect: (token: SwapToken) => void;
+  handleReview: () => void;
+  handleContinueToReview: () => void;
+  handleBackFromRecipient: () => void;
+  handleBackFromReview: () => void;
+  handleConfirmSwap: () => Promise<void>;
+  handleConfirmBridge: () => Promise<void>;
+}
+
+// ============================================================================
+// Hook
+// ============================================================================
+
+export function useSwapScreenLogic({
+  tokens,
+  featuredTokens = [],
+  onGetQuote,
+  onSwap,
+  onSuccess,
+  onError,
+  onSearchTokens,
+  initialInToken,
+  initialOutToken,
+  // Bridge props
+  onGetAvailableTokens,
+  onGetBridgeEstimate,
+  onCreateBridgeExchange,
+  onBridgeSuccess,
+  onBridgeError,
+  // Platform-specific
+  onBridgeInitiated,
+}: UseSwapScreenLogicOptions): UseSwapScreenLogicReturn {
+  // ── State ──────────────────────────────────────────────────────────────
+
+  const [step, setStep] = useState<SwapScreenStep>('input');
+  const [inToken, setInToken] = useState<SwapToken | null>(initialInToken || tokens[0] || null);
+  const [outToken, setOutToken] = useState<SwapToken | null>(initialOutToken || null);
+  const [availableOutTokens, setAvailableOutTokens] = useState<SwapToken[]>([]);
+  const [inAmount, setInAmount] = useState('');
+  const [outAmount, setOutAmount] = useState('');
+  const [quote, setQuote] = useState<SwapQuote | null>(null);
+  const [isLoadingQuote, setIsLoadingQuote] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [bridgeEstimate, setBridgeEstimate] = useState<BridgeEstimateSimple | null>(null);
+  const [isLoadingEstimate, setIsLoadingEstimate] = useState(false);
+  const [recipientAddress, setRecipientAddress] = useState('');
+  const [addressError, setAddressError] = useState<string | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [showInTokenModal, setShowInTokenModal] = useState(false);
+  const [showOutTokenModal, setShowOutTokenModal] = useState(false);
+
+  const quoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Computed ───────────────────────────────────────────────────────────
+
+  const swapMode = useMemo(() => getSwapMode(inToken, outToken), [inToken, outToken]);
+
+  const inUsdValue = inToken?.usdPrice && inAmount
+    ? parseFloat(inAmount) * inToken.usdPrice
+    : 0;
+
+  const targetChain: SwapChainType | null = outToken?.chain || null;
+  const addressValidation = validateAddress(recipientAddress, targetChain);
+
+  const canReviewJupiter =
+    swapMode === 'jupiter' &&
+    !!inToken &&
+    !!outToken &&
+    !!inAmount &&
+    parseFloat(inAmount) > 0 &&
+    parseFloat(inAmount) <= (inToken.balance || 0) &&
+    inUsdValue >= MIN_SWAP_USD &&
+    !isLoadingQuote &&
+    !quoteError &&
+    !!quote;
+
+  const canContinueToBridge =
+    swapMode === 'stealthex' &&
+    !!inToken &&
+    !!outToken &&
+    !!inAmount &&
+    parseFloat(inAmount) > 0 &&
+    parseFloat(inAmount) <= (inToken.balance || Infinity) &&
+    (!bridgeEstimate?.minAmount || parseFloat(inAmount) >= bridgeEstimate.minAmount) &&
+    !isLoadingEstimate;
+
+  const canReview = canReviewJupiter || canContinueToBridge;
+
+  // ── Effects ────────────────────────────────────────────────────────────
+
+  // Load available output tokens when input token changes (for bridge)
+  useEffect(() => {
+    if (!inToken || !onGetAvailableTokens) return;
+
+    const loadBridgeTokens = async () => {
+      try {
+        const available = await onGetAvailableTokens(inToken.symbol);
+        const bridgeOutputTokens: SwapToken[] = available.map((t) => ({
+          address: t.symbol,
+          symbol: t.symbol,
+          name: t.name,
+          decimals: KNOWN_DECIMALS[t.symbol.toLowerCase()] ?? 8,
+          logo: t.logo,
+          chain: getChainFromNetwork(t.network),
+          networkId: t.network,
+        }));
+        setAvailableOutTokens(bridgeOutputTokens);
+      } catch (error) {
+        console.error('Failed to load bridge tokens:', error);
+        setAvailableOutTokens([]);
+      }
+    };
+
+    loadBridgeTokens();
+  }, [inToken, onGetAvailableTokens]);
+
+  // Stabilize callback refs
+  const onGetQuoteRef = useRef(onGetQuote);
+  onGetQuoteRef.current = onGetQuote;
+  const onGetBridgeEstimateRef = useRef(onGetBridgeEstimate);
+  onGetBridgeEstimateRef.current = onGetBridgeEstimate;
+
+  // Fetch quote/estimate when input changes
+  useEffect(() => {
+    if (quoteTimerRef.current) clearTimeout(quoteTimerRef.current);
+
+    setOutAmount('');
+    setQuote(null);
+    setBridgeEstimate(null);
+    setQuoteError(null);
+
+    if (!inToken || !outToken || !inAmount || parseFloat(inAmount) <= 0) return;
+
+    const mode = getSwapMode(inToken, outToken);
+
+    if (mode === 'jupiter') {
+      setIsLoadingQuote(true);
+      quoteTimerRef.current = setTimeout(async () => {
+        try {
+          const fetchedQuote = await onGetQuoteRef.current(inToken, outToken, inAmount);
+          setQuote(fetchedQuote);
+          setOutAmount(fetchedQuote.output.amount.toString());
+          setQuoteError(null);
+        } catch (error) {
+          console.error('Failed to fetch quote:', error);
+          setQuoteError('Failed to fetch quote');
+          setOutAmount('');
+        } finally {
+          setIsLoadingQuote(false);
+        }
+      }, QUOTE_DEBOUNCE_MS);
+    } else if (mode === 'stealthex' && onGetBridgeEstimateRef.current) {
+      setIsLoadingEstimate(true);
+      quoteTimerRef.current = setTimeout(async () => {
+        try {
+          const estimate = await onGetBridgeEstimateRef.current!(
+            inToken.symbol,
+            outToken.symbol,
+            parseFloat(inAmount)
+          );
+          if (estimate) {
+            setBridgeEstimate(estimate);
+            setOutAmount(estimate.estimatedAmount.toString());
+          } else {
+            setQuoteError('Failed to get swap estimate');
+          }
+        } catch (error) {
+          console.error('Failed to fetch estimate:', error);
+          setOutAmount('');
+        } finally {
+          setIsLoadingEstimate(false);
+        }
+      }, QUOTE_DEBOUNCE_MS);
+    }
+
+    return () => {
+      if (quoteTimerRef.current) clearTimeout(quoteTimerRef.current);
+    };
+  }, [inToken, outToken, inAmount]);
+
+  // ── Handlers ───────────────────────────────────────────────────────────
+
+  const handleInTokenSelect = useCallback((token: SwapToken) => {
+    setInToken(token);
+    setShowInTokenModal(false);
+    if (outToken?.address === token.address && outToken?.chain === token.chain) {
+      setOutToken(null);
+    }
+    setInAmount('');
+    setOutAmount('');
+    setQuote(null);
+    setBridgeEstimate(null);
+  }, [outToken]);
+
+  const handleOutTokenSelect = useCallback((token: SwapToken) => {
+    setOutToken(token);
+    setShowOutTokenModal(false);
+    if (inToken?.address === token.address && inToken?.chain === token.chain) {
+      setInToken(null);
+    }
+  }, [inToken]);
+
+  const handleReview = useCallback(() => {
+    if (swapMode === 'jupiter' && quote) {
+      setStep('review');
+    } else if (swapMode === 'stealthex') {
+      setStep('recipient');
+    }
+  }, [swapMode, quote]);
+
+  const handleContinueToReview = useCallback(() => {
+    if (addressValidation.valid) {
+      setAddressError(null);
+      setStep('review');
+    } else {
+      setAddressError(addressValidation.error || 'Invalid address');
+    }
+  }, [addressValidation]);
+
+  const handleBackFromRecipient = useCallback(() => {
+    setStep('input');
+  }, []);
+
+  const handleBackFromReview = useCallback(() => {
+    if (swapMode === 'stealthex') {
+      setStep('recipient');
+    } else {
+      setStep('input');
+    }
+  }, [swapMode]);
+
+  const handleConfirmSwap = useCallback(async () => {
+    if (!quote) return;
+
+    setIsConfirming(true);
+    try {
+      const result = await onSwap(quote);
+      setStep('success');
+      onSuccess?.(result.txId);
+
+      setTimeout(() => {
+        setStep('input');
+        setInAmount('');
+        setOutAmount('');
+        setQuote(null);
+      }, 2000);
+    } catch (error) {
+      console.error('Swap failed:', error);
+      setStep('error');
+      onError?.(error as Error);
+
+      setTimeout(() => {
+        setStep('input');
+      }, 2000);
+    } finally {
+      setIsConfirming(false);
+    }
+  }, [quote, onSwap, onSuccess, onError]);
+
+  const handleConfirmBridge = useCallback(async () => {
+    if (!inToken || !outToken || !inAmount || !recipientAddress || !onCreateBridgeExchange) return;
+
+    setIsConfirming(true);
+    try {
+      const exchange = await onCreateBridgeExchange(
+        inToken.symbol,
+        outToken.symbol,
+        parseFloat(inAmount),
+        recipientAddress
+      );
+
+      if (exchange) {
+        setStep('success');
+        onBridgeSuccess?.(exchange);
+        onBridgeInitiated?.(exchange, inAmount, inToken.symbol, outToken.symbol);
+
+        setTimeout(() => {
+          setStep('input');
+          setInAmount('');
+          setOutAmount('');
+          setRecipientAddress('');
+          setBridgeEstimate(null);
+        }, 2000);
+      } else {
+        throw new Error('Failed to create bridge exchange');
+      }
+    } catch (error) {
+      console.error('Bridge failed:', error);
+      setStep('error');
+      onBridgeError?.(error as Error);
+
+      setTimeout(() => {
+        setStep('input');
+      }, 2000);
+    } finally {
+      setIsConfirming(false);
+    }
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onBridgeSuccess, onBridgeError, onBridgeInitiated]);
+
+  // ── Derived / memoised ─────────────────────────────────────────────────
+
+  const outputTokens = useMemo(() => {
+    if (!inToken) return tokens;
+
+    const inChain = inToken.chain || 'solana';
+
+    if (inChain === 'solana') {
+      const solanaTokens = tokens.filter(t => (t.chain || 'solana') === 'solana');
+      const solanaSymbols = new Set(solanaTokens.map(t => t.symbol.toLowerCase()));
+      const uniqueBridgeTokens = availableOutTokens.filter(t => !solanaSymbols.has(t.symbol.toLowerCase()));
+      return [...solanaTokens, ...uniqueBridgeTokens];
+    } else {
+      return availableOutTokens;
+    }
+  }, [inToken, tokens, availableOutTokens]);
+
+  const modalInTokens = tokens.map((t) => ({
+    ...t,
+    mint: t.address,
+    uiAmount: t.balance || 0,
+  }));
+
+  const modalFeaturedTokens = featuredTokens.map((t) => ({
+    ...t,
+    mint: t.address,
+    uiAmount: t.balance || 0,
+  }));
+
+  const modalOutTokens = outputTokens.map((t) => ({
+    ...t,
+    mint: t.address,
+    uiAmount: t.balance || 0,
+    network: t.networkId || (t.chain === 'bitcoin' ? 'Bitcoin' : t.chain === 'ethereum' ? 'Ethereum' : undefined),
+  }));
+
+  const bridgeTargetChain: BridgeChain | null = outToken ? {
+    id: outToken.networkId || outToken.chain || 'unknown',
+    name: getChainDisplayName(outToken.chain),
+    symbol: outToken.symbol,
+    logo: outToken.logo,
+  } : null;
+
+  const bridgeInToken: BridgeToken | null = inToken ? {
+    symbol: inToken.symbol,
+    name: inToken.name || inToken.symbol,
+    logo: inToken.logo,
+    network: inToken.networkId,
+    balance: inToken.balance,
+    usdPrice: inToken.usdPrice,
+  } : null;
+
+  const bridgeOutToken: BridgeToken | null = outToken ? {
+    symbol: outToken.symbol,
+    name: outToken.name || outToken.symbol,
+    logo: outToken.logo,
+    network: outToken.networkId,
+  } : null;
+
+  const bridgeEstimateForReview: BridgeEstimate | null = bridgeEstimate ? {
+    estimatedAmount: bridgeEstimate.estimatedAmount,
+    minAmount: bridgeEstimate.minAmount,
+    symbolIn: bridgeEstimate.symbolIn,
+    symbolOut: bridgeEstimate.symbolOut,
+  } : null;
+
+  // ── Return ─────────────────────────────────────────────────────────────
+
+  return {
+    step,
+    inToken,
+    outToken,
+    inAmount,
+    outAmount,
+    quote,
+    bridgeEstimate,
+    isLoadingQuote,
+    isLoadingEstimate,
+    recipientAddress,
+    addressError,
+    isConfirming,
+    showInTokenModal,
+    showOutTokenModal,
+
+    swapMode,
+    inUsdValue,
+    canReview,
+    outputTokens,
+    addressValidation,
+
+    modalInTokens,
+    modalFeaturedTokens,
+    modalOutTokens,
+
+    bridgeTargetChain,
+    bridgeInToken,
+    bridgeOutToken,
+    bridgeEstimateForReview,
+
+    setInAmount,
+    setRecipientAddress,
+    setShowInTokenModal,
+    setShowOutTokenModal,
+
+    handleInTokenSelect,
+    handleOutTokenSelect,
+    handleReview,
+    handleContinueToReview,
+    handleBackFromRecipient,
+    handleBackFromReview,
+    handleConfirmSwap,
+    handleConfirmBridge,
+  };
+}
