@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ContentLoader, { Rect } from '../../utils/ContentLoader';
+import { ContentLoader, Rect } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps, NftCardSkeletonProps } from './types';
 

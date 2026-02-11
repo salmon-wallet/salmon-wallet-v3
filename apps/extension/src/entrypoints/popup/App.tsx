@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useAccounts, useInactivityTimeout, DerivedKeyCache } from '@salmon/shared';
 import { LockPage } from '../../pages/lock/LockPage';
 import { HomePage } from '../../pages/home/HomePage';
@@ -57,7 +57,7 @@ function App() {
 
   // Prevents premature transition to HomePage after account creation
   // (accounts.length becomes > 0 but we're still in the auth flow)
-  const justCreatedRef = useRef(false);
+  const [justCreated, setJustCreated] = useState(false);
 
   // Set up inactivity timeout for auto-lock
   useInactivityTimeout({
@@ -65,7 +65,7 @@ function App() {
     onTimeout: () => {
       actions.lockAccounts();
     },
-    enabled: ready && !locked && accounts.length > 0 && !justCreatedRef.current,
+    enabled: ready && !locked && accounts.length > 0 && !justCreated,
   });
 
   // Handler for removing all accounts from lock screen
@@ -110,7 +110,7 @@ function App() {
   }, []);
 
   const handlePasswordSuccess = useCallback(() => {
-    justCreatedRef.current = true;
+    setJustCreated(true);
     setAuthStep('success');
   }, []);
 
@@ -123,7 +123,7 @@ function App() {
   }, [authData]);
 
   const handleGoToWallet = useCallback(() => {
-    justCreatedRef.current = false;
+    setJustCreated(false);
     setAuthStep('select');
     setAuthData(null);
   }, []);
@@ -133,7 +133,7 @@ function App() {
   }, []);
 
   const handleDerivedComplete = useCallback(() => {
-    justCreatedRef.current = false;
+    setJustCreated(false);
     setAuthStep('select');
     setAuthData(null);
   }, []);

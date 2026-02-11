@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import ContentLoader, { Rect, Circle } from '../../utils/ContentLoader';
+import { ContentLoader, Rect, Circle } from '@salmon/shared';
 import {
   colors,
   spacing,

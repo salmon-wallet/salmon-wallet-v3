@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import ContentLoader, { Rect } from 'react-content-loader/native';
+import { ContentLoader, Rect } from '@salmon/shared';
 import { colors, ms, s, vs } from '@salmon/shared';
 import type { NftCarouselSectionSkeletonProps } from './types';
 
