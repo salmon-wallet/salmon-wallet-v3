@@ -116,11 +116,6 @@ export {
   default as useTransactionsDefault,
 } from './useTransactions';
 export type {
-  HistoryTransaction,
-  HistoryTransactionType,
-  HistoryTransactionStatus,
-  TransactionTokenAmount as HistoryTransactionTokenAmount,
-  TransactionFee as HistoryTransactionFee,
   UseTransactionsOptions,
   UseTransactionsResult,
 } from './useTransactions';
@@ -209,3 +204,6 @@ export type {
   UseAddressValidationReturn,
   UseAddressValidationOptions,
 } from './useAddressValidation';
+
+// Open link hook (used by settings screens)
+export { useOpenLink } from './useOpenLink';

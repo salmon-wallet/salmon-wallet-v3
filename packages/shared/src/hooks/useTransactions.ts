@@ -39,80 +39,29 @@ import {
   type TransactionNetworkId,
   type TransactionItem,
 } from '../api/services/transactions';
+import type {
+  TransactionType,
+  TransactionDisplayStatus,
+  TransactionTokenAmount,
+  TransactionFee,
+} from '../types/transaction';
 
 // ============================================================================
 // Types
 // ============================================================================
 
 /**
- * Transaction type constants matching the UI component types
- * Prefixed with "History" to avoid collision with other TransactionType exports
- */
-export type HistoryTransactionType =
-  | 'send'
-  | 'receive'
-  | 'swap'
-  | 'mint'
-  | 'burn'
-  | 'stake'
-  | 'loan'
-  | 'interaction'
-  | 'unknown';
-
-/**
- * Transaction status for history items
- * Prefixed with "History" to avoid collision with other TransactionStatus exports
- */
-export type HistoryTransactionStatus = 'completed' | 'failed' | 'pending';
-
-/**
- * Token amount in a transaction
- */
-export interface TransactionTokenAmount {
-  /** Raw amount (in smallest unit) */
-  amount: string;
-  /** Token decimals */
-  decimals: number;
-  /** Token symbol */
-  symbol: string;
-  /** Token name */
-  name?: string;
-  /** Token logo URL */
-  logo?: string | null;
-  /** Token contract/mint address */
-  contract: string;
-  /** Source address (for receives) */
-  source?: string;
-  /** Destination address (for sends) */
-  destination?: string;
-  /** Whether this is an NFT */
-  isNft?: boolean;
-}
-
-/**
- * Transaction fee information
- */
-export interface TransactionFee {
-  /** Fee amount in smallest unit */
-  amount: number;
-  /** Fee decimals */
-  decimals: number;
-  /** Fee token symbol */
-  symbol: string;
-}
-
-/**
  * Processed transaction for display in the UI
  */
-export interface HistoryTransaction {
+export interface Transaction {
   /** Transaction ID (signature) */
   id: string;
   /** Unix timestamp in seconds */
   timestamp: number;
   /** Transaction status */
-  status: HistoryTransactionStatus;
+  status: TransactionDisplayStatus;
   /** Transaction type */
-  type: HistoryTransactionType;
+  type: TransactionType;
   /** Fee information */
   fee?: TransactionFee;
   /** Inputs (tokens received) */
@@ -160,7 +109,7 @@ export interface UseTransactionsOptions {
  */
 export interface UseTransactionsResult {
   /** Processed transactions */
-  transactions: HistoryTransaction[];
+  transactions: Transaction[];
   /** Whether initial data is loading */
   loading: boolean;
   /** Whether more data is being loaded */
@@ -194,18 +143,18 @@ const DEFAULT_PAGE_SIZE = 20;
 // ============================================================================
 
 /**
- * Transform a Solana backend transaction to the UI HistoryTransaction format.
+ * Transform a Solana backend transaction to the UI Transaction format.
  *
  * Note: The backend already returns transactions in a UI-friendly format
  * with inputs/outputs instead of raw Helius format. This function does
  * a simple mapping with type assertions.
  */
-function transformSolanaTransaction(tx: SolanaTransaction): HistoryTransaction {
+function transformSolanaTransaction(tx: SolanaTransaction): Transaction {
   return {
     id: tx.id,
     timestamp: tx.timestamp,
-    status: tx.status as HistoryTransactionStatus,
-    type: tx.type as HistoryTransactionType,
+    status: tx.status as TransactionDisplayStatus,
+    type: tx.type as TransactionType,
     fee: tx.fee ?? undefined,
     inputs: tx.inputs,
     outputs: tx.outputs,
@@ -216,17 +165,17 @@ function transformSolanaTransaction(tx: SolanaTransaction): HistoryTransaction {
 }
 
 /**
- * Transform a multi-chain (Bitcoin/Ethereum) transaction to the UI HistoryTransaction format.
+ * Transform a multi-chain (Bitcoin/Ethereum) transaction to the UI Transaction format.
  *
  * Note: The multi-chain API returns transactions in a similar format but with
  * some differences in the fee structure (amount is string vs number).
  */
-function transformMultichainTransaction(tx: TransactionItem): HistoryTransaction {
+function transformMultichainTransaction(tx: TransactionItem): Transaction {
   return {
     id: tx.id,
     timestamp: tx.timestamp,
-    status: tx.status as HistoryTransactionStatus,
-    type: tx.type as HistoryTransactionType,
+    status: tx.status as TransactionDisplayStatus,
+    type: tx.type as TransactionType,
     fee: tx.fee
       ? {
           amount: Number(tx.fee.amount),
@@ -258,7 +207,7 @@ export function useTransactions({
   pageSize = DEFAULT_PAGE_SIZE,
   skip = false,
 }: UseTransactionsOptions): UseTransactionsResult {
-  const [transactions, setTransactions] = useState<HistoryTransaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -308,7 +257,7 @@ export function useTransactions({
 
       try {
         const blockchain = getBlockchainFromNetworkId(networkId);
-        let newTransactions: HistoryTransaction[];
+        let newTransactions: Transaction[];
         let nextPageToken: string | undefined;
         let hasMorePages: boolean;
 
