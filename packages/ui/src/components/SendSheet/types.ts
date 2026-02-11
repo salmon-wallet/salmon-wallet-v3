@@ -6,11 +6,11 @@ import type {
   StepTokenSelectProps,
   StepAddressAmountPropsBase,
   StepConfirmationProps,
-  SendBlockchainType,
+  BlockchainType,
 } from '@salmon/shared';
 
 // Re-export shared types for convenience
-export type { SendStep, SendToken, SendBlockchainType, StepTokenSelectProps, StepConfirmationProps };
+export type { SendStep, SendToken, BlockchainType, StepTokenSelectProps, StepConfirmationProps };
 
 /**
  * Props for the SendSheet component (React Native)

@@ -25,7 +25,8 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
   isConfirming = false,
   style,
 }) => {
-  const { input, output, fee, details } = quote;
+  // Extract data from backend response structure (custom contains all swap details)
+  const { input, output, fee, custom: details } = quote;
 
   return (
     <View style={[styles.container, style]}>
@@ -47,11 +48,11 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
         <View style={styles.cardsContainer}>
           <SwapReviewCard
             label="You Send"
-            amount={formatAmountWithSymbol(input.amount, input.symbol)}
+            amount={formatAmountWithSymbol(Number(input.amount) / (10 ** input.decimals), input.symbol)}
           />
           <SwapReviewCard
             label="You Receive"
-            amount={formatAmountWithSymbol(output.amount, output.symbol)}
+            amount={formatAmountWithSymbol(Number(output.amount) / (10 ** output.decimals), output.symbol)}
           />
         </View>
 
@@ -67,11 +68,11 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
           />
           <SwapDetailRow
             label="Priority Fee"
-            value={formatSolFee(details.priorityFee)}
+            value={formatSolFee(details.prioritizationFeeLamports)}
           />
           <SwapDetailRow
             label="Rent Fee"
-            value={formatSolFee(details.rentFee)}
+            value={formatSolFee(details.rentFeeLamports)}
           />
           <SwapDetailRow
             label="Slippage Tolerance"
@@ -79,7 +80,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
           />
           <SwapDetailRow
             label="Minimum Received"
-            value={formatAmountWithSymbol(details.minimumReceived, output.symbol)}
+            value={formatAmountWithSymbol(Number(details.otherAmountThreshold) / (10 ** output.decimals), output.symbol)}
           />
           <SwapDetailRow
             label="Swap Mode"

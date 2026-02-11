@@ -220,7 +220,7 @@ export type {
   SendSheetProps,
   SendToken,
   SendStep,
-  SendBlockchainType as SendSheetBlockchainType,
+  BlockchainType as SendSheetBlockchainType,
 } from './SendSheet';
 
 // SwapScreen - Swap and Bridge interface

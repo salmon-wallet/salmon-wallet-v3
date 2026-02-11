@@ -15,7 +15,7 @@ import {
   vs,
   s,
   useSendTransaction,
-  type SendBlockchainType,
+  type BlockchainType,
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';

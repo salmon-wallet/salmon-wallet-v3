@@ -128,7 +128,8 @@ export function SwapReviewScreen({
   isConfirming = false,
   style,
 }: SwapReviewScreenProps): React.ReactElement {
-  const { input, output, fee, details } = quote;
+  // Extract swap data for display (custom contains all swap details from backend)
+  const { input, output, fee, custom: details } = quote;
 
   return (
     <Container style={style}>
@@ -145,11 +146,11 @@ export function SwapReviewScreen({
           <CardsContainer>
             <SwapReviewCard
               label="You Send"
-              amount={formatAmountWithSymbol(input.amount, input.symbol)}
+              amount={formatAmountWithSymbol(Number(input.amount) / (10 ** input.decimals), input.symbol)}
             />
             <SwapReviewCard
               label="You Receive"
-              amount={formatAmountWithSymbol(output.amount, output.symbol)}
+              amount={formatAmountWithSymbol(Number(output.amount) / (10 ** output.decimals), output.symbol)}
             />
           </CardsContainer>
 
@@ -165,11 +166,11 @@ export function SwapReviewScreen({
             />
             <SwapDetailRow
               label="Priority Fee"
-              value={formatSolFee(details.priorityFee)}
+              value={formatSolFee(details.prioritizationFeeLamports)}
             />
             <SwapDetailRow
               label="Rent Fee"
-              value={formatSolFee(details.rentFee)}
+              value={formatSolFee(details.rentFeeLamports)}
             />
             <SwapDetailRow
               label="Slippage Tolerance"
@@ -177,7 +178,7 @@ export function SwapReviewScreen({
             />
             <SwapDetailRow
               label="Minimum Received"
-              value={formatAmountWithSymbol(details.minimumReceived, output.symbol)}
+              value={formatAmountWithSymbol(Number(details.otherAmountThreshold) / (10 ** output.decimals), output.symbol)}
             />
             <SwapDetailRow
               label="Swap Mode"

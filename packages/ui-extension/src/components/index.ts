@@ -212,7 +212,6 @@ export type {
   SendSheetProps,
   SendToken,
   SendStep,
-  SendBlockchainType,
   StepTokenSelectProps,
   StepAddressAmountProps,
   StepConfirmationProps,
@@ -247,6 +246,18 @@ export type {
   BridgeExchangeSimple,
 } from './SwapScreen';
 
+// BaseDialog - Base compound component for MUI dialogs
+export { BaseDialog, MessageText } from './BaseDialog';
+export type {
+  BaseDialogProps,
+  HeaderProps,
+  ContentProps,
+  ActionsProps,
+  TextFieldProps as BaseDialogTextFieldProps,
+  CancelButtonProps,
+  ActionButtonProps,
+} from './BaseDialog';
+
 // ConfirmDialog - Reusable confirmation dialog for destructive actions
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
@@ -254,3 +265,13 @@ export type { ConfirmDialogProps } from './ConfirmDialog';
 // EditAccountDialog - Account name editing dialog
 export { EditAccountDialog } from './EditAccountDialog';
 export type { EditAccountDialogProps } from './EditAccountDialog';
+
+// SeedPhrase - Seed word display grid and validation input
+export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
+
+// DerivedAccountCard - Selectable account card for derived account discovery
+export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
+export type {
+  DerivedAccountCardProps,
+  DerivedAccountCardSkeletonProps,
+} from './DerivedAccountCard';

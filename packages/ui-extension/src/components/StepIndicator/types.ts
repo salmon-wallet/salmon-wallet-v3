@@ -1,10 +1,2 @@
-/**
- * StepIndicator component types for @salmon/ui-extension
- */
-
-export interface StepIndicatorProps {
-  /** Total number of steps */
-  totalSteps: number;
-  /** Current step (1-indexed) */
-  currentStep: number;
-}
+// Re-export shared type (fully platform-agnostic, no extension needed)
+export type { StepIndicatorProps } from '@salmon/shared';

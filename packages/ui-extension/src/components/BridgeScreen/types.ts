@@ -1,48 +1,24 @@
 import type { CSSProperties } from 'react';
+import type {
+  BridgeChain,
+  BridgeToken,
+  BridgeEstimate,
+  BridgeExchange,
+  BridgeRecipientScreenPropsBase,
+  BridgeReviewScreenPropsBase,
+} from '@salmon/shared/src/types/ui/bridge-screen';
 
-export interface BridgeChain {
-  id: string;
-  name: string;
-  symbol: string;
-  logo?: string;
-}
+// Re-export shared data types for consumers
+export type { BridgeChain, BridgeToken, BridgeEstimate, BridgeExchange };
 
-export interface BridgeToken {
-  symbol: string;
-  name: string;
-  logo?: string;
-  network?: string;
-  balance?: number;
-  usdPrice?: number;
-}
+/**
+ * Props for BridgeRecipientScreen sub-component (Web/Extension)
+ */
+export interface BridgeRecipientScreenProps
+  extends BridgeRecipientScreenPropsBase<CSSProperties> {}
 
-export interface BridgeEstimate {
-  estimatedAmount: number;
-  minAmount: number;
-  symbolIn: string;
-  symbolOut: string;
-}
-
-export interface BridgeRecipientScreenProps {
-  recipientAddress: string;
-  onAddressChange: (address: string) => void;
-  targetChain: BridgeChain | null;
-  onBack: () => void;
-  onContinue: () => void;
-  isValidAddress: boolean;
-  addressError?: string | null;
-  style?: CSSProperties;
-}
-
-export interface BridgeReviewScreenProps {
-  inToken: BridgeToken;
-  outToken: BridgeToken;
-  inAmount: string;
-  outAmount: string;
-  recipientAddress: string;
-  estimate: BridgeEstimate | null;
-  onBack: () => void;
-  onConfirm: () => void;
-  isConfirming?: boolean;
-  style?: CSSProperties;
-}
+/**
+ * Props for BridgeReviewScreen sub-component (Web/Extension)
+ */
+export interface BridgeReviewScreenProps
+  extends BridgeReviewScreenPropsBase<CSSProperties> {}

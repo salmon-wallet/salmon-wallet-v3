@@ -1,49 +1,25 @@
 import type { CSSProperties } from 'react';
-import type { Token, PriceChartPeriod, PriceDataPoint, CoinInfo } from '@salmon/shared';
+import type { TokenInformationSheetPropsBase, TokenBadgesSectionPropsBase } from '@salmon/shared';
 import type { MarketData } from '../TokenMarketData';
 
 // Re-export CoinInfo for consumers
-export type { CoinInfo };
+export type { CoinInfo } from '@salmon/shared';
 
 /**
- * Props for the TokenInformationSheet component
- * Dialog that appears when a token is tapped to show detailed token information
+ * Props for the TokenInformationSheet component (Web/Extension)
  */
-export interface TokenInformationSheetProps {
-  /** Whether the dialog is visible */
-  visible: boolean;
-  /** Callback when the dialog is closed */
-  onClose: () => void;
-  /** Token data to display */
-  token: Token;
-  /** Chart price data points */
-  chartData: PriceDataPoint[];
-  /** Currently selected chart period */
-  chartPeriod: PriceChartPeriod;
-  /** Callback when chart period changes */
-  onChartPeriodChange: (period: PriceChartPeriod) => void;
-  /** Coin information (description, categories, etc.) */
-  coinInfo: CoinInfo | null;
+export interface TokenInformationSheetProps
+  extends Omit<TokenInformationSheetPropsBase<CSSProperties>, 'marketData'> {
   /** Market data (market cap, volume, etc.) */
   marketData: MarketData | undefined;
-  /** Whether data is loading */
-  loading?: boolean;
-  /** Optional custom styles for the dialog paper */
-  style?: CSSProperties;
   /** Optional CSS class name */
   className?: string;
 }
 
 /**
- * Props for the TokenBadgesSection component
+ * Props for the TokenBadgesSection component (Web/Extension)
  */
-export interface TokenBadgesSectionProps {
-  /** Array of token tags to display as badges */
-  tags?: string[];
-  /** Whether the component is in loading state */
-  loading?: boolean;
-  /** Optional custom styles for the container */
-  style?: CSSProperties;
+export interface TokenBadgesSectionProps extends TokenBadgesSectionPropsBase<CSSProperties> {
   /** Optional CSS class name */
   className?: string;
 }

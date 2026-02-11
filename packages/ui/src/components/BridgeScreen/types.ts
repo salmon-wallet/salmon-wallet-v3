@@ -1,139 +1,31 @@
 import type { ViewStyle } from 'react-native';
+import type {
+  BridgeChain,
+  BridgeToken,
+  BridgeEstimate,
+  BridgeExchange,
+  RecipientAddressInputPropsBase,
+  BridgeRecipientScreenPropsBase,
+  BridgeReviewScreenPropsBase,
+} from '@salmon/shared/src/types/ui/bridge-screen';
+
+// Re-export shared data types for consumers
+export type { BridgeChain, BridgeToken, BridgeEstimate, BridgeExchange };
 
 /**
- * Network/Chain data for bridge operations
+ * Props for RecipientAddressInput component (React Native)
  */
-export interface BridgeChain {
-  /** Chain identifier (e.g., 'solana', 'ethereum', 'bitcoin') */
-  id: string;
-  /** Display name (e.g., 'Solana', 'Ethereum', 'Bitcoin') */
-  name: string;
-  /** Chain symbol (e.g., 'SOL', 'ETH', 'BTC') */
-  symbol: string;
-  /** Chain logo URL */
-  logo?: string;
-}
+export interface RecipientAddressInputProps
+  extends RecipientAddressInputPropsBase<ViewStyle> {}
 
 /**
- * Token data for bridge operations
+ * Props for BridgeRecipientScreen sub-component (React Native)
  */
-export interface BridgeToken {
-  /** Token symbol (e.g., "SOL", "ETH", "USDC") */
-  symbol: string;
-  /** Token name */
-  name: string;
-  /** Token logo URL */
-  logo?: string;
-  /** Network/chain this token is on */
-  network?: string;
-  /** User's balance of this token */
-  balance?: number;
-  /** USD price per token */
-  usdPrice?: number;
-}
+export interface BridgeRecipientScreenProps
+  extends BridgeRecipientScreenPropsBase<ViewStyle> {}
 
 /**
- * Bridge estimate data
+ * Props for BridgeReviewScreen sub-component (React Native)
  */
-export interface BridgeEstimate {
-  /** Estimated output amount */
-  estimatedAmount: number;
-  /** Minimum required input amount */
-  minAmount: number;
-  /** Input token symbol */
-  symbolIn: string;
-  /** Output token symbol */
-  symbolOut: string;
-}
-
-/**
- * Bridge exchange details (created exchange)
- */
-export interface BridgeExchange {
-  /** Exchange ID for tracking */
-  id: string;
-  /** Deposit address (where user sends funds) */
-  depositAddress: string;
-  /** Input amount */
-  amountIn: number;
-  /** Expected output amount */
-  amountOut: number;
-  /** Input token symbol */
-  symbolIn: string;
-  /** Output token symbol */
-  symbolOut: string;
-  /** Destination address */
-  addressTo: string;
-  /** Exchange status */
-  status: string;
-}
-
-/**
- * Props for RecipientAddressInput component
- */
-export interface RecipientAddressInputProps {
-  /** Current address value */
-  value: string;
-  /** Callback when address changes */
-  onChangeValue: (value: string) => void;
-  /** Target chain/network for validation hints */
-  targetChain?: BridgeChain | null;
-  /** Label above input */
-  label?: string;
-  /** Placeholder text */
-  placeholder?: string;
-  /** Custom style */
-  style?: ViewStyle;
-  /** Error message to display (overrides internal validation messages) */
-  error?: string | null;
-  /** Callback when address validation completes */
-  onValidation?: (result: { isValid: boolean; message: string | null }) => void;
-}
-
-/**
- * Props for BridgeRecipientScreen sub-component
- */
-export interface BridgeRecipientScreenProps {
-  /** Recipient address */
-  recipientAddress: string;
-  /** Callback when address changes */
-  onAddressChange: (address: string) => void;
-  /** Target chain for the bridge */
-  targetChain: BridgeChain | null;
-  /** Callback for back button */
-  onBack: () => void;
-  /** Callback for continue button */
-  onContinue: () => void;
-  /** Whether address is valid */
-  isValidAddress: boolean;
-  /** Address validation error */
-  addressError?: string | null;
-  /** Custom style */
-  style?: ViewStyle;
-}
-
-/**
- * Props for BridgeReviewScreen sub-component
- */
-export interface BridgeReviewScreenProps {
-  /** Source token */
-  inToken: BridgeToken;
-  /** Destination token */
-  outToken: BridgeToken;
-  /** Input amount */
-  inAmount: string;
-  /** Estimated output amount */
-  outAmount: string;
-  /** Recipient address */
-  recipientAddress: string;
-  /** Bridge estimate data */
-  estimate: BridgeEstimate | null;
-  /** Callback for back button */
-  onBack: () => void;
-  /** Callback for confirm button */
-  onConfirm: () => void;
-  /** Whether confirm is in progress */
-  isConfirming?: boolean;
-  /** Custom style */
-  style?: ViewStyle;
-}
+export interface BridgeReviewScreenProps
+  extends BridgeReviewScreenPropsBase<ViewStyle> {}

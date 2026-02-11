@@ -1,33 +1,10 @@
 import type { StyleProp, ViewStyle } from 'react-native';
+import type { BlurContainerPropsBase } from '@salmon/shared';
 
-export type BlurTint = 'light' | 'dark' | 'default';
+// Re-export BlurTint for consumers
+export type { BlurTint } from '@salmon/shared';
 
-export interface BlurContainerProps {
-  children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-  /**
-   * Blur intensity for BlurView
-   * @default 8
-   */
-  blurIntensity?: number;
-  /**
-   * Blur tint for BlurView
-   * @default 'dark'
-   */
-  blurTint?: BlurTint;
-  /**
-   * Background color for the container
-   * @default colors.background.tokenItem (#383F52 at 10% opacity)
-   */
-  backgroundColor?: string;
-  /**
-   * Border color for the container
-   * @default colors.border.default (#404962)
-   */
-  borderColor?: string;
-  /**
-   * Border width for the container
-   * @default 1
-   */
-  borderWidth?: number;
-}
+/**
+ * Props for the BlurContainer component (React Native)
+ */
+export interface BlurContainerProps extends BlurContainerPropsBase<StyleProp<ViewStyle>> {}

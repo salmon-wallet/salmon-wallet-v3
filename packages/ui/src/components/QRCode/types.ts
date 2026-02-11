@@ -1,23 +1,7 @@
-export interface QRCodeProps {
-  /**
-   * The value to encode in the QR code (e.g., wallet address, URL)
-   */
-  value: string;
+import type { QRCodePropsBase } from '@salmon/shared';
 
-  /**
-   * The size of the QR code in pixels
-   */
-  size: number;
-
-  /**
-   * Background color of the QR code
-   * @default '#FFFFFF'
-   */
-  backgroundColor?: string;
-
-  /**
-   * Foreground color of the QR code (the dots/modules)
-   * @default '#000000'
-   */
-  color?: string;
-}
+/**
+ * Props for the QRCode component (React Native)
+ * No style prop in the mobile version
+ */
+export interface QRCodeProps extends QRCodePropsBase {}

@@ -1,40 +1,13 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties } from 'react';
+import type { BlurContainerPropsBase } from '@salmon/shared';
 
-export type BlurTint = 'light' | 'dark' | 'default';
+// Re-export BlurTint for consumers
+export type { BlurTint } from '@salmon/shared';
 
-export interface BlurContainerProps {
-  children: ReactNode;
-  /**
-   * Additional CSS styles
-   */
-  style?: CSSProperties;
-  /**
-   * Blur intensity in pixels
-   * @default 8
-   */
-  blurIntensity?: number;
-  /**
-   * Blur tint (affects background overlay color)
-   * @default 'dark'
-   */
-  blurTint?: BlurTint;
-  /**
-   * Background color for the container
-   * @default colors.background.tokenItem (#383F52 at 10% opacity)
-   */
-  backgroundColor?: string;
-  /**
-   * Border color for the container
-   * @default colors.border.default (#404962)
-   */
-  borderColor?: string;
-  /**
-   * Border width for the container
-   * @default 1
-   */
-  borderWidth?: number;
-  /**
-   * Optional className for styling
-   */
+/**
+ * Props for the BlurContainer component (Web/Extension)
+ */
+export interface BlurContainerProps extends BlurContainerPropsBase<CSSProperties> {
+  /** Optional className for styling */
   className?: string;
 }

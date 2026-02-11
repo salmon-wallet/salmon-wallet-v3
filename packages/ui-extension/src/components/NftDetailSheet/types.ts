@@ -1,36 +1,16 @@
 import type { CSSProperties } from 'react';
+import type { NftData, NftAttribute } from '../NftCard/types';
+
+// Re-export for convenience
+export type { NftAttribute, NftData } from '../NftCard/types';
 
 /**
- * NFT attribute with trait type and value
+ * NFT detail data is the full NftData type (same as ui)
  */
-export interface NftAttribute {
-  /** The trait type/category */
-  trait_type: string;
-  /** The attribute value */
-  value: string;
-}
+export type NftDetailData = NftData;
 
 /**
- * Extended NFT data structure for the detail sheet
- * Includes additional fields like description and attributes
- */
-export interface NftDetailData {
-  /** The NFT mint address */
-  mint: string;
-  /** NFT name */
-  name: string;
-  /** NFT image URL */
-  image?: string;
-  /** NFT description */
-  description?: string;
-  /** Collection name the NFT belongs to */
-  collectionName?: string;
-  /** Array of NFT attributes/traits */
-  attributes?: NftAttribute[];
-}
-
-/**
- * Props for the NftDetailSheet component
+ * Props for the NftDetailSheet component (Web/Extension)
  * Dialog for displaying NFT details in browser extension
  */
 export interface NftDetailSheetProps {

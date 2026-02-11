@@ -3,7 +3,7 @@ export type {
   SendSheetProps,
   SendToken,
   SendStep,
-  SendBlockchainType,
+  BlockchainType,
   StepTokenSelectProps,
   StepAddressAmountProps,
   StepConfirmationProps,

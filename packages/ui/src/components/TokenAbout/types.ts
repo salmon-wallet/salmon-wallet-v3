@@ -1,18 +1,7 @@
 import type { ViewStyle } from 'react-native';
+import type { TokenAboutPropsBase } from '@salmon/shared';
 
 /**
- * Props for the TokenAbout component
- * Displays a token's "About" section with description
+ * Props for the TokenAbout component (React Native)
  */
-export interface TokenAboutProps {
-  /** Token description text */
-  description?: string;
-  /** Title text (default: "About") */
-  title?: string;
-  /** Whether the component is in loading state */
-  loading?: boolean;
-  /** Maximum number of lines to show before truncating (0 = no limit) */
-  maxLines?: number;
-  /** Optional custom styles for the container */
-  style?: ViewStyle;
-}
+export interface TokenAboutProps extends TokenAboutPropsBase<ViewStyle> {}

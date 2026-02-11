@@ -1,10 +1,7 @@
-import type { ViewStyle, ColorValue } from 'react-native';
-import type { ReactNode } from 'react';
+import type { ViewStyle } from 'react-native';
+import type { GradientBackgroundPropsBase } from '@salmon/shared';
 
-export interface GradientBackgroundProps {
-  colors?: readonly [ColorValue, ColorValue, ...ColorValue[]];
-  start?: { x: number; y: number };
-  end?: { x: number; y: number };
-  style?: ViewStyle;
-  children?: ReactNode;
-}
+/**
+ * Props for the GradientBackground component (React Native)
+ */
+export interface GradientBackgroundProps extends GradientBackgroundPropsBase<ViewStyle> {}

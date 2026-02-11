@@ -1,12 +1,11 @@
 import type { ViewStyle } from 'react-native';
-import type { Transaction } from '../TransactionHistorySheet/types';
+import type { TransactionDetailModalPropsBase } from '@salmon/shared';
 
-export interface TransactionDetailModalProps {
-  visible: boolean;
-  onClose: () => void;
-  transaction: Transaction | null;
-  onViewExplorer?: (transaction: Transaction) => void;
-  onCopyHash?: (hash: string) => void;
-  onShare?: (transaction: Transaction) => void;
-  style?: ViewStyle;
-}
+// Re-export Transaction for consumers
+export type { Transaction } from '@salmon/shared';
+
+/**
+ * Props for the TransactionDetailModal component (React Native)
+ */
+export interface TransactionDetailModalProps
+  extends TransactionDetailModalPropsBase<ViewStyle> {}
