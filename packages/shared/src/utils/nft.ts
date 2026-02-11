@@ -1,8 +1,7 @@
 import type { EthereumNft } from '../api/services/ethereum-nft';
 import type { BitcoinOrdinal } from '../api/services/bitcoin-nft';
-import type { NftAttribute } from '../blockchain/solana/nft';
+import type { NftAttribute } from '../types/nft';
 
-// Re-export NftAttribute from blockchain for convenience
 export type { NftAttribute };
 
 // ============================================================================

@@ -161,3 +161,31 @@ export function normalizeIpfsUrl(url: string | undefined | null): string | undef
 
   return url;
 }
+
+// ============================================================================
+// Blockchain Explorer URLs
+// ============================================================================
+
+/**
+ * Get the Solana Explorer URL for a transaction
+ *
+ * @param signature - Transaction signature
+ * @param networkId - Network ID (e.g., 'solana-mainnet', 'solana-devnet')
+ * @returns Solana Explorer URL
+ */
+export function getExplorerUrl(signature: string, networkId: string): string {
+  const cluster = networkId === 'solana-devnet' ? '?cluster=devnet' : '';
+  return `https://explorer.solana.com/tx/${signature}${cluster}`;
+}
+
+/**
+ * Get the Solscan URL for a transaction
+ *
+ * @param signature - Transaction signature
+ * @param networkId - Network ID (e.g., 'solana-mainnet', 'solana-devnet')
+ * @returns Solscan URL
+ */
+export function getSolscanUrl(signature: string, networkId: string): string {
+  const cluster = networkId === 'solana-devnet' ? '?cluster=devnet' : '';
+  return `https://solscan.io/tx/${signature}${cluster}`;
+}

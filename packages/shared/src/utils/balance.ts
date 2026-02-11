@@ -1,5 +1,5 @@
-import type { TokenMetadata } from '../api/services/tokens';
-import type { TokenPrice } from '../api/services/price';
+import type { TokenMetadata } from '../types/token';
+import type { TokenPrice, JupiterApiPriceData } from '../types/price';
 
 // ============================================================================
 // Types
@@ -84,14 +84,10 @@ export interface WalletBalance {
 }
 
 /**
- * Jupiter price data with address and 24h change
+ * @deprecated Use JupiterApiPriceData from types/price instead.
+ * Kept as alias for backward compatibility.
  */
-export interface JupiterPriceData {
-  /** USD price */
-  price: number;
-  /** 24h price change percentage */
-  priceChange24h: number | null;
-}
+export type JupiterPriceData = JupiterApiPriceData;
 
 // ============================================================================
 // Constants
@@ -165,13 +161,13 @@ export function decorateBalanceList(
  *
  * @param balances - Token balances with metadata
  * @param prices - Array of TokenPrice from batch endpoint (for legacy Bitcoin/Ethereum support)
- * @param jupiterPrices - Optional map of address -> { price, priceChange24h } from Jupiter (Solana only)
+ * @param jupiterPrices - Optional map of address -> { usdPrice, priceChange24h } from Jupiter (Solana only)
  * @returns Balances with price information
  */
 export function decorateBalancePrices(
   balances: TokenBalance[],
   prices: TokenPrice[] | null,
-  jupiterPrices?: Map<string, JupiterPriceData> | null
+  jupiterPrices?: Map<string, JupiterApiPriceData> | null
 ): TokenBalanceWithPrice[] {
   // Solana mode: Use Jupiter for both price and 24h change
   if (jupiterPrices && jupiterPrices.size > 0) {
@@ -180,10 +176,10 @@ export function decorateBalancePrices(
       const jupiterData = jupiterPrices.get(balance.address.toLowerCase());
 
       if (jupiterData !== undefined) {
-        const usdBalance = balance.uiAmount * jupiterData.price;
+        const usdBalance = balance.uiAmount * jupiterData.usdPrice;
         return {
           ...balance,
-          price: jupiterData.price,
+          price: jupiterData.usdPrice,
           usdBalance,
           priceChange24h: jupiterData.priceChange24h ?? undefined,
         };
@@ -277,6 +273,37 @@ export function calculate24HoursChange(
     percent: changePercent,
   };
 }
+
+// ============================================================================
+// Bigint Balance Helpers
+// ============================================================================
+
+/**
+ * Check if a balance is zero
+ *
+ * @param balance - Balance to check
+ * @returns True if balance is zero
+ */
+export function isZeroBalance(balance: bigint): boolean {
+  return balance === 0n;
+}
+
+/**
+ * Compare two balances
+ *
+ * @param a - First balance
+ * @param b - Second balance
+ * @returns -1 if a < b, 0 if a === b, 1 if a > b
+ */
+export function compareBalances(a: bigint, b: bigint): number {
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+}
+
+// ============================================================================
+// SOL Balance Factory
+// ============================================================================
 
 /**
  * Create SOL native balance object

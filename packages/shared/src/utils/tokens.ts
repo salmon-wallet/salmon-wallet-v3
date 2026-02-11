@@ -1,4 +1,135 @@
 import type { DetectedERC20Token } from '../api/services/ethereum';
+import type { TokenSelectorToken } from '../types/ui/token-selector';
+import { SOL_CONSTANTS } from './balance';
+
+// ============================================================================
+// ETH Constants
+// ============================================================================
+
+/** ETH token constants */
+export const ETH_CONSTANTS = {
+  DECIMALS: 18,
+  SYMBOL: 'ETH',
+  NAME: 'Ethereum',
+  ADDRESS: '',
+  COINGECKO_ID: 'ethereum',
+} as const;
+
+/** Null address representing native ETH */
+export const ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+/** Alternative null address for native ETH */
+export const ETH_ADDRESS_ALT = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
+/** Minimal ERC20 ABI for reading token metadata and balances */
+export const ERC20_ABI = [
+  'function name() view returns (string)',
+  'function symbol() view returns (string)',
+  'function decimals() view returns (uint8)',
+  'function balanceOf(address owner) view returns (uint256)',
+] as const;
+
+// ============================================================================
+// Native Token Checks
+// ============================================================================
+
+/**
+ * Checks if an address is the native SOL address
+ *
+ * @param address - Token address to check
+ * @returns True if address is native SOL
+ */
+export function isNativeSol(address: string | null | undefined): boolean {
+  return address === null || address === undefined || address === SOL_CONSTANTS.ADDRESS;
+}
+
+/**
+ * Checks if an address represents native ETH
+ *
+ * @param address - Token address to check
+ * @returns True if address is native ETH
+ */
+export function isNativeEth(address: string | null | undefined): boolean {
+  if (!address) return true;
+  const normalized = address.toLowerCase();
+  return normalized === ETH_ADDRESS.toLowerCase() || normalized === ETH_ADDRESS_ALT.toLowerCase();
+}
+
+// ============================================================================
+// Ethereum Transfer Token Types & Factories
+// ============================================================================
+
+/** Token types supported by the Ethereum transfer service */
+export type TokenType = 'native' | 'erc20' | 'erc721' | 'erc1155';
+
+/**
+ * Token information for Ethereum transfers
+ */
+export interface TransferToken {
+  /** Contract address (ETH_ADDRESS for native ETH) */
+  address: string;
+  /** Token decimals (18 for ETH, varies for ERC20) */
+  decimals: number;
+  /** Token symbol (e.g., 'ETH', 'USDC') */
+  symbol?: string;
+  /** Token type */
+  type: TokenType;
+}
+
+/**
+ * Creates a TransferToken object for native ETH
+ */
+export function createNativeToken(decimals: number = 18): TransferToken {
+  return { address: ETH_ADDRESS, decimals, symbol: 'ETH', type: 'native' };
+}
+
+/**
+ * Creates a TransferToken object for an ERC20 token
+ */
+export function createERC20Token(address: string, decimals: number, symbol?: string): TransferToken {
+  return { address, decimals, symbol, type: 'erc20' };
+}
+
+/**
+ * Creates a TransferToken object for an ERC721 NFT
+ */
+export function createERC721Token(address: string, symbol?: string): TransferToken {
+  return { address, decimals: 0, symbol, type: 'erc721' };
+}
+
+/**
+ * Creates a TransferToken object for an ERC1155 multi-token
+ */
+export function createERC1155Token(address: string, symbol?: string): TransferToken {
+  return { address, decimals: 0, symbol, type: 'erc1155' };
+}
+
+// ============================================================================
+// Token Search / Filtering
+// ============================================================================
+
+const MIN_SEARCH_LENGTH = 3;
+
+/**
+ * Filters tokens locally by name or symbol.
+ * Returns all tokens if query is shorter than MIN_SEARCH_LENGTH.
+ */
+export function filterTokensLocally(tokens: TokenSelectorToken[], query: string): TokenSelectorToken[] {
+  if (query.length < MIN_SEARCH_LENGTH) {
+    return tokens;
+  }
+
+  const lowerQuery = query.toLowerCase();
+  return tokens.filter(
+    (token) =>
+      (token.name || '').toLowerCase().includes(lowerQuery) ||
+      (token.symbol || '').toLowerCase().includes(lowerQuery)
+  );
+}
+
+// ============================================================================
+// CoinGecko ID Lookups
+// ============================================================================
 
 /**
  * Known token mappings for coingeckoId lookups
