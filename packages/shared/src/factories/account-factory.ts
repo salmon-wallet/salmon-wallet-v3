@@ -13,189 +13,15 @@
  */
 
 import { getRandomAvatar } from '../utils/avatar';
-import {
-  createSolanaAccount,
-  SOLANA_NETWORKS,
-  type SolanaAccount,
-} from '../blockchain/solana';
-import {
-  createBitcoinAccount,
-  BITCOIN_NETWORKS,
-  type BitcoinAccount,
-  type BitcoinAccountApiFunctions,
-} from '../blockchain/bitcoin';
-import {
-  fetchBitcoinAccountBalance,
-  fetchBitcoinAccountPrices,
-  fetchBitcoinAccountTransaction,
-  fetchBitcoinAccountRecentTransactions,
-} from '../api/services/bitcoin-account';
-import {
-  createEthereumAccount,
-  ETHEREUM_NETWORKS,
-  type EthereumAccount,
-} from '../blockchain/ethereum';
+import { generateAccountId, createBlockchainAccountForNetwork } from '../utils/account';
 import type {
   Account,
   NetworksAccounts,
   NetworkPathIndexes,
-  BlockchainAccount,
-} from '../hooks/useAccounts';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-/**
- * Options for creating a new account
- */
-export interface CreateAccountOptions {
-  /** Optional custom ID (generates UUID if not provided) */
-  id?: string;
-  /** Account name (e.g., "Account #1") */
-  name: string;
-  /** Avatar URL (generates random if not provided) */
-  avatar?: string;
-  /** BIP39 mnemonic phrase */
-  mnemonic: string;
-  /** Network IDs to create accounts for (defaults to ['solana-mainnet']) */
-  networkIds?: string[];
-  /** Starting derivation index (defaults to 0) */
-  startIndex?: number;
-}
-
-/**
- * Result of account creation
- */
-export interface CreateAccountResult {
-  /** The created account with all metadata */
-  account: Account;
-  /** Blockchain accounts indexed by network ID */
-  blockchainAccounts: NetworksAccounts;
-}
-
-// ============================================================================
-// Blockchain Type Detection
-// ============================================================================
-
-/**
- * Supported blockchain types
- */
-type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
-
-/**
- * Determines the blockchain type from a network ID.
- *
- * @param networkId - The network identifier
- * @returns The blockchain type
- */
-function getBlockchainType(networkId: string): BlockchainType {
-  // Check Bitcoin networks
-  if (BITCOIN_NETWORKS[networkId] || networkId.startsWith('bitcoin')) {
-    return 'bitcoin';
-  }
-
-  // Check Ethereum networks
-  if (ETHEREUM_NETWORKS[networkId] || networkId.startsWith('ethereum')) {
-    return 'ethereum';
-  }
-
-  // Default to Solana (for backwards compatibility)
-  return 'solana';
-}
-
-/**
- * Maps a network ID to its corresponding network key in the networks object.
- * Handles cases where the network ID differs from the key (e.g., 'bitcoin-mainnet' -> 'bitcoin-mainnet').
- */
-function getNetworkKey(networkId: string, _blockchainType: BlockchainType): string {
-  // Network IDs match the keys in BITCOIN_NETWORKS, ETHEREUM_NETWORKS, and SOLANA_NETWORKS directly
-  return networkId;
-}
-
-// ============================================================================
-// Bitcoin API Functions
-// ============================================================================
-
-const bitcoinApiFunctions: BitcoinAccountApiFunctions = {
-  fetchBalance: fetchBitcoinAccountBalance,
-  fetchPrices: fetchBitcoinAccountPrices,
-  fetchTransaction: fetchBitcoinAccountTransaction,
-  fetchRecentTransactions: fetchBitcoinAccountRecentTransactions,
-};
-
-// ============================================================================
-// UUID Generation
-// ============================================================================
-
-/**
- * Generates a unique identifier for an account.
- * Uses crypto.randomUUID() if available, falls back to timestamp + random.
- *
- * @returns A unique identifier string
- */
-function generateAccountId(): string {
-  // Try crypto.randomUUID first (Node.js 14.17+ / modern browsers)
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-
-  // Fallback: timestamp + random string
-  return `account_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
-
-// ============================================================================
-// Account Creation
-// ============================================================================
-
-/**
- * Creates a blockchain account for a specific network.
- *
- * Routes to the appropriate factory based on the blockchain type.
- *
- * @param networkId - The network identifier
- * @param mnemonic - BIP39 mnemonic phrase
- * @param index - Account derivation index
- * @returns Promise resolving to the blockchain account, or null if network not found
- */
-async function createBlockchainAccountForNetwork(
-  networkId: string,
-  mnemonic: string,
-  index: number
-): Promise<BlockchainAccount | null> {
-  const blockchainType = getBlockchainType(networkId);
-  const networkKey = getNetworkKey(networkId, blockchainType);
-
-  switch (blockchainType) {
-    case 'bitcoin': {
-      const network = BITCOIN_NETWORKS[networkKey];
-      if (!network) {
-        console.warn(`Unknown Bitcoin network: ${networkId}`);
-        return null;
-      }
-      return createBitcoinAccount({ network, mnemonic, index, apiFunctions: bitcoinApiFunctions });
-    }
-
-    case 'ethereum': {
-      const network = ETHEREUM_NETWORKS[networkKey];
-      if (!network) {
-        console.warn(`Unknown Ethereum network: ${networkId}`);
-        return null;
-      }
-      return createEthereumAccount({ network, mnemonic, index });
-    }
-
-    case 'solana':
-    default: {
-      const network = SOLANA_NETWORKS[networkKey];
-      if (!network) {
-        console.warn(`Unknown Solana network: ${networkId}`);
-        return null;
-      }
-      return createSolanaAccount({ network, mnemonic, index });
-    }
-  }
-}
+  CreateAccountOptions,
+  CreateAccountResult,
+} from '../types/account';
+import type { BlockchainAccount } from '../types/blockchain';
 
 /**
  * Creates an Account with derived blockchain accounts.
@@ -272,27 +98,6 @@ export async function createAccount(
   };
 
   return { account, blockchainAccounts: networksAccounts };
-}
-
-/**
- * Generates an account name using a counter.
- *
- * @param counter - Current account counter (0-based)
- * @param template - Name template with `{{number}}` placeholder
- * @returns Formatted account name
- *
- * @example
- * ```typescript
- * generateAccountName(0); // 'Account #1'
- * generateAccountName(5); // 'Account #6'
- * generateAccountName(0, 'Wallet {{number}}'); // 'Wallet 1'
- * ```
- */
-export function generateAccountName(
-  counter: number,
-  template: string = 'Account #{{number}}'
-): string {
-  return template.replace('{{number}}', String(counter + 1));
 }
 
 /**
