@@ -17,36 +17,35 @@
  * - Transaction signing and execution
  */
 
-import React, { useCallback, useMemo, useState, useRef } from 'react';
-import { StyleSheet, View, Text, ActivityIndicator, Alert } from 'react-native';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  useAccountsContext,
-  useMultiChainTokens,
-  useSwap,
-  useBridge,
-  colors,
   componentSizes,
-  searchTokens,
   getExpectedOutput,
   getMinimumOutput,
   getPriceImpact,
-  type TokenMetadata,
-  type SolanaAccount,
+  searchTokens,
+  useAccountsContext,
+  useBridge,
+  useMultiChainTokens,
+  useSwap,
   type SwapQuote as SharedSwapQuote,
+  type SolanaAccount,
   type SwapNetworkId,
-  type UnifiedToken,
+  type TokenMetadata,
+  type UnifiedToken
 } from '@salmon/shared';
 import {
   SwapScreen,
-  type SwapToken,
-  type SwapQuote,
-  type SwapChainType,
-  type BridgeTokenSimple,
   type BridgeEstimateSimple,
   type BridgeExchangeSimple,
+  type BridgeTokenSimple,
+  type SwapChainType,
+  type SwapQuote,
+  type SwapToken,
 } from '@salmon/ui';
 
 /**
@@ -84,8 +83,8 @@ function unifiedToSwapToken(token: UnifiedToken): SwapToken {
 }
 
 /**
- * Transform shared SwapQuote (from API) to UI SwapQuote format
- * Updated for Jupiter Ultra v1 API structure
+ * Since SwapQuote now uses the backend structure directly,
+ * we just need to cast it to the UI type (they're the same now)
  */
 function transformQuoteForUI(
   quote: SharedSwapQuote,
@@ -93,58 +92,9 @@ function transformQuoteForUI(
   outToken: SwapToken,
   inputAmount: number
 ): SwapQuote {
-  const outputDecimals = quote.output?.decimals ?? outToken.decimals;
-  const expectedOutput = getExpectedOutput(quote, outputDecimals);
-  const minimumOutput = getMinimumOutput(quote, outputDecimals);
-  const priceImpact = getPriceImpact(quote);
-
-  // Extract route labels from routeNames (backend provides this directly)
-  const routeLabels = quote.routeNames || [];
-
-  // Get fee info from backend calculation
-  const totalFeeAmount = quote.fee?.amount || 0;
-
-  return {
-    requestId: quote.custom?.requestId || '',
-    input: {
-      amount: inputAmount,
-      symbol: inToken.symbol,
-      decimals: inToken.decimals,
-      name: inToken.name,
-      logo: inToken.logo,
-      contract: inToken.address,
-    },
-    output: {
-      amount: expectedOutput,
-      symbol: outToken.symbol,
-      decimals: outToken.decimals,
-      name: outToken.name,
-      logo: outToken.logo,
-      contract: outToken.address,
-    },
-    fee: {
-      amount: totalFeeAmount,
-      percent: quote.fee?.percent || 0.5, // Use backend fee or default to 0.5%
-      symbol: quote.fee?.symbol || 'SOL',
-      decimals: quote.fee?.decimals || 9,
-    },
-    details: {
-      router: quote.custom?.router || routeLabels[0] || 'Jupiter',
-      priceImpact,
-      priorityFee: quote.custom?.prioritizationFeeLamports || 0,
-      rentFee: quote.custom?.rentFeeLamports || 0,
-      slippageBps: quote.custom?.slippageBps || 50,
-      minimumReceived: minimumOutput,
-      swapMode: quote.custom?.swapMode || 'ExactIn',
-      gasless: quote.custom?.gasless || false,
-      feeBps: quote.custom?.feeBps || 50,
-      inUsdValue: quote.custom?.inUsdValue ?? (inputAmount * (inToken.usdPrice || 0)),
-      outUsdValue: quote.custom?.outUsdValue ?? (expectedOutput * (outToken.usdPrice || 0)),
-    },
-    transaction: quote.custom?.transaction || '',
-    routeNames: routeLabels,
-    routeSymbols: quote.routeSymbols || [inToken.symbol, outToken.symbol],
-  };
+  // The UI components now expect the backend structure directly
+  // SwapQuote from @salmon/ui is the same as SharedSwapQuote from @salmon/shared
+  return quote as unknown as SwapQuote;
 }
 
 export default function SwapScreenPage() {

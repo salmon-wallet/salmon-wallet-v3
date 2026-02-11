@@ -72,13 +72,15 @@ if (typeof process === 'undefined') {
 // =============================================================================
 // 4. Initialize Storage & Stash - Required before useAccounts hook
 // =============================================================================
-const { initStorage, initStash, createSecureStoreAdapter } = require('@salmon/shared');
-const SecureStore = require('expo-secure-store');
+const { initStorage, initStash, createAsyncStorageAdapter } = require('@salmon/shared');
+const AsyncStorage = require('@react-native-async-storage/async-storage').default;
 
-// Create adapter using expo-secure-store for encrypted storage
-const adapter = createSecureStoreAdapter(SecureStore);
+// Create adapter using AsyncStorage for persistent storage
+// Note: Sensitive data (mnemonics) is encrypted at the app layer before storage.
+// expo-secure-store has a ~2KB limit on iOS which is too small for account data.
+const adapter = createAsyncStorageAdapter(AsyncStorage);
 
-// Initialize storage with mobile platform and secure store adapter
+// Initialize storage with mobile platform and AsyncStorage adapter
 initStorage({ platform: 'mobile', adapter });
 
 // Initialize stash for session data (in-memory for mobile)
