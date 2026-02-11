@@ -21,6 +21,7 @@ import {
 } from './spacing';
 import {
   fontFamily,
+  fontFamilyNative,
   fontSize,
   lineHeight,
   fontWeight,
@@ -52,6 +53,7 @@ export type {
 // Re-export all tokens from typography
 export {
   fontFamily,
+  fontFamilyNative,
   fontSize,
   lineHeight,
   fontWeight,
@@ -60,6 +62,7 @@ export {
 } from './typography';
 export type {
   FontFamily,
+  FontFamilyNative,
   FontSize,
   LineHeight,
   FontWeight,
@@ -84,6 +87,7 @@ export const theme = {
   componentSizes,
   contentPadding,
   fontFamily,
+  fontFamilyNative,
   fontSize,
   fontWeight,
   lineHeight,

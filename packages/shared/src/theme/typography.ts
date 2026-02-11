@@ -12,6 +12,20 @@ export const fontFamily = {
 } as const;
 
 /**
+ * React Native font family names
+ * These are the actual font family names loaded in Expo
+ * Used in React Native mobile app for fontFamily style property
+ */
+export const fontFamilyNative = {
+  /** DM Sans Regular (400) */
+  regular: 'DMSansRegular',
+  /** DM Sans Medium (500) */
+  medium: 'DMSansMedium',
+  /** DM Sans Bold (700) */
+  bold: 'DMSansBold',
+} as const;
+
+/**
  * Font sizes in pixels
  * Use with lineHeight for proper text rendering
  */
@@ -203,6 +217,7 @@ export const textStyles = {
 } as const;
 
 export type FontFamily = typeof fontFamily;
+export type FontFamilyNative = typeof fontFamilyNative;
 export type FontSize = typeof fontSize;
 export type LineHeight = typeof lineHeight;
 export type FontWeight = typeof fontWeight;
