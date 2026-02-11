@@ -8,16 +8,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -26,19 +17,13 @@ import {
   colors,
   spacing,
   borderRadius,
-  contentPadding,
+  fontFamilyNative,
 } from '@salmon/shared';
-import { ScreenHeader } from '@salmon/ui';
+import { SettingsScreenLayout } from '@salmon/ui';
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 /**
  * Available currencies
@@ -126,30 +111,9 @@ export default function CurrencyScreen() {
   );
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* Header */}
-        <ScreenHeader onBack={handleBack} />
-
-        {/* Title */}
-        <Text style={styles.title}>{t('settings.currency')}</Text>
-
-        {/* Currency List */}
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {CURRENCIES.map(renderCurrencyOption)}
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+    <SettingsScreenLayout title={t('settings.currency')} onBack={handleBack}>
+      {CURRENCIES.map(renderCurrencyOption)}
+    </SettingsScreenLayout>
   );
 }
 
@@ -158,28 +122,6 @@ export default function CurrencyScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  title: {
-    color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
-    fontSize: 24,
-    lineHeight: 32,
-    marginBottom: spacing.lg,
-    paddingHorizontal: contentPadding.screen,
-    textAlign: 'center',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: contentPadding.screen,
-    paddingBottom: spacing['2xl'],
-  },
   currencyOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -207,7 +149,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     lineHeight: 40,
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     fontSize: 18,
     overflow: 'hidden',
   },
@@ -216,12 +158,12 @@ const styles = StyleSheet.create({
   },
   currencyCode: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: 16,
   },
   currencyName: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
   },
 });

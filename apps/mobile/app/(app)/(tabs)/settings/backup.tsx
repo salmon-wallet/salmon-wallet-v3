@@ -10,16 +10,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,24 +20,10 @@ import {
   colors,
   spacing,
   borderRadius,
-  contentPadding,
+  fontFamilyNative,
   useAccountsContext,
 } from '@salmon/shared';
-import {
-  PrimaryButton,
-  SecondaryButton,
-  ScreenHeader,
-} from '@salmon/ui';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
+import { PrimaryButton, SecondaryButton, SettingsScreenLayout } from '@salmon/ui';
 
 // ============================================================================
 // Component
@@ -119,81 +96,54 @@ export default function BackupScreen() {
   );
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* Header */}
-        <ScreenHeader onBack={handleBack} />
+    <SettingsScreenLayout title={t('general.seed_phrase')} onBack={handleBack}>
+      {/* Warning */}
+      <View style={styles.warningContainer}>
+        <Ionicons
+          name="warning-outline"
+          size={20}
+          color={colors.status.warning}
+        />
+        <Text style={styles.warningText}>
+          {t('wallet.create.messageBody')}
+        </Text>
+      </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Title */}
-          <Text style={styles.title}>{t('general.seed_phrase')}</Text>
-
-          {/* Warning */}
-          <View style={styles.warningContainer}>
+      {/* Seed Phrase Grid */}
+      <View style={styles.seedContainer}>
+        {/* Tap to reveal overlay */}
+        {!showSeedPhrase && (
+          <TouchableOpacity
+            style={styles.revealOverlay}
+            onPress={handleReveal}
+            activeOpacity={0.8}
+          >
             <Ionicons
-              name="warning-outline"
-              size={20}
-              color={colors.status.warning}
+              name="eye-outline"
+              size={32}
+              color={colors.text.primary}
             />
-            <Text style={styles.warningText}>
-              {t('wallet.create.messageBody')}
+            <Text style={styles.revealText}>
+              {t('settings.wallets.tap_to_reveal')}
             </Text>
-          </View>
+          </TouchableOpacity>
+        )}
 
-          {/* Seed Phrase Grid */}
-          <View style={styles.seedContainer}>
-            {/* Tap to reveal overlay */}
-            {!showSeedPhrase && (
-              <TouchableOpacity
-                style={styles.revealOverlay}
-                onPress={handleReveal}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name="eye-outline"
-                  size={32}
-                  color={colors.text.primary}
-                />
-                <Text style={styles.revealText}>
-                  {t('settings.wallets.tap_to_reveal')}
-                </Text>
-              </TouchableOpacity>
-            )}
+        {/* Word grid */}
+        <View style={styles.wordsGrid}>{words.map(renderWord)}</View>
+      </View>
 
-            {/* Word grid */}
-            <View style={styles.wordsGrid}>
-              {words.map(renderWord)}
-            </View>
-          </View>
+      {/* Buttons */}
+      <View style={styles.buttonContainer}>
+        <SecondaryButton onPress={handleCopy} disabled={!showSeedPhrase}>
+          {copied ? t('wallet.copied') : t('actions.copy').toUpperCase()}
+        </SecondaryButton>
 
-          {/* Buttons */}
-          <View style={styles.buttonContainer}>
-            <SecondaryButton
-              onPress={handleCopy}
-              disabled={!showSeedPhrase}
-            >
-              {copied
-                ? t('wallet.copied')
-                : t('actions.copy').toUpperCase()}
-            </SecondaryButton>
-
-            <PrimaryButton onPress={handleBack}>
-              {t('actions.done').toUpperCase()}
-            </PrimaryButton>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+        <PrimaryButton onPress={handleBack}>
+          {t('actions.done').toUpperCase()}
+        </PrimaryButton>
+      </View>
+    </SettingsScreenLayout>
   );
 }
 
@@ -202,27 +152,6 @@ export default function BackupScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: contentPadding.screen,
-    paddingBottom: spacing['2xl'],
-  },
-  title: {
-    color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
-    fontSize: 24,
-    lineHeight: 32,
-    marginBottom: spacing.lg,
-    textAlign: 'center',
-  },
   warningContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -235,7 +164,7 @@ const styles = StyleSheet.create({
   warningText: {
     flex: 1,
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
     lineHeight: 20,
   },
@@ -261,7 +190,7 @@ const styles = StyleSheet.create({
   },
   revealText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: 16,
   },
   wordsGrid: {
@@ -281,14 +210,14 @@ const styles = StyleSheet.create({
   },
   wordIndex: {
     color: colors.text.tertiary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: 12,
     marginRight: spacing.sm,
     minWidth: 20,
   },
   wordText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
   },
   buttonContainer: {

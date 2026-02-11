@@ -9,18 +9,7 @@
  */
 
 import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Linking,
-  ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -30,21 +19,16 @@ import {
   colors,
   spacing,
   borderRadius,
-  contentPadding,
   componentSizes,
+  fontFamilyNative,
+  useOpenLink,
 } from '@salmon/shared';
-import { ScreenHeader } from '@salmon/ui';
+import { SettingsScreenLayout } from '@salmon/ui';
 import { Logo } from '@salmon/assets';
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 /**
  * External links
@@ -65,11 +49,14 @@ const LINKS = {
 
 export default function AboutScreen() {
   const { t } = useTranslation();
+  const openLink = useOpenLink();
 
   // Get app version from expo constants
   const appVersion = Constants.expoConfig?.version || '1.0.0';
-  const buildNumber = Constants.expoConfig?.ios?.buildNumber ||
-    Constants.expoConfig?.android?.versionCode?.toString() || '1';
+  const buildNumber =
+    Constants.expoConfig?.ios?.buildNumber ||
+    Constants.expoConfig?.android?.versionCode?.toString() ||
+    '1';
 
   /**
    * Handle back navigation
@@ -79,35 +66,17 @@ export default function AboutScreen() {
   }, []);
 
   /**
-   * Open external link
-   */
-  const handleOpenLink = useCallback(async (url: string) => {
-    try {
-      const canOpen = await Linking.canOpenURL(url);
-      if (canOpen) {
-        await Linking.openURL(url);
-      }
-    } catch (error) {
-      console.error('Failed to open link:', error);
-    }
-  }, []);
-
-  /**
    * Render a link item
    */
   const renderLinkItem = useCallback(
     (icon: string, label: string, url: string) => (
       <TouchableOpacity
         style={styles.linkItem}
-        onPress={() => handleOpenLink(url)}
+        onPress={() => openLink(url)}
         activeOpacity={0.7}
       >
         <View style={styles.linkIconContainer}>
-          <Ionicons
-            name={icon as any}
-            size={20}
-            color={colors.text.primary}
-          />
+          <Ionicons name={icon as any} size={20} color={colors.text.primary} />
         </View>
         <Text style={styles.linkLabel}>{label}</Text>
         <Ionicons
@@ -117,7 +86,7 @@ export default function AboutScreen() {
         />
       </TouchableOpacity>
     ),
-    [handleOpenLink]
+    [openLink]
   );
 
   /**
@@ -127,78 +96,51 @@ export default function AboutScreen() {
     (icon: string, url: string) => (
       <TouchableOpacity
         style={styles.socialButton}
-        onPress={() => handleOpenLink(url)}
+        onPress={() => openLink(url)}
         activeOpacity={0.7}
       >
-        <Ionicons
-          name={icon as any}
-          size={24}
-          color={colors.text.primary}
-        />
+        <Ionicons name={icon as any} size={24} color={colors.text.primary} />
       </TouchableOpacity>
     ),
-    [handleOpenLink]
+    [openLink]
   );
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* Header */}
-        <ScreenHeader onBack={handleBack} />
+    <SettingsScreenLayout title={t('settings.about')} onBack={handleBack}>
+      {/* App Info Section */}
+      <View style={styles.appInfoSection}>
+        <Image source={Logo} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.appName}>Salmon Wallet</Text>
+        <Text style={styles.versionText}>
+          {t('settings.app_version', { version: appVersion })}
+        </Text>
+        <Text style={styles.buildText}>Build {buildNumber}</Text>
+      </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* App Info Section */}
-          <View style={styles.appInfoSection}>
-            <Image
-              source={Logo}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <Text style={styles.appName}>Salmon Wallet</Text>
-            <Text style={styles.versionText}>
-              {t('settings.app_version', { version: appVersion })}
-            </Text>
-            <Text style={styles.buildText}>Build {buildNumber}</Text>
-          </View>
+      {/* Social Links */}
+      <View style={styles.socialSection}>
+        <Text style={styles.sectionLabel}>{t('actions.follow_us')}</Text>
+        <View style={styles.socialButtons}>
+          {renderSocialButton('logo-twitter', LINKS.twitter)}
+          {renderSocialButton('logo-discord', LINKS.discord)}
+          {renderSocialButton('logo-github', LINKS.github)}
+        </View>
+      </View>
 
-          {/* Social Links */}
-          <View style={styles.socialSection}>
-            <Text style={styles.sectionLabel}>
-              {t('actions.follow_us')}
-            </Text>
-            <View style={styles.socialButtons}>
-              {renderSocialButton('logo-twitter', LINKS.twitter)}
-              {renderSocialButton('logo-discord', LINKS.discord)}
-              {renderSocialButton('logo-github', LINKS.github)}
-            </View>
-          </View>
+      {/* Links Section */}
+      <View style={styles.linksSection}>
+        {renderLinkItem('globe-outline', 'Website', LINKS.website)}
+        {renderLinkItem('help-circle-outline', 'Support', LINKS.support)}
+        {renderLinkItem('document-text-outline', 'Privacy Policy', LINKS.privacy)}
+        {renderLinkItem('document-outline', 'Terms of Service', LINKS.terms)}
+      </View>
 
-          {/* Links Section */}
-          <View style={styles.linksSection}>
-            {renderLinkItem('globe-outline', 'Website', LINKS.website)}
-            {renderLinkItem('help-circle-outline', 'Support', LINKS.support)}
-            {renderLinkItem('document-text-outline', 'Privacy Policy', LINKS.privacy)}
-            {renderLinkItem('document-outline', 'Terms of Service', LINKS.terms)}
-          </View>
-
-          {/* Copyright */}
-          <Text style={styles.copyright}>
-            {'\u00A9'} {new Date().getFullYear()} Salmon Wallet.{'\n'}
-            All rights reserved.
-          </Text>
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+      {/* Copyright */}
+      <Text style={styles.copyright}>
+        {'\u00A9'} {new Date().getFullYear()} Salmon Wallet.{'\n'}
+        All rights reserved.
+      </Text>
+    </SettingsScreenLayout>
   );
 }
 
@@ -207,20 +149,6 @@ export default function AboutScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: contentPadding.screen,
-    paddingBottom: spacing['2xl'],
-    alignItems: 'center',
-  },
   appInfoSection: {
     alignItems: 'center',
     marginBottom: spacing['2xl'],
@@ -232,19 +160,19 @@ const styles = StyleSheet.create({
   },
   appName: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     fontSize: 24,
     marginBottom: spacing.xs,
   },
   versionText: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: 16,
     marginBottom: spacing.xxs,
   },
   buildText: {
     color: colors.text.tertiary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
   },
   socialSection: {
@@ -253,7 +181,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: 14,
     textAlign: 'center',
     marginBottom: spacing.md,
@@ -300,12 +228,12 @@ const styles = StyleSheet.create({
   linkLabel: {
     flex: 1,
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: 16,
   },
   copyright: {
     color: colors.text.tertiary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: 12,
     textAlign: 'center',
     lineHeight: 18,

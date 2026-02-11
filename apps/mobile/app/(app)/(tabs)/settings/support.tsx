@@ -8,17 +8,7 @@
  */
 
 import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Linking,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -27,19 +17,14 @@ import {
   colors,
   spacing,
   borderRadius,
-  contentPadding,
+  fontFamilyNative,
+  useOpenLink,
 } from '@salmon/shared';
-import { ScreenHeader } from '@salmon/ui';
+import { SettingsScreenLayout } from '@salmon/ui';
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 /**
  * Support options configuration
@@ -88,26 +73,13 @@ const SUPPORT_OPTIONS = [
 
 export default function SupportScreen() {
   const { t } = useTranslation();
+  const openLink = useOpenLink();
 
   /**
    * Handle back navigation
    */
   const handleBack = useCallback(() => {
     router.back();
-  }, []);
-
-  /**
-   * Open external link
-   */
-  const handleOpenLink = useCallback(async (url: string) => {
-    try {
-      const canOpen = await Linking.canOpenURL(url);
-      if (canOpen) {
-        await Linking.openURL(url);
-      }
-    } catch (error) {
-      console.error('Failed to open link:', error);
-    }
   }, []);
 
   /**
@@ -118,7 +90,7 @@ export default function SupportScreen() {
       <TouchableOpacity
         key={option.id}
         style={styles.optionCard}
-        onPress={() => handleOpenLink(option.url)}
+        onPress={() => openLink(option.url)}
         activeOpacity={0.7}
       >
         <View style={styles.optionIconContainer}>
@@ -139,52 +111,30 @@ export default function SupportScreen() {
         />
       </TouchableOpacity>
     ),
-    [handleOpenLink]
+    [openLink]
   );
 
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
+    <SettingsScreenLayout
+      title={t('settings.help_support')}
+      subtitle="Need help? We're here for you. Choose an option below to get support."
+      onBack={handleBack}
     >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* Header */}
-        <ScreenHeader onBack={handleBack} />
+      {SUPPORT_OPTIONS.map(renderSupportOption)}
 
-        {/* Title */}
-        <Text style={styles.title}>{t('settings.help_support')}</Text>
-
-        {/* Subtitle */}
-        <Text style={styles.subtitle}>
-          Need help? We're here for you. Choose an option below to get support.
+      {/* Security Notice */}
+      <View style={styles.securityNotice}>
+        <Ionicons
+          name="shield-checkmark-outline"
+          size={20}
+          color={colors.status.warning}
+        />
+        <Text style={styles.securityText}>
+          Salmon Wallet team will never ask for your seed phrase or private
+          keys. Never share this information with anyone.
         </Text>
-
-        {/* Support Options */}
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {SUPPORT_OPTIONS.map(renderSupportOption)}
-
-          {/* Security Notice */}
-          <View style={styles.securityNotice}>
-            <Ionicons
-              name="shield-checkmark-outline"
-              size={20}
-              color={colors.status.warning}
-            />
-            <Text style={styles.securityText}>
-              Salmon Wallet team will never ask for your seed phrase or
-              private keys. Never share this information with anyone.
-            </Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+      </View>
+    </SettingsScreenLayout>
   );
 }
 
@@ -193,37 +143,6 @@ export default function SupportScreen() {
 // ============================================================================
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  title: {
-    color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
-    fontSize: 24,
-    lineHeight: 32,
-    marginBottom: spacing.sm,
-    paddingHorizontal: contentPadding.screen,
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: spacing.xl,
-    paddingHorizontal: contentPadding.screen,
-    textAlign: 'center',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: contentPadding.screen,
-    paddingBottom: spacing['2xl'],
-  },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -246,13 +165,13 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: 16,
     marginBottom: 2,
   },
   optionDescription: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: 13,
   },
   securityNotice: {
@@ -267,7 +186,7 @@ const styles = StyleSheet.create({
   securityText: {
     flex: 1,
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: 13,
     lineHeight: 18,
   },
