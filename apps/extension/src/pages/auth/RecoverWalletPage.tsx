@@ -20,7 +20,7 @@ import {
   ScreenHeader,
   PrimaryButton,
   SecondaryButton,
-} from '@salmon/ui-extension';
+} from '../../components';
 
 interface RecoverWalletPageProps {
   onComplete: (mnemonic: string) => void;

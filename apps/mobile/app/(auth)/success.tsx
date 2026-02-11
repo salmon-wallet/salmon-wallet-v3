@@ -20,7 +20,7 @@ import {
   PrimaryButton,
   SecondaryButton,
   TextButton,
-} from '@salmon/ui';
+} from '../../src/components';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -20,7 +20,7 @@ import {
   SettingsSheet,
   WalletSwitcherSheet,
   ScalesBackground,
-} from '@salmon/ui';
+} from '../../../src/components';
 
 /**
  * Tab Layout for Salmon Wallet

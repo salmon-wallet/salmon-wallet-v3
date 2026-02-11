@@ -6,5 +6,5 @@
  * import it with a name that matches the extension routing conventions.
  */
 
-export { TokenInformationSheet as TokenDetailSheet } from '@salmon/ui-extension';
-export type { TokenInformationSheetProps as TokenDetailSheetProps } from '@salmon/ui-extension';
+export { TokenInformationSheet as TokenDetailSheet } from '../components';
+export type { TokenInformationSheetProps as TokenDetailSheetProps } from '../components';

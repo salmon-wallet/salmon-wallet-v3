@@ -5,7 +5,7 @@ import {
   SecondaryButton,
   LockIcon,
   LoadingScreen,
-} from '@salmon/ui-extension';
+} from '../../components';
 import {
   colors,
   gradients,

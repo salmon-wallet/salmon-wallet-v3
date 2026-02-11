@@ -19,7 +19,7 @@ import {
   borderRadius,
   fontFamilyNative,
 } from '@salmon/shared';
-import { SettingsScreenLayout } from '@salmon/ui';
+import { SettingsScreenLayout } from '../../../../src/components';
 
 // ============================================================================
 // Constants

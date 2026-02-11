@@ -6,5 +6,5 @@
  * import it with a name that matches the extension routing conventions.
  */
 
-export { SendSheet as TokenSendSheet } from '@salmon/ui-extension';
-export type { SendSheetProps as TokenSendSheetProps } from '@salmon/ui-extension';
+export { SendSheet as TokenSendSheet } from '../components';
+export type { SendSheetProps as TokenSendSheetProps } from '../components';

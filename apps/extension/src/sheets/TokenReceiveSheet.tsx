@@ -6,5 +6,5 @@
  * import it with a name that matches the extension routing conventions.
  */
 
-export { ReceiveSheet as TokenReceiveSheet } from '@salmon/ui-extension';
-export type { ReceiveSheetProps as TokenReceiveSheetProps } from '@salmon/ui-extension';
+export { ReceiveSheet as TokenReceiveSheet } from '../components';
+export type { ReceiveSheetProps as TokenReceiveSheetProps } from '../components';

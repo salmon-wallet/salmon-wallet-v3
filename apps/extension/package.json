@@ -20,7 +20,6 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.5",
     "@salmon/shared": "workspace:*",
-    "@salmon/ui-extension": "workspace:*",
     "@solana/web3.js": "^1.98.4",
     "bs58": "^6.0.0",
     "eventemitter3": "^5.0.1",
@@ -30,6 +29,10 @@
     "react-dom": "^19.1.0",
     "react-i18next": "^16.3.3",
     "react-router-dom": "^7.9.6",
+    "keen-slider": "^6.8.6",
+    "qrcode.react": "^4.2.0",
+    "react-content-loader": "^7.1.1",
+    "recharts": "^3.5.1",
     "salmon-wallet-standard": "^0.0.6"
   },
   "devDependencies": {

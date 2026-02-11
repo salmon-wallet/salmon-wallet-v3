@@ -6,7 +6,7 @@
  *
  * Usage:
  * ```tsx
- * import { SettingsSheet } from '@salmon/ui-extension';
+ * import { SettingsSheet } from '..';
  *
  * <SettingsSheet
  *   visible={isOpen}

@@ -5,5 +5,5 @@
  * in apps/extension can import it from the local sheets barrel.
  */
 
-export { NftDetailSheet } from '@salmon/ui-extension';
-export type { NftDetailSheetProps, NftDetailData, NftAttribute } from '@salmon/ui-extension';
+export { NftDetailSheet } from '../components';
+export type { NftDetailSheetProps, NftDetailData, NftAttribute } from '../components';

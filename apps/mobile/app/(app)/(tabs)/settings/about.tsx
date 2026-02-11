@@ -23,7 +23,7 @@ import {
   fontFamilyNative,
   useOpenLink,
 } from '@salmon/shared';
-import { SettingsScreenLayout } from '@salmon/ui';
+import { SettingsScreenLayout } from '../../../../src/components';
 import { Logo } from '@salmon/assets';
 
 // ============================================================================

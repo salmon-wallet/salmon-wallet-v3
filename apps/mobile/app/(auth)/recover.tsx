@@ -23,7 +23,7 @@ import {
   PrimaryButton,
   ScreenHeader,
   SecondaryButton,
-} from '@salmon/ui';
+} from '../../src/components';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';

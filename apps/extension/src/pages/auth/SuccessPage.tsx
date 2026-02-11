@@ -14,7 +14,7 @@ import {
   SecondaryButton,
   TextButton,
   BaseDialog,
-} from '@salmon/ui-extension';
+} from '../../components';
 
 interface SuccessPageProps {
   onGoToWallet: () => void;

@@ -25,7 +25,7 @@ import {
   PasswordInput,
   PasswordStrengthBar,
   LoadingScreen,
-} from '@salmon/ui-extension';
+} from '../../components';
 
 interface PasswordPageProps {
   mnemonic: string;

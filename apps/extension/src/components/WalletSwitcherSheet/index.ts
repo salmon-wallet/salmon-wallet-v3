@@ -6,7 +6,7 @@
  *
  * Usage:
  * ```tsx
- * import { WalletSwitcherSheet } from '@salmon/ui-extension';
+ * import { WalletSwitcherSheet } from '..';
  *
  * <WalletSwitcherSheet
  *   visible={isOpen}

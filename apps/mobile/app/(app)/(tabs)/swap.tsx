@@ -46,7 +46,7 @@ import {
   type SwapChainType,
   type SwapQuote,
   type SwapToken,
-} from '@salmon/ui';
+} from '../../../src/components';
 
 /**
  * Convert TokenMetadata to SwapToken (for search results)

@@ -20,7 +20,7 @@ import {
   spacing,
   useAccountsContext,
 } from '@salmon/shared';
-import { PrimaryButton, SecondaryButton } from '@salmon/ui';
+import { PrimaryButton, SecondaryButton } from '../../src/components';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Image, StyleSheet, Text, View } from 'react-native';

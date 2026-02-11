@@ -36,7 +36,7 @@ import {
   type SwapChainType,
   type SwapQuote,
   type SwapToken,
-} from '@salmon/ui-extension';
+} from '../../components';
 
 // ============================================================================
 // Helpers

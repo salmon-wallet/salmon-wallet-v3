@@ -25,7 +25,7 @@ import {
   type EthereumNetworkId,
   type BitcoinNetworkId,
 } from '@salmon/shared';
-import { NftCard, NftCardSkeleton, NftDetailSheet } from '@salmon/ui-extension';
+import { NftCard, NftCardSkeleton, NftDetailSheet } from '../../components';
 
 interface CollectiblesPageProps {
   activeBlockchainAccount: BlockchainAccount | undefined;

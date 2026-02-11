@@ -23,7 +23,7 @@ import {
   SecondaryButton,
   SeedWordGrid,
   SeedWordInput,
-} from '@salmon/ui-extension';
+} from '../../components';
 
 // ============================================================================
 // Types

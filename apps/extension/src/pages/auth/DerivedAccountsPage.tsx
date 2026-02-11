@@ -30,7 +30,7 @@ import {
   SecondaryButton,
   DerivedAccountCard,
   DerivedAccountCardSkeleton,
-} from '@salmon/ui-extension';
+} from '../../components';
 
 // ============================================================================
 // Constants

@@ -29,7 +29,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
-import { Haptics } from '@salmon/ui';
+import { Haptics } from '../../../src/components';
 
 import {
   useAccountsContext,
@@ -71,7 +71,7 @@ import {
   type BlockchainId,
   type MarketData,
   type Transaction,
-} from '@salmon/ui';
+} from '../../../src/components';
 
 // Map blockchain to CoinGecko ID (outside component to avoid recreation)
 // Devnets/testnets map to their mainnet counterparts for price data

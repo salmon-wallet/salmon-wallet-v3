@@ -39,7 +39,7 @@ import {
   PrimaryButton,
   ScreenHeader,
   SecondaryButton,
-} from '@salmon/ui';
+} from '../../src/components';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';

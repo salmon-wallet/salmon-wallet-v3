@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { colors, spacing, fontFamily, gradients } from '@salmon/shared';
-import { PrimaryButton, SecondaryButton } from '@salmon/ui-extension';
+import { PrimaryButton, SecondaryButton } from '../../components';
 
 interface SelectOptionsPageProps {
   onCreateWallet: () => void;

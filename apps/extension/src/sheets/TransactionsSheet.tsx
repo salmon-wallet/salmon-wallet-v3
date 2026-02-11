@@ -6,5 +6,5 @@
  * import it with a name that matches the extension routing conventions.
  */
 
-export { TransactionHistorySheet as TransactionsSheet } from '@salmon/ui-extension';
-export type { TransactionHistorySheetProps as TransactionsSheetProps } from '@salmon/ui-extension';
+export { TransactionHistorySheet as TransactionsSheet } from '../components';
+export type { TransactionHistorySheetProps as TransactionsSheetProps } from '../components';

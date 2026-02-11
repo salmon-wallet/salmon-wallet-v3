@@ -23,7 +23,7 @@ import {
   fontFamilyNative,
   useAccountsContext,
 } from '@salmon/shared';
-import { PrimaryButton, SecondaryButton, SettingsScreenLayout } from '@salmon/ui';
+import { PrimaryButton, SecondaryButton, SettingsScreenLayout } from '../../../../src/components';
 
 // ============================================================================
 // Component

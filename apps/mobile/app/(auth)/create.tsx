@@ -29,7 +29,7 @@ import {
   SecondaryButton,
   SeedWordGrid,
   SeedWordInput,
-} from '@salmon/ui';
+} from '../../src/components';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';

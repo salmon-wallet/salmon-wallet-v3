@@ -55,7 +55,7 @@ import {
   type NftData,
   type NftBlockchain,
   type NftDetailData,
-} from '@salmon/ui';
+} from '../../../src/components';
 
 // ============================================================================
 // Types

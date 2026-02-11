@@ -22,7 +22,7 @@ import {
   WalletSwitcherSheet,
   EditAccountDialog,
   ConfirmDialog,
-} from '@salmon/ui-extension';
+} from '../../components';
 import IconButton from '@mui/material/IconButton';
 
 // Settings pages for navigation
