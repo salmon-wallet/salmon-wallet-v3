@@ -3,7 +3,7 @@
  *
  * Web version using MUI and @emotion/styled for browser extension.
  * Shows bridge details and confirm/back buttons.
- * Uses CSS backgrounds instead of expo-blur and expo-linear-gradient.
+ * Reuses SwapDetailRow and SwapReviewCard components from SwapScreen.
  */
 import React from 'react';
 import { styled } from '@mui/material/styles';
@@ -13,121 +13,15 @@ import {
   colors,
   spacing,
   borderRadius,
-  gradients,
   fontFamily,
   fontWeight,
   formatAmountWithSymbol,
   getShortAddress,
 } from '@salmon/shared';
-import { BlurContainer } from '../BlurContainer';
-import { PrimaryButton, SecondaryButton } from '../Button';
+import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
+import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
+import { SwapReviewButtons } from '../SwapScreen/SwapReviewButtons';
 import type { BridgeReviewScreenProps } from './types';
-
-// ============================================================================
-// Sub-Components
-// ============================================================================
-
-/**
- * BridgeDetailRow - A single row in the bridge details section
- * Reuses the BlurContainer pattern from SwapDetailRow
- */
-const DetailBlurContent = styled('div')({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: `${spacing.sm}px ${spacing.base}px`,
-  minHeight: 40,
-});
-
-const DetailLabel = styled(Typography)({
-  fontSize: 15,
-  fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.primary,
-  letterSpacing: -0.075,
-  lineHeight: `${15 * 1.5}px`,
-});
-
-const DetailValue = styled(Typography)({
-  fontSize: 15,
-  fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.primary,
-  letterSpacing: -0.075,
-  lineHeight: `${15 * 1.5}px`,
-  flexShrink: 1,
-  textAlign: 'right',
-});
-
-const BridgeDetailRow: React.FC<{ label: string; value: string }> = ({
-  label,
-  value,
-}) => (
-  <BlurContainer
-    blurIntensity={5}
-    blurTint="dark"
-    style={{
-      borderRadius: borderRadius.md,
-      overflow: 'hidden',
-    }}
-  >
-    <DetailBlurContent>
-      <DetailLabel>{label}</DetailLabel>
-      <DetailValue>{value}</DetailValue>
-    </DetailBlurContent>
-  </BlurContainer>
-);
-
-/**
- * BridgeReviewCard - Card displaying token amount for review screen
- * Reuses the BlurContainer pattern from SwapReviewCard
- */
-const CardBlurContent = styled('div')({
-  padding: `${spacing.sm}px ${spacing.base}px`,
-  minHeight: 75,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-});
-
-const CardLabel = styled(Typography)({
-  fontSize: 15,
-  fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.primary,
-  letterSpacing: -0.075,
-  lineHeight: `${15 * 1.5}px`,
-});
-
-const CardAmount = styled(Typography)({
-  fontSize: 25,
-  fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.primary,
-  letterSpacing: -0.12,
-  lineHeight: '25px',
-  marginTop: 2,
-});
-
-const BridgeReviewCard: React.FC<{ label: string; amount: string }> = ({
-  label,
-  amount,
-}) => (
-  <BlurContainer
-    blurIntensity={5}
-    blurTint="dark"
-    style={{
-      borderRadius: borderRadius.md,
-      overflow: 'hidden',
-    }}
-  >
-    <CardBlurContent>
-      <CardLabel>{label}</CardLabel>
-      <CardAmount>{amount}</CardAmount>
-    </CardBlurContent>
-  </BlurContainer>
-);
 
 // ============================================================================
 // Styled Components
@@ -205,25 +99,6 @@ const WarningText = styled(Typography)({
   lineHeight: '18px',
 });
 
-const ButtonsContainer = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  gap: spacing.md,
-  paddingBottom: spacing['2xl'],
-});
-
-const BackButtonWrapper = styled('div')({
-  flex: 1,
-});
-
-const ConfirmButtonGradient = styled('div')({
-  flex: 1,
-  borderRadius: borderRadius.lg,
-  border: '0.8px solid rgba(255, 92, 69, 0.8)',
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
-  background: gradients.primaryCSS,
-});
-
 // ============================================================================
 // BridgeReviewScreen Component
 // ============================================================================
@@ -254,11 +129,11 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
         <ScrollContent>
           {/* Send/Receive Cards */}
           <CardsContainer>
-            <BridgeReviewCard
+            <SwapReviewCard
               label="You Send"
               amount={formatAmountWithSymbol(inAmount, inToken.symbol)}
             />
-            <BridgeReviewCard
+            <SwapReviewCard
               label="You Receive (estimated)"
               amount={formatAmountWithSymbol(outAmount, outToken.symbol)}
             />
@@ -266,28 +141,28 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
 
           {/* Details Section */}
           <DetailsContainer>
-            <BridgeDetailRow
+            <SwapDetailRow
               label="Recipient"
               value={getShortAddress(recipientAddress, 8) ?? ''}
             />
-            <BridgeDetailRow
+            <SwapDetailRow
               label="From Network"
               value={inToken.network || 'Solana'}
             />
-            <BridgeDetailRow
+            <SwapDetailRow
               label="To Network"
               value={outToken.network || 'Unknown'}
             />
             {estimate && (
               <>
-                <BridgeDetailRow
+                <SwapDetailRow
                   label="Minimum Amount"
                   value={formatAmountWithSymbol(
                     estimate.minAmount,
                     inToken.symbol
                   )}
                 />
-                <BridgeDetailRow
+                <SwapDetailRow
                   label="Estimated Output"
                   value={formatAmountWithSymbol(
                     estimate.estimatedAmount,
@@ -296,7 +171,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
                 />
               </>
             )}
-            <BridgeDetailRow label="Provider" value="StealthEX" />
+            <SwapDetailRow label="Provider" value="StealthEX" />
           </DetailsContainer>
 
           {/* Warning Box */}
@@ -311,35 +186,12 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
       </ScrollContainer>
 
       {/* Buttons */}
-      <ButtonsContainer>
-        <BackButtonWrapper>
-          <SecondaryButton
-            onClick={onBack}
-            disabled={isConfirming}
-            style={{
-              height: 42,
-              border: '0.8px solid rgba(255, 92, 69, 0.8)',
-              borderRadius: borderRadius.lg,
-              backgroundColor: '#1f232f',
-            }}
-          >
-            Back
-          </SecondaryButton>
-        </BackButtonWrapper>
-        <ConfirmButtonGradient>
-          <PrimaryButton
-            onClick={onConfirm}
-            loading={isConfirming}
-            disabled={isConfirming}
-            style={{
-              height: 42,
-              background: 'transparent',
-            }}
-          >
-            Confirm Swap
-          </PrimaryButton>
-        </ConfirmButtonGradient>
-      </ButtonsContainer>
+      <SwapReviewButtons
+        onBack={onBack}
+        onConfirm={onConfirm}
+        isConfirming={isConfirming}
+        confirmLabel="Confirm Swap"
+      />
     </Container>
   );
 };

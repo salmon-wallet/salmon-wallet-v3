@@ -12,14 +12,12 @@ import Typography from '@mui/material/Typography';
 import {
   colors,
   spacing,
-  borderRadius,
-  gradients,
   fontFamily,
   fontWeight,
 } from '@salmon/shared';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapDetailRow } from './SwapDetailRow';
-import { PrimaryButton, SecondaryButton } from '../Button';
+import { SwapReviewButtons } from './SwapReviewButtons';
 import type { SwapReviewScreenProps } from './types';
 
 // ============================================================================
@@ -113,25 +111,6 @@ const PriceImpactContainer = styled(Box)({
   marginBottom: spacing.lg,
 });
 
-const ButtonsContainer = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  gap: spacing.md,
-  paddingBottom: spacing['2xl'],
-});
-
-const BackButtonWrapper = styled('div')({
-  flex: 1,
-});
-
-const ConfirmButtonGradient = styled('div')({
-  flex: 1,
-  borderRadius: borderRadius.lg,
-  border: '0.8px solid rgba(255, 92, 69, 0.8)',
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
-  background: gradients.primaryCSS,
-});
-
 // ============================================================================
 // SwapReviewScreen Component
 // ============================================================================
@@ -217,35 +196,12 @@ export function SwapReviewScreen({
       </ScrollContainer>
 
       {/* Buttons */}
-      <ButtonsContainer>
-        <BackButtonWrapper>
-          <SecondaryButton
-            onClick={onBack}
-            disabled={isConfirming}
-            style={{
-              height: 42,
-              border: '0.8px solid rgba(255, 92, 69, 0.8)',
-              borderRadius: borderRadius.lg,
-              backgroundColor: '#1f232f',
-            }}
-          >
-            Back
-          </SecondaryButton>
-        </BackButtonWrapper>
-        <ConfirmButtonGradient>
-          <PrimaryButton
-            onClick={onConfirm}
-            loading={isConfirming}
-            disabled={isConfirming}
-            style={{
-              height: 42,
-              background: 'transparent',
-            }}
-          >
-            Confirm
-          </PrimaryButton>
-        </ConfirmButtonGradient>
-      </ButtonsContainer>
+      <SwapReviewButtons
+        onBack={onBack}
+        onConfirm={onConfirm}
+        isConfirming={isConfirming}
+        confirmLabel="Confirm"
+      />
     </Container>
   );
 }

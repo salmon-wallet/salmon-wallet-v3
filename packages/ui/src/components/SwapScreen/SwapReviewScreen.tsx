@@ -1,10 +1,9 @@
-import { borderRadius, colors, formatAmountWithSymbol, formatSolFee, gradients, ms, s, spacing, vs } from '@salmon/shared';
-import { LinearGradient } from 'expo-linear-gradient';
+import { borderRadius, colors, formatAmountWithSymbol, formatSolFee, ms, s, spacing, vs } from '@salmon/shared';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { PrimaryButton, SecondaryButton } from '../Button';
 import { SwapDetailRow } from './SwapDetailRow';
 import { SwapReviewCard } from './SwapReviewCard';
+import { SwapReviewButtons } from './SwapReviewButtons';
 import type { SwapReviewScreenProps } from './types';
 
 const FONT_FAMILY = {
@@ -98,30 +97,12 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
       </ScrollView>
 
       {/* Buttons */}
-      <View style={styles.buttonsContainer}>
-        <SecondaryButton
-          onPress={onBack}
-          disabled={isConfirming}
-          style={styles.backButton}
-        >
-          Back
-        </SecondaryButton>
-        <LinearGradient
-          colors={gradients.primaryButton.colors}
-          start={gradients.primaryButton.start}
-          end={gradients.primaryButton.end}
-          style={styles.confirmButtonGradient}
-        >
-          <PrimaryButton
-            onPress={onConfirm}
-            loading={isConfirming}
-            disabled={isConfirming}
-            style={styles.confirmButton}
-          >
-            Confirm
-          </PrimaryButton>
-        </LinearGradient>
-      </View>
+      <SwapReviewButtons
+        onBack={onBack}
+        onConfirm={onConfirm}
+        isConfirming={isConfirming}
+        confirmLabel="Confirm"
+      />
     </View>
   );
 };
@@ -165,34 +146,6 @@ const styles = StyleSheet.create({
   },
   priceImpactContainer: {
     marginBottom: vs(spacing.lg),
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    gap: s(spacing.md),
-    paddingBottom: vs(spacing['2xl']),
-  },
-  backButton: {
-    flex: 1,
-    height: vs(42),
-    borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    borderRadius: borderRadius.lg,
-    backgroundColor: '#1f232f',
-  },
-  confirmButtonGradient: {
-    flex: 1,
-    borderRadius: borderRadius.lg,
-    borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  confirmButton: {
-    height: vs(42),
-    backgroundColor: 'transparent',
   },
 });
 

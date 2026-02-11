@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, ms, vs, s, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
-import { PrimaryButton, SecondaryButton } from '../Button';
+import { colors, spacing, borderRadius, ms, vs, s, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
+import { SwapReviewButtons } from '../SwapScreen/SwapReviewButtons';
 import type { BridgeReviewScreenProps } from './types';
 
 const FONT_FAMILY = {
@@ -94,30 +93,12 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
       </ScrollView>
 
       {/* Buttons */}
-      <View style={styles.buttonsContainer}>
-        <SecondaryButton
-          onPress={onBack}
-          disabled={isConfirming}
-          style={styles.backButton}
-        >
-          Back
-        </SecondaryButton>
-        <LinearGradient
-          colors={gradients.primaryButton.colors}
-          start={gradients.primaryButton.start}
-          end={gradients.primaryButton.end}
-          style={styles.confirmButtonGradient}
-        >
-          <PrimaryButton
-            onPress={onConfirm}
-            loading={isConfirming}
-            disabled={isConfirming}
-            style={styles.confirmButton}
-          >
-            Confirm Swap
-          </PrimaryButton>
-        </LinearGradient>
-      </View>
+      <SwapReviewButtons
+        onBack={onBack}
+        onConfirm={onConfirm}
+        isConfirming={isConfirming}
+        confirmLabel="Confirm Swap"
+      />
     </View>
   );
 };
@@ -172,34 +153,6 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
     letterSpacing: 0.018,
     lineHeight: ms(18),
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    gap: s(spacing.md),
-    paddingBottom: vs(spacing['2xl']),
-  },
-  backButton: {
-    flex: 1,
-    height: vs(42),
-    borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    borderRadius: borderRadius.lg,
-    backgroundColor: '#1f232f',
-  },
-  confirmButtonGradient: {
-    flex: 1,
-    borderRadius: borderRadius.lg,
-    borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  confirmButton: {
-    height: vs(42),
-    backgroundColor: 'transparent',
   },
 });
 
