@@ -270,6 +270,32 @@ export async function lock<T>(
 }
 
 /**
+ * Validates the structure and integrity of a locked vault.
+ * Helper function to avoid code duplication between unlock functions.
+ *
+ * @param locked - The vault to validate
+ * @throws {InvalidVaultError} If the vault structure is invalid or digest is unsupported
+ */
+function validateVault(locked: LockedVault): void {
+  // Validate vault structure
+  if (
+    !locked ||
+    typeof locked.encrypted !== 'string' ||
+    typeof locked.nonce !== 'string' ||
+    typeof locked.salt !== 'string' ||
+    typeof locked.iterations !== 'number' ||
+    typeof locked.digest !== 'string'
+  ) {
+    throw new InvalidVaultError('Vault is missing required fields');
+  }
+
+  // Validate digest algorithm
+  if (locked.digest !== 'sha256' && locked.digest !== 'sha512') {
+    throw new InvalidVaultError(`Unsupported digest algorithm: ${locked.digest}`);
+  }
+}
+
+/**
  * Decrypts a locked vault using the provided password.
  *
  * The decryption process:
@@ -303,22 +329,7 @@ export async function lock<T>(
  * ```
  */
 export async function unlock<T>(locked: LockedVault, password: string): Promise<T> {
-  // Validate vault structure
-  if (
-    !locked ||
-    typeof locked.encrypted !== 'string' ||
-    typeof locked.nonce !== 'string' ||
-    typeof locked.salt !== 'string' ||
-    typeof locked.iterations !== 'number' ||
-    typeof locked.digest !== 'string'
-  ) {
-    throw new InvalidVaultError('Vault is missing required fields');
-  }
-
-  // Validate digest algorithm
-  if (locked.digest !== 'sha256' && locked.digest !== 'sha512') {
-    throw new InvalidVaultError(`Unsupported digest algorithm: ${locked.digest}`);
-  }
+  validateVault(locked);
 
   try {
     // Decode base58-encoded components
@@ -381,21 +392,7 @@ export async function unlockAndGetKey<T>(
   locked: LockedVault,
   password: string
 ): Promise<{ data: T; keyCache: DerivedKeyCache }> {
-  // Validate vault structure
-  if (
-    !locked ||
-    typeof locked.encrypted !== 'string' ||
-    typeof locked.nonce !== 'string' ||
-    typeof locked.salt !== 'string' ||
-    typeof locked.iterations !== 'number' ||
-    typeof locked.digest !== 'string'
-  ) {
-    throw new InvalidVaultError('Vault is missing required fields');
-  }
-
-  if (locked.digest !== 'sha256' && locked.digest !== 'sha512') {
-    throw new InvalidVaultError(`Unsupported digest algorithm: ${locked.digest}`);
-  }
+  validateVault(locked);
 
   try {
     const encrypted = bs58.decode(locked.encrypted);
