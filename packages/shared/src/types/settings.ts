@@ -118,34 +118,52 @@ export function getAvatarColor(id: string): string {
 }
 
 // ============================================================================
-// Feature flag types (moved from api/services/switch.ts)
+// Feature flag types (from backend GET /v1/switches)
 // ============================================================================
 
 /**
- * Individual feature switch configuration
+ * Feature flags within a section
  */
-export interface Switch {
-  /** Unique identifier for the switch */
-  id: string;
-  /** Human-readable name of the feature */
-  name: string;
-  /** Whether the feature is enabled */
-  enabled: boolean;
-  /** Optional description of the feature */
-  description?: string;
-  /** Optional metadata for the switch */
-  metadata?: Record<string, unknown>;
+export interface SwitchSectionFeatures {
+  send?: boolean;
+  receive?: boolean;
+  list_tokens?: boolean;
+  import_tokens?: boolean;
+  collectibles?: boolean;
 }
 
 /**
- * Response from the switches API endpoint
+ * A section within a network's switch configuration
  */
-export interface SwitchesResponse {
-  /** Array of feature switches */
-  switches: Switch[];
+export interface SwitchSection {
+  active: boolean;
+  features?: SwitchSectionFeatures;
+  [key: string]: unknown;
 }
 
 /**
- * Map of switch IDs to their enabled state for quick lookup
+ * Feature switch configuration for a single network.
+ *
+ * Backend returns a Record<networkId, NetworkSwitch>.
+ */
+export interface NetworkSwitch {
+  enable: boolean;
+  sections: {
+    overview: SwitchSection;
+    token_detail: SwitchSection;
+    collectibles: SwitchSection;
+    swap: { active: boolean };
+    exchange: { active: boolean };
+    transactions: { active: boolean };
+  };
+}
+
+/**
+ * Response from the switches API endpoint: object keyed by network ID.
+ */
+export type SwitchesResponse = Record<string, NetworkSwitch>;
+
+/**
+ * Map of network IDs to their enabled state for quick lookup
  */
 export type SwitchMap = Record<string, boolean>;

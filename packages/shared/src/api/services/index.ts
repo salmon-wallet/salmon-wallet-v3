@@ -170,9 +170,9 @@ export {
   // Functions
   getSwitches,
   getSwitch,
-  isSwitchEnabled,
+  isNetworkEnabled,
   getSwitchMap,
-  getEnabledSwitches,
+  getEnabledNetworks,
   clearSwitchesCache,
 } from './switch';
 

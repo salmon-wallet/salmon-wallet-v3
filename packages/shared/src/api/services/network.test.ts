@@ -54,8 +54,8 @@ describe('Network Service', () => {
   describe('getNetworks()', () => {
     it('should return array of networks', async () => {
       const mockNetworks: Network[] = [
-        { id: 'solana-mainnet', name: 'Solana Mainnet', symbol: 'SOL' },
-        { id: 'ethereum-mainnet', name: 'Ethereum Mainnet', symbol: 'ETH' },
+        { id: 'solana-mainnet', name: 'Solana Mainnet', blockchain: 'solana', environment: 'mainnet', config: { nodeUrl: 'https://api.mainnet-beta.solana.com' } },
+        { id: 'ethereum-mainnet', name: 'Ethereum Mainnet', blockchain: 'ethereum', environment: 'mainnet', config: { rpcUrl: 'https://eth.llamarpc.com', chainId: 1 } },
       ];
 
       staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
@@ -70,7 +70,7 @@ describe('Network Service', () => {
 
     it('should cache networks data on subsequent calls', async () => {
       const mockNetworks: Network[] = [
-        { id: 'solana-mainnet', name: 'Solana Mainnet', symbol: 'SOL' },
+        { id: 'solana-mainnet', name: 'Solana Mainnet', blockchain: 'solana', environment: 'mainnet', config: { nodeUrl: 'https://api.mainnet-beta.solana.com' } },
       ];
 
       staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
@@ -86,7 +86,7 @@ describe('Network Service', () => {
       staticApiClient.get = vi
         .fn()
         .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce({ data: [{ id: 'test', name: 'Test Network' }] });
+        .mockResolvedValueOnce({ data: [{ id: 'test', name: 'Test Network', blockchain: 'solana', environment: 'testnet', config: {} }] });
 
       await expect(getNetworks()).rejects.toThrow('Network error');
 
@@ -108,8 +108,8 @@ describe('Network Service', () => {
   describe('getNetwork()', () => {
     it('should return specific network by id', async () => {
       const mockNetworks: Network[] = [
-        { id: 'solana-mainnet', name: 'Solana Mainnet', symbol: 'SOL' },
-        { id: 'ethereum-mainnet', name: 'Ethereum Mainnet', symbol: 'ETH' },
+        { id: 'solana-mainnet', name: 'Solana Mainnet', blockchain: 'solana', environment: 'mainnet', config: { nodeUrl: 'https://api.mainnet-beta.solana.com' } },
+        { id: 'ethereum-mainnet', name: 'Ethereum Mainnet', blockchain: 'ethereum', environment: 'mainnet', config: { rpcUrl: 'https://eth.llamarpc.com', chainId: 1 } },
       ];
 
       staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
@@ -123,7 +123,7 @@ describe('Network Service', () => {
 
     it('should return undefined for non-existent network', async () => {
       const mockNetworks: Network[] = [
-        { id: 'solana-mainnet', name: 'Solana Mainnet', symbol: 'SOL' },
+        { id: 'solana-mainnet', name: 'Solana Mainnet', blockchain: 'solana', environment: 'mainnet', config: { nodeUrl: 'https://api.mainnet-beta.solana.com' } },
       ];
 
       staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
@@ -135,7 +135,7 @@ describe('Network Service', () => {
 
     it('should use cached networks data', async () => {
       const mockNetworks: Network[] = [
-        { id: 'test-network', name: 'Test Network', symbol: 'TEST' },
+        { id: 'test-network', name: 'Test Network', blockchain: 'solana', environment: 'testnet', config: {} },
       ];
 
       staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
@@ -148,7 +148,7 @@ describe('Network Service', () => {
 
     it('should handle case-sensitive network ids', async () => {
       const mockNetworks: Network[] = [
-        { id: 'Solana-Mainnet', name: 'Solana Mainnet', symbol: 'SOL' },
+        { id: 'Solana-Mainnet', name: 'Solana Mainnet', blockchain: 'solana', environment: 'mainnet', config: {} },
       ];
 
       staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
@@ -164,7 +164,7 @@ describe('Network Service', () => {
   describe('clearNetworksCache()', () => {
     it('should clear the networks cache', async () => {
       const mockNetworks: Network[] = [
-        { id: 'test', name: 'Test', symbol: 'TEST' },
+        { id: 'test', name: 'Test', blockchain: 'solana', environment: 'testnet', config: {} },
       ];
 
       staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
@@ -179,8 +179,8 @@ describe('Network Service', () => {
     });
 
     it('should allow fresh fetch after cache clear', async () => {
-      const mockNetworks1: Network[] = [{ id: 'network1', name: 'Network 1' }];
-      const mockNetworks2: Network[] = [{ id: 'network2', name: 'Network 2' }];
+      const mockNetworks1: Network[] = [{ id: 'network1', name: 'Network 1', blockchain: 'solana', environment: 'mainnet', config: {} }];
+      const mockNetworks2: Network[] = [{ id: 'network2', name: 'Network 2', blockchain: 'bitcoin', environment: 'mainnet', config: {} }];
 
       staticApiClient.get = vi
         .fn()

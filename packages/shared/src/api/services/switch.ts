@@ -3,14 +3,16 @@
  * Migrated from salmon-wallet-v2/src/adapter/services/switch-service.js
  *
  * Provides feature flag configuration from the static API.
- * Switches are used to enable/disable features across the app.
+ * Switches control which features are enabled per network.
  *
  * API Endpoints:
  * - GET /v1/switches - Get all feature switches (static API)
+ *
+ * Backend returns: Record<networkId, NetworkSwitch>
  */
 
 import { staticApiClient } from '../client';
-import type { Switch, SwitchMap } from '../../types/settings';
+import type { SwitchesResponse, NetworkSwitch, SwitchMap } from '../../types/settings';
 
 // ============================================================================
 // Cache
@@ -20,7 +22,7 @@ import type { Switch, SwitchMap } from '../../types/settings';
  * Promise-based cache for switches data
  * Cached for the lifetime of the application (until error or manual clear)
  */
-let switchesPromise: Promise<Switch[]> | null = null;
+let switchesPromise: Promise<SwitchesResponse> | null = null;
 
 // ============================================================================
 // Switch Service Functions
@@ -34,22 +36,22 @@ let switchesPromise: Promise<Switch[]> | null = null;
  *
  * Endpoint: GET /v1/switches (static API)
  *
- * @returns Promise resolving to array of switches
+ * @returns Promise resolving to switches keyed by network ID
  * @throws ApiError if the request fails
  *
  * @example
  * ```typescript
  * const switches = await getSwitches();
- * const buyEnabled = switches.find(s => s.id === 'buy')?.enabled ?? false;
+ * const solanaEnabled = switches['solana-mainnet']?.enable ?? false;
  * ```
  */
-export async function getSwitches(): Promise<Switch[]> {
+export async function getSwitches(): Promise<SwitchesResponse> {
   if (switchesPromise) {
     return switchesPromise;
   }
 
   switchesPromise = staticApiClient
-    .get<Switch[]>('/v1/switches')
+    .get<SwitchesResponse>('/v1/switches')
     .then(({ data }) => data);
 
   try {
@@ -62,92 +64,88 @@ export async function getSwitches(): Promise<Switch[]> {
 }
 
 /**
- * Get a specific switch by ID
+ * Get switch configuration for a specific network
  *
- * @param id - The switch identifier to look up
- * @returns The switch configuration or undefined if not found
+ * @param networkId - The network identifier to look up (e.g. 'solana-mainnet')
+ * @returns The network switch configuration or undefined if not found
  *
  * @example
  * ```typescript
- * const buySwitch = await getSwitch('buy');
- * if (buySwitch?.enabled) {
- *   // Show buy feature
+ * const solana = await getSwitch('solana-mainnet');
+ * if (solana?.sections.swap.active) {
+ *   // Show swap feature
  * }
  * ```
  */
-export async function getSwitch(id: string): Promise<Switch | undefined> {
+export async function getSwitch(networkId: string): Promise<NetworkSwitch | undefined> {
   const switches = await getSwitches();
-  return switches.find((s) => s.id === id);
+  return switches[networkId];
 }
 
 /**
- * Check if a specific feature is enabled
+ * Check if a specific network is enabled
  *
- * @param id - The switch identifier to check
+ * @param networkId - The network identifier to check
  * @param defaultValue - Value to return if switch is not found (default: false)
- * @returns Whether the feature is enabled
+ * @returns Whether the network is enabled
  *
  * @example
  * ```typescript
- * if (await isSwitchEnabled('buy')) {
- *   // Show buy button
+ * if (await isNetworkEnabled('solana-mainnet')) {
+ *   // Show solana features
  * }
  * ```
  */
-export async function isSwitchEnabled(
-  id: string,
+export async function isNetworkEnabled(
+  networkId: string,
   defaultValue: boolean = false
 ): Promise<boolean> {
-  const switchConfig = await getSwitch(id);
-  return switchConfig?.enabled ?? defaultValue;
+  const switchConfig = await getSwitch(networkId);
+  return switchConfig?.enable ?? defaultValue;
 }
 
 /**
- * Get all switches as a map for quick lookup
+ * Get all switches as a map of networkId → enabled state for quick lookup
  *
- * @returns Map of switch IDs to their enabled state
+ * @returns Map of network IDs to their enabled state
  *
  * @example
  * ```typescript
  * const switchMap = await getSwitchMap();
- * if (switchMap['buy']) {
- *   // Buy is enabled
+ * if (switchMap['solana-mainnet']) {
+ *   // Solana mainnet is enabled
  * }
  * ```
  */
 export async function getSwitchMap(): Promise<SwitchMap> {
   const switches = await getSwitches();
-  return switches.reduce<SwitchMap>((map, s) => {
-    map[s.id] = s.enabled;
-    return map;
-  }, {});
+  const map: SwitchMap = {};
+  for (const [networkId, config] of Object.entries(switches)) {
+    map[networkId] = config.enable;
+  }
+  return map;
 }
 
 /**
- * Get all enabled switch IDs
+ * Get all enabled network IDs
  *
- * @returns Array of enabled switch IDs
+ * @returns Array of enabled network IDs
  *
  * @example
  * ```typescript
- * const enabledFeatures = await getEnabledSwitches();
- * // ['buy', 'swap', 'stake']
+ * const enabledNetworks = await getEnabledNetworks();
+ * // ['solana-mainnet', 'bitcoin-mainnet', ...]
  * ```
  */
-export async function getEnabledSwitches(): Promise<string[]> {
+export async function getEnabledNetworks(): Promise<string[]> {
   const switches = await getSwitches();
-  return switches.filter((s) => s.enabled).map((s) => s.id);
+  return Object.entries(switches)
+    .filter(([, config]) => config.enable)
+    .map(([networkId]) => networkId);
 }
 
 /**
  * Clear the switches cache to force a refresh on next request
- *
- * @example
- * ```typescript
- * // Force refresh switches after app foreground
- * clearSwitchesCache();
- * const freshSwitches = await getSwitches();
- * ```
  */
 export function clearSwitchesCache(): void {
   switchesPromise = null;

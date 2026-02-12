@@ -94,16 +94,20 @@ export type NetworkId = SolanaNetworkId | BitcoinNetworkId | EthereumNetworkId;
 // ============================================================================
 
 /**
- * Network information from the backend API.
+ * Network information from the backend API (/v1/networks).
  *
  * Previously defined in api/client.ts.
  */
 export interface Network {
   id: string;
   name: string;
-  symbol?: string;
-  decimals?: number;
-  rpcUrl?: string;
-  explorerUrl?: string;
+  blockchain: string;
+  environment: string;
+  icon?: string;
+  currency?: {
+    symbol: string;
+    decimals: number;
+  };
+  config: Record<string, unknown>;
   [key: string]: unknown;
 }

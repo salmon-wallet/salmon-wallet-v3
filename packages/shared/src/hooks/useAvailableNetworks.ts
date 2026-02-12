@@ -9,13 +9,14 @@
  * @module hooks/useAvailableNetworks
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useUserConfig, type UseUserConfigParams } from './useUserConfig';
 import { SOLANA_NETWORKS } from '../blockchain/solana/factory';
 import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/factory';
 import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/factory';
 import type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
 import { MAINNET_NETWORK_IDS, sortNetworks, filterNetworks } from '../utils/network';
+import { getNetworks } from '../api/services/network';
 
 // Re-export domain types for backward compatibility
 export type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
@@ -104,6 +105,40 @@ export function useAvailableNetworks(
   params: UseUserConfigParams
 ): UseAvailableNetworksResult {
   const { developerNetworks, isLoading } = useUserConfig(params);
+  const [apiMerged, setApiMerged] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getNetworks()
+      .then((apiNetworks) => {
+        if (cancelled) return;
+        for (const net of apiNetworks) {
+          const { id, blockchain, config: cfg } = net;
+          if (!cfg) continue;
+
+          const chain = blockchain?.toLowerCase();
+          if (chain === 'solana' && SOLANA_NETWORKS[id]) {
+            if (cfg.nodeUrl) {
+              SOLANA_NETWORKS[id].config.nodeUrl = cfg.nodeUrl as string;
+            }
+          } else if (chain === 'ethereum' && ETHEREUM_NETWORKS[id]) {
+            if (cfg.rpcUrl) {
+              ETHEREUM_NETWORKS[id].config.rpcUrl = cfg.rpcUrl as string;
+            }
+          } else if (chain === 'bitcoin' && BITCOIN_NETWORKS[id]) {
+            if (cfg.apiUrl) {
+              BITCOIN_NETWORKS[id].config.apiUrl = cfg.apiUrl as string;
+            }
+          }
+        }
+        setApiMerged(true);
+      })
+      .catch(() => {
+        // Silently fall back to hardcoded defaults
+        if (!cancelled) setApiMerged(true);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const networks = useMemo<NetworksByBlockchain>(() => {
     return {
@@ -126,7 +161,7 @@ export function useAvailableNetworks(
         NETWORK_ORDER.ethereum
       ),
     };
-  }, [developerNetworks]);
+  }, [developerNetworks, apiMerged]);
 
   const allNetworks = useMemo<AnyNetwork[]>(() => {
     return [
