@@ -1,7 +1,21 @@
 // Background service worker for Salmon Wallet extension
 // Handles message passing between content scripts, popup, and dApps
+//
+// IMPORTANT: Do NOT import from '@salmon/shared' here.
+// The barrel export pulls in React, axios, crypto libs, etc. which crash
+// the MV3 service worker (no DOM). Keep this file dependency-free.
 
-import { STORAGE_KEYS, STASH_KEYS } from '@salmon/shared';
+const STORAGE_KEYS = {
+  CONNECTION: 'salmon_connection',
+  NETWORK_ID: 'salmon_active_network_id',
+  TRUSTED_APPS: 'salmon_trusted_apps',
+} as const;
+
+const STASH_KEYS = {
+  PASSWORD: 'password',
+  DERIVED_KEY: 'derived_key_cache',
+  LAST_ACTIVITY: 'salmon_last_activity',
+} as const;
 
 // Type definitions
 interface MessageData {
@@ -233,7 +247,6 @@ export default defineBackground(() => {
   ): boolean | void => {
     if (message.data.method === 'get') {
       sendResponse(stashedValues.get(message.data.key || ''));
-      return true;
     } else if (message.data.method === 'set') {
       if (message.data.key) {
         stashedValues.set(message.data.key, message.data.value);
@@ -241,13 +254,17 @@ export default defineBackground(() => {
           chrome.alarms.create('salmon_lock_alarm', { delayInMinutes: 5 });
         }
       }
+      sendResponse(undefined);
     } else if (message.data.method === 'delete') {
       if (message.data.key) {
         stashedValues.delete(message.data.key);
       }
+      sendResponse(undefined);
     } else if (message.data.method === 'clear') {
       stashedValues.clear();
+      sendResponse(undefined);
     }
+    return true;
   };
 
   // Main message listener
@@ -296,6 +313,18 @@ export default defineBackground(() => {
   // Tab removal listener to clean up connected tabs
   chrome.tabs.onRemoved.addListener((tabId) => {
     removeConnectedTabId(tabId);
+  });
+
+  // When the popup opens, it connects a long-lived port.
+  // When the popup closes, the port disconnects automatically.
+  // We clear session secrets so the user must re-authenticate on next open.
+  chrome.runtime.onConnect.addListener((port) => {
+    if (port.name !== 'salmon-popup-lifecycle') return;
+
+    port.onDisconnect.addListener(() => {
+      stashedValues.delete(STASH_KEYS.PASSWORD);
+      stashedValues.delete(STASH_KEYS.DERIVED_KEY);
+    });
   });
 
   // Clean up connected tabs on startup

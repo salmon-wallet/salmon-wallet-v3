@@ -10,7 +10,7 @@
  * - Smooth fade in/out transitions
  */
 import { useState, useEffect, CSSProperties } from 'react';
-import { colors, gradients, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIPS } from '@salmon/shared';
+import { colors, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIPS } from '@salmon/shared';
 import type { LoadingScreenProps } from './types';
 
 // ============================================================================
@@ -212,14 +212,7 @@ export function LoadingScreen({
   const logoStyle: CSSProperties = {
     width: `${logoSize}px`,
     height: `${logoSize}px`,
-    backgroundColor: colors.accent.primary,
-    borderRadius: '20%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '40px',
-    fontWeight: fontWeight.bold,
-    color: colors.text.primary,
+    objectFit: 'contain',
   };
 
   const tipsContainerStyle: CSSProperties = {
@@ -264,7 +257,7 @@ export function LoadingScreen({
 
           {/* Pulsing Logo */}
           <div style={logoContainerStyle}>
-            <div style={logoStyle}>S</div>
+            <img src="/images/Logo.png" alt="Salmon" style={logoStyle} />
           </div>
         </div>
       </div>

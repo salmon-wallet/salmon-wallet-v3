@@ -30,6 +30,7 @@ import {
 interface PasswordPageProps {
   mnemonic: string;
   flowType: 'create' | 'recover';
+  onCreating?: () => void;
   onSuccess: () => void;
   onBack: () => void;
 }
@@ -50,22 +51,11 @@ const Content = styled(Box)({
   padding: `0 ${spacing['2xl']}px`,
 });
 
-const LogoContainer = styled(Box)({
+const LogoImage = styled('img')({
   width: 60,
   height: 60,
-  borderRadius: '50%',
-  background: `linear-gradient(135deg, ${colors.accent.primary} 0%, ${colors.accent.primaryEnd} 100%)`,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  objectFit: 'contain',
   marginBottom: spacing['2xl'],
-});
-
-const LogoText = styled(Typography)({
-  fontSize: 24,
-  fontWeight: 700,
-  color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
 });
 
 const Title = styled(Typography)({
@@ -130,7 +120,7 @@ const ButtonContainer = styled(Box)({
   marginBottom: spacing['3xl'],
 });
 
-export function PasswordPage({ mnemonic, flowType, onSuccess, onBack }: PasswordPageProps) {
+export function PasswordPage({ mnemonic, flowType, onCreating, onSuccess, onBack }: PasswordPageProps) {
   const { t } = useTranslation();
   const [state, actions] = useAccountsContext();
 
@@ -213,6 +203,7 @@ export function PasswordPage({ mnemonic, flowType, onSuccess, onBack }: Password
         startIndex: 0,
       });
 
+      onCreating?.();
       await actions.addAccount(account, password);
       onSuccess();
     } catch (err) {
@@ -224,7 +215,7 @@ export function PasswordPage({ mnemonic, flowType, onSuccess, onBack }: Password
     } finally {
       setIsLoading(false);
     }
-  }, [isFormValid, mnemonic, password, actions, showSingleInput, t, state.counter, onSuccess]);
+  }, [isFormValid, mnemonic, password, actions, showSingleInput, t, state.counter, onCreating, onSuccess]);
 
   const showPasswordError =
     !showSingleInput && password.length > 0 && password.length < PASSWORD_CONSTRAINTS.MIN_LENGTH;
@@ -261,9 +252,7 @@ export function PasswordPage({ mnemonic, flowType, onSuccess, onBack }: Password
           backDisabled={isLoading || isChecking}
         />
         <Content>
-          <LogoContainer>
-            <LogoText>S</LogoText>
-          </LogoContainer>
+          <LogoImage src="/images/Logo.png" alt="Salmon" />
 
           <Title>
             {showSingleInput

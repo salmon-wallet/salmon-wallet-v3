@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useAccounts, useInactivityTimeout, DerivedKeyCache } from '@salmon/shared';
+import { useAccountsContext, useInactivityTimeout, DerivedKeyCache } from '@salmon/shared';
 import { LockPage } from '../../pages/lock/LockPage';
 import { HomePage } from '../../pages/home/HomePage';
 import { SelectOptionsPage } from '../../pages/auth/SelectOptionsPage';
@@ -42,13 +42,13 @@ function LoadingSpinner() {
  *
  * State machine:
  * 1. Loading (ready = false) -> Show loading spinner
- * 2. No accounts (ready = true, accounts.length = 0) -> Show auth flow
- * 3. Auth flow in progress (justCreatedRef = true) -> Show auth flow
- * 4. Locked (ready = true, locked = true) -> Show lock screen
+ * 2. Locked (ready = true, locked = true) -> Show lock screen
+ * 3. No accounts (ready = true, accounts.length = 0) -> Show auth flow
+ * 4. Auth flow in progress (justCreated = true) -> Show auth flow
  * 5. Unlocked (ready = true, locked = false) -> Show home
  */
 function App() {
-  const [state, actions] = useAccounts();
+  const [state, actions] = useAccountsContext();
   const { ready, locked, accounts } = state;
 
   // Auth flow state
@@ -109,8 +109,11 @@ function App() {
     setAuthStep('password');
   }, []);
 
-  const handlePasswordSuccess = useCallback(() => {
+  const handleCreating = useCallback(() => {
     setJustCreated(true);
+  }, []);
+
+  const handlePasswordSuccess = useCallback(() => {
     setAuthStep('success');
   }, []);
 
@@ -148,8 +151,21 @@ function App() {
     return <LoadingSpinner />;
   }
 
+  // Wallet is locked — show lock screen even if account metadata failed to load.
+  // This must be checked BEFORE accounts.length === 0 to prevent showing onboarding
+  // when encrypted mnemonics exist but account metadata is missing from storage.
+  if (locked) {
+    return (
+      <LockPage
+        onUnlock={actions.unlockAccounts}
+        onUnlockWithCachedKey={handleUnlockWithCachedKey}
+        onRemoveAllAccounts={handleRemoveAllAccounts}
+      />
+    );
+  }
+
   // Show auth flow when no accounts exist or when we just created one
-  if (accounts.length === 0 || justCreatedRef.current) {
+  if (accounts.length === 0 || justCreated) {
     switch (authStep) {
       case 'create':
         return (
@@ -171,6 +187,7 @@ function App() {
           <PasswordPage
             mnemonic={authData.mnemonic}
             flowType={authData.flowType}
+            onCreating={handleCreating}
             onSuccess={handlePasswordSuccess}
             onBack={handlePasswordBack}
           />
@@ -197,17 +214,6 @@ function App() {
           />
         );
     }
-  }
-
-  // Wallet is locked
-  if (locked) {
-    return (
-      <LockPage
-        onUnlock={actions.unlockAccounts}
-        onUnlockWithCachedKey={handleUnlockWithCachedKey}
-        onRemoveAllAccounts={handleRemoveAllAccounts}
-      />
-    );
   }
 
   // Wallet is unlocked
@@ -243,18 +249,6 @@ if (typeof document !== 'undefined' && !document.getElementById('app-spinner-sty
   styleSheet.textContent = `
     @keyframes spin {
       to { transform: rotate(360deg); }
-    }
-
-    /* Reset default styles for instant rendering */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background-color: #0f0f0f;
-      overflow: hidden;
     }
   `;
   document.head.appendChild(styleSheet);

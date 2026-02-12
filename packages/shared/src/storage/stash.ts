@@ -146,10 +146,20 @@ export function createExtensionStash(): Stash {
    * Sends a message to the background service worker.
    */
   const sendMessage = <T>(message: StashMessage): Promise<T> => {
-    return new Promise((resolve) => {
-      chromeRuntime.sendMessage<T>(message, (response: T) => {
-        resolve(response);
-      });
+    return new Promise((resolve, reject) => {
+      try {
+        chromeRuntime.sendMessage<T>(message, (response: T) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const lastError = (globalThis as any).chrome?.runtime?.lastError;
+          if (lastError) {
+            reject(new Error(lastError.message));
+            return;
+          }
+          resolve(response);
+        });
+      } catch (err) {
+        reject(err);
+      }
     });
   };
 

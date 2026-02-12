@@ -847,7 +847,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       setReady(true);
     };
 
-    init();
+    init().catch((error) => {
+      console.error('[useAccounts] init failed:', error);
+      setReady(true);
+    });
   }, [runUpgrades, unlockAccounts, load, loadMetadata]);
 
   // --------------------------------------------------------------------------
