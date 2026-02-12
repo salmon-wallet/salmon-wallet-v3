@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
-  Image,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, ms, s, vs } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
@@ -92,15 +92,17 @@ const MiniNftCard: React.FC<MiniNftCardProps> = ({ nft, onPress }) => {
       ) : (
         <>
           <Image
-            source={{ uri: nft.image }}
+            source={nft.image}
             style={styles.cardImage}
-            resizeMode="cover"
+            contentFit="cover"
             onLoadStart={() => setImageLoading(true)}
             onLoadEnd={() => setImageLoading(false)}
             onError={() => {
               setImageLoading(false);
               setImageError(true);
             }}
+            recyclingKey={nft.mint}
+            autoplay={true}
           />
           {imageLoading && (
             <View style={styles.loadingOverlay}>

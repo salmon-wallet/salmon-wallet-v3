@@ -3,13 +3,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { ContentLoader, Rect } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps, NftCardSkeletonProps } from './types';
@@ -89,13 +89,15 @@ export const NftCard: React.FC<NftCardProps> = ({
     return (
       <>
         <Image
-          source={{ uri: nft.image }}
+          source={nft.image}
           style={styles.image}
-          resizeMode="cover"
+          contentFit="cover"
           onLoadStart={handleImageLoadStart}
           onLoadEnd={handleImageLoadEnd}
           onError={handleImageError}
           accessibilityLabel={`NFT image for ${nft.name}`}
+          recyclingKey={nft.mint}
+          autoplay={true}
         />
         {imageLoading && (
           <View style={styles.loadingOverlay}>

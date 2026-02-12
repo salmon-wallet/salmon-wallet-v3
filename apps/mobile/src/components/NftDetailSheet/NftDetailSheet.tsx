@@ -9,12 +9,12 @@ import {
   StyleSheet,
   Platform,
   BackHandler,
-  Image,
   Animated,
   Dimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedAnimated, {
   useSharedValue,
@@ -422,9 +422,10 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             {nft.image && (
               <View style={styles.imageContainer}>
                 <Image
-                  source={{ uri: nft.image }}
+                  source={nft.image}
                   style={styles.nftImage}
-                  resizeMode="cover"
+                  contentFit="cover"
+                  autoplay={true}
                 />
               </View>
             )}
