@@ -18,6 +18,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import axios from 'axios';
 import { normalizeIpfsUrl } from '../../utils';
+import { nftImageOverrides } from './nft-image-overrides';
 import type { SolanaNetwork } from './SolanaAccount';
 import type {
   Nft,
@@ -178,6 +179,7 @@ function transformDasAsset(asset: HeliusDasAsset, owner: string): Nft {
         : null,
     tokenStandard: asset.interface || null,
     media:
+      normalizeIpfsUrl(nftImageOverrides[asset.id]) ||
       normalizeIpfsUrl(metadata.image) ||
       normalizeIpfsUrl(links.image) ||
       normalizeIpfsUrl(files[0]?.uri) ||
