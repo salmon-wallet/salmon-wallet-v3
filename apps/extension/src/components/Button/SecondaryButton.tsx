@@ -16,7 +16,9 @@ import {
 } from '@salmon/shared';
 import type { SecondaryButtonProps } from './types';
 
-const StyledButton = styled(Button)<{
+const StyledButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== 'buttonVariant',
+})<{
   fullWidth?: boolean;
   buttonVariant?: 'filled' | 'outline';
 }>(({ fullWidth, buttonVariant = 'filled' }) => ({

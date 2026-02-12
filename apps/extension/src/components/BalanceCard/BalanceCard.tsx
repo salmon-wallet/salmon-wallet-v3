@@ -117,14 +117,18 @@ const ChangeContainer = styled(Box)({
   marginBottom: spacing.lg,
 });
 
-const ChangeText = styled(Typography)<{ changeColor?: string }>(({ changeColor }) => ({
+const ChangeText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'changeColor',
+})<{ changeColor?: string }>(({ changeColor }) => ({
   fontSize: 16,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: changeColor || 'rgba(255, 255, 255, 0.6)',
 }));
 
-const ChangeAbsolute = styled(Typography)<{ changeColor?: string }>(({ changeColor }) => ({
+const ChangeAbsolute = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'changeColor',
+})<{ changeColor?: string }>(({ changeColor }) => ({
   fontSize: 14,
   fontWeight: fontWeight.regular,
   fontFamily: `${fontFamily.sans}, sans-serif`,

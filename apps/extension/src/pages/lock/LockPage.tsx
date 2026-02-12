@@ -3,12 +3,10 @@ import { useTranslation } from 'react-i18next';
 import {
   PrimaryButton,
   SecondaryButton,
-  LockIcon,
   LoadingScreen,
 } from '../../components';
 import {
   colors,
-  gradients,
   fontFamily,
   fontSize,
   fontWeight,
@@ -162,9 +160,7 @@ export function LockPage({ onUnlock, onUnlockWithCachedKey, onRemoveAllAccounts 
       <div style={styles.container}>
         <div style={styles.content}>
           <div style={styles.logoContainer}>
-            <div style={styles.logo}>
-              <LockIcon sx={{ fontSize: 32, color: colors.text.primary }} />
-            </div>
+            <img src="/images/Logo.png" alt="Salmon" style={styles.logoImage} />
           </div>
         </div>
       </div>
@@ -177,9 +173,7 @@ export function LockPage({ onUnlock, onUnlockWithCachedKey, onRemoveAllAccounts 
         <div style={styles.content}>
           {/* Logo with Lock Icon */}
           <div style={styles.logoContainer}>
-            <div style={styles.logo}>
-              <LockIcon sx={{ fontSize: 32, color: colors.text.primary }} />
-            </div>
+            <img src="/images/Logo.png" alt="Salmon" style={styles.logoImage} />
           </div>
 
           <h1 style={styles.title}>
@@ -326,14 +320,10 @@ const styles: Record<string, React.CSSProperties> = {
   logoContainer: {
     marginBottom: `${spacing['3xl']}px`,
   },
-  logo: {
+  logoImage: {
     width: '72px',
     height: '72px',
-    borderRadius: '50%',
-    background: gradients.primaryCSS,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    objectFit: 'contain' as const,
   },
   title: {
     fontSize: fontSize['2xl'],

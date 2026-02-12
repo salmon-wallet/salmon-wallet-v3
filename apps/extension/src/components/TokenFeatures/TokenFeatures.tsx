@@ -139,7 +139,9 @@ const BadgeIcon = styled('svg')({
   marginRight: spacing.xs,
 });
 
-const BadgeLabel = styled(Typography)<{ labelColor: string }>(({ labelColor }) => ({
+const BadgeLabel = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'labelColor',
+})<{ labelColor: string }>(({ labelColor }) => ({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,

@@ -62,23 +62,12 @@ const Content = styled(Box)({
   overflowY: 'auto',
 });
 
-const LogoContainer = styled(Box)({
+const LogoImage = styled('img')({
   width: 60,
   height: 60,
-  borderRadius: '50%',
-  background: `linear-gradient(135deg, ${colors.accent.primary} 0%, ${colors.accent.primaryEnd} 100%)`,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  objectFit: 'contain',
   marginBottom: spacing.lg,
   marginTop: spacing.lg,
-});
-
-const LogoText = styled(Typography)({
-  fontSize: 24,
-  fontWeight: 700,
-  color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
 });
 
 const Title = styled(Typography)({
@@ -171,9 +160,7 @@ function MessageStep({ onNext, onBack, t }: { onNext: () => void; onBack: () => 
       <ScreenHeader onBack={onBack} />
       <Content>
         <Box sx={{ marginTop: spacing['3xl'] }} />
-        <LogoContainer>
-          <LogoText>S</LogoText>
-        </LogoContainer>
+        <LogoImage src="/images/Logo.png" alt="Salmon" />
         <Title>{t('wallet.create.messageTitle')}</Title>
         <BodyText>{t('wallet.create.messageBody')}</BodyText>
         <Spacer />
@@ -218,9 +205,7 @@ function SeedPhraseStep({
         stepIndicator={{ totalSteps: 3, currentStep: 1 }}
       />
       <Content>
-        <LogoContainer>
-          <LogoText>S</LogoText>
-        </LogoContainer>
+        <LogoImage src="/images/Logo.png" alt="Salmon" />
         <Title>{t('wallet.create.your_seed_phrase')}</Title>
         <Subtitle>{t('wallet.create.your_seed_phrase_body')}</Subtitle>
         <SeedGridContainer>
@@ -306,9 +291,7 @@ function ValidateStep({
         stepIndicator={{ totalSteps: 3, currentStep: 2 }}
       />
       <Content>
-        <LogoContainer>
-          <LogoText>S</LogoText>
-        </LogoContainer>
+        <LogoImage src="/images/Logo.png" alt="Salmon" />
         <Title>{t('wallet.create.confirm_seed_phrase')}</Title>
         <Subtitle>{t('wallet.create.confirm_seed_phrase_body')}</Subtitle>
         <ValidationInputs>

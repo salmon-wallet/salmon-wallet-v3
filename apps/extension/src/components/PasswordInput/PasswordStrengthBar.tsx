@@ -29,7 +29,9 @@ const BarsContainer = styled(Box)({
   gap: spacing.xs,
 });
 
-const Bar = styled(Box)<{ active: boolean; barColor: string }>(
+const Bar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'active' && prop !== 'barColor',
+})<{ active: boolean; barColor: string }>(
   ({ active, barColor }) => ({
     width: 32,
     height: 4,
@@ -39,7 +41,9 @@ const Bar = styled(Box)<{ active: boolean; barColor: string }>(
   }),
 );
 
-const Label = styled(Typography)<{ labelColor: string }>(
+const Label = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'labelColor',
+})<{ labelColor: string }>(
   ({ labelColor }) => ({
     fontFamily: `${fontFamily.sans}, sans-serif`,
     fontSize: 12,

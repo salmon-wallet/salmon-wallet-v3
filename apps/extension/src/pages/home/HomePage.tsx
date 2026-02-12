@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
-  useAccounts,
+  useAccountsContext,
   useBalance,
   useUserConfig,
   colors,
@@ -131,7 +131,9 @@ const TabBar = styled(Box)({
   paddingRight: spacing.lg,
 });
 
-const TabButton = styled('button')<{ active: boolean }>(({ active }) => ({
+const TabButton = styled('button', {
+  shouldForwardProp: (prop) => prop !== 'active',
+})<{ active: boolean }>(({ active }) => ({
   flex: 1,
   padding: `${spacing.md}px 0`,
   background: 'none',
@@ -207,7 +209,7 @@ function PlaceholderPage({
  */
 export function HomePage() {
   const { t } = useTranslation();
-  const [state, actions] = useAccounts();
+  const [state, actions] = useAccountsContext();
   const { ready, activeAccount, activeBlockchainAccount, networkId, accounts, accountId } = state;
 
   // User configuration (developer networks toggle)

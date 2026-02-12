@@ -43,22 +43,11 @@ const Content = styled(Box)({
   padding: `0 ${spacing['2xl']}px`,
 });
 
-const LogoContainer = styled(Box)({
+const LogoImage = styled('img')({
   width: 60,
   height: 60,
-  borderRadius: '50%',
-  background: `linear-gradient(135deg, ${colors.accent.primary} 0%, ${colors.accent.primaryEnd} 100%)`,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  objectFit: 'contain',
   marginBottom: spacing['2xl'],
-});
-
-const LogoText = styled(Typography)({
-  fontSize: 24,
-  fontWeight: 700,
-  color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
 });
 
 const Title = styled(Typography)({
@@ -154,9 +143,7 @@ export function RecoverWalletPage({ onComplete, onBack }: RecoverWalletPageProps
         stepIndicator={{ totalSteps: 2, currentStep: 1 }}
       />
       <Content>
-        <LogoContainer>
-          <LogoText>S</LogoText>
-        </LogoContainer>
+        <LogoImage src="/images/Logo.png" alt="Salmon" />
 
         <Title>{t('wallet.recover.messageTitle')}</Title>
         <Subtitle>{t('wallet.recover.messageBody')}</Subtitle>

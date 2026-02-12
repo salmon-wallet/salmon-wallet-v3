@@ -38,22 +38,11 @@ const CenterContent = styled(Box)({
   justifyContent: 'center',
 });
 
-const LogoContainer = styled(Box)({
+const LogoImage = styled('img')({
   width: 80,
   height: 80,
-  borderRadius: '50%',
-  background: `linear-gradient(135deg, ${colors.accent.primary} 0%, ${colors.accent.primaryEnd} 100%)`,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  objectFit: 'contain',
   marginBottom: spacing['2xl'],
-});
-
-const LogoText = styled(Typography)({
-  fontSize: 32,
-  fontWeight: 700,
-  color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
 });
 
 const Title = styled(Typography)({
@@ -96,9 +85,7 @@ export function SuccessPage({ onGoToWallet, onCheckDerived }: SuccessPageProps) 
       <TopSpacer />
 
       <CenterContent>
-        <LogoContainer>
-          <LogoText>S</LogoText>
-        </LogoContainer>
+        <LogoImage src="/images/Logo.png" alt="Salmon" />
         <Title>{t('wallet.create.success_message')}</Title>
         <Subtitle>{t('wallet.create.success_message_body')}</Subtitle>
       </CenterContent>

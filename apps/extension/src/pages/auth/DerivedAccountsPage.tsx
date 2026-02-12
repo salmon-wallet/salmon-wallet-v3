@@ -137,22 +137,11 @@ const Content = styled(Box)({
   padding: `0 ${spacing['2xl']}px`,
 });
 
-const LogoContainer = styled(Box)({
+const LogoImage = styled('img')({
   width: 48,
   height: 48,
-  borderRadius: '50%',
-  background: `linear-gradient(135deg, ${colors.accent.primary} 0%, ${colors.accent.primaryEnd} 100%)`,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  objectFit: 'contain',
   marginBottom: spacing.lg,
-});
-
-const LogoText = styled(Typography)({
-  fontSize: 20,
-  fontWeight: 700,
-  color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
 });
 
 const Title = styled(Typography)({
@@ -444,9 +433,7 @@ export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageP
         backDisabled={loading || importing}
       />
       <Content>
-        <LogoContainer>
-          <LogoText>S</LogoText>
-        </LogoContainer>
+        <LogoImage src="/images/Logo.png" alt="Salmon" />
         <Title>Derived Accounts</Title>
         <Subtitle>
           Search for additional accounts derived from your seed phrase.

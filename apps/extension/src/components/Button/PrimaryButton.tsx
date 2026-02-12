@@ -1,5 +1,5 @@
 /**
- * PrimaryButton - Main call-to-action button with orange gradient
+ * PrimaryButton - Main call-to-action button (white background, dark text)
  *
  * Web version using MUI and @emotion/styled for browser extension
  */
@@ -8,7 +8,6 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
   colors,
-  gradients,
   componentSizes,
   fontFamily,
   fontSize,
@@ -21,18 +20,18 @@ const StyledButton = styled(Button)<{ fullWidth?: boolean }>(({ fullWidth }) => 
   width: fullWidth ? '100%' : 'auto',
   minWidth: 120,
   height: componentSizes.buttonHeight,
-  background: gradients.primaryCSS,
+  backgroundColor: colors.button.primaryBackground,
   borderRadius: componentSizes.buttonRadius,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontSize: fontSize.md,
   fontWeight: fontWeight.bold,
   letterSpacing: letterSpacing.widest,
-  color: colors.text.primary,
+  color: colors.button.primaryText,
   textTransform: 'none',
   boxShadow: 'none',
   transition: 'opacity 0.2s ease, transform 0.1s ease',
   '&:hover': {
-    background: gradients.primaryCSS,
+    backgroundColor: colors.button.primaryBackground,
     opacity: 0.9,
     boxShadow: 'none',
   },
@@ -40,9 +39,9 @@ const StyledButton = styled(Button)<{ fullWidth?: boolean }>(({ fullWidth }) => 
     transform: 'scale(0.98)',
   },
   '&.Mui-disabled': {
-    background: gradients.primaryCSS,
+    backgroundColor: colors.button.primaryBackground,
     opacity: colors.button.disabledOpacity,
-    color: colors.text.primary,
+    color: colors.button.primaryText,
   },
 }));
 
@@ -76,7 +75,7 @@ export function PrimaryButton({
     >
       {loading ? (
         <LoaderWrapper>
-          <CircularProgress size={24} sx={{ color: colors.text.primary }} />
+          <CircularProgress size={24} sx={{ color: colors.button.primaryText }} />
         </LoaderWrapper>
       ) : (
         children

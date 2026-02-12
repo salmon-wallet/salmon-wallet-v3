@@ -108,7 +108,9 @@ const BulletSeparator = styled(Typography)({
   padding: '0 4px',
 });
 
-const ChangeText = styled(Typography)<{ changeColor?: string }>(({ changeColor }) => ({
+const ChangeText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'changeColor',
+})<{ changeColor?: string }>(({ changeColor }) => ({
   fontSize: 14,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
