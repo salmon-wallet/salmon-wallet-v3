@@ -2,14 +2,18 @@
  * BalanceCardCarousel - Arrow-based navigation carousel for BalanceCard
  *
  * Web version replacing mobile's swipe gesture with left/right arrow buttons.
- * CSS transition on gradient change for smooth color fade (~350ms).
+ * Content slides out in one direction and the new card slides in from the opposite side.
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import { colors, spacing, borderRadius } from '@salmon/shared';
 import { BalanceCard } from './BalanceCard';
 import type { BalanceCardCarouselProps } from './types';
+
+const SLIDE_OUT_MS = 150;
+const SLIDE_IN_MS = 250;
+const CARD_SLIDE_PX = 60;
 
 const CarouselWrapper = styled(Box)({
   position: 'relative',
@@ -52,7 +56,11 @@ const RightArrow = styled(ArrowButton)({
 
 const CardContainer = styled(Box)({
   flex: 1,
-  transition: 'background 350ms ease',
+  overflow: 'hidden',
+});
+
+const SlideContent = styled(Box)({
+  transition: `transform ${SLIDE_IN_MS}ms cubic-bezier(0.25, 0.1, 0.25, 1), opacity ${SLIDE_IN_MS}ms ease`,
 });
 
 export function BalanceCardCarousel({
@@ -69,29 +77,62 @@ export function BalanceCardCarousel({
   const currentIndex = controlledIndex ?? internalIndex;
   const hasMultiple = blockchains.length > 1;
 
+  // Animation state
+  const [slideStyle, setSlideStyle] = useState({ transform: 'translateX(0)', opacity: 1 });
+  const animatingRef = useRef(false);
+
   const goTo = useCallback(
-    (index: number) => {
-      setInternalIndex(index);
-      const bc = blockchains[index];
-      if (bc) {
-        onBlockchainChange?.(bc.network.blockchain, index);
-      }
+    (newIndex: number, direction: 'left' | 'right') => {
+      if (animatingRef.current) return;
+      animatingRef.current = true;
+
+      const slideOut = direction === 'right' ? -CARD_SLIDE_PX : CARD_SLIDE_PX;
+      const slideIn = direction === 'right' ? CARD_SLIDE_PX : -CARD_SLIDE_PX;
+
+      // Phase 1: slide current content out
+      setSlideStyle({ transform: `translateX(${slideOut}px)`, opacity: 0 });
+
+      setTimeout(() => {
+        // Update index (swap content)
+        setInternalIndex(newIndex);
+        const bc = blockchains[newIndex];
+        if (bc) {
+          onBlockchainChange?.(bc.network.blockchain, newIndex);
+        }
+
+        // Position new content on opposite side instantly (no transition)
+        setSlideStyle({ transform: `translateX(${slideIn}px)`, opacity: 0 });
+
+        // Force reflow so the instant position applies before the transition
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // Phase 2: slide new content in
+            setSlideStyle({ transform: 'translateX(0)', opacity: 1 });
+            setTimeout(() => {
+              animatingRef.current = false;
+            }, SLIDE_IN_MS);
+          });
+        });
+      }, SLIDE_OUT_MS);
     },
     [blockchains, onBlockchainChange],
   );
 
   const goLeft = useCallback(() => {
-    if (currentIndex > 0) goTo(currentIndex - 1);
+    if (currentIndex > 0) goTo(currentIndex - 1, 'left');
   }, [currentIndex, goTo]);
 
   const goRight = useCallback(() => {
-    if (currentIndex < blockchains.length - 1) goTo(currentIndex + 1);
+    if (currentIndex < blockchains.length - 1) goTo(currentIndex + 1, 'right');
   }, [currentIndex, blockchains.length, goTo]);
 
   if (blockchains.length === 0) return null;
 
   const current = blockchains[currentIndex];
   if (!current) return null;
+
+  // Disable transition during instant repositioning (opacity === 0 and not at center)
+  const needsTransition = slideStyle.opacity === 1 || slideStyle.transform === 'translateX(0)';
 
   return (
     <CarouselWrapper style={style} className={className}>
@@ -106,19 +147,28 @@ export function BalanceCardCarousel({
       )}
 
       <CardContainer>
-        <BalanceCard
-          network={current.network}
-          blockchain={current.network.blockchain}
-          usdTotal={current.usdTotal}
-          changePercent={current.changePercent}
-          changeAmount={current.changeAmount}
-          hiddenBalance={hiddenBalance}
-          onToggleVisibility={onToggleVisibility}
-          loading={current.loading}
-          showNetworkLabel={showNetworkLabel}
-          currentIndex={currentIndex}
-          totalCount={blockchains.length}
-        />
+        <SlideContent
+          style={{
+            ...slideStyle,
+            transition: needsTransition
+              ? undefined  // Use the CSS class transition
+              : 'none',    // Instant repositioning
+          }}
+        >
+          <BalanceCard
+            network={current.network}
+            blockchain={current.network.blockchain}
+            usdTotal={current.usdTotal}
+            changePercent={current.changePercent}
+            changeAmount={current.changeAmount}
+            hiddenBalance={hiddenBalance}
+            onToggleVisibility={onToggleVisibility}
+            loading={current.loading}
+            showNetworkLabel={showNetworkLabel}
+            currentIndex={currentIndex}
+            totalCount={blockchains.length}
+          />
+        </SlideContent>
       </CardContainer>
 
       {hasMultiple && (

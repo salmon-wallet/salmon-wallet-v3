@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
@@ -6,16 +6,20 @@ import Typography from '@mui/material/Typography';
 import {
   useAccountsContext,
   useAvailableNetworks,
+  useAdjacentBalances,
   useBalance,
   useUserConfig,
   colors,
   spacing,
   fontFamily,
   type SettingsScreen,
+  type BlockchainBalance,
+  type BlockchainId,
+  type NetworkId,
 } from '@salmon/shared';
 import {
   WalletHeader,
-  BalanceCard,
+  BalanceCardCarousel,
   ActionButtonRow,
   TokenList,
   LockIcon,
@@ -55,6 +59,16 @@ type PageView =
   | 'addressBook'
   | 'trustedApps'
   | 'security';
+
+// Network ID → BlockchainId mapping for carousel theming
+const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
+  'solana-mainnet': 'solana',
+  'solana-devnet': 'solana-devnet',
+  'bitcoin-mainnet': 'bitcoin',
+  'bitcoin-testnet': 'bitcoin-testnet',
+  'ethereum-mainnet': 'ethereum',
+  'ethereum-sepolia': 'ethereum-sepolia',
+};
 
 /**
  * Styled components for HomePage layout
@@ -281,7 +295,7 @@ export function HomePage() {
   const { developerNetworks, toggleDeveloperNetworks } = userConfig;
 
   // Fetch backend RPC URLs and merge into network configs before balance fetch
-  const { networksReady } = useAvailableNetworks({
+  const { allNetworks: availableNetworks, networksReady } = useAvailableNetworks({
     activeBlockchainAccount: {
       network: {
         environment: (networkId || 'solana-mainnet') as 'solana-mainnet' | 'solana-devnet',
@@ -292,6 +306,7 @@ export function HomePage() {
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  const [activeBlockchainIndex, setActiveBlockchainIndex] = useState(0);
 
   // Current page view state for navigation
   const [currentPage, setCurrentPage] = useState<PageView>('home');
@@ -309,7 +324,29 @@ export function HomePage() {
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
 
-  // Fetch balance data for any blockchain account type (Solana, Bitcoin, Ethereum)
+  // Filter networks to only include those the user has accounts for
+  const allNetworks = useMemo(() => {
+    if (!activeAccount?.networksAccounts) return availableNetworks;
+    const userNetworkIds = Object.keys(activeAccount.networksAccounts);
+    return availableNetworks.filter(network => userNetworkIds.includes(network.id));
+  }, [availableNetworks, activeAccount?.networksAccounts]);
+
+  // Reset carousel index when network list changes (e.g. toggling dev mode off)
+  useEffect(() => {
+    if (activeBlockchainIndex >= allNetworks.length && allNetworks.length > 0) {
+      setActiveBlockchainIndex(0);
+      actions.changeNetwork(allNetworks[0].id);
+    }
+  }, [allNetworks, activeBlockchainIndex, actions]);
+
+  // Get adjacent network accounts for preloading
+  const { adjacentAccounts } = useAdjacentBalances({
+    activeAccount,
+    allNetworks,
+    activeIndex: activeBlockchainIndex,
+  });
+
+  // Fetch balance data for current network
   const {
     tokens,
     usdTotal,
@@ -320,8 +357,34 @@ export function HomePage() {
     toggleHidden,
   } = useBalance({
     account: activeBlockchainAccount,
-    networkId: networkId as 'solana-mainnet' | 'solana-devnet' | undefined,
+    networkId: networkId as NetworkId | undefined,
     skip: !ready || !activeBlockchainAccount || !networksReady,
+  });
+
+  // Preload balance data for previous network (activeIndex - 1)
+  const prevNetwork = allNetworks[activeBlockchainIndex - 1];
+  const {
+    usdTotal: prevUsdTotal,
+    changePercent: prevChangePercent,
+    changeAmount: prevChangeAmount,
+    loading: prevLoading,
+  } = useBalance({
+    account: adjacentAccounts.prevAccount,
+    networkId: prevNetwork?.id as NetworkId | undefined,
+    skip: !ready || !adjacentAccounts.prevAccount || !prevNetwork,
+  });
+
+  // Preload balance data for next network (activeIndex + 1)
+  const nextNetwork = allNetworks[activeBlockchainIndex + 1];
+  const {
+    usdTotal: nextUsdTotal,
+    changePercent: nextChangePercent,
+    changeAmount: nextChangeAmount,
+    loading: nextLoading,
+  } = useBalance({
+    account: adjacentAccounts.nextAccount,
+    networkId: nextNetwork?.id as NetworkId | undefined,
+    skip: !ready || !adjacentAccounts.nextAccount || !nextNetwork,
   });
 
   // Navigation handlers
@@ -487,27 +550,102 @@ export function HomePage() {
     }
   }, []);
 
-  // Prepare network info for BalanceCard
-  const networkInfo = useMemo(() => ({
-    id: networkId || 'solana-mainnet',
-    name: networkId === 'solana-devnet' ? 'Devnet' : 'Solana Mainnet',
-  }), [networkId]);
+  // Build blockchain balances array for carousel
+  const blockchainBalances: BlockchainBalance[] = useMemo(() => {
+    return allNetworks.map((network, index) => {
+      const blockchain = NETWORK_TO_BLOCKCHAIN[network.id] || 'solana';
+      const isActiveNetwork = network.id === networkId;
+      const isPrevNetwork = index === activeBlockchainIndex - 1;
+      const isNextNetwork = index === activeBlockchainIndex + 1;
 
-  // Transform tokens to match TokenList expected format
+      let balanceData: {
+        usdTotal: number | undefined;
+        changePercent: number | undefined;
+        changeAmount: number | undefined;
+        loading: boolean;
+      };
+
+      if (isActiveNetwork) {
+        balanceData = {
+          usdTotal,
+          changePercent,
+          changeAmount,
+          loading: loading && usdTotal === undefined,
+        };
+      } else if (isPrevNetwork && prevNetwork) {
+        balanceData = {
+          usdTotal: prevUsdTotal,
+          changePercent: prevChangePercent,
+          changeAmount: prevChangeAmount,
+          loading: prevLoading,
+        };
+      } else if (isNextNetwork && nextNetwork) {
+        balanceData = {
+          usdTotal: nextUsdTotal,
+          changePercent: nextChangePercent,
+          changeAmount: nextChangeAmount,
+          loading: nextLoading,
+        };
+      } else {
+        balanceData = { usdTotal: undefined, changePercent: undefined, changeAmount: undefined, loading: false };
+      }
+
+      return {
+        network: { id: network.id, name: network.name, blockchain },
+        ...balanceData,
+      };
+    });
+  }, [
+    allNetworks, networkId, activeBlockchainIndex,
+    usdTotal, changePercent, changeAmount, loading,
+    prevNetwork, prevUsdTotal, prevChangePercent, prevChangeAmount, prevLoading,
+    nextNetwork, nextUsdTotal, nextChangePercent, nextChangeAmount, nextLoading,
+  ]);
+
+  // Handle blockchain change from carousel arrows
+  const handleBlockchainChange = useCallback((blockchain: BlockchainId, index: number) => {
+    setActiveBlockchainIndex(index);
+    const selectedBalance = blockchainBalances[index];
+    if (selectedBalance) {
+      actions.changeNetwork(selectedBalance.network.id);
+    }
+  }, [blockchainBalances, actions]);
+
+  // Current blockchain for filtering logic
+  const currentBlockchain = useMemo(() => {
+    const active = blockchainBalances[activeBlockchainIndex];
+    return active?.network.blockchain || 'solana';
+  }, [activeBlockchainIndex, blockchainBalances]);
+
+  // Transform tokens to match TokenList expected format, filtering spam in non-dev mode
   const formattedTokens = useMemo(() => {
-    return tokens.map((token) => ({
-      address: token.address,
-      name: token.name,
-      symbol: token.symbol,
-      logo: token.logo ?? undefined,
-      price: token.price,
-      uiAmount: token.uiAmount,
-      usdBalance: token.usdBalance,
-      last24HoursChange: token.priceChange24h !== undefined
-        ? { perc: token.priceChange24h }
-        : undefined,
-    }));
-  }, [tokens]);
+    return tokens
+      .filter((token) => {
+        // Tag-based spam filtering only applies to Solana (Jupiter tags)
+        if (!currentBlockchain.startsWith('solana')) return true;
+
+        const hasMeaningfulTags =
+          token.tags &&
+          token.tags.length > 0 &&
+          token.tags.some((tag) => tag !== 'unknown');
+        if (hasMeaningfulTags) return true;
+
+        // Hide unknown tokens unless developer mode is enabled
+        return !!developerNetworks;
+      })
+      .map((token) => ({
+        address: token.address,
+        name: token.name,
+        symbol: token.symbol,
+        logo: token.logo ?? undefined,
+        price: token.price,
+        uiAmount: token.uiAmount,
+        usdBalance: token.usdBalance,
+        last24HoursChange: token.priceChange24h !== undefined
+          ? { perc: token.priceChange24h }
+          : undefined,
+      }));
+  }, [tokens, developerNetworks, currentBlockchain]);
 
   const accountName = activeAccount?.name || t('home.unnamed_account', 'Account');
   const accountAddress = activeBlockchainAccount?.getReceiveAddress() || '';
@@ -609,16 +747,14 @@ export function HomePage() {
         <TabContent>
           {activeTab === 'home' && (
             <>
-              {/* Balance Card */}
-              <BalanceCard
-                network={networkInfo}
-                blockchain={networkId === 'solana-devnet' ? 'solana-devnet' : 'solana'}
-                usdTotal={usdTotal}
-                changePercent={changePercent}
-                changeAmount={changeAmount}
+              {/* Balance Card Carousel */}
+              <BalanceCardCarousel
+                blockchains={blockchainBalances}
                 hiddenBalance={hiddenBalance}
                 onToggleVisibility={toggleHidden}
-                loading={loading && usdTotal === undefined}
+                onBlockchainChange={handleBlockchainChange}
+                activeIndex={activeBlockchainIndex}
+                showNetworkLabel={developerNetworks}
               />
 
               {/* Action Buttons */}
