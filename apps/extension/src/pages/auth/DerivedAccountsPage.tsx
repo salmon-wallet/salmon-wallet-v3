@@ -22,6 +22,7 @@ import {
   WEI_PER_ETH_BIGINT,
   ethereum,
   useAccountsContext,
+  fetchAndMergeNetworkConfigs,
   type BlockchainAccount,
 } from '@salmon/shared';
 import {
@@ -245,6 +246,8 @@ export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageP
   const mnemonic = activeAccount?.mnemonic;
 
   useEffect(() => {
+    let cancelled = false;
+
     const searchDerivedAccounts = async () => {
       if (!mnemonic || !activeAccount) {
         setLoading(false);
@@ -252,6 +255,13 @@ export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageP
       }
 
       setLoading(true);
+
+      // Fetch and merge real RPC URLs from the backend before scanning.
+      // Without this, the scan would use hardcoded public fallback URLs
+      // that are rate-limited (Solana 403, Ethereum 429).
+      await fetchAndMergeNetworkConfigs();
+
+      if (cancelled) return;
 
       const networkIds = Object.keys(activeAccount.networksAccounts)
         .filter((id) => SCAN_NETWORKS.includes(id));
@@ -268,6 +278,8 @@ export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageP
           let index = 1;
 
           while (consecutiveEmpty < GAP_LIMIT) {
+            if (cancelled) return networkAccounts;
+
             await new Promise((resolve) => setTimeout(resolve, 1));
 
             try {
@@ -310,11 +322,14 @@ export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageP
         }),
       );
 
-      setAccounts(allResults.flat());
-      setLoading(false);
+      if (!cancelled) {
+        setAccounts(allResults.flat());
+        setLoading(false);
+      }
     };
 
     searchDerivedAccounts();
+    return () => { cancelled = true; };
   }, [mnemonic, activeAccount]);
 
   const handleToggleAccount = useCallback((key: string) => {

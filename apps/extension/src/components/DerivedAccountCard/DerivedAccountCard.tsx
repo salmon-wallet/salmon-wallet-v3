@@ -11,27 +11,27 @@ import CheckIcon from '@mui/icons-material/Check';
 import { colors, spacing, borderRadius, componentSizes, fontFamily } from '@salmon/shared';
 import type { DerivedAccountCardProps } from './types';
 
-const Card = styled(Box)<{ selected: boolean }>(({ selected }) => ({
+const Card = styled(Box)<{ $selected: boolean }>(({ $selected }) => ({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: colors.card.background,
   borderRadius: borderRadius.xl,
-  border: `1px solid ${selected ? colors.card.borderActive : colors.card.border}`,
+  border: `1px solid ${$selected ? colors.card.borderActive : colors.card.border}`,
   padding: spacing.lg,
   marginBottom: spacing.md,
   cursor: 'pointer',
   transition: 'border-color 0.2s ease',
   '&:hover': {
-    borderColor: selected ? colors.card.borderActive : colors.accent.primary,
+    borderColor: $selected ? colors.card.borderActive : colors.accent.primary,
   },
 }));
 
-const Checkbox = styled(Box)<{ selected: boolean }>(({ selected }) => ({
+const Checkbox = styled(Box)<{ $selected: boolean }>(({ $selected }) => ({
   width: componentSizes.checkboxSize,
   height: componentSizes.checkboxSize,
   borderRadius: 6,
-  backgroundColor: selected ? colors.accent.primary : 'rgba(255, 255, 255, 0.2)',
+  backgroundColor: $selected ? colors.accent.primary : 'rgba(255, 255, 255, 0.2)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -71,11 +71,11 @@ const BalanceContainer = styled(Box)({
   flexShrink: 0,
 });
 
-const Balance = styled(Typography)<{ dimmed: boolean }>(({ dimmed }) => ({
+const Balance = styled(Typography)<{ $dimmed: boolean }>(({ $dimmed }) => ({
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontSize: 14,
-  opacity: dimmed ? 0.4 : 1,
+  opacity: $dimmed ? 0.4 : 1,
 }));
 
 const DerivedAccountCardComponent: React.FC<DerivedAccountCardProps> = ({
@@ -90,8 +90,8 @@ const DerivedAccountCardComponent: React.FC<DerivedAccountCardProps> = ({
   className,
 }) => {
   return (
-    <Card selected={selected} onClick={onToggle} style={style} className={className}>
-      <Checkbox selected={selected}>
+    <Card $selected={selected} onClick={onToggle} style={style} className={className}>
+      <Checkbox $selected={selected}>
         {selected && <CheckIcon sx={{ fontSize: 16, color: colors.text.primary }} />}
       </Checkbox>
 
@@ -103,7 +103,7 @@ const DerivedAccountCardComponent: React.FC<DerivedAccountCardProps> = ({
       </Info>
 
       <BalanceContainer>
-        <Balance dimmed={dimmed}>{balanceFormatted}</Balance>
+        <Balance $dimmed={dimmed}>{balanceFormatted}</Balance>
       </BalanceContainer>
     </Card>
   );

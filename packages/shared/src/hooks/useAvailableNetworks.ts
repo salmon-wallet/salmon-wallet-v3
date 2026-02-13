@@ -52,6 +52,48 @@ const NETWORK_ORDER = {
 };
 
 // ============================================================================
+// Standalone merge function
+// ============================================================================
+
+/**
+ * Fetches network configs from the backend API and merges them into the
+ * global SOLANA_NETWORKS, ETHEREUM_NETWORKS, and BITCOIN_NETWORKS objects.
+ *
+ * This can be called imperatively (e.g. before a derivation scan) or from
+ * the useAvailableNetworks hook.  The underlying getNetworks() call is
+ * promise-cached, so multiple calls are cheap.
+ *
+ * @returns true if the merge succeeded, false if it fell back to defaults
+ */
+export async function fetchAndMergeNetworkConfigs(): Promise<boolean> {
+  try {
+    const apiNetworks = await getNetworks();
+    for (const net of apiNetworks) {
+      const { id, blockchain, config: cfg } = net;
+      if (!cfg) continue;
+
+      const chain = blockchain?.toLowerCase();
+      if (chain === 'solana' && SOLANA_NETWORKS[id]) {
+        if (cfg.nodeUrl) {
+          SOLANA_NETWORKS[id].config.nodeUrl = cfg.nodeUrl as string;
+        }
+      } else if (chain === 'ethereum' && ETHEREUM_NETWORKS[id]) {
+        if (cfg.rpcUrl) {
+          ETHEREUM_NETWORKS[id].config.rpcUrl = cfg.rpcUrl as string;
+        }
+      } else if (chain === 'bitcoin' && BITCOIN_NETWORKS[id]) {
+        if (cfg.apiUrl) {
+          BITCOIN_NETWORKS[id].config.apiUrl = cfg.apiUrl as string;
+        }
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ============================================================================
 // Hook Implementation
 // ============================================================================
 
@@ -63,45 +105,6 @@ const NETWORK_ORDER = {
  *
  * @param params - Hook parameters including the active blockchain account
  * @returns Available networks and related state
- *
- * @example
- * ```typescript
- * import { useAvailableNetworks } from '@salmon/shared/hooks';
- *
- * function NetworkSelector() {
- *   const activeAccount = { network: { environment: 'mainnet-beta', blockchain: 'solana' } };
- *
- *   const {
- *     networks,
- *     allNetworks,
- *     developerNetworks,
- *     isLoading,
- *   } = useAvailableNetworks({ activeBlockchainAccount: activeAccount });
- *
- *   if (isLoading) return <Loading />;
- *
- *   return (
- *     <View>
- *       <Text>Solana Networks:</Text>
- *       {networks.solana.map(network => (
- *         <Text key={network.id}>{network.name}</Text>
- *       ))}
- *
- *       <Text>Bitcoin Networks:</Text>
- *       {networks.bitcoin.map(network => (
- *         <Text key={network.id}>{network.name}</Text>
- *       ))}
- *
- *       <Text>Ethereum Networks:</Text>
- *       {networks.ethereum.map(network => (
- *         <Text key={network.id}>{network.name}</Text>
- *       ))}
- *
- *       <Text>Developer Mode: {developerNetworks ? 'ON' : 'OFF'}</Text>
- *     </View>
- *   );
- * }
- * ```
  */
 export function useAvailableNetworks(
   params: UseUserConfigParams
@@ -111,32 +114,8 @@ export function useAvailableNetworks(
 
   useEffect(() => {
     let cancelled = false;
-    getNetworks()
-      .then((apiNetworks) => {
-        if (cancelled) return;
-        for (const net of apiNetworks) {
-          const { id, blockchain, config: cfg } = net;
-          if (!cfg) continue;
-
-          const chain = blockchain?.toLowerCase();
-          if (chain === 'solana' && SOLANA_NETWORKS[id]) {
-            if (cfg.nodeUrl) {
-              SOLANA_NETWORKS[id].config.nodeUrl = cfg.nodeUrl as string;
-            }
-          } else if (chain === 'ethereum' && ETHEREUM_NETWORKS[id]) {
-            if (cfg.rpcUrl) {
-              ETHEREUM_NETWORKS[id].config.rpcUrl = cfg.rpcUrl as string;
-            }
-          } else if (chain === 'bitcoin' && BITCOIN_NETWORKS[id]) {
-            if (cfg.apiUrl) {
-              BITCOIN_NETWORKS[id].config.apiUrl = cfg.apiUrl as string;
-            }
-          }
-        }
-        setApiMerged(true);
-      })
-      .catch(() => {
-        // Silently fall back to hardcoded defaults
+    fetchAndMergeNetworkConfigs()
+      .then((success) => {
         if (!cancelled) setApiMerged(true);
       });
     return () => { cancelled = true; };

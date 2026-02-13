@@ -64,6 +64,7 @@ export type {
 // Available networks hook
 export {
   useAvailableNetworks,
+  fetchAndMergeNetworkConfigs,
   default as useAvailableNetworksDefault,
 } from './useAvailableNetworks';
 export type {
