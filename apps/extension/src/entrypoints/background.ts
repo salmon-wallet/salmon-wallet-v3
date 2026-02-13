@@ -315,17 +315,8 @@ export default defineBackground(() => {
     removeConnectedTabId(tabId);
   });
 
-  // When the popup opens, it connects a long-lived port.
-  // When the popup closes, the port disconnects automatically.
-  // We clear session secrets so the user must re-authenticate on next open.
-  chrome.runtime.onConnect.addListener((port) => {
-    if (port.name !== 'salmon-popup-lifecycle') return;
-
-    port.onDisconnect.addListener(() => {
-      stashedValues.delete(STASH_KEYS.PASSWORD);
-      stashedValues.delete(STASH_KEYS.DERIVED_KEY);
-    });
-  });
+  // Open side panel (not popup) when clicking the extension icon
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
   // Clean up connected tabs on startup
   cleanConnectedTabs();

@@ -535,6 +535,7 @@ export function HomePage() {
             {/* Balance Card */}
             <BalanceCard
               network={networkInfo}
+              blockchain={networkId === 'solana-devnet' ? 'solana-devnet' : 'solana'}
               usdTotal={usdTotal}
               changePercent={changePercent}
               changeAmount={changeAmount}
@@ -560,7 +561,6 @@ export function HomePage() {
                   loading={loading && formattedTokens.length === 0}
                   onTokenPress={handleTokenPress}
                   hiddenBalance={hiddenBalance}
-                  maxHeight={400}
                 />
               ) : (
                 <EmptyState>

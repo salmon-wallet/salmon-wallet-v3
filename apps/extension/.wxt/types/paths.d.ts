@@ -64,6 +64,7 @@ declare module "wxt/browser" {
     | "/images/Logo.png"
     | "/injected.js"
     | "/popup.html"
+    | "/sidepanel.html"
   type HtmlPublicPath = Extract<PublicPath, `${string}.html`>
   export interface WxtRuntime {
     getURL(path: PublicPath): string;

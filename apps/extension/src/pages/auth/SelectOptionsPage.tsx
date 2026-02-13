@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { colors, spacing, fontFamily, fontSize, componentSizes, contentPadding } from '@salmon/shared';
+import { colors, spacing, fontFamily, fontSize, componentSizes, contentPadding, s, vs, ms } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../../components';
 
 interface SelectOptionsPageProps {
@@ -15,8 +15,8 @@ const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  padding: `0 ${contentPadding.screen}px`,
-  paddingBottom: spacing['3xl'],
+  padding: `0 ${s(contentPadding.screen)}px`,
+  paddingBottom: vs(spacing['3xl']),
   backgroundColor: colors.background.primary,
 });
 
@@ -32,25 +32,25 @@ const WelcomeText = styled(Typography)({
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: 700,
-  fontSize: fontSize['2xl'],
-  lineHeight: '32px',
+  fontSize: ms(fontSize['2xl']),
+  lineHeight: `${ms(32)}px`,
   textAlign: 'center',
-  marginBottom: spacing['3xl'],
+  marginBottom: vs(spacing['3xl']),
 });
 
 const LogoImage = styled('img')({
-  width: componentSizes.logoSizeMedium,
-  height: componentSizes.logoSizeMedium,
+  width: s(componentSizes.logoSizeMedium),
+  height: s(componentSizes.logoSizeMedium),
   objectFit: 'contain',
-  marginBottom: spacing['2xl'],
+  marginBottom: vs(spacing['2xl']),
 });
 
 const BrandName = styled(Typography)({
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: 700,
-  fontSize: 32,
-  lineHeight: '40px',
+  fontSize: ms(32),
+  lineHeight: `${ms(40)}px`,
   textAlign: 'center',
 });
 
@@ -58,7 +58,7 @@ const ButtonsContainer = styled(Box)({
   width: '100%',
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing.lg,
+  gap: vs(spacing.lg),
 });
 
 export function SelectOptionsPage({ onCreateWallet, onRecoverWallet }: SelectOptionsPageProps) {

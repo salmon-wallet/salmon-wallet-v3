@@ -3,6 +3,7 @@
  *
  * 3 internal steps: message → seedPhrase → validate
  * Mirrors mobile create.tsx flow for the extension.
+ * Uses responsive scaling (s, vs, ms) from shared.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +13,11 @@ import Typography from '@mui/material/Typography';
 import {
   colors,
   spacing,
+  fontSize,
   fontFamily,
+  s,
+  vs,
+  ms,
   generateMnemonic,
   generateValidationPositions,
   validateMnemonicWords,
@@ -57,73 +62,87 @@ const Content = styled(Box)({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
+  padding: `0 ${s(spacing['2xl'])}px`,
+});
+
+const FormArea = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
-  padding: `0 ${spacing['2xl']}px`,
+  justifyContent: 'center',
+});
+
+const ScrollContent = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: `0 ${s(spacing['2xl'])}px`,
   overflowY: 'auto',
 });
 
 const LogoImage = styled('img')({
-  width: 60,
-  height: 60,
+  width: ms(60),
+  height: ms(60),
   objectFit: 'contain',
-  marginBottom: spacing.lg,
-  marginTop: spacing.lg,
+  marginBottom: vs(spacing.lg),
+  marginTop: vs(spacing.lg),
 });
 
 const Title = styled(Typography)({
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: 700,
-  fontSize: 24,
-  lineHeight: '32px',
-  marginBottom: spacing.md,
+  fontSize: ms(fontSize['2xl']),
+  lineHeight: `${ms(32)}px`,
+  marginBottom: vs(spacing.md),
   textAlign: 'center',
 });
 
 const Subtitle = styled(Typography)({
   color: colors.text.secondary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 14,
-  lineHeight: '20px',
-  marginBottom: spacing['2xl'],
+  fontSize: ms(fontSize.base),
+  lineHeight: `${ms(20)}px`,
+  marginBottom: vs(spacing['2xl']),
   textAlign: 'center',
-  paddingLeft: spacing.lg,
-  paddingRight: spacing.lg,
+  paddingLeft: s(spacing.lg),
+  paddingRight: s(spacing.lg),
 });
 
 const BodyText = styled(Typography)({
   color: colors.text.secondary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 16,
-  lineHeight: '24px',
-  marginBottom: spacing['3xl'],
+  fontSize: ms(fontSize.md),
+  lineHeight: `${ms(24)}px`,
+  marginBottom: vs(spacing['3xl']),
   textAlign: 'center',
-  paddingLeft: spacing.lg,
-  paddingRight: spacing.lg,
+  paddingLeft: s(spacing.lg),
+  paddingRight: s(spacing.lg),
 });
-
-const Spacer = styled(Box)({ flex: 1 });
 
 const ButtonContainer = styled(Box)({
   width: '100%',
-  marginBottom: spacing['2xl'],
+  paddingBottom: vs(spacing['2xl']),
+  paddingTop: vs(spacing.lg),
 });
 
 const SeedGridContainer = styled(Box)({
   width: '100%',
-  marginBottom: spacing['2xl'],
+  marginBottom: vs(spacing['2xl']),
 });
 
 const ValidationInputs = styled(Box)({
   width: '100%',
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing.lg,
+  gap: vs(spacing.lg),
 });
 
 const ToastOverlay = styled(Box)({
   position: 'fixed',
-  bottom: 100,
+  bottom: vs(100),
   left: 0,
   right: 0,
   display: 'flex',
@@ -136,18 +155,18 @@ const Toast = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  paddingLeft: spacing.lg,
-  paddingRight: spacing.lg,
-  paddingTop: spacing.md,
-  paddingBottom: spacing.md,
-  borderRadius: 24,
-  gap: spacing.sm,
+  paddingLeft: s(spacing.lg),
+  paddingRight: s(spacing.lg),
+  paddingTop: vs(spacing.md),
+  paddingBottom: vs(spacing.md),
+  borderRadius: ms(24),
+  gap: s(spacing.sm),
 });
 
 const ToastText = styled(Typography)({
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 14,
+  fontSize: ms(fontSize.base),
 });
 
 // ============================================================================
@@ -159,11 +178,11 @@ function MessageStep({ onNext, onBack, t }: { onNext: () => void; onBack: () => 
     <Container>
       <ScreenHeader onBack={onBack} />
       <Content>
-        <Box sx={{ marginTop: spacing['3xl'] }} />
-        <LogoImage src="/images/Logo.png" alt="Salmon" />
-        <Title>{t('wallet.create.messageTitle')}</Title>
-        <BodyText>{t('wallet.create.messageBody')}</BodyText>
-        <Spacer />
+        <FormArea>
+          <LogoImage src="/images/Logo.png" alt="Salmon" />
+          <Title>{t('wallet.create.messageTitle')}</Title>
+          <BodyText>{t('wallet.create.messageBody')}</BodyText>
+        </FormArea>
         <ButtonContainer>
           <PrimaryButton onClick={onNext}>
             {t('actions.start').toUpperCase()}
@@ -204,7 +223,7 @@ function SeedPhraseStep({
         onBack={onBack}
         stepIndicator={{ totalSteps: 3, currentStep: 1 }}
       />
-      <Content>
+      <ScrollContent>
         <LogoImage src="/images/Logo.png" alt="Salmon" />
         <Title>{t('wallet.create.your_seed_phrase')}</Title>
         <Subtitle>{t('wallet.create.your_seed_phrase_body')}</Subtitle>
@@ -221,7 +240,7 @@ function SeedPhraseStep({
             {t('wallet.create.ive_backed_up_seed_phrase').toUpperCase()}
           </PrimaryButton>
         </ButtonContainer>
-      </Content>
+      </ScrollContent>
       {showToast && (
         <ToastOverlay>
           <Toast>
@@ -291,27 +310,28 @@ function ValidateStep({
         stepIndicator={{ totalSteps: 3, currentStep: 2 }}
       />
       <Content>
-        <LogoImage src="/images/Logo.png" alt="Salmon" />
-        <Title>{t('wallet.create.confirm_seed_phrase')}</Title>
-        <Subtitle>{t('wallet.create.confirm_seed_phrase_body')}</Subtitle>
-        <ValidationInputs>
-          {validationWords.map((vw, index) => (
-            <SeedWordInput
-              key={`word-${vw.position}`}
-              position={vw.position}
-              value={vw.userInput}
-              onChangeText={(value) => handleInputChange(index, value)}
-              validationState={getValidationState(index)}
-              autoFocus={index === 0}
-              onSubmitEditing={() => {
-                if (index === validationWords.length - 1 && validationResult.isValid) {
-                  onComplete();
-                }
-              }}
-            />
-          ))}
-        </ValidationInputs>
-        <Spacer />
+        <FormArea>
+          <LogoImage src="/images/Logo.png" alt="Salmon" />
+          <Title>{t('wallet.create.confirm_seed_phrase')}</Title>
+          <Subtitle>{t('wallet.create.confirm_seed_phrase_body')}</Subtitle>
+          <ValidationInputs>
+            {validationWords.map((vw, index) => (
+              <SeedWordInput
+                key={`word-${vw.position}`}
+                position={vw.position}
+                value={vw.userInput}
+                onChangeText={(value) => handleInputChange(index, value)}
+                validationState={getValidationState(index)}
+                autoFocus={index === 0}
+                onSubmitEditing={() => {
+                  if (index === validationWords.length - 1 && validationResult.isValid) {
+                    onComplete();
+                  }
+                }}
+              />
+            ))}
+          </ValidationInputs>
+        </FormArea>
         <ButtonContainer>
           <PrimaryButton
             onClick={onComplete}

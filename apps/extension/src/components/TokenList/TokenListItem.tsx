@@ -1,7 +1,8 @@
 /**
  * TokenListItem - Individual token row component
  *
- * Web version using MUI and @emotion/styled for browser extension
+ * Web version using MUI and @emotion/styled for browser extension.
+ * Uses responsive scaling (s, vs, ms) from shared to match mobile proportions.
  */
 import { useCallback } from 'react';
 import { styled } from '../../utils/styled';
@@ -11,26 +12,21 @@ import {
   colors,
   spacing,
   borderRadius,
+  fontSize,
   fontFamily,
   fontWeight,
+  componentSizes,
+  s,
+  vs,
+  ms,
   showAmount,
   showPercentage,
   showAbsoluteChange,
   getLabelValue,
   hiddenValue,
-  type LabelType,
 } from '@salmon/shared';
 import { ChevronRightIcon } from '../Icon';
 import type { TokenListItemProps } from './types';
-
-/**
- * Color mapping for percentage change labels
- */
-const LABEL_COLORS: Record<LabelType, string> = {
-  positive: '#00C853',
-  negative: '#FF5252',
-  neutral: '#9E9E9E',
-};
 
 /**
  * Default placeholder image for tokens without a logo
@@ -42,11 +38,12 @@ const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  padding: `${spacing.md}px ${spacing.lg}px`,
+  padding: `${vs(spacing.md)}px ${s(spacing.lg)}px`,
   backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  borderRadius: borderRadius.lg,
-  marginBottom: spacing.sm,
+  borderRadius: ms(borderRadius.lg),
+  marginBottom: vs(spacing.sm),
   cursor: 'pointer',
+  gap: s(spacing.md),
   transition: 'background-color 0.2s ease',
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -54,37 +51,38 @@ const Container = styled(Box)({
 });
 
 const TokenLogo = styled('img')({
-  width: 48,
-  height: 48,
-  borderRadius: 24,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  width: s(componentSizes.tokenIcon),
+  height: s(componentSizes.tokenIcon),
+  borderRadius: ms(borderRadius.tokenIcon),
+  backgroundColor: colors.background.tertiary,
   objectFit: 'cover',
+  flexShrink: 0,
 });
 
 const TokenLogoPlaceholder = styled(Box)({
-  width: 48,
-  height: 48,
-  borderRadius: 24,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  width: s(componentSizes.tokenIcon),
+  height: s(componentSizes.tokenIcon),
+  borderRadius: ms(borderRadius.tokenIcon),
+  backgroundColor: colors.background.tertiary,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: 20,
+  fontSize: ms(fontSize.base),
   color: colors.text.secondary,
+  flexShrink: 0,
 });
 
 const InfoContainer = styled(Box)({
   flex: 1,
-  marginLeft: spacing.md,
-  minWidth: 0, // Allow text truncation
+  minWidth: 0,
 });
 
 const TokenName = styled(Typography)({
-  fontSize: 16,
+  fontSize: ms(fontSize.tokenNamePrice),
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  marginBottom: spacing['2xs'],
+  marginBottom: vs(spacing['2xs']),
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -94,77 +92,49 @@ const PriceRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
+  gap: s(spacing['2xs']),
 });
 
 const Price = styled(Typography)({
-  fontSize: 14,
+  fontSize: ms(fontSize.tokenNamePrice),
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: 'rgba(255, 255, 255, 0.7)',
 });
 
 const BulletSeparator = styled(Typography)({
-  fontSize: 14,
+  fontSize: ms(fontSize.tokenNamePrice),
   color: 'rgba(255, 255, 255, 0.5)',
-  padding: '0 4px',
 });
 
 const ChangeText = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== 'changeColor',
-})<{ changeColor?: string }>(({ changeColor }) => ({
-  fontSize: 14,
+  shouldForwardProp: (prop) => prop !== '$changeColor',
+})<{ $changeColor?: string }>(({ $changeColor }) => ({
+  fontSize: ms(fontSize.tokenChange),
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: changeColor || '#9E9E9E',
+  color: $changeColor || colors.text.muted,
 }));
 
 const ValueContainer = styled(Box)({
   alignItems: 'flex-end',
-  marginLeft: spacing.sm,
   textAlign: 'right',
+  gap: vs(spacing.tokenAmountGap),
 });
 
 const UsdValue = styled(Typography)({
-  fontSize: 16,
+  fontSize: ms(fontSize.lg),
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  marginBottom: spacing['2xs'],
+  marginBottom: vs(spacing['2xs']),
 });
 
 const TokenAmount = styled(Typography)({
-  fontSize: 14,
+  fontSize: ms(fontSize.sm),
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: 'rgba(255, 255, 255, 0.7)',
 });
 
-/**
- * Individual token item component for the TokenList
- *
- * Displays token logo, name, price with change indicator, USD holdings, and token amount.
- *
- * Layout (per Figma design):
- * - Token icon (48px circle)
- * - Left side: Token name, Price per token with change indicator
- * - Right side: USD value of holdings, Token amount
- *
- * @example
- * ```tsx
- * <TokenListItem
- *   token={{
- *     address: 'So11111111111111111111111111111111111111112',
- *     name: 'Solana',
- *     symbol: 'SOL',
- *     logo: 'https://...',
- *     price: 131.28,
- *     uiAmount: '1.2',
- *     usdBalance: 155.20,
- *     last24HoursChange: { perc: 1.2, abs: 10.01 }
- *   }}
- *   onPress={(token) => console.log(token)}
- *   hiddenBalance={false}
- * />
- * ```
- */
 export function TokenListItem({
   token,
   onPress,
@@ -178,13 +148,11 @@ export function TokenListItem({
     onPress(token);
   }, [onPress, token]);
 
-  // Get the label type for coloring the percentage and absolute change
   const percentageChange = last24HoursChange?.perc ?? 0;
   const absoluteChange = last24HoursChange?.abs;
   const labelType = getLabelValue(percentageChange);
-  const changeColor = LABEL_COLORS[labelType];
+  const changeColor = colors.change[labelType];
 
-  // Format display values
   const displayPrice = hiddenBalance
     ? hiddenValue
     : price != null
@@ -210,17 +178,14 @@ export function TokenListItem({
       role="button"
       aria-label={`${name} token, balance ${uiAmount} ${symbol}`}
     >
-      {/* Token Logo */}
       {logo ? (
         <TokenLogo src={logo} alt={name} onError={(e) => {
-          // Fallback to default on error
           (e.target as HTMLImageElement).src = DEFAULT_TOKEN_LOGO;
         }} />
       ) : (
         <TokenLogoPlaceholder>{symbol?.[0] || '?'}</TokenLogoPlaceholder>
       )}
 
-      {/* Token Info - Left Side */}
       <InfoContainer>
         <TokenName>{name}</TokenName>
         <PriceRow>
@@ -228,7 +193,7 @@ export function TokenListItem({
           {displayPercentage && (
             <>
               <BulletSeparator>{'\u2022'}</BulletSeparator>
-              <ChangeText changeColor={changeColor}>
+              <ChangeText $changeColor={changeColor}>
                 {displayPercentage}
                 {displayAbsChange && ` (${displayAbsChange})`}
               </ChangeText>
@@ -237,14 +202,12 @@ export function TokenListItem({
         </PriceRow>
       </InfoContainer>
 
-      {/* Value Info - Right Side */}
       <ValueContainer>
         {displayUsdValue && <UsdValue>{displayUsdValue}</UsdValue>}
         <TokenAmount>{displayTokenAmount}</TokenAmount>
       </ValueContainer>
 
-      {/* Chevron */}
-      <ChevronRightIcon sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 20, marginLeft: 1 }} />
+      <ChevronRightIcon sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: ms(16), marginLeft: s(spacing['2xs']) }} />
     </Container>
   );
 }

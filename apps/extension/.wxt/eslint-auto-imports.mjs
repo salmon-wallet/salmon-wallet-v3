@@ -12,6 +12,8 @@ const globals = {
   "AutoMount": true,
   "AutoMountOptions": true,
   "BalanceCard": true,
+  "BalanceCardCarousel": true,
+  "BalanceCardCarouselProps": true,
   "BalanceCardProps": true,
   "BaseDialog": true,
   "BaseDialogProps": true,

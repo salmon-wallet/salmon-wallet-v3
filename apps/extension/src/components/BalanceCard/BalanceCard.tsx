@@ -7,6 +7,8 @@
  * - Centered blockchain SVG icon
  * - Balance with decimal opacity split
  * - Trending arrow + change colors from tokens
+ *
+ * Uses responsive scaling (s, vs, ms) from shared to match mobile proportions.
  */
 import { useCallback } from 'react';
 import { styled } from '../../utils/styled';
@@ -24,6 +26,9 @@ import {
   letterSpacing,
   componentSizes,
   shadowsCSS,
+  s,
+  vs,
+  ms,
   showAmount,
   showPercentage,
   showAbsoluteChange,
@@ -83,9 +88,10 @@ const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
  * Render the blockchain logo using SVG icons
  */
 const renderBlockchainLogo = (blockchain: BlockchainId) => {
+  const iconSize = s(componentSizes.blockchainIcon);
   const iconStyle = {
-    width: componentSizes.blockchainIcon,
-    height: componentSizes.blockchainIcon,
+    width: iconSize,
+    height: iconSize,
     color: '#FFFFFF',
   };
   switch (blockchain) {
@@ -122,21 +128,23 @@ const getNetworkLabel = (blockchain: BlockchainId): string | null => {
 // --- Styled components ---
 
 const Container = styled(Box)({
-  borderRadius: borderRadius['2xl'],
-  padding: spacing.xl,
-  margin: `0 ${spacing.lg}px`,
+  borderRadius: ms(borderRadius.card),
+  paddingTop: vs(spacing['2xl']),
+  paddingBottom: vs(spacing['2xl']),
+  paddingLeft: s(spacing['2xl']),
+  paddingRight: s(spacing['2xl']),
   position: 'relative',
   overflow: 'hidden',
   boxShadow: shadowsCSS.card,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: spacing.sm,
+  gap: vs(spacing.sm),
 });
 
 const LogoContainer = styled(Box)({
-  width: componentSizes.logoContainer,
-  height: componentSizes.logoContainer,
+  width: s(componentSizes.logoContainer),
+  height: vs(componentSizes.logoContainer),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -144,16 +152,16 @@ const LogoContainer = styled(Box)({
 
 const NetworkLabel = styled(Box)({
   backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  paddingLeft: spacing.sm,
-  paddingRight: spacing.sm,
-  paddingTop: spacing.xxs,
-  paddingBottom: spacing.xxs,
-  borderRadius: borderRadius.sm,
-  marginTop: spacing.xs,
+  paddingLeft: s(spacing.sm),
+  paddingRight: s(spacing.sm),
+  paddingTop: vs(spacing.xxs),
+  paddingBottom: vs(spacing.xxs),
+  borderRadius: ms(borderRadius.sm),
+  marginTop: vs(spacing.xs),
 });
 
 const NetworkLabelText = styled(Typography)({
-  fontSize: fontSize.xs,
+  fontSize: ms(fontSize.xs),
   fontWeight: 600,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -166,12 +174,12 @@ const BalanceRow = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: spacing.md,
+  gap: s(spacing.md),
   textShadow: shadowsCSS.balanceText,
 });
 
 const BalanceDollars = styled(Typography)({
-  fontSize: fontSize.balance,
+  fontSize: ms(fontSize.balance),
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.balance,
@@ -179,7 +187,7 @@ const BalanceDollars = styled(Typography)({
 });
 
 const BalanceDecimals = styled(Typography)({
-  fontSize: fontSize.balance,
+  fontSize: ms(fontSize.balance),
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -191,7 +199,7 @@ const EyeButton = styled('button')({
   background: 'none',
   border: 'none',
   cursor: 'pointer',
-  padding: spacing.xs,
+  padding: s(spacing.xs),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -212,7 +220,7 @@ const ChangeRow = styled(Box)({
 const ChangeText = styled(Typography, {
   shouldForwardProp: (prop) => prop !== '$color',
 })<{ $color?: string }>(({ $color }) => ({
-  fontSize: fontSize.sm,
+  fontSize: ms(fontSize.sm),
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: $color || colors.text.muted,
@@ -222,8 +230,8 @@ const ChangeText = styled(Typography, {
 const TrendingIconWrapper = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  marginLeft: spacing['2xs'],
-  marginRight: spacing['2xs'],
+  marginLeft: s(spacing['2xs']),
+  marginRight: s(spacing['2xs']),
 });
 
 const Pagination = styled(Box)({
@@ -231,15 +239,15 @@ const Pagination = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  marginTop: spacing.sm,
+  marginTop: vs(spacing.sm),
 });
 
 const PaginationDot = styled(Box)<{ $active?: boolean }>(({ $active }) => ({
-  width: spacing.xs,
-  height: spacing.xs,
-  borderRadius: spacing['2xs'],
+  width: s(spacing.xs),
+  height: s(spacing.xs),
+  borderRadius: s(spacing['2xs']),
   backgroundColor: $active ? colors.text.primary : colors.step.inactive,
-  margin: `0 ${spacing.xxs + 1}px`,
+  margin: `0 ${s(spacing.xxs + 1)}px`,
 }));
 
 export function BalanceCard({
@@ -278,7 +286,7 @@ export function BalanceCard({
         <BalanceRow>
           <BalanceDollars>{hiddenValue}</BalanceDollars>
           <EyeButton onClick={handleToggleVisibility} aria-label="Show balance">
-            <EyeOffIcon sx={{ fontSize: componentSizes.eyeIcon }} />
+            <EyeOffIcon sx={{ fontSize: ms(componentSizes.eyeIcon) }} />
           </EyeButton>
         </BalanceRow>
       );
@@ -292,7 +300,7 @@ export function BalanceCard({
         <BalanceDollars>{parts[0]}</BalanceDollars>
         {parts[1] && <BalanceDecimals>.{parts[1]}</BalanceDecimals>}
         <EyeButton onClick={handleToggleVisibility} aria-label="Hide balance">
-          <EyeIcon sx={{ fontSize: componentSizes.eyeIcon }} />
+          <EyeIcon sx={{ fontSize: ms(componentSizes.eyeIcon) }} />
         </EyeButton>
       </BalanceRow>
     );
@@ -313,7 +321,7 @@ export function BalanceCard({
         <TrendingIconWrapper>
           <Icon
             name={isPositive ? 'chevron-up' : 'chevron-down'}
-            size={componentSizes.changeArrowIcon}
+            size={ms(componentSizes.changeArrowIcon)}
             color={changeColor}
           />
         </TrendingIconWrapper>
@@ -349,7 +357,7 @@ export function BalanceCard({
 
       {/* Balance */}
       {loading ? (
-        <CircularProgress size={40} sx={{ color: colors.text.primary }} />
+        <CircularProgress size={ms(40)} sx={{ color: colors.text.primary }} />
       ) : (
         renderBalance()
       )}

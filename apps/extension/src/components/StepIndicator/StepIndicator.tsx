@@ -16,11 +16,11 @@ const Container = styled('div')({
   gap: componentSizes.stepDotGap,
 });
 
-const Dot = styled('div')<{ isActive: boolean }>(({ isActive }) => ({
+const Dot = styled('div')<{ $isActive: boolean }>(({ $isActive }) => ({
   width: componentSizes.stepDotSize,
   height: componentSizes.stepDotSize,
   borderRadius: componentSizes.stepDotSize / 2,
-  backgroundColor: isActive ? colors.step.active : colors.step.inactive,
+  backgroundColor: $isActive ? colors.step.active : colors.step.inactive,
   transition: 'background-color 0.2s ease',
 }));
 
@@ -28,7 +28,7 @@ export function StepIndicator({ totalSteps, currentStep }: StepIndicatorProps) {
   return (
     <Container>
       {Array.from({ length: totalSteps }, (_, index) => (
-        <Dot key={index} isActive={index + 1 === currentStep} />
+        <Dot key={index} $isActive={index + 1 === currentStep} />
       ))}
     </Container>
   );

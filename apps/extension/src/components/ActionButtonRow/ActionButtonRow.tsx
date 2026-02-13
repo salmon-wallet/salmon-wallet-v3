@@ -1,14 +1,26 @@
 /**
  * ActionButtonRow - Row of Send/Receive/Activity action buttons
  *
- * Web version using MUI and @emotion/styled for browser extension
+ * Web version using MUI and @emotion/styled for browser extension.
+ * Uses responsive scaling (s, vs, ms) from shared to match mobile proportions.
  */
 import { useCallback } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { colors, spacing, borderRadius, gradients, fontFamily, fontWeight } from '@salmon/shared';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  gradients,
+  fontFamily,
+  fontSize,
+  componentSizes,
+  s,
+  vs,
+  ms,
+} from '@salmon/shared';
 import { SendIcon, ReceiveIcon, ActivityIcon } from '../Icon';
 import type { ActionButtonRowProps } from './types';
 
@@ -17,51 +29,58 @@ const Container = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: `${spacing.lg}px`,
-  gap: spacing.md,
+  paddingLeft: s(spacing['4xl']),
+  paddingRight: s(spacing['4xl']),
+  paddingTop: vs(spacing.md),
+  paddingBottom: vs(spacing.md),
 });
 
 const ButtonWrapper = styled(Box)<{ disabled?: boolean }>(({ disabled }) => ({
-  flex: 1,
-  borderRadius: borderRadius.xl,
+  width: s(componentSizes.actionButtonWidth),
+  height: vs(componentSizes.actionButtonHeight),
+  borderRadius: ms(componentSizes.actionButtonRadius),
   overflow: 'hidden',
-  opacity: disabled ? 0.5 : 1,
+  opacity: disabled ? colors.button.disabledOpacity : 1,
   transition: 'opacity 0.2s ease',
 }));
 
 const PrimaryButton = styled(Button)({
   width: '100%',
+  height: '100%',
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: `${spacing.lg}px ${spacing.lg}px`,
-  gap: spacing.sm,
+  gap: s(spacing.sm),
   background: gradients.primaryCSS,
-  borderRadius: borderRadius.xl,
+  borderRadius: ms(componentSizes.actionButtonRadius),
   textTransform: 'none',
+  minWidth: 0,
+  padding: 0,
   '&:hover': {
     background: gradients.primaryCSS,
     opacity: 0.9,
   },
   '&.Mui-disabled': {
-    background: 'linear-gradient(101deg, #666 12%, #444 83%)',
+    background: gradients.disabledCSS,
     color: colors.text.primary,
   },
 });
 
 const SecondaryButton = styled(Button)({
   width: '100%',
+  height: '100%',
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: `${spacing.lg}px ${spacing.lg}px`,
-  gap: spacing.sm,
+  gap: s(spacing.sm),
   backgroundColor: 'rgba(255, 255, 255, 0.05)',
   border: '1px solid rgba(255, 255, 255, 0.15)',
-  borderRadius: borderRadius.xl,
+  borderRadius: ms(componentSizes.actionButtonRadius),
   textTransform: 'none',
+  minWidth: 0,
+  padding: 0,
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -73,29 +92,12 @@ const SecondaryButton = styled(Button)({
 });
 
 const ButtonText = styled(Typography)<{ disabled?: boolean }>(({ disabled }) => ({
-  fontSize: 16,
-  fontWeight: fontWeight.semibold,
+  fontSize: ms(fontSize.actionButton),
+  fontWeight: '400',
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: disabled ? '#666' : colors.text.primary,
+  color: disabled ? colors.button.disabledText : '#e0e0e0',
 }));
 
-/**
- * ActionButtonRow component for primary wallet actions
- *
- * Displays three main action buttons:
- * - Send: Primary orange gradient button
- * - Receive: Secondary outlined button
- * - Activity: Secondary outlined button
- *
- * @example
- * ```tsx
- * <ActionButtonRow
- *   onSendPress={() => navigate('/send')}
- *   onReceivePress={() => navigate('/receive')}
- *   onActivityPress={() => navigate('/activity')}
- * />
- * ```
- */
 export function ActionButtonRow({
   onSendPress,
   onReceivePress,
@@ -124,6 +126,8 @@ export function ActionButtonRow({
     }
   }, [onActivityPress, activityDisabled]);
 
+  const iconSize = ms(componentSizes.actionButtonIcon);
+
   return (
     <Container style={style} className={className}>
       {/* Send Button - Primary */}
@@ -133,7 +137,7 @@ export function ActionButtonRow({
           disabled={sendDisabled}
           aria-label="Send tokens"
         >
-          <SendIcon sx={{ fontSize: 22, color: colors.text.primary }} />
+          <SendIcon sx={{ fontSize: iconSize, color: '#e0e0e0' }} />
           <ButtonText>Send</ButtonText>
         </PrimaryButton>
       </ButtonWrapper>
@@ -145,7 +149,7 @@ export function ActionButtonRow({
           disabled={receiveDisabled}
           aria-label="Receive tokens"
         >
-          <ReceiveIcon sx={{ fontSize: 22, color: receiveDisabled ? '#666' : colors.text.primary }} />
+          <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : '#e0e0e0' }} />
           <ButtonText disabled={receiveDisabled}>Receive</ButtonText>
         </SecondaryButton>
       </ButtonWrapper>
@@ -157,7 +161,7 @@ export function ActionButtonRow({
           disabled={activityDisabled}
           aria-label="View activity"
         >
-          <ActivityIcon sx={{ fontSize: 22, color: activityDisabled ? '#666' : colors.text.primary }} />
+          <ActivityIcon sx={{ fontSize: iconSize, color: activityDisabled ? colors.button.disabledText : '#e0e0e0' }} />
           <ButtonText disabled={activityDisabled}>Activity</ButtonText>
         </SecondaryButton>
       </ButtonWrapper>
