@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
@@ -23,6 +23,7 @@ import {
   WalletSwitcherSheet,
   EditAccountDialog,
   ConfirmDialog,
+  ScalesBackground,
 } from '../../components';
 import IconButton from '@mui/material/IconButton';
 
@@ -61,7 +62,7 @@ type PageView =
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: '100vh',
+  height: '100vh',
   backgroundColor: colors.background.primary,
 });
 
@@ -87,14 +88,68 @@ const Main = styled(Box)({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  overflowY: 'auto',
+  overflow: 'hidden',
+  position: 'relative',
+});
+
+const BottomFadeGradient = styled(Box)({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  bottom: 0,
+  height: 180,
+  background: `linear-gradient(to bottom, transparent 0%, ${colors.background.primary} 60%)`,
+  pointerEvents: 'none',
+  zIndex: 1,
+});
+
+const TabContent = styled(Box)({
+  position: 'relative',
+  zIndex: 2,
+  flex: 1,
+  minHeight: 0,
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const TokenSectionWrapper = styled(Box)({
+  flex: 1,
+  minHeight: 0,
+  position: 'relative',
 });
 
 const TokenSection = styled(Box)({
-  flex: 1,
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
   padding: `0 ${spacing.lg}px ${spacing.lg}px`,
+  overflowY: 'auto',
+});
+
+const BottomListFade = styled(Box)({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  bottom: 0,
+  height: 30,
+  background: `linear-gradient(to top, ${colors.background.primary}, transparent)`,
+  pointerEvents: 'none',
+  zIndex: 3,
+  opacity: 0,
+  transition: 'opacity 0.15s ease',
+});
+
+const TopListFade = styled(Box)({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  height: 30,
+  background: `linear-gradient(to bottom, ${colors.background.primary}, transparent)`,
+  pointerEvents: 'none',
+  zIndex: 3,
+  opacity: 0,
+  transition: 'opacity 0.15s ease',
 });
 
 const SectionTitle = styled(Typography)({
@@ -415,6 +470,23 @@ export function HomePage() {
     console.log('Token pressed:', token.address);
   }, []);
 
+  // Scroll-driven fade refs for token list
+  const topFadeRef = useRef<HTMLDivElement>(null);
+  const bottomFadeRef = useRef<HTMLDivElement>(null);
+
+  const handleTokenListScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const atBottom = scrollHeight - scrollTop - clientHeight < 2;
+
+    if (topFadeRef.current) {
+      topFadeRef.current.style.opacity = String(Math.min(scrollTop / 30, 1));
+    }
+    if (bottomFadeRef.current) {
+      bottomFadeRef.current.style.opacity = atBottom ? '0' : '1';
+    }
+  }, []);
+
   // Prepare network info for BalanceCard
   const networkInfo = useMemo(() => ({
     id: networkId || 'solana-mainnet',
@@ -530,60 +602,70 @@ export function HomePage() {
       </TabBar>
 
       <Main>
-        {activeTab === 'home' && (
-          <>
-            {/* Balance Card */}
-            <BalanceCard
-              network={networkInfo}
-              blockchain={networkId === 'solana-devnet' ? 'solana-devnet' : 'solana'}
-              usdTotal={usdTotal}
-              changePercent={changePercent}
-              changeAmount={changeAmount}
-              hiddenBalance={hiddenBalance}
-              onToggleVisibility={toggleHidden}
-              loading={loading && usdTotal === undefined}
+        {/* Background layers — shared across all three tabs */}
+        <ScalesBackground style={{ zIndex: 0 }} />
+        <BottomFadeGradient />
+
+        <TabContent>
+          {activeTab === 'home' && (
+            <>
+              {/* Balance Card */}
+              <BalanceCard
+                network={networkInfo}
+                blockchain={networkId === 'solana-devnet' ? 'solana-devnet' : 'solana'}
+                usdTotal={usdTotal}
+                changePercent={changePercent}
+                changeAmount={changeAmount}
+                hiddenBalance={hiddenBalance}
+                onToggleVisibility={toggleHidden}
+                loading={loading && usdTotal === undefined}
+              />
+
+              {/* Action Buttons */}
+              <ActionButtonRow
+                onSendPress={handleSendPress}
+                onReceivePress={handleReceivePress}
+                onActivityPress={handleActivityPress}
+                style={{ marginTop: 24, marginBottom: 24 }}
+              />
+
+              {/* Token List Section — only this area scrolls */}
+              <TokenSectionWrapper>
+                <TopListFade ref={topFadeRef} />
+                <TokenSection onScroll={handleTokenListScroll}>
+                  {formattedTokens.length > 0 || loading ? (
+                    <TokenList
+                      tokens={formattedTokens}
+                      loading={loading && formattedTokens.length === 0}
+                      onTokenPress={handleTokenPress}
+                      hiddenBalance={hiddenBalance}
+                    />
+                  ) : (
+                    <EmptyState>
+                      <EmptyStateText>
+                        {t('home.no_tokens', 'No tokens found')}
+                      </EmptyStateText>
+                      <EmptyStateSubtext>
+                        {t('home.no_tokens_hint', 'Your tokens will appear here once you receive some')}
+                      </EmptyStateSubtext>
+                    </EmptyState>
+                  )}
+                </TokenSection>
+
+                <BottomListFade ref={bottomFadeRef} />
+              </TokenSectionWrapper>
+            </>
+          )}
+
+          {activeTab === 'collectibles' && (
+            <CollectiblesPage
+              activeBlockchainAccount={activeBlockchainAccount}
+              networkId={networkId}
             />
+          )}
 
-            {/* Action Buttons */}
-            <ActionButtonRow
-              onSendPress={handleSendPress}
-              onReceivePress={handleReceivePress}
-              onActivityPress={handleActivityPress}
-            />
-
-            {/* Token List Section */}
-            <TokenSection>
-              <SectionTitle>{t('home.assets', 'Assets')}</SectionTitle>
-
-              {formattedTokens.length > 0 || loading ? (
-                <TokenList
-                  tokens={formattedTokens}
-                  loading={loading && formattedTokens.length === 0}
-                  onTokenPress={handleTokenPress}
-                  hiddenBalance={hiddenBalance}
-                />
-              ) : (
-                <EmptyState>
-                  <EmptyStateText>
-                    {t('home.no_tokens', 'No tokens found')}
-                  </EmptyStateText>
-                  <EmptyStateSubtext>
-                    {t('home.no_tokens_hint', 'Your tokens will appear here once you receive some')}
-                  </EmptyStateSubtext>
-                </EmptyState>
-              )}
-            </TokenSection>
-          </>
-        )}
-
-        {activeTab === 'collectibles' && (
-          <CollectiblesPage
-            activeBlockchainAccount={activeBlockchainAccount}
-            networkId={networkId}
-          />
-        )}
-
-        {activeTab === 'swap' && <SwapPage />}
+          {activeTab === 'swap' && <SwapPage />}
+        </TabContent>
       </Main>
 
       {/* Settings Sheet */}

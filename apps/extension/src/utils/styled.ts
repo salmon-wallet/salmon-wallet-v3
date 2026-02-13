@@ -6,7 +6,7 @@
  * Supports custom `shouldForwardProp` overrides — when provided, both
  * the `$` filter and the custom filter must pass for a prop to be forwarded.
  */
-import { styled as muiStyled, type CreateStyledComponent } from '@mui/material/styles';
+import { styled as muiStyled } from '@mui/material/styles';
 
 type StyledParams = Parameters<typeof muiStyled>;
 
@@ -15,8 +15,8 @@ export const styled = ((component: StyledParams[0], options?: StyledParams[1]) =
 
   return muiStyled(component, {
     ...options,
-    shouldForwardProp: (prop) => {
-      if (String(prop).startsWith('$')) return false;
+    shouldForwardProp: (prop: string) => {
+      if (prop.startsWith('$')) return false;
       return customShouldForward ? customShouldForward(prop) : true;
     },
   });
