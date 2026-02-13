@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
   useAccountsContext,
+  useAvailableNetworks,
   useBalance,
   useUserConfig,
   colors,
@@ -224,6 +225,16 @@ export function HomePage() {
   });
   const { developerNetworks, toggleDeveloperNetworks } = userConfig;
 
+  // Fetch backend RPC URLs and merge into network configs before balance fetch
+  const { networksReady } = useAvailableNetworks({
+    activeBlockchainAccount: {
+      network: {
+        environment: (networkId || 'solana-mainnet') as 'solana-mainnet' | 'solana-devnet',
+        blockchain: 'solana',
+      },
+    },
+  });
+
   // Active tab state
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
 
@@ -255,7 +266,7 @@ export function HomePage() {
   } = useBalance({
     account: activeBlockchainAccount,
     networkId: networkId as 'solana-mainnet' | 'solana-devnet' | undefined,
-    skip: !ready || !activeBlockchainAccount,
+    skip: !ready || !activeBlockchainAccount || !networksReady,
   });
 
   // Navigation handlers

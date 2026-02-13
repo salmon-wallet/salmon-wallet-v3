@@ -17,7 +17,9 @@ import {
 } from '@salmon/shared';
 import type { TextButtonProps } from './types';
 
-const StyledButton = styled(Button)<{ customColor?: string }>(
+const StyledButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== 'customColor',
+})<{ customColor?: string }>(
   ({ customColor }) => ({
     minWidth: 'auto',
     height: componentSizes.buttonHeightSmall,

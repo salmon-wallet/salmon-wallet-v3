@@ -2,6 +2,8 @@
  * CollectiblesPage - NFT collection display
  *
  * Fetches and displays NFTs across Solana, Ethereum, and Bitcoin networks.
+ * Uses the same fetch logic as mobile: Helius DAS primary → backend fallback
+ * with NFT image overrides applied.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,16 +14,18 @@ import {
   colors,
   spacing,
   fontFamily,
+  getAllNfts,
   getSolanaNfts,
+  SOLANA_NETWORKS,
   getEthereumNfts,
   getBitcoinOrdinals,
   getAccountBlockchainType,
-  solanaNftToNftData,
   ethereumNftToNftData,
   bitcoinOrdinalToNftData,
   type BlockchainAccount,
   type NftData,
-  type SolanaNftFromHelius,
+  type SolanaNftData,
+  type Nft,
   type EthereumNetworkId,
   type BitcoinNetworkId,
 } from '@salmon/shared';
@@ -31,6 +35,38 @@ interface CollectiblesPageProps {
   activeBlockchainAccount: BlockchainAccount | undefined;
   networkId: string | null;
 }
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+/**
+ * Convert Solana Nft to SolanaNftData for UI components.
+ * Same logic as mobile's local mapper — receives the normalised `Nft` type
+ * that already comes back from getAllNfts (with image overrides applied).
+ */
+function solanaNftToNftData(nft: Nft): SolanaNftData {
+  return {
+    blockchain: 'solana',
+    mint: nft.mint.address,
+    name: nft.name || 'Unnamed NFT',
+    image: nft.media || undefined,
+    description: nft.description || undefined,
+    collectionName: nft.collection?.name || undefined,
+    attributes: nft.extras?.attributes,
+    compressed: nft.compressed,
+    tokenStandard: nft.tokenStandard || undefined,
+    collectionKey: nft.collection?.key,
+    collectionVerified: nft.collection?.verified,
+    symbol: nft.symbol || undefined,
+    updateAuthority: nft.updateAuthorityAddress ?? undefined,
+    royaltyBps: nft.sellerFeeBasisPoints,
+  };
+}
+
+// ============================================================================
+// Styled Components
+// ============================================================================
 
 const Container = styled(Box)({
   flex: 1,
@@ -75,6 +111,10 @@ const EmptyStateSubtext = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
 });
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export function CollectiblesPage({ activeBlockchainAccount, networkId }: CollectiblesPageProps) {
   const { t } = useTranslation();
   const [nfts, setNfts] = useState<NftData[]>([]);
@@ -96,8 +136,13 @@ export function CollectiblesPage({ activeBlockchainAccount, networkId }: Collect
         const address = activeBlockchainAccount.getReceiveAddress();
 
         if (blockchain === 'solana') {
-          const solanaNfts = await getSolanaNfts(networkId, address, false);
-          allNfts.push(...solanaNfts.map((n) => solanaNftToNftData(n as unknown as SolanaNftFromHelius)));
+          // Same logic as mobile: Helius DAS primary → backend fallback,
+          // with NFT image overrides applied inside getAllNfts/transformDasAsset.
+          const network = SOLANA_NETWORKS[networkId];
+          if (network) {
+            const solanaNfts = await getAllNfts(network, address, false, getSolanaNfts);
+            allNfts.push(...solanaNfts.map(solanaNftToNftData));
+          }
         } else if (blockchain === 'ethereum') {
           const ethNfts = await getEthereumNfts(networkId as EthereumNetworkId, address);
           allNfts.push(...ethNfts.map(ethereumNftToNftData));

@@ -33,6 +33,8 @@ export interface UseAvailableNetworksResult {
   developerNetworks: boolean;
   /** Whether the configuration is still loading */
   isLoading: boolean;
+  /** Whether backend network configs have been fetched and merged (or failed gracefully) */
+  networksReady: boolean;
 }
 
 // ============================================================================
@@ -176,6 +178,7 @@ export function useAvailableNetworks(
     allNetworks,
     developerNetworks,
     isLoading,
+    networksReady: apiMerged,
   };
 }
 
