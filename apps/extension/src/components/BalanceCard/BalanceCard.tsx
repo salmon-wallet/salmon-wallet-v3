@@ -175,7 +175,6 @@ const BalanceRow = styled(Box)({
   alignItems: 'center',
   justifyContent: 'center',
   gap: s(spacing.md),
-  textShadow: shadowsCSS.balanceText,
 });
 
 const BalanceDollars = styled(Typography)({
@@ -214,7 +213,6 @@ const ChangeRow = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  textShadow: shadowsCSS.balanceText,
 });
 
 const ChangeText = styled(Typography, {
