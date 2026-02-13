@@ -93,6 +93,7 @@ declare global {
   const injectScript: typeof import('wxt/utils/inject-script')['injectScript']
   const storage: typeof import('wxt/utils/storage')['storage']
   const storeSessionKey: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/utils/sessionKeyCache')['storeSessionKey']
+  const styled: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/utils/styled')['styled']
   const useAddressValidation: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index')['useAddressValidation']
   const useAppConfig: typeof import('wxt/utils/app-config')['useAppConfig']
   const useCallback: typeof import('react')['useCallback']

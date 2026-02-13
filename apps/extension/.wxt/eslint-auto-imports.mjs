@@ -225,6 +225,7 @@ const globals = {
   "injectScript": true,
   "storage": true,
   "storeSessionKey": true,
+  "styled": true,
   "useAddressValidation": true,
   "useAppConfig": true,
   "useCallback": true,
