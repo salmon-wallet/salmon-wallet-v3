@@ -11,10 +11,10 @@
  * Uses responsive scaling (s, vs, ms) from shared to match mobile proportions.
  */
 import { useCallback } from 'react';
+import { keyframes } from '@mui/material/styles';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
 import {
   colors,
   gradients,
@@ -128,7 +128,7 @@ const getNetworkLabel = (blockchain: BlockchainId): string | null => {
 // --- Styled components ---
 
 const Container = styled(Box)({
-  borderRadius: ms(borderRadius.card),
+  borderRadius: `0 0 ${ms(borderRadius.card)}px ${ms(borderRadius.card)}px`,
   paddingTop: vs(spacing['2xl']),
   paddingBottom: vs(spacing['2xl']),
   paddingLeft: s(spacing['2xl']),
@@ -143,6 +143,8 @@ const Container = styled(Box)({
 });
 
 const LogoContainer = styled(Box)({
+  position: 'relative' as const,
+  zIndex: 1,
   width: s(componentSizes.logoContainer),
   height: vs(componentSizes.logoContainer),
   display: 'flex',
@@ -151,6 +153,8 @@ const LogoContainer = styled(Box)({
 });
 
 const NetworkLabel = styled(Box)({
+  position: 'relative' as const,
+  zIndex: 1,
   backgroundColor: 'rgba(0, 0, 0, 0.3)',
   paddingLeft: s(spacing.sm),
   paddingRight: s(spacing.sm),
@@ -170,6 +174,8 @@ const NetworkLabelText = styled(Typography)({
 });
 
 const BalanceRow = styled(Box)({
+  position: 'relative' as const,
+  zIndex: 1,
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -209,6 +215,8 @@ const EyeButton = styled('button')({
 });
 
 const ChangeRow = styled(Box)({
+  position: 'relative' as const,
+  zIndex: 1,
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -233,6 +241,8 @@ const TrendingIconWrapper = styled(Box)({
 });
 
 const Pagination = styled(Box)({
+  position: 'relative' as const,
+  zIndex: 1,
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -247,6 +257,18 @@ const PaginationDot = styled(Box)<{ $active?: boolean }>(({ $active }) => ({
   backgroundColor: $active ? colors.text.primary : colors.step.inactive,
   margin: `0 ${s(spacing.xxs + 1)}px`,
 }));
+
+const shimmer = keyframes`
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+`;
+
+const SkeletonRect = styled(Box)({
+  borderRadius: ms(borderRadius.sm),
+  background: `linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.08) 75%)`,
+  backgroundSize: '400px 100%',
+  animation: `${shimmer} 1.5s ease-in-out infinite`,
+});
 
 export function BalanceCard({
   network,
@@ -340,7 +362,7 @@ export function BalanceCard({
         strokeColor={scalesColor}
         strokeWidth={1}
         patternHeight={26}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}
       />
 
       {/* Blockchain logo */}
@@ -355,13 +377,21 @@ export function BalanceCard({
 
       {/* Balance */}
       {loading ? (
-        <CircularProgress size={ms(40)} sx={{ color: colors.text.primary }} />
+        <BalanceRow>
+          <SkeletonRect sx={{ width: ms(160), height: ms(fontSize.balance), borderRadius: `${ms(borderRadius.sm)}px` }} />
+        </BalanceRow>
       ) : (
         renderBalance()
       )}
 
       {/* 24h change */}
-      {!loading && renderChange()}
+      {loading ? (
+        <ChangeRow>
+          <SkeletonRect sx={{ width: ms(120), height: ms(fontSize.sm), borderRadius: `${ms(borderRadius.sm)}px` }} />
+        </ChangeRow>
+      ) : (
+        renderChange()
+      )}
 
       {/* Pagination dots */}
       {totalCount > 1 && (
