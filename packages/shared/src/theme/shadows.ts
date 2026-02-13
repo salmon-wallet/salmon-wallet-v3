@@ -126,6 +126,10 @@ export const shadowsCSS = {
     '0 12px 24px -6px rgba(0, 0, 0, 0.44), 0 24px 48px -12px rgba(0, 0, 0, 0.3)',
   /** Strong shadow for header/card elements - Figma: 0px 10px 20px rgba(0,0,0,0.9) */
   header: '0 10px 20px rgba(0, 0, 0, 0.9)',
+  /** Balance card shadow - downward only */
+  card: '0 12px 16px rgba(0, 0, 0, 0.8)',
+  /** Balance text shadow */
+  balanceText: '0 3px 18px rgba(0, 0, 0, 1)',
   /** Colored glow for accent elements */
   glow: '0 0 24px rgba(255, 92, 69, 0.5)',
 } as const;

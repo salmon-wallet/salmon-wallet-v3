@@ -39,8 +39,8 @@ export { WalletHeader } from './WalletHeader';
 export type { WalletHeaderProps } from './WalletHeader';
 
 // BalanceCard - Portfolio balance display with gradient
-export { BalanceCard } from './BalanceCard';
-export type { BalanceCardProps } from './BalanceCard';
+export { BalanceCard, BalanceCardCarousel } from './BalanceCard';
+export type { BalanceCardProps, BalanceCardCarouselProps } from './BalanceCard';
 
 // ActionButtonRow - Send/Receive/Activity action buttons
 export { ActionButtonRow } from './ActionButtonRow';

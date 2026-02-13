@@ -313,6 +313,18 @@ export const gradients = {
     'linear-gradient(135deg, #4A1A8C 0%, #2D1052 50%, #1A0A33 100%)',
   disabledCSS:
     'linear-gradient(90deg, #666666 0%, #444444 100%)',
+  balanceCardSolanaCSS:
+    'linear-gradient(180deg, #4A1A8C 0%, #2D1052 50%, #1A0A33 100%)',
+  balanceCardSolanaDevnetCSS:
+    'linear-gradient(180deg, #00FFA3 0%, #00B377 50%, #00664D 100%)',
+  balanceCardBitcoinCSS:
+    'linear-gradient(180deg, #F7931A 0%, #8B5A00 50%, #3D2800 100%)',
+  balanceCardBitcoinTestnetCSS:
+    'linear-gradient(180deg, #FF9500 0%, #B36D00 50%, #663D00 100%)',
+  balanceCardEthereumCSS:
+    'linear-gradient(180deg, #627EEA 0%, #3A4A8C 50%, #1A1F33 100%)',
+  balanceCardEthereumSepoliaCSS:
+    'linear-gradient(180deg, #4CAF50 0%, #2E7D32 50%, #1B5E20 100%)',
 } as const;
 
 export type Colors = typeof colors;

@@ -1,189 +1,259 @@
 /**
  * BalanceCard - Portfolio balance display with gradient background
  *
- * Web version using MUI and @emotion/styled for browser extension
+ * Web version matching mobile's visual structure:
+ * - Dynamic gradient per blockchain
+ * - ScalesBackground overlay
+ * - Centered blockchain SVG icon
+ * - Balance with decimal opacity split
+ * - Trending arrow + change colors from tokens
  */
 import { useCallback } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
   colors,
+  gradients,
   spacing,
   borderRadius,
+  fontSize,
   fontFamily,
   fontWeight,
+  letterSpacing,
+  componentSizes,
+  shadowsCSS,
   showAmount,
   showPercentage,
   showAbsoluteChange,
   getLabelValue,
   hiddenValue,
 } from '@salmon/shared';
-import { EyeIcon, EyeOffIcon, ChevronDownIcon } from '../Icon';
-import type { NetworkInfo } from '@salmon/shared';
+import type { BlockchainId } from '@salmon/shared';
+import { EyeIcon, EyeOffIcon, Icon, SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
+import { ScalesBackground } from '../ScalesBackground';
 import type { BalanceCardProps } from './types';
 
 /**
- * Default network logos
+ * Get CSS gradient string for a blockchain
  */
-const NETWORK_LOGOS: Record<string, string> = {
-  'solana-mainnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-  'solana-devnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
-  'testnet': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+const getGradientCSSForBlockchain = (blockchain: BlockchainId): string => {
+  switch (blockchain) {
+    case 'solana':
+      return gradients.balanceCardSolanaCSS;
+    case 'solana-devnet':
+      return gradients.balanceCardSolanaDevnetCSS;
+    case 'bitcoin':
+      return gradients.balanceCardBitcoinCSS;
+    case 'bitcoin-testnet':
+      return gradients.balanceCardBitcoinTestnetCSS;
+    case 'ethereum':
+      return gradients.balanceCardEthereumCSS;
+    case 'ethereum-sepolia':
+      return gradients.balanceCardEthereumSepoliaCSS;
+    default:
+      return gradients.balanceCardSolanaCSS;
+  }
 };
 
 /**
- * Color mapping for percentage change labels
+ * Get ScalesBackground stroke color for a blockchain (15% opacity)
  */
-const LABEL_COLORS: Record<string, string> = {
-  positive: '#00C853',
-  negative: '#FF5252',
-  neutral: 'rgba(255, 255, 255, 0.6)',
+const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
+  switch (blockchain) {
+    case 'solana':
+      return 'rgba(153, 69, 255, 0.15)';
+    case 'solana-devnet':
+      return 'rgba(0, 255, 163, 0.15)';
+    case 'bitcoin':
+      return 'rgba(247, 147, 26, 0.15)';
+    case 'bitcoin-testnet':
+      return 'rgba(255, 149, 0, 0.15)';
+    case 'ethereum':
+      return 'rgba(98, 126, 234, 0.15)';
+    case 'ethereum-sepolia':
+      return 'rgba(76, 175, 80, 0.15)';
+    default:
+      return 'rgba(153, 69, 255, 0.15)';
+  }
 };
 
+/**
+ * Render the blockchain logo using SVG icons
+ */
+const renderBlockchainLogo = (blockchain: BlockchainId) => {
+  const iconStyle = {
+    width: componentSizes.blockchainIcon,
+    height: componentSizes.blockchainIcon,
+    color: '#FFFFFF',
+  };
+  switch (blockchain) {
+    case 'solana':
+    case 'solana-devnet':
+      return <SolanaSvgIcon style={iconStyle} />;
+    case 'bitcoin':
+    case 'bitcoin-testnet':
+      return <BitcoinSvgIcon style={iconStyle} />;
+    case 'ethereum':
+    case 'ethereum-sepolia':
+      return <EthereumSvgIcon style={iconStyle} />;
+    default:
+      return <SolanaSvgIcon style={iconStyle} />;
+  }
+};
+
+/**
+ * Get network label for non-mainnet networks
+ */
+const getNetworkLabel = (blockchain: BlockchainId): string | null => {
+  switch (blockchain) {
+    case 'solana-devnet':
+      return 'Devnet';
+    case 'bitcoin-testnet':
+      return 'Testnet';
+    case 'ethereum-sepolia':
+      return 'Sepolia';
+    default:
+      return null;
+  }
+};
+
+// --- Styled components ---
+
 const Container = styled(Box)({
-  background: 'linear-gradient(135deg, #4A1A8C 0%, #2D1052 50%, #1A0A33 100%)',
   borderRadius: borderRadius['2xl'],
   padding: spacing.xl,
   margin: `0 ${spacing.lg}px`,
-});
-
-const NetworkContainer = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  alignSelf: 'flex-start',
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  borderRadius: borderRadius.xl,
-  padding: `${spacing.xs + 2}px ${spacing.md}px`,
-  marginBottom: spacing.lg,
-  cursor: 'pointer',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  },
-});
-
-const NetworkLogo = styled('img')({
-  width: 20,
-  height: 20,
-  borderRadius: 10,
-  marginRight: spacing.sm,
-  objectFit: 'cover',
-});
-
-const NetworkName = styled(Typography)({
-  fontSize: 14,
-  fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.primary,
-});
-
-const BalanceContainer = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginBottom: spacing.sm,
-});
-
-const Balance = styled(Typography)({
-  fontSize: 42,
-  fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.primary,
-  flex: 1,
-  marginRight: spacing.md,
+  position: 'relative',
   overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
+  boxShadow: shadowsCSS.card,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: spacing.sm,
 });
 
-const VisibilityButton = styled(IconButton)({
-  width: 44,
-  height: 44,
-  borderRadius: 22,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  },
+const LogoContainer = styled(Box)({
+  width: componentSizes.logoContainer,
+  height: componentSizes.logoContainer,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 });
 
-const ChangeContainer = styled(Box)({
+const NetworkLabel = styled(Box)({
+  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  paddingLeft: spacing.sm,
+  paddingRight: spacing.sm,
+  paddingTop: spacing.xxs,
+  paddingBottom: spacing.xxs,
+  borderRadius: borderRadius.sm,
+  marginTop: spacing.xs,
+});
+
+const NetworkLabelText = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: 600,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  textTransform: 'uppercase',
+  letterSpacing: letterSpacing.wide,
+});
+
+const BalanceRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  marginBottom: spacing.lg,
+  justifyContent: 'center',
+  gap: spacing.md,
+  textShadow: shadowsCSS.balanceText,
+});
+
+const BalanceDollars = styled(Typography)({
+  fontSize: fontSize.balance,
+  fontWeight: fontWeight.semibold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.balance,
+  letterSpacing: letterSpacing.balance,
+});
+
+const BalanceDecimals = styled(Typography)({
+  fontSize: fontSize.balance,
+  fontWeight: fontWeight.semibold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  letterSpacing: letterSpacing.balance,
+  opacity: 0.4,
+});
+
+const EyeButton = styled('button')({
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  padding: spacing.xs,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: colors.text.muted,
+  '&:hover': {
+    opacity: 0.8,
+  },
+});
+
+const ChangeRow = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  textShadow: shadowsCSS.balanceText,
 });
 
 const ChangeText = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== 'changeColor',
-})<{ changeColor?: string }>(({ changeColor }) => ({
-  fontSize: 16,
+  shouldForwardProp: (prop) => prop !== '$color',
+})<{ $color?: string }>(({ $color }) => ({
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: changeColor || 'rgba(255, 255, 255, 0.6)',
+  color: $color || colors.text.muted,
+  letterSpacing: letterSpacing.change,
 }));
 
-const ChangeAbsolute = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== 'changeColor',
-})<{ changeColor?: string }>(({ changeColor }) => ({
-  fontSize: 14,
-  fontWeight: fontWeight.regular,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: changeColor || 'rgba(255, 255, 255, 0.6)',
-}));
+const TrendingIconWrapper = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  marginLeft: spacing['2xs'],
+  marginRight: spacing['2xs'],
+});
 
 const Pagination = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
+  marginTop: spacing.sm,
 });
 
-const PaginationDot = styled(Box)<{ active?: boolean }>(({ active }) => ({
-  width: 8,
-  height: 8,
-  borderRadius: 4,
-  backgroundColor: active ? colors.text.primary : 'rgba(255, 255, 255, 0.3)',
-  margin: `0 ${spacing.xs}px`,
+const PaginationDot = styled(Box)<{ $active?: boolean }>(({ $active }) => ({
+  width: spacing.xs,
+  height: spacing.xs,
+  borderRadius: spacing['2xs'],
+  backgroundColor: $active ? colors.text.primary : colors.step.inactive,
+  margin: `0 ${spacing.xxs + 1}px`,
 }));
 
-/**
- * BalanceCard component for displaying total portfolio balance
- *
- * Features:
- * - Network logo and name
- * - Total balance in USD
- * - Eye icon to toggle visibility
- * - 24h percentage and absolute change
- * - Purple/cosmic gradient background
- * - Pagination dots for future multi-network carousel
- *
- * @example
- * ```tsx
- * <BalanceCard
- *   network={{ id: 'solana-mainnet', name: 'Solana Mainnet' }}
- *   usdTotal={1234.56}
- *   changePercent={5.23}
- *   changeAmount={61.45}
- *   hiddenBalance={false}
- *   onToggleVisibility={() => setHidden(!hidden)}
- * />
- * ```
- */
 export function BalanceCard({
   network,
+  blockchain = 'solana',
   usdTotal,
   changePercent = 0,
   changeAmount = 0,
   hiddenBalance = false,
   onToggleVisibility,
-  onNetworkPress,
   currentIndex = 0,
   totalCount = 1,
   loading = false,
+  showNetworkLabel = false,
   style,
   className,
 }: BalanceCardProps) {
@@ -191,79 +261,107 @@ export function BalanceCard({
     onToggleVisibility?.();
   }, [onToggleVisibility]);
 
-  const handleNetworkPress = useCallback(() => {
-    onNetworkPress?.();
-  }, [onNetworkPress]);
-
-  // Determine the label type for coloring
   const labelType = getLabelValue(changePercent);
-  const changeColor = LABEL_COLORS[labelType];
+  const changeColor = colors.change[labelType];
+  const isPositive = changePercent >= 0;
 
-  // Get network logo
-  const networkLogo = network.logo || NETWORK_LOGOS[network.id] || NETWORK_LOGOS['solana-mainnet'];
-
-  // Format display values
-  const displayBalance = hiddenBalance ? hiddenValue : showAmount(usdTotal);
   const displayPercentage = showPercentage(changePercent);
   const displayAbsChange = showAbsoluteChange(changeAmount);
 
-  return (
-    <Container style={style} className={className}>
-      {/* Network selector */}
-      <NetworkContainer
-        onClick={handleNetworkPress}
-        role="button"
-        aria-label={`Current network: ${network.name}`}
-      >
-        <NetworkLogo src={networkLogo} alt={network.name} />
-        <NetworkName>{network.name}</NetworkName>
-        <ChevronDownIcon sx={{ marginLeft: 0.5, fontSize: 16, color: 'rgba(255, 255, 255, 0.6)' }} />
-      </NetworkContainer>
+  const gradientCSS = getGradientCSSForBlockchain(blockchain);
+  const scalesColor = getScalesColorForBlockchain(blockchain);
+  const networkLabel = showNetworkLabel ? getNetworkLabel(blockchain) : null;
 
-      {/* Balance display */}
-      <BalanceContainer>
-        {loading ? (
-          <CircularProgress size={40} sx={{ color: colors.text.primary }} />
-        ) : (
-          <Balance>{displayBalance}</Balance>
+  const renderBalance = () => {
+    if (hiddenBalance) {
+      return (
+        <BalanceRow>
+          <BalanceDollars>{hiddenValue}</BalanceDollars>
+          <EyeButton onClick={handleToggleVisibility} aria-label="Show balance">
+            <EyeOffIcon sx={{ fontSize: componentSizes.eyeIcon }} />
+          </EyeButton>
+        </BalanceRow>
+      );
+    }
+
+    const formatted = showAmount(usdTotal);
+    const parts = formatted.split('.');
+
+    return (
+      <BalanceRow>
+        <BalanceDollars>{parts[0]}</BalanceDollars>
+        {parts[1] && <BalanceDecimals>.{parts[1]}</BalanceDecimals>}
+        <EyeButton onClick={handleToggleVisibility} aria-label="Hide balance">
+          <EyeIcon sx={{ fontSize: componentSizes.eyeIcon }} />
+        </EyeButton>
+      </BalanceRow>
+    );
+  };
+
+  const renderChange = () => {
+    if (hiddenBalance) {
+      return (
+        <ChangeRow>
+          <ChangeText>{hiddenValue}</ChangeText>
+        </ChangeRow>
+      );
+    }
+
+    return (
+      <ChangeRow>
+        <ChangeText $color={changeColor}>{displayPercentage}</ChangeText>
+        <TrendingIconWrapper>
+          <Icon
+            name={isPositive ? 'chevron-up' : 'chevron-down'}
+            size={componentSizes.changeArrowIcon}
+            color={changeColor}
+          />
+        </TrendingIconWrapper>
+        {displayAbsChange && (
+          <ChangeText $color={changeColor}>({displayAbsChange})</ChangeText>
         )}
+      </ChangeRow>
+    );
+  };
 
-        {/* Visibility toggle */}
-        <VisibilityButton
-          onClick={handleToggleVisibility}
-          aria-label={hiddenBalance ? 'Show balance' : 'Hide balance'}
-        >
-          {hiddenBalance ? (
-            <EyeOffIcon sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 22 }} />
-          ) : (
-            <EyeIcon sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 22 }} />
-          )}
-        </VisibilityButton>
-      </BalanceContainer>
+  return (
+    <Container
+      style={{ ...style, background: gradientCSS }}
+      className={className}
+    >
+      {/* Scales pattern overlay */}
+      <ScalesBackground
+        strokeColor={scalesColor}
+        strokeWidth={1}
+        patternHeight={26}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+      />
+
+      {/* Blockchain logo */}
+      <LogoContainer>{renderBlockchainLogo(blockchain)}</LogoContainer>
+
+      {/* Network label for non-mainnet */}
+      {networkLabel && (
+        <NetworkLabel>
+          <NetworkLabelText>{networkLabel}</NetworkLabelText>
+        </NetworkLabel>
+      )}
+
+      {/* Balance */}
+      {loading ? (
+        <CircularProgress size={40} sx={{ color: colors.text.primary }} />
+      ) : (
+        renderBalance()
+      )}
 
       {/* 24h change */}
-      {!loading && (
-        <ChangeContainer>
-          {hiddenBalance ? (
-            <ChangeText>{hiddenValue}</ChangeText>
-          ) : (
-            <>
-              <ChangeText changeColor={changeColor}>{displayPercentage}</ChangeText>
-              {displayAbsChange && (
-                <ChangeAbsolute changeColor={changeColor}>
-                  {' '}({displayAbsChange})
-                </ChangeAbsolute>
-              )}
-            </>
-          )}
-        </ChangeContainer>
-      )}
+      {!loading && renderChange()}
 
       {/* Pagination dots */}
       {totalCount > 1 && (
         <Pagination>
           {Array.from({ length: totalCount }).map((_, index) => (
-            <PaginationDot key={index} active={index === currentIndex} />
+            <PaginationDot key={index} $active={index === currentIndex} />
           ))}
         </Pagination>
       )}
