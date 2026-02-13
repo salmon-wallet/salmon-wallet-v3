@@ -11,7 +11,7 @@
  * subtle edge highlights for a richer textured appearance.
  */
 import { CSSProperties } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 
 export interface TexturedBackgroundProps {

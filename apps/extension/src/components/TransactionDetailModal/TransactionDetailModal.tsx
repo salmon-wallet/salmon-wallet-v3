@@ -29,7 +29,7 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';

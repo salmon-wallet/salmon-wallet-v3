@@ -3,7 +3,7 @@
  *
  * Web version using CSS backdrop-filter for browser extension
  */
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import { colors } from '@salmon/shared';
 import type { BlurContainerProps, BlurTint } from './types';

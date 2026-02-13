@@ -12,7 +12,7 @@
 
 import React, { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import { spacing } from '@salmon/shared';
 import { BaseDialog, MessageText } from '../BaseDialog';
 

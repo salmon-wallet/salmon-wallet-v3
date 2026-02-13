@@ -4,7 +4,7 @@
  * Web version using MUI and @emotion/styled for browser extension.
  * Includes back button, optional step indicator, and spacer for alignment.
  */
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

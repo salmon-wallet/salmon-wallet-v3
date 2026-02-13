@@ -4,7 +4,7 @@
  * Web version using standard HTML SVG elements for browser extension
  */
 import { CSSProperties } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 
 export interface ScalesBackgroundProps {

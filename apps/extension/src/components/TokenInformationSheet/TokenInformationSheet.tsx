@@ -28,7 +28,7 @@
  */
 
 import React, { useCallback } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 

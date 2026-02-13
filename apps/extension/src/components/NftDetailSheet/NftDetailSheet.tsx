@@ -24,7 +24,7 @@
  */
 
 import React, { useCallback } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';

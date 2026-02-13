@@ -3,7 +3,7 @@
  *
  * Web version using CSS linear-gradient() for browser extension
  */
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import { gradients } from '@salmon/shared';
 import type { GradientBackgroundProps } from './types';

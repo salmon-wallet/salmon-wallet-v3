@@ -5,7 +5,7 @@
  * Uses CSS gradients instead of expo-linear-gradient.
  */
 import React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import {
   colors,

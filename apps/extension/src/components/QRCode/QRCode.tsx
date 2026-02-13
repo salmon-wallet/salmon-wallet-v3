@@ -4,7 +4,7 @@
  * Web version using qrcode.react for browser extension.
  * Renders a QR code SVG for the given value (e.g., wallet address).
  */
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import { QRCodeSVG } from 'qrcode.react';
 import type { QRCodeProps } from './types';

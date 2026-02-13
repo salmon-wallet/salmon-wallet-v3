@@ -4,7 +4,7 @@
  * Web version using recharts and MUI for browser extension
  */
 import { useMemo, useCallback, useId } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Skeleton from '@mui/material/Skeleton';

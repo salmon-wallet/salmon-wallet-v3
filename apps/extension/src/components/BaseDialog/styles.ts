@@ -2,7 +2,7 @@
  * Shared styled components for BaseDialog
  */
 
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Dialog from '@mui/material/Dialog';
 import type { DialogProps } from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';

@@ -7,7 +7,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';

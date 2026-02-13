@@ -1,5 +1,5 @@
 import React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import { spacing, borderRadius, gradients } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';

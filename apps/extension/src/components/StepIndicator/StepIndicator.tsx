@@ -4,7 +4,7 @@
  * Displays dots indicating current step in a sequence.
  * Web version using @emotion/styled for browser extension.
  */
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import { colors, componentSizes } from '@salmon/shared';
 import type { StepIndicatorProps } from './types';
 

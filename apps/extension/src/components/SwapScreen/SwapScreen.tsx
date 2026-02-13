@@ -5,7 +5,7 @@
  * Replaces RN Alert with window.alert, uses web TokenSelectorModal.
  */
 import React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import { colors, useSwapScreenLogic } from '@salmon/shared';
 import { SwapInputScreen } from './SwapInputScreen';

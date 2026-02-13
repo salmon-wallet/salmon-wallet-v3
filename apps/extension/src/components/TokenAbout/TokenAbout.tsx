@@ -5,7 +5,7 @@
  * Provides a glassmorphism container with expandable description text.
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Skeleton from '@mui/material/Skeleton';

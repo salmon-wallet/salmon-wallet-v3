@@ -8,7 +8,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Dialog from '@mui/material/Dialog';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';

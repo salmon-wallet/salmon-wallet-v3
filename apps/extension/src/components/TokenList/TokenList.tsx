@@ -3,7 +3,7 @@
  *
  * Web version using MUI and @emotion/styled for browser extension
  */
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import { colors, spacing, borderRadius } from '@salmon/shared';

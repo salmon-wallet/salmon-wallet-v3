@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import DialogContent from '@mui/material/DialogContent';
 import { PADDING_PRESETS } from './types';
 import type { ContentProps } from './types';

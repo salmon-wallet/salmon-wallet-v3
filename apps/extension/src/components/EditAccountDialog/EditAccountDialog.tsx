@@ -7,7 +7,7 @@
 
 import React, { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Typography from '@mui/material/Typography';
 import { colors, spacing } from '@salmon/shared';
 import { BaseDialog } from '../BaseDialog';

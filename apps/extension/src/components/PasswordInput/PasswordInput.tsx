@@ -5,7 +5,7 @@
  * Provides a password field with show/hide toggle and optional error message.
  */
 import { useState, useCallback } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';

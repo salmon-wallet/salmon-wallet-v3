@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';

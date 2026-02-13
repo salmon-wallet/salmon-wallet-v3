@@ -2,7 +2,7 @@
  * Shared styled components for BaseSheetDialog
  */
 
-import { styled } from '@mui/material/styles';
+import { styled } from '../../utils/styled';
 import Dialog, { type DialogProps } from '@mui/material/Dialog';
 import Box, { type BoxProps } from '@mui/material/Box';
 import { colors, borderRadius } from '@salmon/shared';
