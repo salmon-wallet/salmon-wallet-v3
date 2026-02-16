@@ -9,7 +9,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { colors, spacing, borderRadius, fontFamily, fontWeight } from '@salmon/shared';
-import { CopyIcon, SettingsIcon } from '../Icon';
+import { CopyIcon, SettingsIcon, WalletIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
 /**
@@ -79,7 +79,14 @@ const CopyIconStyled = styled(CopyIcon)({
   color: 'rgba(255, 255, 255, 0.6)',
 });
 
-const SettingsButton = styled(IconButton)({
+const ActionButtons = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing.sm,
+});
+
+const HeaderButton = styled(IconButton)({
   width: 44,
   height: 44,
   borderRadius: 22,
@@ -120,17 +127,7 @@ export function WalletHeader({
   style,
   className,
 }: WalletHeaderProps) {
-  const handleAccountInfoClick = useCallback(() => {
-    // If onWalletPress is provided, use it; otherwise fall back to copy address
-    if (onWalletPress) {
-      onWalletPress();
-    } else {
-      onCopyAddress?.();
-    }
-  }, [onWalletPress, onCopyAddress]);
-
-  const handleCopyPress = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCopyPress = useCallback(() => {
     onCopyAddress?.();
   }, [onCopyAddress]);
 
@@ -138,29 +135,40 @@ export function WalletHeader({
     onSettingsPress?.();
   }, [onSettingsPress]);
 
+  const handleWalletPress = useCallback(() => {
+    onWalletPress?.();
+  }, [onWalletPress]);
+
   const truncatedAddress = truncateAddress(address);
 
   return (
     <Container style={style} className={className}>
-      {/* Left side - Account info */}
+      {/* Left side - Account info (click copies address) */}
       <AccountInfo
-        onClick={handleAccountInfoClick}
+        onClick={handleCopyPress}
         role="button"
-        aria-label={onWalletPress ? `Switch wallet, current: ${accountName}` : `Copy wallet address ${truncatedAddress}`}
+        aria-label={`Copy wallet address ${truncatedAddress}`}
       >
         <AccountTextContainer>
           <AccountName>{accountName}</AccountName>
-          <AddressContainer onClick={onWalletPress ? handleCopyPress : undefined}>
+          <AddressContainer>
             <Address>{truncatedAddress}</Address>
             <CopyIconStyled />
           </AddressContainer>
         </AccountTextContainer>
       </AccountInfo>
 
-      {/* Right side - Settings button */}
-      <SettingsButton onClick={handleSettingsPress} aria-label="Open settings">
-        <SettingsIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
-      </SettingsButton>
+      {/* Right side - Settings + Wallet buttons */}
+      <ActionButtons>
+        <HeaderButton onClick={handleSettingsPress} aria-label="Open settings">
+          <SettingsIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
+        </HeaderButton>
+        {onWalletPress && (
+          <HeaderButton onClick={handleWalletPress} aria-label="Switch wallet">
+            <WalletIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
+          </HeaderButton>
+        )}
+      </ActionButtons>
     </Container>
   );
 }

@@ -34,6 +34,74 @@ import type { TokenListItemProps } from './types';
 const DEFAULT_TOKEN_LOGO =
   'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
 
+// --- Bitcoin layout styled components ---
+
+const BitcoinContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  padding: `${vs(spacing.md)}px ${s(spacing.lg)}px`,
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  borderRadius: ms(borderRadius.lg),
+  marginBottom: vs(spacing.sm),
+  cursor: 'pointer',
+  gap: s(spacing.md),
+  transition: 'background-color 0.2s ease',
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+});
+
+const BitcoinLogo = styled('img')({
+  width: s(33),
+  height: s(33),
+  borderRadius: '50%',
+  backgroundColor: colors.background.tertiary,
+  objectFit: 'cover',
+  flexShrink: 0,
+});
+
+const BitcoinInfoContainer = styled(Box)({
+  flex: 1,
+  minWidth: 0,
+});
+
+const BitcoinPrice = styled(Typography)({
+  fontSize: ms(fontSize.tokenNamePrice),
+  fontWeight: fontWeight.bold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  marginBottom: vs(spacing['2xs']),
+});
+
+const BitcoinChangeRow = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: s(spacing['2xs']),
+});
+
+const BitcoinChangeText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== '$changeColor',
+})<{ $changeColor?: string }>(({ $changeColor }) => ({
+  fontSize: ms(fontSize.tokenChange),
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: $changeColor || colors.text.muted,
+}));
+
+const BitcoinAmountContainer = styled(Box)({
+  alignItems: 'flex-end',
+  textAlign: 'right',
+});
+
+const BitcoinAmount = styled(Typography)({
+  fontSize: ms(fontSize.lg),
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+});
+
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
@@ -139,6 +207,7 @@ export function TokenListItem({
   token,
   onPress,
   hiddenBalance = false,
+  blockchain = 'solana',
   style,
   className,
 }: TokenListItemProps) {
@@ -170,6 +239,48 @@ export function TokenListItem({
 
   const displayTokenAmount = hiddenBalance ? hiddenValue : `${uiAmount} ${symbol || ''}`;
 
+  // Bitcoin layout: price on left, amount on right, no chevron
+  if (blockchain === 'bitcoin') {
+    return (
+      <BitcoinContainer
+        onClick={handlePress}
+        style={style}
+        className={className}
+        role="button"
+        aria-label={`${name} token, balance ${uiAmount} ${symbol}`}
+      >
+        {logo ? (
+          <BitcoinLogo src={logo} alt={name} onError={(e) => {
+            (e.target as HTMLImageElement).src = DEFAULT_TOKEN_LOGO;
+          }} />
+        ) : (
+          <TokenLogoPlaceholder>{symbol?.[0] || '?'}</TokenLogoPlaceholder>
+        )}
+
+        <BitcoinInfoContainer>
+          {displayPrice && <BitcoinPrice>{displayPrice}</BitcoinPrice>}
+          <BitcoinChangeRow>
+            {displayPercentage && (
+              <BitcoinChangeText $changeColor={changeColor}>
+                {displayPercentage}
+              </BitcoinChangeText>
+            )}
+            {displayAbsChange && (
+              <BitcoinChangeText $changeColor={changeColor}>
+                {displayAbsChange}
+              </BitcoinChangeText>
+            )}
+          </BitcoinChangeRow>
+        </BitcoinInfoContainer>
+
+        <BitcoinAmountContainer>
+          <BitcoinAmount>{displayTokenAmount}</BitcoinAmount>
+        </BitcoinAmountContainer>
+      </BitcoinContainer>
+    );
+  }
+
+  // Default Solana/Ethereum layout
   return (
     <Container
       onClick={handlePress}

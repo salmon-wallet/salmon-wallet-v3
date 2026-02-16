@@ -4,6 +4,8 @@
 import type { CSSProperties } from 'react';
 import type { Token } from '@salmon/shared';
 
+export type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
+
 /**
  * Props for the TokenListItem component
  */
@@ -14,6 +16,8 @@ export interface TokenListItemProps {
   onPress: (token: Token) => void;
   /** Whether to hide balance values */
   hiddenBalance?: boolean;
+  /** Blockchain type for layout variation */
+  blockchain?: BlockchainType;
   /** Optional custom styles */
   style?: CSSProperties;
   /** Optional CSS class name */
@@ -32,6 +36,8 @@ export interface TokenListProps {
   onTokenPress: (token: Token) => void;
   /** Whether to hide balance values (privacy mode) */
   hiddenBalance?: boolean;
+  /** Blockchain type for layout variation */
+  blockchain?: BlockchainType;
   /** Maximum height for the list (enables scrolling) */
   maxHeight?: number | string;
   /** Optional custom styles for the container */

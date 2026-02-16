@@ -4,4 +4,5 @@ export type {
   TokenListProps,
   TokenListItemProps,
   TokenListSkeletonProps,
+  BlockchainType,
 } from './types';

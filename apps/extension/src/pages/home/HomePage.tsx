@@ -9,6 +9,8 @@ import {
   useAdjacentBalances,
   useBalance,
   useUserConfig,
+  getMarketChart,
+  getCoinInfo,
   colors,
   spacing,
   fontFamily,
@@ -16,13 +18,22 @@ import {
   type BlockchainBalance,
   type BlockchainId,
   type NetworkId,
+  type PriceChartPeriod,
+  type PriceDataPoint,
+  type CoinInfo,
+  type MarketData,
+  type Token,
 } from '@salmon/shared';
 import {
   WalletHeader,
   BalanceCardCarousel,
   ActionButtonRow,
   TokenList,
-  LockIcon,
+  TokenListItem,
+  PriceChart,
+  TokenMarketData,
+  TokenAbout,
+  TokenInformationSheet,
   SettingsSheet,
   WalletSwitcherSheet,
   EditAccountDialog,
@@ -70,6 +81,34 @@ const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
   'ethereum-sepolia': 'ethereum-sepolia',
 };
 
+// Map blockchain to CoinGecko ID for price data
+const BLOCKCHAIN_TO_COINGECKO: Record<BlockchainId, string> = {
+  'solana': 'solana',
+  'solana-devnet': 'solana',
+  'bitcoin': 'bitcoin',
+  'bitcoin-testnet': 'bitcoin',
+  'ethereum': 'ethereum',
+  'ethereum-sepolia': 'ethereum',
+};
+
+// Map period to days for API call
+const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
+  '1H': 1,
+  '1D': 1,
+  '1W': 7,
+  '1M': 30,
+  '3M': 90,
+  '1Y': 365,
+};
+
+type BaseBlockchain = 'solana' | 'bitcoin' | 'ethereum';
+
+function getBaseBlockchain(id: BlockchainId): BaseBlockchain {
+  if (id.startsWith('solana')) return 'solana';
+  if (id.startsWith('bitcoin')) return 'bitcoin';
+  return 'ethereum';
+}
+
 /**
  * Styled components for HomePage layout
  */
@@ -78,24 +117,6 @@ const Container = styled(Box)({
   flexDirection: 'column',
   height: '100vh',
   backgroundColor: colors.background.primary,
-});
-
-const HeaderRow = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: `${spacing.md}px ${spacing.lg}px`,
-});
-
-const LockButton = styled(IconButton)({
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
 });
 
 const Main = styled(Box)({
@@ -324,6 +345,21 @@ export function HomePage() {
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
 
+  // TokenInformationSheet state
+  const [tokenSheetVisible, setTokenSheetVisible] = useState(false);
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
+  const [selectedTokenChartData, setSelectedTokenChartData] = useState<PriceDataPoint[]>([]);
+  const [selectedTokenCoinInfo, setSelectedTokenCoinInfo] = useState<CoinInfo | null>(null);
+  const [selectedTokenChartPeriod, setSelectedTokenChartPeriod] = useState<PriceChartPeriod>('1M');
+  const [selectedTokenMarketData, setSelectedTokenMarketData] = useState<MarketData | undefined>(undefined);
+  const [selectedTokenLoading, setSelectedTokenLoading] = useState(false);
+
+  // Bitcoin-specific state
+  const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
+  const [bitcoinCoinInfo, setBitcoinCoinInfo] = useState<CoinInfo | null>(null);
+  const [bitcoinChartPeriod, setBitcoinChartPeriod] = useState<PriceChartPeriod>('1M');
+  const [bitcoinDataLoading, setBitcoinDataLoading] = useState(false);
+
   // Filter networks to only include those the user has accounts for
   const allNetworks = useMemo(() => {
     if (!activeAccount?.networksAccounts) return availableNetworks;
@@ -393,10 +429,6 @@ export function HomePage() {
   }, []);
 
   // Event handlers
-  const handleLock = useCallback(async () => {
-    await actions.lockAccounts();
-  }, [actions]);
-
   const handleCopyAddress = useCallback(() => {
     const address = activeBlockchainAccount?.getReceiveAddress();
     if (address) {
@@ -528,9 +560,22 @@ export function HomePage() {
     // TODO: Navigate to activity
   }, []);
 
-  const handleTokenPress = useCallback((token: { address: string }) => {
-    // TODO: Navigate to token detail
-    console.log('Token pressed:', token.address);
+  const handleTokenPress = useCallback((token: Token) => {
+    setSelectedTokenChartData([]);
+    setSelectedTokenCoinInfo(null);
+    setSelectedTokenMarketData(undefined);
+    setSelectedTokenChartPeriod('1M');
+    setSelectedToken(token);
+    setTokenSheetVisible(true);
+  }, []);
+
+  const handleTokenSheetClose = useCallback(() => {
+    setTokenSheetVisible(false);
+    setTimeout(() => setSelectedToken(null), 300);
+  }, []);
+
+  const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
+    setSelectedTokenChartPeriod(period);
   }, []);
 
   // Scroll-driven fade refs for token list
@@ -644,8 +689,176 @@ export function HomePage() {
         last24HoursChange: token.priceChange24h !== undefined
           ? { perc: token.priceChange24h }
           : undefined,
+        tags: token.tags,
+        coingeckoId: token.coingeckoId,
       }));
   }, [tokens, developerNetworks, currentBlockchain]);
+
+  // Load Bitcoin chart data when on Bitcoin mainnet or period changes
+  useEffect(() => {
+    const loadBitcoinChartData = async () => {
+      if (currentBlockchain !== 'bitcoin') return;
+
+      setBitcoinDataLoading(true);
+      try {
+        const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
+        const days = PERIOD_TO_DAYS[bitcoinChartPeriod];
+        const chartResponse = await getMarketChart(coinId, days);
+
+        if (chartResponse?.prices) {
+          const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
+            timestamp,
+            price,
+          }));
+          setBitcoinChartData(priceData);
+        }
+      } catch (error) {
+        console.error('Failed to load Bitcoin chart data:', error);
+      } finally {
+        setBitcoinDataLoading(false);
+      }
+    };
+
+    loadBitcoinChartData();
+  }, [currentBlockchain, bitcoinChartPeriod]);
+
+  // Load Bitcoin coin info once when on Bitcoin mainnet
+  useEffect(() => {
+    const loadBitcoinCoinInfo = async () => {
+      if (currentBlockchain !== 'bitcoin') return;
+      if (bitcoinCoinInfo) return;
+
+      try {
+        const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
+        const infoResponse = await getCoinInfo(coinId);
+        if (infoResponse) {
+          setBitcoinCoinInfo(infoResponse);
+        }
+      } catch (error) {
+        console.error('Failed to load Bitcoin coin info:', error);
+      }
+    };
+
+    loadBitcoinCoinInfo();
+  }, [currentBlockchain, bitcoinCoinInfo]);
+
+  // Transform CoinInfo to MarketData for TokenMarketData component
+  const bitcoinMarketData: MarketData | undefined = useMemo(() => {
+    if (!bitcoinCoinInfo?.marketData) return undefined;
+    const md = bitcoinCoinInfo.marketData;
+    return {
+      currentPrice: md.currentPrice,
+      marketCap: md.marketCap,
+      marketCapRank: md.marketCapRank,
+      volume24h: md.totalVolume,
+      high24h: md.high24h,
+      low24h: md.low24h,
+      circulatingSupply: md.circulatingSupply,
+      totalSupply: md.totalSupply,
+      maxSupply: md.maxSupply,
+      ath: md.ath,
+      athChangePercentage: md.athChangePercentage,
+      athDate: md.athDate,
+      atl: md.atl,
+      atlChangePercentage: md.atlChangePercentage,
+      atlDate: md.atlDate,
+    };
+  }, [bitcoinCoinInfo]);
+
+  // Create Bitcoin token for display
+  const bitcoinToken: Token | undefined = useMemo(() => {
+    if (!bitcoinCoinInfo?.marketData) return undefined;
+    const md = bitcoinCoinInfo.marketData;
+    return {
+      address: 'bitcoin',
+      name: 'Bitcoin',
+      symbol: 'BTC',
+      logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+      price: md.currentPrice,
+      uiAmount: 0,
+      usdBalance: 0,
+      last24HoursChange: md.priceChangePercentage24h
+        ? { perc: md.priceChangePercentage24h, abs: md.priceChange24h }
+        : null,
+      isVerified: true,
+    };
+  }, [bitcoinCoinInfo]);
+
+  const handleChartPeriodChange = useCallback((period: PriceChartPeriod) => {
+    setBitcoinChartPeriod(period);
+  }, []);
+
+  // Load selected token chart data when token is selected or period changes
+  useEffect(() => {
+    const loadSelectedTokenChartData = async () => {
+      if (!selectedToken || !tokenSheetVisible) return;
+
+      const coinId = selectedToken.coingeckoId;
+      if (!coinId) return;
+
+      setSelectedTokenLoading(true);
+      try {
+        const days = PERIOD_TO_DAYS[selectedTokenChartPeriod];
+        const chartResponse = await getMarketChart(coinId, days);
+
+        if (chartResponse?.prices) {
+          const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
+            timestamp,
+            price,
+          }));
+          setSelectedTokenChartData(priceData);
+        }
+      } catch (error) {
+        console.error('Failed to load token chart data:', error);
+      } finally {
+        setSelectedTokenLoading(false);
+      }
+    };
+
+    loadSelectedTokenChartData();
+  }, [selectedToken, selectedTokenChartPeriod, tokenSheetVisible]);
+
+  // Load selected token coin info when token is selected
+  useEffect(() => {
+    const loadSelectedTokenCoinInfo = async () => {
+      if (!selectedToken || !tokenSheetVisible) return;
+
+      const coinId = selectedToken.coingeckoId;
+      if (!coinId) return;
+
+      try {
+        const infoResponse = await getCoinInfo(coinId);
+        if (infoResponse) {
+          setSelectedTokenCoinInfo(infoResponse);
+
+          if (infoResponse.marketData) {
+            const md = infoResponse.marketData;
+            setSelectedTokenMarketData({
+              currentPrice: md.currentPrice,
+              marketCap: md.marketCap,
+              marketCapRank: md.marketCapRank,
+              volume24h: md.totalVolume,
+              high24h: md.high24h,
+              low24h: md.low24h,
+              circulatingSupply: md.circulatingSupply,
+              totalSupply: md.totalSupply,
+              maxSupply: md.maxSupply,
+              ath: md.ath,
+              athChangePercentage: md.athChangePercentage,
+              athDate: md.athDate,
+              atl: md.atl,
+              atlChangePercentage: md.atlChangePercentage,
+              atlDate: md.atlDate,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load token coin info:', error);
+      }
+    };
+
+    loadSelectedTokenCoinInfo();
+  }, [selectedToken, tokenSheetVisible]);
 
   const accountName = activeAccount?.name || t('home.unnamed_account', 'Account');
   const accountAddress = activeBlockchainAccount?.getReceiveAddress() || '';
@@ -708,23 +921,14 @@ export function HomePage() {
 
   return (
     <Container>
-      {/* Header with lock button */}
-      <HeaderRow>
-        <WalletHeader
-          accountName={accountName}
-          address={accountAddress}
-          onCopyAddress={handleCopyAddress}
-          onSettingsPress={handleSettingsPress}
-          onWalletPress={handleWalletPress}
-          style={{ flex: 1, padding: 0, backgroundColor: 'transparent' }}
-        />
-        <LockButton
-          onClick={handleLock}
-          aria-label={t('actions.lock', 'Lock')}
-        >
-          <LockIcon sx={{ color: colors.text.secondary, fontSize: 20 }} />
-        </LockButton>
-      </HeaderRow>
+      {/* Header */}
+      <WalletHeader
+        accountName={accountName}
+        address={accountAddress}
+        onCopyAddress={handleCopyAddress}
+        onSettingsPress={handleSettingsPress}
+        onWalletPress={handleWalletPress}
+      />
 
       {/* Tab Bar */}
       <TabBar>
@@ -768,25 +972,59 @@ export function HomePage() {
               {/* Token List Section — only this area scrolls */}
               <TokenSectionWrapper>
                 <TopListFade ref={topFadeRef} />
-                <TokenSection onScroll={handleTokenListScroll}>
-                  {formattedTokens.length > 0 || loading ? (
-                    <TokenList
-                      tokens={formattedTokens}
-                      loading={loading && formattedTokens.length === 0}
-                      onTokenPress={handleTokenPress}
-                      hiddenBalance={hiddenBalance}
+                {currentBlockchain === 'bitcoin' ? (
+                  <TokenSection onScroll={handleTokenListScroll}>
+                    {bitcoinToken && (
+                      <TokenListItem
+                        token={bitcoinToken}
+                        onPress={handleTokenPress}
+                        hiddenBalance={hiddenBalance}
+                        blockchain="bitcoin"
+                      />
+                    )}
+                    <PriceChart
+                      data={bitcoinChartData}
+                      selectedPeriod={bitcoinChartPeriod}
+                      onPeriodChange={handleChartPeriodChange}
+                      loading={bitcoinDataLoading && bitcoinChartData.length === 0}
+                      height={180}
+                      style={{ marginTop: spacing.md }}
                     />
-                  ) : (
-                    <EmptyState>
-                      <EmptyStateText>
-                        {t('home.no_tokens', 'No tokens found')}
-                      </EmptyStateText>
-                      <EmptyStateSubtext>
-                        {t('home.no_tokens_hint', 'Your tokens will appear here once you receive some')}
-                      </EmptyStateSubtext>
-                    </EmptyState>
-                  )}
-                </TokenSection>
+                    <TokenMarketData
+                      data={bitcoinMarketData}
+                      symbol="BTC"
+                      loading={bitcoinDataLoading && !bitcoinCoinInfo}
+                      style={{ marginTop: spacing.md }}
+                    />
+                    <TokenAbout
+                      description={bitcoinCoinInfo?.description}
+                      loading={bitcoinDataLoading && !bitcoinCoinInfo}
+                      maxLines={4}
+                      style={{ marginTop: spacing.md }}
+                    />
+                  </TokenSection>
+                ) : (
+                  <TokenSection onScroll={handleTokenListScroll}>
+                    {formattedTokens.length > 0 || loading ? (
+                      <TokenList
+                        tokens={formattedTokens}
+                        loading={loading && formattedTokens.length === 0}
+                        onTokenPress={handleTokenPress}
+                        hiddenBalance={hiddenBalance}
+                        blockchain={getBaseBlockchain(currentBlockchain)}
+                      />
+                    ) : (
+                      <EmptyState>
+                        <EmptyStateText>
+                          {t('home.no_tokens', 'No tokens found')}
+                        </EmptyStateText>
+                        <EmptyStateSubtext>
+                          {t('home.no_tokens_hint', 'Your tokens will appear here once you receive some')}
+                        </EmptyStateSubtext>
+                      </EmptyState>
+                    )}
+                  </TokenSection>
+                )}
 
                 <BottomListFade ref={bottomFadeRef} />
               </TokenSectionWrapper>
@@ -795,8 +1033,8 @@ export function HomePage() {
 
           {activeTab === 'collectibles' && (
             <CollectiblesPage
-              activeBlockchainAccount={activeBlockchainAccount}
-              networkId={networkId}
+              activeAccount={activeAccount}
+              developerNetworks={developerNetworks}
             />
           )}
 
@@ -865,6 +1103,22 @@ export function HomePage() {
         isDanger
         onConfirm={confirmRemoveAllWallets}
       />
+
+      {/* Token Information Sheet */}
+      {selectedToken && (
+        <TokenInformationSheet
+          visible={tokenSheetVisible}
+          onClose={handleTokenSheetClose}
+          token={selectedToken}
+          blockchain={getBaseBlockchain(currentBlockchain)}
+          chartData={selectedTokenChartData}
+          chartPeriod={selectedTokenChartPeriod}
+          onChartPeriodChange={handleSelectedTokenChartPeriodChange}
+          coinInfo={selectedTokenCoinInfo}
+          marketData={selectedTokenMarketData}
+          loading={selectedTokenLoading && selectedTokenChartData.length === 0}
+        />
+      )}
     </Container>
   );
 }

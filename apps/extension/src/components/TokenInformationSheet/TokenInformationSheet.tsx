@@ -140,6 +140,7 @@ export function TokenInformationSheet({
   visible,
   onClose,
   token,
+  blockchain = 'solana',
   chartData,
   chartPeriod,
   onChartPeriodChange,
@@ -188,6 +189,7 @@ export function TokenInformationSheet({
               token={token}
               onPress={handleTokenPress}
               hiddenBalance={false}
+              blockchain={blockchain}
             />
           )}
 

@@ -104,6 +104,7 @@ export function TokenList({
   loading = false,
   onTokenPress,
   hiddenBalance = false,
+  blockchain,
   maxHeight,
   style,
   className,
@@ -121,6 +122,7 @@ export function TokenList({
             token={token}
             onPress={onTokenPress}
             hiddenBalance={hiddenBalance}
+            blockchain={blockchain}
           />
         ))}
       </ListContent>
