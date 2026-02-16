@@ -1,6 +1,6 @@
 import type { EthereumNft } from '../api/services/ethereum-nft';
 import type { BitcoinOrdinal } from '../api/services/bitcoin-nft';
-import type { NftAttribute } from '../types/nft';
+import type { NftAttribute, Nft } from '../types/nft';
 
 export type { NftAttribute };
 
@@ -203,6 +203,31 @@ export function solanaNftToNftData(nft: SolanaNftFromHelius): SolanaNftData {
 }
 
 /**
+ * Convert canonical Nft (from getAllNfts) to SolanaNftData for UI.
+ * Different from solanaNftToNftData which takes SolanaNftFromHelius.
+ * The Nft type uses `null` where SolanaNftFromHelius uses `undefined`,
+ * so this handles the conversion.
+ */
+export function canonicalNftToSolanaNftData(nft: Nft): SolanaNftData {
+  return {
+    blockchain: 'solana',
+    mint: nft.mint.address,
+    name: nft.name || 'Unnamed NFT',
+    image: nft.media || undefined,
+    description: nft.description || undefined,
+    collectionName: nft.collection?.name || undefined,
+    attributes: nft.extras?.attributes,
+    compressed: nft.compressed,
+    tokenStandard: nft.tokenStandard || undefined,
+    collectionKey: nft.collection?.key,
+    collectionVerified: nft.collection?.verified,
+    symbol: nft.symbol || undefined,
+    updateAuthority: nft.updateAuthorityAddress ?? undefined,
+    royaltyBps: nft.sellerFeeBasisPoints,
+  };
+}
+
+/**
  * Type guard to check if NFT is from Solana
  */
 export function isSolanaNft(nft: NftData): nft is SolanaNftData {
@@ -258,4 +283,80 @@ export function getSatRarityColor(rarity?: string): string {
     default:
       return '#808080'; // Gray
   }
+}
+
+// ============================================================================
+// Multi-chain NFT Section Types
+// ============================================================================
+
+/**
+ * Section key for multi-chain NFT display.
+ * Combines blockchain + network for testnet support.
+ */
+export type NftSectionKey =
+  | 'solana'
+  | 'solana-devnet'
+  | 'ethereum'
+  | 'ethereum-sepolia'
+  | 'bitcoin';
+
+/**
+ * State for a single NFT section (one blockchain+network).
+ */
+export interface NftSection {
+  nfts: NftData[];
+  loading: boolean;
+  blockchain: NftBlockchain;
+  networkLabel?: string;
+  isTestnet: boolean;
+}
+
+/**
+ * All NFT sections grouped by section key.
+ */
+export type NftsBySection = Record<NftSectionKey, NftSection>;
+
+/**
+ * Maps each section key to its network account key in networksAccounts.
+ */
+export const SECTION_TO_NETWORK: Record<NftSectionKey, string> = {
+  'solana': 'solana-mainnet',
+  'solana-devnet': 'solana-devnet',
+  'ethereum': 'ethereum-mainnet',
+  'ethereum-sepolia': 'ethereum-sepolia',
+  'bitcoin': 'bitcoin-mainnet',
+};
+
+/**
+ * Initial empty sections state.
+ */
+export const INITIAL_NFT_SECTIONS: NftsBySection = {
+  solana: { nfts: [], loading: true, blockchain: 'solana', isTestnet: false },
+  'solana-devnet': { nfts: [], loading: false, blockchain: 'solana', networkLabel: 'Devnet', isTestnet: true },
+  ethereum: { nfts: [], loading: true, blockchain: 'ethereum', isTestnet: false },
+  'ethereum-sepolia': { nfts: [], loading: false, blockchain: 'ethereum', networkLabel: 'Sepolia', isTestnet: true },
+  bitcoin: { nfts: [], loading: true, blockchain: 'bitcoin', isTestnet: false },
+};
+
+/**
+ * Get display title for an NFT section.
+ */
+export function getNftSectionTitle(_sectionKey: NftSectionKey, section: NftSection): string {
+  const baseNames: Record<NftBlockchain, string> = {
+    solana: 'Solana',
+    ethereum: 'Ethereum',
+    bitcoin: 'Bitcoin Ordinals',
+  };
+  const baseName = baseNames[section.blockchain];
+  return section.networkLabel ? `${baseName} ${section.networkLabel}` : baseName;
+}
+
+/**
+ * Get visible section keys based on developer mode.
+ */
+export function getVisibleNftSectionKeys(developerNetworks: boolean): NftSectionKey[] {
+  if (developerNetworks) {
+    return ['solana', 'solana-devnet', 'ethereum', 'ethereum-sepolia', 'bitcoin'];
+  }
+  return ['solana', 'ethereum', 'bitcoin'];
 }

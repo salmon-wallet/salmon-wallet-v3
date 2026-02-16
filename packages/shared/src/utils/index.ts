@@ -193,11 +193,16 @@ export {
   ethereumNftToNftData,
   bitcoinOrdinalToNftData,
   solanaNftToNftData,
+  canonicalNftToSolanaNftData,
   isSolanaNft,
   isEthereumNft,
   isBitcoinNft,
   getNftBlockchainLabel,
   getSatRarityColor,
+  getNftSectionTitle,
+  getVisibleNftSectionKeys,
+  SECTION_TO_NETWORK,
+  INITIAL_NFT_SECTIONS,
 } from './nft';
 export type {
   NftBlockchain,
@@ -209,4 +214,7 @@ export type {
   EthereumNftData,
   BitcoinNftData,
   SolanaNftFromHelius,
+  NftSectionKey,
+  NftSection,
+  NftsBySection,
 } from './nft';

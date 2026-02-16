@@ -1,11 +1,11 @@
 /**
- * CollectiblesPage - NFT collection display
+ * CollectiblesPage - Multi-chain NFT collection display
  *
- * Fetches and displays NFTs across Solana, Ethereum, and Bitcoin networks.
- * Uses the same fetch logic as mobile: Helius DAS primary → backend fallback
- * with NFT image overrides applied.
+ * Fetches and displays NFTs across ALL blockchains in Netflix-style
+ * carousel sections (matching mobile's multi-chain approach).
+ * Each section has horizontal scrolling with arrow navigation.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
@@ -19,49 +19,34 @@ import {
   SOLANA_NETWORKS,
   getEthereumNfts,
   getBitcoinOrdinals,
-  getAccountBlockchainType,
+  canonicalNftToSolanaNftData,
   ethereumNftToNftData,
   bitcoinOrdinalToNftData,
-  type BlockchainAccount,
+  getNftSectionTitle,
+  getVisibleNftSectionKeys,
+  INITIAL_NFT_SECTIONS,
+  type Account,
   type NftData,
-  type SolanaNftData,
+  type NftSectionKey,
+  type NftsBySection,
   type Nft,
-  type EthereumNetworkId,
-  type BitcoinNetworkId,
+  type EthereumNft,
+  type BitcoinOrdinal,
 } from '@salmon/shared';
-import { NftCard, NftCardSkeleton, NftDetailSheet } from '../../components';
+import {
+  NftCarouselSection,
+  NftCarouselSectionSkeleton,
+  NftSeeAllSheet,
+  NftDetailSheet,
+} from '../../components';
+
+// ============================================================================
+// Props
+// ============================================================================
 
 interface CollectiblesPageProps {
-  activeBlockchainAccount: BlockchainAccount | undefined;
-  networkId: string | null;
-}
-
-// ============================================================================
-// Helpers
-// ============================================================================
-
-/**
- * Convert Solana Nft to SolanaNftData for UI components.
- * Same logic as mobile's local mapper — receives the normalised `Nft` type
- * that already comes back from getAllNfts (with image overrides applied).
- */
-function solanaNftToNftData(nft: Nft): SolanaNftData {
-  return {
-    blockchain: 'solana',
-    mint: nft.mint.address,
-    name: nft.name || 'Unnamed NFT',
-    image: nft.media || undefined,
-    description: nft.description || undefined,
-    collectionName: nft.collection?.name || undefined,
-    attributes: nft.extras?.attributes,
-    compressed: nft.compressed,
-    tokenStandard: nft.tokenStandard || undefined,
-    collectionKey: nft.collection?.key,
-    collectionVerified: nft.collection?.verified,
-    symbol: nft.symbol || undefined,
-    updateAuthority: nft.updateAuthorityAddress ?? undefined,
-    royaltyBps: nft.sellerFeeBasisPoints,
-  };
+  activeAccount: Account | undefined;
+  developerNetworks: boolean;
 }
 
 // ============================================================================
@@ -72,7 +57,10 @@ const Container = styled(Box)({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  padding: `0 ${spacing.lg}px ${spacing.lg}px`,
+  paddingTop: spacing.md,
+  paddingBottom: spacing.lg,
+  overflowY: 'auto',
+  gap: spacing.lg,
 });
 
 const SectionTitle = styled(Typography)({
@@ -80,14 +68,8 @@ const SectionTitle = styled(Typography)({
   fontWeight: 600,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  marginBottom: spacing.md,
-  marginTop: spacing.lg,
-});
-
-const Grid = styled(Box)({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(2, 1fr)',
-  gap: spacing.md,
+  paddingLeft: spacing.lg,
+  paddingRight: spacing.lg,
 });
 
 const EmptyState = styled(Box)({
@@ -95,6 +77,8 @@ const EmptyState = styled(Box)({
   textAlign: 'center',
   backgroundColor: 'rgba(255, 255, 255, 0.05)',
   borderRadius: 12,
+  marginLeft: spacing.lg,
+  marginRight: spacing.lg,
 });
 
 const EmptyStateText = styled(Typography)({
@@ -115,52 +99,137 @@ const EmptyStateSubtext = styled(Typography)({
 // Component
 // ============================================================================
 
-export function CollectiblesPage({ activeBlockchainAccount, networkId }: CollectiblesPageProps) {
+export function CollectiblesPage({ activeAccount, developerNetworks }: CollectiblesPageProps) {
   const { t } = useTranslation();
-  const [nfts, setNfts] = useState<NftData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_NFT_SECTIONS);
+  const [seeAllSheet, setSeeAllSheet] = useState<{ visible: boolean; sectionKey: NftSectionKey | null }>({
+    visible: false,
+    sectionKey: null,
+  });
   const [selectedNft, setSelectedNft] = useState<NftData | null>(null);
 
+  // Fetch all NFTs in parallel (mirroring mobile pattern)
   useEffect(() => {
-    const fetchNfts = async () => {
-      if (!activeBlockchainAccount || !networkId) {
-        setLoading(false);
-        return;
+    if (!activeAccount) return;
+
+    const fetchAllNfts = async () => {
+      // Reset loading state
+      setNftsBySections((prev) => ({
+        ...prev,
+        solana: { ...prev.solana, loading: true },
+        ethereum: { ...prev.ethereum, loading: true },
+        bitcoin: { ...prev.bitcoin, loading: true },
+        ...(developerNetworks && {
+          'solana-devnet': { ...prev['solana-devnet'], loading: true },
+          'ethereum-sepolia': { ...prev['ethereum-sepolia'], loading: true },
+        }),
+      }));
+
+      // Extract addresses from networksAccounts
+      const solanaAccount = activeAccount.networksAccounts?.['solana-mainnet']?.[0];
+      const solanaAddress = solanaAccount?.getReceiveAddress() ?? '';
+
+      const ethAccount = activeAccount.networksAccounts?.['ethereum-mainnet']?.[0];
+      const ethAddress = ethAccount?.getReceiveAddress() ?? '';
+
+      const btcAccount = activeAccount.networksAccounts?.['bitcoin-mainnet']?.[0];
+      const btcAddress = btcAccount?.getReceiveAddress() ?? '';
+
+      // Build fetch promises - always fetch mainnets
+      const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] | EthereumNft[] | BitcoinOrdinal[] }>[] = [
+        (solanaAddress
+          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, false, getSolanaNfts)
+          : Promise.resolve([]))
+          .then((result) => ({ key: 'solana' as NftSectionKey, result }))
+          .catch(() => ({ key: 'solana' as NftSectionKey, result: [] as Nft[] })),
+
+        (ethAddress ? getEthereumNfts('ethereum-mainnet', ethAddress) : Promise.resolve([]))
+          .then((result) => ({ key: 'ethereum' as NftSectionKey, result }))
+          .catch(() => ({ key: 'ethereum' as NftSectionKey, result: [] as EthereumNft[] })),
+
+        (btcAddress ? getBitcoinOrdinals('bitcoin-mainnet', btcAddress) : Promise.resolve([]))
+          .then((result) => ({ key: 'bitcoin' as NftSectionKey, result }))
+          .catch(() => ({ key: 'bitcoin' as NftSectionKey, result: [] as BitcoinOrdinal[] })),
+      ];
+
+      // Add testnet fetches if developer mode is enabled
+      if (developerNetworks) {
+        const solanaDevnetAccount = activeAccount.networksAccounts?.['solana-devnet']?.[0];
+        const solanaDevnetAddress = solanaDevnetAccount?.getReceiveAddress() ?? '';
+
+        const sepoliaAccount = activeAccount.networksAccounts?.['ethereum-sepolia']?.[0];
+        const sepoliaAddress = sepoliaAccount?.getReceiveAddress() ?? '';
+
+        fetchPromises.push(
+          (solanaDevnetAddress
+            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, false, getSolanaNfts)
+            : Promise.resolve([]))
+            .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
+            .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] as Nft[] })),
+
+          (sepoliaAddress ? getEthereumNfts('ethereum-sepolia', sepoliaAddress) : Promise.resolve([]))
+            .then((result) => ({ key: 'ethereum-sepolia' as NftSectionKey, result }))
+            .catch(() => ({ key: 'ethereum-sepolia' as NftSectionKey, result: [] as EthereumNft[] })),
+        );
       }
 
-      setLoading(true);
-      const allNfts: NftData[] = [];
+      // Fetch all in parallel
+      const results = await Promise.all(fetchPromises);
 
-      try {
-        const blockchain = getAccountBlockchainType(activeBlockchainAccount);
-        const address = activeBlockchainAccount.getReceiveAddress();
+      // Process results
+      const newSections = { ...INITIAL_NFT_SECTIONS };
 
-        if (blockchain === 'solana') {
-          // Same logic as mobile: Helius DAS primary → backend fallback,
-          // with NFT image overrides applied inside getAllNfts/transformDasAsset.
-          const network = SOLANA_NETWORKS[networkId];
-          if (network) {
-            const solanaNfts = await getAllNfts(network, address, false, getSolanaNfts);
-            allNfts.push(...solanaNfts.map(solanaNftToNftData));
-          }
-        } else if (blockchain === 'ethereum') {
-          const ethNfts = await getEthereumNfts(networkId as EthereumNetworkId, address);
-          allNfts.push(...ethNfts.map(ethereumNftToNftData));
-        } else if (blockchain === 'bitcoin') {
-          const ordinals = await getBitcoinOrdinals(networkId as BitcoinNetworkId, address);
-          allNfts.push(...ordinals.map(bitcoinOrdinalToNftData));
+      for (const { key, result } of results) {
+        const section = newSections[key];
+
+        if (key === 'solana' || key === 'solana-devnet') {
+          newSections[key] = {
+            ...section,
+            nfts: (result as Nft[]).map(canonicalNftToSolanaNftData),
+            loading: false,
+          };
+        } else if (key === 'ethereum' || key === 'ethereum-sepolia') {
+          newSections[key] = {
+            ...section,
+            nfts: (result as EthereumNft[]).map(ethereumNftToNftData),
+            loading: false,
+          };
+        } else if (key === 'bitcoin') {
+          newSections[key] = {
+            ...section,
+            nfts: (result as BitcoinOrdinal[]).map(bitcoinOrdinalToNftData),
+            loading: false,
+          };
         }
-      } catch (error) {
-        console.error('Failed to fetch NFTs:', error);
       }
 
-      setNfts(allNfts);
-      setLoading(false);
+      // If developer mode is off, ensure testnet sections are empty and not loading
+      if (!developerNetworks) {
+        newSections['solana-devnet'] = { ...INITIAL_NFT_SECTIONS['solana-devnet'], loading: false };
+        newSections['ethereum-sepolia'] = { ...INITIAL_NFT_SECTIONS['ethereum-sepolia'], loading: false };
+      }
+
+      setNftsBySections(newSections);
     };
 
-    fetchNfts();
-  }, [activeBlockchainAccount, networkId]);
+    fetchAllNfts();
+  }, [activeAccount, developerNetworks]);
 
+  // Derived state
+  const visibleKeys = useMemo(
+    () => getVisibleNftSectionKeys(developerNetworks),
+    [developerNetworks],
+  );
+
+  const isLoading = visibleKeys.some((key) => nftsBySections[key].loading);
+
+  const isEmpty = !isLoading && visibleKeys.every((key) => nftsBySections[key].nfts.length === 0);
+
+  const sectionsWithNfts = visibleKeys.filter(
+    (key) => !nftsBySections[key].loading && nftsBySections[key].nfts.length > 0,
+  );
+
+  // Handlers
   const handleNftPress = useCallback((nft: NftData) => {
     setSelectedNft(nft);
   }, []);
@@ -169,24 +238,39 @@ export function CollectiblesPage({ activeBlockchainAccount, networkId }: Collect
     setSelectedNft(null);
   }, []);
 
-  if (loading) {
-    return (
-      <Container>
-        <SectionTitle>{t('collectibles.title', 'Collectibles')}</SectionTitle>
-        <Grid>
-          <NftCardSkeleton />
-          <NftCardSkeleton />
-          <NftCardSkeleton />
-          <NftCardSkeleton />
-        </Grid>
-      </Container>
-    );
-  }
+  const handleSeeAllPress = useCallback((sectionKey: NftSectionKey) => {
+    setSeeAllSheet({ visible: true, sectionKey });
+  }, []);
 
-  if (nfts.length === 0) {
-    return (
-      <Container>
-        <SectionTitle>{t('collectibles.title', 'Collectibles')}</SectionTitle>
+  const handleCloseSeeAll = useCallback(() => {
+    setSeeAllSheet({ visible: false, sectionKey: null });
+  }, []);
+
+  const handleSeeAllNftPress = useCallback((nft: NftData) => {
+    setSeeAllSheet({ visible: false, sectionKey: null });
+    setTimeout(() => setSelectedNft(nft), 350);
+  }, []);
+
+  // SeeAll sheet data
+  const seeAllSection = seeAllSheet.sectionKey ? nftsBySections[seeAllSheet.sectionKey] : null;
+  const seeAllTitle = seeAllSheet.sectionKey && seeAllSection
+    ? getNftSectionTitle(seeAllSheet.sectionKey, seeAllSection)
+    : '';
+
+  return (
+    <Container>
+      <SectionTitle>{t('collectibles.title', 'Collectibles')}</SectionTitle>
+
+      {/* Loading skeletons */}
+      {isLoading && sectionsWithNfts.length === 0 && (
+        <>
+          <NftCarouselSectionSkeleton />
+          <NftCarouselSectionSkeleton />
+        </>
+      )}
+
+      {/* Empty state */}
+      {isEmpty && (
         <EmptyState>
           <EmptyStateText>
             {t('collectibles.empty', 'No collectibles found')}
@@ -195,23 +279,38 @@ export function CollectiblesPage({ activeBlockchainAccount, networkId }: Collect
             {t('collectibles.empty_hint', 'Your NFTs and collectibles will appear here')}
           </EmptyStateSubtext>
         </EmptyState>
-      </Container>
-    );
-  }
+      )}
 
-  return (
-    <Container>
-      <SectionTitle>{t('collectibles.title', 'Collectibles')}</SectionTitle>
-      <Grid>
-        {nfts.map((nft, index) => (
-          <NftCard
-            key={`${nft.mint}-${index}`}
-            nft={nft}
-            onPress={() => handleNftPress(nft)}
+      {/* NFT sections */}
+      {visibleKeys.map((key) => {
+        const section = nftsBySections[key];
+        if (section.nfts.length === 0 && !section.loading) return null;
+        return (
+          <NftCarouselSection
+            key={key}
+            title={getNftSectionTitle(key, section)}
+            blockchain={section.blockchain}
+            nfts={section.nfts}
+            loading={section.loading}
+            onNftPress={handleNftPress}
+            onSeeAllPress={() => handleSeeAllPress(key)}
           />
-        ))}
-      </Grid>
+        );
+      })}
 
+      {/* See All Sheet */}
+      {seeAllSection && (
+        <NftSeeAllSheet
+          visible={seeAllSheet.visible}
+          onClose={handleCloseSeeAll}
+          title={seeAllTitle}
+          blockchain={seeAllSection.blockchain}
+          nfts={seeAllSection.nfts}
+          onNftPress={handleSeeAllNftPress}
+        />
+      )}
+
+      {/* NFT Detail Sheet */}
       {selectedNft && (
         <NftDetailSheet
           visible={!!selectedNft}
