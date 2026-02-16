@@ -315,8 +315,10 @@ export default defineBackground(() => {
     removeConnectedTabId(tabId);
   });
 
-  // Open side panel (not popup) when clicking the extension icon
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+  // Open side panel when clicking the extension icon (Chrome/Edge only)
+  if (import.meta.env.CHROME) {
+    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+  }
 
   // Clean up connected tabs on startup
   cleanConnectedTabs();

@@ -55,7 +55,7 @@ export default defineConfig({
       128: 'icon-192.png',
       512: 'icon-512.png',
     },
-    permissions: ['storage', 'alarms', 'tabs', 'scripting', 'sidePanel'],
+    permissions: ['storage', 'alarms', 'tabs'],
     web_accessible_resources: [
       {
         resources: ['injected.js'],
@@ -70,9 +70,6 @@ export default defineConfig({
         use_dynamic_url: true,
       },
     ],
-    content_security_policy: {
-      extension_pages: "script-src 'self'; object-src 'self'",
-    },
   },
 
   modules: ['@wxt-dev/module-react'],
