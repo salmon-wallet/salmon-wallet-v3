@@ -151,12 +151,13 @@ const TokenSectionWrapper = styled(Box)({
   flex: 1,
   minHeight: 0,
   position: 'relative',
+  display: 'flex',
+  flexDirection: 'column',
 });
 
 const TokenSection = styled(Box)({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
+  flex: 1,
+  minHeight: 0,
   padding: `0 ${spacing.lg}px ${spacing.lg}px`,
   overflowY: 'auto',
 });
