@@ -57,16 +57,16 @@ import { colors, spacing, borderRadius, formatBlockNumber, formatDateTime } from
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
-import { AddressCopyRow } from '../TransactionHistorySheet/AddressCopyRow';
-import { ExplorerLinkButton } from '../TransactionHistorySheet/ExplorerLinkButton';
-import { PriceImpactBadge } from '../TransactionHistorySheet/PriceImpactBadge';
-import { ConversionRateDisplay } from '../TransactionHistorySheet/ConversionRateDisplay';
+import { AddressCopyRow } from '../TransactionHistoryPage/AddressCopyRow';
+import { ExplorerLinkButton } from '../TransactionHistoryPage/ExplorerLinkButton';
+import { PriceImpactBadge } from '../TransactionHistoryPage/PriceImpactBadge';
+import { ConversionRateDisplay } from '../TransactionHistoryPage/ConversionRateDisplay';
 import type { TransactionDetailModalProps } from './types';
 import type {
   TransactionType,
   TransactionTokenAmount,
   NftAttribute,
-} from '../TransactionHistorySheet/types';
+} from '../TransactionHistoryPage/types';
 
 // ============================================================================
 // Constants

@@ -1,14 +1,14 @@
 /**
- * TransactionHistorySheet - Dialog for transaction history (web/extension version)
+ * TransactionHistoryPage - Full-page transaction history view
  *
- * Migrated from packages/ui (React Native) to MUI Dialog.
+ * Replaces the former TransactionHistorySheet dialog.
+ * Renders as a full page with back navigation, matching the
+ * page-navigation pattern used by TokenDetailPage and NftDetailPage.
  *
  * Features:
- * - MUI Dialog container (replacing RN Modal + Reanimated)
- * - Scrollable transaction list with .map() (replacing FlatList)
- * - Loading skeletons (MUI Skeleton replacing react-content-loader)
+ * - Scrollable transaction list with infinite scroll
+ * - Loading skeletons
  * - Empty and error states
- * - Infinite scroll via scroll event listener
  * - ScalesBackground decorative pattern
  */
 
@@ -17,18 +17,65 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Skeleton from '@mui/material/Skeleton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { colors, spacing } from '@salmon/shared';
-import { BaseSheetDialog } from '../BaseSheetDialog';
+import { colors, spacing, fontFamily } from '@salmon/shared';
+import { ScalesBackground } from '../ScalesBackground';
 import { TransactionItem } from './TransactionItem';
-import type { TransactionHistorySheetProps, Transaction } from './types';
+import type { TransactionHistoryPageProps, Transaction } from './types';
 
 // ============================================================================
 // Styled Components
 // ============================================================================
+
+const Container = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100vh',
+  backgroundColor: colors.background.secondary,
+  position: 'relative',
+});
+
+const Header = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  padding: `${spacing.md}px ${spacing.lg}px`,
+  borderBottom: `1px solid ${colors.border.default}`,
+  position: 'relative',
+  zIndex: 1,
+});
+
+const BackButton = styled(IconButton)({
+  color: colors.text.secondary,
+  marginRight: spacing.sm,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+});
+
+const HeaderTitle = styled(Typography)({
+  fontSize: 18,
+  fontWeight: 600,
+  color: colors.text.primary,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  flex: 1,
+});
+
+const ScrollContent = styled(Box)({
+  flex: 1,
+  minHeight: 0,
+  overflowY: 'auto',
+  position: 'relative',
+  zIndex: 1,
+  padding: `${spacing.md}px ${spacing.lg}px ${spacing.xl}px`,
+});
 
 // Skeleton styles
 const SkeletonItem = styled(Box)({
@@ -221,24 +268,8 @@ const ErrorState: React.FC<{ message: string; onRetry?: () => void }> = ({
 // Main Component
 // ============================================================================
 
-/**
- * TransactionHistorySheet - Dialog for displaying transaction history
- *
- * @example
- * ```tsx
- * <TransactionHistorySheet
- *   visible={isVisible}
- *   onClose={() => setIsVisible(false)}
- *   transactions={transactions}
- *   loading={loading}
- *   hasMore={hasMore}
- *   onLoadMore={loadMore}
- * />
- * ```
- */
-export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = ({
-  visible,
-  onClose,
+export function TransactionHistoryPage({
+  onBack,
   transactions,
   loading = false,
   loadingMore = false,
@@ -251,7 +282,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
   onRetry,
   className,
   style,
-}) => {
+}: TransactionHistoryPageProps): React.ReactElement {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Handle scroll for infinite loading
@@ -286,66 +317,59 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
   );
 
   return (
-    <BaseSheetDialog
-      visible={visible}
-      onClose={onClose}
-      size="medium"
-      colorScheme="dialog"
-      showScalesBackground={true}
-      ariaLabelledBy="transaction-history-title"
-      className={className}
-      style={style}
-    >
-      <BaseSheetDialog.StandardHeader title="Transaction History" />
+    <Container style={style} className={className}>
+      <ScalesBackground style={{ zIndex: 0 }} />
 
-      <BaseSheetDialog.Content
-        padding="md"
-        style={{ paddingBottom: spacing.xl, paddingLeft: spacing.lg, paddingRight: spacing.lg }}
-      >
-        <Box ref={scrollRef} onScroll={handleScroll}>
-          {/* Error State */}
-          {error && !loading && (
-            <ErrorState message={error} onRetry={onRetry} />
-          )}
+      <Header>
+        <BackButton onClick={onBack} aria-label="Back">
+          <ArrowBackIcon />
+        </BackButton>
+        <HeaderTitle>Transaction History</HeaderTitle>
+      </Header>
 
-          {/* Loading State */}
-          {loading && !error && (
-            <TransactionListSkeleton count={6} />
-          )}
+      <ScrollContent ref={scrollRef} onScroll={handleScroll}>
+        {/* Error State */}
+        {error && !loading && (
+          <ErrorState message={error} onRetry={onRetry} />
+        )}
 
-          {/* Empty State */}
-          {!loading && !error && transactions.length === 0 && (
-            <EmptyState />
-          )}
+        {/* Loading State */}
+        {loading && !error && (
+          <TransactionListSkeleton count={6} />
+        )}
 
-          {/* Transaction List */}
-          {!loading && !error && transactions.length > 0 && (
-            <Box>
-              {transactions.map((transaction) => (
-                <TransactionItem
-                  key={transaction.id}
-                  transaction={transaction}
-                  onPress={handleTransactionPress}
-                  onDetailClick={handleTransactionDetailClick}
-                  hiddenBalance={hiddenBalance}
+        {/* Empty State */}
+        {!loading && !error && transactions.length === 0 && (
+          <EmptyState />
+        )}
+
+        {/* Transaction List */}
+        {!loading && !error && transactions.length > 0 && (
+          <Box>
+            {transactions.map((transaction) => (
+              <TransactionItem
+                key={transaction.id}
+                transaction={transaction}
+                onPress={handleTransactionPress}
+                onDetailClick={handleTransactionDetailClick}
+                hiddenBalance={hiddenBalance}
+              />
+            ))}
+
+            {/* Loading more indicator */}
+            {loadingMore && (
+              <LoadingMoreContainer>
+                <CircularProgress
+                  size={24}
+                  sx={{ color: colors.accent.primary }}
                 />
-              ))}
-
-              {/* Loading more indicator */}
-              {loadingMore && (
-                <LoadingMoreContainer>
-                  <CircularProgress
-                    size={24}
-                    sx={{ color: colors.accent.primary }}
-                  />
-                </LoadingMoreContainer>
-              )}
-            </Box>
-          )}
-        </Box>
-      </BaseSheetDialog.Content>
-    </BaseSheetDialog>
+              </LoadingMoreContainer>
+            )}
+          </Box>
+        )}
+      </ScrollContent>
+    </Container>
   );
-};
+}
 
-export default TransactionHistorySheet;
+export default TransactionHistoryPage;

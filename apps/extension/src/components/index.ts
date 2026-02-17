@@ -187,18 +187,18 @@ export type { ReceiveSheetProps } from './ReceiveSheet';
 export { TransactionDetailModal } from './TransactionDetailModal';
 export type { TransactionDetailModalProps } from './TransactionDetailModal';
 
-// TransactionHistorySheet - Transaction history dialog with pagination
+// TransactionHistoryPage - Full-page transaction history with pagination
 export {
-  TransactionHistorySheet,
+  TransactionHistoryPage,
   TransactionItem,
   SwapRouteVisualization,
   PriceImpactBadge,
   ConversionRateDisplay,
   ExplorerLinkButton,
   AddressCopyRow,
-} from './TransactionHistorySheet';
+} from './TransactionHistoryPage';
 export type {
-  TransactionHistorySheetProps,
+  TransactionHistoryPageProps,
   TransactionItemProps,
   Transaction,
   TransactionType as TxType,
@@ -212,7 +212,7 @@ export type {
   ConversionRateDisplayProps,
   ExplorerLinkButtonProps,
   AddressCopyRowProps,
-} from './TransactionHistorySheet';
+} from './TransactionHistoryPage';
 
 // SendSheet - Multi-step send dialog with token selection, address/amount entry, and confirmation
 export { SendSheet } from './SendSheet';
