@@ -147,9 +147,9 @@ export type {
 export { NftCard, NftCardSkeleton } from './NftCard';
 export type { NftCardProps, NftCardSkeletonProps, NftData } from './NftCard';
 
-// NftDetailSheet - NFT detail dialog with image, attributes, and actions
-export { NftDetailSheet } from './NftDetailSheet';
-export type { NftDetailSheetProps, NftDetailData, NftAttribute } from './NftDetailSheet';
+// NftDetailPage - Full-page NFT detail view with image, attributes, and actions
+export { NftDetailPage } from './NftDetailPage';
+export type { NftDetailPageProps, NftDetailData, NftAttribute } from './NftDetailPage';
 
 // NftCarouselSection - Horizontal NFT carousel with arrow navigation
 export { NftCarouselSection, NftCarouselSectionSkeleton } from './NftCarouselSection';

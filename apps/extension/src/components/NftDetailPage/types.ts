@@ -10,21 +10,19 @@ export type { NftAttribute, NftData } from '../NftCard/types';
 export type NftDetailData = NftData;
 
 /**
- * Props for the NftDetailSheet component (Web/Extension)
- * Dialog for displaying NFT details in browser extension
+ * Props for the NftDetailPage component (Web/Extension)
+ * Full-page view for displaying NFT details in browser extension
  */
-export interface NftDetailSheetProps {
-  /** Whether the sheet is visible */
-  visible: boolean;
-  /** Callback when the sheet is closed */
-  onClose: () => void;
+export interface NftDetailPageProps {
   /** NFT data to display */
-  nft: NftDetailData | null;
+  nft: NftDetailData;
+  /** Callback to navigate back */
+  onBack: () => void;
   /** Callback when Send button is pressed */
   onSendPress?: () => void;
   /** Callback when Burn button is pressed */
   onBurnPress?: () => void;
-  /** Optional custom styles for the dialog paper */
+  /** Optional custom styles */
   style?: CSSProperties;
   /** Optional CSS class name */
   className?: string;

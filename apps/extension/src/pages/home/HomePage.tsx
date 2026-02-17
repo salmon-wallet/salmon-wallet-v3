@@ -23,6 +23,7 @@ import {
   type CoinInfo,
   type MarketData,
   type Token,
+  type NftData,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -34,6 +35,7 @@ import {
   TokenMarketData,
   TokenAbout,
   TokenDetailPage,
+  NftDetailPage,
   SettingsSheet,
   WalletSwitcherSheet,
   EditAccountDialog,
@@ -62,6 +64,7 @@ type ActiveTab = 'home' | 'collectibles' | 'swap';
 type PageView =
   | 'home'
   | 'tokenDetail'
+  | 'nftDetail'
   | 'backup'
   | 'currency'
   | 'about'
@@ -355,6 +358,9 @@ export function HomePage() {
   const [selectedTokenMarketData, setSelectedTokenMarketData] = useState<MarketData | undefined>(undefined);
   const [selectedTokenLoading, setSelectedTokenLoading] = useState(false);
 
+  // NFT detail page state
+  const [selectedNft, setSelectedNft] = useState<NftData | null>(null);
+
   // Bitcoin-specific state
   const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
   const [bitcoinCoinInfo, setBitcoinCoinInfo] = useState<CoinInfo | null>(null);
@@ -573,6 +579,16 @@ export function HomePage() {
   const handleTokenDetailBack = useCallback(() => {
     setCurrentPage('home');
     setSelectedToken(null);
+  }, []);
+
+  const handleNftDetailPress = useCallback((nft: NftData) => {
+    setSelectedNft(nft);
+    setCurrentPage('nftDetail');
+  }, []);
+
+  const handleNftDetailBack = useCallback(() => {
+    setCurrentPage('home');
+    setSelectedNft(null);
   }, []);
 
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
@@ -884,6 +900,16 @@ export function HomePage() {
           );
         }
         return <PlaceholderPage title="Token Detail" onBack={handleBack} />;
+      case 'nftDetail':
+        if (selectedNft) {
+          return (
+            <NftDetailPage
+              nft={selectedNft}
+              onBack={handleNftDetailBack}
+            />
+          );
+        }
+        return <PlaceholderPage title="NFT Detail" onBack={handleBack} />;
       case 'backup':
         return <BackupPage onBack={handleBack} />;
       case 'currency':
@@ -1053,6 +1079,7 @@ export function HomePage() {
             <CollectiblesPage
               activeAccount={activeAccount}
               developerNetworks={developerNetworks}
+              onNftDetailPress={handleNftDetailPress}
             />
           )}
 

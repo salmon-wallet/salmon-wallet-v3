@@ -37,7 +37,6 @@ import {
   NftCarouselSection,
   NftCarouselSectionSkeleton,
   NftSeeAllSheet,
-  NftDetailSheet,
 } from '../../components';
 
 // ============================================================================
@@ -47,6 +46,8 @@ import {
 interface CollectiblesPageProps {
   activeAccount: Account | undefined;
   developerNetworks: boolean;
+  /** Callback when an NFT is pressed — navigates to detail page */
+  onNftDetailPress?: (nft: NftData) => void;
 }
 
 // ============================================================================
@@ -99,14 +100,13 @@ const EmptyStateSubtext = styled(Typography)({
 // Component
 // ============================================================================
 
-export function CollectiblesPage({ activeAccount, developerNetworks }: CollectiblesPageProps) {
+export function CollectiblesPage({ activeAccount, developerNetworks, onNftDetailPress }: CollectiblesPageProps) {
   const { t } = useTranslation();
   const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_NFT_SECTIONS);
   const [seeAllSheet, setSeeAllSheet] = useState<{ visible: boolean; sectionKey: NftSectionKey | null }>({
     visible: false,
     sectionKey: null,
   });
-  const [selectedNft, setSelectedNft] = useState<NftData | null>(null);
 
   // Fetch all NFTs in parallel (mirroring mobile pattern)
   useEffect(() => {
@@ -231,12 +231,8 @@ export function CollectiblesPage({ activeAccount, developerNetworks }: Collectib
 
   // Handlers
   const handleNftPress = useCallback((nft: NftData) => {
-    setSelectedNft(nft);
-  }, []);
-
-  const handleCloseDetail = useCallback(() => {
-    setSelectedNft(null);
-  }, []);
+    onNftDetailPress?.(nft);
+  }, [onNftDetailPress]);
 
   const handleSeeAllPress = useCallback((sectionKey: NftSectionKey) => {
     setSeeAllSheet({ visible: true, sectionKey });
@@ -248,8 +244,8 @@ export function CollectiblesPage({ activeAccount, developerNetworks }: Collectib
 
   const handleSeeAllNftPress = useCallback((nft: NftData) => {
     setSeeAllSheet({ visible: false, sectionKey: null });
-    setTimeout(() => setSelectedNft(nft), 350);
-  }, []);
+    onNftDetailPress?.(nft);
+  }, [onNftDetailPress]);
 
   // SeeAll sheet data
   const seeAllSection = seeAllSheet.sectionKey ? nftsBySections[seeAllSheet.sectionKey] : null;
@@ -310,14 +306,6 @@ export function CollectiblesPage({ activeAccount, developerNetworks }: Collectib
         />
       )}
 
-      {/* NFT Detail Sheet */}
-      {selectedNft && (
-        <NftDetailSheet
-          visible={!!selectedNft}
-          onClose={handleCloseDetail}
-          nft={selectedNft}
-        />
-      )}
     </Container>
   );
 }
