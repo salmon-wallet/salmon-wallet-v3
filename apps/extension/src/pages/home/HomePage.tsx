@@ -24,6 +24,7 @@ import {
   type MarketData,
   type Token,
   type NftData,
+  type NftBlockchain,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -36,6 +37,7 @@ import {
   TokenAbout,
   TokenDetailPage,
   NftDetailPage,
+  NftSeeAllPage,
   SettingsSheet,
   WalletSwitcherSheet,
   EditAccountDialog,
@@ -65,6 +67,7 @@ type PageView =
   | 'home'
   | 'tokenDetail'
   | 'nftDetail'
+  | 'nftSeeAll'
   | 'backup'
   | 'currency'
   | 'about'
@@ -361,6 +364,9 @@ export function HomePage() {
   // NFT detail page state
   const [selectedNft, setSelectedNft] = useState<NftData | null>(null);
 
+  // NFT see-all page state
+  const [seeAllData, setSeeAllData] = useState<{ title: string; blockchain: NftBlockchain; nfts: NftData[] } | null>(null);
+
   // Bitcoin-specific state
   const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
   const [bitcoinCoinInfo, setBitcoinCoinInfo] = useState<CoinInfo | null>(null);
@@ -589,6 +595,21 @@ export function HomePage() {
   const handleNftDetailBack = useCallback(() => {
     setCurrentPage('home');
     setSelectedNft(null);
+  }, []);
+
+  const handleSeeAllPress = useCallback((title: string, blockchain: string, nfts: NftData[]) => {
+    setSeeAllData({ title, blockchain: blockchain as NftBlockchain, nfts });
+    setCurrentPage('nftSeeAll');
+  }, []);
+
+  const handleSeeAllBack = useCallback(() => {
+    setCurrentPage('home');
+    setSeeAllData(null);
+  }, []);
+
+  const handleSeeAllNftPress = useCallback((nft: NftData) => {
+    setSelectedNft(nft);
+    setCurrentPage('nftDetail');
   }, []);
 
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
@@ -910,6 +931,19 @@ export function HomePage() {
           );
         }
         return <PlaceholderPage title="NFT Detail" onBack={handleBack} />;
+      case 'nftSeeAll':
+        if (seeAllData) {
+          return (
+            <NftSeeAllPage
+              title={seeAllData.title}
+              blockchain={seeAllData.blockchain}
+              nfts={seeAllData.nfts}
+              onNftPress={handleSeeAllNftPress}
+              onBack={handleSeeAllBack}
+            />
+          );
+        }
+        return <PlaceholderPage title="NFTs" onBack={handleBack} />;
       case 'backup':
         return <BackupPage onBack={handleBack} />;
       case 'currency':
@@ -1080,6 +1114,7 @@ export function HomePage() {
               activeAccount={activeAccount}
               developerNetworks={developerNetworks}
               onNftDetailPress={handleNftDetailPress}
+              onSeeAllPress={handleSeeAllPress}
             />
           )}
 

@@ -155,9 +155,9 @@ export type { NftDetailPageProps, NftDetailData, NftAttribute } from './NftDetai
 export { NftCarouselSection, NftCarouselSectionSkeleton } from './NftCarouselSection';
 export type { NftCarouselSectionProps, NftCarouselSectionSkeletonProps } from './NftCarouselSection';
 
-// NftSeeAllSheet - Full grid view of all NFTs for a blockchain section
-export { NftSeeAllSheet } from './NftSeeAllSheet';
-export type { NftSeeAllSheetProps } from './NftSeeAllSheet';
+// NftSeeAllPage - Full-page grid view of all NFTs for a blockchain section
+export { NftSeeAllPage } from './NftSeeAllPage';
+export type { NftSeeAllPageProps } from './NftSeeAllPage';
 
 // TokenSelector - Token selection with search and pagination
 export {
