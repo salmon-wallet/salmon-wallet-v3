@@ -601,6 +601,10 @@ export function HomePage() {
     setCurrentPage('home');
   }, []);
 
+  const handleTransactionPress = useCallback((transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+  }, []);
+
   const handleTransactionDetailClick = useCallback((transaction: Transaction) => {
     setSelectedTransaction(transaction);
   }, []);
@@ -977,18 +981,26 @@ export function HomePage() {
         return <PlaceholderPage title="NFTs" onBack={handleBack} />;
       case 'activity':
         return (
-          <TransactionHistoryPage
-            onBack={handleActivityBack}
-            transactions={transactions}
-            loading={transactionsLoading}
-            loadingMore={transactionsLoadingMore}
-            hasMore={transactionsHasMore}
-            onLoadMore={transactionsLoadMore}
-            hiddenBalance={hiddenBalance}
-            error={transactionsError}
-            onRetry={transactionsRefresh}
-            onTransactionDetailClick={handleTransactionDetailClick}
-          />
+          <>
+            <TransactionHistoryPage
+              onBack={handleActivityBack}
+              transactions={transactions}
+              loading={transactionsLoading}
+              loadingMore={transactionsLoadingMore}
+              hasMore={transactionsHasMore}
+              onLoadMore={transactionsLoadMore}
+              hiddenBalance={hiddenBalance}
+              error={transactionsError}
+              onRetry={transactionsRefresh}
+              onTransactionPress={handleTransactionPress}
+              onTransactionDetailClick={handleTransactionDetailClick}
+            />
+            <TransactionDetailModal
+              visible={!!selectedTransaction}
+              onClose={() => setSelectedTransaction(null)}
+              transaction={selectedTransaction}
+            />
+          </>
         );
       case 'backup':
         return <BackupPage onBack={handleBack} />;
