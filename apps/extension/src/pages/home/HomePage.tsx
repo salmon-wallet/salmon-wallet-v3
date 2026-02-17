@@ -26,6 +26,7 @@ import {
   type Token,
   type NftData,
   type NftBlockchain,
+  type Transaction,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -40,6 +41,7 @@ import {
   NftDetailPage,
   NftSeeAllPage,
   TransactionHistoryPage,
+  TransactionDetailModal,
   ReceiveSheet,
   SettingsSheet,
   WalletSwitcherSheet,
@@ -348,6 +350,7 @@ export function HomePage() {
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // Edit account dialog state
   const [editAccountDialogVisible, setEditAccountDialogVisible] = useState(false);
@@ -596,6 +599,10 @@ export function HomePage() {
 
   const handleActivityBack = useCallback(() => {
     setCurrentPage('home');
+  }, []);
+
+  const handleTransactionDetailClick = useCallback((transaction: Transaction) => {
+    setSelectedTransaction(transaction);
   }, []);
 
   const handleTokenPress = useCallback((token: Token) => {
@@ -980,6 +987,7 @@ export function HomePage() {
             hiddenBalance={hiddenBalance}
             error={transactionsError}
             onRetry={transactionsRefresh}
+            onTransactionDetailClick={handleTransactionDetailClick}
           />
         );
       case 'backup':
@@ -1227,6 +1235,13 @@ export function HomePage() {
         visible={receiveSheetVisible}
         onClose={() => setReceiveSheetVisible(false)}
         address={accountAddress}
+      />
+
+      {/* Transaction Detail Modal */}
+      <TransactionDetailModal
+        visible={!!selectedTransaction}
+        onClose={() => setSelectedTransaction(null)}
+        transaction={selectedTransaction}
       />
 
     </Container>
