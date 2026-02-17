@@ -9,6 +9,7 @@ import {
   useAdjacentBalances,
   useBalance,
   useUserConfig,
+  useTransactions,
   getMarketChart,
   getCoinInfo,
   colors,
@@ -38,6 +39,8 @@ import {
   TokenDetailPage,
   NftDetailPage,
   NftSeeAllPage,
+  TransactionHistoryPage,
+  ReceiveSheet,
   SettingsSheet,
   WalletSwitcherSheet,
   EditAccountDialog,
@@ -68,6 +71,7 @@ type PageView =
   | 'tokenDetail'
   | 'nftDetail'
   | 'nftSeeAll'
+  | 'activity'
   | 'backup'
   | 'currency'
   | 'about'
@@ -343,6 +347,7 @@ export function HomePage() {
   // Sheet visibility state
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
+  const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
 
   // Edit account dialog state
   const [editAccountDialogVisible, setEditAccountDialogVisible] = useState(false);
@@ -434,6 +439,22 @@ export function HomePage() {
     account: adjacentAccounts.nextAccount,
     networkId: nextNetwork?.id as NetworkId | undefined,
     skip: !ready || !adjacentAccounts.nextAccount || !nextNetwork,
+  });
+
+  // Fetch transaction history (only when on activity page)
+  const accountAddress = activeBlockchainAccount?.getReceiveAddress() || '';
+  const {
+    transactions,
+    loading: transactionsLoading,
+    loadingMore: transactionsLoadingMore,
+    error: transactionsError,
+    hasMore: transactionsHasMore,
+    loadMore: transactionsLoadMore,
+    refresh: transactionsRefresh,
+  } = useTransactions({
+    address: accountAddress,
+    networkId: (networkId || 'solana-mainnet') as NetworkId,
+    skip: !ready || !activeBlockchainAccount || currentPage !== 'activity',
   });
 
   // Navigation handlers
@@ -566,11 +587,15 @@ export function HomePage() {
   }, []);
 
   const handleReceivePress = useCallback(() => {
-    // TODO: Navigate to receive
+    setReceiveSheetVisible(true);
   }, []);
 
   const handleActivityPress = useCallback(() => {
-    // TODO: Navigate to activity
+    setCurrentPage('activity');
+  }, []);
+
+  const handleActivityBack = useCallback(() => {
+    setCurrentPage('home');
   }, []);
 
   const handleTokenPress = useCallback((token: Token) => {
@@ -899,7 +924,6 @@ export function HomePage() {
   }, [selectedToken, currentPage]);
 
   const accountName = activeAccount?.name || t('home.unnamed_account', 'Account');
-  const accountAddress = activeBlockchainAccount?.getReceiveAddress() || '';
 
   // Render settings pages based on current page view
   if (currentPage !== 'home') {
@@ -944,6 +968,20 @@ export function HomePage() {
           );
         }
         return <PlaceholderPage title="NFTs" onBack={handleBack} />;
+      case 'activity':
+        return (
+          <TransactionHistoryPage
+            onBack={handleActivityBack}
+            transactions={transactions}
+            loading={transactionsLoading}
+            loadingMore={transactionsLoadingMore}
+            hasMore={transactionsHasMore}
+            onLoadMore={transactionsLoadMore}
+            hiddenBalance={hiddenBalance}
+            error={transactionsError}
+            onRetry={transactionsRefresh}
+          />
+        );
       case 'backup':
         return <BackupPage onBack={handleBack} />;
       case 'currency':
@@ -1182,6 +1220,13 @@ export function HomePage() {
         confirmText={t('actions.remove_all', 'Remove All')}
         isDanger
         onConfirm={confirmRemoveAllWallets}
+      />
+
+      {/* Receive Sheet */}
+      <ReceiveSheet
+        visible={receiveSheetVisible}
+        onClose={() => setReceiveSheetVisible(false)}
+        address={accountAddress}
       />
 
     </Container>
