@@ -1,53 +1,73 @@
 /**
- * TokenInformationSheet - Dialog for displaying detailed token information
+ * TokenDetailPage - Full-page token detail view
  *
- * Web version using MUI Dialog for browser extension.
- * Migrated from React Native TokenInformationSheet (bottom sheet modal).
+ * Replaces the former TokenInformationSheet dialog.
+ * Renders as a full page with back navigation, matching the
+ * page-navigation pattern used by other extension pages.
  *
- * Features:
- * - MUI Dialog container following WalletSwitcherSheet pattern
- * - Scrollable content with token information sub-components
- * - Price chart, market data, badges, and about sections
- * - Loading skeleton states
- * - ScalesBackground decorative pattern
- *
- * @example
- * ```tsx
- * <TokenInformationSheet
- *   visible={isVisible}
- *   onClose={() => setIsVisible(false)}
- *   token={selectedToken}
- *   chartData={priceData}
- *   chartPeriod="1M"
- *   onChartPeriodChange={setPeriod}
- *   coinInfo={coinInfo}
- *   marketData={marketData}
- *   loading={false}
- * />
- * ```
+ * Content: price chart, token item, market data, badges, about.
  */
 
 import React, { useCallback } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import Skeleton from '@mui/material/Skeleton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-import {
-  colors,
-  spacing,
-} from '@salmon/shared';
+import { colors, spacing } from '@salmon/shared';
 
 import { PriceChart } from '../PriceChart';
 import { TokenListItem } from '../TokenList';
 import { TokenMarketData } from '../TokenMarketData';
 import { TokenAbout } from '../TokenAbout';
-import { BaseSheetDialog } from '../BaseSheetDialog';
+import { ScalesBackground } from '../ScalesBackground';
 import { TokenBadgesSection } from './TokenBadgesSection';
-import type { TokenInformationSheetProps } from './types';
+import type { TokenDetailPageProps } from './types';
 
 // ============================================================================
 // Styled Components
 // ============================================================================
+
+const Container = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100vh',
+  backgroundColor: colors.background.secondary,
+  position: 'relative',
+});
+
+const Header = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  padding: `${spacing.md}px ${spacing.lg}px`,
+  borderBottom: `1px solid ${colors.border.default}`,
+  position: 'relative',
+  zIndex: 1,
+});
+
+const BackButton = styled(IconButton)({
+  color: colors.text.secondary,
+  marginRight: spacing.sm,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+});
+
+const Title = styled(Typography)({
+  fontSize: 18,
+  fontWeight: 600,
+  color: colors.text.primary,
+});
+
+const ScrollContent = styled(Box)({
+  flex: 1,
+  minHeight: 0,
+  overflowY: 'auto',
+  position: 'relative',
+  zIndex: 1,
+});
 
 const ContentContainer = styled(Box)({
   display: 'flex',
@@ -85,60 +105,32 @@ const SkeletonValueColumn = styled(Box)({
 // TokenListItemSkeleton Component
 // ============================================================================
 
-/**
- * TokenListItem skeleton for loading state
- */
 const TokenListItemSkeleton: React.FC = () => {
   return (
     <TokenItemSkeletonContainer>
-      {/* Logo circle */}
       <Skeleton
         variant="circular"
         width={36}
         height={36}
         sx={{ bgcolor: colors.skeleton.base, flexShrink: 0 }}
       />
-      {/* Token name & price info */}
       <SkeletonTextColumn>
-        <Skeleton
-          variant="text"
-          width={100}
-          height={14}
-          sx={{ bgcolor: colors.skeleton.base }}
-        />
-        <Skeleton
-          variant="text"
-          width={80}
-          height={12}
-          sx={{ bgcolor: colors.skeleton.base }}
-        />
+        <Skeleton variant="text" width={100} height={14} sx={{ bgcolor: colors.skeleton.base }} />
+        <Skeleton variant="text" width={80} height={12} sx={{ bgcolor: colors.skeleton.base }} />
       </SkeletonTextColumn>
-      {/* USD value & token amount */}
       <SkeletonValueColumn>
-        <Skeleton
-          variant="text"
-          width={60}
-          height={16}
-          sx={{ bgcolor: colors.skeleton.base }}
-        />
-        <Skeleton
-          variant="text"
-          width={40}
-          height={12}
-          sx={{ bgcolor: colors.skeleton.base }}
-        />
+        <Skeleton variant="text" width={60} height={16} sx={{ bgcolor: colors.skeleton.base }} />
+        <Skeleton variant="text" width={40} height={12} sx={{ bgcolor: colors.skeleton.base }} />
       </SkeletonValueColumn>
     </TokenItemSkeletonContainer>
   );
 };
 
 // ============================================================================
-// TokenInformationSheet Component
+// TokenDetailPage Component
 // ============================================================================
 
-export function TokenInformationSheet({
-  visible,
-  onClose,
+export function TokenDetailPage({
   token,
   blockchain = 'solana',
   chartData,
@@ -147,28 +139,26 @@ export function TokenInformationSheet({
   coinInfo,
   marketData,
   loading = false,
+  onBack,
   style,
   className,
-}: TokenInformationSheetProps): React.ReactElement | null {
-  // Handle token press (no-op for display purposes)
+}: TokenDetailPageProps): React.ReactElement {
   const handleTokenPress = useCallback(() => {
     // No action needed - token is already selected
   }, []);
 
   return (
-    <BaseSheetDialog
-      visible={visible}
-      onClose={onClose}
-      size="medium"
-      colorScheme="secondary"
-      showScalesBackground={true}
-      ariaLabelledBy="token-information-title"
-      className={className}
-      style={style}
-    >
-      <BaseSheetDialog.StandardHeader title="Token Information" />
+    <Container style={style} className={className}>
+      <ScalesBackground style={{ zIndex: 0 }} />
 
-      <BaseSheetDialog.Content padding="none">
+      <Header>
+        <BackButton onClick={onBack} aria-label="Back">
+          <ArrowBackIcon />
+        </BackButton>
+        <Title>Token Information</Title>
+      </Header>
+
+      <ScrollContent>
         <ContentContainer>
           {/* PriceChart - full width */}
           {(loading || chartData.length > 0) && (
@@ -201,21 +191,21 @@ export function TokenInformationSheet({
             loading={loading}
           />
 
-          {/* TokenBadgesSection - Before About */}
+          {/* TokenBadgesSection */}
           <TokenBadgesSection
             tags={token.tags}
             loading={loading}
           />
 
-          {/* TokenAbout - At the bottom */}
+          {/* TokenAbout */}
           <TokenAbout
             description={coinInfo?.description}
             loading={loading}
           />
         </ContentContainer>
-      </BaseSheetDialog.Content>
-    </BaseSheetDialog>
+      </ScrollContent>
+    </Container>
   );
 }
 
-export default TokenInformationSheet;
+export default TokenDetailPage;

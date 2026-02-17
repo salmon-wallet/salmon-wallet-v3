@@ -33,7 +33,7 @@ import {
   PriceChart,
   TokenMarketData,
   TokenAbout,
-  TokenInformationSheet,
+  TokenDetailPage,
   SettingsSheet,
   WalletSwitcherSheet,
   EditAccountDialog,
@@ -61,6 +61,7 @@ type ActiveTab = 'home' | 'collectibles' | 'swap';
  */
 type PageView =
   | 'home'
+  | 'tokenDetail'
   | 'backup'
   | 'currency'
   | 'about'
@@ -346,8 +347,7 @@ export function HomePage() {
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
 
-  // TokenInformationSheet state
-  const [tokenSheetVisible, setTokenSheetVisible] = useState(false);
+  // Token detail page state
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [selectedTokenChartData, setSelectedTokenChartData] = useState<PriceDataPoint[]>([]);
   const [selectedTokenCoinInfo, setSelectedTokenCoinInfo] = useState<CoinInfo | null>(null);
@@ -567,12 +567,12 @@ export function HomePage() {
     setSelectedTokenMarketData(undefined);
     setSelectedTokenChartPeriod('1M');
     setSelectedToken(token);
-    setTokenSheetVisible(true);
+    setCurrentPage('tokenDetail');
   }, []);
 
-  const handleTokenSheetClose = useCallback(() => {
-    setTokenSheetVisible(false);
-    setTimeout(() => setSelectedToken(null), 300);
+  const handleTokenDetailBack = useCallback(() => {
+    setCurrentPage('home');
+    setSelectedToken(null);
   }, []);
 
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
@@ -792,7 +792,7 @@ export function HomePage() {
   // Load selected token chart data when token is selected or period changes
   useEffect(() => {
     const loadSelectedTokenChartData = async () => {
-      if (!selectedToken || !tokenSheetVisible) return;
+      if (!selectedToken || currentPage !== 'tokenDetail') return;
 
       const coinId = selectedToken.coingeckoId;
       if (!coinId) return;
@@ -817,12 +817,12 @@ export function HomePage() {
     };
 
     loadSelectedTokenChartData();
-  }, [selectedToken, selectedTokenChartPeriod, tokenSheetVisible]);
+  }, [selectedToken, selectedTokenChartPeriod, currentPage]);
 
   // Load selected token coin info when token is selected
   useEffect(() => {
     const loadSelectedTokenCoinInfo = async () => {
-      if (!selectedToken || !tokenSheetVisible) return;
+      if (!selectedToken || currentPage !== 'tokenDetail') return;
 
       const coinId = selectedToken.coingeckoId;
       if (!coinId) return;
@@ -859,7 +859,7 @@ export function HomePage() {
     };
 
     loadSelectedTokenCoinInfo();
-  }, [selectedToken, tokenSheetVisible]);
+  }, [selectedToken, currentPage]);
 
   const accountName = activeAccount?.name || t('home.unnamed_account', 'Account');
   const accountAddress = activeBlockchainAccount?.getReceiveAddress() || '';
@@ -867,6 +867,23 @@ export function HomePage() {
   // Render settings pages based on current page view
   if (currentPage !== 'home') {
     switch (currentPage) {
+      case 'tokenDetail':
+        if (selectedToken) {
+          return (
+            <TokenDetailPage
+              token={selectedToken}
+              blockchain={getBaseBlockchain(currentBlockchain)}
+              chartData={selectedTokenChartData}
+              chartPeriod={selectedTokenChartPeriod}
+              onChartPeriodChange={handleSelectedTokenChartPeriodChange}
+              coinInfo={selectedTokenCoinInfo}
+              marketData={selectedTokenMarketData}
+              loading={selectedTokenLoading && selectedTokenChartData.length === 0}
+              onBack={handleTokenDetailBack}
+            />
+          );
+        }
+        return <PlaceholderPage title="Token Detail" onBack={handleBack} />;
       case 'backup':
         return <BackupPage onBack={handleBack} />;
       case 'currency':
@@ -1105,21 +1122,6 @@ export function HomePage() {
         onConfirm={confirmRemoveAllWallets}
       />
 
-      {/* Token Information Sheet */}
-      {selectedToken && (
-        <TokenInformationSheet
-          visible={tokenSheetVisible}
-          onClose={handleTokenSheetClose}
-          token={selectedToken}
-          blockchain={getBaseBlockchain(currentBlockchain)}
-          chartData={selectedTokenChartData}
-          chartPeriod={selectedTokenChartPeriod}
-          onChartPeriodChange={handleSelectedTokenChartPeriodChange}
-          coinInfo={selectedTokenCoinInfo}
-          marketData={selectedTokenMarketData}
-          loading={selectedTokenLoading && selectedTokenChartData.length === 0}
-        />
-      )}
     </Container>
   );
 }

@@ -172,12 +172,12 @@ export type {
   UseTokenSearchResult,
 } from './TokenSelector';
 
-// TokenInformationSheet - Token details dialog with chart, market data, badges
-export { TokenInformationSheet, TokenBadgesSection } from './TokenInformationSheet';
+// TokenDetailPage - Full-page token detail view with chart, market data, badges
+export { TokenDetailPage, TokenBadgesSection } from './TokenDetailPage';
 export type {
-  TokenInformationSheetProps,
+  TokenDetailPageProps,
   TokenBadgesSectionProps,
-} from './TokenInformationSheet';
+} from './TokenDetailPage';
 
 // ReceiveSheet - Receive address dialog with QR code
 export { ReceiveSheet } from './ReceiveSheet';

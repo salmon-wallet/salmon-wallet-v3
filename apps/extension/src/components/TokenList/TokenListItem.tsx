@@ -25,7 +25,6 @@ import {
   getLabelValue,
   hiddenValue,
 } from '@salmon/shared';
-import { ChevronRightIcon } from '../Icon';
 import type { TokenListItemProps } from './types';
 
 /**
@@ -317,8 +316,6 @@ export function TokenListItem({
         {displayUsdValue && <UsdValue>{displayUsdValue}</UsdValue>}
         <TokenAmount>{displayTokenAmount}</TokenAmount>
       </ValueContainer>
-
-      <ChevronRightIcon sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: ms(16), marginLeft: s(spacing['2xs']) }} />
     </Container>
   );
 }
