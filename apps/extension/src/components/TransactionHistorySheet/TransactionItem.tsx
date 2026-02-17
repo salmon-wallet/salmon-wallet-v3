@@ -422,12 +422,15 @@ const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
   uri,
   size = 40,
 }) => {
-  if (uri) {
+  const [failed, setFailed] = useState(false);
+
+  if (uri && !failed) {
     return (
       <TokenLogoImg
         src={uri}
         alt=""
         style={{ width: size, height: size }}
+        onError={() => setFailed(true)}
       />
     );
   }
@@ -511,7 +514,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       );
     }
 
-    const primaryToken = type === 'receive' ? inputs[0] : outputs[0];
+    const primaryToken = type === 'receive' ? inputs[0] : (outputs[0] || inputs[0]);
     if (primaryToken?.logo) {
       return (
         <LogoWithBadgeContainer>
