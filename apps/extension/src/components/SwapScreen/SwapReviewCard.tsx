@@ -48,6 +48,16 @@ const Amount = styled(Typography)({
   marginTop: 2,
 });
 
+const UsdValue = styled(Typography)({
+  fontSize: 13,
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.secondary,
+  letterSpacing: -0.065,
+  lineHeight: `${13 * 1.4}px`,
+  marginTop: 2,
+});
+
 // ============================================================================
 // SwapReviewCard Component
 // ============================================================================
@@ -59,6 +69,7 @@ const Amount = styled(Typography)({
 export function SwapReviewCard({
   label,
   amount,
+  usdValue,
   style,
 }: SwapReviewCardProps): React.ReactElement {
   return (
@@ -74,6 +85,7 @@ export function SwapReviewCard({
       <BlurContent>
         <Label>{label}</Label>
         <Amount>{amount}</Amount>
+        {usdValue != null && <UsdValue>{usdValue}</UsdValue>}
       </BlurContent>
     </BlurContainer>
   );

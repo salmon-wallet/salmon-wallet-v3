@@ -457,6 +457,8 @@ export interface SwapReviewCardProps<StyleType = unknown> {
   label: string;
   /** Amount with symbol (e.g., "0.009 SOL") */
   amount: string;
+  /** USD equivalent (e.g., "~$84.65") */
+  usdValue?: string;
   /** Custom style */
   style?: StyleType;
 }
