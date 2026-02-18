@@ -199,6 +199,7 @@ export function SendPage({
             <StepAddressAmount
               token={selectedToken}
               blockchain={blockchain}
+              account={account}
               onBack={handleBackToTokenSelect}
               onReview={handleReview}
               onCancel={handleExit}
