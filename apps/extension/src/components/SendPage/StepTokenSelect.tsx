@@ -19,7 +19,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import {
   colors,
   spacing,
-  borderRadius,
   fontFamily,
   fontWeight,
 } from '@salmon/shared';
@@ -45,18 +44,11 @@ const SearchWrapper = styled(Box)({
 
 const SearchInputStyled = styled(InputBase)({
   width: '100%',
-  backgroundColor: colors.input.background,
-  borderRadius: borderRadius.lg,
   padding: `${spacing.sm}px ${spacing.md}px`,
   color: colors.text.primary,
   fontSize: 12,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  border: `1px solid ${colors.border.default}`,
-  transition: 'border-color 0.2s ease',
-  '&.Mui-focused': {
-    borderColor: colors.input.borderFocus,
-  },
   '& .MuiInputBase-input::placeholder': {
     color: colors.text.secondary,
     opacity: 1,
