@@ -179,6 +179,7 @@ export {
   getSwapMode,
   getChainFromNetwork,
   validateAddress,
+  SUPPORTED_CHAINS,
 } from './swap';
 
 // Transaction transform utilities
