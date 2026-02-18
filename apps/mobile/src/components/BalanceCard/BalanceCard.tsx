@@ -204,12 +204,14 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
     return (
       <View style={styles.balanceRow}>
-        <Text style={styles.balanceDollars}>{parts[0]}</Text>
-        {parts[1] && (
-          <Text style={[styles.balanceDollars, styles.balanceDecimals]}>
-            .{parts[1]}
-          </Text>
-        )}
+        <View style={styles.balanceTextGroup}>
+          <Text style={styles.balanceDollars}>{parts[0]}</Text>
+          {parts[1] && (
+            <Text style={[styles.balanceDollars, styles.balanceDecimals]}>
+              .{parts[1]}
+            </Text>
+          )}
+        </View>
         <TouchableOpacity
           onPress={handleToggleVisibility}
           style={styles.eyeButton}
@@ -392,6 +394,10 @@ const styles = StyleSheet.create({
         elevation: shadows.balanceText.elevation,
       },
     }),
+  },
+  balanceTextGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   balanceDollars: {
     fontSize: ms(fontSize.balance),

@@ -214,16 +214,16 @@ export type {
   AddressCopyRowProps,
 } from './TransactionHistoryPage';
 
-// SendSheet - Multi-step send dialog with token selection, address/amount entry, and confirmation
-export { SendSheet } from './SendSheet';
+// SendPage - Full-page multi-step send flow with token selection, address/amount entry, and confirmation
+export { SendPage } from './SendPage';
 export type {
-  SendSheetProps,
+  SendPageProps,
   SendToken,
   SendStep,
   StepTokenSelectProps,
   StepAddressAmountProps,
   StepConfirmationProps,
-} from './SendSheet';
+} from './SendPage';
 
 // SwapScreen - Swap and Bridge interface
 export {

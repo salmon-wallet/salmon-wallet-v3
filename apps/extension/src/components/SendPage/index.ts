@@ -1,6 +1,6 @@
-export { SendSheet } from './SendSheet';
+export { SendPage } from './SendPage';
 export type {
-  SendSheetProps,
+  SendPageProps,
   SendToken,
   SendStep,
   BlockchainType,
