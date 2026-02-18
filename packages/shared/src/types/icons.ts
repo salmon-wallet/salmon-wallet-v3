@@ -1,6 +1,6 @@
 /**
  * Unified icon system types for Salmon Wallet
- * Used by both @salmon/ui (React Native) and @salmon/ui-extension (React DOM)
+ * Used by both mobile (React Native) and extension (React DOM)
  */
 
 /**
