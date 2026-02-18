@@ -23,7 +23,8 @@ import Skeleton from '@mui/material/Skeleton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { colors, spacing, fontFamily } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import { ScalesBackground } from '../ScalesBackground';
 import { TransactionItem } from './TransactionItem';
 import type { TransactionHistoryPageProps, Transaction } from './types';
@@ -79,9 +80,6 @@ const ScrollContent = styled(Box)({
 
 // Skeleton styles
 const SkeletonItem = styled(Box)({
-  backgroundColor: colors.background.tokenItem,
-  borderRadius: 12,
-  marginBottom: 12,
   padding: '14px 16px',
   display: 'flex',
   flexDirection: 'row',
@@ -174,56 +172,61 @@ const LoadingMoreContainer = styled(Box)({
 // ============================================================================
 
 const TransactionItemSkeleton: React.FC = () => (
-  <SkeletonItem>
-    <Skeleton
-      variant="circular"
-      width={40}
-      height={40}
-      sx={{ bgcolor: colors.skeleton.base, flexShrink: 0 }}
-    />
-    <SkeletonInfoSection>
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+  <BlurContainer
+    borderColor={colors.border.subtle}
+    style={{ borderRadius: borderRadius.lg, marginBottom: 12, overflow: 'hidden' }}
+  >
+    <SkeletonItem>
+      <Skeleton
+        variant="circular"
+        width={40}
+        height={40}
+        sx={{ bgcolor: colors.skeleton.base, flexShrink: 0 }}
+      />
+      <SkeletonInfoSection>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <Skeleton
+            variant="rounded"
+            width={70}
+            height={14}
+            sx={{ bgcolor: colors.skeleton.base }}
+          />
+          <Skeleton
+            variant="rounded"
+            width={50}
+            height={12}
+            sx={{ bgcolor: colors.skeleton.base }}
+          />
+        </Box>
         <Skeleton
           variant="rounded"
-          width={70}
+          width={100}
+          height={12}
+          sx={{ bgcolor: colors.skeleton.base }}
+        />
+      </SkeletonInfoSection>
+      <SkeletonRightSection>
+        <Skeleton
+          variant="rounded"
+          width={80}
           height={14}
           sx={{ bgcolor: colors.skeleton.base }}
         />
         <Skeleton
           variant="rounded"
-          width={50}
+          width={60}
           height={12}
           sx={{ bgcolor: colors.skeleton.base }}
         />
-      </Box>
-      <Skeleton
-        variant="rounded"
-        width={100}
-        height={12}
-        sx={{ bgcolor: colors.skeleton.base }}
-      />
-    </SkeletonInfoSection>
-    <SkeletonRightSection>
-      <Skeleton
-        variant="rounded"
-        width={80}
-        height={14}
-        sx={{ bgcolor: colors.skeleton.base }}
-      />
-      <Skeleton
-        variant="rounded"
-        width={60}
-        height={12}
-        sx={{ bgcolor: colors.skeleton.base }}
-      />
-      <Skeleton
-        variant="rounded"
-        width={40}
-        height={10}
-        sx={{ bgcolor: colors.skeleton.base }}
-      />
-    </SkeletonRightSection>
-  </SkeletonItem>
+        <Skeleton
+          variant="rounded"
+          width={40}
+          height={10}
+          sx={{ bgcolor: colors.skeleton.base }}
+        />
+      </SkeletonRightSection>
+    </SkeletonItem>
+  </BlurContainer>
 );
 
 const TransactionListSkeleton: React.FC<{ count?: number }> = ({ count = 5 }) => (

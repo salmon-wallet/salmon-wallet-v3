@@ -58,8 +58,10 @@ const ButtonText = styled(Typography)({
 
 const StyledMenu = styled(Menu)({
   '& .MuiPaper-root': {
-    backgroundColor: colors.dialog.background,
-    border: `1px solid ${colors.dialog.border}`,
+    backgroundColor: 'rgba(56, 63, 82, 0.20)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    border: `1px solid ${colors.border.default}`,
     borderRadius: borderRadius.lg,
     minWidth: 200,
   },
