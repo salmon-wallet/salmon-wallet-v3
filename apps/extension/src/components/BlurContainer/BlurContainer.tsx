@@ -11,19 +11,19 @@ import type { BlurContainerProps, BlurTint } from './types';
 /**
  * Get background overlay color based on tint.
  *
- * Higher opacities than you'd expect — CSS backdrop-filter produces a much
- * lighter frosted-glass effect than the native BlurView on iOS/Android,
- * so we compensate with a denser tint layer.
+ * Kept subtle — the background color already provides the main tint,
+ * this overlay just adds a light directional bias to match the native
+ * BlurView look on iOS/Android.
  */
 function getTintColor(tint: BlurTint): string {
   switch (tint) {
     case 'light':
-      return 'rgba(255, 255, 255, 0.15)';
+      return 'rgba(255, 255, 255, 0.08)';
     case 'dark':
-      return 'rgba(0, 0, 0, 0.25)';
+      return 'rgba(0, 0, 0, 0.10)';
     case 'default':
     default:
-      return 'rgba(0, 0, 0, 0.15)';
+      return 'rgba(0, 0, 0, 0.08)';
   }
 }
 
@@ -79,16 +79,16 @@ const BlurBox = styled(Box)<{
  * ```
  */
 /**
- * Default background for web — more opaque than the shared design token
- * (`rgba(56, 63, 82, 0.1)`) because CSS backdrop-filter is visually
- * lighter than expo-blur's native BlurView.
+ * Default background for web — slightly more opaque than the mobile token
+ * (`rgba(56, 63, 82, 0.1)`) to compensate for CSS backdrop-filter being
+ * visually lighter than expo-blur's native BlurView.
  */
-const WEB_DEFAULT_BG = 'rgba(56, 63, 82, 0.45)';
+const WEB_DEFAULT_BG = 'rgba(56, 63, 82, 0.20)';
 
 export function BlurContainer({
   children,
   style,
-  blurIntensity = 8,
+  blurIntensity = 12,
   blurTint = 'dark',
   backgroundColor = WEB_DEFAULT_BG,
   borderColor = colors.border.default,
