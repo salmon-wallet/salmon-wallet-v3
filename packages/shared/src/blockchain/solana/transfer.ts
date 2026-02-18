@@ -32,6 +32,7 @@ import {
   TOKEN_2022_PROGRAM_ID,
   createTransferInstruction,
   createTransferCheckedWithFeeInstruction,
+  createAssociatedTokenAccountIdempotentInstruction,
   getMemoTransfer,
   getMint,
   unpackAccount,
@@ -40,7 +41,6 @@ import {
   getExtensionTypes,
   ExtensionType,
   getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount,
 } from '@solana/spl-token';
 import { createMemoInstruction } from '@solana/spl-memo';
 
@@ -102,59 +102,6 @@ export interface TransferFeeInfo {
   maximumFee: bigint;
   /** Fee basis points */
   transferFeeBasisPoints: number;
-}
-
-/**
- * Gets the token account for a given owner and mint
- *
- * @param connection - Solana connection
- * @param owner - Owner's public key
- * @param mint - Token mint address
- * @param programId - Token program ID
- * @returns Account info or null if not found
- */
-async function getTokenAccount(
-  connection: Connection,
-  owner: PublicKey,
-  mint: string,
-  programId: PublicKey
-): Promise<ReturnType<Connection['getAccountInfo']>> {
-  const associatedTokenAddress = await getAssociatedTokenAddress(
-    new PublicKey(mint),
-    owner,
-    false,
-    programId
-  );
-  return connection.getAccountInfo(associatedTokenAddress);
-}
-
-/**
- * Gets or creates an associated token account for a given owner
- *
- * @param connection - Solana connection
- * @param payer - Keypair paying for account creation
- * @param mint - Token mint address
- * @param owner - Owner's public key
- * @param programId - Token program ID
- * @returns Associated token account
- */
-async function getOrCreateTokenAccount(
-  connection: Connection,
-  payer: Keypair,
-  mint: string,
-  owner: PublicKey,
-  programId: PublicKey
-): Promise<ReturnType<typeof getOrCreateAssociatedTokenAccount>> {
-  return getOrCreateAssociatedTokenAccount(
-    connection,
-    payer,
-    new PublicKey(mint),
-    owner,
-    false,
-    'confirmed' as Commitment,
-    undefined,
-    programId
-  );
 }
 
 // ============================================================================
@@ -321,25 +268,22 @@ export async function createSplTransaction(
   const decimals = mint?.decimals ?? opts?.decimals ?? 0;
   const transferAmount = applyDecimals(amount, decimals);
 
-  // Create destination token account if it doesn't exist
-  const destTokenAccount = await getTokenAccount(
-    connection,
-    toPublicKey,
-    tokenAddress,
-    programId
-  );
-
-  if (!destTokenAccount) {
-    await getOrCreateTokenAccount(
-      connection,
-      fromKeyPair,
-      tokenAddress,
-      toPublicKey,
-      programId
-    );
-  }
-
   const transaction = new Transaction();
+
+  // Idempotent ATA creation: adds the instruction to the same transaction.
+  // If the account already exists the instruction is a no-op on-chain,
+  // so there is no need to check beforehand with a separate RPC call.
+  // This avoids a separate on-chain transaction that Helius cannot parse.
+  // @see https://spl.solana.com/associated-token-account
+  transaction.add(
+    createAssociatedTokenAccountIdempotentInstruction(
+      fromKeyPair.publicKey,    // payer
+      toTokenAddress,           // derived ATA address
+      toPublicKey,              // owner of the new account
+      tokenAddressPublicKey,    // mint
+      programId                 // token program (Token or Token-2022)
+    )
+  );
 
   // Add memo instruction if provided
   if (memo) {
