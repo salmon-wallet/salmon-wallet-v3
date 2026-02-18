@@ -1,5 +1,5 @@
 /**
- * SwapScreen types for @salmon/ui (React Native)
+ * SwapScreen types for the mobile app (React Native)
  *
  * Re-exports shared swap types with ViewStyle for React Native.
  */

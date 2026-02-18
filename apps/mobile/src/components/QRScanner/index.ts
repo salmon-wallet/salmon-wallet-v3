@@ -9,7 +9,7 @@
  *
  * Usage:
  * ```tsx
- * import { QRScanner } from '@salmon/ui';
+ * import { QRScanner } from '../components';
  *
  * <QRScanner
  *   visible={showScanner}

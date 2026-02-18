@@ -7,7 +7,7 @@
  *
  * @example
  * ```tsx
- * import { TopSheet } from '@salmon/ui';
+ * import { TopSheet } from '../components';
  *
  * function MyComponent() {
  *   const [visible, setVisible] = useState(false);

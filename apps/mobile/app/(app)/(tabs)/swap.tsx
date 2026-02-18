@@ -93,7 +93,7 @@ function transformQuoteForUI(
   inputAmount: number
 ): SwapQuote {
   // The UI components now expect the backend structure directly
-  // SwapQuote from @salmon/ui is the same as SharedSwapQuote from @salmon/shared
+  // SwapQuote from the UI components is the same as SharedSwapQuote from @salmon/shared
   return quote as unknown as SwapQuote;
 }
 

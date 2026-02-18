@@ -6,7 +6,7 @@
  *
  * @example
  * ```tsx
- * import { TransactionHistorySheet, TransactionItem } from '@salmon/ui';
+ * import { TransactionHistorySheet, TransactionItem } from '../components';
  * import { useTransactions } from '@salmon/shared';
  *
  * function ActivityScreen() {

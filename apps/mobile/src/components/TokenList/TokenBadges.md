@@ -5,7 +5,7 @@ A component that displays small icon badges for token characteristics and metada
 ## Usage
 
 ```tsx
-import { TokenBadges } from '@salmon/ui';
+import { TokenBadges } from '../components';
 
 // Basic usage
 <TokenBadges tags={['verified', 'community']} />
