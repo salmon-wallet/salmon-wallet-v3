@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     paddingVertical: 0,
     height: '100%',
+    opacity: 1,
   },
   tokenDropdown: {
     flexDirection: 'row',

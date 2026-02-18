@@ -92,6 +92,10 @@ const StyledInput = styled(InputBase)({
     color: colors.text.placeholder,
     opacity: 1,
   },
+  '&.Mui-disabled .MuiInputBase-input': {
+    color: colors.text.primary,
+    WebkitTextFillColor: colors.text.primary,
+  },
 });
 
 const TokenDropdown = styled(ButtonBase)({
