@@ -68,6 +68,7 @@ export interface UseSwapScreenLogicReturn {
   swapMode: 'jupiter' | 'stealthex' | null;
   inUsdValue: number;
   canReview: boolean;
+  reviewWarning: string | null;
   outputTokens: SwapToken[];
   addressValidation: { valid: boolean; error: string | null };
 
@@ -150,8 +151,9 @@ export function useSwapScreenLogic({
 
   const swapMode = useMemo(() => getSwapMode(inToken, outToken), [inToken, outToken]);
 
-  const inUsdValue = inToken?.usdPrice && inAmount
-    ? parseFloat(inAmount) * inToken.usdPrice
+  const inTokenPrice = tokens.find(t => t.address === inToken?.address)?.usdPrice ?? inToken?.usdPrice;
+  const inUsdValue = inTokenPrice && inAmount
+    ? parseFloat(inAmount) * inTokenPrice
     : 0;
 
   const targetChain: SwapChainType | null = outToken?.chain || null;
@@ -180,6 +182,14 @@ export function useSwapScreenLogic({
     !isLoadingEstimate;
 
   const canReview = canReviewJupiter || canContinueToBridge;
+
+  const reviewWarning: string | null = (() => {
+    if (!inToken || !inAmount || parseFloat(inAmount) <= 0) return null;
+    if (parseFloat(inAmount) > (inToken.balance || 0)) return 'Insufficient balance';
+    if (inUsdValue > 0 && inUsdValue < MIN_SWAP_USD) return `Minimum swap amount is $${MIN_SWAP_USD.toFixed(2)} USD`;
+    if (quoteError) return quoteError;
+    return null;
+  })();
 
   // ── Effects ────────────────────────────────────────────────────────────
 
@@ -532,6 +542,7 @@ export function useSwapScreenLogic({
     swapMode,
     inUsdValue,
     canReview,
+    reviewWarning,
     outputTokens,
     addressValidation,
 
