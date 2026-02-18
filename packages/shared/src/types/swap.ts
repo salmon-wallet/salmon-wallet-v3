@@ -473,6 +473,10 @@ export interface SwapReviewScreenProps<StyleType = unknown> {
   inToken: SwapToken;
   /** Output token */
   outToken: SwapToken;
+  /** Human-readable input amount (fallback when quote.input is missing) */
+  inAmount?: string;
+  /** Human-readable output amount (fallback when quote.output is missing) */
+  outAmount?: string;
   /** Callback for back button */
   onBack: () => void;
   /** Callback for confirm button */
@@ -507,6 +511,8 @@ export interface SwapInputScreenProps<StyleType = unknown> {
   isLoadingQuote?: boolean;
   /** Whether Review button is enabled */
   canReview: boolean;
+  /** Warning message when review is not possible */
+  reviewWarning?: string | null;
   /** Callback for Review button */
   onReview: () => void;
   /** Custom style */
