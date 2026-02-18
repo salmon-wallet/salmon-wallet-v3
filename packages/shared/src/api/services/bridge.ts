@@ -64,7 +64,7 @@ export async function getBridgeAvailableTokens(
 ): Promise<BridgeAvailableToken[] | null> {
   try {
     const { data } = await apiClient.get<BridgeAvailableToken[]>('/v1/bridge/available', {
-      params: { symbol },
+      params: { symbol: symbol.toLowerCase() },
     });
     return data ?? null;
   } catch (error) {
@@ -86,7 +86,7 @@ export async function getBridgeFeaturedTokens(
 ): Promise<BridgeFeaturedToken[] | null> {
   try {
     const { data } = await apiClient.get<BridgeFeaturedToken[]>('/v1/bridge/featured', {
-      params: { symbol },
+      params: { symbol: symbol.toLowerCase() },
     });
     return data ?? null;
   } catch (error) {
@@ -112,7 +112,7 @@ export async function getBridgeEstimatedAmount(
 ): Promise<number | null> {
   try {
     const { data } = await apiClient.get<BridgeEstimateResponse>('/v1/bridge/estimate', {
-      params: { symbolIn, symbolOut, amount },
+      params: { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase(), amount },
     });
     return data?.estimated_amount ?? null;
   } catch (error) {
@@ -136,7 +136,7 @@ export async function getBridgeMinimalAmount(
 ): Promise<number | null> {
   try {
     const { data } = await apiClient.get<BridgeMinimalResponse>('/v1/bridge/minimal', {
-      params: { symbolIn, symbolOut },
+      params: { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase() },
     });
     return data?.min_amount ?? null;
   } catch (error) {
@@ -164,7 +164,7 @@ export async function createBridgeExchange(
 ): Promise<BridgeExchange | null> {
   try {
     const { data } = await apiClient.get<BridgeExchange>('/v1/bridge/exchange', {
-      params: { symbolIn, symbolOut, amount, addressTo },
+      params: { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase(), amount, addressTo },
     });
     return data ?? null;
   } catch (error) {
