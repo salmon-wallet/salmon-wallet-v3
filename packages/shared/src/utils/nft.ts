@@ -96,6 +96,58 @@ export function isImageContent(contentType: string): boolean {
 }
 
 /**
+ * Check if an image URL points to an SVG.
+ * Detects .svg extension and data:image/svg+xml data URIs.
+ */
+export function isSvgImage(url: string | undefined): boolean {
+  if (!url) return false;
+  const lower = url.toLowerCase();
+  if (lower.startsWith('data:image/svg+xml')) return true;
+  try {
+    const pathname = new URL(lower).pathname;
+    return pathname.endsWith('.svg');
+  } catch {
+    return lower.endsWith('.svg');
+  }
+}
+
+/**
+ * Check if an image URL points to an animated image (GIF).
+ */
+export function isAnimatedImage(url: string | undefined): boolean {
+  if (!url) return false;
+  const lower = url.toLowerCase();
+  try {
+    const pathname = new URL(lower).pathname;
+    return pathname.endsWith('.gif');
+  } catch {
+    return lower.endsWith('.gif');
+  }
+}
+
+/**
+ * Determine the image type for an NFT.
+ * For Bitcoin ordinals, uses the contentType field.
+ * For other chains, infers from the URL.
+ */
+export function getNftImageType(nft: NftData): 'svg' | 'gif' | 'static' | null {
+  if (!nft.image) return null;
+
+  // Bitcoin ordinals carry an explicit contentType
+  if (nft.blockchain === 'bitcoin' && 'contentType' in nft) {
+    const ct = (nft as BitcoinNftData).contentType.toLowerCase();
+    if (ct === 'image/svg+xml') return 'svg';
+    if (ct === 'image/gif') return 'gif';
+    if (isImageContent(ct)) return 'static';
+    return null;
+  }
+
+  if (isSvgImage(nft.image)) return 'svg';
+  if (isAnimatedImage(nft.image)) return 'gif';
+  return 'static';
+}
+
+/**
  * Convert Ethereum NFT to NftData format for UI components
  * Includes all Ethereum-specific fields
  *

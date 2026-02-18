@@ -191,6 +191,9 @@ export { default as ContentLoader, ContentLoader as NamedContentLoader, Rect, Ci
 // NFT utilities
 export {
   isImageContent,
+  isSvgImage,
+  isAnimatedImage,
+  getNftImageType,
   ethereumNftToNftData,
   bitcoinOrdinalToNftData,
   solanaNftToNftData,

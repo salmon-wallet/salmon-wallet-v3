@@ -13,6 +13,7 @@ import {
   Dimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  ActivityIndicator,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -91,6 +92,13 @@ const BurnIcon: React.FC<{ size?: number; color?: string }> = ({
   );
 };
 
+// Fallback gradient for NFTs without images (matches NftCard)
+const FALLBACK_GRADIENT = {
+  colors: ['rgb(255, 92, 69)', 'rgba(161, 42, 42, 0.9)'] as const,
+  start: { x: 0.12, y: 0.5 },
+  end: { x: 0.83, y: 0.5 },
+};
+
 export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   visible,
   onClose,
@@ -99,6 +107,16 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   onBurnPress,
   style,
 }) => {
+  // Image loading/error state
+  const [imageLoading, setImageLoading] = React.useState(true);
+  const [imageError, setImageError] = React.useState(false);
+
+  // Reset image state when nft changes
+  React.useEffect(() => {
+    setImageLoading(true);
+    setImageError(false);
+  }, [nft?.mint]);
+
   // Animation shared values
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const backdropOpacity = useSharedValue(0);
@@ -419,16 +437,43 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             scrollEventThrottle={16}
           >
             {/* NFT Image */}
-            {nft.image && (
-              <View style={styles.imageContainer}>
-                <Image
-                  source={nft.image}
+            <View style={styles.imageContainer}>
+              {!nft.image || imageError ? (
+                <LinearGradient
+                  colors={[...FALLBACK_GRADIENT.colors]}
+                  start={FALLBACK_GRADIENT.start}
+                  end={FALLBACK_GRADIENT.end}
                   style={styles.nftImage}
-                  contentFit="cover"
-                  autoplay={true}
                 />
-              </View>
-            )}
+              ) : (
+                <>
+                  <Image
+                    source={nft.image}
+                    style={styles.nftImage}
+                    contentFit="cover"
+                    autoplay={true}
+                    recyclingKey={nft.mint}
+                    onLoadStart={() => setImageLoading(true)}
+                    onLoadEnd={() => setImageLoading(false)}
+                    onError={() => {
+                      setImageLoading(false);
+                      setImageError(true);
+                    }}
+                  />
+                  {imageLoading && (
+                    <View style={[styles.nftImage, styles.imageLoadingOverlay]}>
+                      <LinearGradient
+                        colors={[...FALLBACK_GRADIENT.colors]}
+                        start={FALLBACK_GRADIENT.start}
+                        end={FALLBACK_GRADIENT.end}
+                        style={StyleSheet.absoluteFill}
+                      />
+                      <ActivityIndicator size="small" color={colors.text.primary} />
+                    </View>
+                  )}
+                </>
+              )}
+            </View>
 
             {/* Description Section */}
             {nft.description && (
@@ -637,6 +682,12 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.9,
     shadowRadius: 20,
+  },
+  imageLoadingOverlay: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   sectionContainer: {
     borderRadius: ms(9),

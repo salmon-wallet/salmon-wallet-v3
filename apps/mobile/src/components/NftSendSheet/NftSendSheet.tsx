@@ -225,13 +225,14 @@ export function NftSendSheet({
 
             {/* NFT Preview */}
             <View style={styles.nftPreview}>
-              {nft.image && (
-                <Image
-                  source={{ uri: nft.image }}
-                  style={styles.nftImage}
-                  contentFit="cover"
-                />
-              )}
+              <Image
+                source={nft.image ?? undefined}
+                style={styles.nftImage}
+                contentFit="cover"
+                autoplay={true}
+                recyclingKey={nft.mint}
+                placeholder={undefined}
+              />
               <View style={styles.nftInfo}>
                 <Text style={styles.nftName} numberOfLines={1}>
                   {nft.name}
