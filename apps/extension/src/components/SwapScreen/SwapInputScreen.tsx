@@ -7,11 +7,11 @@
 import React from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import {
   colors,
   spacing,
   borderRadius,
-  gradients,
   fontFamily,
   fontWeight,
 } from '@salmon/shared';
@@ -43,15 +43,31 @@ const ButtonContainer = styled(Box)({
   left: 0,
   right: 0,
   display: 'flex',
-  justifyContent: 'center',
+  flexDirection: 'column',
+  alignItems: 'center',
 });
 
-const GradientButton = styled('div')<{ $canReview: boolean }>(({ $canReview }) => ({
+const WarningText = styled(Typography)({
+  fontSize: 12,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontWeight: fontWeight.medium,
+  color: colors.status.warning,
+  textAlign: 'center',
+  marginBottom: spacing.sm,
+});
+
+const ReviewButtonWrapper = styled('div')<{ $canReview: boolean }>(({ $canReview }) => ({
   borderRadius: borderRadius.lg,
-  border: '0.8px solid rgba(255, 92, 69, 0.8)',
+  border: `1.5px solid ${$canReview ? 'transparent' : 'transparent'}`,
   boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
-  background: $canReview ? gradients.primaryCSS : gradients.disabledCSS,
+  background: $canReview ? colors.button.primaryBackground : colors.button.inactiveBackground,
   minWidth: 180,
+  transition: 'border-color 0.2s ease',
+  ...($canReview && {
+    '&:hover': {
+      borderColor: colors.accent.primary,
+    },
+  }),
 }));
 
 // ============================================================================
@@ -73,6 +89,7 @@ export function SwapInputScreen({
   inUsdValue,
   isLoadingQuote = false,
   canReview,
+  reviewWarning,
   onReview,
   style,
 }: SwapInputScreenProps): React.ReactElement {
@@ -93,6 +110,8 @@ export function SwapInputScreen({
           placeholder="Enter an amount"
         />
 
+        {reviewWarning && <WarningText>{reviewWarning}</WarningText>}
+
         {/* You Receive */}
         <SwapAmountInput
           label="You Receive"
@@ -108,7 +127,7 @@ export function SwapInputScreen({
 
       {/* Review Button */}
       <ButtonContainer>
-        <GradientButton $canReview={canReview}>
+        <ReviewButtonWrapper $canReview={canReview}>
           <PrimaryButton
             onClick={onReview}
             disabled={!canReview}
@@ -116,11 +135,12 @@ export function SwapInputScreen({
               minWidth: 180,
               height: 42,
               background: 'transparent',
+              color: canReview ? colors.button.primaryText : undefined,
             }}
           >
             Review & Swap
           </PrimaryButton>
-        </GradientButton>
+        </ReviewButtonWrapper>
       </ButtonContainer>
     </Container>
   );

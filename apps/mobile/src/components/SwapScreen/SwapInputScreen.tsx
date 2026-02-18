@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, componentSizes, fontFamily, fontWeight, ms, vs, s } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
 import type { SwapInputScreenProps } from './types';
@@ -21,6 +21,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
   inUsdValue,
   isLoadingQuote = false,
   canReview,
+  reviewWarning,
   onReview,
   style,
 }) => {
@@ -41,6 +42,8 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
           placeholder="Enter an amount"
         />
 
+        {reviewWarning ? <Text style={styles.warningText}>{reviewWarning}</Text> : null}
+
         {/* You Receive */}
         <SwapAmountInput
           label="You Receive"
@@ -56,23 +59,32 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
 
       {/* Review Button */}
       <View style={styles.buttonContainer}>
-        <LinearGradient
-          colors={canReview ? gradients.primaryButton.colors : gradients.disabled.colors}
-          start={gradients.primaryButton.start}
-          end={gradients.primaryButton.end}
-          style={[
-            styles.buttonGradient,
-            canReview && styles.buttonGradientActive,
-          ]}
-        >
-          <PrimaryButton
-            onPress={onReview}
-            disabled={!canReview}
-            style={styles.button}
+        {canReview ? (
+          <LinearGradient
+            colors={gradients.primaryButton.colors}
+            start={gradients.primaryButton.start}
+            end={gradients.primaryButton.end}
+            style={[styles.buttonGradient, styles.buttonGradientActive]}
           >
-            Review & Swap
-          </PrimaryButton>
-        </LinearGradient>
+            <PrimaryButton
+              onPress={onReview}
+              disabled={false}
+              style={styles.button}
+            >
+              Review & Swap
+            </PrimaryButton>
+          </LinearGradient>
+        ) : (
+          <View style={[styles.buttonGradient, styles.buttonGradientInactive]}>
+            <PrimaryButton
+              onPress={onReview}
+              disabled={true}
+              style={styles.button}
+            >
+              Review & Swap
+            </PrimaryButton>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -95,6 +107,14 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
   },
+  warningText: {
+    fontSize: 12,
+    fontFamily: fontFamily.sans,
+    fontWeight: fontWeight.medium as any,
+    color: colors.status.warning,
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
   buttonGradient: {
     borderRadius: borderRadius.lg,
     borderWidth: 0.8,
@@ -107,6 +127,10 @@ const styles = StyleSheet.create({
   },
   buttonGradientActive: {
     borderColor: 'rgba(255, 92, 69, 0.8)',
+  },
+  buttonGradientInactive: {
+    backgroundColor: colors.button.inactiveBackground,
+    borderColor: 'transparent',
   },
   button: {
     minWidth: s(180),
