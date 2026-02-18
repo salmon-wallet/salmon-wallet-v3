@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
@@ -19,6 +18,7 @@ import {
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
+import { TokenLogo } from '../TokenLogo';
 import type { StepConfirmationProps } from './types';
 
 // ============================================================================
@@ -136,19 +136,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
       <View style={styles.centerContent}>
         {/* Large Token Icon */}
         <View style={styles.tokenIconWrapper}>
-          {token.logo ? (
-            <Image
-              source={{ uri: token.logo }}
-              style={styles.tokenIcon}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={[styles.tokenIcon, styles.tokenIconFallback]}>
-              <Text style={styles.tokenIconFallbackText}>
-                {token.symbol?.slice(0, 3).toUpperCase() || '?'}
-              </Text>
-            </View>
-          )}
+          <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={ms(100)} />
         </View>
 
         {/* Amount */}
@@ -245,23 +233,6 @@ const styles = StyleSheet.create({
   tokenIconWrapper: {
     marginBottom: vs(16),
   },
-  tokenIcon: {
-    width: ms(100),
-    height: ms(100),
-    borderRadius: ms(50),
-  },
-  tokenIconFallback: {
-    backgroundColor: colors.background.card,
-    borderWidth: 2,
-    borderColor: colors.border.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tokenIconFallbackText: {
-    fontSize: ms(32),
-    fontFamily: FONT_FAMILY.extraBold,
-    color: colors.text.primary,
-  },
   // Amount
   amountText: {
     fontSize: ms(22),
@@ -274,11 +245,11 @@ const styles = StyleSheet.create({
   addressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'stretch',
     borderRadius: ms(8),
     paddingVertical: vs(14),
     paddingHorizontal: s(16),
     gap: s(10),
-    maxWidth: '100%',
   },
   addressText: {
     flex: 1,
