@@ -39,6 +39,9 @@ const formatPercent = (value: number): string => {
   return `${value.toFixed(2)}%`;
 };
 
+const formatUsd = (value: number | undefined): string | undefined =>
+  value != null ? `~$${value.toFixed(2)}` : undefined;
+
 /**
  * Format SOL amount for fees
  */
@@ -129,7 +132,7 @@ export function SwapReviewScreen({
   style,
 }: SwapReviewScreenProps): React.ReactElement {
   // Extract swap data for display (custom contains all swap details from backend)
-  const { input, output, fee, custom: details } = quote;
+  const { input, output, fee, routeNames, custom: details } = quote;
 
   return (
     <Container style={style}>
@@ -147,10 +150,12 @@ export function SwapReviewScreen({
             <SwapReviewCard
               label="You Send"
               amount={formatAmountWithSymbol(Number(input.amount) / (10 ** input.decimals), input.symbol)}
+              usdValue={formatUsd(details.inUsdValue)}
             />
             <SwapReviewCard
               label="You Receive"
               amount={formatAmountWithSymbol(Number(output.amount) / (10 ** output.decimals), output.symbol)}
+              usdValue={formatUsd(details.outUsdValue)}
             />
           </CardsContainer>
 
@@ -164,6 +169,18 @@ export function SwapReviewScreen({
               label="Router"
               value={details.router}
             />
+            {routeNames.length > 0 && (
+              <SwapDetailRow
+                label="Route"
+                value={routeNames.join(' → ')}
+              />
+            )}
+            {details.gasless && (
+              <SwapDetailRow
+                label="Gasless"
+                value="Yes"
+              />
+            )}
             <SwapDetailRow
               label="Priority Fee"
               value={formatSolFee(details.prioritizationFeeLamports)}

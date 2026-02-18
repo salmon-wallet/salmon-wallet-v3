@@ -12,6 +12,9 @@ const FONT_FAMILY = {
 
 const formatPercent = (value: number): string => `${value.toFixed(2)}%`;
 
+const formatUsd = (value: number | undefined): string | undefined =>
+  value != null ? `~$${value.toFixed(2)}` : undefined;
+
 /**
  * SwapReviewScreen - Second step of swap flow
  * Shows quote details and confirm/back buttons
@@ -26,7 +29,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
   style,
 }) => {
   // Extract data from backend response structure (custom contains all swap details)
-  const { input, output, fee, custom: details } = quote;
+  const { input, output, fee, routeNames, custom: details } = quote;
 
   return (
     <View style={[styles.container, style]}>
@@ -49,10 +52,12 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
           <SwapReviewCard
             label="You Send"
             amount={formatAmountWithSymbol(Number(input.amount) / (10 ** input.decimals), input.symbol)}
+            usdValue={formatUsd(details.inUsdValue)}
           />
           <SwapReviewCard
             label="You Receive"
             amount={formatAmountWithSymbol(Number(output.amount) / (10 ** output.decimals), output.symbol)}
+            usdValue={formatUsd(details.outUsdValue)}
           />
         </View>
 
@@ -66,6 +71,18 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
             label="Router"
             value={details.router}
           />
+          {routeNames.length > 0 && (
+            <SwapDetailRow
+              label="Route"
+              value={routeNames.join(' → ')}
+            />
+          )}
+          {details.gasless && (
+            <SwapDetailRow
+              label="Gasless"
+              value="Yes"
+            />
+          )}
           <SwapDetailRow
             label="Priority Fee"
             value={formatSolFee(details.prioritizationFeeLamports)}
