@@ -62,6 +62,7 @@ export const colors = {
     disabledBackgroundEnd: '#444444',
     disabledText: '#666666',
     disabledOpacity: 0.5,
+    inactiveBackground: '#444444',
   },
   passwordStrength: {
     weak: '#EF4444',
