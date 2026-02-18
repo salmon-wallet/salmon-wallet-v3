@@ -26,6 +26,7 @@ import {
   deriveBlockchainAccount,
   getShortAddress,
   SATOSHIS_PER_BTC,
+  WEI_PER_ETH_BIGINT,
   SolanaAccount,
   BitcoinAccount,
   spacing,
@@ -137,7 +138,7 @@ async function getAccountBalance(
     }
     if (info.blockchain === 'ethereum') {
       const wei = await (account as ethereum.EthereumAccount).getCredit();
-      return Number(wei) / Number(ethereum.WEI_PER_ETH);
+      return Number(wei) / Number(WEI_PER_ETH_BIGINT);
     }
   } catch {
     // RPC error — return 0

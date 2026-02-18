@@ -12,7 +12,8 @@ import {
   useUserConfig,
   colors,
   componentSizes,
-  getStashedPassword,
+  getStashItem,
+  STASH_KEYS,
 } from '@salmon/shared';
 import {
   GlassTabBar,
@@ -174,7 +175,7 @@ export default function TabLayout() {
             try {
               let password: string | undefined;
               if (requiredLock) {
-                password = await getStashedPassword();
+                password = await getStashItem<string>(STASH_KEYS.PASSWORD);
               }
               await accountActions.removeAccount(currentAccount.id, password);
             } catch (error) {
@@ -213,7 +214,6 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: { display: 'none' },
-          contentStyle: { backgroundColor: 'transparent' },
         }}
       >
         <Tabs.Screen name="index" options={{ title: 'Home' }} />

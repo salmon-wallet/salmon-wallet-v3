@@ -29,7 +29,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
-import { Haptics } from '../../../src/components';
+import * as Haptics from 'expo-haptics';
 
 import {
   useAccountsContext,
@@ -50,7 +50,7 @@ import {
   type PriceChartPeriod,
   type PriceDataPoint,
   type AnyNetwork,
-  type BalanceNetworkId,
+  type NetworkId,
 } from '@salmon/shared';
 import {
   BalanceCardCarousel,
@@ -321,7 +321,7 @@ export default function HomeScreen() {
     toggleHidden,
   } = useBalance({
     account: activeBlockchainAccount,
-    networkId,
+    networkId: (networkId ?? undefined) as NetworkId | undefined,
     skip: !ready || !activeBlockchainAccount,
   });
 
@@ -351,7 +351,7 @@ export default function HomeScreen() {
     refreshing: prevRefreshing,
   } = useBalance({
     account: adjacentAccounts.prevAccount,
-    networkId: prevNetwork?.id as BalanceNetworkId | undefined,
+    networkId: prevNetwork?.id as NetworkId | undefined,
     skip: !ready || !adjacentAccounts.prevAccount || !prevNetwork,
   });
 
@@ -365,7 +365,7 @@ export default function HomeScreen() {
     refreshing: nextRefreshing,
   } = useBalance({
     account: adjacentAccounts.nextAccount,
-    networkId: nextNetwork?.id as BalanceNetworkId | undefined,
+    networkId: nextNetwork?.id as NetworkId | undefined,
     skip: !ready || !adjacentAccounts.nextAccount || !nextNetwork,
   });
 
@@ -1075,6 +1075,7 @@ export default function HomeScreen() {
         onViewExplorer={handleViewExplorer}
         onCopyHash={handleCopyHash}
         onShare={handleShareTransaction}
+        developerMode={developerNetworks}
       />
     </View>
   );

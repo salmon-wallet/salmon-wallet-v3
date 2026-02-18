@@ -20,7 +20,6 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from 'react-native';
-import type { Connection } from '@solana/web3.js';
 import { colors, useAddressValidation } from '@salmon/shared';
 import type { InputAddressProps, ValidationState } from './types';
 
@@ -109,9 +108,8 @@ export function InputAddress({
   ...textInputProps
 }: InputAddressProps) {
   // TODO: Get connection from context or props
-  // For now, we'll create a placeholder connection
-  // In production, this should come from a blockchain context
-  const connection: Connection | null = null;
+  // For now, we pass null — the hook accepts ChainConnection | null
+  const connection = null;
 
   // Use validation hook
   const {
