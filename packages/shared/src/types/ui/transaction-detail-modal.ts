@@ -16,6 +16,8 @@ export interface TransactionDetailModalPropsBase<TStyle = any> {
   onCopyHash?: (hash: string) => void;
   /** Callback when the share action is triggered */
   onShare?: (transaction: Transaction) => void;
+  /** Whether developer mode is enabled (shows technical fields) */
+  developerMode?: boolean;
   /** Optional custom styles */
   style?: TStyle;
 }
