@@ -61,6 +61,14 @@
     "retry": "Retry",
     "searching": "Searching..."
   },
+  "dapp": {
+    "connect_title": "Connect to dApp",
+    "connect_subtitle": "This site wants to connect to your Salmon wallet",
+    "requesting_site": "Requesting site",
+    "wallet_address": "Wallet",
+    "approve": "Approve",
+    "deny": "Deny"
+  },
   "settings": {
     "title": "Settings",
     "address_book": "Address Book",

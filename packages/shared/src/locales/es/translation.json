@@ -61,6 +61,14 @@
     "retry": "Reintentar",
     "searching": "Buscando..."
   },
+  "dapp": {
+    "connect_title": "Conectar con dApp",
+    "connect_subtitle": "Este sitio quiere conectar con tu billetera Salmon",
+    "requesting_site": "Sitio que solicita",
+    "wallet_address": "Billetera",
+    "approve": "Aprobar",
+    "deny": "Rechazar"
+  },
   "settings": {
     "title": "Configuración",
     "address_book": "Contactos",
