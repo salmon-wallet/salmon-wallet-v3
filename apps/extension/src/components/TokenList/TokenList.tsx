@@ -11,11 +11,13 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   componentSizes,
   s,
   vs,
   ms,
 } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import TokenListItem from './TokenListItem';
 import type { TokenListProps, TokenListSkeletonProps } from './types';
 
@@ -49,9 +51,6 @@ const SkeletonContainer = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   padding: `${vs(spacing.md)}px ${s(spacing.lg)}px`,
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  borderRadius: ms(borderRadius.lg),
-  marginBottom: vs(spacing.sm),
   gap: s(spacing.md),
 });
 
@@ -82,17 +81,23 @@ export function TokenListSkeleton({ count = 5 }: TokenListSkeletonProps) {
     <Container>
       <ListContent>
         {Array.from({ length: count }).map((_, index) => (
-          <SkeletonContainer key={index}>
-            <SkeletonLogo variant="circular" width={tokenIconSize} height={tokenIconSize} />
-            <SkeletonTextContainer>
-              <SkeletonText variant="text" width="60%" height={ms(16)} sx={{ mb: 0.5 }} />
-              <SkeletonText variant="text" width="40%" height={ms(14)} />
-            </SkeletonTextContainer>
-            <SkeletonValueContainer>
-              <SkeletonText variant="text" width={s(60)} height={ms(16)} sx={{ mb: 0.5 }} />
-              <SkeletonText variant="text" width={s(40)} height={ms(14)} />
-            </SkeletonValueContainer>
-          </SkeletonContainer>
+          <BlurContainer
+            key={index}
+            borderWidth={borderWidth.tokenListItem}
+            style={{ borderRadius: ms(borderRadius.lg), marginBottom: vs(spacing.sm), overflow: 'hidden' }}
+          >
+            <SkeletonContainer>
+              <SkeletonLogo variant="circular" width={tokenIconSize} height={tokenIconSize} />
+              <SkeletonTextContainer>
+                <SkeletonText variant="text" width="60%" height={ms(16)} sx={{ mb: 0.5 }} />
+                <SkeletonText variant="text" width="40%" height={ms(14)} />
+              </SkeletonTextContainer>
+              <SkeletonValueContainer>
+                <SkeletonText variant="text" width={s(60)} height={ms(16)} sx={{ mb: 0.5 }} />
+                <SkeletonText variant="text" width={s(40)} height={ms(14)} />
+              </SkeletonValueContainer>
+            </SkeletonContainer>
+          </BlurContainer>
         ))}
       </ListContent>
     </Container>

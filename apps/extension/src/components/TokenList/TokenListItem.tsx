@@ -12,6 +12,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   fontSize,
   fontFamily,
   fontWeight,
@@ -25,6 +26,7 @@ import {
   getLabelValue,
   hiddenValue,
 } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import type { TokenListItemProps } from './types';
 
 /**
@@ -40,14 +42,11 @@ const BitcoinContainer = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   padding: `${vs(spacing.md)}px ${s(spacing.lg)}px`,
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  borderRadius: ms(borderRadius.lg),
-  marginBottom: vs(spacing.sm),
   cursor: 'pointer',
   gap: s(spacing.md),
-  transition: 'background-color 0.2s ease',
+  transition: 'opacity 0.2s ease',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    opacity: 0.85,
   },
 });
 
@@ -106,14 +105,11 @@ const Container = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   padding: `${vs(spacing.md)}px ${s(spacing.lg)}px`,
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  borderRadius: ms(borderRadius.lg),
-  marginBottom: vs(spacing.sm),
   cursor: 'pointer',
   gap: s(spacing.md),
-  transition: 'background-color 0.2s ease',
+  transition: 'opacity 0.2s ease',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    opacity: 0.85,
   },
 });
 
@@ -238,9 +234,16 @@ export function TokenListItem({
 
   const displayTokenAmount = hiddenBalance ? hiddenValue : `${uiAmount} ${symbol || ''}`;
 
+  const blurContainerStyle = {
+    borderRadius: ms(borderRadius.lg),
+    marginBottom: vs(spacing.sm),
+    overflow: 'hidden' as const,
+  };
+
   // Bitcoin layout: price on left, amount on right, no chevron
   if (blockchain === 'bitcoin') {
     return (
+      <BlurContainer borderWidth={borderWidth.tokenListItem} style={blurContainerStyle}>
       <BitcoinContainer
         onClick={handlePress}
         style={style}
@@ -276,11 +279,13 @@ export function TokenListItem({
           <BitcoinAmount>{displayTokenAmount}</BitcoinAmount>
         </BitcoinAmountContainer>
       </BitcoinContainer>
+      </BlurContainer>
     );
   }
 
   // Default Solana/Ethereum layout
   return (
+    <BlurContainer borderWidth={borderWidth.tokenListItem} style={blurContainerStyle}>
     <Container
       onClick={handlePress}
       style={style}
@@ -317,6 +322,7 @@ export function TokenListItem({
         <TokenAmount>{displayTokenAmount}</TokenAmount>
       </ValueContainer>
     </Container>
+    </BlurContainer>
   );
 }
 
