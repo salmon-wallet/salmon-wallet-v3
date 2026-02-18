@@ -43,6 +43,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
           inUsdValue={logic.inUsdValue}
           isLoadingQuote={logic.isLoadingQuote || logic.isLoadingEstimate}
           canReview={logic.canReview}
+          reviewWarning={logic.reviewWarning}
           onReview={logic.handleReview}
         />
       )}
@@ -64,6 +65,8 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
           quote={logic.quote}
           inToken={logic.inToken}
           outToken={logic.outToken}
+          inAmount={logic.inAmount}
+          outAmount={logic.outAmount}
           onBack={logic.handleBackFromReview}
           onConfirm={logic.handleConfirmSwap}
           isConfirming={logic.isConfirming}
