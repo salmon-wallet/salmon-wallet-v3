@@ -53,7 +53,7 @@ import {
   EditAccountDialog,
   ConfirmDialog,
   ScalesBackground,
-  SendSheet,
+  SendPage,
   NftSendDialog,
 } from '../../components';
 import IconButton from '@mui/material/IconButton';
@@ -81,6 +81,7 @@ type PageView =
   | 'nftDetail'
   | 'nftSeeAll'
   | 'activity'
+  | 'send'
   | 'backup'
   | 'currency'
   | 'about'
@@ -357,7 +358,6 @@ export function HomePage() {
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
-  const [sendSheetVisible, setSendSheetVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // Edit account dialog state
@@ -599,7 +599,11 @@ export function HomePage() {
   }, [actions]);
 
   const handleSendPress = useCallback(() => {
-    setSendSheetVisible(true);
+    setCurrentPage('send');
+  }, []);
+
+  const handleSendBack = useCallback(() => {
+    setCurrentPage('home');
   }, []);
 
   const handleReceivePress = useCallback(() => {
@@ -1067,6 +1071,16 @@ export function HomePage() {
           );
         }
         return <PlaceholderPage title="NFTs" onBack={handleBack} />;
+      case 'send':
+        return (
+          <SendPage
+            tokens={formattedTokens as SendToken[]}
+            blockchain={getBaseBlockchain(currentBlockchain) as BlockchainType}
+            account={activeBlockchainAccount}
+            onBack={handleSendBack}
+            onSuccess={handleSendBack}
+          />
+        );
       case 'activity':
         return (
           <>
@@ -1336,15 +1350,6 @@ export function HomePage() {
         visible={receiveSheetVisible}
         onClose={() => setReceiveSheetVisible(false)}
         address={accountAddress}
-      />
-
-      {/* Send Sheet */}
-      <SendSheet
-        visible={sendSheetVisible}
-        onClose={() => setSendSheetVisible(false)}
-        tokens={formattedTokens as SendToken[]}
-        blockchain={getBaseBlockchain(currentBlockchain) as BlockchainType}
-        account={activeBlockchainAccount}
       />
 
       {/* Transaction Detail Modal */}

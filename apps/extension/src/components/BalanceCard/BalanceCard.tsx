@@ -317,8 +317,10 @@ export function BalanceCard({
 
     return (
       <BalanceRow>
-        <BalanceDollars>{parts[0]}</BalanceDollars>
-        {parts[1] && <BalanceDecimals>.{parts[1]}</BalanceDecimals>}
+        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          <BalanceDollars>{parts[0]}</BalanceDollars>
+          {parts[1] && <BalanceDecimals>.{parts[1]}</BalanceDecimals>}
+        </Box>
         <EyeButton onClick={handleToggleVisibility} aria-label="Hide balance">
           <EyeIcon sx={{ fontSize: ms(componentSizes.eyeIcon) }} />
         </EyeButton>
