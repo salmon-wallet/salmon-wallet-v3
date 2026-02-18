@@ -27,6 +27,7 @@ import { colors, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, form
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
+import { TokenLogo } from '../TokenLogo';
 import { AddressCopyRow } from '../TransactionHistorySheet/AddressCopyRow';
 import { ExplorerLinkButton } from '../TransactionHistorySheet/ExplorerLinkButton';
 import { PriceImpactBadge } from '../TransactionHistorySheet/PriceImpactBadge';
@@ -155,30 +156,6 @@ const CONFIRMATION_STATUS_CONFIG: Record<string, { label: string; color: string 
 const InternalDivider: React.FC = () => <View style={styles.internalDivider} />;
 
 /**
- * Token logo component with fallback
- */
-const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
-  uri,
-  size = 36,
-}) => {
-  if (uri) {
-    return (
-      <Image
-        source={{ uri }}
-        style={[styles.tokenLogo, { width: size, height: size, borderRadius: size / 2 }]}
-        resizeMode="cover"
-      />
-    );
-  }
-
-  return (
-    <View style={[styles.tokenLogoPlaceholder, { width: size, height: size, borderRadius: size / 2 }]}>
-      <Ionicons name="help-circle-outline" size={size * 0.6} color={colors.text.secondary} />
-    </View>
-  );
-};
-
-/**
  * Token amount row component
  */
 const TokenAmountRow: React.FC<{
@@ -190,7 +167,7 @@ const TokenAmountRow: React.FC<{
 
   return (
     <View style={styles.tokenRow}>
-      <TokenLogo uri={token.logo} size={32} />
+      <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={32} />
       <View style={styles.tokenInfo}>
         <Text style={styles.tokenSymbol}>{token.symbol}</Text>
         {token.name && (
@@ -219,7 +196,7 @@ const SwapVisualization: React.FC<{
   return (
     <View style={styles.swapContainer}>
       <View style={styles.swapTokenSection}>
-        <TokenLogo uri={fromToken.logo} size={40} />
+        <TokenLogo uri={fromToken.logo || undefined} symbol={fromToken.symbol} size={40} />
         <Text style={styles.swapAmount}>
           {formatRawAmount(fromToken.amount, fromToken.decimals)}
         </Text>
@@ -229,7 +206,7 @@ const SwapVisualization: React.FC<{
         <Ionicons name="arrow-forward" size={24} color={colors.text.secondary} />
       </View>
       <View style={styles.swapTokenSection}>
-        <TokenLogo uri={toToken.logo} size={40} />
+        <TokenLogo uri={toToken.logo || undefined} symbol={toToken.symbol} size={40} />
         <Text style={styles.swapAmount}>
           {formatRawAmount(toToken.amount, toToken.decimals)}
         </Text>
@@ -1039,14 +1016,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: vs(spacing.sm),
-  },
-  tokenLogo: {
-    backgroundColor: colors.background.card,
-  },
-  tokenLogoPlaceholder: {
-    backgroundColor: colors.background.card,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   tokenInfo: {
     flex: 1,

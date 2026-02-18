@@ -5,10 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   ActivityIndicator,
 } from 'react-native';
 import { colors, spacing, borderRadius, borderWidth, ms, vs, s, formatTokenBalance, formatUsdPrecise } from '@salmon/shared';
+import { TokenLogo } from '../TokenLogo';
 import type { SwapAmountInputProps } from './types';
 
 const FONT_FAMILY = {
@@ -75,11 +75,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
           onPress={onTokenPress}
           activeOpacity={0.7}
         >
-          {token?.logo ? (
-            <Image source={{ uri: token.logo }} style={styles.tokenIcon} />
-          ) : (
-            <View style={[styles.tokenIcon, styles.tokenIconPlaceholder]} />
-          )}
+          <TokenLogo uri={token?.logo || undefined} symbol={token?.symbol} size={ms(18)} />
           <Text style={styles.tokenSymbol}>{token?.symbol || 'Select'}</Text>
         </TouchableOpacity>
       </View>
@@ -149,14 +145,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 3,
-  },
-  tokenIcon: {
-    width: ms(18),
-    height: ms(18),
-    borderRadius: ms(9),
-  },
-  tokenIconPlaceholder: {
-    backgroundColor: colors.skeleton.base,
   },
   tokenSymbol: {
     fontSize: ms(12),

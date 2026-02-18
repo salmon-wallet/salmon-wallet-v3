@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getShortAddress } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
+import { TokenLogo } from '../TokenLogo';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
 import type { TransactionItemProps, TransactionType, TransactionTokenAmount } from './types';
 
@@ -150,46 +150,21 @@ function getDescription(
 // ============================================================================
 
 /**
- * Token logo component with fallback
- */
-const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
-  uri,
-  size = 40,
-}) => {
-  const [failed, setFailed] = useState(false);
-
-  if (uri && !failed) {
-    return (
-      <Image
-        source={{ uri }}
-        style={[styles.tokenLogo, { width: size, height: size, borderRadius: size / 2 }]}
-        resizeMode="cover"
-        onError={() => setFailed(true)}
-      />
-    );
-  }
-
-  return (
-    <View style={[styles.tokenLogoPlaceholder, { width: size, height: size, borderRadius: size / 2 }]}>
-      <Ionicons name="help-circle-outline" size={size * 0.6} color={colors.text.secondary} />
-    </View>
-  );
-};
-
-/**
  * Swap tokens visualization (two overlapping logos) with type badge
  */
 const SwapTokenLogos: React.FC<{
   fromLogo?: string | null;
+  fromSymbol?: string;
   toLogo?: string | null;
+  toSymbol?: string;
   typeIcon: keyof typeof Ionicons.glyphMap;
   typeColor: string;
-}> = ({ fromLogo, toLogo, typeIcon, typeColor }) => {
+}> = ({ fromLogo, fromSymbol, toLogo, toSymbol, typeIcon, typeColor }) => {
   return (
     <View style={styles.swapLogosContainer}>
-      <TokenLogo uri={fromLogo} size={34} />
+      <TokenLogo uri={fromLogo || undefined} symbol={fromSymbol} size={34} />
       <View style={styles.swapLogoOverlap}>
-        <TokenLogo uri={toLogo} size={34} />
+        <TokenLogo uri={toLogo || undefined} symbol={toSymbol} size={34} />
       </View>
       {/* Type badge */}
       <View style={[styles.typeBadge, { backgroundColor: typeColor }]}>
@@ -204,12 +179,13 @@ const SwapTokenLogos: React.FC<{
  */
 const TokenLogoWithBadge: React.FC<{
   uri?: string | null;
+  symbol?: string;
   typeIcon: keyof typeof Ionicons.glyphMap;
   typeColor: string;
-}> = ({ uri, typeIcon, typeColor }) => {
+}> = ({ uri, symbol, typeIcon, typeColor }) => {
   return (
     <View style={styles.logoWithBadgeContainer}>
-      <TokenLogo uri={uri} size={40} />
+      <TokenLogo uri={uri || undefined} symbol={symbol} size={40} />
       <View style={[styles.typeBadge, styles.typeBadgeSingle, { backgroundColor: typeColor }]}>
         <Ionicons name={typeIcon} size={10} color="#FFFFFF" />
       </View>
@@ -321,7 +297,9 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
         return (
           <SwapTokenLogos
             fromLogo={outputs[0].logo}
+            fromSymbol={outputs[0].symbol}
             toLogo={inputs[0].logo}
+            toSymbol={inputs[0].symbol}
             typeIcon={config.icon}
             typeColor={config.color}
           />
@@ -335,6 +313,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       return (
         <TokenLogoWithBadge
           uri={primaryToken.logo}
+          symbol={primaryToken.symbol}
           typeIcon={config.icon}
           typeColor={config.color}
         />
@@ -503,14 +482,6 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     marginRight: s(12),
-  },
-  tokenLogo: {
-    backgroundColor: colors.background.card,
-  },
-  tokenLogoPlaceholder: {
-    backgroundColor: colors.background.card,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   swapLogosContainer: {
     flexDirection: 'row',
