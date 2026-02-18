@@ -27,6 +27,11 @@ import {
   type NftData,
   type NftBlockchain,
   type Transaction,
+  type BlockchainType,
+  type SendToken,
+  isSolanaNft,
+  createBurnTransaction,
+  isSolanaAccount,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -48,6 +53,8 @@ import {
   EditAccountDialog,
   ConfirmDialog,
   ScalesBackground,
+  SendSheet,
+  NftSendDialog,
 } from '../../components';
 import IconButton from '@mui/material/IconButton';
 
@@ -350,6 +357,7 @@ export function HomePage() {
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
+  const [sendSheetVisible, setSendSheetVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // Edit account dialog state
@@ -360,6 +368,11 @@ export function HomePage() {
   // Remove wallet dialog state
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
+
+  // NFT action dialog state
+  const [nftSendDialogVisible, setNftSendDialogVisible] = useState(false);
+  const [burnConfirmVisible, setBurnConfirmVisible] = useState(false);
+  const [burnLoading, setBurnLoading] = useState(false);
 
   // Token detail page state
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
@@ -586,7 +599,7 @@ export function HomePage() {
   }, [actions]);
 
   const handleSendPress = useCallback(() => {
-    // TODO: Navigate to send
+    setSendSheetVisible(true);
   }, []);
 
   const handleReceivePress = useCallback(() => {
@@ -647,6 +660,49 @@ export function HomePage() {
     setSelectedNft(nft);
     setCurrentPage('nftDetail');
   }, []);
+
+  // NFT action handlers
+  const handleNftSendPress = useCallback(() => {
+    setNftSendDialogVisible(true);
+  }, []);
+
+  const handleNftBurnPress = useCallback(() => {
+    if (selectedNft && isSolanaNft(selectedNft)) {
+      setBurnConfirmVisible(true);
+    }
+    // Other chains: burn is not supported (button won't be wired)
+  }, [selectedNft]);
+
+  const confirmBurnNft = useCallback(async () => {
+    if (!selectedNft || !isSolanaNft(selectedNft) || !activeBlockchainAccount || !isSolanaAccount(activeBlockchainAccount)) return;
+
+    setBurnLoading(true);
+    try {
+      const solanaAccount = activeBlockchainAccount;
+      const ownerAddress = solanaAccount.getReceiveAddress();
+      const txResponse = await createBurnTransaction({
+        mintAddress: selectedNft.mint,
+        ownerAddress,
+      });
+
+      // The burn API returns a serialized transaction — sign and send
+      const { VersionedTransaction } = await import('@solana/web3.js');
+      const txBytes = Buffer.from(txResponse.transaction, 'base64');
+      const tx = VersionedTransaction.deserialize(txBytes);
+      const connection = await solanaAccount.getConnection();
+      tx.sign([solanaAccount.keyPair]);
+      await connection.sendRawTransaction(tx.serialize());
+
+      // Return to home after burn
+      setBurnConfirmVisible(false);
+      setCurrentPage('home');
+      setSelectedNft(null);
+    } catch (error) {
+      console.error('[HomePage] NFT burn failed:', error);
+    } finally {
+      setBurnLoading(false);
+    }
+  }, [selectedNft, activeBlockchainAccount]);
 
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
     setSelectedTokenChartPeriod(period);
@@ -765,6 +821,7 @@ export function HomePage() {
           : undefined,
         tags: token.tags,
         coingeckoId: token.coingeckoId,
+        decimals: token.decimals,
       }));
   }, [tokens, developerNetworks, currentBlockchain]);
 
@@ -959,10 +1016,41 @@ export function HomePage() {
       case 'nftDetail':
         if (selectedNft) {
           return (
-            <NftDetailPage
-              nft={selectedNft}
-              onBack={handleNftDetailBack}
-            />
+            <>
+              <NftDetailPage
+                nft={selectedNft}
+                onBack={handleNftDetailBack}
+                onSendPress={handleNftSendPress}
+                onBurnPress={handleNftBurnPress}
+              />
+
+              {/* NFT Send Dialog */}
+              <NftSendDialog
+                visible={nftSendDialogVisible}
+                onClose={() => setNftSendDialogVisible(false)}
+                nft={selectedNft}
+                account={activeBlockchainAccount}
+                onSuccess={() => {
+                  setNftSendDialogVisible(false);
+                  setCurrentPage('home');
+                  setSelectedNft(null);
+                }}
+              />
+
+              {/* NFT Burn Confirmation (Solana only) */}
+              <ConfirmDialog
+                visible={burnConfirmVisible}
+                onClose={() => setBurnConfirmVisible(false)}
+                title={t('nft.burn_nft', 'Burn NFT')}
+                message={t(
+                  'nft.burn_nft_description',
+                  'Are you sure you want to burn this NFT? This action cannot be undone.'
+                )}
+                confirmText={t('actions.burn', 'Burn')}
+                isDanger
+                onConfirm={confirmBurnNft}
+              />
+            </>
           );
         }
         return <PlaceholderPage title="NFT Detail" onBack={handleBack} />;
@@ -999,6 +1087,7 @@ export function HomePage() {
               visible={!!selectedTransaction}
               onClose={() => setSelectedTransaction(null)}
               transaction={selectedTransaction}
+              developerMode={developerNetworks}
             />
           </>
         );
@@ -1249,11 +1338,21 @@ export function HomePage() {
         address={accountAddress}
       />
 
+      {/* Send Sheet */}
+      <SendSheet
+        visible={sendSheetVisible}
+        onClose={() => setSendSheetVisible(false)}
+        tokens={formattedTokens as SendToken[]}
+        blockchain={getBaseBlockchain(currentBlockchain) as BlockchainType}
+        account={activeBlockchainAccount}
+      />
+
       {/* Transaction Detail Modal */}
       <TransactionDetailModal
         visible={!!selectedTransaction}
         onClose={() => setSelectedTransaction(null)}
         transaction={selectedTransaction}
+        developerMode={developerNetworks}
       />
 
     </Container>

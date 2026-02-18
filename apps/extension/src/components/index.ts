@@ -274,6 +274,10 @@ export type { ConfirmDialogProps } from './ConfirmDialog';
 export { EditAccountDialog } from './EditAccountDialog';
 export type { EditAccountDialogProps } from './EditAccountDialog';
 
+// NftSendDialog - Dialog for sending NFTs to another address
+export { NftSendDialog } from './NftSendDialog';
+export type { NftSendDialogProps } from './NftSendDialog';
+
 // SeedPhrase - Seed word display grid and validation input
 export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
 
