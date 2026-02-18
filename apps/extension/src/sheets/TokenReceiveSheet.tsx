@@ -1,5 +1,5 @@
 /**
- * TokenReceiveSheet - Re-exports ReceiveSheet from @salmon/ui-extension
+ * TokenReceiveSheet - Re-exports ReceiveSheet from extension components
  *
  * This thin wrapper re-exports the ReceiveSheet component under the
  * local name "TokenReceiveSheet" so consumers in apps/extension can

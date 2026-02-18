@@ -1,5 +1,5 @@
 /**
- * Common icons for @salmon/ui-extension
+ * Common icons for the extension app
  *
  * SVG icons wrapped as React components using MUI SvgIcon
  * Includes both individual icon components and a unified Icon component

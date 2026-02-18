@@ -1,6 +1,3 @@
-/**
- * Button component types for @salmon/ui-extension
- */
 import type { CSSProperties, ReactNode } from 'react';
 
 /**
@@ -25,7 +22,7 @@ export interface ButtonBaseProps {
   type?: 'button' | 'submit' | 'reset';
 }
 
-export interface PrimaryButtonProps extends ButtonBaseProps {}
+export interface PrimaryButtonProps extends ButtonBaseProps { }
 
 export interface SecondaryButtonProps extends ButtonBaseProps {
   /** Variant style */

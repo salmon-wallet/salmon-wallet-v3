@@ -1,8 +1,7 @@
 /**
- * @salmon/ui-extension - React DOM components for browser extension
  *
  * Web UI components using MUI and @emotion/styled,
- * designed to mirror @salmon/ui structure for React Native.
+ * designed to mirror the mobile components structure for React Native.
  *
  * All components use design tokens from @salmon/shared for
  * consistent styling across platforms.
@@ -11,26 +10,16 @@
 // Button components - Primary, Secondary, and Text action buttons
 export { PrimaryButton, SecondaryButton, TextButton } from './Button';
 export type {
-  PrimaryButtonProps,
+  ButtonBaseProps, PrimaryButtonProps,
   SecondaryButtonProps,
-  TextButtonProps,
-  ButtonBaseProps,
+  TextButtonProps
 } from './Button';
 
 // Icon components - Common SVG icons
 export {
-  LockIcon,
-  EyeIcon,
-  EyeOffIcon,
-  RefreshIcon,
-  SendIcon,
-  ReceiveIcon,
-  SettingsIcon,
-  CopyIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-  ActivityIcon,
-  WalletIcon,
+  ActivityIcon, ChevronDownIcon, ChevronRightIcon, CopyIcon, EyeIcon,
+  EyeOffIcon, LockIcon, ReceiveIcon, RefreshIcon,
+  SendIcon, SettingsIcon, WalletIcon
 } from './Icon';
 export type { IconProps } from './Icon';
 
@@ -40,18 +29,16 @@ export type { WalletHeaderProps } from './WalletHeader';
 
 // BalanceCard - Portfolio balance display with gradient
 export { BalanceCard, BalanceCardCarousel } from './BalanceCard';
-export type { BalanceCardProps, BalanceCardCarouselProps } from './BalanceCard';
+export type { BalanceCardCarouselProps, BalanceCardProps } from './BalanceCard';
 
 // ActionButtonRow - Send/Receive/Activity action buttons
 export { ActionButtonRow } from './ActionButtonRow';
-export type { ActionButtonRowProps, ActionButton } from './ActionButtonRow';
+export type { ActionButton, ActionButtonRowProps } from './ActionButtonRow';
 
 // TokenList - Token list display components
 export { TokenList, TokenListItem, TokenListSkeleton } from './TokenList';
 export type {
-  TokenListProps,
-  TokenListItemProps,
-  TokenListSkeletonProps,
+  TokenListItemProps, TokenListProps, TokenListSkeletonProps
 } from './TokenList';
 
 // LoadingScreen - Animated loading overlay
@@ -72,7 +59,7 @@ export type { TokenAboutProps } from './TokenAbout';
 
 // TokenMarketData - Token market statistics with glassmorphism
 export { TokenMarketData } from './TokenMarketData';
-export type { TokenMarketDataProps, MarketData } from './TokenMarketData';
+export type { MarketData, TokenMarketDataProps } from './TokenMarketData';
 
 // TokenFeatures - Token characteristics/features badges
 export { TokenFeatures } from './TokenFeatures';
@@ -81,16 +68,13 @@ export type { TokenFeaturesProps } from './TokenFeatures';
 // SettingsSheet - Slide-out settings panel
 export { SettingsSheet } from './SettingsSheet';
 export type {
-  SettingsSheetProps,
-  SettingsSection,
-  SettingsItem,
+  SettingsItem, SettingsSection, SettingsSheetProps
 } from './SettingsSheet';
 
 // WalletSwitcherSheet - Account selection dialog
 export { WalletSwitcherSheet } from './WalletSwitcherSheet';
 export type {
-  WalletSwitcherSheetProps,
-  AccountListItemProps,
+  AccountListItemProps, WalletSwitcherSheetProps
 } from './WalletSwitcherSheet';
 
 // Icon - Unified icon component
@@ -132,15 +116,10 @@ export type { QRCodeProps } from './QRCode';
 // InputAddress - Address input with validation
 export {
   InputAddress,
-  useAddressValidation,
+  useAddressValidation
 } from './InputAddress';
 export type {
-  InputAddressProps,
-  BlockchainType,
-  ValidationState,
-  ValidationCallbackResult,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
+  BlockchainType, InputAddressProps, UseAddressValidationOptions, UseAddressValidationReturn, ValidationCallbackResult, ValidationState
 } from './InputAddress';
 
 // NftCard - NFT display card for grid layouts
@@ -149,7 +128,7 @@ export type { NftCardProps, NftCardSkeletonProps, NftData } from './NftCard';
 
 // NftDetailPage - Full-page NFT detail view with image, attributes, and actions
 export { NftDetailPage } from './NftDetailPage';
-export type { NftDetailPageProps, NftDetailData, NftAttribute } from './NftDetailPage';
+export type { NftAttribute, NftDetailData, NftDetailPageProps } from './NftDetailPage';
 
 // NftCarouselSection - Horizontal NFT carousel with arrow navigation
 export { NftCarouselSection, NftCarouselSectionSkeleton } from './NftCarouselSection';
@@ -163,20 +142,16 @@ export type { NftSeeAllPageProps } from './NftSeeAllPage';
 export {
   TokenSelector,
   TokenSelectorModal,
-  useTokenSearch,
+  useTokenSearch
 } from './TokenSelector';
 export type {
-  TokenSelectorToken,
-  TokenSelectorProps,
-  TokenSelectorModalProps,
-  UseTokenSearchResult,
+  TokenSelectorModalProps, TokenSelectorProps, TokenSelectorToken, UseTokenSearchResult
 } from './TokenSelector';
 
 // TokenDetailPage - Full-page token detail view with chart, market data, badges
-export { TokenDetailPage, TokenBadgesSection } from './TokenDetailPage';
+export { TokenBadgesSection, TokenDetailPage } from './TokenDetailPage';
 export type {
-  TokenDetailPageProps,
-  TokenBadgesSectionProps,
+  TokenBadgesSectionProps, TokenDetailPageProps
 } from './TokenDetailPage';
 
 // ReceiveSheet - Receive address dialog with QR code
@@ -189,81 +164,41 @@ export type { TransactionDetailModalProps } from './TransactionDetailModal';
 
 // TransactionHistoryPage - Full-page transaction history with pagination
 export {
-  TransactionHistoryPage,
-  TransactionItem,
-  SwapRouteVisualization,
-  PriceImpactBadge,
-  ConversionRateDisplay,
-  ExplorerLinkButton,
-  AddressCopyRow,
+  AddressCopyRow, ConversionRateDisplay,
+  ExplorerLinkButton, PriceImpactBadge, SwapRouteVisualization, TransactionHistoryPage,
+  TransactionItem
 } from './TransactionHistoryPage';
 export type {
-  TransactionHistoryPageProps,
-  TransactionItemProps,
-  Transaction,
-  TransactionType as TxType,
-  TransactionStatus as TxStatus,
-  TransactionTokenAmount,
-  TransactionFee,
-  SwapRouteHop,
-  SwapRoute,
-  SwapRouteVisualizationProps,
-  PriceImpactBadgeProps,
-  ConversionRateDisplayProps,
-  ExplorerLinkButtonProps,
-  AddressCopyRowProps,
+  AddressCopyRowProps, ConversionRateDisplayProps,
+  ExplorerLinkButtonProps, PriceImpactBadgeProps, SwapRoute, SwapRouteHop, SwapRouteVisualizationProps, Transaction, TransactionFee, TransactionHistoryPageProps,
+  TransactionItemProps, TransactionTokenAmount, TransactionStatus as TxStatus, TransactionType as TxType
 } from './TransactionHistoryPage';
 
 // SendPage - Full-page multi-step send flow with token selection, address/amount entry, and confirmation
 export { SendPage } from './SendPage';
 export type {
-  SendPageProps,
-  SendToken,
-  SendStep,
-  StepTokenSelectProps,
-  StepAddressAmountProps,
-  StepConfirmationProps,
+  SendPageProps, SendStep, SendToken, StepAddressAmountProps,
+  StepConfirmationProps, StepTokenSelectProps
 } from './SendPage';
 
 // SwapScreen - Swap and Bridge interface
 export {
-  SwapScreen,
-  SwapTabSelector,
   SwapAmountInput,
-  SwapDetailRow,
-  SwapReviewCard,
-  SwapInputScreen,
-  SwapReviewScreen,
+  SwapDetailRow, SwapInputScreen, SwapReviewCard, SwapReviewScreen, SwapScreen,
+  SwapTabSelector
 } from './SwapScreen';
 export type {
-  SwapToken,
-  SwapQuote,
-  SwapTab,
-  SwapStep,
-  SwapChainType,
-  SwapScreenProps,
-  SwapTabSelectorProps,
-  SwapAmountInputProps,
-  SwapDetailRowProps,
-  SwapReviewCardProps,
-  SwapInputScreenProps,
-  SwapReviewScreenProps,
-  // Bridge types used in SwapScreen
-  BridgeTokenSimple,
   BridgeEstimateSimple,
   BridgeExchangeSimple,
+  // Bridge types used in SwapScreen
+  BridgeTokenSimple, SwapAmountInputProps, SwapChainType, SwapDetailRowProps, SwapInputScreenProps, SwapQuote, SwapReviewCardProps, SwapReviewScreenProps, SwapScreenProps, SwapStep, SwapTab, SwapTabSelectorProps, SwapToken
 } from './SwapScreen';
 
 // BaseDialog - Base compound component for MUI dialogs
 export { BaseDialog, MessageText } from './BaseDialog';
 export type {
-  BaseDialogProps,
-  HeaderProps,
-  ContentProps,
-  ActionsProps,
-  TextFieldProps as BaseDialogTextFieldProps,
-  CancelButtonProps,
-  ActionButtonProps,
+  ActionButtonProps, ActionsProps, BaseDialogProps, TextFieldProps as BaseDialogTextFieldProps,
+  CancelButtonProps, ContentProps, HeaderProps
 } from './BaseDialog';
 
 // ConfirmDialog - Reusable confirmation dialog for destructive actions
@@ -285,5 +220,6 @@ export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
 export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
 export type {
   DerivedAccountCardProps,
-  DerivedAccountCardSkeletonProps,
+  DerivedAccountCardSkeletonProps
 } from './DerivedAccountCard';
+

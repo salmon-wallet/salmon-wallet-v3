@@ -1,5 +1,5 @@
 /**
- * SwapScreen types for @salmon/ui-extension (Web)
+ * SwapScreen types for the extension app (Web)
  *
  * Re-exports shared swap types with CSSProperties for web.
  */

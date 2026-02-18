@@ -1,8 +1,5 @@
-/**
- * ActionButtonRow types for @salmon/ui-extension
- */
-import type { CSSProperties, ReactNode } from 'react';
 import type { ActionButtonBase, ActionButtonRowPropsBase } from '@salmon/shared';
+import type { CSSProperties, ReactNode } from 'react';
 
 /**
  * Individual action button configuration (Web/Extension)
