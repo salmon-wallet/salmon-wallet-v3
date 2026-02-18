@@ -1,8 +1,7 @@
 /**
- * @salmon/ui-extension - React DOM components for browser extension
  *
  * Web UI components using MUI and @emotion/styled,
- * designed to mirror @salmon/ui structure for React Native.
+ * designed to mirror the mobile components structure for React Native.
  *
  * All components use design tokens from @salmon/shared for
  * consistent styling across platforms.
@@ -11,26 +10,16 @@
 // Button components - Primary, Secondary, and Text action buttons
 export { PrimaryButton, SecondaryButton, TextButton } from './Button';
 export type {
-  PrimaryButtonProps,
+  ButtonBaseProps, PrimaryButtonProps,
   SecondaryButtonProps,
-  TextButtonProps,
-  ButtonBaseProps,
+  TextButtonProps
 } from './Button';
 
 // Icon components - Common SVG icons
 export {
-  LockIcon,
-  EyeIcon,
-  EyeOffIcon,
-  RefreshIcon,
-  SendIcon,
-  ReceiveIcon,
-  SettingsIcon,
-  CopyIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-  ActivityIcon,
-  WalletIcon,
+  ActivityIcon, ChevronDownIcon, ChevronRightIcon, CopyIcon, EyeIcon,
+  EyeOffIcon, LockIcon, ReceiveIcon, RefreshIcon,
+  SendIcon, SettingsIcon, WalletIcon
 } from './Icon';
 export type { IconProps } from './Icon';
 
@@ -40,18 +29,16 @@ export type { WalletHeaderProps } from './WalletHeader';
 
 // BalanceCard - Portfolio balance display with gradient
 export { BalanceCard, BalanceCardCarousel } from './BalanceCard';
-export type { BalanceCardProps, BalanceCardCarouselProps } from './BalanceCard';
+export type { BalanceCardCarouselProps, BalanceCardProps } from './BalanceCard';
 
 // ActionButtonRow - Send/Receive/Activity action buttons
 export { ActionButtonRow } from './ActionButtonRow';
-export type { ActionButtonRowProps, ActionButton } from './ActionButtonRow';
+export type { ActionButton, ActionButtonRowProps } from './ActionButtonRow';
 
 // TokenList - Token list display components
 export { TokenList, TokenListItem, TokenListSkeleton } from './TokenList';
 export type {
-  TokenListProps,
-  TokenListItemProps,
-  TokenListSkeletonProps,
+  TokenListItemProps, TokenListProps, TokenListSkeletonProps
 } from './TokenList';
 
 // LoadingScreen - Animated loading overlay
@@ -72,7 +59,7 @@ export type { TokenAboutProps } from './TokenAbout';
 
 // TokenMarketData - Token market statistics with glassmorphism
 export { TokenMarketData } from './TokenMarketData';
-export type { TokenMarketDataProps, MarketData } from './TokenMarketData';
+export type { MarketData, TokenMarketDataProps } from './TokenMarketData';
 
 // TokenFeatures - Token characteristics/features badges
 export { TokenFeatures } from './TokenFeatures';
@@ -81,16 +68,13 @@ export type { TokenFeaturesProps } from './TokenFeatures';
 // SettingsSheet - Slide-out settings panel
 export { SettingsSheet } from './SettingsSheet';
 export type {
-  SettingsSheetProps,
-  SettingsSection,
-  SettingsItem,
+  SettingsItem, SettingsSection, SettingsSheetProps
 } from './SettingsSheet';
 
 // WalletSwitcherSheet - Account selection dialog
 export { WalletSwitcherSheet } from './WalletSwitcherSheet';
 export type {
-  WalletSwitcherSheetProps,
-  AccountListItemProps,
+  AccountListItemProps, WalletSwitcherSheetProps
 } from './WalletSwitcherSheet';
 
 // Icon - Unified icon component
@@ -132,52 +116,43 @@ export type { QRCodeProps } from './QRCode';
 // InputAddress - Address input with validation
 export {
   InputAddress,
-  useAddressValidation,
+  useAddressValidation
 } from './InputAddress';
 export type {
-  InputAddressProps,
-  BlockchainType,
-  ValidationState,
-  ValidationCallbackResult,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
+  BlockchainType, InputAddressProps, UseAddressValidationOptions, UseAddressValidationReturn, ValidationCallbackResult, ValidationState
 } from './InputAddress';
 
 // NftCard - NFT display card for grid layouts
 export { NftCard, NftCardSkeleton } from './NftCard';
 export type { NftCardProps, NftCardSkeletonProps, NftData } from './NftCard';
 
-// NftDetailSheet - NFT detail dialog with image, attributes, and actions
-export { NftDetailSheet } from './NftDetailSheet';
-export type { NftDetailSheetProps, NftDetailData, NftAttribute } from './NftDetailSheet';
+// NftDetailPage - Full-page NFT detail view with image, attributes, and actions
+export { NftDetailPage } from './NftDetailPage';
+export type { NftAttribute, NftDetailData, NftDetailPageProps } from './NftDetailPage';
 
 // NftCarouselSection - Horizontal NFT carousel with arrow navigation
 export { NftCarouselSection, NftCarouselSectionSkeleton } from './NftCarouselSection';
 export type { NftCarouselSectionProps, NftCarouselSectionSkeletonProps } from './NftCarouselSection';
 
-// NftSeeAllSheet - Full grid view of all NFTs for a blockchain section
-export { NftSeeAllSheet } from './NftSeeAllSheet';
-export type { NftSeeAllSheetProps } from './NftSeeAllSheet';
+// NftSeeAllPage - Full-page grid view of all NFTs for a blockchain section
+export { NftSeeAllPage } from './NftSeeAllPage';
+export type { NftSeeAllPageProps } from './NftSeeAllPage';
 
 // TokenSelector - Token selection with search and pagination
 export {
   TokenSelector,
   TokenSelectorModal,
-  useTokenSearch,
+  useTokenSearch
 } from './TokenSelector';
 export type {
-  TokenSelectorToken,
-  TokenSelectorProps,
-  TokenSelectorModalProps,
-  UseTokenSearchResult,
+  TokenSelectorModalProps, TokenSelectorProps, TokenSelectorToken, UseTokenSearchResult
 } from './TokenSelector';
 
-// TokenInformationSheet - Token details dialog with chart, market data, badges
-export { TokenInformationSheet, TokenBadgesSection } from './TokenInformationSheet';
+// TokenDetailPage - Full-page token detail view with chart, market data, badges
+export { TokenBadgesSection, TokenDetailPage } from './TokenDetailPage';
 export type {
-  TokenInformationSheetProps,
-  TokenBadgesSectionProps,
-} from './TokenInformationSheet';
+  TokenBadgesSectionProps, TokenDetailPageProps
+} from './TokenDetailPage';
 
 // ReceiveSheet - Receive address dialog with QR code
 export { ReceiveSheet } from './ReceiveSheet';
@@ -187,83 +162,43 @@ export type { ReceiveSheetProps } from './ReceiveSheet';
 export { TransactionDetailModal } from './TransactionDetailModal';
 export type { TransactionDetailModalProps } from './TransactionDetailModal';
 
-// TransactionHistorySheet - Transaction history dialog with pagination
+// TransactionHistoryPage - Full-page transaction history with pagination
 export {
-  TransactionHistorySheet,
-  TransactionItem,
-  SwapRouteVisualization,
-  PriceImpactBadge,
-  ConversionRateDisplay,
-  ExplorerLinkButton,
-  AddressCopyRow,
-} from './TransactionHistorySheet';
+  AddressCopyRow, ConversionRateDisplay,
+  ExplorerLinkButton, PriceImpactBadge, SwapRouteVisualization, TransactionHistoryPage,
+  TransactionItem
+} from './TransactionHistoryPage';
 export type {
-  TransactionHistorySheetProps,
-  TransactionItemProps,
-  Transaction,
-  TransactionType as TxType,
-  TransactionStatus as TxStatus,
-  TransactionTokenAmount,
-  TransactionFee,
-  SwapRouteHop,
-  SwapRoute,
-  SwapRouteVisualizationProps,
-  PriceImpactBadgeProps,
-  ConversionRateDisplayProps,
-  ExplorerLinkButtonProps,
-  AddressCopyRowProps,
-} from './TransactionHistorySheet';
+  AddressCopyRowProps, ConversionRateDisplayProps,
+  ExplorerLinkButtonProps, PriceImpactBadgeProps, SwapRoute, SwapRouteHop, SwapRouteVisualizationProps, Transaction, TransactionFee, TransactionHistoryPageProps,
+  TransactionItemProps, TransactionTokenAmount, TransactionStatus as TxStatus, TransactionType as TxType
+} from './TransactionHistoryPage';
 
-// SendSheet - Multi-step send dialog with token selection, address/amount entry, and confirmation
-export { SendSheet } from './SendSheet';
+// SendPage - Full-page multi-step send flow with token selection, address/amount entry, and confirmation
+export { SendPage } from './SendPage';
 export type {
-  SendSheetProps,
-  SendToken,
-  SendStep,
-  StepTokenSelectProps,
-  StepAddressAmountProps,
-  StepConfirmationProps,
-} from './SendSheet';
+  SendPageProps, SendStep, SendToken, StepAddressAmountProps,
+  StepConfirmationProps, StepTokenSelectProps
+} from './SendPage';
 
 // SwapScreen - Swap and Bridge interface
 export {
-  SwapScreen,
-  SwapTabSelector,
   SwapAmountInput,
-  SwapDetailRow,
-  SwapReviewCard,
-  SwapInputScreen,
-  SwapReviewScreen,
+  SwapDetailRow, SwapInputScreen, SwapReviewCard, SwapReviewScreen, SwapScreen,
+  SwapTabSelector
 } from './SwapScreen';
 export type {
-  SwapToken,
-  SwapQuote,
-  SwapTab,
-  SwapStep,
-  SwapChainType,
-  SwapScreenProps,
-  SwapTabSelectorProps,
-  SwapAmountInputProps,
-  SwapDetailRowProps,
-  SwapReviewCardProps,
-  SwapInputScreenProps,
-  SwapReviewScreenProps,
-  // Bridge types used in SwapScreen
-  BridgeTokenSimple,
   BridgeEstimateSimple,
   BridgeExchangeSimple,
+  // Bridge types used in SwapScreen
+  BridgeTokenSimple, SwapAmountInputProps, SwapChainType, SwapDetailRowProps, SwapInputScreenProps, SwapQuote, SwapReviewCardProps, SwapReviewScreenProps, SwapScreenProps, SwapStep, SwapTab, SwapTabSelectorProps, SwapToken
 } from './SwapScreen';
 
 // BaseDialog - Base compound component for MUI dialogs
 export { BaseDialog, MessageText } from './BaseDialog';
 export type {
-  BaseDialogProps,
-  HeaderProps,
-  ContentProps,
-  ActionsProps,
-  TextFieldProps as BaseDialogTextFieldProps,
-  CancelButtonProps,
-  ActionButtonProps,
+  ActionButtonProps, ActionsProps, BaseDialogProps, TextFieldProps as BaseDialogTextFieldProps,
+  CancelButtonProps, ContentProps, HeaderProps
 } from './BaseDialog';
 
 // ConfirmDialog - Reusable confirmation dialog for destructive actions
@@ -274,6 +209,10 @@ export type { ConfirmDialogProps } from './ConfirmDialog';
 export { EditAccountDialog } from './EditAccountDialog';
 export type { EditAccountDialogProps } from './EditAccountDialog';
 
+// NftSendDialog - Dialog for sending NFTs to another address
+export { NftSendDialog } from './NftSendDialog';
+export type { NftSendDialogProps } from './NftSendDialog';
+
 // SeedPhrase - Seed word display grid and validation input
 export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
 
@@ -281,5 +220,6 @@ export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
 export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
 export type {
   DerivedAccountCardProps,
-  DerivedAccountCardSkeletonProps,
+  DerivedAccountCardSkeletonProps
 } from './DerivedAccountCard';
+

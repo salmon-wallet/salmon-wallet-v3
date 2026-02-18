@@ -1,5 +1,5 @@
 /**
- * Type definitions for TransactionHistorySheet (Web/Extension)
+ * Type definitions for TransactionHistoryPage (Web/Extension)
  *
  * Core transaction types are imported from @salmon/shared
  * This file only contains platform-specific component props for web
@@ -10,8 +10,6 @@ import type {
   Blockchain,
   NetworkEnvironment,
   Transaction,
-  TransactionItemPropsBase,
-  TransactionHistorySheetPropsBase,
 } from '@salmon/shared';
 
 // Re-export shared types for convenience
@@ -31,22 +29,50 @@ export type {
 /**
  * Props for TransactionItem component (Web/Extension)
  */
-export interface TransactionItemProps
-  extends TransactionItemPropsBase<React.CSSProperties> {
+export interface TransactionItemProps {
+  /** The transaction to display */
+  transaction: Transaction;
+  /** Callback when the transaction is pressed */
+  onPress?: (transaction: Transaction) => void;
   /** Click handler to open detail view */
   onDetailClick?: (transaction: Transaction) => void;
+  /** Whether balance values should be hidden */
+  hiddenBalance?: boolean;
+  /** Optional custom styles */
+  style?: React.CSSProperties;
   /** Additional CSS class */
   className?: string;
 }
 
 /**
- * Props for TransactionHistorySheet component (Web/Extension)
+ * Props for TransactionHistoryPage component (Web/Extension)
  */
-export interface TransactionHistorySheetProps
-  extends TransactionHistorySheetPropsBase<React.CSSProperties> {
+export interface TransactionHistoryPageProps {
+  /** Callback to navigate back */
+  onBack: () => void;
+  /** Transactions to display */
+  transactions: Transaction[];
+  /** Whether transactions are loading */
+  loading?: boolean;
+  /** Whether more transactions are being fetched */
+  loadingMore?: boolean;
+  /** Callback to load more transactions */
+  onLoadMore?: () => void;
+  /** Whether there are more transactions to load */
+  hasMore?: boolean;
+  /** Whether balance values should be hidden */
+  hiddenBalance?: boolean;
+  /** Callback when a transaction is pressed */
+  onTransactionPress?: (transaction: Transaction) => void;
   /** Callback when a transaction detail is requested */
   onTransactionDetailClick?: (transaction: Transaction) => void;
-  /** Additional CSS class for the dialog */
+  /** Error message to display */
+  error?: string | null;
+  /** Callback to retry loading after an error */
+  onRetry?: () => void;
+  /** Optional custom styles */
+  style?: React.CSSProperties;
+  /** Additional CSS class for the container */
   className?: string;
 }
 

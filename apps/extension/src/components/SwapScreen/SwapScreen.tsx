@@ -7,31 +7,19 @@
 import React from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { colors, useSwapScreenLogic } from '@salmon/shared';
+import { useSwapScreenLogic } from '@salmon/shared';
 import { SwapInputScreen } from './SwapInputScreen';
 import { SwapReviewScreen } from './SwapReviewScreen';
 import { BridgeRecipientScreen } from '../BridgeScreen/BridgeRecipientScreen';
 import { BridgeReviewScreen } from '../BridgeScreen/BridgeReviewScreen';
 import { TokenSelectorModal } from '../TokenSelector';
-import { ScalesBackground } from '../ScalesBackground';
 import type { SwapScreenProps } from './types';
 
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  backgroundColor: colors.background.secondary,
   position: 'relative',
-  overflow: 'hidden',
-});
-
-const BackgroundWrapper = styled(Box)({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  pointerEvents: 'none',
 });
 
 export function SwapScreen(props: SwapScreenProps): React.ReactElement {
@@ -48,10 +36,6 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
 
   return (
     <Container style={style}>
-      <BackgroundWrapper>
-        <ScalesBackground />
-      </BackgroundWrapper>
-
       {logic.step === 'input' && (
         <SwapInputScreen
           inToken={logic.inToken}
@@ -64,6 +48,7 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
           inUsdValue={logic.inUsdValue}
           isLoadingQuote={logic.isLoadingQuote || logic.isLoadingEstimate}
           canReview={logic.canReview}
+          reviewWarning={logic.reviewWarning}
           onReview={logic.handleReview}
         />
       )}
@@ -73,6 +58,8 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
           quote={logic.quote}
           inToken={logic.inToken}
           outToken={logic.outToken}
+          inAmount={logic.inAmount}
+          outAmount={logic.outAmount}
           onBack={logic.handleBackFromReview}
           onConfirm={logic.handleConfirmSwap}
           isConfirming={logic.isConfirming}

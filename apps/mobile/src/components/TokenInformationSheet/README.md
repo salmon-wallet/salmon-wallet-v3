@@ -69,7 +69,7 @@ interface TokenInformationSheetProps {
 ## Usage Example
 
 ```tsx
-import { TokenInformationSheet } from '@salmon/ui';
+import { TokenInformationSheet } from '../components';
 
 function MyComponent() {
   const [sheetVisible, setSheetVisible] = useState(false);

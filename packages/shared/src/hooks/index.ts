@@ -167,6 +167,17 @@ export type {
 // Open link hook (used by settings screens)
 export { useOpenLink } from './useOpenLink';
 
+// NFT transfer hook (shared between mobile & extension)
+export {
+  useNftTransfer,
+  default as useNftTransferDefault,
+} from './useNftTransfer';
+export type {
+  UseNftTransferParams,
+  UseNftTransferResult,
+  NftTransferStatus,
+} from './useNftTransfer';
+
 // SwapScreen logic hook (shared between mobile & extension)
 export { useSwapScreenLogic } from './useSwapScreenLogic';
 export type {

@@ -45,16 +45,37 @@ export function getSwapMode(
 }
 
 /**
- * Infers a SwapChainType from a network name string (e.g. "btc", "ethereum").
- * Defaults to 'solana' for unknown networks.
+ * Supported chains in the wallet.
+ * Used to filter out bridge tokens from unsupported chains (e.g. NEAR).
  */
-export function getChainFromNetwork(network?: string): SwapChainType {
-  if (!network) return 'solana';
+export const SUPPORTED_CHAINS: readonly SwapChainType[] = ['solana', 'bitcoin', 'ethereum'];
+
+/**
+ * Infers a SwapChainType from a network name string and/or token symbol.
+ *
+ * StealthEX returns `network: null` for mainnet tokens (BTC, ETH, NEAR),
+ * so we also check the symbol to correctly identify the chain.
+ * Returns null for tokens on unsupported chains.
+ */
+export function getChainFromNetwork(network?: string | null, symbol?: string): SwapChainType | null {
+  // Try symbol first — StealthEX mainnet tokens have network: null
+  if (symbol) {
+    const s = symbol.toLowerCase();
+    if (s === 'btc') return 'bitcoin';
+    if (s === 'eth') return 'ethereum';
+    if (s === 'sol') return 'solana';
+    // ethbase → Ethereum on Base network
+    if (s.startsWith('eth')) return 'ethereum';
+  }
+
+  if (!network) return symbol ? null : 'solana';
+
   const n = network.toLowerCase();
   if (n.includes('btc') || n.includes('bitcoin')) return 'bitcoin';
-  if (n.includes('eth') || n.includes('ethereum')) return 'ethereum';
+  if (n.includes('eth') || n.includes('ethereum') || n === 'base') return 'ethereum';
   if (n.includes('sol') || n.includes('solana')) return 'solana';
-  return 'solana';
+  // bsc, mainnet (for tokens like nearbsc, near) → unsupported
+  return null;
 }
 
 /**

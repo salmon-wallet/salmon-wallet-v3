@@ -6,7 +6,7 @@
  *
  * Usage:
  * ```tsx
- * import { SettingsSheet } from '@salmon/ui';
+ * import { SettingsSheet } from '../components';
  *
  * function MyScreen() {
  *   const [settingsVisible, setSettingsVisible] = useState(false);

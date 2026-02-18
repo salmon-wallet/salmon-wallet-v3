@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   StyleSheet,
   ScrollView,
@@ -21,6 +20,7 @@ import {
   useAddressValidation,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
+import { TokenLogo } from '../TokenLogo';
 import type { StepAddressAmountProps } from './types';
 
 // ============================================================================
@@ -172,19 +172,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
         >
           <BlurContainer style={styles.tokenCard}>
           <View style={styles.tokenCardLeft}>
-            {token.logo ? (
-              <Image
-                source={{ uri: token.logo }}
-                style={styles.tokenCardLogo}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={[styles.tokenCardLogo, styles.tokenCardLogoFallback]}>
-                <Text style={styles.tokenCardLogoFallbackText}>
-                  {token.symbol?.slice(0, 2).toUpperCase() || '?'}
-                </Text>
-              </View>
-            )}
+            <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={ms(36)} style={{ marginRight: s(10) }} />
             <Text style={styles.tokenCardName} numberOfLines={1}>
               {token.symbol}
             </Text>
@@ -336,24 +324,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-  },
-  tokenCardLogo: {
-    width: ms(36),
-    height: ms(36),
-    borderRadius: ms(18),
-    marginRight: s(10),
-  },
-  tokenCardLogoFallback: {
-    backgroundColor: colors.background.card,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tokenCardLogoFallbackText: {
-    fontSize: ms(12),
-    fontFamily: FONT_FAMILY.bold,
-    color: colors.text.primary,
   },
   tokenCardName: {
     fontSize: ms(16),

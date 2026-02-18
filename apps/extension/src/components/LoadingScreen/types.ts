@@ -1,5 +1,5 @@
 /**
- * LoadingScreen types for @salmon/ui-extension
+ * LoadingScreen types for the extension app
  */
 import type { LoadingScreenBaseProps } from '@salmon/shared';
 

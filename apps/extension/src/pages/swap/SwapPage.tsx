@@ -1,7 +1,7 @@
 /**
  * SwapPage - Token swap and bridge interface for extension
  *
- * Wrapper around SwapScreen from @salmon/ui-extension.
+ * Wrapper around SwapScreen from extension components.
  * Wires useSwap, useBridge, useMultiChainTokens hooks.
  */
 import { useCallback, useMemo, useRef } from 'react';
@@ -174,19 +174,27 @@ export function SwapPage() {
     if (!activeBlockchainAccount) throw new Error('No active account');
     if (!currentSharedQuoteRef.current) throw new Error('No quote available.');
 
+    // Verify hook's internal quote matches the displayed quote to prevent race conditions
+    if (!swapQuote || swapQuote.custom?.requestId !== currentSharedQuoteRef.current.custom?.requestId) {
+      window.alert('Quote Expired. The quote has changed. Please try again.');
+      return { txId: '' };
+    }
+
     const result = await executeSwapHook();
     if (result.status === 'fail') throw new Error(result.error || 'Swap failed');
 
     currentSharedQuoteRef.current = null;
     return { txId: result.txId || '' };
-  }, [activeBlockchainAccount, executeSwapHook]);
+  }, [activeBlockchainAccount, executeSwapHook, swapQuote]);
 
   const handleSwapSuccess = useCallback(() => {
     resetSwap();
+    window.alert('Swap Complete! Your swap was successful.');
   }, [resetSwap]);
 
-  const handleSwapError = useCallback(() => {
+  const handleSwapError = useCallback((error: Error) => {
     resetSwap();
+    window.alert('Swap Failed: ' + error.message);
   }, [resetSwap]);
 
   const handleSearchTokens = useCallback(async (query: string): Promise<SwapToken[]> => {
@@ -280,12 +288,14 @@ export function SwapPage() {
     }
   }, [createBridgeExchange]);
 
-  const handleBridgeSuccess = useCallback(() => {
+  const handleBridgeSuccess = useCallback((exchange: BridgeExchangeSimple) => {
     resetBridge();
+    window.alert('Bridge Initiated! Please send funds to the deposit address.');
   }, [resetBridge]);
 
-  const handleBridgeError = useCallback(() => {
+  const handleBridgeError = useCallback((error: Error) => {
     resetBridge();
+    window.alert('Bridge Failed: ' + error.message);
   }, [resetBridge]);
 
   if (!ready) {

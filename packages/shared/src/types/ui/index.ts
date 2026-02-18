@@ -2,7 +2,7 @@
  * UI Component Types (Platform-Agnostic)
  *
  * This module exports base types for UI components that are used across
- * both mobile (@salmon/ui) and web (@salmon/ui-extension) packages.
+ * both mobile (apps/mobile) and web (apps/extension) apps.
  *
  * Platform-specific versions (with ViewStyle or CSSProperties) should
  * extend these base types in their respective packages.

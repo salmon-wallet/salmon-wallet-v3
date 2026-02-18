@@ -20,7 +20,7 @@ import type {
   BridgeToken,
   BridgeEstimate,
 } from '../types/ui/bridge-screen';
-import { getSwapMode, validateAddress, getChainFromNetwork } from '../utils/swap';
+import { getSwapMode, validateAddress, getChainFromNetwork, SUPPORTED_CHAINS } from '../utils/swap';
 import { getChainDisplayName } from '../utils/account';
 import { KNOWN_DECIMALS } from '../utils/tokens';
 
@@ -68,6 +68,7 @@ export interface UseSwapScreenLogicReturn {
   swapMode: 'jupiter' | 'stealthex' | null;
   inUsdValue: number;
   canReview: boolean;
+  reviewWarning: string | null;
   outputTokens: SwapToken[];
   addressValidation: { valid: boolean; error: string | null };
 
@@ -150,8 +151,9 @@ export function useSwapScreenLogic({
 
   const swapMode = useMemo(() => getSwapMode(inToken, outToken), [inToken, outToken]);
 
-  const inUsdValue = inToken?.usdPrice && inAmount
-    ? parseFloat(inAmount) * inToken.usdPrice
+  const inTokenPrice = tokens.find(t => t.address === inToken?.address)?.usdPrice ?? inToken?.usdPrice;
+  const inUsdValue = inTokenPrice && inAmount
+    ? parseFloat(inAmount) * inTokenPrice
     : 0;
 
   const targetChain: SwapChainType | null = outToken?.chain || null;
@@ -181,6 +183,14 @@ export function useSwapScreenLogic({
 
   const canReview = canReviewJupiter || canContinueToBridge;
 
+  const reviewWarning: string | null = (() => {
+    if (!inToken || !inAmount || parseFloat(inAmount) <= 0) return null;
+    if (parseFloat(inAmount) > (inToken.balance || 0)) return 'Insufficient balance';
+    if (inUsdValue > 0 && inUsdValue < MIN_SWAP_USD) return `Minimum swap amount is $${MIN_SWAP_USD.toFixed(2)} USD`;
+    if (quoteError) return quoteError;
+    return null;
+  })();
+
   // ── Effects ────────────────────────────────────────────────────────────
 
   // Load available output tokens when input token changes (for bridge)
@@ -190,15 +200,20 @@ export function useSwapScreenLogic({
     const loadBridgeTokens = async () => {
       try {
         const available = await onGetAvailableTokens(inToken.symbol);
-        const bridgeOutputTokens: SwapToken[] = available.map((t) => ({
-          address: t.symbol,
-          symbol: t.symbol,
-          name: t.name,
-          decimals: KNOWN_DECIMALS[t.symbol.toLowerCase()] ?? 8,
-          logo: t.logo,
-          chain: getChainFromNetwork(t.network),
-          networkId: t.network,
-        }));
+        const bridgeOutputTokens: SwapToken[] = [];
+        for (const t of available) {
+          const chain = getChainFromNetwork(t.network, t.symbol);
+          if (!chain || !SUPPORTED_CHAINS.includes(chain)) continue;
+          bridgeOutputTokens.push({
+            address: t.symbol,
+            symbol: t.symbol,
+            name: t.name,
+            decimals: KNOWN_DECIMALS[t.symbol.toLowerCase()] ?? 8,
+            logo: t.logo,
+            chain,
+            networkId: t.network,
+          });
+        }
         setAvailableOutTokens(bridgeOutputTokens);
       } catch (error) {
         console.error('Failed to load bridge tokens:', error);
@@ -527,6 +542,7 @@ export function useSwapScreenLogic({
     swapMode,
     inUsdValue,
     canReview,
+    reviewWarning,
     outputTokens,
     addressValidation,
 

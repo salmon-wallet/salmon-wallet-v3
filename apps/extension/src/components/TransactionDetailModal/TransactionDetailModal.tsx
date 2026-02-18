@@ -53,20 +53,21 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
-import { colors, spacing, borderRadius, formatBlockNumber, formatDateTime } from '@salmon/shared';
+import CodeIcon from '@mui/icons-material/Code';
+import { colors, spacing, borderRadius, fontSize, fontFamily, fontWeight, letterSpacing, lineHeight, formatBlockNumber, formatDateTime, getShortAddress } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
-import { AddressCopyRow } from '../TransactionHistorySheet/AddressCopyRow';
-import { ExplorerLinkButton } from '../TransactionHistorySheet/ExplorerLinkButton';
-import { PriceImpactBadge } from '../TransactionHistorySheet/PriceImpactBadge';
-import { ConversionRateDisplay } from '../TransactionHistorySheet/ConversionRateDisplay';
+import { AddressCopyRow } from '../TransactionHistoryPage/AddressCopyRow';
+import { ExplorerLinkButton } from '../TransactionHistoryPage/ExplorerLinkButton';
+import { PriceImpactBadge } from '../TransactionHistoryPage/PriceImpactBadge';
+import { ConversionRateDisplay } from '../TransactionHistoryPage/ConversionRateDisplay';
 import type { TransactionDetailModalProps } from './types';
 import type {
   TransactionType,
   TransactionTokenAmount,
   NftAttribute,
-} from '../TransactionHistorySheet/types';
+} from '../TransactionHistoryPage/types';
 
 // ============================================================================
 // Constants
@@ -154,6 +155,15 @@ const STATUS_CONFIG: Record<
   },
 };
 
+/**
+ * Confirmation status display configuration
+ */
+const CONFIRMATION_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  processed: { label: 'Processed', color: colors.status.warning },
+  confirmed: { label: 'Confirmed', color: colors.palette.blue },
+  finalized: { label: 'Finalized', color: colors.status.success },
+};
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -198,6 +208,8 @@ const StyledDialog = styled(Dialog)({
     maxHeight: '85vh',
     overflow: 'hidden',
     position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
   },
 });
 
@@ -214,21 +226,27 @@ const BackgroundWrapper = styled(Box)({
 
 const HeaderContainer = styled(Box)({
   display: 'flex',
-  alignItems: 'center',
-  padding: `${spacing.lg}px ${spacing.xl}px`,
+  flexDirection: 'column',
+  padding: `${spacing.md}px ${spacing.xl}px`,
   borderBottom: `1px solid ${colors.border.default}`,
   position: 'relative',
   zIndex: 1,
 });
 
+const HeaderRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+});
+
 const TypeIconContainer = styled(Box)({
-  width: 48,
-  height: 48,
-  borderRadius: 24,
+  width: 40,
+  height: 40,
+  borderRadius: 20,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  marginRight: 14,
+  marginRight: spacing.md,
   flexShrink: 0,
 });
 
@@ -281,14 +299,26 @@ const CloseButton = styled(IconButton)({
   },
 });
 
+const HeaderDescription = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: fontWeight.regular,
+  color: colors.text.tertiary,
+  marginTop: spacing.sm,
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
 const StyledDialogContent = styled(DialogContent)({
-  padding: `${spacing.md}px ${spacing.lg}px ${spacing.xl}px`,
+  padding: `${spacing.md}px ${spacing.lg}px ${spacing.md}px`,
   overflowY: 'auto',
   position: 'relative',
   zIndex: 1,
   display: 'flex',
   flexDirection: 'column',
-  gap: 12,
+  gap: spacing.sm,
   '&::-webkit-scrollbar': {
     width: 6,
   },
@@ -306,7 +336,7 @@ const StyledDialogContent = styled(DialogContent)({
 
 const Section = styled(BlurContainer)({
   borderRadius: borderRadius.lg,
-  padding: 16,
+  padding: spacing.lg,
 });
 
 const SectionRow = styled(Box)({
@@ -316,29 +346,36 @@ const SectionRow = styled(Box)({
 });
 
 const SectionTitle = styled(Typography)({
-  fontSize: 14,
-  fontWeight: 600,
+  fontSize: fontSize.base,
+  fontWeight: fontWeight.semibold,
   color: colors.text.secondary,
-  marginBottom: 12,
+  marginBottom: spacing.md,
 });
 
 const SectionLabel = styled(Typography)({
-  fontSize: 14,
-  fontWeight: 500,
+  fontSize: fontSize.base,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
 });
 
 const SectionValue = styled(Typography)({
-  fontSize: 14,
-  fontWeight: 600,
+  fontSize: fontSize.base,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
 });
 
 const HashValue = styled(Typography)({
-  fontSize: 13,
-  fontWeight: 500,
+  fontSize: fontSize.sm,
+  fontWeight: fontWeight.medium,
   color: colors.text.primary,
-  fontFamily: 'monospace',
+  fontFamily: fontFamily.mono,
+});
+
+const InternalDivider = styled(Box)({
+  height: 1,
+  backgroundColor: colors.border.subtle,
+  marginTop: spacing.sm,
+  marginBottom: spacing.sm,
 });
 
 // Token row styles
@@ -460,7 +497,7 @@ const ConversionRateContainer = styled(Box)({
 const AddressesContainer = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  gap: 8,
+  gap: spacing.sm,
 });
 
 // NFT styles
@@ -524,12 +561,34 @@ const NftAttributeValue = styled(Typography)({
   textOverflow: 'ellipsis',
 });
 
+// Fixed bottom bar
+const FixedBottomBar = styled(Box)({
+  padding: `${spacing.md}px ${spacing.lg}px ${spacing.lg}px`,
+  borderTop: `1px solid ${colors.border.subtle}`,
+  flexShrink: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing.sm,
+  position: 'relative',
+  zIndex: 1,
+});
+
+const ExplorerButtonWrapper = styled(Box)({
+  '& .MuiButtonBase-root': {
+    backgroundColor: `${colors.background.card} !important`,
+    borderColor: `${colors.border.default} !important`,
+    color: `${colors.text.primary} !important`,
+    '& svg': {
+      color: `${colors.text.secondary} !important`,
+    },
+  },
+});
+
 // Action buttons
 const ActionsContainer = styled(Box)({
   display: 'flex',
   justifyContent: 'space-around',
-  marginTop: 8,
-  gap: 8,
+  gap: spacing.sm,
 });
 
 const ActionButton = styled(ButtonBase)({
@@ -539,8 +598,8 @@ const ActionButton = styled(ButtonBase)({
   justifyContent: 'center',
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.md,
-  padding: '12px',
-  gap: 6,
+  padding: `${spacing.md}px`,
+  gap: spacing.xs,
   border: `1px solid ${colors.border.default}`,
   transition: 'background-color 0.2s ease',
   '&:hover': {
@@ -549,9 +608,123 @@ const ActionButton = styled(ButtonBase)({
 });
 
 const ActionButtonText = styled(Typography)({
-  fontSize: 13,
-  fontWeight: 600,
+  fontSize: fontSize.sm,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
+});
+
+// Confirmation badge
+const ConfirmationBadge = styled(Box)({
+  padding: `${spacing['2xs']}px ${spacing.sm}px`,
+  borderRadius: borderRadius.sm,
+  display: 'inline-flex',
+});
+
+const ConfirmationText = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: fontWeight.semibold,
+  textTransform: 'uppercase',
+  letterSpacing: letterSpacing.wide,
+});
+
+// Swap route hop styles
+const HopRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  padding: `${spacing.xs}px 0`,
+  gap: spacing.sm,
+});
+
+const HopBadge = styled(Box)({
+  padding: `${spacing['2xs']}px ${spacing.sm}px`,
+  backgroundColor: colors.background.card,
+  borderRadius: borderRadius.sm,
+  border: `1px solid ${colors.border.default}`,
+});
+
+const HopBadgeText = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: fontWeight.semibold,
+  color: colors.text.primary,
+});
+
+const HopTokens = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing.xs,
+});
+
+const HopTokenText = styled(Typography)({
+  fontSize: fontSize.sm,
+  fontWeight: fontWeight.medium,
+  color: colors.text.secondary,
+});
+
+const HopPercent = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: fontWeight.medium,
+  color: colors.text.tertiary,
+  flexShrink: 0,
+});
+
+// Developer info section styles
+const DevSectionHeader = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing.xs,
+  marginBottom: spacing.md,
+});
+
+const DevBadge = styled(Box)({
+  padding: `${spacing['2xs']}px ${spacing.sm}px`,
+  backgroundColor: colors.background.card,
+  borderRadius: borderRadius.sm,
+  border: `1px solid ${colors.border.default}`,
+  display: 'inline-flex',
+});
+
+const DevBadgeText = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: fontWeight.semibold,
+  color: colors.text.primary,
+  textTransform: 'uppercase',
+  letterSpacing: letterSpacing.wide,
+});
+
+const DevSubSection = styled(Box)({
+  marginTop: spacing.md,
+  paddingTop: spacing.sm,
+  borderTop: `1px solid ${colors.border.default}`,
+});
+
+const DevSubTitle = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: fontWeight.semibold,
+  color: colors.text.tertiary,
+  textTransform: 'uppercase',
+  letterSpacing: letterSpacing.wide,
+  marginBottom: spacing.xs,
+});
+
+const DevRow = styled(Box)({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: `${spacing.xs}px 0`,
+});
+
+const DevMonoText = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: fontWeight.medium,
+  color: colors.text.primary,
+  fontFamily: fontFamily.mono,
+});
+
+const DevSecondaryText = styled(Typography)({
+  fontSize: fontSize.xs,
+  fontWeight: fontWeight.regular,
+  color: colors.text.tertiary,
 });
 
 // ============================================================================
@@ -678,7 +851,7 @@ const NftMetadataSection: React.FC<{
   if (!token.isNft) return null;
 
   return (
-    <Section>
+    <Section borderWidth={0}>
       <SectionTitle>NFT Details</SectionTitle>
 
       {/* NFT Media Preview */}
@@ -705,13 +878,13 @@ const NftMetadataSection: React.FC<{
 
       {/* NFT Attributes Grid */}
       {token.nftAttributes && token.nftAttributes.length > 0 && (
-        <Box sx={{ mt: '8px' }}>
+        <Box sx={{ mt: `${spacing.sm}px` }}>
           <Typography
             sx={{
-              fontSize: 13,
-              fontWeight: 500,
+              fontSize: fontSize.sm,
+              fontWeight: fontWeight.medium,
               color: colors.text.secondary,
-              mb: '8px',
+              mb: `${spacing.sm}px`,
             }}
           >
             Attributes
@@ -734,13 +907,6 @@ const NftMetadataSection: React.FC<{
 // Main Component
 // ============================================================================
 
-/**
- * TransactionDetailModal - MUI Dialog for transaction details
- *
- * Displays comprehensive information about a single transaction including
- * type, status, timestamps, token transfers, swap conversion data,
- * NFT metadata, network fee, and action buttons.
- */
 export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   visible,
   onClose,
@@ -748,6 +914,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   onViewExplorer,
   onCopyHash,
   onShare,
+  developerMode,
   className,
   style,
 }) => {
@@ -794,72 +961,101 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
       {/* Header */}
       <HeaderContainer>
-        {/* Type icon */}
-        <TypeIconContainer
-          sx={{ backgroundColor: `${typeConfig.color}20` }}
-        >
-          <Box sx={{ display: 'flex', color: typeConfig.color, '& > svg': { fontSize: 24 } }}>
-            {typeConfig.icon}
-          </Box>
-        </TypeIconContainer>
+        <HeaderRow>
+          {/* Type icon */}
+          <TypeIconContainer
+            sx={{ backgroundColor: `${typeConfig.color}20` }}
+          >
+            <Box sx={{ display: 'flex', color: typeConfig.color, '& > svg': { fontSize: 20 } }}>
+              {typeConfig.icon}
+            </Box>
+          </TypeIconContainer>
 
-        {/* Title and source */}
-        <HeaderInfoBox>
-          <TitleRow>
-            <TitleText id="transaction-detail-title">
-              {typeConfig.label}
-            </TitleText>
-            {transaction.source && (
-              <SourceBadge>
-                <SourceText>{transaction.source}</SourceText>
-              </SourceBadge>
-            )}
-          </TitleRow>
+          {/* Title and source */}
+          <HeaderInfoBox>
+            <TitleRow>
+              <TitleText id="transaction-detail-title">
+                {typeConfig.label}
+              </TitleText>
+              {transaction.source && (
+                <SourceBadge>
+                  <SourceText>{transaction.source}</SourceText>
+                </SourceBadge>
+              )}
+            </TitleRow>
 
-          {/* Status */}
-          <StatusRow sx={{ color: statusConfig.color }}>
-            {statusConfig.icon}
-            <Typography
-              sx={{
-                fontSize: 14,
-                fontWeight: 500,
-                color: statusConfig.color,
-              }}
-            >
-              {statusConfig.label}
-            </Typography>
-          </StatusRow>
-        </HeaderInfoBox>
+            {/* Status */}
+            <StatusRow sx={{ color: statusConfig.color }}>
+              {statusConfig.icon}
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: statusConfig.color,
+                }}
+              >
+                {statusConfig.label}
+              </Typography>
+            </StatusRow>
+          </HeaderInfoBox>
 
-        {/* Close button */}
-        <CloseButton onClick={onClose} aria-label="Close">
-          <CloseIcon />
-        </CloseButton>
+          {/* Close button */}
+          <CloseButton onClick={onClose} aria-label="Close">
+            <CloseIcon />
+          </CloseButton>
+        </HeaderRow>
+
+        {/* Description (inline in header area) */}
+        {transaction.description && (
+          <HeaderDescription>{transaction.description}</HeaderDescription>
+        )}
       </HeaderContainer>
 
       {/* Content */}
       <StyledDialogContent>
-        {/* Timestamp */}
-        <Section>
+        {/* Card 1 — Details: Date/Time + Confirmation + Block */}
+        <Section borderWidth={0}>
           <SectionRow>
             <SectionLabel>Date & Time</SectionLabel>
             <SectionValue>{formatDateTime(transaction.timestamp)}</SectionValue>
           </SectionRow>
-        </Section>
 
-        {/* Block/Slot Number */}
-        {transaction.slot && (
-          <Section>
-            <SectionRow>
-              <SectionLabel>Block</SectionLabel>
-              <SectionValue>#{formatBlockNumber(transaction.slot)}</SectionValue>
-            </SectionRow>
-          </Section>
-        )}
+          {transaction.confirmationStatus && (
+            <>
+              <InternalDivider />
+              <SectionRow>
+                <SectionLabel>Confirmation</SectionLabel>
+                <ConfirmationBadge
+                  sx={{
+                    backgroundColor: `${CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary}20`,
+                  }}
+                >
+                  <ConfirmationText
+                    sx={{
+                      color: CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary,
+                    }}
+                  >
+                    {CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.label ?? transaction.confirmationStatus}
+                  </ConfirmationText>
+                </ConfirmationBadge>
+              </SectionRow>
+            </>
+          )}
+
+          {transaction.slot && (
+            <>
+              <InternalDivider />
+              <SectionRow>
+                <SectionLabel>Block</SectionLabel>
+                <SectionValue>#{formatBlockNumber(transaction.slot)}</SectionValue>
+              </SectionRow>
+            </>
+          )}
+        </Section>
 
         {/* Swap Visualization (for swaps) */}
         {transaction.type === 'swap' && (
-          <Section>
+          <Section borderWidth={0}>
             <SwapHeaderRow>
               <SectionTitle sx={{ mb: 0 }}>Conversion</SectionTitle>
               {transaction.swapRoute?.priceImpact && (
@@ -887,35 +1083,60 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           </Section>
         )}
 
-        {/* Tokens Involved (for non-swaps) */}
-        {transaction.type !== 'swap' && (
-          <>
+        {/* Swap Route Hops (for multi-hop swaps) */}
+        {transaction.type === 'swap' && transaction.swapRoute?.hops && transaction.swapRoute.hops.length > 0 && (
+          <Section borderWidth={0}>
+            <SectionTitle>Swap Route</SectionTitle>
+            {transaction.swapRoute.hops.map((hop, index) => (
+              <HopRow key={`hop-${index}`}>
+                <HopBadge>
+                  <HopBadgeText>{hop.dex}</HopBadgeText>
+                </HopBadge>
+                <HopTokens>
+                  <HopTokenText>{hop.inputToken.symbol}</HopTokenText>
+                  <ArrowForwardIcon sx={{ fontSize: 12, color: colors.text.tertiary }} />
+                  <HopTokenText>{hop.outputToken.symbol}</HopTokenText>
+                </HopTokens>
+                {hop.percent < 100 && (
+                  <HopPercent>{hop.percent}%</HopPercent>
+                )}
+              </HopRow>
+            ))}
+          </Section>
+        )}
+
+        {/* Card 2 — Tokens (non-swap): Sent + Received merged */}
+        {transaction.type !== 'swap' && (transaction.outputs.length > 0 || transaction.inputs.length > 0) && (
+          <Section borderWidth={0}>
             {transaction.outputs.length > 0 && (
-              <Section>
+              <>
                 <SectionTitle>Sent</SectionTitle>
                 {transaction.outputs.map((token, index) => (
                   <TokenAmountRow key={`out-${index}`} token={token} sign="-" />
                 ))}
-              </Section>
+              </>
+            )}
+            {transaction.outputs.length > 0 && transaction.inputs.length > 0 && (
+              <InternalDivider />
             )}
             {transaction.inputs.length > 0 && (
-              <Section>
+              <>
                 <SectionTitle>Received</SectionTitle>
                 {transaction.inputs.map((token, index) => (
                   <TokenAmountRow key={`in-${index}`} token={token} sign="+" />
                 ))}
-              </Section>
+              </>
             )}
-          </>
+          </Section>
         )}
 
-        {/* Address Section - From/To addresses */}
+        {/* Address Section */}
         {(transaction.outputs.some((t) => t.destination) ||
-          transaction.inputs.some((t) => t.source)) && (
-          <Section>
+          transaction.inputs.some((t) => t.source) ||
+          transaction.feePayer) && (
+          <Section borderWidth={0}>
             <SectionTitle>Addresses</SectionTitle>
             <AddressesContainer>
-              {/* Show destination addresses from outputs (where tokens were sent) */}
               {transaction.outputs.map((token, index) =>
                 token.destination ? (
                   <AddressCopyRow
@@ -926,7 +1147,6 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   />
                 ) : null
               )}
-              {/* Show source addresses from inputs (where tokens came from) */}
               {transaction.inputs.map((token, index) =>
                 token.source ? (
                   <AddressCopyRow
@@ -936,6 +1156,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     truncate="medium"
                   />
                 ) : null
+              )}
+              {transaction.feePayer && (
+                <AddressCopyRow
+                  label="Fee Payer"
+                  address={transaction.feePayer}
+                  truncate="medium"
+                />
               )}
             </AddressesContainer>
           </Section>
@@ -953,9 +1180,9 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             <NftMetadataSection key={`nft-out-${index}`} token={token} />
           ))}
 
-        {/* Network Fee */}
-        {transaction.fee && (
-          <Section>
+        {/* Card 3 — Transaction Info: Fee + Swap Fee + Hash merged */}
+        <Section borderWidth={0}>
+          {transaction.fee && (
             <SectionRow>
               <SectionLabel>Network Fee</SectionLabel>
               <SectionValue>
@@ -963,19 +1190,118 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 {transaction.fee.symbol}
               </SectionValue>
             </SectionRow>
-          </Section>
-        )}
+          )}
 
-        {/* Transaction Hash */}
-        <Section>
+          {transaction.swapRoute?.totalFee && (
+            <>
+              {transaction.fee && <InternalDivider />}
+              <SectionRow>
+                <SectionLabel>Swap Fee</SectionLabel>
+                <SectionValue>
+                  {transaction.swapRoute.totalFee.amount} {transaction.swapRoute.totalFee.symbol}
+                </SectionValue>
+              </SectionRow>
+            </>
+          )}
+
+          {(transaction.fee || transaction.swapRoute?.totalFee) && <InternalDivider />}
+
           <SectionRow>
             <SectionLabel>Transaction Hash</SectionLabel>
             <HashValue>{truncateHash(transaction.id)}</HashValue>
           </SectionRow>
         </Section>
 
-        {/* Explorer Link Button */}
-        <Box sx={{ mt: '8px' }}>
+        {/* Developer Info (dev mode only) */}
+        {developerMode && (
+          <Section borderWidth={0}>
+            <DevSectionHeader>
+              <CodeIcon sx={{ fontSize: 16, color: colors.text.secondary }} />
+              <SectionTitle sx={{ mb: 0 }}>Developer Info</SectionTitle>
+            </DevSectionHeader>
+
+            {transaction.heliusType && (
+              <SectionRow>
+                <SectionLabel>Helius Type</SectionLabel>
+                <DevBadge>
+                  <DevBadgeText>{transaction.heliusType}</DevBadgeText>
+                </DevBadge>
+              </SectionRow>
+            )}
+
+            {transaction.accountsInvolved != null && (
+              <SectionRow sx={{ mt: `${spacing.sm}px` }}>
+                <SectionLabel>Accounts Involved</SectionLabel>
+                <SectionValue>{transaction.accountsInvolved}</SectionValue>
+              </SectionRow>
+            )}
+
+            {transaction.instructions && transaction.instructions.length > 0 && (
+              <DevSubSection>
+                <DevSubTitle>Programs</DevSubTitle>
+                {transaction.instructions.map((ix, index) => (
+                  <DevRow key={`ix-${index}`}>
+                    <DevMonoText>
+                      {getShortAddress(ix.programId, 6)}
+                    </DevMonoText>
+                    {ix.innerInstructionsCount > 0 && (
+                      <DevSecondaryText>
+                        {ix.innerInstructionsCount} inner
+                      </DevSecondaryText>
+                    )}
+                  </DevRow>
+                ))}
+              </DevSubSection>
+            )}
+
+            {transaction.innerSwaps && transaction.innerSwaps.length > 0 && (
+              <DevSubSection>
+                <DevSubTitle>Inner Swaps</DevSubTitle>
+                {transaction.innerSwaps.map((swap, index) => (
+                  <DevRow key={`inner-${index}`}>
+                    <DevMonoText>
+                      {swap.programInfo.source}
+                    </DevMonoText>
+                    <DevSecondaryText>
+                      {swap.programInfo.programName} / {swap.programInfo.instructionName}
+                    </DevSecondaryText>
+                  </DevRow>
+                ))}
+              </DevSubSection>
+            )}
+
+            {transaction.swapFees && (
+              <DevSubSection>
+                <DevSubTitle>Swap Fees</DevSubTitle>
+                {transaction.swapFees.nativeFees.map((fee, index) => (
+                  <DevRow key={`nfee-${index}`}>
+                    <DevMonoText>
+                      {getShortAddress(fee.account, 6)}
+                    </DevMonoText>
+                    <DevSecondaryText>
+                      {fee.amount} SOL
+                    </DevSecondaryText>
+                  </DevRow>
+                ))}
+                {transaction.swapFees.tokenFees.map((fee, index) => (
+                  <DevRow key={`tfee-${index}`}>
+                    <DevMonoText>
+                      {getShortAddress(fee.account, 6)}
+                    </DevMonoText>
+                    <DevSecondaryText>
+                      {fee.amount} ({getShortAddress(fee.mint, 4)})
+                    </DevSecondaryText>
+                  </DevRow>
+                ))}
+              </DevSubSection>
+            )}
+          </Section>
+        )}
+      </StyledDialogContent>
+
+      {/* Fixed Bottom Action Bar */}
+      <FixedBottomBar>
+        <ExplorerButtonWrapper>
           <ExplorerLinkButton
             txHash={transaction.id}
             blockchain="SOLANA"
@@ -987,9 +1313,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               }
             }}
           />
-        </Box>
-
-        {/* Action Buttons */}
+        </ExplorerButtonWrapper>
         <ActionsContainer>
           {onCopyHash && (
             <ActionButton onClick={handleCopyHash}>
@@ -1004,7 +1328,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             </ActionButton>
           )}
         </ActionsContainer>
-      </StyledDialogContent>
+      </FixedBottomBar>
     </StyledDialog>
   );
 };

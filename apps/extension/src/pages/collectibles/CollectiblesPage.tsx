@@ -36,8 +36,6 @@ import {
 import {
   NftCarouselSection,
   NftCarouselSectionSkeleton,
-  NftSeeAllSheet,
-  NftDetailSheet,
 } from '../../components';
 
 // ============================================================================
@@ -47,6 +45,10 @@ import {
 interface CollectiblesPageProps {
   activeAccount: Account | undefined;
   developerNetworks: boolean;
+  /** Callback when an NFT is pressed — navigates to detail page */
+  onNftDetailPress?: (nft: NftData) => void;
+  /** Callback when "See All" is pressed — navigates to see-all page */
+  onSeeAllPress?: (title: string, blockchain: string, nfts: NftData[]) => void;
 }
 
 // ============================================================================
@@ -99,14 +101,9 @@ const EmptyStateSubtext = styled(Typography)({
 // Component
 // ============================================================================
 
-export function CollectiblesPage({ activeAccount, developerNetworks }: CollectiblesPageProps) {
+export function CollectiblesPage({ activeAccount, developerNetworks, onNftDetailPress, onSeeAllPress }: CollectiblesPageProps) {
   const { t } = useTranslation();
   const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_NFT_SECTIONS);
-  const [seeAllSheet, setSeeAllSheet] = useState<{ visible: boolean; sectionKey: NftSectionKey | null }>({
-    visible: false,
-    sectionKey: null,
-  });
-  const [selectedNft, setSelectedNft] = useState<NftData | null>(null);
 
   // Fetch all NFTs in parallel (mirroring mobile pattern)
   useEffect(() => {
@@ -231,31 +228,14 @@ export function CollectiblesPage({ activeAccount, developerNetworks }: Collectib
 
   // Handlers
   const handleNftPress = useCallback((nft: NftData) => {
-    setSelectedNft(nft);
-  }, []);
-
-  const handleCloseDetail = useCallback(() => {
-    setSelectedNft(null);
-  }, []);
+    onNftDetailPress?.(nft);
+  }, [onNftDetailPress]);
 
   const handleSeeAllPress = useCallback((sectionKey: NftSectionKey) => {
-    setSeeAllSheet({ visible: true, sectionKey });
-  }, []);
-
-  const handleCloseSeeAll = useCallback(() => {
-    setSeeAllSheet({ visible: false, sectionKey: null });
-  }, []);
-
-  const handleSeeAllNftPress = useCallback((nft: NftData) => {
-    setSeeAllSheet({ visible: false, sectionKey: null });
-    setTimeout(() => setSelectedNft(nft), 350);
-  }, []);
-
-  // SeeAll sheet data
-  const seeAllSection = seeAllSheet.sectionKey ? nftsBySections[seeAllSheet.sectionKey] : null;
-  const seeAllTitle = seeAllSheet.sectionKey && seeAllSection
-    ? getNftSectionTitle(seeAllSheet.sectionKey, seeAllSection)
-    : '';
+    const section = nftsBySections[sectionKey];
+    const title = getNftSectionTitle(sectionKey, section);
+    onSeeAllPress?.(title, section.blockchain, section.nfts);
+  }, [nftsBySections, onSeeAllPress]);
 
   return (
     <Container>
@@ -298,26 +278,6 @@ export function CollectiblesPage({ activeAccount, developerNetworks }: Collectib
         );
       })}
 
-      {/* See All Sheet */}
-      {seeAllSection && (
-        <NftSeeAllSheet
-          visible={seeAllSheet.visible}
-          onClose={handleCloseSeeAll}
-          title={seeAllTitle}
-          blockchain={seeAllSection.blockchain}
-          nfts={seeAllSection.nfts}
-          onNftPress={handleSeeAllNftPress}
-        />
-      )}
-
-      {/* NFT Detail Sheet */}
-      {selectedNft && (
-        <NftDetailSheet
-          visible={!!selectedNft}
-          onClose={handleCloseDetail}
-          nft={selectedNft}
-        />
-      )}
     </Container>
   );
 }

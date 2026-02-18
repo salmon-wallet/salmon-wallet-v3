@@ -5,7 +5,6 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  Image,
   StyleSheet,
   Animated,
   NativeSyntheticEvent,
@@ -23,6 +22,7 @@ import {
   spacing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
+import { TokenLogo } from '../TokenLogo';
 import type { StepTokenSelectProps, SendToken } from './types';
 
 // ============================================================================
@@ -70,19 +70,7 @@ const TokenRow: React.FC<TokenRowProps> = React.memo(({ token, onPress }) => {
       <BlurContainer style={styles.tokenRow}>
         {/* Token Logo */}
         <View style={styles.tokenLogoContainer}>
-          {token.logo ? (
-            <Image
-              source={{ uri: token.logo }}
-              style={styles.tokenLogo}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={[styles.tokenLogo, styles.tokenLogoFallback]}>
-              <Text style={styles.tokenLogoFallbackText}>
-                {token.symbol?.slice(0, 2).toUpperCase() || '?'}
-              </Text>
-            </View>
-          )}
+          <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={ms(32)} />
         </View>
 
         {/* Token Name */}
@@ -266,23 +254,6 @@ const styles = StyleSheet.create({
   },
   tokenLogoContainer: {
     marginRight: s(12),
-  },
-  tokenLogo: {
-    width: ms(32),
-    height: ms(32),
-    borderRadius: ms(16),
-  },
-  tokenLogoFallback: {
-    backgroundColor: colors.background.card,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tokenLogoFallbackText: {
-    fontSize: ms(14),
-    fontFamily: FONT_FAMILY.bold,
-    color: colors.text.primary,
   },
   tokenName: {
     flex: 1,

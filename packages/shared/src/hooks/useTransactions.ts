@@ -178,7 +178,7 @@ export function useTransactions({
             pageToken: isLoadMore ? oldestSignatureRef.current : undefined,
             pageSize,
           });
-          newTransactions = response.data.map(transformMultichainTransaction);
+          newTransactions = response.data.map(tx => transformMultichainTransaction(tx, blockchain));
           nextPageToken = response.pageToken;
           hasMorePages = !!response.pageToken;
         }

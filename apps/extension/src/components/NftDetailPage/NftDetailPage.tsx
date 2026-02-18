@@ -1,26 +1,12 @@
 /**
- * NftDetailSheet - Dialog for displaying detailed NFT information
+ * NftDetailPage - Full-page NFT detail view
  *
- * Web version using MUI Dialog for browser extension.
- * Migrated from React Native NftDetailSheet (bottom sheet modal).
+ * Replaces the former NftDetailSheet dialog.
+ * Renders as a full page with back navigation, matching the
+ * page-navigation pattern used by TokenDetailPage.
  *
- * Features:
- * - MUI Dialog container following TokenInformationSheet pattern
- * - Scrollable content with NFT image, description, and attributes
- * - Send and Burn action buttons with gradient/glass styling
- * - ScalesBackground decorative pattern
- * - BlurContainer sections for description and attributes
- *
- * @example
- * ```tsx
- * <NftDetailSheet
- *   visible={isVisible}
- *   onClose={() => setIsVisible(false)}
- *   nft={selectedNft}
- *   onSendPress={() => handleSend()}
- *   onBurnPress={() => handleBurn()}
- * />
- * ```
+ * Content: NFT image, blockchain badge, description, attributes,
+ * blockchain-specific details, and Send/Burn action buttons.
  */
 
 import React, { useCallback } from 'react';
@@ -29,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -50,13 +37,56 @@ import {
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
-import { BaseSheetDialog } from '../BaseSheetDialog';
+import { ScalesBackground } from '../ScalesBackground';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
-import type { NftDetailSheetProps, NftAttribute } from './types';
+import type { NftDetailPageProps, NftAttribute } from './types';
 
 // ============================================================================
 // Styled Components
 // ============================================================================
+
+const Container = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100vh',
+  backgroundColor: colors.background.secondary,
+  position: 'relative',
+});
+
+const Header = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  padding: `${spacing.md}px ${spacing.lg}px`,
+  borderBottom: `1px solid ${colors.border.default}`,
+  position: 'relative',
+  zIndex: 1,
+});
+
+const BackButton = styled(IconButton)({
+  color: colors.text.secondary,
+  marginRight: spacing.sm,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+});
+
+const HeaderTitle = styled(Typography)({
+  fontSize: 18,
+  fontWeight: 600,
+  color: colors.text.primary,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  flex: 1,
+});
+
+const ScrollContent = styled(Box)({
+  flex: 1,
+  minHeight: 0,
+  overflowY: 'auto',
+  position: 'relative',
+  zIndex: 1,
+});
 
 const ContentContainer = styled(Box)({
   display: 'flex',
@@ -64,6 +94,7 @@ const ContentContainer = styled(Box)({
   gap: spacing.lg,
   paddingLeft: spacing.headerPadding,
   paddingRight: spacing.headerPadding,
+  paddingTop: spacing.lg,
   paddingBottom: spacing['4xl'],
 });
 
@@ -140,7 +171,6 @@ const AttributeValue = styled(Typography)({
 const BlockchainBadgeContainer = styled(Box)({
   display: 'flex',
   justifyContent: 'center',
-  marginTop: -spacing.xs,
 });
 
 const BlockchainBadgeContent = styled(Box)({
@@ -231,12 +261,8 @@ const PrimaryButtonBase = styled(ButtonBase)({
   height: 52,
   gap: 10,
   transition: 'opacity 0.2s ease',
-  '&:hover': {
-    opacity: 0.85,
-  },
-  '&:active': {
-    opacity: 0.8,
-  },
+  '&:hover': { opacity: 0.85 },
+  '&:active': { opacity: 0.8 },
 });
 
 const SecondaryButtonInner = styled(ButtonBase)({
@@ -249,12 +275,8 @@ const SecondaryButtonInner = styled(ButtonBase)({
   position: 'relative',
   zIndex: 1,
   transition: 'opacity 0.2s ease',
-  '&:hover': {
-    opacity: 0.85,
-  },
-  '&:active': {
-    opacity: 0.8,
-  },
+  '&:hover': { opacity: 0.85 },
+  '&:active': { opacity: 0.8 },
 });
 
 const ButtonText = styled(Typography)({
@@ -266,18 +288,17 @@ const ButtonText = styled(Typography)({
 });
 
 // ============================================================================
-// NftDetailSheet Component
+// NftDetailPage Component
 // ============================================================================
 
-export function NftDetailSheet({
-  visible,
-  onClose,
+export function NftDetailPage({
   nft,
+  onBack,
   onSendPress,
   onBurnPress,
   style,
   className,
-}: NftDetailSheetProps): React.ReactElement | null {
+}: NftDetailPageProps): React.ReactElement {
   const handleSendPress = useCallback(() => {
     onSendPress?.();
   }, [onSendPress]);
@@ -287,7 +308,6 @@ export function NftDetailSheet({
   }, [onBurnPress]);
 
   const getBlockchainIcon = useCallback(() => {
-    if (!nft) return null;
     const iconStyle = { fontSize: 16, width: 16, height: 16, color: colors.text.primary };
     if (isSolanaNft(nft)) return <SolanaSvgIcon style={iconStyle} />;
     if (isEthereumNft(nft)) return <EthereumSvgIcon style={iconStyle} />;
@@ -300,8 +320,6 @@ export function NftDetailSheet({
   }, []);
 
   const renderBlockchainDetails = useCallback(() => {
-    if (!nft) return null;
-
     if (isSolanaNft(nft)) {
       return (
         <>
@@ -320,7 +338,7 @@ export function NftDetailSheet({
           {nft.collectionVerified !== undefined && (
             <DetailRow>
               <DetailLabel>Collection Verified</DetailLabel>
-              <DetailValue>{nft.collectionVerified ? '✓' : '✗'}</DetailValue>
+              <DetailValue>{nft.collectionVerified ? '\u2713' : '\u2717'}</DetailValue>
             </DetailRow>
           )}
           {nft.royaltyBps !== undefined && (
@@ -408,55 +426,45 @@ export function NftDetailSheet({
     );
   }, []);
 
-  if (!nft) {
-    return null;
-  }
+  const blurStyle = {
+    borderRadius: 9,
+    overflow: 'hidden' as const,
+  };
 
   return (
-    <BaseSheetDialog
-      visible={visible}
-      onClose={onClose}
-      size="medium"
-      colorScheme="secondary"
-      showScalesBackground={true}
-      ariaLabelledBy="nft-detail-title"
-      className={className}
-      style={style}
-    >
-      <BaseSheetDialog.HandleHeader
-        title={nft.name}
-        showBackButton={false}
-      />
+    <Container style={style} className={className}>
+      <ScalesBackground style={{ zIndex: 0 }} />
 
-      {/* Blockchain Badge */}
-      <BlockchainBadgeContainer>
-        <BlurContainer
-          blurIntensity={10}
-          blurTint="dark"
-          backgroundColor={colors.background.tokenItem}
-          borderColor={colors.border.default}
-          borderWidth={1}
-          style={{
-            borderRadius: 12,
-            overflow: 'hidden',
-          }}
-        >
-          <BlockchainBadgeContent>
-            {getBlockchainIcon()}
-            <BlockchainLabel>{getNftBlockchainLabel(nft)}</BlockchainLabel>
-          </BlockchainBadgeContent>
-        </BlurContainer>
-      </BlockchainBadgeContainer>
+      <Header>
+        <BackButton onClick={onBack} aria-label="Back">
+          <ArrowBackIcon />
+        </BackButton>
+        <HeaderTitle>{nft.name}</HeaderTitle>
+      </Header>
 
-      <BaseSheetDialog.Content padding="none">
+      <ScrollContent>
         <ContentContainer>
+          {/* Blockchain Badge */}
+          <BlockchainBadgeContainer>
+            <BlurContainer
+              blurIntensity={10}
+              blurTint="dark"
+              backgroundColor={colors.background.tokenItem}
+              borderColor={colors.border.default}
+              borderWidth={1}
+              style={{ borderRadius: 12, overflow: 'hidden' }}
+            >
+              <BlockchainBadgeContent>
+                {getBlockchainIcon()}
+                <BlockchainLabel>{getNftBlockchainLabel(nft)}</BlockchainLabel>
+              </BlockchainBadgeContent>
+            </BlurContainer>
+          </BlockchainBadgeContainer>
+
           {/* NFT Image */}
           {nft.image && (
             <ImageContainer>
-              <NftImage
-                src={nft.image}
-                alt={`NFT image for ${nft.name}`}
-              />
+              <NftImage src={nft.image} alt={`NFT image for ${nft.name}`} />
             </ImageContainer>
           )}
 
@@ -468,10 +476,7 @@ export function NftDetailSheet({
               backgroundColor={colors.background.tokenItem}
               borderColor={colors.border.default}
               borderWidth={1}
-              style={{
-                borderRadius: 9,
-                overflow: 'hidden',
-              }}
+              style={blurStyle}
             >
               <SectionContent>
                 <SectionTitle>Description</SectionTitle>
@@ -488,10 +493,7 @@ export function NftDetailSheet({
               backgroundColor={colors.background.tokenItem}
               borderColor={colors.border.default}
               borderWidth={1}
-              style={{
-                borderRadius: 9,
-                overflow: 'hidden',
-              }}
+              style={blurStyle}
             >
               <SectionContent>
                 <SectionTitle>Attributes</SectionTitle>
@@ -510,10 +512,7 @@ export function NftDetailSheet({
               backgroundColor={colors.background.tokenItem}
               borderColor={colors.border.default}
               borderWidth={1}
-              style={{
-                borderRadius: 9,
-                overflow: 'hidden',
-              }}
+              style={blurStyle}
             >
               <SectionContent>
                 <SectionTitle>Details</SectionTitle>
@@ -524,41 +523,28 @@ export function NftDetailSheet({
 
           {/* Action Buttons */}
           <ActionButtonsContainer>
-            {/* Send Button - Primary with gradient */}
-            <PrimaryButtonBase
-              onClick={handleSendPress}
-              aria-label="Send NFT"
-            >
+            <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT">
               <CallMadeIcon sx={{ fontSize: 15, color: '#e0e0e0' }} />
               <ButtonText>Send</ButtonText>
             </PrimaryButtonBase>
 
-            {/* Burn Button - Secondary with glass effect */}
             <BlurContainer
               blurIntensity={2.5}
               backgroundColor="rgba(255, 255, 255, 0.04)"
               borderColor="rgba(255, 92, 69, 0.8)"
               borderWidth={0.5}
-              style={{
-                borderRadius: 14,
-                overflow: 'hidden',
-                flex: 1,
-                maxWidth: 160,
-              }}
+              style={{ borderRadius: 14, overflow: 'hidden', flex: 1, maxWidth: 160 }}
             >
-              <SecondaryButtonInner
-                onClick={handleBurnPress}
-                aria-label="Burn NFT"
-              >
+              <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
                 <LocalFireDepartmentIcon sx={{ fontSize: 15, color: '#e0e0e0' }} />
                 <ButtonText>Burn</ButtonText>
               </SecondaryButtonInner>
             </BlurContainer>
           </ActionButtonsContainer>
         </ContentContainer>
-      </BaseSheetDialog.Content>
-    </BaseSheetDialog>
+      </ScrollContent>
+    </Container>
   );
 }
 
-export default NftDetailSheet;
+export default NftDetailPage;

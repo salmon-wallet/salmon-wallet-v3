@@ -1,5 +1,5 @@
 /**
- * TokenList types for @salmon/ui-extension
+ * TokenList types for the extension app
  */
 import type { CSSProperties } from 'react';
 import type { Token } from '@salmon/shared';

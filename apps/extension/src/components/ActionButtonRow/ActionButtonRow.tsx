@@ -13,6 +13,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   gradients,
   fontFamily,
   fontSize,
@@ -21,6 +22,7 @@ import {
   vs,
   ms,
 } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import { SendIcon, ReceiveIcon, ActivityIcon } from '../Icon';
 import type { ActionButtonRowProps } from './types';
 
@@ -75,19 +77,18 @@ const SecondaryButton = styled(Button)({
   alignItems: 'center',
   justifyContent: 'center',
   gap: s(spacing.sm),
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  border: '1px solid rgba(255, 255, 255, 0.15)',
+  backgroundColor: 'transparent',
+  border: 'none',
   borderRadius: ms(componentSizes.actionButtonRadius),
   textTransform: 'none',
   minWidth: 0,
   padding: 0,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'transparent',
+    opacity: 0.85,
   },
   '&.Mui-disabled': {
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'transparent',
   },
 });
 
@@ -142,28 +143,40 @@ export function ActionButtonRow({
         </PrimaryButton>
       </ButtonWrapper>
 
-      {/* Receive Button - Secondary */}
+      {/* Receive Button - Secondary with BlurContainer */}
       <ButtonWrapper disabled={receiveDisabled}>
-        <SecondaryButton
-          onClick={handleReceivePress}
-          disabled={receiveDisabled}
-          aria-label="Receive tokens"
+        <BlurContainer
+          borderColor={colors.accent.primary}
+          borderWidth={borderWidth.actionButton}
+          style={{ borderRadius: ms(componentSizes.actionButtonRadius), height: '100%' }}
         >
-          <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : '#e0e0e0' }} />
-          <ButtonText disabled={receiveDisabled}>Receive</ButtonText>
-        </SecondaryButton>
+          <SecondaryButton
+            onClick={handleReceivePress}
+            disabled={receiveDisabled}
+            aria-label="Receive tokens"
+          >
+            <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : '#e0e0e0' }} />
+            <ButtonText disabled={receiveDisabled}>Receive</ButtonText>
+          </SecondaryButton>
+        </BlurContainer>
       </ButtonWrapper>
 
-      {/* Activity Button - Secondary */}
+      {/* Activity Button - Secondary with BlurContainer */}
       <ButtonWrapper disabled={activityDisabled}>
-        <SecondaryButton
-          onClick={handleActivityPress}
-          disabled={activityDisabled}
-          aria-label="View activity"
+        <BlurContainer
+          borderColor={colors.accent.primary}
+          borderWidth={borderWidth.actionButton}
+          style={{ borderRadius: ms(componentSizes.actionButtonRadius), height: '100%' }}
         >
-          <ActivityIcon sx={{ fontSize: iconSize, color: activityDisabled ? colors.button.disabledText : '#e0e0e0' }} />
-          <ButtonText disabled={activityDisabled}>Activity</ButtonText>
-        </SecondaryButton>
+          <SecondaryButton
+            onClick={handleActivityPress}
+            disabled={activityDisabled}
+            aria-label="View activity"
+          >
+            <ActivityIcon sx={{ fontSize: iconSize, color: activityDisabled ? colors.button.disabledText : '#e0e0e0' }} />
+            <ButtonText disabled={activityDisabled}>Activity</ButtonText>
+          </SecondaryButton>
+        </BlurContainer>
       </ButtonWrapper>
     </Container>
   );

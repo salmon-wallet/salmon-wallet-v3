@@ -55,7 +55,7 @@ export default defineConfig({
       128: 'icon-192.png',
       512: 'icon-512.png',
     },
-    permissions: ['storage', 'alarms', 'tabs'],
+    permissions: ['storage', 'alarms', 'tabs', 'clipboardRead'],
     web_accessible_resources: [
       {
         resources: ['injected.js'],

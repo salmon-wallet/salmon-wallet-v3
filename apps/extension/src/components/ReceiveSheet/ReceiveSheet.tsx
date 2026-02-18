@@ -42,7 +42,9 @@ const ContentWrapper = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  justifyContent: 'center',
   gap: spacing.xl,
+  flex: 1,
 });
 
 const QRContainer = styled(Box)({
@@ -154,7 +156,7 @@ export function ReceiveSheet({
 
       <BaseSheetDialog.Content
         padding="xl"
-        style={{ paddingBottom: spacing['2xl'] }}
+        style={{ paddingBottom: spacing['2xl'], flex: 1 }}
       >
         <ContentWrapper>
           {/* QR Code */}

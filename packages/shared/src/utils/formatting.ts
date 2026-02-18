@@ -313,7 +313,8 @@ export function formatRawAmount(
   const rawAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(rawAmount)) return '0';
 
-  const formattedAmount = rawAmount / Math.pow(10, decimals);
+  const safeDecimals = typeof decimals === 'number' && !isNaN(decimals) ? decimals : 0;
+  const formattedAmount = rawAmount / Math.pow(10, safeDecimals);
 
   if (formattedAmount === 0) return '0';
   if (formattedAmount < minThreshold) return `<${minThreshold}`;

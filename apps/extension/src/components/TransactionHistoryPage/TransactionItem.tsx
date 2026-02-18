@@ -30,6 +30,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { colors, spacing, borderRadius } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
 import type { TransactionItemProps, TransactionType, TransactionTokenAmount } from './types';
 
@@ -198,15 +199,10 @@ function getDescription(
 // ============================================================================
 
 const ItemWrapper = styled(Box)({
-  borderRadius: borderRadius.lg,
   marginBottom: 12,
-  backgroundColor: 'rgba(255, 255, 255, 0.03)',
-  backdropFilter: 'blur(12px)',
-  border: `1px solid ${colors.border.subtle}`,
-  overflow: 'hidden',
-  transition: 'background-color 0.2s ease',
+  transition: 'opacity 0.2s ease',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    opacity: 0.85,
   },
 });
 
@@ -422,12 +418,15 @@ const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
   uri,
   size = 40,
 }) => {
-  if (uri) {
+  const [failed, setFailed] = useState(false);
+
+  if (uri && !failed) {
     return (
       <TokenLogoImg
         src={uri}
         alt=""
         style={{ width: size, height: size }}
+        onError={() => setFailed(true)}
       />
     );
   }
@@ -511,7 +510,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       );
     }
 
-    const primaryToken = type === 'receive' ? inputs[0] : outputs[0];
+    const primaryToken = type === 'receive' ? inputs[0] : (outputs[0] || inputs[0]);
     if (primaryToken?.logo) {
       return (
         <LogoWithBadgeContainer>
@@ -610,6 +609,10 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 
   return (
     <ItemWrapper className={className} style={style}>
+    <BlurContainer
+      borderColor={colors.border.subtle}
+      style={{ borderRadius: borderRadius.lg, overflow: 'hidden' }}
+    >
       <ItemButton
         onClick={handleClick}
         onDoubleClick={handleDoubleClick}
@@ -650,6 +653,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
           expanded={expanded}
         />
       )}
+    </BlurContainer>
     </ItemWrapper>
   );
 };

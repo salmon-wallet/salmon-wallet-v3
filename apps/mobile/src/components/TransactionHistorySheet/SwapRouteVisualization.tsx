@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, LayoutChangeEvent } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, LayoutChangeEvent } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useAnimatedStyle,
@@ -11,6 +11,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
 import { colors, ms, vs, s, fontSize, borderRadius, spacing, formatBlockNumber, formatDateTime, getShortAddress, formatRawAmount, truncateHash } from '@salmon/shared';
 import type { Transaction, SwapRouteHop } from './types';
+import { TokenLogo } from '../TokenLogo';
 import { PriceImpactBadge } from './PriceImpactBadge';
 import { ConversionRateDisplay } from './ConversionRateDisplay';
 
@@ -60,30 +61,6 @@ function buildRouteSummary(transaction: Transaction): string {
 // ============================================================================
 // Sub-components
 // ============================================================================
-
-/**
- * Token logo with fallback
- */
-const TokenIcon: React.FC<{ uri?: string | null; size?: number }> = ({
-  uri,
-  size = 24,
-}) => {
-  if (uri) {
-    return (
-      <Image
-        source={{ uri }}
-        style={[styles.tokenIcon, { width: size, height: size, borderRadius: size / 2 }]}
-        resizeMode="cover"
-      />
-    );
-  }
-
-  return (
-    <View style={[styles.tokenIconPlaceholder, { width: size, height: size, borderRadius: size / 2 }]}>
-      <Ionicons name="help-circle" size={size * 0.6} color={colors.text.tertiary} />
-    </View>
-  );
-};
 
 /**
  * Copyable hash/text row component
@@ -138,7 +115,7 @@ const RouteHop: React.FC<{ hop: SwapRouteHop; isLast: boolean }> = ({ hop, isLas
     <View style={styles.hopContainer}>
       {/* Input token */}
       <View style={styles.hopToken}>
-        <TokenIcon uri={hop.inputToken.logo} size={20} />
+        <TokenLogo uri={hop.inputToken.logo || undefined} symbol={hop.inputToken.symbol} size={20} />
         <Text style={styles.hopAmount} numberOfLines={1}>
           {formatRawAmount(hop.inputToken.amount, hop.inputToken.decimals, 0.0001)} {hop.inputToken.symbol}
         </Text>
@@ -158,7 +135,7 @@ const RouteHop: React.FC<{ hop: SwapRouteHop; isLast: boolean }> = ({ hop, isLas
       {/* Output token (only show on last hop or if different from next input) */}
       {isLast && (
         <View style={styles.hopToken}>
-          <TokenIcon uri={hop.outputToken.logo} size={20} />
+          <TokenLogo uri={hop.outputToken.logo || undefined} symbol={hop.outputToken.symbol} size={20} />
           <Text style={styles.hopAmount} numberOfLines={1}>
             {formatRawAmount(hop.outputToken.amount, hop.outputToken.decimals, 0.0001)} {hop.outputToken.symbol}
           </Text>
@@ -210,7 +187,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
           <Text style={styles.routeLabel}>Sent</Text>
           {outputs.slice(0, 3).map((output, i) => (
             <View key={`out-${i}`} style={styles.routeTokenRow}>
-              <TokenIcon uri={output.logo} size={18} />
+              <TokenLogo uri={output.logo || undefined} symbol={output.symbol} size={18} />
               <Text style={styles.routeTokenText} numberOfLines={1}>
                 {formatRawAmount(output.amount, output.decimals, 0.0001)} {output.symbol}
               </Text>
@@ -231,7 +208,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
           <Text style={styles.routeLabel}>Received</Text>
           {inputs.slice(0, 3).map((input, i) => (
             <View key={`in-${i}`} style={styles.routeTokenRow}>
-              <TokenIcon uri={input.logo} size={18} />
+              <TokenLogo uri={input.logo || undefined} symbol={input.symbol} size={18} />
               <Text style={styles.routeTokenText} numberOfLines={1}>
                 {formatRawAmount(input.amount, input.decimals, 0.0001)} {input.symbol}
               </Text>
@@ -717,16 +694,6 @@ const styles = StyleSheet.create({
   },
   summaryValueWarning: {
     color: colors.status.warning,
-  },
-
-  // Token icon styles
-  tokenIcon: {
-    backgroundColor: colors.background.card,
-  },
-  tokenIconPlaceholder: {
-    backgroundColor: colors.background.card,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 
   // Hash copy row styles

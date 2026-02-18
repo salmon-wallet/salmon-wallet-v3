@@ -20,7 +20,4 @@ export interface SendSheetProps extends SendSheetPropsBase<ViewStyle> {}
 /**
  * Props for the address and amount step (React Native)
  */
-export interface StepAddressAmountProps extends StepAddressAmountPropsBase {
-  /** The active blockchain account (for obtaining provider/connection) */
-  account?: any;
-}
+export interface StepAddressAmountProps extends StepAddressAmountPropsBase {}

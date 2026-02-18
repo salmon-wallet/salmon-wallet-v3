@@ -7,7 +7,7 @@
  *
  * @example
  * ```tsx
- * import { WalletSwitcherSheet } from '@salmon/ui';
+ * import { WalletSwitcherSheet } from '../components';
  *
  * function HomeScreen() {
  *   const [showSwitcher, setShowSwitcher] = useState(false);

@@ -16,6 +16,7 @@ const FONT_FAMILY = {
 export const SwapReviewCard: React.FC<SwapReviewCardProps> = ({
   label,
   amount,
+  usdValue,
   style,
 }) => {
   return (
@@ -23,6 +24,7 @@ export const SwapReviewCard: React.FC<SwapReviewCardProps> = ({
       <BlurView intensity={5} tint="dark" style={styles.blurContent}>
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.amount}>{amount}</Text>
+        {usdValue != null && <Text style={styles.usdValue}>{usdValue}</Text>}
       </BlurView>
     </View>
   );
@@ -55,6 +57,14 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     letterSpacing: -0.12,
     lineHeight: ms(25),
+    marginTop: vs(2),
+  },
+  usdValue: {
+    fontSize: ms(13),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.text.secondary,
+    letterSpacing: -0.065,
+    lineHeight: ms(13 * 1.4),
     marginTop: vs(2),
   },
 });

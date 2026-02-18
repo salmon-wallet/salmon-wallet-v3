@@ -23,10 +23,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, spacing, fontSize, borderRadius, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash } from '@salmon/shared';
+import { colors, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
+import { TokenLogo } from '../TokenLogo';
 import { AddressCopyRow } from '../TransactionHistorySheet/AddressCopyRow';
 import { ExplorerLinkButton } from '../TransactionHistorySheet/ExplorerLinkButton';
 import { PriceImpactBadge } from '../TransactionHistorySheet/PriceImpactBadge';
@@ -136,37 +137,23 @@ const STATUS_CONFIG = {
   },
 };
 
-// ============================================================================
-// Helper Functions
-// ============================================================================
+/**
+ * Confirmation status display configuration
+ */
+const CONFIRMATION_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  processed: { label: 'Processed', color: colors.status.warning },
+  confirmed: { label: 'Confirmed', color: colors.palette.blue },
+  finalized: { label: 'Finalized', color: colors.status.success },
+};
 
 // ============================================================================
 // Sub-components
 // ============================================================================
 
 /**
- * Token logo component with fallback
+ * Internal divider for grouping rows within a single card
  */
-const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
-  uri,
-  size = 36,
-}) => {
-  if (uri) {
-    return (
-      <Image
-        source={{ uri }}
-        style={[styles.tokenLogo, { width: size, height: size, borderRadius: size / 2 }]}
-        resizeMode="cover"
-      />
-    );
-  }
-
-  return (
-    <View style={[styles.tokenLogoPlaceholder, { width: size, height: size, borderRadius: size / 2 }]}>
-      <Ionicons name="help-circle-outline" size={size * 0.6} color={colors.text.secondary} />
-    </View>
-  );
-};
+const InternalDivider: React.FC = () => <View style={styles.internalDivider} />;
 
 /**
  * Token amount row component
@@ -180,7 +167,7 @@ const TokenAmountRow: React.FC<{
 
   return (
     <View style={styles.tokenRow}>
-      <TokenLogo uri={token.logo} size={32} />
+      <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={32} />
       <View style={styles.tokenInfo}>
         <Text style={styles.tokenSymbol}>{token.symbol}</Text>
         {token.name && (
@@ -209,7 +196,7 @@ const SwapVisualization: React.FC<{
   return (
     <View style={styles.swapContainer}>
       <View style={styles.swapTokenSection}>
-        <TokenLogo uri={fromToken.logo} size={40} />
+        <TokenLogo uri={fromToken.logo || undefined} symbol={fromToken.symbol} size={40} />
         <Text style={styles.swapAmount}>
           {formatRawAmount(fromToken.amount, fromToken.decimals)}
         </Text>
@@ -219,7 +206,7 @@ const SwapVisualization: React.FC<{
         <Ionicons name="arrow-forward" size={24} color={colors.text.secondary} />
       </View>
       <View style={styles.swapTokenSection}>
-        <TokenLogo uri={toToken.logo} size={40} />
+        <TokenLogo uri={toToken.logo || undefined} symbol={toToken.symbol} size={40} />
         <Text style={styles.swapAmount}>
           {formatRawAmount(toToken.amount, toToken.decimals)}
         </Text>
@@ -252,7 +239,7 @@ const NftMetadataSection: React.FC<{
   if (!token.isNft) return null;
 
   return (
-    <BlurContainer style={styles.section}>
+    <BlurContainer style={styles.section} borderWidth={0}>
       <Text style={styles.sectionTitle}>NFT Details</Text>
 
       {/* NFT Media Preview */}
@@ -319,35 +306,6 @@ const ActionButton: React.FC<{
 // Main Component
 // ============================================================================
 
-/**
- * TransactionDetailModal - Bottom sheet modal for transaction details
- *
- * Features:
- * - Slide-up animation from bottom (~70% height)
- * - Drag to dismiss
- * - Backdrop press to close
- * - Transaction type header with icon
- * - Protocol/source badge
- * - Status indicator
- * - Formatted timestamp
- * - Token inputs/outputs visualization
- * - Swap conversion display
- * - Network fee
- * - Action buttons (View on Solscan, Copy Hash, Share)
- * - Haptic feedback on open
- *
- * @example
- * ```tsx
- * <TransactionDetailModal
- *   visible={isVisible}
- *   onClose={() => setIsVisible(false)}
- *   transaction={selectedTransaction}
- *   onViewExplorer={(tx) => openExplorer(tx.id)}
- *   onCopyHash={(hash) => copyToClipboard(hash)}
- *   onShare={(tx) => shareTransaction(tx)}
- * />
- * ```
- */
 export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   visible,
   onClose,
@@ -355,6 +313,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   onViewExplorer,
   onCopyHash,
   onShare,
+  developerMode,
   style,
 }) => {
   // Animation shared values
@@ -526,7 +485,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 <View style={styles.header}>
                   {/* Type icon */}
                   <View style={[styles.typeIconContainer, { backgroundColor: `${typeConfig.color}20` }]}>
-                    <Ionicons name={typeConfig.icon} size={28} color={typeConfig.color} />
+                    <Ionicons name={typeConfig.icon} size={22} color={typeConfig.color} />
                   </View>
 
                   {/* Title and source */}
@@ -553,6 +512,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     </View>
                   </View>
                 </View>
+
+                {/* Description (inline in header area) */}
+                {transaction.description && (
+                  <Text style={styles.headerDescription} numberOfLines={2}>
+                    {transaction.description}
+                  </Text>
+                )}
               </Animated.View>
             </GestureDetector>
 
@@ -562,31 +528,51 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               contentContainerStyle={styles.contentContainer}
               showsVerticalScrollIndicator={false}
             >
-              {/* Timestamp */}
-              <BlurContainer style={styles.section}>
+              {/* Card 1 — Details: Date/Time + Confirmation + Block */}
+              <BlurContainer style={styles.section} borderWidth={0}>
                 <View style={styles.sectionRow}>
                   <Text style={styles.sectionLabel}>Date & Time</Text>
                   <Text style={styles.sectionValue}>
                     {formatDateTime(transaction.timestamp)}
                   </Text>
                 </View>
-              </BlurContainer>
 
-              {/* Block/Slot Number */}
-              {transaction.slot && (
-                <BlurContainer style={styles.section}>
-                  <View style={styles.sectionRow}>
-                    <Text style={styles.sectionLabel}>Block</Text>
-                    <Text style={styles.sectionValue}>
-                      #{formatBlockNumber(transaction.slot)}
-                    </Text>
-                  </View>
-                </BlurContainer>
-              )}
+                {transaction.confirmationStatus && (
+                  <>
+                    <InternalDivider />
+                    <View style={styles.sectionRow}>
+                      <Text style={styles.sectionLabel}>Confirmation</Text>
+                      <View style={[
+                        styles.confirmationBadge,
+                        { backgroundColor: `${CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary}20` },
+                      ]}>
+                        <Text style={[
+                          styles.confirmationText,
+                          { color: CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary },
+                        ]}>
+                          {CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.label ?? transaction.confirmationStatus}
+                        </Text>
+                      </View>
+                    </View>
+                  </>
+                )}
+
+                {transaction.slot && (
+                  <>
+                    <InternalDivider />
+                    <View style={styles.sectionRow}>
+                      <Text style={styles.sectionLabel}>Block</Text>
+                      <Text style={styles.sectionValue}>
+                        #{formatBlockNumber(transaction.slot)}
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </BlurContainer>
 
               {/* Swap Visualization (for swaps) */}
               {transaction.type === 'swap' && (
-                <BlurContainer style={styles.section}>
+                <BlurContainer style={styles.section} borderWidth={0}>
                   <View style={styles.swapHeaderRow}>
                     <Text style={styles.sectionTitle}>Conversion</Text>
                     {transaction.swapRoute?.priceImpact && (
@@ -614,34 +600,62 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 </BlurContainer>
               )}
 
-              {/* Tokens Involved (for non-swaps) */}
-              {transaction.type !== 'swap' && (
-                <>
+              {/* Swap Route Hops (for multi-hop swaps) */}
+              {transaction.type === 'swap' && transaction.swapRoute?.hops && transaction.swapRoute.hops.length > 0 && (
+                <BlurContainer style={styles.section} borderWidth={0}>
+                  <Text style={styles.sectionTitle}>Swap Route</Text>
+                  {transaction.swapRoute.hops.map((hop, index) => (
+                    <View key={`hop-${index}`} style={styles.hopRow}>
+                      <View style={styles.hopBadge}>
+                        <Text style={styles.hopBadgeText}>{hop.dex}</Text>
+                      </View>
+                      <View style={styles.hopTokens}>
+                        <Text style={styles.hopTokenText}>
+                          {hop.inputToken.symbol}
+                        </Text>
+                        <Ionicons name="arrow-forward" size={12} color={colors.text.tertiary} />
+                        <Text style={styles.hopTokenText}>
+                          {hop.outputToken.symbol}
+                        </Text>
+                      </View>
+                      {hop.percent < 100 && (
+                        <Text style={styles.hopPercent}>{hop.percent}%</Text>
+                      )}
+                    </View>
+                  ))}
+                </BlurContainer>
+              )}
+
+              {/* Card 2 — Tokens (non-swap): Sent + Received merged */}
+              {transaction.type !== 'swap' && (transaction.outputs.length > 0 || transaction.inputs.length > 0) && (
+                <BlurContainer style={styles.section} borderWidth={0}>
                   {transaction.outputs.length > 0 && (
-                    <BlurContainer style={styles.section}>
+                    <>
                       <Text style={styles.sectionTitle}>Sent</Text>
                       {transaction.outputs.map((token, index) => (
                         <TokenAmountRow key={`out-${index}`} token={token} sign="-" />
                       ))}
-                    </BlurContainer>
+                    </>
+                  )}
+                  {transaction.outputs.length > 0 && transaction.inputs.length > 0 && (
+                    <InternalDivider />
                   )}
                   {transaction.inputs.length > 0 && (
-                    <BlurContainer style={styles.section}>
+                    <>
                       <Text style={styles.sectionTitle}>Received</Text>
                       {transaction.inputs.map((token, index) => (
                         <TokenAmountRow key={`in-${index}`} token={token} sign="+" />
                       ))}
-                    </BlurContainer>
+                    </>
                   )}
-                </>
+                </BlurContainer>
               )}
 
-              {/* Address Section - From/To addresses */}
-              {(transaction.outputs.some(t => t.destination) || transaction.inputs.some(t => t.source)) && (
-                <BlurContainer style={styles.section}>
+              {/* Address Section */}
+              {(transaction.outputs.some(t => t.destination) || transaction.inputs.some(t => t.source) || transaction.feePayer) && (
+                <BlurContainer style={styles.section} borderWidth={0}>
                   <Text style={styles.sectionTitle}>Addresses</Text>
                   <View style={styles.addressesContainer}>
-                    {/* Show destination addresses from outputs (where tokens were sent) */}
                     {transaction.outputs.map((token, index) =>
                       token.destination ? (
                         <AddressCopyRow
@@ -653,7 +667,6 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                         />
                       ) : null
                     )}
-                    {/* Show source addresses from inputs (where tokens came from) */}
                     {transaction.inputs.map((token, index) =>
                       token.source ? (
                         <AddressCopyRow
@@ -664,6 +677,14 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                           style={styles.addressRow}
                         />
                       ) : null
+                    )}
+                    {transaction.feePayer && (
+                      <AddressCopyRow
+                        label="Fee Payer"
+                        address={transaction.feePayer}
+                        truncate="medium"
+                        style={styles.addressRow}
+                      />
                     )}
                   </View>
                 </BlurContainer>
@@ -681,27 +702,126 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   <NftMetadataSection key={`nft-out-${index}`} token={token} />
                 ))}
 
-              {/* Network Fee */}
-              {transaction.fee && (
-                <BlurContainer style={styles.section}>
+              {/* Card 3 — Transaction Info: Fee + Swap Fee + Hash merged */}
+              <BlurContainer style={styles.section} borderWidth={0}>
+                {transaction.fee && (
                   <View style={styles.sectionRow}>
                     <Text style={styles.sectionLabel}>Network Fee</Text>
                     <Text style={styles.sectionValue}>
                       {formatRawAmount(transaction.fee.amount, transaction.fee.decimals)} {transaction.fee.symbol}
                     </Text>
                   </View>
-                </BlurContainer>
-              )}
+                )}
 
-              {/* Transaction Hash */}
-              <BlurContainer style={styles.section}>
+                {transaction.swapRoute?.totalFee && (
+                  <>
+                    {transaction.fee && <InternalDivider />}
+                    <View style={styles.sectionRow}>
+                      <Text style={styles.sectionLabel}>Swap Fee</Text>
+                      <Text style={styles.sectionValue}>
+                        {transaction.swapRoute.totalFee.amount} {transaction.swapRoute.totalFee.symbol}
+                      </Text>
+                    </View>
+                  </>
+                )}
+
+                {(transaction.fee || transaction.swapRoute?.totalFee) && <InternalDivider />}
+
                 <View style={styles.sectionRow}>
                   <Text style={styles.sectionLabel}>Transaction Hash</Text>
                   <Text style={styles.hashValue}>{truncateHash(transaction.id, 8)}</Text>
                 </View>
               </BlurContainer>
 
-              {/* Explorer Link Button */}
+              {/* Developer Info (dev mode only) */}
+              {developerMode && (
+                <BlurContainer style={styles.section} borderWidth={0}>
+                  <View style={styles.devSectionHeader}>
+                    <Ionicons name="code-slash-outline" size={16} color={colors.text.secondary} />
+                    <Text style={styles.sectionTitle}>Developer Info</Text>
+                  </View>
+
+                  {transaction.heliusType && (
+                    <View style={styles.sectionRow}>
+                      <Text style={styles.sectionLabel}>Helius Type</Text>
+                      <View style={styles.devBadge}>
+                        <Text style={styles.devBadgeText}>{transaction.heliusType}</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {transaction.accountsInvolved != null && (
+                    <View style={[styles.sectionRow, { marginTop: vs(spacing.sm) }]}>
+                      <Text style={styles.sectionLabel}>Accounts Involved</Text>
+                      <Text style={styles.sectionValue}>{transaction.accountsInvolved}</Text>
+                    </View>
+                  )}
+
+                  {transaction.instructions && transaction.instructions.length > 0 && (
+                    <View style={styles.devSubSection}>
+                      <Text style={styles.devSubTitle}>Programs</Text>
+                      {transaction.instructions.map((ix, index) => (
+                        <View key={`ix-${index}`} style={styles.devRow}>
+                          <Text style={styles.devMonoText}>
+                            {getShortAddress(ix.programId, 6)}
+                          </Text>
+                          {ix.innerInstructionsCount > 0 && (
+                            <Text style={styles.devSecondaryText}>
+                              {ix.innerInstructionsCount} inner
+                            </Text>
+                          )}
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {transaction.innerSwaps && transaction.innerSwaps.length > 0 && (
+                    <View style={styles.devSubSection}>
+                      <Text style={styles.devSubTitle}>Inner Swaps</Text>
+                      {transaction.innerSwaps.map((swap, index) => (
+                        <View key={`inner-${index}`} style={styles.devRow}>
+                          <Text style={styles.devMonoText}>
+                            {swap.programInfo.source}
+                          </Text>
+                          <Text style={styles.devSecondaryText}>
+                            {swap.programInfo.programName} / {swap.programInfo.instructionName}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {transaction.swapFees && (
+                    <View style={styles.devSubSection}>
+                      <Text style={styles.devSubTitle}>Swap Fees</Text>
+                      {transaction.swapFees.nativeFees.map((fee, index) => (
+                        <View key={`nfee-${index}`} style={styles.devRow}>
+                          <Text style={styles.devMonoText}>
+                            {getShortAddress(fee.account, 6)}
+                          </Text>
+                          <Text style={styles.devSecondaryText}>
+                            {fee.amount} SOL
+                          </Text>
+                        </View>
+                      ))}
+                      {transaction.swapFees.tokenFees.map((fee, index) => (
+                        <View key={`tfee-${index}`} style={styles.devRow}>
+                          <Text style={styles.devMonoText}>
+                            {getShortAddress(fee.account, 6)}
+                          </Text>
+                          <Text style={styles.devSecondaryText}>
+                            {fee.amount} ({getShortAddress(fee.mint, 4)})
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </BlurContainer>
+              )}
+            </ScrollView>
+
+            {/* Fixed Bottom Action Bar */}
+            <View style={styles.fixedBottomBar}>
               <ExplorerLinkButton
                 txHash={transaction.id}
                 blockchain="SOLANA"
@@ -712,11 +832,9 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     onViewExplorer(transaction);
                   }
                 }}
-                style={styles.explorerButton}
+                style={styles.explorerButtonOverride}
               />
-
-              {/* Action Buttons */}
-              <View style={styles.actionsContainer}>
+              <View style={styles.actionsRow}>
                 {onCopyHash && (
                   <ActionButton
                     icon="copy-outline"
@@ -732,7 +850,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   />
                 )}
               </View>
-            </ScrollView>
+            </View>
           </Animated.View>
         </View>
       </GestureHandlerRootView>
@@ -784,7 +902,7 @@ const styles = StyleSheet.create({
   handleContainer: {
     alignItems: 'center',
     paddingTop: vs(9),
-    paddingBottom: vs(8),
+    paddingBottom: vs(spacing.sm),
   },
   handle: {
     width: s(70),
@@ -797,15 +915,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(16),
+    paddingBottom: vs(spacing.md),
   },
   typeIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: s(14),
+    marginRight: s(spacing.md),
   },
   headerInfo: {
     flex: 1,
@@ -813,8 +931,8 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(8),
-    marginBottom: vs(4),
+    gap: s(spacing.sm),
+    marginBottom: vs(spacing.xs),
   },
   title: {
     fontSize: ms(fontSize['2xl']),
@@ -822,7 +940,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   sourceBadge: {
-    paddingHorizontal: s(8),
+    paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(3),
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
@@ -832,34 +950,46 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.medium,
     color: colors.text.tertiary,
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    letterSpacing: letterSpacing.wide,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(4),
+    gap: s(spacing.xs),
   },
   statusText: {
     fontSize: ms(fontSize.base),
     fontFamily: FONT_FAMILY.medium,
+  },
+  headerDescription: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.regular,
+    color: colors.text.tertiary,
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing.sm),
   },
   content: {
     flex: 1,
   },
   contentContainer: {
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(40),
-    gap: vs(12),
+    paddingBottom: vs(spacing.md),
+    gap: vs(spacing.sm),
+  },
+  internalDivider: {
+    height: 1,
+    backgroundColor: colors.border.subtle,
+    marginVertical: vs(spacing.sm),
   },
   section: {
     borderRadius: borderRadius.lg,
-    padding: s(16),
+    padding: s(spacing.lg),
   },
   sectionTitle: {
     fontSize: ms(fontSize.base),
     fontFamily: FONT_FAMILY.semiBold,
     color: colors.text.secondary,
-    marginBottom: vs(12),
+    marginBottom: vs(spacing.md),
   },
   sectionRow: {
     flexDirection: 'row',
@@ -885,19 +1015,11 @@ const styles = StyleSheet.create({
   tokenRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: vs(8),
-  },
-  tokenLogo: {
-    backgroundColor: colors.background.card,
-  },
-  tokenLogoPlaceholder: {
-    backgroundColor: colors.background.card,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: vs(spacing.sm),
   },
   tokenInfo: {
     flex: 1,
-    marginLeft: s(12),
+    marginLeft: s(spacing.md),
   },
   tokenSymbol: {
     fontSize: ms(fontSize.lg),
@@ -908,7 +1030,7 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.sm),
     fontFamily: FONT_FAMILY.regular,
     color: colors.text.secondary,
-    marginTop: vs(2),
+    marginTop: vs(spacing['2xs']),
   },
   tokenAmount: {
     fontSize: ms(fontSize.lg),
@@ -919,7 +1041,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingVertical: vs(8),
+    paddingVertical: vs(spacing.sm),
   },
   swapTokenSection: {
     alignItems: 'center',
@@ -929,35 +1051,35 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.lg),
     fontFamily: FONT_FAMILY.bold,
     color: colors.text.primary,
-    marginTop: vs(8),
+    marginTop: vs(spacing.sm),
   },
   swapSymbol: {
     fontSize: ms(fontSize.sm),
     fontFamily: FONT_FAMILY.medium,
     color: colors.text.secondary,
-    marginTop: vs(2),
+    marginTop: vs(spacing['2xs']),
   },
   swapArrow: {
-    paddingHorizontal: s(12),
+    paddingHorizontal: s(spacing.md),
   },
   // Swap header row (title + price impact badge)
   swapHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: vs(12),
+    marginBottom: vs(spacing.md),
   },
   // Conversion rate display container
   conversionRateContainer: {
-    marginTop: vs(12),
-    paddingTop: vs(12),
+    marginTop: vs(spacing.md),
+    paddingTop: vs(spacing.md),
     borderTopWidth: 1,
     borderTopColor: colors.border.default,
     alignItems: 'center',
   },
   // Address section styles
   addressesContainer: {
-    gap: vs(8),
+    gap: vs(spacing.sm),
   },
   addressRow: {
     marginVertical: 0,
@@ -965,7 +1087,7 @@ const styles = StyleSheet.create({
   // NFT metadata section styles
   nftMediaContainer: {
     alignItems: 'center',
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   nftMediaPreview: {
     width: 120,
@@ -977,33 +1099,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: vs(12),
+    marginBottom: vs(spacing.md),
   },
   nftCollectionInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   verifiedIcon: {
-    marginLeft: s(4),
+    marginLeft: s(spacing.xs),
   },
   nftAttributesContainer: {
-    marginTop: vs(8),
+    marginTop: vs(spacing.sm),
   },
   nftAttributesLabel: {
     fontSize: ms(fontSize.sm),
     fontFamily: FONT_FAMILY.medium,
     color: colors.text.secondary,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   nftAttributesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: s(8),
+    gap: s(spacing.sm),
   },
   nftAttributeChip: {
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
-    paddingHorizontal: s(10),
+    paddingHorizontal: s(spacing.base),
     paddingVertical: vs(6),
     borderWidth: 1,
     borderColor: colors.border.default,
@@ -1014,24 +1136,132 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.medium,
     color: colors.text.tertiary,
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
-    marginBottom: vs(2),
+    letterSpacing: letterSpacing.wide,
+    marginBottom: vs(spacing['2xs']),
   },
   nftAttributeValue: {
     fontSize: ms(fontSize.sm),
     fontFamily: FONT_FAMILY.semiBold,
     color: colors.text.primary,
   },
-  // Explorer button styles
-  explorerButton: {
-    marginTop: vs(8),
+  // Confirmation status badge
+  confirmationBadge: {
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing['2xs']),
+    borderRadius: borderRadius.sm,
   },
-  // Action buttons styles
-  actionsContainer: {
+  confirmationText: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.semiBold,
+    textTransform: 'uppercase',
+    letterSpacing: letterSpacing.wide,
+  },
+  // Swap route hop styles
+  hopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: vs(spacing.xs),
+    gap: s(spacing.sm),
+  },
+  hopBadge: {
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing['2xs']),
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+  },
+  hopBadgeText: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.semiBold,
+    color: colors.text.primary,
+  },
+  hopTokens: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(spacing.xs),
+  },
+  hopTokenText: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.text.secondary,
+  },
+  hopPercent: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.text.tertiary,
+  },
+  // Developer info section styles
+  devSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(spacing.xs),
+    marginBottom: vs(spacing.md),
+  },
+  devBadge: {
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing['2xs']),
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+  },
+  devBadgeText: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.semiBold,
+    color: colors.text.primary,
+    textTransform: 'uppercase',
+    letterSpacing: letterSpacing.wide,
+  },
+  devSubSection: {
+    marginTop: vs(spacing.md),
+    paddingTop: vs(spacing.sm),
+    borderTopWidth: 1,
+    borderTopColor: colors.border.default,
+  },
+  devSubTitle: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.semiBold,
+    color: colors.text.tertiary,
+    textTransform: 'uppercase',
+    letterSpacing: letterSpacing.wide,
+    marginBottom: vs(spacing.xs),
+  },
+  devRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: vs(spacing.xs),
+  },
+  devMonoText: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.medium,
+    color: colors.text.primary,
+  },
+  devSecondaryText: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: FONT_FAMILY.regular,
+    color: colors.text.tertiary,
+  },
+  // Fixed bottom action bar
+  fixedBottomBar: {
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingTop: vs(spacing.md),
+    paddingBottom: vs(spacing.xl),
+    borderTopWidth: 1,
+    borderTopColor: colors.border.subtle,
+    backgroundColor: '#161c2d',
+  },
+  explorerButtonOverride: {
+    backgroundColor: colors.background.card,
+    borderColor: colors.border.default,
+  },
+  actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: vs(8),
-    gap: s(8),
+    marginTop: vs(spacing.sm),
+    gap: s(spacing.sm),
   },
   actionButton: {
     flex: 1,
@@ -1040,8 +1270,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.md,
-    paddingVertical: vs(12),
-    paddingHorizontal: s(12),
+    paddingVertical: vs(spacing.md),
+    paddingHorizontal: s(spacing.md),
     gap: s(6),
     borderWidth: 1,
     borderColor: colors.border.default,

@@ -177,6 +177,10 @@ export type {
 export { NftSeeAllSheet } from './NftSeeAllSheet';
 export type { NftSeeAllSheetProps } from './NftSeeAllSheet';
 
+// NftSendSheet - Bottom sheet for sending an NFT
+export { NftSendSheet } from './NftSendSheet';
+export type { NftSendSheetProps } from './NftSendSheet';
+
 // SVG Icons
 export {
   WalletSvgIcon,

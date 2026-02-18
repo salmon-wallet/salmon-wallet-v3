@@ -1,8 +1,5 @@
-/**
- * BalanceCard types for @salmon/ui-extension
- */
+import type { BalanceCardCarouselPropsBase, BalanceCardPropsBase, BlockchainId } from '@salmon/shared';
 import type { CSSProperties } from 'react';
-import type { BalanceCardPropsBase, BalanceCardCarouselPropsBase, BlockchainId } from '@salmon/shared';
 
 /**
  * Props for the BalanceCard component (Web/Extension)

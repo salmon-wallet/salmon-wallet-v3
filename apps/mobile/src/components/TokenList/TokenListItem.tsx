@@ -16,16 +16,11 @@ import {
   vs,
 } from '@salmon/shared';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BlurContainer } from '../BlurContainer';
+import { TokenLogo } from '../TokenLogo';
 import TokenBadges from './TokenBadges';
 import type { TokenListItemProps } from './types';
-
-/**
- * Default placeholder image for tokens without a logo
- */
-const DEFAULT_TOKEN_LOGO =
-  'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
 
 /**
  * Arrow indicator component for price changes
@@ -119,11 +114,11 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
           accessibilityLabel={`${name} token, price ${price}, balance ${uiAmount} ${symbol}`}
         >
           {/* Token Logo */}
-          <Image
-            source={{ uri: logo || DEFAULT_TOKEN_LOGO }}
-            style={styles.logoBitcoin}
-            resizeMode="cover"
-            accessibilityIgnoresInvertColors
+          <TokenLogo
+            uri={logo}
+            symbol={symbol}
+            size={s(33)}
+            borderRadius={16.5}
           />
 
           {/* Bitcoin Info - Price and percentage change */}
@@ -168,11 +163,11 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
         accessibilityLabel={`${name} token, balance ${uiAmount} ${symbol}`}
       >
         {/* Token Logo */}
-        <Image
-          source={{ uri: logo || DEFAULT_TOKEN_LOGO }}
-          style={styles.logo}
-          resizeMode="cover"
-          accessibilityIgnoresInvertColors
+        <TokenLogo
+          uri={logo}
+          symbol={symbol}
+          size={s(componentSizes.tokenIcon)}
+          borderRadius={borderRadius.tokenIcon}
         />
 
         {/* Token Info - Left Side */}
@@ -235,12 +230,6 @@ const styles = StyleSheet.create({
   },
 
   // Solana/Ethereum styles
-  logo: {
-    width: s(componentSizes.tokenIcon),
-    height: vs(componentSizes.tokenIcon),
-    borderRadius: borderRadius.tokenIcon,
-    backgroundColor: colors.background.tertiary,
-  },
   infoContainer: {
     flex: 1,
   },
@@ -299,12 +288,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.md),
     paddingVertical: vs(spacing.md),
     gap: s(spacing.md),
-  },
-  logoBitcoin: {
-    width: s(33),
-    height: vs(33),
-    borderRadius: 16.5,
-    backgroundColor: colors.background.tertiary,
   },
   bitcoinInfoContainer: {
     flex: 1,
