@@ -7,6 +7,7 @@ import {
   Message,
 } from '@solana/web3.js';
 import bs58 from 'bs58';
+import { SOLANA_NETWORKS } from './factory';
 import {
   requiresMemo as checkRequiresMemo,
   calculateTransferFee as calcTransferFee,
@@ -109,6 +110,8 @@ export class SolanaAccount {
 
   /** Cached connection instance (lazy initialized) */
   private connection: Connection | null = null;
+  /** The nodeUrl used to create the current connection (for comparison) */
+  private connectionNodeUrl: string | null = null;
 
   /**
    * Creates a new SolanaAccount instance
@@ -136,13 +139,21 @@ export class SolanaAccount {
   /**
    * Gets or creates a connection to the Solana network.
    * Uses lazy initialization to avoid creating connections until needed.
+   * Always uses the latest network configuration from SOLANA_NETWORKS to ensure
+   * the RPC URL is up-to-date (may have been updated by fetchAndMergeNetworkConfigs).
    *
    * @returns Promise resolving to Connection instance
    */
   async getConnection(): Promise<Connection> {
-    if (!this.connection) {
-      const { nodeUrl, commitment = 'confirmed' } = this.network.config;
+    // Always get the latest network config from SOLANA_NETWORKS in case it was updated
+    const latestNetwork = SOLANA_NETWORKS[this.network.id];
+    const nodeUrl = latestNetwork?.config?.nodeUrl || this.network.config.nodeUrl;
+    const commitment = latestNetwork?.config?.commitment || this.network.config.commitment || 'confirmed';
+    
+    // Recreate connection if nodeUrl changed or if connection doesn't exist
+    if (!this.connection || this.connectionNodeUrl !== nodeUrl) {
       this.connection = new Connection(nodeUrl, commitment);
+      this.connectionNodeUrl = nodeUrl;
     }
     return this.connection;
   }

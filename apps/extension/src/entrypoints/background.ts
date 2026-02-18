@@ -135,12 +135,12 @@ export default defineBackground(() => {
 
     chrome.windows.getLastFocused(async (focusedWindow) => {
       const popup = await chrome.windows.create({
-        url: 'index.html#' + searchParams.toString(),
+        url: 'popup.html#' + searchParams.toString(),
         type: 'popup',
-        width: 460,
+        width: 380,
         height: 675,
         top: focusedWindow.top,
-        left: (focusedWindow.left || 0) + (focusedWindow.width || 460) - 460,
+        left: (focusedWindow.left || 0) + (focusedWindow.width || 380) - 380,
         focused: true,
       });
 
