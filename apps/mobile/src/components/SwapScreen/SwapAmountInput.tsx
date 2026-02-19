@@ -75,7 +75,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
           onPress={onTokenPress}
           activeOpacity={0.7}
         >
-          <TokenLogo uri={token?.logo || undefined} symbol={token?.symbol} size={ms(18)} />
+          <TokenLogo uri={token?.logo || undefined} symbol={token?.symbol} size={ms(22)} />
           <Text style={styles.tokenSymbol}>{token?.symbol || 'Select'}</Text>
         </TouchableOpacity>
       </View>
@@ -133,13 +133,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#2a384e',
+    backgroundColor: colors.button.secondaryBackground,
     borderRadius: borderRadius.sm + 2,
-    paddingHorizontal: s(spacing.xs),
+    paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(2),
     gap: s(spacing.sm - 1),
-    height: vs(30),
-    minWidth: s(88),
+    height: vs(36),
+    minWidth: s(100),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   tokenSymbol: {
-    fontSize: ms(12),
+    fontSize: ms(14),
     fontFamily: FONT_FAMILY.bold,
     color: colors.text.primary,
     opacity: 0.9,

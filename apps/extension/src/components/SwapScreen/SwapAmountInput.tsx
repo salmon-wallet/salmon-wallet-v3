@@ -103,12 +103,12 @@ const TokenDropdown = styled(ButtonBase)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: '#2a384e',
+  backgroundColor: colors.button.secondaryBackground,
   borderRadius: borderRadius.sm + 2,
-  padding: `2px ${spacing.xs}px`,
+  padding: `2px ${spacing.sm}px`,
   gap: spacing.sm - 1,
-  height: 30,
-  minWidth: 88,
+  height: 36,
+  minWidth: 100,
   boxShadow: '0 3px 3px rgba(0, 0, 0, 0.25)',
   cursor: 'pointer',
   transition: 'opacity 0.2s ease',
@@ -118,21 +118,21 @@ const TokenDropdown = styled(ButtonBase)({
 });
 
 const TokenIcon = styled('img')({
-  width: 18,
-  height: 18,
-  borderRadius: 9,
+  width: 22,
+  height: 22,
+  borderRadius: 11,
   objectFit: 'cover',
 });
 
 const TokenIconPlaceholder = styled(Box)({
-  width: 18,
-  height: 18,
-  borderRadius: 9,
+  width: 22,
+  height: 22,
+  borderRadius: 11,
   backgroundColor: colors.skeleton.base,
 });
 
 const TokenSymbol = styled(Typography)({
-  fontSize: 12,
+  fontSize: 14,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
