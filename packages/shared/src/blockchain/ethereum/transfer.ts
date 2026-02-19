@@ -247,6 +247,26 @@ export async function estimateTransferFee(
 // ============================================================================
 
 /**
+ * Populates a contract transaction with gas options and signs it.
+ */
+async function populateAndSign(
+  wallet: Wallet,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tx: any,
+  opts: TransferOptions
+): Promise<string> {
+  const populatedTx = await wallet.populateTransaction({
+    ...tx,
+    gasLimit: opts.gasLimit,
+    gasPrice: opts.gasPrice,
+    maxFeePerGas: opts.maxFeePerGas,
+    maxPriorityFeePerGas: opts.maxPriorityFeePerGas,
+    nonce: opts.nonce,
+  });
+  return wallet.signTransaction(populatedTx);
+}
+
+/**
  * Creates and signs a transfer transaction without sending it
  *
  * @param wallet - Ethers wallet with signer
@@ -302,15 +322,7 @@ export async function createTransferTransaction(
       to,
       opts.tokenId
     );
-    const populatedTx = await wallet.populateTransaction({
-      ...tx,
-      gasLimit: opts.gasLimit,
-      gasPrice: opts.gasPrice,
-      maxFeePerGas: opts.maxFeePerGas,
-      maxPriorityFeePerGas: opts.maxPriorityFeePerGas,
-      nonce: opts.nonce,
-    });
-    return wallet.signTransaction(populatedTx);
+    return populateAndSign(wallet, tx, opts);
   }
 
   if (token.type === 'erc1155') {
@@ -326,30 +338,14 @@ export async function createTransferTransaction(
       amount,
       opts.data || '0x'
     );
-    const populatedTx = await wallet.populateTransaction({
-      ...tx,
-      gasLimit: opts.gasLimit,
-      gasPrice: opts.gasPrice,
-      maxFeePerGas: opts.maxFeePerGas,
-      maxPriorityFeePerGas: opts.maxPriorityFeePerGas,
-      nonce: opts.nonce,
-    });
-    return wallet.signTransaction(populatedTx);
+    return populateAndSign(wallet, tx, opts);
   }
 
   // ERC20 token transfer
   const contract = new Contract(token.address, ERC20_ABI, wallet);
   const value = parseAmount(amount, token.decimals);
   const tx = await contract.transfer.populateTransaction(to, value);
-  const populatedTx = await wallet.populateTransaction({
-    ...tx,
-    gasLimit: opts.gasLimit,
-    gasPrice: opts.gasPrice,
-    maxFeePerGas: opts.maxFeePerGas,
-    maxPriorityFeePerGas: opts.maxPriorityFeePerGas,
-    nonce: opts.nonce,
-  });
-  return wallet.signTransaction(populatedTx);
+  return populateAndSign(wallet, tx, opts);
 }
 
 // ============================================================================
