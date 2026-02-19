@@ -12,7 +12,6 @@ import Typography from '@mui/material/Typography';
 import {
   colors,
   spacing,
-  borderRadius,
   borderWidth,
   gradients,
   fontFamily,

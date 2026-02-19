@@ -13,5 +13,5 @@ export interface SalmonEventDetail {
 
 export interface SalmonBackgroundMessage {
     channel: 'salmon_contentscript_background_channel' | 'salmon_extension_background_channel' | 'salmon_extension_stash_channel';
-    data: SalmonMessageData | any; // 'any' for stash operations initially, can be refined
+    data: SalmonMessageData | unknown;
 }

@@ -5,7 +5,6 @@
  * Wires useSwap, useBridge, useMultiChainTokens hooks.
  */
 import { useCallback, useMemo, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -13,9 +12,6 @@ import {
   colors,
   spacing,
   fontFamily,
-  getExpectedOutput,
-  getMinimumOutput,
-  getPriceImpact,
   searchTokens,
   useAccountsContext,
   useBridge,
@@ -103,7 +99,6 @@ interface SwapPageProps {
 }
 
 export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
-  const { t } = useTranslation();
   const currentSharedQuoteRef = useRef<SharedSwapQuote | null>(null);
 
   const [accountState] = useAccountsContext();
@@ -173,7 +168,7 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
     return quote as unknown as SwapQuote;
   }, [activeBlockchainAccount, getSwapQuote, swapError]);
 
-  const handleSwap = useCallback(async (quote: SwapQuote): Promise<{ txId: string }> => {
+  const handleSwap = useCallback(async (_quote: SwapQuote): Promise<{ txId: string }> => {
     if (!activeBlockchainAccount) throw new Error('No active account');
     if (!currentSharedQuoteRef.current) throw new Error('No quote available.');
 
@@ -286,7 +281,7 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
     }
   }, [createBridgeExchange]);
 
-  const handleBridgeSuccess = useCallback((exchange: BridgeExchangeSimple) => {
+  const handleBridgeSuccess = useCallback((_exchange: BridgeExchangeSimple) => {
     resetBridge();
     window.alert('Bridge Initiated! Please send funds to the deposit address.');
   }, [resetBridge]);

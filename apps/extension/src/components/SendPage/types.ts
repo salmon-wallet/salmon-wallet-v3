@@ -12,6 +12,7 @@ import type {
   StepAddressAmountPropsBase,
   StepConfirmationProps,
   BlockchainType,
+  BlockchainAccount,
 } from '@salmon/shared';
 
 // Re-export shared types for convenience
@@ -26,7 +27,7 @@ export interface SendPageProps {
   /** Blockchain type for address validation and transfer routing */
   blockchain: BlockchainType;
   /** The active blockchain account */
-  account: any;
+  account: BlockchainAccount;
   /** Navigate back to home */
   onBack: () => void;
   /** Callback when transaction completes successfully */

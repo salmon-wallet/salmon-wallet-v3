@@ -105,7 +105,7 @@ export function NftSendDialog({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { sendNft, status, reset: resetTransfer } = useNftTransfer({ account });
+  const { sendNft, reset: resetTransfer } = useNftTransfer({ account });
 
   const blockchain: BlockchainType = nft?.blockchain ?? 'solana';
   const isBitcoin = blockchain === 'bitcoin';

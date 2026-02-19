@@ -265,7 +265,8 @@ export function StepConfirmation({
       }
     };
     doEstimate();
-  }, []); // Only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally mount-only: estimate fee once with initial values
+  }, []);
 
   // Handle confirm press
   const handleConfirm = useCallback(async () => {

@@ -24,7 +24,8 @@ import {
   fontFamily,
   useAddressValidation,
 } from '@salmon/shared';
-import type { InputAddressProps, ValidationState } from './types';
+import type { InputAddressProps } from './types';
+import type { ValidationState } from '@salmon/shared';
 
 // ============================================================================
 // Styled Components

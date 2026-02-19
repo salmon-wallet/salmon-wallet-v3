@@ -11,21 +11,7 @@
 
 import type { CSSProperties } from 'react';
 import type {
-  BlockchainType,
-  ValidationCallbackResult,
-  ValidationState,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
   InputAddressPropsBase,
-} from '@salmon/shared';
-
-// Re-export shared types so existing local imports still work
-export type {
-  BlockchainType,
-  ValidationState,
-  ValidationCallbackResult,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
 } from '@salmon/shared';
 
 /**

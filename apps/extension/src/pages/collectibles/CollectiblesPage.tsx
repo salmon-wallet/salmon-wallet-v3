@@ -276,10 +276,6 @@ export function CollectiblesPage({ activeAccount, developerNetworks, onNftDetail
 
   const isEmpty = !isLoading && visibleKeys.every((key) => nftsBySections[key].nfts.length === 0);
 
-  const sectionsWithNfts = visibleKeys.filter(
-    (key) => !nftsBySections[key].loading && nftsBySections[key].nfts.length > 0,
-  );
-
   // Handlers
   const handleNftPress = useCallback((nft: NftData) => {
     onNftDetailPress?.(nft);

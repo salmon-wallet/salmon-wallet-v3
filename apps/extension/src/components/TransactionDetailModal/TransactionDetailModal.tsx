@@ -55,7 +55,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import ShareIcon from '@mui/icons-material/Share';
 import CodeIcon from '@mui/icons-material/Code';
-import { colors, spacing, borderRadius, fontSize, fontFamily, fontWeight, letterSpacing, lineHeight, formatBlockNumber, formatDateTime, getShortAddress, copyToClipboard } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontFamily, fontWeight, letterSpacing, formatBlockNumber, formatDateTime, getShortAddress, copyToClipboard } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { AddressCopyRow } from '../TransactionHistoryPage/AddressCopyRow';
@@ -1323,7 +1323,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           blockchain="SOLANA"
           environment="solana-mainnet"
           showMenu
-          onPress={(url, explorerName) => {
+          onPress={(_url, _explorerName) => {
             if (onViewExplorer) {
               onViewExplorer(transaction);
             }

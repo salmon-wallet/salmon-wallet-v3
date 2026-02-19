@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { NftData, NftAttribute } from '../NftCard/types';
+import type { NftData } from '../NftCard/types';
 
 // Re-export for convenience
 export type { NftAttribute, NftData } from '../NftCard/types';

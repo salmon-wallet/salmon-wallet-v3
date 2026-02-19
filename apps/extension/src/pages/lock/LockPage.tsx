@@ -15,7 +15,6 @@ import {
   fontSize,
   fontWeight,
   spacing,
-  borderRadius,
   componentSizes,
   DerivedKeyCache,
   getStashItem,

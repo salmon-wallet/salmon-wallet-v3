@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { colors, spacing, fontFamily, borderRadius } from '@salmon/shared';
+import { colors, spacing, fontFamily } from '@salmon/shared';
 import {
   PrimaryButton,
   SecondaryButton,

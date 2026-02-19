@@ -29,7 +29,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, borderRadius } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
 import type { TransactionItemProps, TransactionType, TransactionTokenAmount } from './types';
@@ -47,7 +47,7 @@ const MAX_VISIBLE_AMOUNTS = 2;
 
 interface TypeConfig {
   label: string;
-  IconComponent: React.ComponentType<{ sx?: any }>;
+  IconComponent: React.ComponentType<{ sx?: Record<string, unknown> }>;
   color: string;
 }
 
@@ -155,7 +155,7 @@ function getDescription(
   type: TransactionType,
   inputs: TransactionTokenAmount[],
   outputs: TransactionTokenAmount[],
-  source?: string,
+  _source?: string,
   description?: string
 ): string {
   if (type === 'swap') {

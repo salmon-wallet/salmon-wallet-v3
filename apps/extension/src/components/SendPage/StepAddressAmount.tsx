@@ -20,11 +20,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import {
   colors,
   spacing,
-  borderRadius,
   gradients,
   fontFamily,
   fontWeight,
   useAddressValidation,
+  isEthereumAccount,
+  isSolanaAccount,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepAddressAmountProps } from './types';
@@ -172,12 +173,6 @@ const StyledInput = styled(InputBase)({
       opacity: 1,
     },
   },
-});
-
-const InputContainer = styled(Box)({
-  borderRadius: 12,
-  paddingLeft: spacing.lg,
-  paddingRight: spacing.lg,
 });
 
 const AddressInputRow = styled(Box)({
@@ -337,17 +332,17 @@ export function StepAddressAmount({
   const [amount, setAmount] = useState('');
 
   // Resolve chain-specific connection/provider from account
-  const [chainConnection, setChainConnection] = useState<any>(null);
+  const [chainConnection, setChainConnection] = useState<Parameters<typeof useAddressValidation>[1]>(null);
 
   useEffect(() => {
     let cancelled = false;
     const resolveConnection = async () => {
       if (!account) return;
       try {
-        if (blockchain === 'ethereum' && account.getProvider) {
+        if (isEthereumAccount(account)) {
           const provider = await account.getProvider();
           if (!cancelled) setChainConnection(provider);
-        } else if (blockchain === 'solana' && account.getConnection) {
+        } else if (isSolanaAccount(account)) {
           const connection = await account.getConnection();
           if (!cancelled) setChainConnection(connection);
         }

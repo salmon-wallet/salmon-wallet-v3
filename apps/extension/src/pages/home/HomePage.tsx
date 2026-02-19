@@ -209,14 +209,6 @@ const TopListFade = styled(Box)({
   transition: 'opacity 0.15s ease',
 });
 
-const SectionTitle = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-  marginBottom: spacing.md,
-  marginTop: spacing.lg,
-});
-
 const EmptyState = styled(Box)({
   padding: `${spacing.xl}px ${spacing.lg}px`,
   textAlign: 'center',
@@ -372,7 +364,7 @@ export function HomePage() {
   // NFT action dialog state
   const [nftSendDialogVisible, setNftSendDialogVisible] = useState(false);
   const [burnConfirmVisible, setBurnConfirmVisible] = useState(false);
-  const [burnLoading, setBurnLoading] = useState(false);
+  const [_burnLoading, setBurnLoading] = useState(false);
 
   // Token detail page state
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
@@ -650,11 +642,6 @@ export function HomePage() {
     setSelectedNft(null);
   }, []);
 
-  const handleSeeAllPress = useCallback((title: string, blockchain: string, nfts: NftData[]) => {
-    setSeeAllData({ title, blockchain: blockchain as NftBlockchain, nfts });
-    setCurrentPage('nftSeeAll');
-  }, []);
-
   const handleSeeAllBack = useCallback(() => {
     setCurrentPage('home');
     setSeeAllData(null);
@@ -782,7 +769,7 @@ export function HomePage() {
   ]);
 
   // Handle blockchain change from carousel arrows
-  const handleBlockchainChange = useCallback((blockchain: BlockchainId, index: number) => {
+  const handleBlockchainChange = useCallback((_blockchain: BlockchainId, index: number) => {
     setActiveBlockchainIndex(index);
     const selectedBalance = blockchainBalances[index];
     if (selectedBalance) {
@@ -1072,6 +1059,9 @@ export function HomePage() {
         }
         return <PlaceholderPage title="NFTs" onBack={handleBack} />;
       case 'send':
+        if (!activeBlockchainAccount) {
+          return <PlaceholderPage title="Send" onBack={handleSendBack} />;
+        }
         return (
           <SendPage
             tokens={formattedTokens as SendToken[]}

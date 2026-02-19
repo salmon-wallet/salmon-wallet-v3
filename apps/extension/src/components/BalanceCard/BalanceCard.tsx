@@ -271,7 +271,7 @@ const SkeletonRect = styled(Box)({
 });
 
 export function BalanceCard({
-  network,
+  network: _network,
   blockchain = 'solana',
   usdTotal,
   changePercent = 0,
