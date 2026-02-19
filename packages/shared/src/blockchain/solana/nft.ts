@@ -22,14 +22,9 @@ import { nftImageOverrides } from './nft-image-overrides';
 import type { SolanaNetwork } from './SolanaAccount';
 import type {
   Nft,
-  NftMint,
-  NftCollection,
-  NftEdition,
   NftCreator,
   NftAttribute,
-  NftExtras,
   Token2022Extension,
-  NftPagination,
   NftPaginatedResponse,
   NftCollectionGroup,
   FetchNftsFromBackendFn,

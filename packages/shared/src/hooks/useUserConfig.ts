@@ -15,10 +15,8 @@ import {
   EXPLORERS,
   DEFAULT_EXPLORERS,
   type Blockchain,
-  type NetworkEnvironment,
   type Explorer,
   type ExplorerWithKey,
-  type DefaultExplorers,
 } from '../config/explorers';
 import type { UserConfig, ActiveBlockchainAccount } from '../types/account';
 

@@ -50,7 +50,6 @@ import type {
   BridgeFeaturedToken,
   BridgeExchange,
   BridgeTransaction,
-  BridgeTransactionStatus,
   BridgeOperationStatus,
   BridgeEstimate,
 } from '../types/bridge';

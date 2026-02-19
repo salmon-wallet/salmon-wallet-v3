@@ -26,13 +26,11 @@
 import { useState, useCallback } from 'react';
 import { PublicKey } from '@solana/web3.js';
 import { isSolanaAccount, isBitcoinAccount, isEthereumAccount } from '../utils/account';
-import type { SolanaAccount } from '../blockchain/solana';
 import type { BitcoinAccount } from '../blockchain/bitcoin';
 import type { EthereumAccount } from '../blockchain/ethereum';
 import {
   createTransfer as solanaCreateTransfer,
   estimateFee as solanaEstimateFee,
-  SOL_ADDRESS,
 } from '../blockchain/solana/transfer';
 import {
   sendTransaction as ethSendTransaction,
@@ -43,10 +41,9 @@ import {
   sendBitcoin,
   estimateBitcoinFee,
   getUtxos,
-  getMaxSendableAmount,
 } from '../blockchain/bitcoin/transfer';
 import { removeDecimals, satoshisToBtc } from '../utils/decimals';
-import { isNativeSol, isNativeEth, createNativeToken, createERC20Token, ETH_ADDRESS } from '../utils/tokens';
+import { isNativeEth, createNativeToken, createERC20Token } from '../utils/tokens';
 import {
   fetchUtxos,
   broadcastTransaction,
@@ -54,7 +51,6 @@ import {
 
 import type { BlockchainType, BlockchainAccount } from '../types/blockchain';
 import type {
-  SendTokenInfo,
   SendTransactionParams,
   FeeEstimateResult,
   SendTransactionStatus,

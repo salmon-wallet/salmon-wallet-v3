@@ -18,7 +18,7 @@ import {
   getLastActivity,
   isSessionTimedOut,
 } from '../storage/stash';
-import { isReactNative, isWebEnvironment } from '../utils/platform';
+import { isWebEnvironment } from '../utils/platform';
 
 // ============================================================================
 // Constants

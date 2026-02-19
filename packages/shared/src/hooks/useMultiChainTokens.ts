@@ -13,9 +13,9 @@
  * @module hooks/useMultiChainTokens
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { Account } from '../types/account';
-import type { BlockchainAccount, BlockchainType } from '../types/blockchain';
+import type { BlockchainAccount, BlockchainType, NetworkId } from '../types/blockchain';
 import type { UnifiedToken } from '../types/token';
 import { useBalance } from './useBalance';
 import { getBlockchainFromNetworkId } from '../utils/account';
@@ -115,9 +115,9 @@ function useChainBalance(
   chain: ChainType,
   skip: boolean
 ): ChainBalance {
-  const { tokens, loading, error, refresh } = useBalance({
+  const { tokens, loading, error } = useBalance({
     account,
-    networkId: networkId as any,
+    networkId: networkId as NetworkId,
     skip: skip || !account,
   });
 
@@ -177,7 +177,7 @@ export function useMultiChainTokens(
   const { activeAccount, skip = false } = params;
 
   // State for refresh trigger
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [_refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Get blockchain accounts for each chain
   const solanaAccount = useMemo(() => {

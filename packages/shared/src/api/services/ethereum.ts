@@ -16,7 +16,7 @@
 import { get } from '../client';
 import { lookupCoingeckoId } from '../../utils/tokens';
 import { removeDecimals } from '../../utils/decimals';
-import type { AlchemyTokenBalance, AlchemyTokenMetadata, DetectedERC20Token } from '../../types/token';
+import type { AlchemyTokenMetadata, DetectedERC20Token } from '../../types/token';
 
 // Re-export types for backwards compatibility
 export type { AlchemyTokenBalance, AlchemyTokenMetadata, DetectedERC20Token } from '../../types/token';

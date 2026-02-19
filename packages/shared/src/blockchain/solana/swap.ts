@@ -23,7 +23,6 @@ import type { SolanaNetworkId } from '../../types/blockchain';
 import type { SwapOrderResponse, SwapOrderParams, ApiSwapExecuteResponse } from '../../types/swap';
 import type { TokenMetadata } from '../../types/token';
 import { applyDecimals } from '../../utils/decimals';
-import { isNativeSol } from '../../utils/tokens';
 import { SOL_CONSTANTS } from '../../utils/balance';
 
 const SOL_ADDRESS = SOL_CONSTANTS.ADDRESS;

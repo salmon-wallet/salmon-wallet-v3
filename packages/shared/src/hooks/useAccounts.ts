@@ -38,17 +38,14 @@ import {
   type DerivedKeyCache,
 } from '../crypto/encryption';
 import {
-  SolanaAccount,
   type SolanaNetwork,
   SOLANA_NETWORKS,
 } from '../blockchain/solana';
 import {
-  BitcoinAccount,
   type BitcoinNetwork,
   BITCOIN_NETWORKS,
 } from '../blockchain/bitcoin';
 import {
-  EthereumAccount,
   type EthereumNetwork,
   ETHEREUM_NETWORKS,
 } from '../blockchain/ethereum';
@@ -377,7 +374,7 @@ function isEncryptedMnemonics(
  */
 export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   const [ready, setReady] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [_loaded, setLoaded] = useState(false);
   const [locked, setLocked] = useState(false);
   const [requiredLock, setRequiredLock] = useState(false);
   const [counter, setCounter] = useState(0);

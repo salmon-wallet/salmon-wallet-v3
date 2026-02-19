@@ -15,7 +15,7 @@ import { SOLANA_NETWORKS } from '../blockchain/solana/factory';
 import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/factory';
 import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/factory';
 import type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
-import { MAINNET_NETWORK_IDS, sortNetworks, filterNetworks } from '../utils/network';
+import { MAINNET_NETWORK_IDS, filterNetworks } from '../utils/network';
 import { getNetworks } from '../api/services/network';
 
 // Re-export domain types for backward compatibility
@@ -115,7 +115,7 @@ export function useAvailableNetworks(
   useEffect(() => {
     let cancelled = false;
     fetchAndMergeNetworkConfigs()
-      .then((success) => {
+      .then((_success) => {
         if (!cancelled) setApiMerged(true);
       });
     return () => { cancelled = true; };
@@ -142,6 +142,7 @@ export function useAvailableNetworks(
         NETWORK_ORDER.ethereum
       ),
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- apiMerged is an intentional cache-invalidation signal after fetchAndMergeNetworkConfigs completes
   }, [developerNetworks, apiMerged]);
 
   const allNetworks = useMemo<AnyNetwork[]>(() => {

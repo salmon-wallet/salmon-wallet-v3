@@ -35,7 +35,7 @@ const QUOTE_DEBOUNCE_MS = 500;
 // Hook options
 // ============================================================================
 
-export interface UseSwapScreenLogicOptions extends SwapScreenProps<any> {
+export interface UseSwapScreenLogicOptions<StyleType = unknown> extends SwapScreenProps<StyleType> {
   /**
    * Platform-specific callback invoked when a bridge exchange is created.
    * Mobile uses Alert.alert; extension uses window.alert.
@@ -111,7 +111,7 @@ export interface UseSwapScreenLogicReturn {
 // Hook
 // ============================================================================
 
-export function useSwapScreenLogic({
+export function useSwapScreenLogic<StyleType = unknown>({
   tokens,
   featuredTokens = [],
   loading = false,
@@ -131,7 +131,7 @@ export function useSwapScreenLogic({
   // Platform-specific
   onBridgeInitiated,
   onNavigateHome,
-}: UseSwapScreenLogicOptions): UseSwapScreenLogicReturn {
+}: UseSwapScreenLogicOptions<StyleType>): UseSwapScreenLogicReturn {
   // ── State ──────────────────────────────────────────────────────────────
 
   const [step, setStep] = useState<SwapScreenStep>('input');

@@ -46,7 +46,6 @@ import { createMemoInstruction } from '@solana/spl-memo';
 
 import {
   applyDecimals,
-  removeDecimals,
 } from '../../utils/decimals';
 import {
   isNativeSol,
