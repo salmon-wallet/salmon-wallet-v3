@@ -4,18 +4,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/assets": [
-        "./src/assets"
-      ],
-      "@salmon/shared": [
-        "../../packages/shared/src"
-      ],
-    },
-    "types": [
-      "chrome"
-    ]
+      "@/*": ["./src/*"],
+      "@/assets": ["./src/assets"],
+      "@salmon/shared": ["../../packages/shared/src"]
+    }
   }
 }
