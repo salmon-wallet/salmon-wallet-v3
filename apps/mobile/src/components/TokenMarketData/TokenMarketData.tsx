@@ -59,27 +59,27 @@ export const TokenMarketData: React.FC<TokenMarketDataProps> = ({
           <ContentLoader
             speed={1.5}
             width="100%"
-            height={160}
+            height={136}
             backgroundColor={colors.skeleton.base}
             foregroundColor={colors.skeleton.highlight}
           >
-            {/* Title */}
-            <Rect x="0" y="0" rx="4" ry="4" width="40" height="16" />
-            {/* Row 1 */}
-            <Rect x="0" y="32" rx="4" ry="4" width="80" height="14" />
-            <Rect x="85%" y="32" rx="4" ry="4" width="15%" height="14" />
-            {/* Row 2 */}
-            <Rect x="0" y="57" rx="4" ry="4" width="60" height="14" />
-            <Rect x="85%" y="57" rx="4" ry="4" width="15%" height="14" />
-            {/* Row 3 */}
-            <Rect x="0" y="82" rx="4" ry="4" width="90" height="14" />
-            <Rect x="80%" y="82" rx="4" ry="4" width="20%" height="14" />
-            {/* Row 4 */}
-            <Rect x="0" y="107" rx="4" ry="4" width="100" height="14" />
-            <Rect x="80%" y="107" rx="4" ry="4" width="20%" height="14" />
-            {/* Row 5 */}
-            <Rect x="0" y="132" rx="4" ry="4" width="120" height="14" />
-            <Rect x="80%" y="132" rx="4" ry="4" width="20%" height="14" />
+            {/* Title — ms(14) height, marginBottom vs(8) */}
+            <Rect x="0" y="0" rx="4" ry="4" width="40" height="14" />
+            {/* Row 1 — y = 14 + 8 = 22, row height 13, gap vs(11) */}
+            <Rect x="0" y="22" rx="4" ry="4" width="80" height="13" />
+            <Rect x="80%" y="22" rx="4" ry="4" width="20%" height="13" />
+            {/* Row 2 — y = 22 + 13 + 11 = 46 */}
+            <Rect x="0" y="46" rx="4" ry="4" width="60" height="13" />
+            <Rect x="80%" y="46" rx="4" ry="4" width="20%" height="13" />
+            {/* Row 3 — y = 46 + 13 + 11 = 70 */}
+            <Rect x="0" y="70" rx="4" ry="4" width="90" height="13" />
+            <Rect x="80%" y="70" rx="4" ry="4" width="20%" height="13" />
+            {/* Row 4 — y = 70 + 13 + 11 = 94 */}
+            <Rect x="0" y="94" rx="4" ry="4" width="100" height="13" />
+            <Rect x="80%" y="94" rx="4" ry="4" width="20%" height="13" />
+            {/* Row 5 — y = 94 + 13 + 11 = 118 */}
+            <Rect x="0" y="118" rx="4" ry="4" width="120" height="13" />
+            <Rect x="80%" y="118" rx="4" ry="4" width="20%" height="13" />
           </ContentLoader>
         </View>
       </BlurContainer>

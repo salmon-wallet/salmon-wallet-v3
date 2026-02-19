@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { Dimensions, View, StyleSheet, ScrollView } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
 import { colors, ms, s, vs } from '@salmon/shared';
 import type { NftCarouselSectionSkeletonProps } from './types';
@@ -30,33 +30,61 @@ export const NftCarouselSectionSkeleton: React.FC<NftCarouselSectionSkeletonProp
     <View style={[styles.container, style]} testID={testID}>
       {/* Header Skeleton */}
       <View style={styles.header}>
-        <ContentLoader
-          speed={1.5}
-          width={s(150)}
-          height={HEADER_HEIGHT}
-          viewBox={`0 0 ${s(150)} ${HEADER_HEIGHT}`}
-          backgroundColor={colors.skeleton.base}
-          foregroundColor={colors.skeleton.highlight}
-        >
-          {/* Icon circle */}
-          <Rect
-            x="0"
-            y={(HEADER_HEIGHT - ICON_SIZE) / 2}
-            rx={ICON_SIZE / 2}
-            ry={ICON_SIZE / 2}
-            width={ICON_SIZE}
-            height={ICON_SIZE}
-          />
-          {/* Title */}
-          <Rect
-            x={ICON_SIZE + s(8)}
-            y={(HEADER_HEIGHT - ms(18)) / 2}
-            rx={ms(4)}
-            ry={ms(4)}
-            width={s(80)}
-            height={ms(18)}
-          />
-        </ContentLoader>
+        {(() => {
+          const headerWidth = Dimensions.get('window').width - s(18) * 2;
+          const iconY = (HEADER_HEIGHT - ICON_SIZE) / 2;
+          const titleX = ICON_SIZE + s(8);
+          const titleW = s(80);
+          const countX = titleX + titleW + s(8);
+          const chevronSize = s(20);
+          return (
+            <ContentLoader
+              speed={1.5}
+              width={headerWidth}
+              height={HEADER_HEIGHT}
+              viewBox={`0 0 ${headerWidth} ${HEADER_HEIGHT}`}
+              backgroundColor={colors.skeleton.base}
+              foregroundColor={colors.skeleton.highlight}
+            >
+              {/* Icon circle */}
+              <Rect
+                x="0"
+                y={iconY}
+                rx={ICON_SIZE / 2}
+                ry={ICON_SIZE / 2}
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+              />
+              {/* Title */}
+              <Rect
+                x={titleX}
+                y={(HEADER_HEIGHT - ms(18)) / 2}
+                rx={ms(4)}
+                ry={ms(4)}
+                width={titleW}
+                height={ms(18)}
+              />
+              {/* Count e.g. (5) */}
+              <Rect
+                x={countX}
+                y={(HEADER_HEIGHT - ms(14)) / 2}
+                rx={ms(4)}
+                ry={ms(4)}
+                width={s(28)}
+                height={ms(14)}
+              />
+              {/* Chevron on the right */}
+              <Rect
+                x={headerWidth - chevronSize}
+                y={(HEADER_HEIGHT - chevronSize) / 2}
+                rx={ms(4)}
+                ry={ms(4)}
+                width={chevronSize}
+                height={chevronSize}
+              />
+            </ContentLoader>
+          );
+        })()}
       </View>
 
       {/* Cards Skeleton — single horizontal row */}

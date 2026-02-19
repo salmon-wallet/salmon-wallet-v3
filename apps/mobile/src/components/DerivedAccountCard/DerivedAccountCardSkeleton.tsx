@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
 import {
   borderRadius,
   colors,
   componentSizes,
+  contentPadding,
   spacing,
   s,
 } from '@salmon/shared';
@@ -23,15 +24,16 @@ const DerivedAccountCardSkeletonComponent: React.FC<DerivedAccountCardSkeletonPr
   const checkboxSize = s(componentSizes.checkboxSize);
   const checkboxMarginRight = s(spacing.lg);
 
-  // Content area width (card minus padding and checkbox)
+  // Content area width (screen minus screen padding, card padding, and border)
+  const screenWidth = Dimensions.get('window').width;
   const contentStartX = checkboxSize + checkboxMarginRight;
-  const cardInnerWidth = 340; // approximate inner width
+  const cardInnerWidth = screenWidth - 2 * contentPadding.screen - 2 * spacing.lg;
   const contentWidth = cardInnerWidth - contentStartX;
 
-  // Vertical layout
+  // Vertical layout — gap matches loaded marginTop: 2
   const addressHeight = 16;
   const pathHeight = 12;
-  const gap = 6;
+  const gap = 2;
   const totalHeight = addressHeight + gap + pathHeight;
   const topOffset = 0;
 
@@ -94,8 +96,10 @@ export const DerivedAccountCardSkeleton = React.memo(DerivedAccountCardSkeletonC
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.skeleton.base,
+    backgroundColor: colors.card.background,
     borderRadius: borderRadius.xl,
+    borderWidth: 1,
+    borderColor: colors.card.border,
     padding: spacing.lg,
     marginBottom: spacing.md,
   },

@@ -2,8 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   borderRadius,
   colors,
+  ContentLoader,
   fontSize,
   fontWeight,
+  Rect,
   spacing,
   formatLargeNumber,
   formatUSD,
@@ -77,24 +79,50 @@ export const TokenInfo: React.FC<TokenInfoProps> = ({
       <View style={[styles.container, style]}>
         {/* About section skeleton */}
         <View style={styles.section}>
-          <View style={styles.skeletonTitle} />
-          <View style={styles.skeletonDescription} />
-          <View style={[styles.skeletonDescription, { width: '80%' }]} />
-          <View style={[styles.skeletonDescription, { width: '60%' }]} />
+          <ContentLoader
+            speed={1.5}
+            width="100%"
+            height={74}
+            backgroundColor={colors.skeleton.base}
+            foregroundColor={colors.skeleton.highlight}
+          >
+            {/* "About" title */}
+            <Rect x="0" y="0" rx="4" ry="4" width="80" height={fontSize.md} />
+            {/* Description lines */}
+            <Rect x="0" y={fontSize.md + spacing.sm} rx="4" ry="4" width="100%" height="14" />
+            <Rect x="0" y={fontSize.md + spacing.sm + 18} rx="4" ry="4" width="80%" height="14" />
+            <Rect x="0" y={fontSize.md + spacing.sm + 36} rx="4" ry="4" width="60%" height="14" />
+          </ContentLoader>
         </View>
 
         {/* Stats grid skeleton */}
         <View style={styles.statsGrid}>
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <View key={i} style={styles.statItem}>
-              <View style={styles.skeletonStatLabel} />
-              <View style={styles.skeletonStatValue} />
+              <ContentLoader
+                speed={1.5}
+                width="100%"
+                height={34}
+                backgroundColor={colors.skeleton.base}
+                foregroundColor={colors.skeleton.highlight}
+              >
+                <Rect x="0" y="0" rx="4" ry="4" width="60" height="14" />
+                <Rect x="0" y={14 + spacing['2xs']} rx="4" ry="4" width="80" height="18" />
+              </ContentLoader>
             </View>
           ))}
         </View>
 
         {/* Contract skeleton */}
-        <View style={styles.skeletonContract} />
+        <ContentLoader
+          speed={1.5}
+          width="100%"
+          height={52}
+          backgroundColor={colors.skeleton.base}
+          foregroundColor={colors.skeleton.highlight}
+        >
+          <Rect x="0" y="0" rx={borderRadius.md} ry={borderRadius.md} width="100%" height="52" />
+        </ContentLoader>
       </View>
     );
   }
@@ -289,38 +317,6 @@ const styles = StyleSheet.create({
   },
   websiteIcon: {
     marginLeft: spacing.xs,
-  },
-  // Skeleton styles
-  skeletonTitle: {
-    width: 80,
-    height: 20,
-    backgroundColor: colors.skeleton.base,
-    borderRadius: borderRadius.sm,
-    marginBottom: spacing.sm,
-  },
-  skeletonDescription: {
-    height: 16,
-    backgroundColor: colors.skeleton.base,
-    borderRadius: borderRadius.sm,
-    marginBottom: spacing.xs,
-  },
-  skeletonStatLabel: {
-    width: 60,
-    height: 14,
-    backgroundColor: colors.skeleton.base,
-    borderRadius: borderRadius.sm,
-    marginBottom: spacing['2xs'],
-  },
-  skeletonStatValue: {
-    width: 80,
-    height: 18,
-    backgroundColor: colors.skeleton.base,
-    borderRadius: borderRadius.sm,
-  },
-  skeletonContract: {
-    height: 52,
-    backgroundColor: colors.skeleton.base,
-    borderRadius: borderRadius.md,
   },
 });
 

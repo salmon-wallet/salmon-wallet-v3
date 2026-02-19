@@ -1,5 +1,5 @@
 import { ContentLoader, Rect } from '@salmon/shared';
-import { colors, ms, s, vs } from '@salmon/shared';
+import { colors, ms, s, spacing, vs } from '@salmon/shared';
 import React from 'react';
 import { View } from 'react-native';
 import type { BalanceCardSkeletonProps } from './types';
@@ -31,7 +31,7 @@ const BalanceCardSkeletonComponent: React.FC<BalanceCardSkeletonProps> = ({
   const balanceHeight = vs(37);
   const changeWidth = s(120);
   const changeHeight = vs(16);
-  const gap = vs(18);
+  const gap = vs(spacing.sm);
 
   const totalHeight = balanceHeight + gap + changeHeight;
 

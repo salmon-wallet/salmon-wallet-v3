@@ -195,20 +195,40 @@ export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
   style,
 }) => {
   if (loading) {
+    // Match loaded layout: title + row of vertical badges (circle 40x40 + label below)
+    const circleSize = s(40);
+    const circleRadius = circleSize / 2;
+    const labelHeight = ms(10);
+    const labelGap = vs(spacing.xs);
+    const badgeItemWidth = s(55);
+    const badgeGap = s(spacing.lg);
+    const titleHeight = ms(14);
+    const titleMargin = vs(spacing.md);
+    const badgeRowY = titleHeight + titleMargin;
+    const badgeHeight = circleSize + labelGap + labelHeight;
+    const totalHeight = badgeRowY + badgeHeight;
+
     return (
       <BlurContainer style={[styles.glassWrapper, style]}>
         <View style={styles.container}>
           <ContentLoader
             speed={1.5}
             width="100%"
-            height={80}
+            height={totalHeight}
             backgroundColor={colors.skeleton.base}
             foregroundColor={colors.skeleton.highlight}
           >
-            <Rect x="0" y="0" rx="4" ry="4" width="60" height="18" />
-            <Rect x="0" y="30" rx="4" ry="4" width="50" height="40" />
-            <Rect x="60" y="30" rx="4" ry="4" width="50" height="40" />
-            <Rect x="120" y="30" rx="4" ry="4" width="50" height="40" />
+            {/* Title "Badges" */}
+            <Rect x="0" y="0" rx="4" ry="4" width="60" height={titleHeight} />
+            {/* Badge 1: circle + label */}
+            <Rect x={0} y={badgeRowY} rx={circleRadius} ry={circleRadius} width={circleSize} height={circleSize} />
+            <Rect x={(circleSize - 30) / 2} y={badgeRowY + circleSize + labelGap} rx="3" ry="3" width="30" height={labelHeight} />
+            {/* Badge 2 */}
+            <Rect x={badgeItemWidth + badgeGap} y={badgeRowY} rx={circleRadius} ry={circleRadius} width={circleSize} height={circleSize} />
+            <Rect x={badgeItemWidth + badgeGap + (circleSize - 30) / 2} y={badgeRowY + circleSize + labelGap} rx="3" ry="3" width="30" height={labelHeight} />
+            {/* Badge 3 */}
+            <Rect x={(badgeItemWidth + badgeGap) * 2} y={badgeRowY} rx={circleRadius} ry={circleRadius} width={circleSize} height={circleSize} />
+            <Rect x={(badgeItemWidth + badgeGap) * 2 + (circleSize - 30) / 2} y={badgeRowY + circleSize + labelGap} rx="3" ry="3" width="30" height={labelHeight} />
           </ContentLoader>
         </View>
       </BlurContainer>

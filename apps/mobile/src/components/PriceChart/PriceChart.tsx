@@ -119,8 +119,8 @@ const ChartSkeleton: React.FC<{ height: number; width: number }> = ({ height, wi
  * PeriodSelectorSkeleton - Loading placeholder for period buttons
  */
 const PeriodSelectorSkeleton: React.FC = () => {
-  const buttonWidth = 40;
-  const buttonHeight = 32;
+  const buttonWidth = 36;
+  const buttonHeight = 24;
   const gap = spacing.xs;
   const totalWidth = PRICE_CHART_PERIODS.length * (buttonWidth + gap) - gap;
 
@@ -139,8 +139,8 @@ const PeriodSelectorSkeleton: React.FC = () => {
             key={index}
             x={index * (buttonWidth + gap)}
             y="0"
-            rx="16"
-            ry="16"
+            rx="12"
+            ry="12"
             width={buttonWidth}
             height={buttonHeight}
           />

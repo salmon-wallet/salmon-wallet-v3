@@ -3,6 +3,8 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   colors,
+  ContentLoader,
+  Rect,
   spacing,
   borderRadius,
   fontWeight,
@@ -124,15 +126,28 @@ export const TokenFeatures: React.FC<TokenFeaturesProps> = ({
   style,
 }) => {
   if (loading) {
+    const badgeWidth = 100;
+    const badgeHeight = 32;
     return (
       <View style={[styles.container, style]}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          scrollEnabled={false}
           contentContainerStyle={styles.scrollContent}
         >
           {[1, 2, 3, 4].map((i) => (
-            <View key={i} style={styles.skeletonBadge} />
+            <ContentLoader
+              key={i}
+              speed={1.5}
+              width={badgeWidth}
+              height={badgeHeight}
+              viewBox={`0 0 ${badgeWidth} ${badgeHeight}`}
+              backgroundColor={colors.skeleton.base}
+              foregroundColor={colors.skeleton.highlight}
+            >
+              <Rect x="0" y="0" rx={badgeHeight / 2} ry={badgeHeight / 2} width={badgeWidth} height={badgeHeight} />
+            </ContentLoader>
           ))}
         </ScrollView>
       </View>
@@ -180,13 +195,6 @@ const styles = StyleSheet.create({
   badgeLabel: {
     fontSize: fontSize.sm,
     fontWeight: fontWeight.medium as '500',
-  },
-  // Skeleton styles
-  skeletonBadge: {
-    width: 100,
-    height: 32,
-    backgroundColor: colors.skeleton.base,
-    borderRadius: borderRadius.full,
   },
 });
 

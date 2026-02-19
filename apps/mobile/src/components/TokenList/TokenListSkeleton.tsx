@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import { ContentLoader, Rect, Circle } from '@salmon/shared';
 import {
   colors,
@@ -23,7 +23,8 @@ const SkeletonItem: React.FC = () => {
   const tokenIconSize = s(componentSizes.tokenIcon);
   const tokenIconRadius = tokenIconSize / 2;
   const itemHeight = vs(spacing.md) * 2 + tokenIconSize; // paddingVertical * 2 + logo height
-  const itemWidth = 440 - s(spacing['2xl']) * 2; // Design width minus horizontal margins
+  const screenWidth = Dimensions.get('window').width;
+  const itemWidth = screenWidth - s(spacing['2xl']) * 2 - s(spacing.md) * 2; // Screen minus margins and padding
 
   return (
     <BlurContainer style={styles.glassWrapper} borderWidth={borderWidth.tokenListItem}>
