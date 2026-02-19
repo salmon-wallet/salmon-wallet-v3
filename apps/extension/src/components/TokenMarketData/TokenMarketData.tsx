@@ -15,61 +15,13 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  formatLargeNumber,
+  formatUSD,
+  formatPercentageCompact,
+  formatDateString,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenMarketDataProps } from './types';
-
-/**
- * Format large numbers for display (e.g., 1.5B, 2.3M, 150K)
- */
-function formatLargeNumber(value: number | undefined | null): string {
-  if (value === undefined || value === null) return '-';
-
-  if (value >= 1_000_000_000) {
-    return `${(value / 1_000_000_000).toFixed(2)}B`;
-  }
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(2)}M`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(2)}K`;
-  }
-  return value.toLocaleString();
-}
-
-/**
- * Format USD currency for display
- */
-function formatUSD(value: number | undefined | null): string {
-  if (value === undefined || value === null) return '-';
-  return `$${formatLargeNumber(value)}`;
-}
-
-/**
- * Format percentage for display
- */
-function formatPercentage(value: number | undefined | null): string {
-  if (value === undefined || value === null) return '-';
-  const sign = value >= 0 ? '+' : '';
-  return `${sign}${value.toFixed(2)}%`;
-}
-
-/**
- * Format date for display
- */
-function formatDate(dateString: string | undefined): string {
-  if (!dateString) return '-';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  } catch {
-    return '-';
-  }
-}
 
 /* ── Styled components ─────────────────────────────────────────────── */
 
@@ -319,14 +271,14 @@ export function TokenMarketData({
           {data.athChangePercentage !== undefined && (
             <MarketDataRow
               label="From ATH"
-              value={formatPercentage(data.athChangePercentage)}
+              value={formatPercentageCompact(data.athChangePercentage)}
               valueColor={athChangeColor}
             />
           )}
 
           {/* ATH Date */}
           {data.athDate !== undefined && (
-            <MarketDataRow label="ATH Date" value={formatDate(data.athDate)} />
+            <MarketDataRow label="ATH Date" value={formatDateString(data.athDate)} />
           )}
 
           {/* All-Time Low */}
@@ -338,14 +290,14 @@ export function TokenMarketData({
           {data.atlChangePercentage !== undefined && (
             <MarketDataRow
               label="From ATL"
-              value={formatPercentage(data.atlChangePercentage)}
+              value={formatPercentageCompact(data.atlChangePercentage)}
               valueColor={atlChangeColor}
             />
           )}
 
           {/* ATL Date */}
           {data.atlDate !== undefined && (
-            <MarketDataRow label="ATL Date" value={formatDate(data.atlDate)} />
+            <MarketDataRow label="ATL Date" value={formatDateString(data.atlDate)} />
           )}
         </RowsContainer>
       </ContentContainer>
