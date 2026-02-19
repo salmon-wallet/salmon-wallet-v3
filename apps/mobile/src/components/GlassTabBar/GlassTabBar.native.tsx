@@ -127,7 +127,7 @@ function GlassPill({ children }: { children: React.ReactNode }) {
 
 export function GlassTabBar({
   state,
-  descriptors,
+  descriptors: _descriptors,
   navigation,
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();

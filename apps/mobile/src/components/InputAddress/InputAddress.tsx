@@ -20,8 +20,8 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from 'react-native';
-import { colors, useAddressValidation } from '@salmon/shared';
-import type { InputAddressProps, ValidationState } from './types';
+import { colors, useAddressValidation, type ValidationState } from '@salmon/shared';
+import type { InputAddressProps } from './types';
 
 // ============================================================================
 // Helper Components

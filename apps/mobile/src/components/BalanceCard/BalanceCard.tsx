@@ -137,7 +137,7 @@ const getNetworkLabel = (blockchain: BlockchainId): string | null => {
  * ```
  */
 export const BalanceCard: React.FC<BalanceCardProps> = ({
-  network,
+  network: _network,
   blockchain = 'solana',
   usdTotal,
   changePercent = 0,

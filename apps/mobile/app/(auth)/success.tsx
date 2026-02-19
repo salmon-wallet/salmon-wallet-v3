@@ -21,7 +21,7 @@ import {
   SecondaryButton,
   TextButton,
 } from '../../src/components';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -40,7 +40,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SuccessScreen() {
   const { t } = useTranslation();
-  const { isCreate } = useLocalSearchParams<{ isCreate?: string }>();
   const [showDialog, setShowDialog] = useState(false);
 
   /**

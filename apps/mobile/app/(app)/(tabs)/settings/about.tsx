@@ -8,7 +8,7 @@
  * and links to external resources.
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, type ComponentProps } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +25,12 @@ import {
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../../../../src/components';
 import { Logo } from '@salmon/assets';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 // ============================================================================
 // Constants
@@ -69,14 +75,14 @@ export default function AboutScreen() {
    * Render a link item
    */
   const renderLinkItem = useCallback(
-    (icon: string, label: string, url: string) => (
+    (icon: IoniconsName, label: string, url: string) => (
       <TouchableOpacity
         style={styles.linkItem}
         onPress={() => openLink(url)}
         activeOpacity={0.7}
       >
         <View style={styles.linkIconContainer}>
-          <Ionicons name={icon as any} size={20} color={colors.text.primary} />
+          <Ionicons name={icon} size={20} color={colors.text.primary} />
         </View>
         <Text style={styles.linkLabel}>{label}</Text>
         <Ionicons
@@ -93,13 +99,13 @@ export default function AboutScreen() {
    * Render a social media button
    */
   const renderSocialButton = useCallback(
-    (icon: string, url: string) => (
+    (icon: IoniconsName, url: string) => (
       <TouchableOpacity
         style={styles.socialButton}
         onPress={() => openLink(url)}
         activeOpacity={0.7}
       >
-        <Ionicons name={icon as any} size={24} color={colors.text.primary} />
+        <Ionicons name={icon} size={24} color={colors.text.primary} />
       </TouchableOpacity>
     ),
     [openLink]

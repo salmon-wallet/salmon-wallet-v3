@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
-import { Tabs, useRouter } from 'expo-router';
+import { Tabs, useRouter, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -48,7 +48,6 @@ export default function TabLayout() {
   // Account context
   const [accountState, accountActions] = useAccountsContext();
   const {
-    ready,
     accounts,
     accountId,
     activeAccount,
@@ -93,7 +92,7 @@ export default function TabLayout() {
 
   const handleSettingsNavigate = useCallback((screen: string) => {
     setSettingsVisible(false);
-    router.push(`/(app)/settings/${screen}` as any);
+    router.push(`/(app)/settings/${screen}` as Href);
   }, [router]);
 
   // -- Wallet Switcher handlers --
@@ -117,7 +116,7 @@ export default function TabLayout() {
     router.push({
       pathname: '/(app)/settings/account-edit',
       params: { id },
-    } as any);
+    } as unknown as Href);
   }, [router]);
 
   const handleDeleteAccount = useCallback(async (id: string) => {

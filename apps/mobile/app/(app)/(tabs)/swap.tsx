@@ -25,9 +25,6 @@ import { useRouter } from 'expo-router';
 
 import {
   componentSizes,
-  getExpectedOutput,
-  getMinimumOutput,
-  getPriceImpact,
   searchTokens,
   useAccountsContext,
   useBridge,
@@ -89,9 +86,9 @@ function unifiedToSwapToken(token: UnifiedToken): SwapToken {
  */
 function transformQuoteForUI(
   quote: SharedSwapQuote,
-  inToken: SwapToken,
-  outToken: SwapToken,
-  inputAmount: number
+  _inToken: SwapToken,
+  _outToken: SwapToken,
+  _inputAmount: number
 ): SwapQuote {
   // The UI components now expect the backend structure directly
   // SwapQuote from the UI components is the same as SharedSwapQuote from @salmon/shared
@@ -125,7 +122,6 @@ export default function SwapScreenPage() {
     getQuote: getSwapQuote,
     executeSwap: executeSwapHook,
     quote: swapQuote,
-    status: swapStatus,
     error: swapError,
     reset: resetSwap,
   } = useSwap({
@@ -135,7 +131,6 @@ export default function SwapScreenPage() {
 
   // Initialize useBridge hook
   const {
-    getSupportedTokens,
     getAvailableTokens: getBridgeAvailableTokens,
     getEstimate: getBridgeEstimate,
     createExchange: createBridgeExchange,
@@ -197,7 +192,7 @@ export default function SwapScreenPage() {
     return transformQuoteForUI(quote, inToken, outToken, inputAmount);
   }, [activeBlockchainAccount, getSwapQuote, swapError]);
 
-  const handleSwap = useCallback(async (quote: SwapQuote): Promise<{ txId: string }> => {
+  const handleSwap = useCallback(async (_quote: SwapQuote): Promise<{ txId: string }> => {
     if (!activeBlockchainAccount) {
       throw new Error('No active account');
     }
@@ -231,7 +226,7 @@ export default function SwapScreenPage() {
   }, [resetSwap]);
 
   const handleNavigateHome = useCallback(() => {
-    router.replace('/(app)/(tabs)/');
+    router.replace('/');
   }, [router]);
 
   const handleSwapError = useCallback((error: Error) => {
@@ -335,7 +330,7 @@ export default function SwapScreenPage() {
     }
   }, [createBridgeExchange]);
 
-  const handleBridgeSuccess = useCallback((exchange: BridgeExchangeSimple) => {
+  const handleBridgeSuccess = useCallback((_exchange: BridgeExchangeSimple) => {
     resetBridge();
     Alert.alert(
       t('bridge.success_title', 'Bridge Initiated'),

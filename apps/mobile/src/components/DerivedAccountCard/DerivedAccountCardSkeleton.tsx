@@ -22,7 +22,6 @@ const DerivedAccountCardSkeletonComponent: React.FC<DerivedAccountCardSkeletonPr
 }) => {
   const checkboxSize = s(componentSizes.checkboxSize);
   const checkboxMarginRight = s(spacing.lg);
-  const padding = s(spacing.lg);
 
   // Content area width (card minus padding and checkbox)
   const contentStartX = checkboxSize + checkboxMarginRight;

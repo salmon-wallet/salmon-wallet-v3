@@ -11,7 +11,7 @@
  */
 
 import { useState, useEffect, CSSProperties } from 'react';
-import { colors, gradients, DEFAULT_WALLET_TIPS } from '@salmon/shared';
+import { colors, DEFAULT_WALLET_TIPS } from '@salmon/shared';
 // Note: For web, you'll need to import the logo as a URL
 // import logoUrl from '@salmon/assets/images/Logo.png';
 

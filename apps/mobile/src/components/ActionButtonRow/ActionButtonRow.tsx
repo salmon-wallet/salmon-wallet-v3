@@ -1,5 +1,4 @@
 import {
-  borderRadius,
   borderWidth,
   colors,
   componentSizes,

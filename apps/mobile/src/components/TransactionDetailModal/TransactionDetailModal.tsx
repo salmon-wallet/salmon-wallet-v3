@@ -356,7 +356,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         easing: Easing.in(Easing.cubic),
       });
     }
-  }, [visible]);
+  }, [visible, backdropOpacity, dragY, translateY]);
 
   // Handle Android back button
   useEffect(() => {
@@ -411,13 +411,6 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   const handleBackdropPress = useCallback(() => {
     onClose();
   }, [onClose]);
-
-  // Handle action buttons
-  const handleViewExplorer = useCallback(() => {
-    if (transaction && onViewExplorer) {
-      onViewExplorer(transaction);
-    }
-  }, [transaction, onViewExplorer]);
 
   // Inline hash copy state
   const [hashCopied, setHashCopied] = useState(false);
@@ -847,7 +840,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 blockchain="SOLANA"
                 environment="solana-mainnet"
                 showMenu
-                onPress={(url, explorerName) => {
+                onPress={(_url, _explorerName) => {
                   if (onViewExplorer) {
                     onViewExplorer(transaction);
                   }

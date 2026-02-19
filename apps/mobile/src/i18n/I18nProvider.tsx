@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './config';
 import { getStoredLanguage } from './useLanguage';
@@ -12,8 +12,6 @@ interface I18nProviderProps {
  * It initializes i18n with the stored language preference or device language.
  */
 export function I18nProvider({ children }: I18nProviderProps) {
-  const [isReady, setIsReady] = useState(false);
-
   useEffect(() => {
     const initializeLanguage = async () => {
       try {
@@ -24,8 +22,6 @@ export function I18nProvider({ children }: I18nProviderProps) {
         }
       } catch (error) {
         console.warn('Failed to load stored language:', error);
-      } finally {
-        setIsReady(true);
       }
     };
 

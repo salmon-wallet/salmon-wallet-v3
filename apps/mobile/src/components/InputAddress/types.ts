@@ -4,26 +4,12 @@
  *
  * Hook-related types (BlockchainType, ValidationState, ValidationCallbackResult,
  * UseAddressValidationReturn, UseAddressValidationOptions) are now defined in
- * @salmon/shared and re-exported from the barrel index.ts for backwards compat.
+ * @salmon/shared and can be imported directly from there.
  */
 
 import type { TextInputProps } from 'react-native';
 import type {
-  BlockchainType,
-  ValidationCallbackResult,
-  ValidationState,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
   InputAddressPropsBase,
-} from '@salmon/shared';
-
-// Re-export shared types so existing local imports still work
-export type {
-  BlockchainType,
-  ValidationState,
-  ValidationCallbackResult,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
 } from '@salmon/shared';
 
 /**

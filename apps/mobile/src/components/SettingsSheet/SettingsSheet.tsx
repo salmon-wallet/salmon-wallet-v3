@@ -292,7 +292,7 @@ export function SettingsSheet({
             {/* Icon */}
             <View style={styles.iconContainer}>
               <Ionicons
-                name={option.icon as any}
+                name={option.icon}
                 size={24}
                 color={colors.text.primary}
               />
@@ -338,7 +338,7 @@ export function SettingsSheet({
             ]}
           >
             <Ionicons
-              name={option.icon as any}
+              name={option.icon}
               size={24}
               color={isDanger ? DANGER_COLORS.text : colors.text.primary}
             />

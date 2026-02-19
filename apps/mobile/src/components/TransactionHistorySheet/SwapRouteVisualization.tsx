@@ -37,27 +37,6 @@ const COPIED_FEEDBACK_DURATION = 1500;
 // Helper Functions
 // ============================================================================
 
-/**
- * Build route summary from transaction inputs/outputs
- */
-function buildRouteSummary(transaction: Transaction): string {
-  const { inputs, outputs, type } = transaction;
-
-  if (type !== 'swap') return '';
-
-  // Get unique symbols
-  const outputSymbols = [...new Set(outputs.map(o => o.symbol))];
-  const inputSymbols = [...new Set(inputs.map(i => i.symbol))];
-
-  if (outputSymbols.length <= 2 && inputSymbols.length <= 2) {
-    // Simple swap: show direct route
-    return `${outputSymbols.join(', ')} → ${inputSymbols.join(', ')}`;
-  }
-
-  // Complex swap: show count
-  return `${outputSymbols.length} tokens → ${inputSymbols.length} tokens`;
-}
-
 // ============================================================================
 // Sub-components
 // ============================================================================
@@ -497,14 +476,13 @@ const SwapRouteVisualizationContent: React.FC<SwapRouteVisualizationProps> = ({
   const [measured, setMeasured] = useState(false);
 
   // Handle content layout measurement
-  // contentHeight is a stable shared value (like a ref) — safe to omit from deps
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleContentLayout = useCallback((event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
     if (height > 0 && height !== contentHeight.value) {
       contentHeight.value = height;
       setMeasured(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- contentHeight is a stable shared value ref
   }, []);
 
   // Animated styles for expand/collapse with dynamic height

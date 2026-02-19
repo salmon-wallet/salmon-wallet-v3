@@ -171,6 +171,8 @@ export function TopSheet({
     isRendered,
     onOpenComplete,
     onCloseComplete,
+    backdropOpacityValue,
+    translateY,
   ]);
 
   // Handle Android back button

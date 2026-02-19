@@ -302,7 +302,7 @@ export default function HomeScreen() {
   }, [availableNetworks, activeAccount?.networksAccounts]);
 
   // Get adjacent network accounts for preloading
-  const { adjacentAccounts, shouldPreload } = useAdjacentBalances({
+  const { adjacentAccounts } = useAdjacentBalances({
     activeAccount,
     allNetworks,
     activeIndex: activeBlockchainIndex,
@@ -337,7 +337,7 @@ export default function HomeScreen() {
     refresh: transactionsRefresh,
   } = useTransactions({
     address,
-    networkId: getTransactionNetworkId(networkId) as any,
+    networkId: getTransactionNetworkId(networkId) as NetworkId,
     skip: !ready || !activeBlockchainAccount || !transactionHistoryVisible,
   });
 
@@ -924,7 +924,6 @@ export default function HomeScreen() {
     );
   }
 
-  const accountName = activeAccount.name || 'Account';
   // address is already defined above for useTransactions hook
 
   return (

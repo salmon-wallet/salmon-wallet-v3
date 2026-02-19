@@ -31,7 +31,7 @@ import {
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -59,6 +59,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoadingScreen } from '../LoadingScreen';
 import type { LockScreenOverlayProps } from './types';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 // ============================================================================
 // Font families for React Native (DM Sans loaded fonts)
@@ -118,7 +124,7 @@ export function LockScreenOverlay({
     !!onUnlockWithKey;
 
   // Get the appropriate biometric icon
-  const getBiometricIcon = () => {
+  const getBiometricIcon = (): IoniconsName => {
     switch (biometricState?.biometricType) {
       case 'facial':
         return 'scan-outline'; // Face ID style icon
@@ -189,7 +195,8 @@ export function LockScreenOverlay({
         }
       );
     }
-  }, [locked, screenHeight]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isVisible/onAnimationComplete intentionally omitted to avoid re-triggering animations
+  }, [locked, screenHeight, translateY]);
 
   /**
    * Handle unlock attempt with password validation
@@ -443,7 +450,7 @@ export function LockScreenOverlay({
                       >
                         <View style={styles.biometricButton}>
                           <Ionicons
-                            name={getBiometricIcon() as any}
+                            name={getBiometricIcon()}
                             size={ms(32)}
                             color={colors.text.primary}
                           />

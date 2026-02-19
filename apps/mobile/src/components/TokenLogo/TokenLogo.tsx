@@ -1,7 +1,7 @@
 import { colors, ms } from '@salmon/shared';
 import { Image } from 'expo-image';
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { StyleSheet, Text, View, type ImageStyle, type ViewStyle } from 'react-native';
 
 interface TokenLogoProps {
   uri?: string;
@@ -47,7 +47,7 @@ const TokenLogo: React.FC<TokenLogoProps> = ({
   return (
     <Image
       source={uri}
-      style={containerStyle as any}
+      style={containerStyle as ImageStyle}
       contentFit="cover"
       onError={handleError}
     />

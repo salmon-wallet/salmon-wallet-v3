@@ -7,7 +7,7 @@
  * Design: Dark gradient background with list of support options.
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, type ComponentProps } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +21,12 @@ import {
   useOpenLink,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../../../../src/components';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 // ============================================================================
 // Constants
@@ -65,7 +71,7 @@ const SUPPORT_OPTIONS = [
     description: 'Contact us directly for help',
     url: 'mailto:support@salmonwallet.io',
   },
-] as const;
+] as const satisfies readonly { id: string; icon: IoniconsName; title: string; description: string; url: string }[];
 
 // ============================================================================
 // Component
@@ -95,7 +101,7 @@ export default function SupportScreen() {
       >
         <View style={styles.optionIconContainer}>
           <Ionicons
-            name={option.icon as any}
+            name={option.icon}
             size={24}
             color={colors.accent.primary}
           />

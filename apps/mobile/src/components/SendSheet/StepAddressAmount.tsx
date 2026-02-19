@@ -13,7 +13,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
-  borderRadius,
   ms,
   vs,
   s,
@@ -57,18 +56,18 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   const [amount, setAmount] = useState('');
 
   // Resolve chain-specific connection/provider from account
-  const [chainConnection, setChainConnection] = useState<any>(null);
+  const [chainConnection, setChainConnection] = useState<Parameters<typeof useAddressValidation>[1]>(null);
 
   useEffect(() => {
     let cancelled = false;
     const resolveConnection = async () => {
       if (!account) return;
       try {
-        if (blockchain === 'ethereum' && account.getProvider) {
-          const provider = await account.getProvider();
+        if (blockchain === 'ethereum' && 'getProvider' in account) {
+          const provider = await (account as { getProvider: () => Promise<NonNullable<typeof chainConnection>> }).getProvider();
           if (!cancelled) setChainConnection(provider);
-        } else if (blockchain === 'solana' && account.getConnection) {
-          const connection = await account.getConnection();
+        } else if (blockchain === 'solana' && 'getConnection' in account) {
+          const connection = await (account as { getConnection: () => Promise<NonNullable<typeof chainConnection>> }).getConnection();
           if (!cancelled) setChainConnection(connection);
         }
         // Bitcoin: no connection needed, chainConnection stays null

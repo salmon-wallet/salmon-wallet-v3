@@ -54,9 +54,7 @@ export const RecipientAddressInput: React.FC<RecipientAddressInputProps> = ({
   const {
     validationState,
     isValidating,
-    isValid,
     message: validationMessage,
-    messageType,
   } = useAddressValidation(value, null, {
     debounceMs: 500,
     blockchain,

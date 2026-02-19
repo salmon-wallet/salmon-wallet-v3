@@ -33,7 +33,6 @@ import ReanimatedAnimated, {
   withSpring,
   Easing,
   runOnJS,
-  interpolate,
 } from 'react-native-reanimated';
 import {
   colors,

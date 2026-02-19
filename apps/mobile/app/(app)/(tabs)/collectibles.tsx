@@ -45,6 +45,8 @@ import {
   // type EthereumNft,
   // type BitcoinOrdinal,
   type BlockchainAccount,
+  type SolanaNetworkId,
+  SolanaAccount,
   getShortAddress,
   createBurnTransaction,
 } from '@salmon/shared';
@@ -173,7 +175,7 @@ function solanaNftToDetailData(nft: Nft): NftDetailData {
 /**
  * Get section title with optional network label
  */
-function getSectionTitle(sectionKey: NftSectionKey, section: NftSection): string {
+function getSectionTitle(_sectionKey: NftSectionKey, section: NftSection): string {
   // Only Solana for now
   const baseName = 'Solana';
   // const baseNames: Record<NftBlockchain, string> = {
@@ -398,7 +400,7 @@ export default function CollectiblesScreen() {
     if (ready && activeBlockchainAccount && activeAccount) {
       fetchAllNfts();
     }
-  }, [ready, activeBlockchainAccount, developerNetworks, fetchAllNfts]);
+  }, [ready, activeAccount, activeBlockchainAccount, developerNetworks, fetchAllNfts]);
 
   // Handle pull-to-refresh
   const handleRefresh = useCallback(() => {
@@ -514,10 +516,10 @@ export default function CollectiblesScreen() {
               const networkId = sectionKey ? SECTION_TO_NETWORK[sectionKey] : 'solana-mainnet';
               const txResponse = await createBurnTransaction(
                 { mintAddress: nft.mint, ownerAddress },
-                networkId as any,
+                networkId as SolanaNetworkId,
               );
               // Sign and send using the account's signAndSend helper
-              const solAccount = nftAccount as any;
+              const solAccount = nftAccount as SolanaAccount;
               const connection = await solAccount.getConnection();
               // Deserialize, sign, and send the transaction
               const { VersionedTransaction } = require('@solana/web3.js');

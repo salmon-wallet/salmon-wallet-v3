@@ -45,7 +45,7 @@ export const SwapSuccessScreen: React.FC<SwapSuccessScreenProps> = ({
     checkOpacity.value = withDelay(200, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }));
     textOpacity.value = withDelay(400, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }));
     buttonOpacity.value = withDelay(600, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }));
-  }, []);
+  }, [circleScale, checkOpacity, textOpacity, buttonOpacity]);
 
   const circleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: circleScale.value }],

@@ -9,12 +9,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
-  borderRadius,
   ms,
   vs,
   s,
   useSendTransaction,
-  type BlockchainType,
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
@@ -83,7 +81,8 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
       }
     };
     doEstimate();
-  }, []); // Only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally mount-only: estimate fee once with initial values
+  }, []);
 
   // Handle confirm press
   const handleConfirm = useCallback(async () => {
@@ -122,7 +121,6 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
 
   const isSending = sendHook.status === 'creating' || sendHook.status === 'sending';
   const isFailed = sendHook.status === 'failed';
-  const isSuccess = sendHook.status === 'success';
 
   // Truncate address for display
   const truncatedAddress = useMemo(() => {

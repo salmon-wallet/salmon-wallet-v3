@@ -5,6 +5,9 @@
  * a slide-down settings panel using the TopSheet component.
  */
 
+import type { ComponentProps } from 'react';
+
+import type { Ionicons } from '@expo/vector-icons';
 import type {
   SettingsSheetBaseProps,
   SettingsOptionBase,
@@ -22,7 +25,7 @@ export interface SettingsSheetProps extends SettingsSheetBaseProps {}
  */
 export interface SettingsOption extends SettingsOptionBase {
   /** Ionicons icon name */
-  icon: string;
+  icon: ComponentProps<typeof Ionicons>['name'];
   /** Whether this is a toggle option (switch) instead of navigation */
   isToggle?: boolean;
   /** Whether this is an action (direct callback) instead of navigation */
