@@ -121,6 +121,38 @@ export interface UseBridgeResult {
 }
 
 // ============================================================================
+// Helpers
+// ============================================================================
+
+/**
+ * Parse raw bridge API error into a user-friendly message.
+ * Strips the "Bridge fetch ... failed: " prefix added by bridge.ts service,
+ * and converts common API error patterns into readable text.
+ */
+function parseBridgeErrorMessage(raw: string): string {
+  const stripped = raw.replace(/^Bridge fetch \w[\w\s]* failed:\s*/i, '').trim();
+
+  if (/pair is disabled|pair is unavailable/i.test(stripped)) {
+    return 'This trading pair is currently unavailable';
+  }
+  if (/amount.*too small|less than minimal/i.test(stripped)) {
+    return 'Amount is below the minimum for this pair';
+  }
+  if (/amount.*too large/i.test(stripped)) {
+    return 'Amount exceeds the maximum for this pair';
+  }
+  if (/network error/i.test(stripped)) {
+    return 'Network error: Unable to reach the server';
+  }
+
+  if (stripped.length > 0 && stripped.length < 120) {
+    return stripped;
+  }
+
+  return 'Failed to get bridge estimate';
+}
+
+// ============================================================================
 // Hook Implementation
 // ============================================================================
 
@@ -229,7 +261,9 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
   );
 
   /**
-   * Get bridge estimate and minimum amount
+   * Get bridge estimate and minimum amount.
+   * Throws on failure (after setting internal error state) so callers
+   * can catch and display the user-friendly message.
    */
   const getEstimate = useCallback(
     async (symbolIn: string, symbolOut: string, amount: number): Promise<BridgeEstimate | null> => {
@@ -237,34 +271,46 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
       setError(null);
       setEstimate(null);
 
-      try {
-        // Fetch both estimate and minimum in parallel
-        const [estimatedAmount, minAmount] = await Promise.all([
-          getBridgeEstimatedAmount(symbolIn, symbolOut, amount),
-          getBridgeMinimalAmount(symbolIn, symbolOut),
-        ]);
+      // Use Promise.allSettled so we recover minAmount even when estimate fails
+      const [estimateResult, minResult] = await Promise.allSettled([
+        getBridgeEstimatedAmount(symbolIn, symbolOut, amount),
+        getBridgeMinimalAmount(symbolIn, symbolOut),
+      ]);
 
-        if (estimatedAmount === null || minAmount === null) {
-          throw new Error('Bridge estimate returned empty data: estimated amount or minimum amount is unavailable');
+      const estimatedAmount = estimateResult.status === 'fulfilled' ? estimateResult.value : null;
+      const minAmount = minResult.status === 'fulfilled' ? minResult.value : null;
+
+      // If estimate failed, produce a user-readable error and throw
+      if (estimatedAmount === null) {
+        let errorMessage: string;
+
+        if (minAmount !== null && amount < Number(minAmount)) {
+          const formatted = parseFloat(Number(minAmount).toPrecision(4));
+          errorMessage = `Minimum bridge amount is ${formatted} ${symbolIn.toUpperCase()}`;
+        } else {
+          const rawReason = estimateResult.status === 'rejected'
+            ? (estimateResult.reason instanceof Error ? estimateResult.reason.message : String(estimateResult.reason))
+            : 'Bridge estimate unavailable';
+          errorMessage = parseBridgeErrorMessage(rawReason);
         }
 
-        const result: BridgeEstimate = {
-          estimatedAmount,
-          minAmount,
-          symbolIn,
-          symbolOut,
-        };
-
-        setEstimate(result);
-        setStatus('idle');
-        return result;
-      } catch (err) {
-        console.error('[useBridge] Failed to get estimate:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to get bridge estimate';
+        console.warn('[useBridge] Failed to get estimate:', errorMessage);
         setError(errorMessage);
         setStatus('failed');
-        return null;
+        throw new Error(errorMessage);
       }
+
+      // Estimate succeeded — if minAmount failed, proceed with 0
+      const result: BridgeEstimate = {
+        estimatedAmount,
+        minAmount: minAmount ?? 0,
+        symbolIn,
+        symbolOut,
+      };
+
+      setEstimate(result);
+      setStatus('idle');
+      return result;
     },
     []
   );

@@ -116,7 +116,7 @@ export async function getBridgeEstimatedAmount(
     });
     return data?.estimated_amount ?? null;
   } catch (error) {
-    console.error('[BridgeService] Failed to fetch estimated amount:', error);
+    console.warn('[BridgeService] Failed to fetch estimated amount:', error);
     throw new Error(`Bridge fetch estimated amount failed: ${error instanceof Error ? error.message : error}`);
   }
 }
@@ -140,7 +140,7 @@ export async function getBridgeMinimalAmount(
     });
     return data?.min_amount ?? null;
   } catch (error) {
-    console.error('[BridgeService] Failed to fetch minimal amount:', error);
+    console.warn('[BridgeService] Failed to fetch minimal amount:', error);
     throw new Error(`Bridge fetch minimal amount failed: ${error instanceof Error ? error.message : error}`);
   }
 }

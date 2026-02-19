@@ -49,8 +49,8 @@ export interface BridgeToken {
   name: string;
   /** Network/chain the token is on */
   network?: string;
-  /** Token logo URL */
-  image?: string;
+  /** Token logo URL (returned as "logo" by StealthEX API) */
+  logo?: string;
   /** Whether the token is enabled for bridging */
   enabled?: boolean;
   /** Minimum amount for bridging */
@@ -69,8 +69,8 @@ export interface BridgeAvailableToken {
   name: string;
   /** Network/chain identifier */
   network?: string;
-  /** Token logo URL */
-  image?: string;
+  /** Token logo URL (returned as "logo" by StealthEX API) */
+  logo?: string;
   /** Whether this pair is currently available */
   available?: boolean;
 }
@@ -85,8 +85,8 @@ export interface BridgeFeaturedToken {
   name: string;
   /** Network/chain identifier */
   network?: string;
-  /** Token logo URL */
-  image?: string;
+  /** Token logo URL (returned as "logo" by StealthEX API) */
+  logo?: string;
   /** Popularity rank */
   rank?: number;
 }
