@@ -2,7 +2,7 @@
  * Tests for API Client module
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
 // Mock axios BEFORE importing the client module
@@ -49,8 +49,6 @@ import {
   apiClient,
   staticApiClient,
 } from './client';
-import type { ApiClientConfig } from './client';
-
 const mockedAxios = vi.mocked(axios, { deep: true });
 
 describe('API Client Module', () => {

@@ -1150,7 +1150,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         // If we get here, backend is available
         expect(balance).toHaveProperty('items');
         expect(balance).toHaveProperty('usdTotal');
-      } catch (error) {
+      } catch (_error) {
         // Backend not available - skip test
         console.log('Skipping getBalance test - backend not available');
         expect(true).toBe(true); // Pass the test
@@ -1283,7 +1283,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
         // If we get here, backend is available
         expect(transactions).toHaveProperty('items');
         expect(Array.isArray(transactions.items)).toBe(true);
-      } catch (error) {
+      } catch (_error) {
         // Backend not available or address not found - skip test
         console.log('Skipping getRecentTransactions test - backend not available');
         expect(true).toBe(true); // Pass the test
@@ -1301,7 +1301,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       try {
         const transactions = await account.getRecentTransactions({ pageSize: 5 });
         expect(transactions).toHaveProperty('items');
-      } catch (error) {
+      } catch (_error) {
         // Backend not available - skip test
         console.log('Skipping pagination test - backend not available');
         expect(true).toBe(true);

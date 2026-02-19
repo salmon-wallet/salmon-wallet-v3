@@ -11,7 +11,7 @@
  * The hook's internal functions are tested through the module exports.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import type { RuntimeInfo } from './useRuntime';
 import { ADAPTER_PREFIXES } from './useRuntime';
 

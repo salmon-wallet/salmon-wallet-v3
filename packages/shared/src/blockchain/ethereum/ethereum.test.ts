@@ -1353,7 +1353,6 @@ describe('Token Service Integration Tests', () => {
       const { getTokensByOwner } = await import('./tokens');
 
       const mockProvider = {} as any;
-      const mockContract = vi.fn();
 
       // Mock Contract constructor to return a mock with balanceOf
       vi.doMock('ethers', async () => {

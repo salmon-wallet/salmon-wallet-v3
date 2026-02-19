@@ -184,7 +184,6 @@ describe('formatUsdValue', () => {
   });
 
   it('should return "-" for null', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(formatUsdValue(null as any)).toBe('-');
   });
 
@@ -241,7 +240,6 @@ describe('formatPercentChange', () => {
   });
 
   it('should return "-" for null', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(formatPercentChange(null as any)).toBe('-');
   });
 
@@ -567,7 +565,6 @@ describe('calculate24HoursChange', () => {
 
   it('should return zero when currentTotal is undefined/falsy', () => {
     const balances: TokenBalanceWithPrice[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = calculate24HoursChange(balances, null as any);
 
     expect(result).toEqual({ amount: 0, percent: 0 });

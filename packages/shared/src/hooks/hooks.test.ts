@@ -15,7 +15,7 @@
  * should be done in app packages with proper React test environments.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Connection, PublicKey } from '@solana/web3.js';
 
 // Storage
@@ -76,7 +76,7 @@ vi.mock('../storage', () => ({
 }));
 
 vi.mock('../crypto/encryption', () => ({
-  lock: vi.fn((data) => Promise.resolve({
+  lock: vi.fn((_data) => Promise.resolve({
     encrypted: 'mock-encrypted-data',
     nonce: 'mock-nonce',
     salt: 'mock-salt',
@@ -84,7 +84,7 @@ vi.mock('../crypto/encryption', () => ({
     digest: 'sha256',
     kdf: 'pbkdf2',
   })),
-  unlock: vi.fn((vault, password) => {
+  unlock: vi.fn((_vault, password) => {
     if (password === 'wrong-password') {
       throw new Error('Invalid password');
     }

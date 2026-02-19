@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAccounts } from './useAccounts';
-import type { Account, EditAccountParams } from './useAccounts';
+import type { Account } from './useAccounts';
 import * as storage from '../storage';
 import * as encryption from '../crypto/encryption';
 import { createSolanaAccount } from '../blockchain/solana';
@@ -209,7 +209,7 @@ describe('useAccounts Hook', () => {
   describe('Initialization', () => {
     it('should initialize with default state when no stored data', async () => {
       const { result } = renderHook(() => useAccounts());
-      const [state] = result.current;
+      const [_state] = result.current;
 
       await waitFor(() => {
         expect(result.current[0].ready).toBe(true);

@@ -5,9 +5,8 @@
  * Uses Vitest 4.0.18 for testing.
  */
 
-import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { Connection, PublicKey, Keypair } from '@solana/web3.js';
-import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { describe, it, expect } from 'vitest';
+import { PublicKey } from '@solana/web3.js';
 
 // Factory functions
 import { getSolanaDerivationPath, createSolanaAccount } from './factory';
@@ -15,10 +14,6 @@ import { getSolanaDerivationPath, createSolanaAccount } from './factory';
 // Transfer utilities
 import {
   SOL_ADDRESS,
-  createSolTransaction,
-  createSplTransaction,
-  estimateFee,
-  requiresMemo
 } from './transfer';
 import { applyDecimals, removeDecimals } from '../../utils/decimals';
 import { isNativeSol } from '../../utils/tokens';

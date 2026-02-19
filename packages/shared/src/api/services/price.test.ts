@@ -74,7 +74,6 @@ import type {
   TopToken,
   MarketChartData,
   CoinInfo,
-  PricePlatform,
 } from '../../types/price';
 import { apiClient, staticApiClient, ApiError } from '../client';
 

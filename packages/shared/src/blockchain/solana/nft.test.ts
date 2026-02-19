@@ -25,7 +25,6 @@ import {
 import type {
   Nft,
   NftCollectionGroup,
-  NftPaginatedResponse,
   FetchNftsFromBackendFn,
   FetchNftByAddressFn,
 } from '../../types/nft';
