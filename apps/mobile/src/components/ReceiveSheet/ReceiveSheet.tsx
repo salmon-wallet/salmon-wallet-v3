@@ -1,52 +1,22 @@
 import {
   colors,
-  shadows,
-  borderRadius,
-  borderWidth,
-  componentSizes,
   ms,
   s,
   vs,
 } from '@salmon/shared';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
-  BackHandler,
-  Dimensions,
-  Modal,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  useWindowDimensions,
   View,
+  useWindowDimensions,
 } from 'react-native';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, {
-  Easing,
-  interpolate,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+
+import { BottomSheetContainer } from '../BottomSheetContainer';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import QRCode from '../QRCode';
-import { ScalesBackground } from '../ScalesBackground';
 import type { ReceiveSheetProps } from './types';
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Animation constants
-const ANIMATION_DURATION = 300;
-const BACKDROP_OPACITY = 0.8;
-const DRAG_THRESHOLD = 150;
-const SPRING_CONFIG = {
-  damping: 20,
-  stiffness: 200,
-  mass: 0.5,
-};
 
 // Layout constants
 const CONTENT_PADDING_HORIZONTAL = 24;
@@ -95,226 +65,59 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
   // Calculate QR size: full width minus padding and border
   const qrSize = screenWidth - (CONTENT_PADDING_HORIZONTAL * 2) - (QR_BORDER_WIDTH * 2);
 
-  // Animation shared values
-  const translateY = useSharedValue(SCREEN_HEIGHT);
-  const backdropOpacity = useSharedValue(0);
-  const dragY = useSharedValue(0);
-  const isDragging = useSharedValue(false);
-
-  // Close handler for worklet
-  const closeSheet = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
-  // Handle visibility changes
-  useEffect(() => {
-    if (visible) {
-      // Reset drag position
-      dragY.value = 0;
-      // Animate sheet up
-      translateY.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-      // Fade in backdrop
-      backdropOpacity.value = withTiming(BACKDROP_OPACITY, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-    } else {
-      // Animate sheet down
-      translateY.value = withTiming(SCREEN_HEIGHT, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-      // Fade out backdrop
-      backdropOpacity.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-    }
-  }, [visible]);
-
-  // Handle Android back button
-  useEffect(() => {
-    if (Platform.OS !== 'android' || !visible) return;
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        onClose();
-        return true;
-      }
-    );
-
-    return () => backHandler.remove();
-  }, [visible, onClose]);
-
-  // Handle backdrop press
-  const handleBackdropPress = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
-  // Handle copy press
   const handleCopyPress = useCallback(() => {
     onCopy?.();
   }, [onCopy]);
 
-  // Pan gesture for dragging the sheet
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      isDragging.value = true;
-    })
-    .onUpdate((event) => {
-      // Only allow dragging down (positive translationY)
-      if (event.translationY > 0) {
-        dragY.value = event.translationY;
-        // Update backdrop opacity based on drag
-        backdropOpacity.value = interpolate(
-          event.translationY,
-          [0, SCREEN_HEIGHT * 0.5],
-          [BACKDROP_OPACITY, 0]
-        );
-      }
-    })
-    .onEnd((event) => {
-      isDragging.value = false;
-      // If dragged past threshold or with high velocity, close the sheet
-      if (event.translationY > DRAG_THRESHOLD || event.velocityY > 500) {
-        translateY.value = withTiming(SCREEN_HEIGHT, {
-          duration: 200,
-          easing: Easing.out(Easing.cubic),
-        });
-        backdropOpacity.value = withTiming(0, { duration: 200 });
-        runOnJS(closeSheet)();
-      } else {
-        // Snap back to open position
-        dragY.value = withSpring(0, SPRING_CONFIG);
-        backdropOpacity.value = withSpring(BACKDROP_OPACITY, SPRING_CONFIG);
-      }
-    });
-
-  // Animated styles
-  const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value + dragY.value }],
-  }));
-
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
-
-  if (!visible) {
-    return null;
-  }
+  const title = (
+    <Text style={styles.title}>Receive</Text>
+  );
 
   return (
-    <Modal
+    <BottomSheetContainer
       visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-      statusBarTranslucent
+      onClose={onClose}
+      title={title}
+      style={[styles.sheetContainer, style]}
     >
-      <GestureHandlerRootView style={styles.gestureRoot}>
-        <View style={styles.overlay}>
-          {/* Backdrop */}
-          <TouchableWithoutFeedback onPress={handleBackdropPress}>
-            <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} />
-          </TouchableWithoutFeedback>
-
-          {/* Sheet Container */}
-          <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
-            {/* Scales Background */}
-            <ScalesBackground />
-
-            {/* Draggable Header Area */}
-            <GestureDetector gesture={panGesture}>
-              <Animated.View style={styles.dragArea}>
-                {/* Drag Handle */}
-                <View style={styles.handleContainer}>
-                  <View style={styles.handle} />
-                </View>
-
-                {/* Title */}
-                <Text style={styles.title}>Receive</Text>
-              </Animated.View>
-            </GestureDetector>
-
-            {/* Content */}
-            <View style={styles.content}>
-              {/* QR Code Container */}
-              <View style={styles.qrContainer}>
-                <QRCode
-                  value={address}
-                  size={qrSize}
-                  backgroundColor="#FFFFFF"
-                  color="#000000"
-                />
-              </View>
-
-              {/* Address */}
-              <Text style={styles.address} selectable>
-                {address}
-              </Text>
-
-              {/* Copy Button */}
-              <TouchableOpacity
-                style={styles.copyButton}
-                onPress={handleCopyPress}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel="Copy address"
-              >
-                <ContentCopySvgIcon size={ms(23)} color="#000000" />
-                <Text style={styles.copyButtonText}>Copy address</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
+      {/* Content */}
+      <View style={styles.content}>
+        {/* QR Code Container */}
+        <View style={styles.qrContainer}>
+          <QRCode
+            value={address}
+            size={qrSize}
+            backgroundColor="#FFFFFF"
+            color="#000000"
+          />
         </View>
-      </GestureHandlerRootView>
-    </Modal>
+
+        {/* Address */}
+        <Text style={styles.address} selectable>
+          {address}
+        </Text>
+
+        {/* Copy Button */}
+        <TouchableOpacity
+          style={styles.copyButton}
+          onPress={handleCopyPress}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Copy address"
+        >
+          <ContentCopySvgIcon size={ms(23)} color="#000000" />
+          <Text style={styles.copyButtonText}>Copy address</Text>
+        </TouchableOpacity>
+      </View>
+    </BottomSheetContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  gestureRoot: {
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.sheet.backdrop,
-  },
   sheetContainer: {
-    backgroundColor: colors.background.secondary,
-    borderTopLeftRadius: ms(borderRadius.card),
-    borderTopRightRadius: ms(borderRadius.card),
-    borderTopWidth: borderWidth.sheet,
-    borderTopColor: colors.border.default,
+    minHeight: undefined,
+    maxHeight: '92%',
     overflow: 'hidden',
-    ...shadows.sheet,
-  },
-  dragArea: {
-    // This area is draggable
-  },
-  handleContainer: {
-    alignItems: 'center',
-    paddingTop: vs(9),
-    paddingBottom: vs(8),
-  },
-  handle: {
-    width: s(componentSizes.sheetHandleWidth),
-    height: vs(componentSizes.sheetHandleHeight),
-    borderRadius: 75,
-    backgroundColor: colors.sheet.handle,
-    opacity: componentSizes.sheetHandleOpacity,
   },
   title: {
     fontSize: ms(24),

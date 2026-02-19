@@ -1,0 +1,368 @@
+import React, { useCallback, useEffect } from 'react';
+import {
+  View,
+  Modal,
+  TouchableWithoutFeedback,
+  StyleSheet,
+  Platform,
+  BackHandler,
+  Dimensions,
+  Animated,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
+import Reanimated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+  runOnJS,
+  interpolate,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  colors,
+  shadows,
+  borderRadius,
+  borderWidth,
+  componentSizes,
+  vs,
+  s,
+} from '@salmon/shared';
+import { ScalesBackground } from '../ScalesBackground';
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const ANIMATION_DURATION = 300;
+const BACKDROP_OPACITY = 0.8;
+const DRAG_THRESHOLD = 150;
+const SPRING_CONFIG = {
+  damping: 20,
+  stiffness: 200,
+  mass: 0.5,
+};
+
+// ============================================================================
+// Types
+// ============================================================================
+
+export interface BottomSheetContainerProps {
+  /** Controls sheet visibility */
+  visible: boolean;
+  /** Close callback */
+  onClose: () => void;
+  /** Content to render inside the sheet */
+  children: React.ReactNode;
+  /**
+   * Optional title rendered below the handle, inside the drag area.
+   * Mutually exclusive with headerContent – if both are provided,
+   * headerContent takes precedence.
+   */
+  title?: React.ReactNode;
+  /**
+   * Optional custom header content that replaces the title.
+   * The full row rendered inside the drag area (below the handle).
+   */
+  headerContent?: React.ReactNode;
+  /** Whether to show the top fade gradient driven by scroll offset */
+  showFadeGradient?: boolean;
+  /**
+   * RN Animated.Value representing the current scroll offset.
+   * Required (and used) only when showFadeGradient is true.
+   * Drive it by calling `.setValue(offset)` inside your onScroll handler.
+   */
+  scrollOffsetValue?: Animated.Value;
+  /**
+   * Absolute `top` position for the fade gradient.
+   * Must account for handle height + title/header height so the gradient
+   * starts just below the drag area. Each sheet knows its own header
+   * height, so this is the caller's responsibility.
+   * Only meaningful when showFadeGradient is true.
+   */
+  fadeGradientTop?: number;
+  /** Whether to show the fish scale texture overlay (NFT sheets) */
+  showTextureOverlay?: boolean;
+  /** Additional style for the sheet container */
+  style?: StyleProp<ViewStyle>;
+  /** Additional style for the drag area */
+  dragAreaStyle?: StyleProp<ViewStyle>;
+  /** For testing */
+  testID?: string;
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
+/**
+ * BottomSheetContainer – shared infrastructure for all bottom sheet modals.
+ *
+ * Encapsulates:
+ *  - Slide-up/slide-down animation
+ *  - Animated backdrop with tap-to-dismiss
+ *  - Drag-to-dismiss pan gesture (header area only)
+ *  - Android hardware back button handling
+ *  - Drag handle bar
+ *  - Optional title / custom header content
+ *  - Optional top fade gradient (for scrollable content)
+ *  - Optional fish scale texture overlay (NFT sheets)
+ *  - ScalesBackground fish scale pattern
+ *
+ * @example
+ * ```tsx
+ * <BottomSheetContainer
+ *   visible={visible}
+ *   onClose={onClose}
+ *   title="My Sheet"
+ *   showFadeGradient
+ *   scrollOffsetValue={topFadeOpacity}
+ * >
+ *   <MyContent />
+ * </BottomSheetContainer>
+ * ```
+ */
+export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
+  visible,
+  onClose,
+  children,
+  title,
+  headerContent,
+  showFadeGradient = false,
+  scrollOffsetValue,
+  fadeGradientTop,
+  showTextureOverlay = false,
+  style,
+  dragAreaStyle,
+  testID,
+}) => {
+  // Reanimated shared values for the sheet and backdrop
+  const translateY = useSharedValue(SCREEN_HEIGHT);
+  const backdropOpacity = useSharedValue(0);
+  const dragY = useSharedValue(0);
+  const isDragging = useSharedValue(false);
+
+  // Worklet-safe close reference
+  const closeSheet = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  // Animate in / out when `visible` changes
+  useEffect(() => {
+    if (visible) {
+      dragY.value = 0;
+      translateY.value = withTiming(0, {
+        duration: ANIMATION_DURATION,
+        easing: Easing.out(Easing.cubic),
+      });
+      backdropOpacity.value = withTiming(BACKDROP_OPACITY, {
+        duration: ANIMATION_DURATION,
+        easing: Easing.out(Easing.cubic),
+      });
+    } else {
+      translateY.value = withTiming(SCREEN_HEIGHT, {
+        duration: ANIMATION_DURATION,
+        easing: Easing.in(Easing.cubic),
+      });
+      backdropOpacity.value = withTiming(0, {
+        duration: ANIMATION_DURATION,
+        easing: Easing.in(Easing.cubic),
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
+
+  // Android hardware back button
+  useEffect(() => {
+    if (Platform.OS !== 'android' || !visible) return;
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      onClose();
+      return true;
+    });
+
+    return () => backHandler.remove();
+  }, [visible, onClose]);
+
+  // Pan gesture – drag handle area only
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      isDragging.value = true;
+    })
+    .onUpdate((event) => {
+      // Only allow dragging downward
+      if (event.translationY > 0) {
+        dragY.value = event.translationY;
+        backdropOpacity.value = interpolate(
+          event.translationY,
+          [0, SCREEN_HEIGHT * 0.5],
+          [BACKDROP_OPACITY, 0],
+        );
+      }
+    })
+    .onEnd((event) => {
+      isDragging.value = false;
+      if (event.translationY > DRAG_THRESHOLD || event.velocityY > 500) {
+        translateY.value = withTiming(SCREEN_HEIGHT, {
+          duration: 200,
+          easing: Easing.out(Easing.cubic),
+        });
+        backdropOpacity.value = withTiming(0, { duration: 200 });
+        runOnJS(closeSheet)();
+      } else {
+        dragY.value = withSpring(0, SPRING_CONFIG);
+        backdropOpacity.value = withSpring(BACKDROP_OPACITY, SPRING_CONFIG);
+      }
+    });
+
+  const handleBackdropPress = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  // Animated styles
+  const sheetAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value + dragY.value }],
+  }));
+
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }));
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
+      statusBarTranslucent
+      testID={testID}
+    >
+      <GestureHandlerRootView style={styles.gestureRoot}>
+        <View style={styles.overlay}>
+          {/* Backdrop */}
+          <TouchableWithoutFeedback onPress={handleBackdropPress}>
+            <Reanimated.View style={[styles.backdrop, backdropAnimatedStyle]} />
+          </TouchableWithoutFeedback>
+
+          {/* Sheet */}
+          <Reanimated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
+            {/* Fish scale background */}
+            <ScalesBackground />
+
+            {/* Optional texture overlay (NFT sheets) */}
+            {showTextureOverlay && <View style={styles.textureOverlay} />}
+
+            {/* Draggable area: handle + header content */}
+            <GestureDetector gesture={panGesture}>
+              <Reanimated.View style={[styles.dragArea, dragAreaStyle]}>
+                {/* Drag handle bar */}
+                <View style={styles.handleContainer}>
+                  <View style={styles.handle} />
+                </View>
+
+                {/* Header: custom content wins, otherwise plain title */}
+                {headerContent ?? title ?? null}
+              </Reanimated.View>
+            </GestureDetector>
+
+            {/* Sheet body */}
+            {children}
+
+            {/* Top fade gradient for scrollable content */}
+            {showFadeGradient && scrollOffsetValue && (
+              <Animated.View
+                style={[
+                  styles.topFadeGradient,
+                  { opacity: scrollOffsetValue },
+                  fadeGradientTop != null && { top: fadeGradientTop },
+                ]}
+                pointerEvents="none"
+              >
+                <LinearGradient
+                  colors={[colors.background.secondary, 'transparent']}
+                  style={StyleSheet.absoluteFill}
+                />
+              </Animated.View>
+            )}
+          </Reanimated.View>
+        </View>
+      </GestureHandlerRootView>
+    </Modal>
+  );
+};
+
+// ============================================================================
+// Styles
+// ============================================================================
+
+const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.sheet.backdrop,
+  },
+  sheetContainer: {
+    backgroundColor: colors.background.secondary,
+    borderTopLeftRadius: borderRadius.card,
+    borderTopRightRadius: borderRadius.card,
+    borderTopWidth: borderWidth.sheet,
+    borderTopColor: colors.border.default,
+    minHeight: '70%',
+    maxHeight: '92%',
+    ...shadows.sheet,
+  },
+  textureOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    opacity: 0.4,
+  },
+  dragArea: {
+    // Gesture is attached here; keep it empty so consumers can add dragAreaStyle
+  },
+  handleContainer: {
+    alignItems: 'center',
+    paddingTop: vs(12),
+    paddingBottom: vs(8),
+  },
+  handle: {
+    width: s(componentSizes.sheetHandleWidth),
+    height: vs(componentSizes.sheetHandleHeight),
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.sheet.handle,
+    opacity: componentSizes.sheetHandleOpacity,
+  },
+  topFadeGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    // Positioned by caller via absolute placement; default sits just below handle
+    top: vs(12) + vs(8),
+    height: componentSizes.sheetFadeGradientHeight,
+    zIndex: 1,
+  },
+});
+
+export default BottomSheetContainer;

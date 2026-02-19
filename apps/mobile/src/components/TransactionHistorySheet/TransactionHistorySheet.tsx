@@ -1,37 +1,18 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
-  Modal,
   TouchableWithoutFeedback,
   FlatList,
   StyleSheet,
-  Platform,
-  BackHandler,
-  Dimensions,
   ActivityIndicator,
   Animated,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
-import ReanimatedAnimated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  Easing,
-  runOnJS,
-  interpolate,
-} from 'react-native-reanimated';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
-  shadows,
-  borderRadius,
-  borderWidth,
-  componentSizes,
   ms,
   vs,
   s,
@@ -39,24 +20,13 @@ import {
   fontSize,
 } from '@salmon/shared';
 
-import { ScalesBackground } from '../ScalesBackground';
+import { BottomSheetContainer } from '../BottomSheetContainer';
 import { TransactionItem } from './TransactionItem';
 import type { TransactionHistorySheetProps, Transaction } from './types';
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const ANIMATION_DURATION = 300;
-const BACKDROP_OPACITY = 0.8;
-const DRAG_THRESHOLD = 150;
-const SPRING_CONFIG = {
-  damping: 20,
-  stiffness: 200,
-  mass: 0.5,
-};
 
 const FONT_FAMILY = {
   regular: 'DMSansRegular',
@@ -196,102 +166,8 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
   onRetry,
   style,
 }) => {
-  // Animation shared values
-  const translateY = useSharedValue(SCREEN_HEIGHT);
-  const backdropOpacity = useSharedValue(0);
-  const dragY = useSharedValue(0);
-  const isDragging = useSharedValue(false);
-
-  // Top fade gradient opacity
-  const topFadeOpacity = useRef(new Animated.Value(0)).current;
-
-  // Close handler for worklet
-  const closeSheet = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
-  // Handle visibility changes
-  useEffect(() => {
-    if (visible) {
-      // Reset drag position
-      dragY.value = 0;
-      // Animate sheet up
-      translateY.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-      // Fade in backdrop
-      backdropOpacity.value = withTiming(BACKDROP_OPACITY, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-    } else {
-      // Animate sheet down
-      translateY.value = withTiming(SCREEN_HEIGHT, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-      // Fade out backdrop
-      backdropOpacity.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-    }
-  }, [visible]);
-
-  // Handle Android back button
-  useEffect(() => {
-    if (Platform.OS !== 'android' || !visible) return;
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        onClose();
-        return true;
-      }
-    );
-
-    return () => backHandler.remove();
-  }, [visible, onClose]);
-
-  // Pan gesture for dragging the sheet
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      isDragging.value = true;
-    })
-    .onUpdate((event) => {
-      // Only allow dragging down (positive translationY)
-      if (event.translationY > 0) {
-        dragY.value = event.translationY;
-        // Update backdrop opacity based on drag
-        backdropOpacity.value = interpolate(
-          event.translationY,
-          [0, SCREEN_HEIGHT * 0.5],
-          [BACKDROP_OPACITY, 0]
-        );
-      }
-    })
-    .onEnd((event) => {
-      isDragging.value = false;
-      // If dragged past threshold or with high velocity, close the sheet
-      if (event.translationY > DRAG_THRESHOLD || event.velocityY > 500) {
-        translateY.value = withTiming(SCREEN_HEIGHT, {
-          duration: 200,
-          easing: Easing.out(Easing.cubic),
-        });
-        backdropOpacity.value = withTiming(0, { duration: 200 });
-        runOnJS(closeSheet)();
-      } else {
-        // Snap back to open position
-        dragY.value = withSpring(0, SPRING_CONFIG);
-        backdropOpacity.value = withSpring(BACKDROP_OPACITY, SPRING_CONFIG);
-      }
-    });
-
-  // Handle backdrop press
-  const handleBackdropPress = useCallback(() => {
-    onClose();
-  }, [onClose]);
+  // Top fade gradient opacity (driven by scroll offset)
+  const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
 
   // Handle transaction press
   const handleTransactionPress = useCallback(
@@ -346,100 +222,54 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
     );
   }, [loadingMore]);
 
-  // Animated styles
-  const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value + dragY.value }],
-  }));
-
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
-
-  if (!visible) {
-    return null;
-  }
+  const title = (
+    <Text style={styles.title}>Transaction History</Text>
+  );
 
   return (
-    <Modal
+    <BottomSheetContainer
       visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-      statusBarTranslucent
+      onClose={onClose}
+      title={title}
+      showFadeGradient
+      fadeGradientTop={vs(12) + vs(8) + ms(fontSize['2xl']) + vs(18)}
+      scrollOffsetValue={topFadeOpacity}
+      style={style}
     >
-      <GestureHandlerRootView style={styles.gestureRoot}>
-        <View style={styles.overlay}>
-          {/* Backdrop */}
-          <TouchableWithoutFeedback onPress={handleBackdropPress}>
-            <ReanimatedAnimated.View style={[styles.backdrop, backdropAnimatedStyle]} />
-          </TouchableWithoutFeedback>
+      {/* Content */}
+      <View style={styles.content}>
+        {/* Error State */}
+        {error && !loading && (
+          <ErrorState message={error} onRetry={onRetry} />
+        )}
 
-          {/* Sheet Container */}
-          <ReanimatedAnimated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
-            {/* Scales Background */}
-            <ScalesBackground />
+        {/* Loading State */}
+        {loading && !error && (
+          <TransactionListSkeleton count={6} />
+        )}
 
-            {/* Draggable Header Area */}
-            <GestureDetector gesture={panGesture}>
-              <ReanimatedAnimated.View style={styles.dragArea}>
-                {/* Drag Handle */}
-                <View style={styles.handleContainer}>
-                  <View style={styles.handle} />
-                </View>
+        {/* Empty State */}
+        {!loading && !error && transactions.length === 0 && (
+          <EmptyState />
+        )}
 
-                {/* Title */}
-                <Text style={styles.title}>Transaction History</Text>
-              </ReanimatedAnimated.View>
-            </GestureDetector>
-
-            {/* Content */}
-            <View style={styles.content}>
-              {/* Error State */}
-              {error && !loading && (
-                <ErrorState message={error} onRetry={onRetry} />
-              )}
-
-              {/* Loading State */}
-              {loading && !error && (
-                <TransactionListSkeleton count={6} />
-              )}
-
-              {/* Empty State */}
-              {!loading && !error && transactions.length === 0 && (
-                <EmptyState />
-              )}
-
-              {/* Transaction List */}
-              {!loading && !error && transactions.length > 0 && (
-                <FlatList
-                  data={transactions}
-                  renderItem={renderTransaction}
-                  keyExtractor={(item) => item.id}
-                  contentContainerStyle={styles.listContent}
-                  showsVerticalScrollIndicator={false}
-                  onScroll={handleScroll}
-                  scrollEventThrottle={16}
-                  onEndReached={handleEndReached}
-                  onEndReachedThreshold={0.5}
-                  ListFooterComponent={renderFooter}
-                />
-              )}
-            </View>
-
-            {/* Top fade gradient */}
-            <Animated.View
-              style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
-              pointerEvents="none"
-            >
-              <LinearGradient
-                colors={[colors.background.secondary, 'transparent']}
-                style={StyleSheet.absoluteFill}
-              />
-            </Animated.View>
-          </ReanimatedAnimated.View>
-        </View>
-      </GestureHandlerRootView>
-    </Modal>
+        {/* Transaction List */}
+        {!loading && !error && transactions.length > 0 && (
+          <FlatList
+            data={transactions}
+            renderItem={renderTransaction}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={renderFooter}
+          />
+        )}
+      </View>
+    </BottomSheetContainer>
   );
 };
 
@@ -448,46 +278,6 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
 // ============================================================================
 
 const styles = StyleSheet.create({
-  gestureRoot: {
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.sheet.backdrop,
-  },
-  sheetContainer: {
-    backgroundColor: colors.background.secondary,
-    borderTopLeftRadius: borderRadius.card,
-    borderTopRightRadius: borderRadius.card,
-    borderTopWidth: borderWidth.sheet,
-    borderTopColor: colors.border.default,
-    minHeight: '70%',
-    maxHeight: '92%',
-    ...shadows.sheet,
-  },
-  dragArea: {
-    // This area is draggable
-  },
-  handleContainer: {
-    alignItems: 'center',
-    paddingTop: vs(12),
-    paddingBottom: vs(8),
-  },
-  handle: {
-    width: s(componentSizes.sheetHandleWidth),
-    height: vs(componentSizes.sheetHandleHeight),
-    borderRadius: 75,
-    backgroundColor: colors.sheet.handle,
-    opacity: componentSizes.sheetHandleOpacity,
-  },
   title: {
     fontSize: ms(fontSize['2xl']),
     fontFamily: FONT_FAMILY.extraBold,
@@ -567,14 +357,6 @@ const styles = StyleSheet.create({
   loadingMoreContainer: {
     paddingVertical: vs(16),
     alignItems: 'center',
-  },
-  topFadeGradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: vs(12) + vs(8) + ms(fontSize['2xl']) + vs(18), // handleContainer + title
-    height: componentSizes.sheetFadeGradientHeight,
-    zIndex: 1,
   },
 });
 
