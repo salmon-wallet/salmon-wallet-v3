@@ -55,6 +55,8 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
           placeholder="0"
           isLoading={isLoadingQuote}
         />
+
+        <Text style={styles.disclaimerText}>Includes 0.5% platform fee</Text>
       </View>
 
       {/* Review Button */}
@@ -114,6 +116,12 @@ const styles = StyleSheet.create({
     color: colors.status.warning,
     textAlign: 'center',
     marginBottom: spacing.sm,
+  },
+  disclaimerText: {
+    fontSize: 11,
+    color: colors.text.tertiary,
+    textAlign: 'center',
+    marginTop: spacing.xs,
   },
   buttonGradient: {
     borderRadius: borderRadius.lg,

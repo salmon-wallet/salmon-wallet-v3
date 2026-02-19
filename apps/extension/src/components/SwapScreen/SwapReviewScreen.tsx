@@ -114,6 +114,32 @@ const PriceImpactContainer = styled(Box)({
   marginBottom: spacing.lg,
 });
 
+const WarningBox = styled(Box)({
+  backgroundColor: 'rgba(255, 179, 0, 0.1)',
+  borderRadius: spacing.md,
+  border: '1px solid rgba(255, 179, 0, 0.3)',
+  padding: spacing.base,
+  marginBottom: spacing.lg,
+});
+
+const WarningTitle = styled(Typography)({
+  fontSize: 13,
+  fontWeight: fontWeight.semibold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.status.warning,
+  marginBottom: spacing.xs,
+  letterSpacing: 0.02,
+});
+
+const WarningBodyText = styled(Typography)({
+  fontSize: 12,
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.secondary,
+  lineHeight: `${12 * 1.5}px`,
+  letterSpacing: 0.01,
+});
+
 // ============================================================================
 // SwapReviewScreen Component
 // ============================================================================
@@ -241,6 +267,14 @@ export function SwapReviewScreen({
               />
             </PriceImpactContainer>
           )}
+
+          {/* Warning Box */}
+          <WarningBox>
+            <WarningTitle>Please Note</WarningTitle>
+            <WarningBodyText>
+              Swap rates are estimates. The actual amount you receive may differ due to slippage and market conditions. Transactions are irreversible once confirmed.
+            </WarningBodyText>
+          </WarningBox>
         </ScrollContent>
       </ScrollContainer>
 

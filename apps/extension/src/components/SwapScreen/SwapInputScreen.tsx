@@ -56,6 +56,13 @@ const WarningText = styled(Typography)({
   marginBottom: spacing.sm,
 });
 
+const DisclaimerText = styled(Typography)({
+  fontSize: 11,
+  color: colors.text.tertiary,
+  textAlign: 'center',
+  marginTop: spacing.xs,
+});
+
 const ReviewButtonWrapper = styled('div')<{ $canReview: boolean }>(({ $canReview }) => ({
   borderRadius: borderRadius.lg,
   border: `1.5px solid ${$canReview ? 'transparent' : 'transparent'}`,
@@ -123,6 +130,8 @@ export function SwapInputScreen({
           placeholder="0"
           isLoading={isLoadingQuote}
         />
+
+        <DisclaimerText>Includes 0.5% platform fee</DisclaimerText>
       </InputsContainer>
 
       {/* Review Button */}
