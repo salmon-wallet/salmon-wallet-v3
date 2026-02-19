@@ -28,7 +28,7 @@
  * ```
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -52,12 +52,12 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import ShareIcon from '@mui/icons-material/Share';
 import CodeIcon from '@mui/icons-material/Code';
-import { colors, spacing, borderRadius, fontSize, fontFamily, fontWeight, letterSpacing, lineHeight, formatBlockNumber, formatDateTime, getShortAddress } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontFamily, fontWeight, letterSpacing, lineHeight, formatBlockNumber, formatDateTime, getShortAddress, copyToClipboard } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
-import { BlurContainer } from '../BlurContainer';
 import { AddressCopyRow } from '../TransactionHistoryPage/AddressCopyRow';
 import { ExplorerLinkButton } from '../TransactionHistoryPage/ExplorerLinkButton';
 import { PriceImpactBadge } from '../TransactionHistoryPage/PriceImpactBadge';
@@ -299,18 +299,6 @@ const CloseButton = styled(IconButton)({
   },
 });
 
-const HeaderDescription = styled(Typography)({
-  fontSize: fontSize.xs,
-  fontWeight: fontWeight.regular,
-  color: colors.text.tertiary,
-  marginTop: spacing.sm,
-  display: '-webkit-box',
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: 'vertical',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-});
-
 const StyledDialogContent = styled(DialogContent)({
   padding: `${spacing.md}px ${spacing.lg}px ${spacing.md}px`,
   overflowY: 'auto',
@@ -318,7 +306,7 @@ const StyledDialogContent = styled(DialogContent)({
   zIndex: 1,
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing.sm,
+  gap: spacing.md,
   '&::-webkit-scrollbar': {
     width: 6,
   },
@@ -334,9 +322,8 @@ const StyledDialogContent = styled(DialogContent)({
   },
 });
 
-const Section = styled(BlurContainer)({
-  borderRadius: borderRadius.lg,
-  padding: spacing.lg,
+const Section = styled(Box)({
+  padding: `0 ${spacing.xs}px`,
 });
 
 const SectionRow = styled(Box)({
@@ -371,6 +358,23 @@ const HashValue = styled(Typography)({
   fontFamily: fontFamily.mono,
 });
 
+const CopyIconButton = styled(IconButton)({
+  width: 28,
+  height: 28,
+  padding: 4,
+  backgroundColor: `${colors.background.card}80`,
+  '&:hover': {
+    backgroundColor: colors.background.card,
+  },
+});
+
+const CardContainer = styled(Box)({
+  padding: `${spacing.md}px`,
+  backgroundColor: `${colors.background.card}60`,
+  borderRadius: borderRadius.md,
+  border: `1px solid ${colors.border.default}`,
+});
+
 const InternalDivider = styled(Box)({
   height: 1,
   backgroundColor: colors.border.subtle,
@@ -382,7 +386,10 @@ const InternalDivider = styled(Box)({
 const TokenRow = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  padding: '8px 0',
+  padding: `${spacing.md}px`,
+  backgroundColor: `${colors.background.card}60`,
+  borderRadius: borderRadius.md,
+  border: `1px solid ${colors.border.default}`,
 });
 
 const TokenLogoImg = styled('img')({
@@ -571,17 +578,6 @@ const FixedBottomBar = styled(Box)({
   gap: spacing.sm,
   position: 'relative',
   zIndex: 1,
-});
-
-const ExplorerButtonWrapper = styled(Box)({
-  '& .MuiButtonBase-root': {
-    backgroundColor: `${colors.background.card} !important`,
-    borderColor: `${colors.border.default} !important`,
-    color: `${colors.text.primary} !important`,
-    '& svg': {
-      color: `${colors.text.secondary} !important`,
-    },
-  },
 });
 
 // Action buttons
@@ -851,7 +847,7 @@ const NftMetadataSection: React.FC<{
   if (!token.isNft) return null;
 
   return (
-    <Section borderWidth={0}>
+    <Section>
       <SectionTitle>NFT Details</SectionTitle>
 
       {/* NFT Media Preview */}
@@ -918,10 +914,18 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   className,
   style,
 }) => {
-  // Handle action buttons
-  const handleCopyHash = useCallback(() => {
-    if (transaction && onCopyHash) {
-      onCopyHash(transaction.id);
+  // Inline hash copy state
+  const [hashCopied, setHashCopied] = useState(false);
+
+  const handleCopyInlineHash = useCallback(async () => {
+    if (!transaction) return;
+    try {
+      await copyToClipboard(transaction.id);
+      if (onCopyHash) onCopyHash(transaction.id);
+      setHashCopied(true);
+      setTimeout(() => setHashCopied(false), 1500);
+    } catch (error) {
+      console.warn('Failed to copy hash:', error);
     }
   }, [transaction, onCopyHash]);
 
@@ -1004,58 +1008,55 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             <CloseIcon />
           </CloseButton>
         </HeaderRow>
-
-        {/* Description (inline in header area) */}
-        {transaction.description && (
-          <HeaderDescription>{transaction.description}</HeaderDescription>
-        )}
       </HeaderContainer>
 
       {/* Content */}
       <StyledDialogContent>
         {/* Card 1 — Details: Date/Time + Confirmation + Block */}
-        <Section borderWidth={0}>
-          <SectionRow>
-            <SectionLabel>Date & Time</SectionLabel>
-            <SectionValue>{formatDateTime(transaction.timestamp)}</SectionValue>
-          </SectionRow>
+        <Section>
+          <CardContainer>
+            <SectionRow>
+              <SectionLabel>Date & Time</SectionLabel>
+              <SectionValue>{formatDateTime(transaction.timestamp)}</SectionValue>
+            </SectionRow>
 
-          {transaction.confirmationStatus && (
-            <>
-              <InternalDivider />
-              <SectionRow>
-                <SectionLabel>Confirmation</SectionLabel>
-                <ConfirmationBadge
-                  sx={{
-                    backgroundColor: `${CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary}20`,
-                  }}
-                >
-                  <ConfirmationText
+            {transaction.confirmationStatus && (
+              <>
+                <InternalDivider />
+                <SectionRow>
+                  <SectionLabel>Confirmation</SectionLabel>
+                  <ConfirmationBadge
                     sx={{
-                      color: CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary,
+                      backgroundColor: `${CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary}20`,
                     }}
                   >
-                    {CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.label ?? transaction.confirmationStatus}
-                  </ConfirmationText>
-                </ConfirmationBadge>
-              </SectionRow>
-            </>
-          )}
+                    <ConfirmationText
+                      sx={{
+                        color: CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary,
+                      }}
+                    >
+                      {CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.label ?? transaction.confirmationStatus}
+                    </ConfirmationText>
+                  </ConfirmationBadge>
+                </SectionRow>
+              </>
+            )}
 
-          {transaction.slot && (
-            <>
-              <InternalDivider />
-              <SectionRow>
-                <SectionLabel>Block</SectionLabel>
-                <SectionValue>#{formatBlockNumber(transaction.slot)}</SectionValue>
-              </SectionRow>
-            </>
-          )}
+            {transaction.slot && (
+              <>
+                <InternalDivider />
+                <SectionRow>
+                  <SectionLabel>Block</SectionLabel>
+                  <SectionValue>#{formatBlockNumber(transaction.slot)}</SectionValue>
+                </SectionRow>
+              </>
+            )}
+          </CardContainer>
         </Section>
 
         {/* Swap Visualization (for swaps) */}
         {transaction.type === 'swap' && (
-          <Section borderWidth={0}>
+          <Section>
             <SwapHeaderRow>
               <SectionTitle sx={{ mb: 0 }}>Conversion</SectionTitle>
               {transaction.swapRoute?.priceImpact && (
@@ -1085,7 +1086,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
         {/* Swap Route Hops (for multi-hop swaps) */}
         {transaction.type === 'swap' && transaction.swapRoute?.hops && transaction.swapRoute.hops.length > 0 && (
-          <Section borderWidth={0}>
+          <Section>
             <SectionTitle>Swap Route</SectionTitle>
             {transaction.swapRoute.hops.map((hop, index) => (
               <HopRow key={`hop-${index}`}>
@@ -1107,7 +1108,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
         {/* Card 2 — Tokens (non-swap): Sent + Received merged */}
         {transaction.type !== 'swap' && (transaction.outputs.length > 0 || transaction.inputs.length > 0) && (
-          <Section borderWidth={0}>
+          <Section>
             {transaction.outputs.length > 0 && (
               <>
                 <SectionTitle>Sent</SectionTitle>
@@ -1134,7 +1135,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         {(transaction.outputs.some((t) => t.destination) ||
           transaction.inputs.some((t) => t.source) ||
           transaction.feePayer) && (
-          <Section borderWidth={0}>
+          <Section>
             <SectionTitle>Addresses</SectionTitle>
             <AddressesContainer>
               {transaction.outputs.map((token, index) =>
@@ -1181,40 +1182,56 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           ))}
 
         {/* Card 3 — Transaction Info: Fee + Swap Fee + Hash merged */}
-        <Section borderWidth={0}>
-          {transaction.fee && (
-            <SectionRow>
-              <SectionLabel>Network Fee</SectionLabel>
-              <SectionValue>
-                {formatAmount(transaction.fee.amount, transaction.fee.decimals)}{' '}
-                {transaction.fee.symbol}
-              </SectionValue>
-            </SectionRow>
-          )}
-
-          {transaction.swapRoute?.totalFee && (
-            <>
-              {transaction.fee && <InternalDivider />}
+        <Section>
+          <CardContainer>
+            {transaction.fee && (
               <SectionRow>
-                <SectionLabel>Swap Fee</SectionLabel>
+                <SectionLabel>Network Fee</SectionLabel>
                 <SectionValue>
-                  {transaction.swapRoute.totalFee.amount} {transaction.swapRoute.totalFee.symbol}
+                  {formatAmount(transaction.fee.amount, transaction.fee.decimals)}{' '}
+                  {transaction.fee.symbol}
                 </SectionValue>
               </SectionRow>
-            </>
-          )}
+            )}
 
-          {(transaction.fee || transaction.swapRoute?.totalFee) && <InternalDivider />}
+            {transaction.swapRoute?.totalFee && (
+              <>
+                {transaction.fee && <InternalDivider />}
+                <SectionRow>
+                  <SectionLabel>Swap Fee</SectionLabel>
+                  <SectionValue>
+                    {transaction.swapRoute.totalFee.amount} {transaction.swapRoute.totalFee.symbol}
+                  </SectionValue>
+                </SectionRow>
+              </>
+            )}
 
-          <SectionRow>
-            <SectionLabel>Transaction Hash</SectionLabel>
-            <HashValue>{truncateHash(transaction.id)}</HashValue>
-          </SectionRow>
+            {(transaction.fee || transaction.swapRoute?.totalFee) && <InternalDivider />}
+
+            <SectionRow>
+              <SectionLabel>Transaction Hash</SectionLabel>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: `${spacing.xs}px` }}>
+                <HashValue>{truncateHash(transaction.id)}</HashValue>
+                <CopyIconButton
+                  onClick={handleCopyInlineHash}
+                  size="small"
+                  aria-label="Copy transaction hash"
+                  sx={hashCopied ? { backgroundColor: `${colors.status.success}20` } : undefined}
+                >
+                  {hashCopied ? (
+                    <CheckIcon sx={{ fontSize: 14, color: colors.status.success }} />
+                  ) : (
+                    <ContentCopyIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
+                  )}
+                </CopyIconButton>
+              </Box>
+            </SectionRow>
+          </CardContainer>
         </Section>
 
         {/* Developer Info (dev mode only) */}
         {developerMode && (
-          <Section borderWidth={0}>
+          <Section>
             <DevSectionHeader>
               <CodeIcon sx={{ fontSize: 16, color: colors.text.secondary }} />
               <SectionTitle sx={{ mb: 0 }}>Developer Info</SectionTitle>
@@ -1301,33 +1318,25 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
       {/* Fixed Bottom Action Bar */}
       <FixedBottomBar>
-        <ExplorerButtonWrapper>
-          <ExplorerLinkButton
-            txHash={transaction.id}
-            blockchain="SOLANA"
-            environment="solana-mainnet"
-            showMenu
-            onPress={(url, explorerName) => {
-              if (onViewExplorer) {
-                onViewExplorer(transaction);
-              }
-            }}
-          />
-        </ExplorerButtonWrapper>
-        <ActionsContainer>
-          {onCopyHash && (
-            <ActionButton onClick={handleCopyHash}>
-              <ContentCopyIcon sx={{ fontSize: 18, color: colors.text.primary }} />
-              <ActionButtonText>Copy Hash</ActionButtonText>
-            </ActionButton>
-          )}
-          {onShare && (
+        <ExplorerLinkButton
+          txHash={transaction.id}
+          blockchain="SOLANA"
+          environment="solana-mainnet"
+          showMenu
+          onPress={(url, explorerName) => {
+            if (onViewExplorer) {
+              onViewExplorer(transaction);
+            }
+          }}
+        />
+        {onShare && (
+          <ActionsContainer>
             <ActionButton onClick={handleShare}>
               <ShareIcon sx={{ fontSize: 18, color: colors.text.primary }} />
               <ActionButtonText>Share</ActionButtonText>
             </ActionButton>
-          )}
-        </ActionsContainer>
+          </ActionsContainer>
+        )}
       </FixedBottomBar>
     </StyledDialog>
   );

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
+import * as Haptics from '../../utils/haptics';
 import { colors, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
@@ -239,7 +241,7 @@ const NftMetadataSection: React.FC<{
   if (!token.isNft) return null;
 
   return (
-    <BlurContainer style={styles.section} borderWidth={0}>
+    <BlurContainer style={styles.section}>
       <Text style={styles.sectionTitle}>NFT Details</Text>
 
       {/* NFT Media Preview */}
@@ -417,9 +419,19 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
     }
   }, [transaction, onViewExplorer]);
 
-  const handleCopyHash = useCallback(() => {
-    if (transaction && onCopyHash) {
-      onCopyHash(transaction.id);
+  // Inline hash copy state
+  const [hashCopied, setHashCopied] = useState(false);
+
+  const handleCopyInlineHash = useCallback(async () => {
+    if (!transaction) return;
+    try {
+      await Clipboard.setStringAsync(transaction.id);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (onCopyHash) onCopyHash(transaction.id);
+      setHashCopied(true);
+      setTimeout(() => setHashCopied(false), 1500);
+    } catch (error) {
+      console.warn('Failed to copy hash:', error);
     }
   }, [transaction, onCopyHash]);
 
@@ -512,13 +524,6 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     </View>
                   </View>
                 </View>
-
-                {/* Description (inline in header area) */}
-                {transaction.description && (
-                  <Text style={styles.headerDescription} numberOfLines={2}>
-                    {transaction.description}
-                  </Text>
-                )}
               </Animated.View>
             </GestureDetector>
 
@@ -529,7 +534,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               showsVerticalScrollIndicator={false}
             >
               {/* Card 1 — Details: Date/Time + Confirmation + Block */}
-              <BlurContainer style={styles.section} borderWidth={0}>
+              <BlurContainer style={styles.section}>
                 <View style={styles.sectionRow}>
                   <Text style={styles.sectionLabel}>Date & Time</Text>
                   <Text style={styles.sectionValue}>
@@ -572,7 +577,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
               {/* Swap Visualization (for swaps) */}
               {transaction.type === 'swap' && (
-                <BlurContainer style={styles.section} borderWidth={0}>
+                <BlurContainer style={styles.section}>
                   <View style={styles.swapHeaderRow}>
                     <Text style={styles.sectionTitle}>Conversion</Text>
                     {transaction.swapRoute?.priceImpact && (
@@ -602,7 +607,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
               {/* Swap Route Hops (for multi-hop swaps) */}
               {transaction.type === 'swap' && transaction.swapRoute?.hops && transaction.swapRoute.hops.length > 0 && (
-                <BlurContainer style={styles.section} borderWidth={0}>
+                <BlurContainer style={styles.section}>
                   <Text style={styles.sectionTitle}>Swap Route</Text>
                   {transaction.swapRoute.hops.map((hop, index) => (
                     <View key={`hop-${index}`} style={styles.hopRow}>
@@ -628,7 +633,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
               {/* Card 2 — Tokens (non-swap): Sent + Received merged */}
               {transaction.type !== 'swap' && (transaction.outputs.length > 0 || transaction.inputs.length > 0) && (
-                <BlurContainer style={styles.section} borderWidth={0}>
+                <BlurContainer style={styles.section}>
                   {transaction.outputs.length > 0 && (
                     <>
                       <Text style={styles.sectionTitle}>Sent</Text>
@@ -653,7 +658,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
               {/* Address Section */}
               {(transaction.outputs.some(t => t.destination) || transaction.inputs.some(t => t.source) || transaction.feePayer) && (
-                <BlurContainer style={styles.section} borderWidth={0}>
+                <BlurContainer style={styles.section}>
                   <Text style={styles.sectionTitle}>Addresses</Text>
                   <View style={styles.addressesContainer}>
                     {transaction.outputs.map((token, index) =>
@@ -703,7 +708,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 ))}
 
               {/* Card 3 — Transaction Info: Fee + Swap Fee + Hash merged */}
-              <BlurContainer style={styles.section} borderWidth={0}>
+              <BlurContainer style={styles.section}>
                 {transaction.fee && (
                   <View style={styles.sectionRow}>
                     <Text style={styles.sectionLabel}>Network Fee</Text>
@@ -729,13 +734,28 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
                 <View style={styles.sectionRow}>
                   <Text style={styles.sectionLabel}>Transaction Hash</Text>
-                  <Text style={styles.hashValue}>{truncateHash(transaction.id, 8)}</Text>
+                  <View style={styles.hashRow}>
+                    <Text style={styles.hashValue}>{truncateHash(transaction.id, 8)}</Text>
+                    <TouchableOpacity
+                      onPress={handleCopyInlineHash}
+                      style={[styles.copyIconButton, hashCopied && styles.copyIconButtonCopied]}
+                      activeOpacity={0.6}
+                      accessibilityRole="button"
+                      accessibilityLabel="Copy transaction hash"
+                    >
+                      <Ionicons
+                        name={hashCopied ? 'checkmark' : 'copy-outline'}
+                        size={14}
+                        color={hashCopied ? colors.status.success : colors.text.secondary}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </BlurContainer>
 
               {/* Developer Info (dev mode only) */}
               {developerMode && (
-                <BlurContainer style={styles.section} borderWidth={0}>
+                <BlurContainer style={styles.section}>
                   <View style={styles.devSectionHeader}>
                     <Ionicons name="code-slash-outline" size={16} color={colors.text.secondary} />
                     <Text style={styles.sectionTitle}>Developer Info</Text>
@@ -832,24 +852,16 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     onViewExplorer(transaction);
                   }
                 }}
-                style={styles.explorerButtonOverride}
               />
-              <View style={styles.actionsRow}>
-                {onCopyHash && (
-                  <ActionButton
-                    icon="copy-outline"
-                    label="Copy Hash"
-                    onPress={handleCopyHash}
-                  />
-                )}
-                {onShare && (
+              {onShare && (
+                <View style={styles.actionsRow}>
                   <ActionButton
                     icon="share-outline"
                     label="Share"
                     onPress={handleShare}
                   />
-                )}
-              </View>
+                </View>
+              )}
             </View>
           </Animated.View>
         </View>
@@ -961,20 +973,13 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.base),
     fontFamily: FONT_FAMILY.medium,
   },
-  headerDescription: {
-    fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.regular,
-    color: colors.text.tertiary,
-    paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(spacing.sm),
-  },
   content: {
     flex: 1,
   },
   contentContainer: {
     paddingHorizontal: s(spacing.headerPadding),
     paddingBottom: vs(spacing.md),
-    gap: vs(spacing.sm),
+    gap: vs(spacing.md),
   },
   internalDivider: {
     height: 1,
@@ -984,6 +989,8 @@ const styles = StyleSheet.create({
   section: {
     borderRadius: borderRadius.lg,
     padding: s(spacing.lg),
+    borderWidth: 0,
+    borderColor: 'transparent',
   },
   sectionTitle: {
     fontSize: ms(fontSize.base),
@@ -1006,10 +1013,26 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.semiBold,
     color: colors.text.primary,
   },
+  hashRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(spacing.xs),
+  },
   hashValue: {
     fontSize: ms(fontSize.sm),
     fontFamily: FONT_FAMILY.medium,
     color: colors.text.primary,
+  },
+  copyIconButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: `${colors.background.card}80`,
+  },
+  copyIconButtonCopied: {
+    backgroundColor: `${colors.status.success}20`,
   },
   // Token row styles
   tokenRow: {
@@ -1083,6 +1106,9 @@ const styles = StyleSheet.create({
   },
   addressRow: {
     marginVertical: 0,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 0,
   },
   // NFT metadata section styles
   nftMediaContainer: {
@@ -1252,10 +1278,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
     backgroundColor: '#161c2d',
-  },
-  explorerButtonOverride: {
-    backgroundColor: colors.background.card,
-    borderColor: colors.border.default,
   },
   actionsRow: {
     flexDirection: 'row',
