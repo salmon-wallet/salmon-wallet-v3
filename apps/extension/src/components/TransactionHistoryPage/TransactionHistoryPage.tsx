@@ -17,66 +17,19 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Skeleton from '@mui/material/Skeleton';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { colors, spacing, borderRadius, fontFamily } from '@salmon/shared';
+import { colors, spacing, borderRadius } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
-import { ScalesBackground } from '../ScalesBackground';
+import { PageShell } from '../PageShell';
 import { TransactionItem } from './TransactionItem';
 import type { TransactionHistoryPageProps, Transaction } from './types';
 
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const Container = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100vh',
-  backgroundColor: colors.background.secondary,
-  position: 'relative',
-});
-
-const Header = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  padding: `${spacing.md}px ${spacing.lg}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-  position: 'relative',
-  zIndex: 1,
-});
-
-const BackButton = styled(IconButton)({
-  color: colors.text.secondary,
-  marginRight: spacing.sm,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const HeaderTitle = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  flex: 1,
-});
-
-const ScrollContent = styled(Box)({
-  flex: 1,
-  minHeight: 0,
-  overflowY: 'auto',
-  position: 'relative',
-  zIndex: 1,
-  padding: `${spacing.md}px ${spacing.lg}px ${spacing.xl}px`,
-});
 
 // Skeleton styles
 const SkeletonItem = styled(Box)({
@@ -320,58 +273,57 @@ export function TransactionHistoryPage({
   );
 
   return (
-    <Container style={style} className={className}>
-      <ScalesBackground style={{ zIndex: 0 }} />
+    <PageShell
+      title="Transaction History"
+      onBack={onBack}
+      showScalesBackground
+      scrollContentStyle={{
+        padding: `${spacing.md}px ${spacing.lg}px ${spacing.xl}px`,
+      }}
+      scrollContentProps={{ ref: scrollRef, onScroll: handleScroll as React.UIEventHandler<HTMLDivElement> }}
+      style={style}
+      className={className}
+    >
+      {/* Error State */}
+      {error && !loading && (
+        <ErrorState message={error} onRetry={onRetry} />
+      )}
 
-      <Header>
-        <BackButton onClick={onBack} aria-label="Back">
-          <ArrowBackIcon />
-        </BackButton>
-        <HeaderTitle>Transaction History</HeaderTitle>
-      </Header>
+      {/* Loading State */}
+      {loading && !error && (
+        <TransactionListSkeleton count={6} />
+      )}
 
-      <ScrollContent ref={scrollRef} onScroll={handleScroll}>
-        {/* Error State */}
-        {error && !loading && (
-          <ErrorState message={error} onRetry={onRetry} />
-        )}
+      {/* Empty State */}
+      {!loading && !error && transactions.length === 0 && (
+        <EmptyState />
+      )}
 
-        {/* Loading State */}
-        {loading && !error && (
-          <TransactionListSkeleton count={6} />
-        )}
+      {/* Transaction List */}
+      {!loading && !error && transactions.length > 0 && (
+        <Box>
+          {transactions.map((transaction) => (
+            <TransactionItem
+              key={transaction.id}
+              transaction={transaction}
+              onPress={handleTransactionPress}
+              onDetailClick={handleTransactionDetailClick}
+              hiddenBalance={hiddenBalance}
+            />
+          ))}
 
-        {/* Empty State */}
-        {!loading && !error && transactions.length === 0 && (
-          <EmptyState />
-        )}
-
-        {/* Transaction List */}
-        {!loading && !error && transactions.length > 0 && (
-          <Box>
-            {transactions.map((transaction) => (
-              <TransactionItem
-                key={transaction.id}
-                transaction={transaction}
-                onPress={handleTransactionPress}
-                onDetailClick={handleTransactionDetailClick}
-                hiddenBalance={hiddenBalance}
+          {/* Loading more indicator */}
+          {loadingMore && (
+            <LoadingMoreContainer>
+              <CircularProgress
+                size={24}
+                sx={{ color: colors.accent.primary }}
               />
-            ))}
-
-            {/* Loading more indicator */}
-            {loadingMore && (
-              <LoadingMoreContainer>
-                <CircularProgress
-                  size={24}
-                  sx={{ color: colors.accent.primary }}
-                />
-              </LoadingMoreContainer>
-            )}
-          </Box>
-        )}
-      </ScrollContent>
-    </Container>
+            </LoadingMoreContainer>
+          )}
+        </Box>
+      )}
+    </PageShell>
   );
 }
 

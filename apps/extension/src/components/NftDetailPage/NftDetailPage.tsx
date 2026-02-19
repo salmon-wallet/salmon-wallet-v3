@@ -15,15 +15,13 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import IconButton from '@mui/material/IconButton';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import {
   colors,
   spacing,
-  borderRadius,
   gradients,
   fontFamily,
   fontWeight,
@@ -37,56 +35,13 @@ import {
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
-import { ScalesBackground } from '../ScalesBackground';
+import { PageShell } from '../PageShell';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import type { NftDetailPageProps, NftAttribute } from './types';
 
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const Container = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100vh',
-  backgroundColor: colors.background.secondary,
-  position: 'relative',
-});
-
-const Header = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  padding: `${spacing.md}px ${spacing.lg}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-  position: 'relative',
-  zIndex: 1,
-});
-
-const BackButton = styled(IconButton)({
-  color: colors.text.secondary,
-  marginRight: spacing.sm,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const HeaderTitle = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  flex: 1,
-});
-
-const ScrollContent = styled(Box)({
-  flex: 1,
-  minHeight: 0,
-  overflowY: 'auto',
-  position: 'relative',
-  zIndex: 1,
-});
 
 const ContentContainer = styled(Box)({
   display: 'flex',
@@ -432,118 +387,113 @@ export function NftDetailPage({
   };
 
   return (
-    <Container style={style} className={className}>
-      <ScalesBackground style={{ zIndex: 0 }} />
+    <PageShell
+      title={nft.name}
+      onBack={onBack}
+      showScalesBackground
+      style={style}
+      className={className}
+    >
+      <ContentContainer>
+        {/* Blockchain Badge */}
+        <BlockchainBadgeContainer>
+          <BlurContainer
+            blurIntensity={10}
+            blurTint="dark"
+            backgroundColor={colors.background.tokenItem}
+            borderColor={colors.border.default}
+            borderWidth={1}
+            style={{ borderRadius: 12, overflow: 'hidden' }}
+          >
+            <BlockchainBadgeContent>
+              {getBlockchainIcon()}
+              <BlockchainLabel>{getNftBlockchainLabel(nft)}</BlockchainLabel>
+            </BlockchainBadgeContent>
+          </BlurContainer>
+        </BlockchainBadgeContainer>
 
-      <Header>
-        <BackButton onClick={onBack} aria-label="Back">
-          <ArrowBackIcon />
-        </BackButton>
-        <HeaderTitle>{nft.name}</HeaderTitle>
-      </Header>
+        {/* NFT Image */}
+        {nft.image && (
+          <ImageContainer>
+            <NftImage src={nft.image} alt={`NFT image for ${nft.name}`} />
+          </ImageContainer>
+        )}
 
-      <ScrollContent>
-        <ContentContainer>
-          {/* Blockchain Badge */}
-          <BlockchainBadgeContainer>
-            <BlurContainer
-              blurIntensity={10}
-              blurTint="dark"
-              backgroundColor={colors.background.tokenItem}
-              borderColor={colors.border.default}
-              borderWidth={1}
-              style={{ borderRadius: 12, overflow: 'hidden' }}
-            >
-              <BlockchainBadgeContent>
-                {getBlockchainIcon()}
-                <BlockchainLabel>{getNftBlockchainLabel(nft)}</BlockchainLabel>
-              </BlockchainBadgeContent>
-            </BlurContainer>
-          </BlockchainBadgeContainer>
+        {/* Description Section */}
+        {nft.description && (
+          <BlurContainer
+            blurIntensity={10}
+            blurTint="dark"
+            backgroundColor={colors.background.tokenItem}
+            borderColor={colors.border.default}
+            borderWidth={1}
+            style={blurStyle}
+          >
+            <SectionContent>
+              <SectionTitle>Description</SectionTitle>
+              <DescriptionText>{nft.description}</DescriptionText>
+            </SectionContent>
+          </BlurContainer>
+        )}
 
-          {/* NFT Image */}
-          {nft.image && (
-            <ImageContainer>
-              <NftImage src={nft.image} alt={`NFT image for ${nft.name}`} />
-            </ImageContainer>
-          )}
+        {/* Attributes Section */}
+        {nft.attributes && nft.attributes.length > 0 && (
+          <BlurContainer
+            blurIntensity={10}
+            blurTint="dark"
+            backgroundColor={colors.background.tokenItem}
+            borderColor={colors.border.default}
+            borderWidth={1}
+            style={blurStyle}
+          >
+            <SectionContent>
+              <SectionTitle>Attributes</SectionTitle>
+              <AttributesGrid>
+                {nft.attributes.map(renderAttribute)}
+              </AttributesGrid>
+            </SectionContent>
+          </BlurContainer>
+        )}
 
-          {/* Description Section */}
-          {nft.description && (
-            <BlurContainer
-              blurIntensity={10}
-              blurTint="dark"
-              backgroundColor={colors.background.tokenItem}
-              borderColor={colors.border.default}
-              borderWidth={1}
-              style={blurStyle}
-            >
-              <SectionContent>
-                <SectionTitle>Description</SectionTitle>
-                <DescriptionText>{nft.description}</DescriptionText>
-              </SectionContent>
-            </BlurContainer>
-          )}
+        {/* Blockchain Details Section */}
+        {renderBlockchainDetails() && (
+          <BlurContainer
+            blurIntensity={10}
+            blurTint="dark"
+            backgroundColor={colors.background.tokenItem}
+            borderColor={colors.border.default}
+            borderWidth={1}
+            style={blurStyle}
+          >
+            <SectionContent>
+              <SectionTitle>Details</SectionTitle>
+              {renderBlockchainDetails()}
+            </SectionContent>
+          </BlurContainer>
+        )}
 
-          {/* Attributes Section */}
-          {nft.attributes && nft.attributes.length > 0 && (
-            <BlurContainer
-              blurIntensity={10}
-              blurTint="dark"
-              backgroundColor={colors.background.tokenItem}
-              borderColor={colors.border.default}
-              borderWidth={1}
-              style={blurStyle}
-            >
-              <SectionContent>
-                <SectionTitle>Attributes</SectionTitle>
-                <AttributesGrid>
-                  {nft.attributes.map(renderAttribute)}
-                </AttributesGrid>
-              </SectionContent>
-            </BlurContainer>
-          )}
+        {/* Action Buttons */}
+        <ActionButtonsContainer>
+          <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT">
+            <CallMadeIcon sx={{ fontSize: 15, color: '#e0e0e0' }} />
+            <ButtonText>Send</ButtonText>
+          </PrimaryButtonBase>
 
-          {/* Blockchain Details Section */}
-          {renderBlockchainDetails() && (
-            <BlurContainer
-              blurIntensity={10}
-              blurTint="dark"
-              backgroundColor={colors.background.tokenItem}
-              borderColor={colors.border.default}
-              borderWidth={1}
-              style={blurStyle}
-            >
-              <SectionContent>
-                <SectionTitle>Details</SectionTitle>
-                {renderBlockchainDetails()}
-              </SectionContent>
-            </BlurContainer>
-          )}
-
-          {/* Action Buttons */}
-          <ActionButtonsContainer>
-            <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT">
-              <CallMadeIcon sx={{ fontSize: 15, color: '#e0e0e0' }} />
-              <ButtonText>Send</ButtonText>
-            </PrimaryButtonBase>
-
-            <BlurContainer
-              blurIntensity={2.5}
-              backgroundColor="rgba(255, 255, 255, 0.04)"
-              borderColor="rgba(255, 92, 69, 0.8)"
-              borderWidth={0.5}
-              style={{ borderRadius: 14, overflow: 'hidden', flex: 1, maxWidth: 160 }}
-            >
-              <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
-                <LocalFireDepartmentIcon sx={{ fontSize: 15, color: '#e0e0e0' }} />
-                <ButtonText>Burn</ButtonText>
-              </SecondaryButtonInner>
-            </BlurContainer>
-          </ActionButtonsContainer>
-        </ContentContainer>
-      </ScrollContent>
-    </Container>
+          <BlurContainer
+            blurIntensity={2.5}
+            backgroundColor="rgba(255, 255, 255, 0.04)"
+            borderColor="rgba(255, 92, 69, 0.8)"
+            borderWidth={0.5}
+            style={{ borderRadius: 14, overflow: 'hidden', flex: 1, maxWidth: 160 }}
+          >
+            <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
+              <LocalFireDepartmentIcon sx={{ fontSize: 15, color: '#e0e0e0' }} />
+              <ButtonText>Burn</ButtonText>
+            </SecondaryButtonInner>
+          </BlurContainer>
+        </ActionButtonsContainer>
+      </ContentContainer>
+    </PageShell>
   );
 }
 

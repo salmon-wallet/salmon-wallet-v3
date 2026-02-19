@@ -11,15 +11,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import {
-  colors,
-  spacing,
-  useSendTransaction,
-} from '@salmon/shared';
-import { ScalesBackground } from '../ScalesBackground';
+import { useSendTransaction } from '@salmon/shared';
+import { PageShell } from '../PageShell';
 import { StepTokenSelect } from './StepTokenSelect';
 import { StepAddressAmount } from './StepAddressAmount';
 import { StepConfirmation } from './StepConfirmation';
@@ -28,45 +21,6 @@ import type { SendPageProps, SendStep, SendToken } from './types';
 // ============================================================================
 // Styled Components
 // ============================================================================
-
-const Container = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100vh',
-  backgroundColor: colors.background.secondary,
-  position: 'relative',
-});
-
-const Header = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  padding: `${spacing.md}px ${spacing.lg}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
-  position: 'relative',
-  zIndex: 1,
-});
-
-const BackButton = styled(IconButton)({
-  color: colors.text.secondary,
-  marginRight: spacing.sm,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-});
-
-const Title = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 600,
-  color: colors.text.primary,
-});
-
-const ScrollContent = styled(Box)({
-  flex: 1,
-  minHeight: 0,
-  overflowY: 'auto',
-  position: 'relative',
-  zIndex: 1,
-});
 
 const ContentArea = styled(Box)({
   flex: 1,
@@ -170,57 +124,51 @@ export function SendPage({
   }, [step, skipTokenSelect, handleBackToAddressAmount, handleBackToTokenSelect, handleExit]);
 
   return (
-    <Container>
-      <ScalesBackground
-        strokeColor="rgba(255, 255, 255, 0.03)"
-        strokeWidth={1}
-        patternHeight={26}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}
-      />
+    <PageShell
+      title="Send"
+      onBack={handleBackPress}
+      showScalesBackground
+      scalesBackgroundProps={{
+        strokeColor: 'rgba(255, 255, 255, 0.03)',
+        strokeWidth: 1,
+        patternHeight: 26,
+        style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 },
+      }}
+    >
+      <ContentArea>
+        {step === 'token-select' && (
+          <StepTokenSelect
+            tokens={tokens}
+            onSelectToken={handleSelectToken}
+            showUnverifiedTokens={showUnverifiedTokens}
+          />
+        )}
 
-      <Header>
-        <BackButton onClick={handleBackPress} aria-label="Back">
-          <ArrowBackIcon />
-        </BackButton>
-        <Title>Send</Title>
-      </Header>
+        {step === 'address-amount' && selectedToken && (
+          <StepAddressAmount
+            token={selectedToken}
+            blockchain={blockchain}
+            account={account}
+            onBack={handleBackToTokenSelect}
+            onReview={handleReview}
+            onCancel={handleExit}
+          />
+        )}
 
-      <ScrollContent>
-        <ContentArea>
-          {step === 'token-select' && (
-            <StepTokenSelect
-              tokens={tokens}
-              onSelectToken={handleSelectToken}
-              showUnverifiedTokens={showUnverifiedTokens}
-            />
-          )}
-
-          {step === 'address-amount' && selectedToken && (
-            <StepAddressAmount
-              token={selectedToken}
-              blockchain={blockchain}
-              account={account}
-              onBack={handleBackToTokenSelect}
-              onReview={handleReview}
-              onCancel={handleExit}
-            />
-          )}
-
-          {step === 'confirmation' && selectedToken && (
-            <StepConfirmation
-              token={selectedToken}
-              recipientAddress={recipientAddress}
-              amount={amount}
-              blockchain={blockchain}
-              account={account}
-              onBack={handleBackToAddressAmount}
-              onCancel={handleExit}
-              onSuccess={handleSuccess}
-            />
-          )}
-        </ContentArea>
-      </ScrollContent>
-    </Container>
+        {step === 'confirmation' && selectedToken && (
+          <StepConfirmation
+            token={selectedToken}
+            recipientAddress={recipientAddress}
+            amount={amount}
+            blockchain={blockchain}
+            account={account}
+            onBack={handleBackToAddressAmount}
+            onCancel={handleExit}
+            onSuccess={handleSuccess}
+          />
+        )}
+      </ContentArea>
+    </PageShell>
   );
 }
 
