@@ -7,14 +7,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Image,
   ActivityIndicator,
   type ListRenderItem,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 
-import { useTokenSearch } from '@salmon/shared';
+import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle } from '@salmon/shared';
+import { TokenLogo } from '../TokenLogo';
 import type { TokenSelectorToken, TokenSelectorModalProps } from './types';
 
 const HIDDEN_VALUE = '******';
@@ -48,6 +48,7 @@ export function TokenSelectorModal({
   hiddenBalance = false,
   showNetworkChip = false,
   showVerifiedDisclaimer = false,
+  loading = false,
 }: TokenSelectorModalProps): React.ReactElement {
   const { t } = useTranslation();
 
@@ -88,11 +89,7 @@ export function TokenSelectorModal({
           activeOpacity={0.7}
         >
           <View style={styles.tokenIconContainer}>
-            {token.logo ? (
-              <Image source={{ uri: token.logo }} style={styles.tokenIcon} />
-            ) : (
-              <View style={[styles.tokenIcon, styles.tokenIconPlaceholder]} />
-            )}
+            <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={40} />
           </View>
           <View style={styles.tokenInfo}>
             <View style={styles.tokenNameRow}>
@@ -119,9 +116,6 @@ export function TokenSelectorModal({
               editable={false}
             />
           </View>
-          <View style={styles.chevron}>
-            <TextInput style={styles.chevronIcon} value=">" editable={false} />
-          </View>
         </TouchableOpacity>
       );
     },
@@ -142,11 +136,7 @@ export function TokenSelectorModal({
             onPress={() => handleSelect(token)}
             activeOpacity={0.7}
           >
-            {token.logo ? (
-              <Image source={{ uri: token.logo }} style={styles.featuredTokenIcon} />
-            ) : (
-              <View style={[styles.featuredTokenIcon, styles.tokenIconPlaceholder]} />
-            )}
+            <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={48} />
           </TouchableOpacity>
         ))}
       </View>
@@ -168,7 +158,7 @@ export function TokenSelectorModal({
         )}
         {isSearching && (
           <View style={styles.searchingContainer}>
-            <ActivityIndicator size="small" color="#999" />
+            <ActivityIndicator size="small" color={colors.text.secondary} />
             <TextInput
               style={styles.searchingText}
               value={t('actions.searching', 'Searching...')}
@@ -219,24 +209,18 @@ export function TokenSelectorModal({
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleClose} style={styles.backButton}>
-            <TextInput style={styles.backButtonText} value="<" editable={false} />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <TextInput
-              style={styles.title}
-              value={t('wallet.select_token', 'Select Token')}
-              editable={false}
-            />
-          </View>
-          <View style={styles.headerSpacer} />
+          <TextInput
+            style={styles.title}
+            value={t('wallet.select_token', 'Select Token')}
+            editable={false}
+          />
         </View>
 
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
             placeholder={t('actions.search_placeholder', 'Search tokens...')}
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.text.placeholder}
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoCapitalize="none"
@@ -244,16 +228,37 @@ export function TokenSelectorModal({
           />
         </View>
 
-        <FlatList
-          data={paginatedTokens}
-          keyExtractor={getTokenKey}
-          renderItem={renderTokenItem}
-          ListHeaderComponent={renderHeader}
-          ListFooterComponent={renderFooter}
-          ListEmptyComponent={renderEmpty}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        />
+        {loading ? (
+          <View style={styles.skeletonContainer}>
+            {Array.from({ length: 5 }, (_, i) => (
+              <View key={i} style={styles.tokenItem}>
+                <ContentLoader
+                  speed={1.5}
+                  width={320}
+                  height={40}
+                  viewBox="0 0 320 40"
+                  backgroundColor={colors.skeleton.base}
+                  foregroundColor={colors.skeleton.highlight}
+                >
+                  <Circle cx="20" cy="20" r="20" />
+                  <Rect x="52" y="4" rx="4" ry="4" width="100" height="14" />
+                  <Rect x="52" y="24" rx="4" ry="4" width="140" height="12" />
+                </ContentLoader>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <FlatList
+            data={paginatedTokens}
+            keyExtractor={getTokenKey}
+            renderItem={renderTokenItem}
+            ListHeaderComponent={renderHeader}
+            ListFooterComponent={renderFooter}
+            ListEmptyComponent={renderEmpty}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
 
         <View style={styles.footer}>
           <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
@@ -273,71 +278,51 @@ export function TokenSelectorModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.background.primary,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a4e',
-  },
-  backButton: {
-    padding: 8,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
+    borderBottomColor: colors.background.secondary,
   },
   title: {
-    color: '#fff',
+    color: colors.text.primary,
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
   },
-  headerSpacer: {
-    width: 36,
-  },
   searchContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   searchInput: {
-    backgroundColor: '#2a2a4e',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    color: '#fff',
+    backgroundColor: colors.background.secondary,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    color: colors.text.primary,
     fontSize: 16,
   },
+  skeletonContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+  },
   listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   tokenItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a2a4e',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
+    backgroundColor: colors.background.secondary,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
   },
   tokenIconContainer: {
-    marginRight: 12,
-  },
-  tokenIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  tokenIconPlaceholder: {
-    backgroundColor: '#3a3a5e',
+    marginRight: spacing.md,
   },
   tokenInfo: {
     flex: 1,
@@ -350,60 +335,47 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tokenName: {
-    color: '#fff',
+    color: colors.text.primary,
     fontSize: 16,
     fontWeight: '500',
     padding: 0,
   },
   tokenBalance: {
-    color: '#999',
+    color: colors.text.secondary,
     fontSize: 14,
     marginTop: 2,
     padding: 0,
   },
   networkChip: {
-    backgroundColor: '#3a3a5e',
+    backgroundColor: colors.border.default,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
   networkChipText: {
-    color: '#999',
+    color: colors.text.secondary,
     fontSize: 10,
     fontWeight: '600',
-    padding: 0,
-  },
-  chevron: {
-    marginLeft: 8,
-  },
-  chevronIcon: {
-    color: '#999',
-    fontSize: 16,
     padding: 0,
   },
   featuredContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 16,
-    marginBottom: 8,
+    paddingVertical: spacing.lg,
+    marginBottom: spacing.sm,
   },
   featuredToken: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
-  },
-  featuredTokenIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    padding: spacing.sm,
   },
   disclaimerContainer: {
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   disclaimerText: {
-    color: '#999',
+    color: colors.text.secondary,
     fontSize: 12,
     textAlign: 'center',
     padding: 0,
@@ -412,50 +384,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
   },
   searchingText: {
-    color: '#999',
+    color: colors.text.secondary,
     fontSize: 14,
-    marginLeft: 8,
+    marginLeft: spacing.sm,
     padding: 0,
   },
   loadMoreButton: {
-    backgroundColor: '#2a2a4e',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.background.secondary,
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   loadMoreText: {
-    color: '#fff',
+    color: colors.text.primary,
     fontSize: 16,
     fontWeight: '500',
     padding: 0,
   },
   emptyContainer: {
     alignItems: 'center',
-    paddingVertical: 32,
+    paddingVertical: spacing['3xl'],
   },
   emptyText: {
-    color: '#999',
+    color: colors.text.secondary,
     fontSize: 16,
     padding: 0,
   },
   footer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4e',
+    borderTopColor: colors.background.secondary,
   },
   closeButton: {
-    backgroundColor: '#4a4ae8',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.accent.primary,
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
     alignItems: 'center',
   },
   closeButtonText: {
-    color: '#fff',
+    color: colors.text.primary,
     fontSize: 16,
     fontWeight: '600',
     padding: 0,

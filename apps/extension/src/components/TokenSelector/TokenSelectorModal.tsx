@@ -21,8 +21,6 @@ import Button from '@mui/material/Button';
 import InputBase from '@mui/material/InputBase';
 import CircularProgress from '@mui/material/CircularProgress';
 import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   colors,
@@ -31,6 +29,9 @@ import {
   fontFamily,
   fontWeight,
   getShortAddress,
+  ContentLoader,
+  Rect,
+  Circle,
 } from '@salmon/shared';
 
 import { useTokenSearch } from '@salmon/shared';
@@ -72,21 +73,6 @@ const StyledDialogTitle = styled(DialogTitle)({
   justifyContent: 'space-between',
   padding: `${spacing.lg}px ${spacing.xl}px`,
   borderBottom: `1px solid ${colors.border.default}`,
-});
-
-const TitleRow = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  flex: 1,
-});
-
-const BackButton = styled(IconButton)({
-  color: colors.text.primary,
-  padding: spacing.xs,
-  marginRight: spacing.sm,
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
 });
 
 const TitleText = styled(Typography)({
@@ -223,12 +209,6 @@ const TokenBalance = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   marginTop: 2,
-});
-
-const ChevronIcon = styled(ChevronRightIcon)({
-  color: 'rgba(255, 255, 255, 0.3)',
-  fontSize: 20,
-  marginLeft: spacing.sm,
 });
 
 const FeaturedContainer = styled(Box)({
@@ -387,6 +367,7 @@ export function TokenSelectorModal({
   hiddenBalance = false,
   showNetworkChip = false,
   showVerifiedDisclaimer = false,
+  loading = false,
 }: TokenSelectorModalProps): React.ReactElement {
   const { t } = useTranslation();
 
@@ -428,14 +409,9 @@ export function TokenSelectorModal({
     >
       {/* Header */}
       <StyledDialogTitle id="token-selector-title">
-        <TitleRow>
-          <BackButton onClick={handleClose} aria-label="Back">
-            <ArrowBackIcon />
-          </BackButton>
-          <TitleText>
-            {t('wallet.select_token', 'Select Token')}
-          </TitleText>
-        </TitleRow>
+        <TitleText>
+          {t('wallet.select_token', 'Select Token')}
+        </TitleText>
         <CloseButton onClick={handleClose} aria-label="Close">
           <CloseIcon />
         </CloseButton>
@@ -507,7 +483,24 @@ export function TokenSelectorModal({
 
         {/* Token List */}
         <TokenListContainer>
-          {paginatedTokens.length === 0 && !isSearching ? (
+          {loading ? (
+            Array.from({ length: 5 }, (_, i) => (
+              <TokenItemContainer key={i} sx={{ cursor: 'default', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' } }}>
+                <ContentLoader
+                  speed={1.5}
+                  width={320}
+                  height={40}
+                  viewBox="0 0 320 40"
+                  backgroundColor={colors.skeleton.base}
+                  foregroundColor={colors.skeleton.highlight}
+                >
+                  <Circle cx="20" cy="20" r="20" />
+                  <Rect x="52" y="4" rx="4" ry="4" width="100" height="14" />
+                  <Rect x="52" y="24" rx="4" ry="4" width="140" height="12" />
+                </ContentLoader>
+              </TokenItemContainer>
+            ))
+          ) : paginatedTokens.length === 0 && !isSearching ? (
             <EmptyContainer>
               <EmptyText>
                 {t('wallet.no_tokens_found', 'No tokens found')}
@@ -557,8 +550,6 @@ export function TokenSelectorModal({
                     <TokenBalance>{balanceText}</TokenBalance>
                   </TokenInfo>
 
-                  {/* Chevron */}
-                  <ChevronIcon />
                 </TokenItemContainer>
               );
             })
