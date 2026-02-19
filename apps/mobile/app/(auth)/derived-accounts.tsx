@@ -25,15 +25,15 @@ import {
   contentPadding,
   deriveBlockchainAccount,
   getShortAddress,
-  SATOSHIS_PER_BTC,
-  WEI_PER_ETH_BIGINT,
-  SolanaAccount,
-  BitcoinAccount,
   spacing,
   useAccountsContext,
+  SCAN_NETWORKS,
+  NETWORK_DISPLAY,
+  scanDerivedAccounts,
+  getMirrorNetworkId,
+  type DerivedAccountInfo,
   type BlockchainAccount,
 } from '@salmon/shared';
-import { ethereum } from '@salmon/shared';
 import {
   DerivedAccountCard,
   DerivedAccountCardSkeleton,
@@ -53,105 +53,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-/**
- * BIP-44 standard gap limit for address discovery.
- * Stop scanning a network after finding this many consecutive empty accounts.
- * See: https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki#address-gap-limit
- */
-const GAP_LIMIT = 20;
-
-/**
- * Only scan networks that produce unique keypairs.
- * Solana devnet and Ethereum sepolia share keypairs with their mainnets,
- * so we skip them during scanning and auto-mirror on import.
- */
-const SCAN_NETWORKS = [
-  'solana-mainnet',
-  'bitcoin-mainnet',
-  'bitcoin-testnet',
-  'ethereum-mainnet',
-];
-
-/**
- * Networks that share keypairs with a mainnet.
- * When importing a mainnet account, also derive and import its mirror.
- */
-const MIRROR_NETWORKS: Record<string, string> = {
-  'solana-mainnet': 'solana-devnet',
-  'ethereum-mainnet': 'ethereum-sepolia',
-};
-
-const NETWORK_DISPLAY: Record<string, { symbol: string; name: string; blockchain: string }> = {
-  'solana-mainnet': { symbol: 'SOL', name: 'Solana', blockchain: 'solana' },
-  'solana-devnet': { symbol: 'SOL', name: 'Solana Devnet', blockchain: 'solana' },
-  'bitcoin-mainnet': { symbol: 'BTC', name: 'Bitcoin', blockchain: 'bitcoin' },
-  'bitcoin-testnet': { symbol: 'BTC', name: 'Bitcoin Testnet', blockchain: 'bitcoin' },
-  'ethereum-mainnet': { symbol: 'ETH', name: 'Ethereum', blockchain: 'ethereum' },
-  'ethereum-sepolia': { symbol: 'ETH', name: 'Ethereum Sepolia', blockchain: 'ethereum' },
-};
-
-// ============================================================================
-// Types
-// ============================================================================
-
-interface DerivedAccountInfo {
-  account: BlockchainAccount;
-  address: string;
-  path: string;
-  index: number;
-  networkId: string;
-  networkName: string;
-  balance: number;
-  balanceFormatted: string;
-  currencySymbol: string;
-  selected: boolean;
-}
-
-// ============================================================================
-// Helpers
-// ============================================================================
-
-/**
- * Fetches the balance for any blockchain account, returning a human-readable amount.
- * Returns 0 on failure.
- */
-async function getAccountBalance(
-  account: BlockchainAccount,
-  networkId: string,
-): Promise<number> {
-  const info = NETWORK_DISPLAY[networkId];
-  if (!info) return 0;
-
-  try {
-    if (info.blockchain === 'solana') {
-      const balanceInfo = await (account as SolanaAccount).getBalance();
-      return balanceInfo.sol;
-    }
-    if (info.blockchain === 'bitcoin') {
-      const satoshis = await (account as BitcoinAccount).getCredit();
-      return satoshis / SATOSHIS_PER_BTC;
-    }
-    if (info.blockchain === 'ethereum') {
-      const wei = await (account as ethereum.EthereumAccount).getCredit();
-      return Number(wei) / Number(WEI_PER_ETH_BIGINT);
-    }
-  } catch {
-    // RPC error — return 0
-  }
-
-  return 0;
-}
-
-function formatBalance(balance: number, symbol: string): string {
-  if (balance === 0) return `0 ${symbol}`;
-  if (balance < 0.0001) return `<0.0001 ${symbol}`;
-  return `${balance.toFixed(4)} ${symbol}`;
-}
 
 // ============================================================================
 // Loading Skeleton
@@ -200,66 +101,9 @@ export default function DerivedAccountsScreen() {
       const networkIds = Object.keys(activeAccount.networksAccounts)
         .filter((id) => SCAN_NETWORKS.includes(id));
 
-      // BIP-44 gap scanning: sequential per network, parallel across networks.
-      // Scans until GAP_LIMIT consecutive empty accounts are found.
-      // Index 1 is always included; indexes 2+ only if they have balance.
-      const allResults = await Promise.all(
-        networkIds.map(async (networkId) => {
-          const networkAccounts: DerivedAccountInfo[] = [];
-          const info = NETWORK_DISPLAY[networkId] ?? {
-            symbol: '?',
-            name: networkId,
-            blockchain: 'unknown',
-          };
-          let consecutiveEmpty = 0;
-          let index = 1;
+      const results = await scanDerivedAccounts(mnemonic, networkIds);
 
-          while (consecutiveEmpty < GAP_LIMIT) {
-            // Yield to UI thread
-            await new Promise((resolve) => setTimeout(resolve, 1));
-
-            try {
-              const account = await deriveBlockchainAccount(mnemonic, networkId, index);
-              const address = account.getReceiveAddress();
-              const balance = await getAccountBalance(account, networkId);
-
-              const isFirstIndex = index === 1;
-              const hasFunds = balance > 0;
-
-              if (hasFunds) {
-                consecutiveEmpty = 0;
-              } else {
-                consecutiveEmpty++;
-              }
-
-              // Always show index 1; for the rest, only show if funded
-              if (isFirstIndex || hasFunds) {
-                networkAccounts.push({
-                  account,
-                  address,
-                  path: account.path,
-                  index,
-                  networkId,
-                  networkName: info.name,
-                  balance,
-                  balanceFormatted: formatBalance(balance, info.symbol),
-                  currencySymbol: info.symbol,
-                  selected: hasFunds || isFirstIndex,
-                });
-              }
-            } catch (error) {
-              console.warn(`Error deriving ${networkId} index ${index}:`, error);
-              consecutiveEmpty++;
-            }
-
-            index++;
-          }
-
-          return networkAccounts;
-        }),
-      );
-
-      setAccounts(allResults.flat());
+      setAccounts(results);
       setLoading(false);
     };
 
@@ -313,7 +157,7 @@ export default function DerivedAccountsScreen() {
         newDerivedAccounts.push(acc.account);
 
         // Auto-create mirror account for devnet/sepolia
-        const mirrorNetworkId = MIRROR_NETWORKS[acc.networkId];
+        const mirrorNetworkId = getMirrorNetworkId(acc.networkId);
         if (mirrorNetworkId && activeAccount.networksAccounts[mirrorNetworkId]) {
           try {
             const mirrorAccount = await deriveBlockchainAccount(

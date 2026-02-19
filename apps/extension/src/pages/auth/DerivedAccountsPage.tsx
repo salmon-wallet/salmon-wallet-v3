@@ -5,7 +5,6 @@
  * Mirrors mobile derived-accounts.tsx for the extension.
  */
 import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -16,13 +15,12 @@ import {
   fontFamily,
   deriveBlockchainAccount,
   getShortAddress,
-  SATOSHIS_PER_BTC,
-  SolanaAccount,
-  BitcoinAccount,
-  WEI_PER_ETH_BIGINT,
-  ethereum,
   useAccountsContext,
   fetchAndMergeNetworkConfigs,
+  SCAN_NETWORKS,
+  scanDerivedAccounts,
+  getMirrorNetworkId,
+  type DerivedAccountInfo,
   type BlockchainAccount,
 } from '@salmon/shared';
 import {
@@ -34,89 +32,12 @@ import {
 } from '../../components';
 
 // ============================================================================
-// Constants
-// ============================================================================
-
-const GAP_LIMIT = 20;
-
-const SCAN_NETWORKS = [
-  'solana-mainnet',
-  'bitcoin-mainnet',
-  'bitcoin-testnet',
-  'ethereum-mainnet',
-];
-
-const MIRROR_NETWORKS: Record<string, string> = {
-  'solana-mainnet': 'solana-devnet',
-  'ethereum-mainnet': 'ethereum-sepolia',
-};
-
-const NETWORK_DISPLAY: Record<string, { symbol: string; name: string; blockchain: string }> = {
-  'solana-mainnet': { symbol: 'SOL', name: 'Solana', blockchain: 'solana' },
-  'solana-devnet': { symbol: 'SOL', name: 'Solana Devnet', blockchain: 'solana' },
-  'bitcoin-mainnet': { symbol: 'BTC', name: 'Bitcoin', blockchain: 'bitcoin' },
-  'bitcoin-testnet': { symbol: 'BTC', name: 'Bitcoin Testnet', blockchain: 'bitcoin' },
-  'ethereum-mainnet': { symbol: 'ETH', name: 'Ethereum', blockchain: 'ethereum' },
-  'ethereum-sepolia': { symbol: 'ETH', name: 'Ethereum Sepolia', blockchain: 'ethereum' },
-};
-
-// ============================================================================
 // Types
 // ============================================================================
-
-interface DerivedAccountInfo {
-  account: BlockchainAccount;
-  address: string;
-  path: string;
-  index: number;
-  networkId: string;
-  networkName: string;
-  balance: number;
-  balanceFormatted: string;
-  currencySymbol: string;
-  selected: boolean;
-}
 
 interface DerivedAccountsPageProps {
   onComplete: () => void;
   onBack: () => void;
-}
-
-// ============================================================================
-// Helpers
-// ============================================================================
-
-async function getAccountBalance(
-  account: BlockchainAccount,
-  networkId: string,
-): Promise<number> {
-  const info = NETWORK_DISPLAY[networkId];
-  if (!info) return 0;
-
-  try {
-    if (info.blockchain === 'solana') {
-      const balanceInfo = await (account as SolanaAccount).getBalance();
-      return balanceInfo.sol;
-    }
-    if (info.blockchain === 'bitcoin') {
-      const satoshis = await (account as BitcoinAccount).getCredit();
-      return satoshis / SATOSHIS_PER_BTC;
-    }
-    if (info.blockchain === 'ethereum') {
-      const wei = await (account as ethereum.EthereumAccount).getCredit();
-      return Number(wei) / Number(WEI_PER_ETH_BIGINT);
-    }
-  } catch {
-    // RPC error
-  }
-
-  return 0;
-}
-
-function formatBalance(balance: number, symbol: string): string {
-  if (balance === 0) return `0 ${symbol}`;
-  if (balance < 0.0001) return `<0.0001 ${symbol}`;
-  return `${balance.toFixed(4)} ${symbol}`;
 }
 
 // ============================================================================
@@ -236,7 +157,6 @@ const ButtonContainer = styled(Box)({
 // ============================================================================
 
 export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageProps) {
-  const { t } = useTranslation();
   const [{ activeAccount }, actions] = useAccountsContext();
 
   const [loading, setLoading] = useState(true);
@@ -266,64 +186,15 @@ export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageP
       const networkIds = Object.keys(activeAccount.networksAccounts)
         .filter((id) => SCAN_NETWORKS.includes(id));
 
-      const allResults = await Promise.all(
-        networkIds.map(async (networkId) => {
-          const networkAccounts: DerivedAccountInfo[] = [];
-          const info = NETWORK_DISPLAY[networkId] ?? {
-            symbol: '?',
-            name: networkId,
-            blockchain: 'unknown',
-          };
-          let consecutiveEmpty = 0;
-          let index = 1;
-
-          while (consecutiveEmpty < GAP_LIMIT) {
-            if (cancelled) return networkAccounts;
-
-            await new Promise((resolve) => setTimeout(resolve, 1));
-
-            try {
-              const account = await deriveBlockchainAccount(mnemonic, networkId, index);
-              const address = account.getReceiveAddress();
-              const balance = await getAccountBalance(account, networkId);
-
-              const isFirstIndex = index === 1;
-              const hasFunds = balance > 0;
-
-              if (hasFunds) {
-                consecutiveEmpty = 0;
-              } else {
-                consecutiveEmpty++;
-              }
-
-              if (isFirstIndex || hasFunds) {
-                networkAccounts.push({
-                  account,
-                  address,
-                  path: account.path,
-                  index,
-                  networkId,
-                  networkName: info.name,
-                  balance,
-                  balanceFormatted: formatBalance(balance, info.symbol),
-                  currencySymbol: info.symbol,
-                  selected: hasFunds || isFirstIndex,
-                });
-              }
-            } catch (error) {
-              console.warn(`Error deriving ${networkId} index ${index}:`, error);
-              consecutiveEmpty++;
-            }
-
-            index++;
-          }
-
-          return networkAccounts;
-        }),
+      const results = await scanDerivedAccounts(
+        mnemonic,
+        networkIds,
+        undefined,
+        () => cancelled,
       );
 
       if (!cancelled) {
-        setAccounts(allResults.flat());
+        setAccounts(results);
         setLoading(false);
       }
     };
@@ -361,7 +232,7 @@ export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageP
       for (const acc of selectedAccounts) {
         newDerivedAccounts.push(acc.account);
 
-        const mirrorNetworkId = MIRROR_NETWORKS[acc.networkId];
+        const mirrorNetworkId = getMirrorNetworkId(acc.networkId);
         if (mirrorNetworkId && activeAccount.networksAccounts[mirrorNetworkId]) {
           try {
             const mirrorAccount = await deriveBlockchainAccount(

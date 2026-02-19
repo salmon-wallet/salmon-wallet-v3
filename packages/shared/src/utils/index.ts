@@ -213,6 +213,23 @@ export {
 
 // NFT spam filter
 export { isSpamNft, filterSpamNfts } from './nft-spam-filter';
+
+// Derived-accounts scanning utilities (shared between mobile and extension)
+export {
+  // Constants
+  GAP_LIMIT,
+  SCAN_NETWORKS,
+  MIRROR_NETWORKS,
+  NETWORK_DISPLAY,
+  // Types
+  type NetworkDisplayInfo,
+  type DerivedAccountInfo,
+  // Functions
+  getAccountBalance,
+  formatDerivedAccountBalance,
+  getMirrorNetworkId,
+  scanDerivedAccounts,
+} from './derived-accounts';
 export type {
   NftBlockchain,
   // NftAttribute is exported from blockchain/solana/nft
