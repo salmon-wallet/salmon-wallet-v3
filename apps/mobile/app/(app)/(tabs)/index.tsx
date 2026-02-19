@@ -14,62 +14,62 @@
  * - Navigation to token detail, send, receive, and activity screens
  */
 
-import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  ActivityIndicator,
-  ScrollView,
-  Animated,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-  Share,
-  Linking,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  Linking,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import {
-  useAccountsContext,
-  useBalance,
-  useUserConfig,
-  useAvailableNetworks,
-  useAdjacentBalances,
-  useTransactions,
-  getShortAddress,
   colors,
   componentSizes,
-  spacing,
-  vs,
-  getMarketChart,
   getCoinInfo,
-  type Token,
+  getMarketChart,
+  getShortAddress,
+  spacing,
+  useAccountsContext,
+  useAdjacentBalances,
+  useAvailableNetworks,
+  useBalance,
+  useTransactions,
+  useUserConfig,
+  vs,
+  type AnyNetwork,
   type CoinInfo,
+  type NetworkId,
   type PriceChartPeriod,
   type PriceDataPoint,
-  type AnyNetwork,
-  type NetworkId,
+  type Token,
 } from '@salmon/shared';
 import {
-  BalanceCardCarousel,
   ActionButtonRow,
-  TokenList,
-  TokenListItem,
+  BalanceCardCarousel,
   PriceChart,
-  TokenAbout,
-  TokenMarketData,
-  TokenInformationSheet,
   ReceiveSheet,
-  TransactionHistorySheet,
-  TransactionDetailModal,
   SendSheet,
   SubAccountSelector,
-  type SubAccount,
+  TokenAbout,
+  TokenInformationSheet,
+  TokenList,
+  TokenListItem,
+  TokenMarketData,
+  TransactionDetailModal,
+  TransactionHistorySheet,
   type BlockchainBalance,
   type BlockchainId,
   type MarketData,
+  type SubAccount,
   type Transaction,
 } from '../../../src/components';
 
@@ -271,17 +271,17 @@ export default function HomeScreen() {
   // Build a mock activeBlockchainAccount for useUserConfig when not available
   const userConfigAccount = activeBlockchainAccount
     ? {
-        network: {
-          environment: (networkId || 'solana-mainnet') as 'solana-mainnet' | 'solana-devnet',
-          blockchain: 'solana',
-        },
-      }
+      network: {
+        environment: (networkId || 'solana-mainnet') as 'solana-mainnet' | 'solana-devnet',
+        blockchain: 'solana',
+      },
+    }
     : {
-        network: {
-          environment: 'solana-mainnet' as const,
-          blockchain: 'solana',
-        },
-      };
+      network: {
+        environment: 'solana-mainnet' as const,
+        blockchain: 'solana',
+      },
+    };
   const { developerNetworks } = useUserConfig({
     activeBlockchainAccount: userConfigAccount,
   });
@@ -786,7 +786,6 @@ export default function HomeScreen() {
 
   // Handler for long press on transaction to open detail modal
   const handleTransactionLongPress = useCallback((transaction: Transaction) => {
-    console.log('🔵 Long press detected on transaction:', transaction.id);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedTransaction(transaction);
     setDetailModalVisible(true);
