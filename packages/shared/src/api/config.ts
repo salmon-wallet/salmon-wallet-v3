@@ -88,8 +88,21 @@ export function getLocalApiUrl(host?: string, port?: number): string {
   const envHost = getEnvVar('API_HOST');
   const envPort = getEnvVar('API_PORT');
 
-  const finalHost = host ?? envHost ?? DEFAULT_LOCAL_HOST;
+  let finalHost = host ?? envHost ?? DEFAULT_LOCAL_HOST;
   const finalPort = port ?? (envPort ? parseInt(envPort, 10) : DEFAULT_LOCAL_PORT);
+
+  // Android emulator runs in a VM where localhost/127.0.0.1 refers to the
+  // emulator itself, not the host machine. 10.0.2.2 is the special alias
+  // that Android emulator maps to the host's loopback interface.
+  // Note: process.env.EXPO_OS (without optional chaining) is required for
+  // babel-preset-expo to inline it at build time.
+  const expoOS = typeof process !== 'undefined' && process.env ? process.env.EXPO_OS : undefined;
+  if (
+    (finalHost === 'localhost' || finalHost === '127.0.0.1') &&
+    expoOS === 'android'
+  ) {
+    finalHost = '10.0.2.2';
+  }
 
   // Note: /local prefix is required because serverless-offline adds it to all routes
   return `http://${finalHost}:${finalPort}/local`;
