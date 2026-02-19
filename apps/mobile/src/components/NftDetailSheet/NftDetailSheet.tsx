@@ -110,12 +110,17 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   // Image loading/error state
   const [imageLoading, setImageLoading] = React.useState(true);
   const [imageError, setImageError] = React.useState(false);
+  const [prevMint, setPrevMint] = React.useState<string | undefined>(undefined);
 
-  // Reset image state when nft changes
-  React.useEffect(() => {
+  // Reset image state synchronously during render when nft changes.
+  // Using useEffect for this causes a race condition: expo-image may fire
+  // onLoadEnd (from memory cache) before the effect runs, and the effect
+  // then overwrites imageLoading back to true permanently.
+  if (nft?.mint !== prevMint) {
+    setPrevMint(nft?.mint);
     setImageLoading(true);
     setImageError(false);
-  }, [nft?.mint]);
+  }
 
   // Animation shared values
   const translateY = useSharedValue(SCREEN_HEIGHT);
