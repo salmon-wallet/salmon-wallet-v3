@@ -1,14 +1,18 @@
 import { colors } from '@salmon/shared';
 import { BlurView } from 'expo-blur';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import type { BlurContainerProps } from './types';
+
+// Android: higher opacity background to compensate for lack of native blur
+const ANDROID_BG = 'rgba(56, 63, 82, 0.35)';
 
 /**
  * BlurContainer - A reusable blur effect component
  *
- * Provides a consistent blur effect across the app using expo-blur BlurView.
- * Uses #383F52 at 10% opacity as background with blur intensity 8.
+ * On iOS uses expo-blur BlurView with native gaussian blur.
+ * On Android uses a solid semi-transparent background instead, which is
+ * more performant and visually consistent than the experimental blur.
  *
  * @example
  * ```tsx
@@ -35,6 +39,24 @@ export function BlurContainer({
   borderColor = colors.border.default,
   borderWidth = 1,
 }: BlurContainerProps) {
+  if (Platform.OS === 'android') {
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: ANDROID_BG,
+            borderColor,
+            borderWidth,
+          },
+          style,
+        ]}
+      >
+        {children}
+      </View>
+    );
+  }
+
   return (
     <BlurView
       intensity={blurIntensity}
