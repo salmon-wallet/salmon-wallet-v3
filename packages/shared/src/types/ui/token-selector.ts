@@ -94,6 +94,8 @@ export interface TokenSelectorModalPropsBase<TStyle = any> {
   showNetworkChip?: boolean;
   /** Show disclaimer for verified tokens */
   showVerifiedDisclaimer?: boolean;
+  /** Whether tokens are still loading */
+  loading?: boolean;
   /** Platform-specific style prop */
   style?: TStyle;
 }

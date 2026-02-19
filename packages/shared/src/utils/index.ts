@@ -96,6 +96,8 @@ export {
 export {
   // Known decimals (bridge token fallback)
   KNOWN_DECIMALS,
+  // Fallback logos for native tokens
+  NATIVE_TOKEN_LOGOS,
   // Token search
   filterTokensLocally,
   // CoinGecko
@@ -208,6 +210,9 @@ export {
   SECTION_TO_NETWORK,
   INITIAL_NFT_SECTIONS,
 } from './nft';
+
+// NFT spam filter
+export { isSpamNft, filterSpamNfts } from './nft-spam-filter';
 export type {
   NftBlockchain,
   // NftAttribute is exported from blockchain/solana/nft
