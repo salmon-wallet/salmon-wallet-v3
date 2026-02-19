@@ -24,6 +24,7 @@ export interface NftDataBase {
   description?: string;
   attributes?: NftAttribute[];
   blockchain: NftBlockchain;
+  blacklisted?: boolean;
 }
 
 /**
@@ -164,6 +165,7 @@ export function ethereumNftToNftData(nft: EthereumNft): EthereumNftData {
     description: nft.description,
     collectionName: nft.collection?.name,
     attributes: nft.extras?.attributes as NftAttribute[],
+    blacklisted: nft.blacklisted ?? false,
     // Ethereum-specific fields
     contractAddress: nft.contract,
     tokenId: nft.mint,
@@ -189,6 +191,7 @@ export function bitcoinOrdinalToNftData(ordinal: BitcoinOrdinal): BitcoinNftData
     description: ordinal.description,
     collectionName: ordinal.collection?.name,
     attributes: ordinal.extras?.attributes as NftAttribute[],
+    blacklisted: ordinal.blacklisted ?? false,
     // Bitcoin-specific fields
     inscriptionId: ordinal.inscriptionId,
     inscriptionNumber: ordinal.inscriptionNumber,
@@ -220,6 +223,7 @@ export interface SolanaNftFromHelius {
   };
   updateAuthorityAddress?: string | null;
   sellerFeeBasisPoints?: number;
+  blacklisted?: boolean;
   extras?: {
     attributes?: Array<{ trait_type: string; value: string | number }>;
     properties?: Record<string, unknown>;
@@ -243,6 +247,7 @@ export function solanaNftToNftData(nft: SolanaNftFromHelius): SolanaNftData {
     description: nft.description,
     collectionName: nft.collection?.name,
     attributes: nft.extras?.attributes as NftAttribute[],
+    blacklisted: nft.blacklisted ?? false,
     // Solana-specific fields
     compressed: nft.compressed,
     tokenStandard: nft.tokenStandard,
@@ -269,6 +274,7 @@ export function canonicalNftToSolanaNftData(nft: Nft): SolanaNftData {
     description: nft.description || undefined,
     collectionName: nft.collection?.name || undefined,
     attributes: nft.extras?.attributes,
+    blacklisted: nft.blacklisted ?? false,
     compressed: nft.compressed,
     tokenStandard: nft.tokenStandard || undefined,
     collectionKey: nft.collection?.key,

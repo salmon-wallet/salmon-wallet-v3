@@ -19,6 +19,7 @@ export const DEAD_DOMAINS = [
   'shdw-drive.genesysgo.net',
   'chexbacca.com',
   'cdn.bridgesplit.com',
+  'lychee.pics',
 ];
 
 /**
