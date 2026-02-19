@@ -541,6 +541,8 @@ export interface SwapScreenProps<StyleType = unknown> {
   initialInToken?: SwapToken;
   /** Initial output token */
   initialOutToken?: SwapToken;
+  /** Whether tokens are still loading */
+  loading?: boolean;
   /** Custom style */
   style?: StyleType;
 
@@ -570,4 +572,6 @@ export interface SwapScreenProps<StyleType = unknown> {
   onBridgeError?: (error: Error) => void;
   /** Callback to search bridge source tokens */
   onSearchBridgeTokens?: (query: string) => Promise<BridgeTokenSimple[]>;
+  /** Callback to navigate to home after success */
+  onNavigateHome?: () => void;
 }

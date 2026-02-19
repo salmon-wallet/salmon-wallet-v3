@@ -22,7 +22,7 @@ import type {
 } from '../types/ui/bridge-screen';
 import { getSwapMode, validateAddress, getChainFromNetwork, SUPPORTED_CHAINS } from '../utils/swap';
 import { getChainDisplayName } from '../utils/account';
-import { KNOWN_DECIMALS } from '../utils/tokens';
+import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
 
 // ============================================================================
 // Constants
@@ -58,17 +58,20 @@ export interface UseSwapScreenLogicReturn {
   bridgeEstimate: BridgeEstimateSimple | null;
   isLoadingQuote: boolean;
   isLoadingEstimate: boolean;
+  isLoadingBridgeTokens: boolean;
   recipientAddress: string;
   addressError: string | null;
   isConfirming: boolean;
   showInTokenModal: boolean;
   showOutTokenModal: boolean;
+  tokensLoading: boolean;
 
   // Computed
   swapMode: 'jupiter' | 'stealthex' | null;
   inUsdValue: number;
   canReview: boolean;
   reviewWarning: string | null;
+  priceImpact: number | null;
   outputTokens: SwapToken[];
   addressValidation: { valid: boolean; error: string | null };
 
@@ -101,6 +104,7 @@ export interface UseSwapScreenLogicReturn {
   handleBackFromReview: () => void;
   handleConfirmSwap: () => Promise<void>;
   handleConfirmBridge: () => Promise<void>;
+  handleSuccessContinue: () => void;
 }
 
 // ============================================================================
@@ -110,6 +114,7 @@ export interface UseSwapScreenLogicReturn {
 export function useSwapScreenLogic({
   tokens,
   featuredTokens = [],
+  loading = false,
   onGetQuote,
   onSwap,
   onSuccess,
@@ -125,6 +130,7 @@ export function useSwapScreenLogic({
   onBridgeError,
   // Platform-specific
   onBridgeInitiated,
+  onNavigateHome,
 }: UseSwapScreenLogicOptions): UseSwapScreenLogicReturn {
   // ── State ──────────────────────────────────────────────────────────────
 
@@ -144,6 +150,7 @@ export function useSwapScreenLogic({
   const [isConfirming, setIsConfirming] = useState(false);
   const [showInTokenModal, setShowInTokenModal] = useState(false);
   const [showOutTokenModal, setShowOutTokenModal] = useState(false);
+  const [isLoadingBridgeTokens, setIsLoadingBridgeTokens] = useState(false);
 
   const quoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -178,8 +185,10 @@ export function useSwapScreenLogic({
     !!inAmount &&
     parseFloat(inAmount) > 0 &&
     parseFloat(inAmount) <= (inToken.balance || Infinity) &&
-    (!bridgeEstimate?.minAmount || parseFloat(inAmount) >= bridgeEstimate.minAmount) &&
-    !isLoadingEstimate;
+    !isLoadingEstimate &&
+    !quoteError &&
+    !!bridgeEstimate &&
+    (!bridgeEstimate.minAmount || parseFloat(inAmount) >= bridgeEstimate.minAmount);
 
   const canReview = canReviewJupiter || canContinueToBridge;
 
@@ -188,8 +197,12 @@ export function useSwapScreenLogic({
     if (parseFloat(inAmount) > (inToken.balance || 0)) return 'Insufficient balance';
     if (inUsdValue > 0 && inUsdValue < MIN_SWAP_USD) return `Minimum swap amount is $${MIN_SWAP_USD.toFixed(2)} USD`;
     if (quoteError) return quoteError;
+    if (quote?.custom?.priceImpact != null && quote.custom.priceImpact > 3)
+      return 'High price impact! You may receive significantly less than expected.';
     return null;
   })();
+
+  const priceImpact: number | null = quote?.custom?.priceImpact ?? null;
 
   // ── Effects ────────────────────────────────────────────────────────────
 
@@ -198,6 +211,7 @@ export function useSwapScreenLogic({
     if (!inToken || !onGetAvailableTokens) return;
 
     const loadBridgeTokens = async () => {
+      setIsLoadingBridgeTokens(true);
       try {
         const available = await onGetAvailableTokens(inToken.symbol);
         const bridgeOutputTokens: SwapToken[] = [];
@@ -209,7 +223,7 @@ export function useSwapScreenLogic({
             symbol: t.symbol,
             name: t.name,
             decimals: KNOWN_DECIMALS[t.symbol.toLowerCase()] ?? 8,
-            logo: t.logo,
+            logo: t.logo || NATIVE_TOKEN_LOGOS[t.symbol.toLowerCase()],
             chain,
             networkId: t.network,
           });
@@ -218,6 +232,8 @@ export function useSwapScreenLogic({
       } catch (error) {
         console.error('Failed to load bridge tokens:', error);
         setAvailableOutTokens([]);
+      } finally {
+        setIsLoadingBridgeTokens(false);
       }
     };
 
@@ -249,7 +265,8 @@ export function useSwapScreenLogic({
         try {
           const fetchedQuote = await onGetQuoteRef.current(inToken, outToken, inAmount);
           setQuote(fetchedQuote);
-          setOutAmount(fetchedQuote.output.amount.toString());
+          const outDecimals = fetchedQuote.output?.decimals ?? outToken.decimals;
+          setOutAmount((Number(fetchedQuote.output.amount) / (10 ** outDecimals)).toString());
           setQuoteError(null);
         } catch (error) {
           console.error('Failed to fetch quote:', error);
@@ -275,7 +292,9 @@ export function useSwapScreenLogic({
             setQuoteError('Failed to get swap estimate');
           }
         } catch (error) {
-          console.error('Failed to fetch estimate:', error);
+          console.warn('Failed to fetch estimate:', error);
+          const message = error instanceof Error ? error.message : 'Failed to get swap estimate';
+          setQuoteError(message);
           setOutAmount('');
         } finally {
           setIsLoadingEstimate(false);
@@ -365,13 +384,6 @@ export function useSwapScreenLogic({
       const result = await onSwap(quote);
       setStep('success');
       onSuccess?.(result.txId);
-
-      setTimeout(() => {
-        setStep('input');
-        setInAmount('');
-        setOutAmount('');
-        setQuote(null);
-      }, 2000);
     } catch (error) {
       console.error('Swap failed:', error);
       setStep('error');
@@ -401,14 +413,6 @@ export function useSwapScreenLogic({
         setStep('success');
         onBridgeSuccess?.(exchange);
         onBridgeInitiated?.(exchange, inAmount, inToken.symbol, outToken.symbol);
-
-        setTimeout(() => {
-          setStep('input');
-          setInAmount('');
-          setOutAmount('');
-          setRecipientAddress('');
-          setBridgeEstimate(null);
-        }, 2000);
       } else {
         throw new Error('Failed to create bridge exchange');
       }
@@ -424,6 +428,16 @@ export function useSwapScreenLogic({
       setIsConfirming(false);
     }
   }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onBridgeSuccess, onBridgeError, onBridgeInitiated]);
+
+  const handleSuccessContinue = useCallback(() => {
+    setStep('input');
+    setInAmount('');
+    setOutAmount('');
+    setQuote(null);
+    setRecipientAddress('');
+    setBridgeEstimate(null);
+    onNavigateHome?.();
+  }, [onNavigateHome]);
 
   // ── Derived / memoised ─────────────────────────────────────────────────
 
@@ -533,16 +547,19 @@ export function useSwapScreenLogic({
     bridgeEstimate,
     isLoadingQuote,
     isLoadingEstimate,
+    isLoadingBridgeTokens,
     recipientAddress,
     addressError,
     isConfirming,
     showInTokenModal,
     showOutTokenModal,
+    tokensLoading: loading,
 
     swapMode,
     inUsdValue,
     canReview,
     reviewWarning,
+    priceImpact,
     outputTokens,
     addressValidation,
 
@@ -571,5 +588,6 @@ export function useSwapScreenLogic({
     handleBackFromReview,
     handleConfirmSwap,
     handleConfirmBridge,
+    handleSuccessContinue,
   };
 }
