@@ -38,7 +38,7 @@ export interface BlockchainBalance {
 /**
  * Props for the BalanceCard component (base - platform-agnostic)
  */
-export interface BalanceCardPropsBase<TStyle = any> {
+export interface BalanceCardPropsBase<TStyle> {
   /** Current network information */
   network: NetworkInfo;
   /** Total balance in USD */
@@ -66,7 +66,7 @@ export interface BalanceCardPropsBase<TStyle = any> {
 /**
  * Props for the BalanceCardCarousel component (base - platform-agnostic)
  */
-export interface BalanceCardCarouselPropsBase<TStyle = any> {
+export interface BalanceCardCarouselPropsBase<TStyle> {
   /** Array of blockchain balances to display */
   blockchains: BlockchainBalance[];
   /** Whether balance is hidden (privacy mode) */
@@ -88,7 +88,7 @@ export interface BalanceCardCarouselPropsBase<TStyle = any> {
 /**
  * Props for the BalanceCardSkeleton component (base - platform-agnostic)
  */
-export interface BalanceCardSkeletonPropsBase<TStyle = any> {
+export interface BalanceCardSkeletonPropsBase<TStyle> {
   /** Optional custom styles for the container */
   style?: TStyle;
   /** Test ID for testing */

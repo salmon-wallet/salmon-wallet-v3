@@ -2,7 +2,7 @@
  * Props for the TokenInfo component (base - platform-agnostic)
  * Displays token information including description, market data, and links
  */
-export interface TokenInfoPropsBase<TStyle = any> {
+export interface TokenInfoPropsBase<TStyle> {
   /** Token description/about text */
   description?: string;
   /** Market capitalization in USD */

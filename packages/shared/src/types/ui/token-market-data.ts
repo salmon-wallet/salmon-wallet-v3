@@ -37,7 +37,7 @@ export interface MarketData {
 /**
  * Props for the TokenMarketData component (base - platform-agnostic)
  */
-export interface TokenMarketDataPropsBase<TStyle = any> {
+export interface TokenMarketDataPropsBase<TStyle> {
   /** Market data object */
   data?: MarketData;
   /** Token symbol for display (e.g., "BTC", "SOL") */

@@ -6,7 +6,7 @@ export type BlurTint = 'light' | 'dark' | 'default';
 /**
  * Props for the BlurContainer component (base - platform-agnostic)
  */
-export interface BlurContainerPropsBase<TStyle = any> {
+export interface BlurContainerPropsBase<TStyle> {
   children: React.ReactNode;
   style?: TStyle;
   /**

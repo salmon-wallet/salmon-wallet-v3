@@ -17,7 +17,7 @@ export interface ActionButtonBase {
 /**
  * Props for the ActionButtonRow component (base - platform-agnostic)
  */
-export interface ActionButtonRowPropsBase<TStyle = any> {
+export interface ActionButtonRowPropsBase<TStyle> {
   /** Callback when Send button is pressed */
   onSendPress?: () => void;
   /** Callback when Receive button is pressed */

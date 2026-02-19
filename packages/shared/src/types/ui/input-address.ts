@@ -4,7 +4,7 @@ import type { ValidationCallbackResult } from '../validation';
 /**
  * Props for the InputAddress component (base - platform-agnostic)
  */
-export interface InputAddressPropsBase<TStyle = any> {
+export interface InputAddressPropsBase<TStyle> {
   /** Current address value */
   address: string;
   /** Callback when address changes */

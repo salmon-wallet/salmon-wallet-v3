@@ -1,7 +1,7 @@
 /**
  * Props for the GradientBackground component (base - platform-agnostic)
  */
-export interface GradientBackgroundPropsBase<TStyle = any> {
+export interface GradientBackgroundPropsBase<TStyle> {
   /** Array of color stops for the gradient (at least 2 colors) */
   colors?: readonly [string, string, ...string[]];
   /**

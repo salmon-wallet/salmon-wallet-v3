@@ -43,7 +43,7 @@ export interface UseTokenSearchResult {
 /**
  * Props for the TokenSelector component (base - platform-agnostic)
  */
-export interface TokenSelectorPropsBase<TStyle = any> {
+export interface TokenSelectorPropsBase<TStyle> {
   /** Current input value (amount) */
   value: string;
   /** Callback when input value changes */
@@ -75,7 +75,7 @@ export interface TokenSelectorPropsBase<TStyle = any> {
 /**
  * Props for the TokenSelectorModal component (base - platform-agnostic)
  */
-export interface TokenSelectorModalPropsBase<TStyle = any> {
+export interface TokenSelectorModalPropsBase<TStyle> {
   /** Whether the modal is visible */
   visible: boolean;
   /** Callback to close the modal */

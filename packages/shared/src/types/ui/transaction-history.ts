@@ -3,7 +3,7 @@ import type { Transaction } from '../index';
 /**
  * Props for TransactionItem component (base - platform-agnostic)
  */
-export interface TransactionItemPropsBase<TStyle = any> {
+export interface TransactionItemPropsBase<TStyle> {
   /** Transaction data */
   transaction: Transaction;
   /** Press handler */
@@ -17,7 +17,7 @@ export interface TransactionItemPropsBase<TStyle = any> {
 /**
  * Props for TransactionHistorySheet component (base - platform-agnostic)
  */
-export interface TransactionHistorySheetPropsBase<TStyle = any> {
+export interface TransactionHistorySheetPropsBase<TStyle> {
   /** Whether the sheet is visible */
   visible: boolean;
   /** Callback when sheet is closed */

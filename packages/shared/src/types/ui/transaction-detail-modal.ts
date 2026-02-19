@@ -3,7 +3,7 @@ import type { Transaction } from '../index';
 /**
  * Props for the TransactionDetailModal component (base - platform-agnostic)
  */
-export interface TransactionDetailModalPropsBase<TStyle = any> {
+export interface TransactionDetailModalPropsBase<TStyle> {
   /** Whether the modal is visible */
   visible: boolean;
   /** Callback when the modal is closed */

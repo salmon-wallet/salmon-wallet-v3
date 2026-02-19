@@ -2,7 +2,7 @@
  * Props for the TokenAbout component (base - platform-agnostic)
  * Displays a token's "About" section with description
  */
-export interface TokenAboutPropsBase<TStyle = any> {
+export interface TokenAboutPropsBase<TStyle> {
   /** Token description text */
   description?: string;
   /** Title text (default: "About") */

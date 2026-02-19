@@ -1,5 +1,5 @@
 import type { Token } from '../index';
-import type { BlockchainType } from '../blockchain';
+import type { BlockchainType, BlockchainAccount } from '../blockchain';
 
 /**
  * Steps in the send flow
@@ -17,7 +17,7 @@ export interface SendToken extends Token {
 /**
  * Props for the SendSheet component (base - platform-agnostic)
  */
-export interface SendSheetPropsBase<TStyle = any> {
+export interface SendSheetPropsBase<TStyle> {
   /** Whether the sheet is visible */
   visible: boolean;
   /** Callback when the sheet should close */
@@ -27,7 +27,7 @@ export interface SendSheetPropsBase<TStyle = any> {
   /** Blockchain type for address validation and transfer routing */
   blockchain: BlockchainType;
   /** The active blockchain account */
-  account: any;
+  account: BlockchainAccount;
   /** Callback when transaction completes successfully */
   onSuccess?: (txId: string) => void;
   /** Show unverified/unknown tokens (developer mode) */
@@ -57,7 +57,7 @@ export interface StepAddressAmountPropsBase {
   /** Blockchain type for address validation */
   blockchain: BlockchainType;
   /** The active blockchain account (provides getConnection/getProvider) */
-  account: any;
+  account: BlockchainAccount;
   /** Navigate back to token selection */
   onBack: () => void;
   /** Proceed to confirmation */
@@ -79,7 +79,7 @@ export interface StepConfirmationProps {
   /** Blockchain type */
   blockchain: BlockchainType;
   /** The active blockchain account */
-  account: any;
+  account: BlockchainAccount;
   /** Navigate back to address/amount */
   onBack: () => void;
   /** Cancel and close the sheet */

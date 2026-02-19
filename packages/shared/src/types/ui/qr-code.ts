@@ -1,7 +1,7 @@
 /**
  * Props for the QRCode component (base - platform-agnostic)
  */
-export interface QRCodePropsBase<TStyle = any> {
+export interface QRCodePropsBase<TStyle> {
   /** The value to encode in the QR code (e.g., wallet address, URL) */
   value: string;
   /** The size of the QR code in pixels */

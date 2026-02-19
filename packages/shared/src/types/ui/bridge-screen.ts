@@ -69,7 +69,7 @@ export interface BridgeExchange {
 /**
  * Props for RecipientAddressInput component (base - platform-agnostic)
  */
-export interface RecipientAddressInputPropsBase<TStyle = any> {
+export interface RecipientAddressInputPropsBase<TStyle> {
   /** Current address value */
   value: string;
   /** Callback when address changes */
@@ -91,7 +91,7 @@ export interface RecipientAddressInputPropsBase<TStyle = any> {
 /**
  * Props for BridgeRecipientScreen sub-component (base - platform-agnostic)
  */
-export interface BridgeRecipientScreenPropsBase<TStyle = any> {
+export interface BridgeRecipientScreenPropsBase<TStyle> {
   /** Recipient address */
   recipientAddress: string;
   /** Callback when address changes */
@@ -113,7 +113,7 @@ export interface BridgeRecipientScreenPropsBase<TStyle = any> {
 /**
  * Props for BridgeReviewScreen sub-component (base - platform-agnostic)
  */
-export interface BridgeReviewScreenPropsBase<TStyle = any> {
+export interface BridgeReviewScreenPropsBase<TStyle> {
   /** Source token */
   inToken: BridgeToken;
   /** Destination token */

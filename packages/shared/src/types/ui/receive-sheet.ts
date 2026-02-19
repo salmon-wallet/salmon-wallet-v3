@@ -1,7 +1,7 @@
 /**
  * Props for the ReceiveSheet component (base - platform-agnostic)
  */
-export interface ReceiveSheetPropsBase<TStyle = any> {
+export interface ReceiveSheetPropsBase<TStyle> {
   /** Whether the sheet is visible */
   visible: boolean;
   /** Callback when the sheet should close */

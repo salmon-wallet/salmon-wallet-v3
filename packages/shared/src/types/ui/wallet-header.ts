@@ -1,7 +1,7 @@
 /**
  * Props for the WalletHeader component (base - platform-agnostic)
  */
-export interface WalletHeaderPropsBase<TStyle = any> {
+export interface WalletHeaderPropsBase<TStyle> {
   /** Account name to display */
   accountName: string;
   /** Full wallet address */

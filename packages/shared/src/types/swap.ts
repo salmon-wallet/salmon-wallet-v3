@@ -400,7 +400,7 @@ export interface BridgeExchangeSimple {
 /**
  * Props for SwapTabSelector component
  */
-export interface SwapTabSelectorProps<StyleType = unknown> {
+export interface SwapTabSelectorProps<StyleType> {
   /** Currently active tab */
   activeTab: SwapTab;
   /** Callback when tab changes */
@@ -412,7 +412,7 @@ export interface SwapTabSelectorProps<StyleType = unknown> {
 /**
  * Props for SwapAmountInput component
  */
-export interface SwapAmountInputProps<StyleType = unknown> {
+export interface SwapAmountInputProps<StyleType> {
   /** Label above the input (e.g., "You Send", "You Receive") */
   label: string;
   /** Current amount value */
@@ -440,7 +440,7 @@ export interface SwapAmountInputProps<StyleType = unknown> {
 /**
  * Props for SwapDetailRow component
  */
-export interface SwapDetailRowProps<StyleType = unknown> {
+export interface SwapDetailRowProps<StyleType> {
   /** Label on the left */
   label: string;
   /** Value on the right */
@@ -452,7 +452,7 @@ export interface SwapDetailRowProps<StyleType = unknown> {
 /**
  * Props for SwapReviewCard component
  */
-export interface SwapReviewCardProps<StyleType = unknown> {
+export interface SwapReviewCardProps<StyleType> {
   /** Card label (e.g., "You Send", "You Receive") */
   label: string;
   /** Amount with symbol (e.g., "0.009 SOL") */
@@ -466,7 +466,7 @@ export interface SwapReviewCardProps<StyleType = unknown> {
 /**
  * Props for SwapReviewScreen sub-component
  */
-export interface SwapReviewScreenProps<StyleType = unknown> {
+export interface SwapReviewScreenProps<StyleType> {
   /** Quote data */
   quote: SwapQuote;
   /** Input token */
@@ -490,7 +490,7 @@ export interface SwapReviewScreenProps<StyleType = unknown> {
 /**
  * Props for SwapInputScreen sub-component
  */
-export interface SwapInputScreenProps<StyleType = unknown> {
+export interface SwapInputScreenProps<StyleType> {
   /** Input token */
   inToken: SwapToken | null;
   /** Output token */
@@ -522,7 +522,7 @@ export interface SwapInputScreenProps<StyleType = unknown> {
 /**
  * Props for main SwapScreen component
  */
-export interface SwapScreenProps<StyleType = unknown> {
+export interface SwapScreenProps<StyleType> {
   /** User's tokens for selection */
   tokens: SwapToken[];
   /** Featured tokens for quick selection */

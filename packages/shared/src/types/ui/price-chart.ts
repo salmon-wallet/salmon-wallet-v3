@@ -3,7 +3,7 @@ import type { PriceChartPeriod, PriceDataPoint } from '../index';
 /**
  * Props for the PriceChart component (base - platform-agnostic)
  */
-export interface PriceChartPropsBase<TStyle = any> {
+export interface PriceChartPropsBase<TStyle> {
   /** Price history data points */
   data: PriceDataPoint[];
   /** Currently selected time period */
