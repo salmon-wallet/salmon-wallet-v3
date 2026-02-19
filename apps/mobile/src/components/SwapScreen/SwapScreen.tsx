@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { useSwapScreenLogic } from '@salmon/shared';
 import { SwapInputScreen } from './SwapInputScreen';
 import { SwapReviewScreen } from './SwapReviewScreen';
+import { SwapSuccessScreen } from './SwapSuccessScreen';
 import { TokenSelectorModal } from '../TokenSelector';
 import { BridgeRecipientScreen } from '../BridgeScreen/BridgeRecipientScreen';
 import { BridgeReviewScreen } from '../BridgeScreen/BridgeReviewScreen';
@@ -87,6 +88,16 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
         />
       )}
 
+      {logic.step === 'success' && (
+        <SwapSuccessScreen
+          inAmount={logic.inAmount}
+          outAmount={logic.outAmount}
+          inSymbol={logic.inToken?.symbol ?? ''}
+          outSymbol={logic.outToken?.symbol ?? ''}
+          onContinue={logic.handleSuccessContinue}
+        />
+      )}
+
       <TokenSelectorModal
         visible={logic.showInTokenModal}
         onClose={() => logic.setShowInTokenModal(false)}
@@ -95,6 +106,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
         onSelect={logic.handleInTokenModalSelect}
         onSearch={logic.handleSearchTokens}
         showNetworkChip={true}
+        loading={logic.tokensLoading}
       />
 
       <TokenSelectorModal
@@ -104,6 +116,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
         onSelect={logic.handleOutTokenModalSelect}
         showNetworkChip={true}
         hiddenBalance={logic.swapMode === 'stealthex'}
+        loading={logic.tokensLoading || logic.isLoadingBridgeTokens}
       />
     </View>
   );

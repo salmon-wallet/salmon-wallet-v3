@@ -19,8 +19,9 @@
 
 import React, { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import {
   componentSizes,
@@ -100,6 +101,7 @@ function transformQuoteForUI(
 export default function SwapScreenPage() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   // Store the current quote from useSwap for execution
   const currentSharedQuoteRef = useRef<SharedSwapQuote | null>(null);
@@ -224,16 +226,13 @@ export default function SwapScreenPage() {
     return { txId: result.txId || '' };
   }, [activeBlockchainAccount, executeSwapHook, swapQuote]);
 
-  const handleSwapSuccess = useCallback((txId: string) => {
-    // Reset swap state
+  const handleSwapSuccess = useCallback((_txId: string) => {
     resetSwap();
+  }, [resetSwap]);
 
-    Alert.alert(
-      t('swap.success_title', 'Swap Complete'),
-      t('swap.success_message', 'Your swap was successful!'),
-      [{ text: 'OK' }]
-    );
-  }, [t, resetSwap]);
+  const handleNavigateHome = useCallback(() => {
+    router.replace('/(app)/(tabs)/');
+  }, [router]);
 
   const handleSwapError = useCallback((error: Error) => {
     // Reset swap state
@@ -287,7 +286,7 @@ export default function SwapScreenPage() {
       return tokens.map((t) => ({
         symbol: t.symbol,
         name: t.name,
-        logo: t.image,
+        logo: t.logo,
         network: t.network,
       }));
     } catch (error) {
@@ -301,19 +300,14 @@ export default function SwapScreenPage() {
     symbolOut: string,
     amount: number
   ): Promise<BridgeEstimateSimple | null> => {
-    try {
-      const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount);
-      if (!estimate) return null;
-      return {
-        estimatedAmount: estimate.estimatedAmount,
-        minAmount: estimate.minAmount,
-        symbolIn: estimate.symbolIn,
-        symbolOut: estimate.symbolOut,
-      };
-    } catch (error) {
-      console.error('Failed to get bridge estimate:', error);
-      return null;
-    }
+    const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount);
+    if (!estimate) return null;
+    return {
+      estimatedAmount: estimate.estimatedAmount,
+      minAmount: estimate.minAmount,
+      symbolIn: estimate.symbolIn,
+      symbolOut: estimate.symbolOut,
+    };
   }, [getBridgeEstimate]);
 
   const handleCreateBridgeExchange = useCallback(async (
@@ -359,18 +353,8 @@ export default function SwapScreenPage() {
     );
   }, [t, resetBridge]);
 
-  // Loading state
-  if (!ready) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B35" />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
-
   // No account state
-  if (!activeAccount || !activeBlockchainAccount) {
+  if (!ready || !activeAccount || !activeBlockchainAccount) {
     return (
       <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>No account found</Text>
@@ -385,6 +369,7 @@ export default function SwapScreenPage() {
         <SwapScreen
           tokens={swapTokens}
           featuredTokens={featuredTokens}
+          loading={loading}
           onGetQuote={handleGetQuote}
           onSwap={handleSwap}
           onSuccess={handleSwapSuccess}
@@ -399,6 +384,7 @@ export default function SwapScreenPage() {
           onCreateBridgeExchange={handleCreateBridgeExchange}
           onBridgeSuccess={handleBridgeSuccess}
           onBridgeError={handleBridgeError}
+          onNavigateHome={handleNavigateHome}
         />
       </View>
     </View>
