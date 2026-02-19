@@ -328,48 +328,57 @@ function validateVault(locked: LockedVault): void {
  * }
  * ```
  */
+
+/**
+ * Internal helper: decrypts vault data with a key and parses JSON.
+ * Centralises the decrypt → parse → error-handling logic shared by
+ * `unlock`, `unlockAndGetKey` and `unlockWithKey`.
+ */
+function decryptAndParse<T>(
+  encrypted: Uint8Array,
+  nonce: Uint8Array,
+  key: Uint8Array
+): T {
+  const plaintext = secretbox.open(encrypted, nonce, key);
+
+  if (!plaintext) {
+    throw new IncorrectPasswordError();
+  }
+
+  const decodedPlaintext = Buffer.from(plaintext).toString('utf-8');
+  return JSON.parse(decodedPlaintext) as T;
+}
+
+/**
+ * Internal helper: normalises errors from decryption operations into
+ * our custom error hierarchy (IncorrectPasswordError / InvalidVaultError).
+ */
+function rethrowDecryptionError(error: unknown): never {
+  if (error instanceof IncorrectPasswordError || error instanceof InvalidVaultError) {
+    throw error;
+  }
+  if (error instanceof Error && error.message.includes('decode')) {
+    throw new InvalidVaultError('Failed to decode vault data: invalid base58 encoding');
+  }
+  if (error instanceof SyntaxError) {
+    throw new InvalidVaultError('Failed to parse decrypted data: invalid JSON');
+  }
+  throw new IncorrectPasswordError(
+    `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  );
+}
+
 export async function unlock<T>(locked: LockedVault, password: string): Promise<T> {
   validateVault(locked);
 
   try {
-    // Decode base58-encoded components
     const encrypted = bs58.decode(locked.encrypted);
     const nonce = bs58.decode(locked.nonce);
     const salt = bs58.decode(locked.salt);
-
-    // Re-derive the encryption key
     const key = await deriveEncryptionKey(password, salt, locked.iterations, locked.digest);
-
-    // Decrypt the data
-    const plaintext = secretbox.open(encrypted, nonce, key);
-
-    if (!plaintext) {
-      throw new IncorrectPasswordError();
-    }
-
-    // Parse and return the decrypted JSON
-    const decodedPlaintext = Buffer.from(plaintext).toString('utf-8');
-    return JSON.parse(decodedPlaintext) as T;
+    return decryptAndParse<T>(encrypted, nonce, key);
   } catch (error) {
-    // Re-throw our custom errors
-    if (error instanceof IncorrectPasswordError || error instanceof InvalidVaultError) {
-      throw error;
-    }
-
-    // Handle base58 decode errors
-    if (error instanceof Error && error.message.includes('decode')) {
-      throw new InvalidVaultError('Failed to decode vault data: invalid base58 encoding');
-    }
-
-    // Handle JSON parse errors
-    if (error instanceof SyntaxError) {
-      throw new InvalidVaultError('Failed to parse decrypted data: invalid JSON');
-    }
-
-    // Unknown error
-    throw new IncorrectPasswordError(
-      `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
+    rethrowDecryptionError(error);
   }
 }
 
@@ -398,22 +407,9 @@ export async function unlockAndGetKey<T>(
     const encrypted = bs58.decode(locked.encrypted);
     const nonce = bs58.decode(locked.nonce);
     const salt = bs58.decode(locked.salt);
-
-    // Derive the encryption key
     const key = await deriveEncryptionKey(password, salt, locked.iterations, locked.digest);
+    const data = decryptAndParse<T>(encrypted, nonce, key);
 
-    // Decrypt the data
-    const plaintext = secretbox.open(encrypted, nonce, key);
-
-    if (!plaintext) {
-      throw new IncorrectPasswordError();
-    }
-
-    // Parse the decrypted JSON
-    const decodedPlaintext = Buffer.from(plaintext).toString('utf-8');
-    const data = JSON.parse(decodedPlaintext) as T;
-
-    // Create key cache for reuse
     const keyCache: DerivedKeyCache = {
       key: Array.from(key),
       salt: locked.salt,
@@ -424,18 +420,7 @@ export async function unlockAndGetKey<T>(
 
     return { data, keyCache };
   } catch (error) {
-    if (error instanceof IncorrectPasswordError || error instanceof InvalidVaultError) {
-      throw error;
-    }
-    if (error instanceof Error && error.message.includes('decode')) {
-      throw new InvalidVaultError('Failed to decode vault data: invalid base58 encoding');
-    }
-    if (error instanceof SyntaxError) {
-      throw new InvalidVaultError('Failed to parse decrypted data: invalid JSON');
-    }
-    throw new IncorrectPasswordError(
-      `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
+    rethrowDecryptionError(error);
   }
 }
 
@@ -511,37 +496,9 @@ export function unlockWithKey<T>(locked: LockedVault, keyCache: DerivedKeyCache)
     const key = new Uint8Array(keyCache.key);
     const encrypted = bs58.decode(locked.encrypted);
     const nonce = bs58.decode(locked.nonce);
-
-    // Decrypt the data
-    const plaintext = secretbox.open(encrypted, nonce, key);
-
-    if (!plaintext) {
-      throw new IncorrectPasswordError();
-    }
-
-    // Parse and return the decrypted JSON
-    const decodedPlaintext = Buffer.from(plaintext).toString('utf-8');
-    return JSON.parse(decodedPlaintext) as T;
+    return decryptAndParse<T>(encrypted, nonce, key);
   } catch (error) {
-    // Re-throw our custom errors
-    if (error instanceof IncorrectPasswordError || error instanceof InvalidVaultError) {
-      throw error;
-    }
-
-    // Handle base58 decode errors
-    if (error instanceof Error && error.message.includes('decode')) {
-      throw new InvalidVaultError('Failed to decode vault data: invalid base58 encoding');
-    }
-
-    // Handle JSON parse errors
-    if (error instanceof SyntaxError) {
-      throw new InvalidVaultError('Failed to parse decrypted data: invalid JSON');
-    }
-
-    // Unknown error
-    throw new IncorrectPasswordError(
-      `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
+    rethrowDecryptionError(error);
   }
 }
 
