@@ -1,7 +1,13 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useAccountsContext, useInactivityTimeout, DerivedKeyCache } from '@salmon/shared';
 import { LockPage } from '../../pages/lock/LockPage';
 import { HomePage } from '../../pages/home/HomePage';
+import {
+  DAppConnectPage,
+  type DAppConnectRequest,
+  DAppTransactionApprovalPage,
+  type DAppTransactionRequest,
+} from '../../pages/dapp';
 import { SelectOptionsPage } from '../../pages/auth/SelectOptionsPage';
 import { CreateWalletPage } from '../../pages/auth/CreateWalletPage';
 import { RecoverWalletPage } from '../../pages/auth/RecoverWalletPage';
@@ -49,7 +55,44 @@ function LoadingSpinner() {
  */
 function App() {
   const [state, actions] = useAccountsContext();
-  const { ready, locked, accounts } = state;
+  const { ready, locked, accounts, activeBlockchainAccount, networkId } = state;
+
+  // dApp connection flow (when popup is launched for connect approval)
+  const [pendingDAppRequest, setPendingDAppRequest] = useState<{
+    origin: string;
+    request: DAppConnectRequest;
+  } | null>(null);
+
+  // dApp transaction flow (when popup is launched for tx approval)
+  const [pendingDAppTxRequest, setPendingDAppTxRequest] = useState<{
+    origin: string;
+    request: DAppTransactionRequest;
+  } | null>(null);
+
+  useEffect(() => {
+    const hash = window.location.hash?.slice(1);
+    if (!hash) return;
+    const params = new URLSearchParams(hash);
+    const origin = params.get('origin') ?? '';
+    const requestStr = params.get('request');
+    if (origin && requestStr) {
+      try {
+        const request = JSON.parse(requestStr) as DAppConnectRequest & DAppTransactionRequest;
+        if (request.method === 'connect' && request.id != null) {
+          setPendingDAppRequest({ origin, request });
+        } else if (
+          (request.method === 'signTransaction' ||
+            request.method === 'signAllTransactions' ||
+            request.method === 'signAndSendTransaction') &&
+          request.id != null
+        ) {
+          setPendingDAppTxRequest({ origin, request });
+        }
+      } catch {
+        // Ignore malformed request
+      }
+    }
+  }, []);
 
   // Auth flow state
   const [authStep, setAuthStep] = useState<AuthStep>('select');
@@ -145,6 +188,18 @@ function App() {
     setAuthStep('success');
   }, []);
 
+  // dApp connect approval
+  const handleDAppApprove = useCallback(
+    async (origin: string) => {
+      await actions.addTrustedApp(origin);
+    },
+    [actions]
+  );
+
+  const handleDAppDeny = useCallback(() => {
+    setPendingDAppRequest(null);
+  }, []);
+
   // ---- Rendering ----
 
   if (!ready) {
@@ -214,6 +269,48 @@ function App() {
           />
         );
     }
+  }
+
+  // dApp connection approval (popup launched by dApp connect request)
+  const isSolanaNetwork = networkId?.startsWith('solana') ?? false;
+  const solanaAddress = isSolanaNetwork && activeBlockchainAccount
+    ? activeBlockchainAccount.getReceiveAddress()
+    : '';
+
+  // dApp transaction approval (popup launched by tx request)
+  if (
+    pendingDAppTxRequest &&
+    !locked &&
+    accounts.length > 0 &&
+    isSolanaNetwork
+  ) {
+    return (
+      <DAppTransactionApprovalPage
+        origin={pendingDAppTxRequest.origin}
+        request={pendingDAppTxRequest.request}
+        account={activeBlockchainAccount}
+        networkId={networkId ?? null}
+      />
+    );
+  }
+
+  if (
+    pendingDAppRequest &&
+    !locked &&
+    accounts.length > 0 &&
+    isSolanaNetwork &&
+    solanaAddress
+  ) {
+    return (
+      <DAppConnectPage
+        origin={pendingDAppRequest.origin}
+        request={pendingDAppRequest.request}
+        address={solanaAddress}
+        networkId={networkId ?? null}
+        onApprove={handleDAppApprove}
+        onDeny={handleDAppDeny}
+      />
+    );
   }
 
   // Wallet is unlocked
