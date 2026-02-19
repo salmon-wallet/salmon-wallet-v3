@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
 import {
   colors,
   spacing,
@@ -99,7 +98,11 @@ const LoadingText = styled(Typography)({
 // Component
 // ============================================================================
 
-export function SwapPage() {
+interface SwapPageProps {
+  onNavigateHome?: () => void;
+}
+
+export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
   const { t } = useTranslation();
   const currentSharedQuoteRef = useRef<SharedSwapQuote | null>(null);
 
@@ -189,7 +192,6 @@ export function SwapPage() {
 
   const handleSwapSuccess = useCallback(() => {
     resetSwap();
-    window.alert('Swap Complete! Your swap was successful.');
   }, [resetSwap]);
 
   const handleSwapError = useCallback((error: Error) => {
@@ -237,7 +239,7 @@ export function SwapPage() {
       return tokens.map((t) => ({
         symbol: t.symbol,
         name: t.name,
-        logo: t.image,
+        logo: t.logo,
         network: t.network,
       }));
     } catch {
@@ -250,18 +252,14 @@ export function SwapPage() {
     symbolOut: string,
     amount: number,
   ): Promise<BridgeEstimateSimple | null> => {
-    try {
-      const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount);
-      if (!estimate) return null;
-      return {
-        estimatedAmount: estimate.estimatedAmount,
-        minAmount: estimate.minAmount,
-        symbolIn: estimate.symbolIn,
-        symbolOut: estimate.symbolOut,
-      };
-    } catch {
-      return null;
-    }
+    const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount);
+    if (!estimate) return null;
+    return {
+      estimatedAmount: estimate.estimatedAmount,
+      minAmount: estimate.minAmount,
+      symbolIn: estimate.symbolIn,
+      symbolOut: estimate.symbolOut,
+    };
   }, [getBridgeEstimate]);
 
   const handleCreateBridgeExchange = useCallback(async (
@@ -298,16 +296,7 @@ export function SwapPage() {
     window.alert('Bridge Failed: ' + error.message);
   }, [resetBridge]);
 
-  if (!ready) {
-    return (
-      <LoadingContainer>
-        <CircularProgress sx={{ color: colors.accent.primary }} />
-        <LoadingText>Loading...</LoadingText>
-      </LoadingContainer>
-    );
-  }
-
-  if (!activeAccount || !activeBlockchainAccount) {
+  if (!ready || !activeAccount || !activeBlockchainAccount) {
     return (
       <LoadingContainer>
         <LoadingText>No account found</LoadingText>
@@ -320,6 +309,7 @@ export function SwapPage() {
       <SwapScreen
         tokens={swapTokens}
         featuredTokens={featuredTokens}
+        loading={loading}
         onGetQuote={handleGetQuote}
         onSwap={handleSwap}
         onSuccess={handleSwapSuccess}
@@ -333,6 +323,7 @@ export function SwapPage() {
         onCreateBridgeExchange={handleCreateBridgeExchange}
         onBridgeSuccess={handleBridgeSuccess}
         onBridgeError={handleBridgeError}
+        onNavigateHome={onNavigateHome}
       />
     </Container>
   );

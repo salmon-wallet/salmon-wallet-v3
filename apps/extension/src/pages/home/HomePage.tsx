@@ -1275,11 +1275,11 @@ export function HomePage() {
               activeAccount={activeAccount}
               developerNetworks={developerNetworks}
               onNftDetailPress={handleNftDetailPress}
-              onSeeAllPress={handleSeeAllPress}
+              // onSeeAllPress={handleSeeAllPress}
             />
           )}
 
-          {activeTab === 'swap' && <SwapPage />}
+          {activeTab === 'swap' && <SwapPage onNavigateHome={() => setActiveTab('home')} />}
         </TabContent>
       </Main>
 

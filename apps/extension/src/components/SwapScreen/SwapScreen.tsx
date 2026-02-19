@@ -10,6 +10,7 @@ import Box from '@mui/material/Box';
 import { useSwapScreenLogic } from '@salmon/shared';
 import { SwapInputScreen } from './SwapInputScreen';
 import { SwapReviewScreen } from './SwapReviewScreen';
+import { SwapSuccessScreen } from './SwapSuccessScreen';
 import { BridgeRecipientScreen } from '../BridgeScreen/BridgeRecipientScreen';
 import { BridgeReviewScreen } from '../BridgeScreen/BridgeReviewScreen';
 import { TokenSelectorModal } from '../TokenSelector';
@@ -92,6 +93,16 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
         />
       )}
 
+      {logic.step === 'success' && (
+        <SwapSuccessScreen
+          inAmount={logic.inAmount}
+          outAmount={logic.outAmount}
+          inSymbol={logic.inToken?.symbol ?? ''}
+          outSymbol={logic.outToken?.symbol ?? ''}
+          onContinue={logic.handleSuccessContinue}
+        />
+      )}
+
       <TokenSelectorModal
         visible={logic.showInTokenModal}
         onClose={() => logic.setShowInTokenModal(false)}
@@ -100,6 +111,7 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
         onSelect={logic.handleInTokenModalSelect}
         onSearch={logic.handleSearchTokens}
         showNetworkChip={true}
+        loading={logic.tokensLoading}
       />
 
       <TokenSelectorModal
@@ -109,6 +121,7 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
         onSelect={logic.handleOutTokenModalSelect}
         showNetworkChip={true}
         hiddenBalance={logic.swapMode === 'stealthex'}
+        loading={logic.tokensLoading || logic.isLoadingBridgeTokens}
       />
     </Container>
   );
