@@ -322,6 +322,4 @@ export default defineBackground(() => {
 
   // Clean up connected tabs on startup
   cleanConnectedTabs();
-
-  console.log('Salmon Wallet background script loaded');
 });
