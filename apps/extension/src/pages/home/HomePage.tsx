@@ -39,6 +39,10 @@ import {
   type LanguageSelectorItem,
   type TrustedAppItem,
   SUPPORT_OPTIONS,
+  SUPPORTED_CURRENCIES,
+  CURRENCY_MAP,
+  type CurrencyCode,
+  type CurrencySelectorItem,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -67,12 +71,12 @@ import {
   LanguageSelector,
   TrustedAppsSelector,
   SupportSelector,
+  CurrencySelector,
 } from '../../components';
 import IconButton from '@mui/material/IconButton';
 
 // Settings pages for navigation
 import { BackupPage } from '../settings/BackupPage';
-import { CurrencyPage } from '../settings/CurrencyPage';
 import { AboutPage } from '../settings/AboutPage';
 
 // i18n
@@ -335,7 +339,7 @@ interface HomePageProps {
 export function HomePage({ onAddAccount }: HomePageProps) {
   const { t } = useTranslation();
   const [state, actions] = useAccountsContext();
-  const [{ currency }] = useCurrencyContext();
+  const [{ currency }, { changeCurrency }] = useCurrencyContext();
   const { ready, activeAccount, activeBlockchainAccount, networkId, accounts, accountId, activeTrustedApps } = state;
 
   // User configuration (developer networks toggle, explorer selection)
@@ -1126,8 +1130,26 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         );
       case 'backup':
         return <BackupPage onBack={handleBack} />;
-      case 'currency':
-        return <CurrencyPage onBack={handleBack} />;
+      case 'currency': {
+        const currencyItems: CurrencySelectorItem[] = SUPPORTED_CURRENCIES.map(
+          (code) => ({
+            code,
+            name: CURRENCY_MAP[code].name,
+            symbol: CURRENCY_MAP[code].symbol,
+          })
+        );
+        return (
+          <CurrencySelector
+            currencies={currencyItems}
+            activeCurrencyCode={currency}
+            onSelectCurrency={(code) => {
+              changeCurrency(code as CurrencyCode);
+              setCurrentPage('home');
+            }}
+            onBack={handleBack}
+          />
+        );
+      }
       case 'about':
         return <AboutPage onBack={handleBack} />;
       case 'support':

@@ -231,6 +231,9 @@ export { TrustedAppsSelector } from './TrustedAppsSelector';
 // SupportSelector - Help & Support for settings
 export { SupportSelector } from './SupportSelector';
 
+// CurrencySelector - Currency selection for settings
+export { CurrencySelector } from './CurrencySelector';
+
 // DerivedAccountCard - Selectable account card for derived account discovery
 export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
 export type {

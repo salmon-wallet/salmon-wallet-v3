@@ -13,6 +13,7 @@ export type SettingsScreen =
   | 'currency'
   | 'about'
   | 'backup'
+  | 'privateKey'
   | 'support'
   | 'addressBook'
   | 'explorer'
@@ -246,6 +247,36 @@ export const SUPPORT_OPTIONS: SupportOptionItem[] = [
     url: 'mailto:support@salmonwallet.io',
   },
 ];
+
+// ============================================================================
+// Currency Selector
+// ============================================================================
+
+/**
+ * A currency item as displayed in the currency selector UI.
+ */
+export interface CurrencySelectorItem {
+  /** Lowercase currency code (e.g. 'usd') */
+  code: string;
+  /** Human-readable name (e.g. 'US Dollar') */
+  name: string;
+  /** Currency symbol (e.g. '$', '€') */
+  symbol: string;
+}
+
+/**
+ * Base props shared between mobile and extension CurrencySelector components.
+ */
+export interface CurrencySelectorBaseProps {
+  /** Available currencies to display */
+  currencies: CurrencySelectorItem[];
+  /** Currently active currency code */
+  activeCurrencyCode: string;
+  /** Called when the user selects a currency */
+  onSelectCurrency: (code: string) => void;
+  /** Called when the user navigates back */
+  onBack: () => void;
+}
 
 // ============================================================================
 // Settings Options
