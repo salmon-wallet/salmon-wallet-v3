@@ -102,13 +102,16 @@ function App() {
   // (accounts.length becomes > 0 but we're still in the auth flow)
   const [justCreated, setJustCreated] = useState(false);
 
+  // When user clicks "Add Account" from HomePage's WalletSwitcherSheet
+  const [isAddingAccount, setIsAddingAccount] = useState(false);
+
   // Set up inactivity timeout for auto-lock
   useInactivityTimeout({
     timeoutMs: 5 * 60 * 1000,
     onTimeout: () => {
       actions.lockAccounts();
     },
-    enabled: ready && !locked && accounts.length > 0 && !justCreated,
+    enabled: ready && !locked && accounts.length > 0 && !justCreated && !isAddingAccount,
   });
 
   // Handler for removing all accounts from lock screen
@@ -170,6 +173,7 @@ function App() {
 
   const handleGoToWallet = useCallback(() => {
     setJustCreated(false);
+    setIsAddingAccount(false);
     setAuthStep('select');
     setAuthData(null);
   }, []);
@@ -180,12 +184,27 @@ function App() {
 
   const handleDerivedComplete = useCallback(() => {
     setJustCreated(false);
+    setIsAddingAccount(false);
     setAuthStep('select');
     setAuthData(null);
   }, []);
 
   const handleDerivedBack = useCallback(() => {
     setAuthStep('success');
+  }, []);
+
+  // "Add Account" from HomePage's WalletSwitcherSheet
+  const handleAddAccountFromHome = useCallback(() => {
+    setIsAddingAccount(true);
+    setAuthStep('select');
+    setAuthData(null);
+  }, []);
+
+  // "Access Existing Account" from SelectOptionsPage (cancel add account flow)
+  const handleAccessExisting = useCallback(() => {
+    setIsAddingAccount(false);
+    setAuthStep('select');
+    setAuthData(null);
   }, []);
 
   // dApp connect approval
@@ -219,8 +238,8 @@ function App() {
     );
   }
 
-  // Show auth flow when no accounts exist or when we just created one
-  if (accounts.length === 0 || justCreated) {
+  // Show auth flow when no accounts exist, just created one, or adding a new account
+  if (accounts.length === 0 || justCreated || isAddingAccount) {
     switch (authStep) {
       case 'create':
         return (
@@ -237,7 +256,14 @@ function App() {
           />
         );
       case 'password':
-        if (!authData) return <SelectOptionsPage onCreateWallet={handleCreateWallet} onRecoverWallet={handleRecoverWallet} />;
+        if (!authData) return (
+          <SelectOptionsPage
+            onCreateWallet={handleCreateWallet}
+            onRecoverWallet={handleRecoverWallet}
+            hasAccounts={accounts.length > 0}
+            onAccessExisting={handleAccessExisting}
+          />
+        );
         return (
           <PasswordPage
             mnemonic={authData.mnemonic}
@@ -266,6 +292,8 @@ function App() {
           <SelectOptionsPage
             onCreateWallet={handleCreateWallet}
             onRecoverWallet={handleRecoverWallet}
+            hasAccounts={accounts.length > 0}
+            onAccessExisting={handleAccessExisting}
           />
         );
     }
@@ -314,7 +342,7 @@ function App() {
   }
 
   // Wallet is unlocked
-  return <HomePage />;
+  return <HomePage onAddAccount={handleAddAccountFromHome} />;
 }
 
 // ============================================================================

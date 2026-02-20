@@ -11,7 +11,7 @@
  * - Accessible and customizable
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   TextInput,
@@ -20,7 +20,7 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from 'react-native';
-import { colors, useAddressValidation, type ValidationState } from '@salmon/shared';
+import { colors, useAddressValidation, useAccountsContext, isSolanaAccount, type ValidationState } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 
 // ============================================================================
@@ -107,9 +107,32 @@ export function InputAddress({
   testID = 'input-address',
   ...textInputProps
 }: InputAddressProps) {
-  // TODO: Get connection from context or props
-  // For now, we pass null — the hook accepts ChainConnection | null
-  const connection = null;
+  const [state] = useAccountsContext();
+  const { activeBlockchainAccount } = state;
+
+  // Resolve chain-specific connection/provider from the active account
+  const [connection, setConnection] = useState<Parameters<typeof useAddressValidation>[1]>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const resolveConnection = async () => {
+      if (!activeBlockchainAccount) return;
+      try {
+        if (blockchain === 'ethereum' && 'getProvider' in activeBlockchainAccount) {
+          const provider = await (activeBlockchainAccount as { getProvider: () => Promise<NonNullable<typeof connection>> }).getProvider();
+          if (!cancelled) setConnection(provider);
+        } else if (blockchain === 'solana' && isSolanaAccount(activeBlockchainAccount)) {
+          const conn = await activeBlockchainAccount.getConnection();
+          if (!cancelled) setConnection(conn);
+        }
+        // Bitcoin: no connection needed, stays null
+      } catch (err) {
+        console.error('Failed to resolve chain connection:', err);
+      }
+    };
+    resolveConnection();
+    return () => { cancelled = true; };
+  }, [activeBlockchainAccount, blockchain]);
 
   // Use validation hook
   const {

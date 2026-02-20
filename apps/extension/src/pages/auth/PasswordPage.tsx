@@ -134,8 +134,9 @@ export function PasswordPage({ mnemonic, flowType, onCreating, onSuccess, onBack
   const [state, actions] = useAccountsContext();
 
   const requiredLock = state.requiredLock;
-  const isRecoverFlow = flowType === 'recover';
-  const showSingleInput = requiredLock && !isRecoverFlow;
+  // When a password-protected wallet already exists, always verify the existing
+  // password — regardless of whether the user chose "Create" or "Recover".
+  const showSingleInput = requiredLock;
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

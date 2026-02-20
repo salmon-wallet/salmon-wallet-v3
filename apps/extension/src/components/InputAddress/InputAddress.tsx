@@ -12,7 +12,7 @@
  * - Accessible and customizable
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
@@ -23,6 +23,9 @@ import {
   spacing,
   fontFamily,
   useAddressValidation,
+  useAccountsContext,
+  isSolanaAccount,
+  isEthereumAccount,
 } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 import type { ValidationState } from '@salmon/shared';
@@ -228,11 +231,32 @@ export function InputAddress({
   style,
 }: InputAddressProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const [state] = useAccountsContext();
+  const { activeBlockchainAccount } = state;
 
-  // TODO: Get connection from context or props
-  // For now, we'll create a placeholder connection
-  // In production, this should come from a blockchain context
-  const connection = null;
+  // Resolve chain-specific connection/provider from the active account
+  const [connection, setConnection] = useState<Parameters<typeof useAddressValidation>[1]>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const resolveConnection = async () => {
+      if (!activeBlockchainAccount) return;
+      try {
+        if (isEthereumAccount(activeBlockchainAccount)) {
+          const provider = await activeBlockchainAccount.getProvider();
+          if (!cancelled) setConnection(provider);
+        } else if (isSolanaAccount(activeBlockchainAccount)) {
+          const conn = await activeBlockchainAccount.getConnection();
+          if (!cancelled) setConnection(conn);
+        }
+        // Bitcoin: no connection needed, stays null
+      } catch (err) {
+        console.error('Failed to resolve chain connection:', err);
+      }
+    };
+    resolveConnection();
+    return () => { cancelled = true; };
+  }, [activeBlockchainAccount, blockchain]);
 
   // Use validation hook
   const {

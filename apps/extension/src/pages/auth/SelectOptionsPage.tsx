@@ -9,6 +9,8 @@ import { PrimaryButton, SecondaryButton } from '../../components';
 interface SelectOptionsPageProps {
   onCreateWallet: () => void;
   onRecoverWallet: () => void;
+  hasAccounts?: boolean;
+  onAccessExisting?: () => void;
 }
 
 const Container = styled(Box)({
@@ -61,13 +63,17 @@ const ButtonsContainer = styled(Box)({
   gap: vs(spacing.lg),
 });
 
-export function SelectOptionsPage({ onCreateWallet, onRecoverWallet }: SelectOptionsPageProps) {
+export function SelectOptionsPage({ onCreateWallet, onRecoverWallet, hasAccounts, onAccessExisting }: SelectOptionsPageProps) {
   const { t } = useTranslation();
 
   return (
     <Container>
       <CenterContent>
-        <WelcomeText>{t('wallet.onboarding.titleWelcome', 'Welcome')}</WelcomeText>
+        <WelcomeText>
+          {hasAccounts
+            ? t('wallet.onboarding.titleOnboarded', 'Add Account')
+            : t('wallet.onboarding.titleWelcome', 'Welcome')}
+        </WelcomeText>
         <LogoImage src="/images/Logo.png" alt="Salmon" />
         <BrandName>Salmon</BrandName>
       </CenterContent>
@@ -79,6 +85,11 @@ export function SelectOptionsPage({ onCreateWallet, onRecoverWallet }: SelectOpt
         <SecondaryButton onClick={onRecoverWallet}>
           {t('wallet.recover_wallet', 'RECOVER ACCOUNT').toUpperCase()}
         </SecondaryButton>
+        {hasAccounts && onAccessExisting && (
+          <SecondaryButton onClick={onAccessExisting}>
+            {t('wallet.access_existing', 'ACCESS EXISTING ACCOUNT').toUpperCase()}
+          </SecondaryButton>
+        )}
       </ButtonsContainer>
     </Container>
   );

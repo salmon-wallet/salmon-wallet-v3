@@ -308,11 +308,15 @@ function PlaceholderPage({
   );
 }
 
+interface HomePageProps {
+  onAddAccount: () => void;
+}
+
 /**
  * Home page component displayed when wallet is unlocked.
  * Shows account info and provides access to main wallet features.
  */
-export function HomePage() {
+export function HomePage({ onAddAccount }: HomePageProps) {
   const { t } = useTranslation();
   const [state, actions] = useAccountsContext();
   const { ready, activeAccount, activeBlockchainAccount, networkId, accounts, accountId } = state;
@@ -561,11 +565,8 @@ export function HomePage() {
 
   const handleAddAccount = useCallback(() => {
     setWalletSwitcherVisible(false);
-    // TODO: Navigate to add account flow (onboarding)
-    // For now, this would typically open the onboarding flow
-    // e.g., navigate to /onboarding or open a create account modal
-    console.log('Add account - navigate to onboarding flow');
-  }, []);
+    onAddAccount();
+  }, [onAddAccount]);
 
   const handleEditAccount = useCallback((targetAccountId: string) => {
     const account = accounts.find(acc => acc.id === targetAccountId);
