@@ -7,7 +7,7 @@
  * Design: Dark gradient background with list of currency options.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,32 +18,12 @@ import {
   spacing,
   borderRadius,
   fontFamilyNative,
+  SUPPORTED_CURRENCIES,
+  CURRENCY_MAP,
+  useCurrencyContext,
+  type CurrencyCode,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../../../../src/components';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-/**
- * Available currencies
- */
-const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '\u20AC' },
-  { code: 'GBP', name: 'British Pound', symbol: '\u00A3' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '\u00A5' },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '\u00A5' },
-  { code: 'KRW', name: 'South Korean Won', symbol: '\u20A9' },
-  { code: 'INR', name: 'Indian Rupee', symbol: '\u20B9' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
-  { code: 'MXN', name: 'Mexican Peso', symbol: 'MX$' },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
-] as const;
-
-type CurrencyCode = (typeof CURRENCIES)[number]['code'];
 
 // ============================================================================
 // Component
@@ -51,9 +31,7 @@ type CurrencyCode = (typeof CURRENCIES)[number]['code'];
 
 export default function CurrencyScreen() {
   const { t } = useTranslation();
-
-  // TODO: Integrate with user config storage when currency preference is added
-  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>('USD');
+  const [{ currency }, { changeCurrency }] = useCurrencyContext();
 
   /**
    * Handle back navigation
@@ -66,34 +44,33 @@ export default function CurrencyScreen() {
    * Handle currency selection
    */
   const handleSelectCurrency = useCallback(async (code: CurrencyCode) => {
-    setSelectedCurrency(code);
-    // TODO: Persist currency preference to storage
-    // For now, just update local state and go back
+    await changeCurrency(code);
     router.back();
-  }, []);
+  }, [changeCurrency]);
 
   /**
    * Render a currency option
    */
   const renderCurrencyOption = useCallback(
-    (currency: (typeof CURRENCIES)[number]) => {
-      const isSelected = currency.code === selectedCurrency;
+    (code: CurrencyCode) => {
+      const info = CURRENCY_MAP[code];
+      const isSelected = code === currency;
 
       return (
         <TouchableOpacity
-          key={currency.code}
+          key={code}
           style={[
             styles.currencyOption,
             isSelected && styles.currencyOptionSelected,
           ]}
-          onPress={() => handleSelectCurrency(currency.code)}
+          onPress={() => handleSelectCurrency(code)}
           activeOpacity={0.7}
         >
           <View style={styles.currencyInfo}>
-            <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+            <Text style={styles.currencySymbol}>{info.symbol}</Text>
             <View style={styles.currencyTextContainer}>
-              <Text style={styles.currencyCode}>{currency.code}</Text>
-              <Text style={styles.currencyName}>{currency.name}</Text>
+              <Text style={styles.currencyCode}>{code.toUpperCase()}</Text>
+              <Text style={styles.currencyName}>{info.name}</Text>
             </View>
           </View>
 
@@ -107,12 +84,12 @@ export default function CurrencyScreen() {
         </TouchableOpacity>
       );
     },
-    [selectedCurrency, handleSelectCurrency]
+    [currency, handleSelectCurrency]
   );
 
   return (
     <SettingsScreenLayout title={t('settings.currency')} onBack={handleBack}>
-      {CURRENCIES.map(renderCurrencyOption)}
+      {SUPPORTED_CURRENCIES.map(renderCurrencyOption)}
     </SettingsScreenLayout>
   );
 }

@@ -16,35 +16,11 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  formatLargeNumber,
+  useCurrencyContext,
 } from '@salmon/shared';
 import { CopyIcon } from '../Icon';
 import type { TokenInfoProps } from './types';
-
-/**
- * Format large numbers for display (e.g., 1.5B, 2.3M, 150K)
- */
-function formatLargeNumber(value: number | undefined): string {
-  if (value === undefined || value === null) return '-';
-
-  if (value >= 1_000_000_000) {
-    return `${(value / 1_000_000_000).toFixed(2)}B`;
-  }
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(2)}M`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(2)}K`;
-  }
-  return value.toLocaleString();
-}
-
-/**
- * Format USD currency for display
- */
-function formatUSD(value: number | undefined): string {
-  if (value === undefined || value === null) return '-';
-  return `$${formatLargeNumber(value)}`;
-}
 
 /**
  * Truncate address for display
@@ -235,6 +211,7 @@ export function TokenInfo({
   style,
   className,
 }: TokenInfoProps) {
+  const [, { formatLarge }] = useCurrencyContext();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleCopyAddress = useCallback(async () => {
@@ -344,13 +321,13 @@ export function TokenInfo({
             {marketCap !== undefined && (
               <StatItem>
                 <StatLabel>Market Cap</StatLabel>
-                <StatValue>{formatUSD(marketCap)}</StatValue>
+                <StatValue>{formatLarge(marketCap)}</StatValue>
               </StatItem>
             )}
             {volume24h !== undefined && (
               <StatItem>
                 <StatLabel>24h Volume</StatLabel>
-                <StatValue>{formatUSD(volume24h)}</StatValue>
+                <StatValue>{formatLarge(volume24h)}</StatValue>
               </StatItem>
             )}
             {circulatingSupply !== undefined && (

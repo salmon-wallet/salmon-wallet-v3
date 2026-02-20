@@ -42,6 +42,7 @@ import {
   useAdjacentBalances,
   useAvailableNetworks,
   useBalance,
+  useCurrencyContext,
   useTransactions,
   useUserConfig,
   vs,
@@ -219,6 +220,8 @@ function mapBalanceToToken(
 }
 
 export default function HomeScreen() {
+  const [{ currency }] = useCurrencyContext();
+
   // Top fade gradient opacity - animated based on scroll position
   const topFadeOpacity = useRef(new Animated.Value(0)).current;
 
@@ -558,7 +561,7 @@ export default function HomeScreen() {
         const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
         const days = PERIOD_TO_DAYS[bitcoinChartPeriod];
 
-        const chartResponse = await getMarketChart(coinId, days);
+        const chartResponse = await getMarketChart(coinId, days, currency);
 
         // Transform chart data to PriceDataPoint format
         if (chartResponse?.prices) {
@@ -576,7 +579,7 @@ export default function HomeScreen() {
     };
 
     loadBitcoinChartData();
-  }, [currentBlockchain, bitcoinChartPeriod]);
+  }, [currentBlockchain, bitcoinChartPeriod, currency]);
 
   // Load Bitcoin coin info once when user swipes to Bitcoin
   useEffect(() => {
@@ -586,7 +589,7 @@ export default function HomeScreen() {
 
       try {
         const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
-        const infoResponse = await getCoinInfo(coinId);
+        const infoResponse = await getCoinInfo(coinId, currency);
         if (infoResponse) {
           setBitcoinCoinInfo(infoResponse);
         }
@@ -596,7 +599,7 @@ export default function HomeScreen() {
     };
 
     loadBitcoinCoinInfo();
-  }, [currentBlockchain, bitcoinCoinInfo]);
+  }, [currentBlockchain, bitcoinCoinInfo, currency]);
 
   // Load selected token chart data when token is selected or period changes
   useEffect(() => {
@@ -609,7 +612,7 @@ export default function HomeScreen() {
       setSelectedTokenLoading(true);
       try {
         const days = PERIOD_TO_DAYS[selectedTokenChartPeriod];
-        const chartResponse = await getMarketChart(coinId, days);
+        const chartResponse = await getMarketChart(coinId, days, currency);
 
         if (chartResponse?.prices) {
           const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
@@ -626,7 +629,7 @@ export default function HomeScreen() {
     };
 
     loadSelectedTokenChartData();
-  }, [selectedToken, selectedTokenChartPeriod, tokenSheetVisible]);
+  }, [selectedToken, selectedTokenChartPeriod, tokenSheetVisible, currency]);
 
   // Load selected token coin info when token is selected
   useEffect(() => {
@@ -637,7 +640,7 @@ export default function HomeScreen() {
       if (!coinId) return;
 
       try {
-        const infoResponse = await getCoinInfo(coinId);
+        const infoResponse = await getCoinInfo(coinId, currency);
         if (infoResponse) {
           setSelectedTokenCoinInfo(infoResponse);
 
@@ -669,7 +672,7 @@ export default function HomeScreen() {
     };
 
     loadSelectedTokenCoinInfo();
-  }, [selectedToken, tokenSheetVisible]);
+  }, [selectedToken, tokenSheetVisible, currency]);
 
   // Handle chart period change
   const handleChartPeriodChange = useCallback((period: PriceChartPeriod) => {

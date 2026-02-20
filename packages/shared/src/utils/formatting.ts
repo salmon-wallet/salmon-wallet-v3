@@ -71,18 +71,11 @@ export function formatAmount(amount: number, decimals: number): string {
 /**
  * Formats an amount as a USD dollar value
  *
+ * @deprecated Use `formatFiatValue` from `currencyFormatting` for multi-currency support.
+ *
  * @param amount - The amount to format (can be null or undefined)
  * @param decimals - Number of decimal places (default: 2)
  * @returns Formatted string with dollar sign, or '-' if amount is nil
- *
- * @example
- * ```typescript
- * showAmount(100.567)      // '$100.57'
- * showAmount(100.567, 3)   // '$100.567'
- * showAmount(null)         // '-'
- * showAmount(undefined)    // '-'
- * showAmount(0)            // '$0.00'
- * ```
  */
 export function showAmount(
   amount: number | null | undefined,
@@ -254,18 +247,11 @@ export function formatCurrency(amount: number, currency: Currency): string {
 /**
  * Formats an absolute price change with sign and dollar symbol
  *
+ * @deprecated Use `formatFiatChange` from `currencyFormatting` for multi-currency support.
+ *
  * @param absChange - The absolute change value (can be null or undefined)
  * @param decimals - Number of decimal places (default: 2)
  * @returns Formatted string with sign and dollar symbol, or null if absChange is nil
- *
- * @example
- * ```typescript
- * showAbsoluteChange(10.50)      // '+$10.50'
- * showAbsoluteChange(-5.25)      // '-$5.25'
- * showAbsoluteChange(0)          // '$0.00'
- * showAbsoluteChange(null)       // null
- * showAbsoluteChange(undefined)  // null
- * ```
  */
 export function showAbsoluteChange(
   absChange: number | null | undefined,
@@ -295,6 +281,7 @@ export function formatLargeNumber(value: number | undefined | null): string {
   return value.toLocaleString();
 }
 
+/** @deprecated Use `formatFiatLarge` from `currencyFormatting` for multi-currency support. */
 export function formatUSD(value: number | undefined | null): string {
   if (value === undefined || value === null) return '-';
   return `$${formatLargeNumber(value)}`;
@@ -334,6 +321,7 @@ export function formatTokenBalance(
   return value.toFixed(decimals).replace(/\.?0+$/, '');
 }
 
+/** @deprecated Use `formatFiatPrecise` from `currencyFormatting` for multi-currency support. */
 export function formatUsdPrecise(
   value: number | undefined | null,
   decimals: number = 4
@@ -404,6 +392,8 @@ export function formatBalance(amount: number, decimals: number = 4): string {
 
 /**
  * Format USD value for display
+ *
+ * @deprecated Use `formatFiatValue` from `currencyFormatting` for multi-currency support.
  *
  * @param amount - USD amount
  * @returns Formatted USD string

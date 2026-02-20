@@ -15,3 +15,17 @@ export type {
   AccountsContextValue,
   AccountsProviderProps,
 } from './AccountsContext';
+
+// Currency context
+export {
+  CurrencyContext,
+  CurrencyProvider,
+  useCurrencyContext,
+} from './CurrencyContext';
+
+export type {
+  CurrencyState,
+  CurrencyActions,
+  CurrencyContextValue,
+  CurrencyProviderProps,
+} from './CurrencyContext';

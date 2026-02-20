@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s, formatTokenBalance, formatUsdPrecise } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, ms, vs, s, formatTokenBalance, useCurrencyContext } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import type { SwapAmountInputProps } from './types';
 
@@ -34,6 +34,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
   style,
   isLoading = false,
 }) => {
+  const [{ currency }, { formatPrecise }] = useCurrencyContext();
   const handleChangeText = useCallback(
     (text: string) => {
       // Allow only valid numeric input with decimal
@@ -83,7 +84,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
       {/* USD Value and Balance Row */}
       {(usdValue !== undefined || availableBalance !== undefined) && (
         <View style={styles.infoRow}>
-          <Text style={styles.usdValue}>{formatUsdPrecise(usdValue)} USD</Text>
+          <Text style={styles.usdValue}>{formatPrecise(usdValue)} {currency.toUpperCase()}</Text>
           {availableBalance !== undefined && token && (
             <Text style={styles.availableBalance}>
               Available: {formatTokenBalance(availableBalance)} {token.symbol}

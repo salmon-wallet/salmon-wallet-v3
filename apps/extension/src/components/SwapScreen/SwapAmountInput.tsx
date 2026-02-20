@@ -16,6 +16,7 @@ import {
   borderRadius,
   fontFamily,
   fontWeight,
+  useCurrencyContext,
 } from '@salmon/shared';
 import type { SwapAmountInputProps } from './types';
 
@@ -32,13 +33,7 @@ const formatBalance = (value: number | undefined, decimals = 10): string => {
   return value.toFixed(decimals).replace(/\.?0+$/, '');
 };
 
-/**
- * Format USD value
- */
-const formatUsd = (value: number | undefined): string => {
-  if (value === undefined || value === null) return '0.0000';
-  return value.toFixed(4);
-};
+// formatUsd is now provided by CurrencyContext (formatPrecise)
 
 // ============================================================================
 // Styled Components
@@ -186,6 +181,8 @@ export function SwapAmountInput({
   style,
   isLoading = false,
 }: SwapAmountInputProps): React.ReactElement {
+  const [{ currency }, { formatPrecise }] = useCurrencyContext();
+
   const handleChangeText = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const text = event.target.value;
@@ -243,7 +240,7 @@ export function SwapAmountInput({
       {/* USD Value and Balance Row */}
       {(usdValue !== undefined || availableBalance !== undefined) && (
         <InfoRow>
-          <UsdValue>{formatUsd(usdValue)} USD</UsdValue>
+          <UsdValue>{formatPrecise(usdValue)} {currency.toUpperCase()}</UsdValue>
           {availableBalance !== undefined && token && (
             <AvailableBalance>
               Available: {formatBalance(availableBalance)} {token.symbol}

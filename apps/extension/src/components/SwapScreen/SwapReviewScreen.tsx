@@ -14,6 +14,7 @@ import {
   spacing,
   fontFamily,
   fontWeight,
+  useCurrencyContext,
 } from '@salmon/shared';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapDetailRow } from './SwapDetailRow';
@@ -39,8 +40,7 @@ const formatPercent = (value: number): string => {
   return `${value.toFixed(2)}%`;
 };
 
-const formatUsd = (value: number | undefined): string | undefined =>
-  value != null ? `~$${value.toFixed(2)}` : undefined;
+// formatUsd is now defined inside the component using CurrencyContext
 
 /**
  * Format SOL amount for fees
@@ -159,6 +159,10 @@ export function SwapReviewScreen({
   isConfirming = false,
   style,
 }: SwapReviewScreenProps): React.ReactElement {
+  const [, { formatValue }] = useCurrencyContext();
+  const formatUsd = (value: number | undefined): string | undefined =>
+    value != null ? `~${formatValue(value)}` : undefined;
+
   // Extract swap data for display (custom contains all swap details from backend)
   const { input, output, fee, routeNames, custom: details } = quote;
 

@@ -123,6 +123,17 @@ export {
   createERC1155Token,
 } from './tokens';
 
+// Currency formatting utilities
+export {
+  getCurrencySymbol,
+  getCurrencyLabel,
+  formatFiatValue,
+  formatFiatLarge,
+  formatFiatChange,
+  formatFiatPrecise,
+  formatFiatIntl,
+} from './currencyFormatting';
+
 // Date utilities
 export {
   formatRelativeTime,

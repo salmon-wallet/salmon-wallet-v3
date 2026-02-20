@@ -8,8 +8,8 @@ import {
   Rect,
   spacing,
   formatLargeNumber,
-  formatUSD,
   getShortAddress,
+  useCurrencyContext,
 } from '@salmon/shared';
 import * as Clipboard from 'expo-clipboard';
 import React, { useCallback } from 'react';
@@ -58,6 +58,8 @@ export const TokenInfo: React.FC<TokenInfoProps> = ({
   loading = false,
   style,
 }) => {
+  const [, { formatLarge }] = useCurrencyContext();
+
   const handleCopyAddress = useCallback(async () => {
     if (contractAddress) {
       await Clipboard.setStringAsync(contractAddress);
@@ -152,13 +154,13 @@ export const TokenInfo: React.FC<TokenInfoProps> = ({
             {marketCap !== undefined && (
               <View style={styles.statItem}>
                 <Text style={styles.statLabel}>Market Cap</Text>
-                <Text style={styles.statValue}>{formatUSD(marketCap)}</Text>
+                <Text style={styles.statValue}>{formatLarge(marketCap)}</Text>
               </View>
             )}
             {volume24h !== undefined && (
               <View style={styles.statItem}>
                 <Text style={styles.statLabel}>24h Volume</Text>
-                <Text style={styles.statValue}>{formatUSD(volume24h)}</Text>
+                <Text style={styles.statValue}>{formatLarge(volume24h)}</Text>
               </View>
             )}
             {circulatingSupply !== undefined && (

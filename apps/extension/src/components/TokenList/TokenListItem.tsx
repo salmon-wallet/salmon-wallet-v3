@@ -20,11 +20,10 @@ import {
   s,
   vs,
   ms,
-  showAmount,
   showPercentage,
-  showAbsoluteChange,
   getLabelValue,
   hiddenValue,
+  useCurrencyContext,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenListItemProps } from './types';
@@ -206,6 +205,7 @@ export function TokenListItem({
   style,
   className,
 }: TokenListItemProps) {
+  const [, { formatValue, formatChange }] = useCurrencyContext();
   const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange } = token;
 
   const handlePress = useCallback(() => {
@@ -220,16 +220,16 @@ export function TokenListItem({
   const displayPrice = hiddenBalance
     ? hiddenValue
     : price != null
-    ? showAmount(price)
+    ? formatValue(price)
     : null;
 
   const displayPercentage = last24HoursChange ? showPercentage(percentageChange) : null;
-  const displayAbsChange = absoluteChange != null ? showAbsoluteChange(absoluteChange) : null;
+  const displayAbsChange = absoluteChange != null ? formatChange(absoluteChange) : null;
 
   const displayUsdValue = hiddenBalance
     ? hiddenValue
     : usdBalance != null
-    ? showAmount(usdBalance)
+    ? formatValue(usdBalance)
     : null;
 
   const displayTokenAmount = hiddenBalance ? hiddenValue : `${uiAmount} ${symbol || ''}`;

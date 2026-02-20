@@ -16,9 +16,9 @@ import {
   fontWeight,
   fontSize,
   formatLargeNumber,
-  formatUSD,
   formatPercentageCompact,
   formatDateString,
+  useCurrencyContext,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenMarketDataProps } from './types';
@@ -129,6 +129,8 @@ export function TokenMarketData({
   style,
   className,
 }: TokenMarketDataProps) {
+  const [, { formatLarge }] = useCurrencyContext();
+
   if (loading) {
     return (
       <BlurContainer
@@ -211,7 +213,7 @@ export function TokenMarketData({
           {data.marketCap !== undefined && (
             <MarketDataRow
               label="Market Cap"
-              value={formatUSD(data.marketCap)}
+              value={formatLarge(data.marketCap)}
             />
           )}
 
@@ -224,18 +226,18 @@ export function TokenMarketData({
           {data.volume24h !== undefined && (
             <MarketDataRow
               label="24h Volume"
-              value={formatUSD(data.volume24h)}
+              value={formatLarge(data.volume24h)}
             />
           )}
 
           {/* 24h High */}
           {data.high24h !== undefined && (
-            <MarketDataRow label="24h High" value={formatUSD(data.high24h)} />
+            <MarketDataRow label="24h High" value={formatLarge(data.high24h)} />
           )}
 
           {/* 24h Low */}
           {data.low24h !== undefined && (
-            <MarketDataRow label="24h Low" value={formatUSD(data.low24h)} />
+            <MarketDataRow label="24h Low" value={formatLarge(data.low24h)} />
           )}
 
           {/* Circulating Supply */}
@@ -264,7 +266,7 @@ export function TokenMarketData({
 
           {/* All-Time High */}
           {data.ath !== undefined && (
-            <MarketDataRow label="All-Time High" value={formatUSD(data.ath)} />
+            <MarketDataRow label="All-Time High" value={formatLarge(data.ath)} />
           )}
 
           {/* ATH Change */}
@@ -283,7 +285,7 @@ export function TokenMarketData({
 
           {/* All-Time Low */}
           {data.atl !== undefined && (
-            <MarketDataRow label="All-Time Low" value={formatUSD(data.atl)} />
+            <MarketDataRow label="All-Time Low" value={formatLarge(data.atl)} />
           )}
 
           {/* ATL Change */}

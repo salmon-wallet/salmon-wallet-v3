@@ -11,10 +11,9 @@ import {
   ms,
   s,
   shadows,
-  showAbsoluteChange,
-  showAmount,
   showPercentage,
   spacing,
+  useCurrencyContext,
   vs,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -150,6 +149,8 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   showNetworkLabel = false,
   style,
 }) => {
+  const [, { formatValue, formatChange }] = useCurrencyContext();
+
   const handleToggleVisibility = useCallback(() => {
     onToggleVisibility?.();
   }, [onToggleVisibility]);
@@ -161,7 +162,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
   // Format display values
   const displayPercentage = showPercentage(changePercent);
-  const displayAbsChange = showAbsoluteChange(changeAmount);
+  const displayAbsChange = formatChange(changeAmount);
 
   // Get gradient and scales color for current blockchain
   const gradient = getGradientForBlockchain(blockchain);
@@ -199,7 +200,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       );
     }
 
-    const formatted = showAmount(usdTotal);
+    const formatted = formatValue(usdTotal);
     const parts = formatted.split('.');
 
     return (

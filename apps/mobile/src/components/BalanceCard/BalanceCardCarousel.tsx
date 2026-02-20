@@ -10,10 +10,9 @@ import {
   ms,
   s,
   shadows,
-  showAbsoluteChange,
-  showAmount,
   showPercentage,
   spacing,
+  useCurrencyContext,
   vs,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -95,6 +94,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   style,
   testID,
 }) => {
+  const [, { formatValue, formatChange }] = useCurrencyContext();
   const insets = useSafeAreaInsets();
   const [internalIndex, setInternalIndex] = React.useState(0);
   const activeIndex = controlledIndex ?? internalIndex;
@@ -248,7 +248,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
     if (hiddenBalance) {
       return <Text style={styles.balance}>{hiddenValue}</Text>;
     }
-    const formatted = showAmount(usdTotal);
+    const formatted = formatValue(usdTotal);
     const dotIndex = formatted.lastIndexOf('.');
     if (dotIndex === -1) {
       return <Text style={styles.balance}>{formatted}</Text>;
@@ -317,7 +317,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
                   style={styles.changeArrow}
                 />
                 <Text style={[styles.changeText, { color: changeColor }]}>
-                  ({showAbsoluteChange(changeAmount)})
+                  ({formatChange(changeAmount)})
                 </Text>
               </View>
             )}

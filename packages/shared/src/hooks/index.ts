@@ -180,6 +180,10 @@ export type {
 
 // SwapScreen logic hook (shared between mobile & extension)
 export { useSwapScreenLogic } from './useSwapScreenLogic';
+
+// Currency context (re-export for discoverability)
+export { useCurrencyContext } from '../contexts/CurrencyContext';
+export type { CurrencyState, CurrencyActions } from '../contexts/CurrencyContext';
 export type {
   UseSwapScreenLogicOptions,
   UseSwapScreenLogicReturn,

@@ -29,11 +29,10 @@ import {
   s,
   vs,
   ms,
-  showAmount,
   showPercentage,
-  showAbsoluteChange,
   getLabelValue,
   hiddenValue,
+  useCurrencyContext,
 } from '@salmon/shared';
 import type { BlockchainId } from '@salmon/shared';
 import { EyeIcon, EyeOffIcon, Icon, SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
@@ -285,6 +284,8 @@ export function BalanceCard({
   style,
   className,
 }: BalanceCardProps) {
+  const [, { formatValue, formatChange }] = useCurrencyContext();
+
   const handleToggleVisibility = useCallback(() => {
     onToggleVisibility?.();
   }, [onToggleVisibility]);
@@ -294,7 +295,7 @@ export function BalanceCard({
   const isPositive = changePercent >= 0;
 
   const displayPercentage = showPercentage(changePercent);
-  const displayAbsChange = showAbsoluteChange(changeAmount);
+  const displayAbsChange = formatChange(changeAmount);
 
   const gradientCSS = getGradientCSSForBlockchain(blockchain);
   const scalesColor = getScalesColorForBlockchain(blockchain);
@@ -312,7 +313,7 @@ export function BalanceCard({
       );
     }
 
-    const formatted = showAmount(usdTotal);
+    const formatted = formatValue(usdTotal);
     const parts = formatted.split('.');
 
     return (

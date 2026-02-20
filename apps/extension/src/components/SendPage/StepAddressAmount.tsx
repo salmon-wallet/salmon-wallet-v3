@@ -26,6 +26,7 @@ import {
   useAddressValidation,
   isEthereumAccount,
   isSolanaAccount,
+  useCurrencyContext,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepAddressAmountProps } from './types';
@@ -328,6 +329,7 @@ export function StepAddressAmount({
   onReview,
   onCancel,
 }: StepAddressAmountProps) {
+  const [{ currency }, { formatPrecise }] = useCurrencyContext();
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -373,12 +375,12 @@ export function StepAddressAmount({
       : token.uiAmount;
   }, [token.uiAmount]);
 
-  // USD conversion
-  const usdValue = useMemo(() => {
+  // Fiat conversion
+  const fiatDisplay = useMemo(() => {
     const numAmount = parseFloat(amount) || 0;
-    if (!token.price || numAmount === 0) return '0.0000';
-    return (numAmount * token.price).toFixed(4);
-  }, [amount, token.price]);
+    if (!token.price || numAmount === 0) return `${formatPrecise(0)} ${currency.toUpperCase()}`;
+    return `${formatPrecise(numAmount * token.price)} ${currency.toUpperCase()}`;
+  }, [amount, token.price, formatPrecise, currency]);
 
   // Balance display
   const balanceDisplay = useMemo(() => {
@@ -564,7 +566,7 @@ export function StepAddressAmount({
         </FieldGroup>
 
         {/* USD Conversion */}
-        <UsdConversion>{usdValue} USD</UsdConversion>
+        <UsdConversion>{fiatDisplay}</UsdConversion>
       </ScrollContent>
 
       {/* Bottom Buttons */}

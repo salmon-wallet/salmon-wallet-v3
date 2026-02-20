@@ -9,10 +9,9 @@ import {
   lineHeight,
   ms,
   s,
-  showAbsoluteChange,
-  showAmount,
   showPercentage,
   spacing,
+  useCurrencyContext,
   vs,
 } from '@salmon/shared';
 import React from 'react';
@@ -71,6 +70,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   blockchain = 'solana',
   style,
 }) => {
+  const [, { formatValue, formatChange }] = useCurrencyContext();
   const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange, tags } = token;
 
   const handlePress = React.useCallback(() => {
@@ -88,16 +88,16 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   const displayPrice = hiddenBalance
     ? hiddenValue
     : price != null
-      ? showAmount(price)
+      ? formatValue(price)
       : null;
 
   const displayPercentage = last24HoursChange ? showPercentage(percentageChange) : null;
-  const displayAbsChange = absoluteChange != null ? showAbsoluteChange(absoluteChange) : null;
+  const displayAbsChange = absoluteChange != null ? formatChange(absoluteChange) : null;
 
   const displayUsdValue = hiddenBalance
     ? hiddenValue
     : usdBalance != null
-      ? showAmount(usdBalance)
+      ? formatValue(usdBalance)
       : null;
 
   const displayTokenAmount = hiddenBalance ? hiddenValue : `${uiAmount} ${symbol || ''}`;

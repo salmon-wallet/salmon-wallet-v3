@@ -17,7 +17,7 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts';
-import { colors, spacing, borderRadius, fontFamily, fontWeight, PRICE_CHART_PERIODS } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontWeight, PRICE_CHART_PERIODS, useCurrencyContext, formatFiatIntl } from '@salmon/shared';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
 import type { PriceChartProps } from './types';
 
@@ -37,17 +37,7 @@ const isPositivePerformance = (data: PriceDataPoint[]): boolean => {
   return data[data.length - 1].price >= data[0].price;
 };
 
-/**
- * Format price for tooltip display
- */
-const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 6,
-  }).format(price);
-};
+// formatPrice is defined inside the component to use currency context
 
 /**
  * Format timestamp for tooltip display
@@ -153,6 +143,8 @@ interface CustomTooltipProps {
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
+  const [{ currency }] = useCurrencyContext();
+
   if (!active || !payload || payload.length === 0) {
     return null;
   }
@@ -161,7 +153,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 
   return (
     <TooltipContainer>
-      <TooltipPrice>{formatPrice(data.price)}</TooltipPrice>
+      <TooltipPrice>{formatFiatIntl(data.price, currency)}</TooltipPrice>
       <TooltipDate>{formatTimestamp(data.timestamp)}</TooltipDate>
     </TooltipContainer>
   );
@@ -191,8 +183,8 @@ function PeriodSelectorSkeleton() {
         <Skeleton
           key={index}
           variant="rounded"
-          width={40}
-          height={32}
+          width={42}
+          height={28}
           sx={{
             backgroundColor: colors.skeleton.base,
             borderRadius: borderRadius.full,
@@ -239,6 +231,12 @@ export function PriceChart({
   style,
   className,
 }: PriceChartProps) {
+  const [{ currency }] = useCurrencyContext();
+  const formatPrice = useCallback(
+    (price: number): string => formatFiatIntl(price, currency),
+    [currency]
+  );
+
   // Determine chart color based on performance
   const chartColor = useMemo(() => {
     if (color) return color;

@@ -13,7 +13,7 @@ import 'react-native-reanimated';
 
 import { LockScreenOverlay } from '../src/components';
 import { I18nProvider } from '../src/i18n';
-import { AccountsProvider, useAccountsContext, getStashItem, type DerivedKeyCache } from '@salmon/shared';
+import { AccountsProvider, CurrencyProvider, useAccountsContext, getStashItem, type DerivedKeyCache } from '@salmon/shared';
 import { useBiometricAuth } from '../hooks/useBiometricAuth';
 
 export {
@@ -55,7 +55,9 @@ export default function RootLayout() {
 
   return (
     <AccountsProvider>
-      <RootLayoutNav />
+      <CurrencyProvider>
+        <RootLayoutNav />
+      </CurrencyProvider>
     </AccountsProvider>
   );
 }

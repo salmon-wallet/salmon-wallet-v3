@@ -7,10 +7,10 @@
  * Features:
  * - List of supported fiat currencies
  * - Visual indicator for selected currency
- * - Persists selection to storage
+ * - Persists selection via CurrencyContext
  */
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -18,10 +18,17 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import CircularProgress from '@mui/material/CircularProgress';
 import CheckIcon from '@mui/icons-material/Check';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, getStorage, STORAGE_KEYS } from '@salmon/shared';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  SUPPORTED_CURRENCIES,
+  CURRENCY_MAP,
+  useCurrencyContext,
+  type CurrencyCode,
+} from '@salmon/shared';
 import { SettingsPageLayout } from '../../components/SettingsPageLayout';
 
 // ============================================================================
@@ -32,42 +39,6 @@ export interface CurrencyPageProps {
   /** Callback to navigate back to home */
   onBack: () => void;
 }
-
-/**
- * Supported display currencies
- */
-interface CurrencyOption {
-  code: string;
-  name: string;
-  symbol: string;
-}
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-/**
- * List of supported fiat currencies
- */
-const CURRENCIES: CurrencyOption[] = [
-  { code: 'usd', name: 'US Dollar', symbol: '$' },
-  { code: 'eur', name: 'Euro', symbol: '\u20AC' },
-  { code: 'gbp', name: 'British Pound', symbol: '\u00A3' },
-  { code: 'jpy', name: 'Japanese Yen', symbol: '\u00A5' },
-  { code: 'cny', name: 'Chinese Yuan', symbol: '\u00A5' },
-  { code: 'krw', name: 'South Korean Won', symbol: '\u20A9' },
-  { code: 'inr', name: 'Indian Rupee', symbol: '\u20B9' },
-  { code: 'cad', name: 'Canadian Dollar', symbol: 'C$' },
-  { code: 'aud', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'chf', name: 'Swiss Franc', symbol: 'CHF' },
-  { code: 'sgd', name: 'Singapore Dollar', symbol: 'S$' },
-  { code: 'hkd', name: 'Hong Kong Dollar', symbol: 'HK$' },
-  { code: 'mxn', name: 'Mexican Peso', symbol: 'MX$' },
-  { code: 'brl', name: 'Brazilian Real', symbol: 'R$' },
-  { code: 'try', name: 'Turkish Lira', symbol: '\u20BA' },
-];
-
-const DEFAULT_CURRENCY = 'usd';
 
 // ============================================================================
 // Styled Components
@@ -111,64 +82,17 @@ const CheckIconStyled = styled(CheckIcon)({
   fontSize: 20,
 });
 
-const LoadingContainer = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: spacing.xl,
-});
-
 // ============================================================================
 // Component
 // ============================================================================
 
 export function CurrencyPage({ onBack }: CurrencyPageProps): React.ReactElement {
   const { t } = useTranslation();
-  const [selectedCurrency, setSelectedCurrency] = useState<string>(DEFAULT_CURRENCY);
-  const [isLoading, setIsLoading] = useState(true);
+  const [{ currency }, { changeCurrency }] = useCurrencyContext();
 
-  // Load saved currency on mount
-  useEffect(() => {
-    const loadCurrency = async () => {
-      try {
-        const storage = getStorage();
-        const saved = await storage.getItem<string>(STORAGE_KEYS.CURRENCY);
-        if (saved && CURRENCIES.some((c) => c.code === saved)) {
-          setSelectedCurrency(saved);
-        }
-      } catch (error) {
-        console.error('Failed to load currency preference:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCurrency();
-  }, []);
-
-  const handleCurrencySelect = useCallback(async (currencyCode: string) => {
-    setSelectedCurrency(currencyCode);
-
-    try {
-      const storage = getStorage();
-      await storage.setItem(STORAGE_KEYS.CURRENCY, currencyCode);
-    } catch (error) {
-      console.error('Failed to save currency preference:', error);
-    }
-  }, []);
-
-  if (isLoading) {
-    return (
-      <SettingsPageLayout
-        title={t('settings.currency', 'Display Currency')}
-        onBack={onBack}
-      >
-        <LoadingContainer>
-          <CircularProgress size={24} sx={{ color: colors.accent.primary }} />
-        </LoadingContainer>
-      </SettingsPageLayout>
-    );
-  }
+  const handleCurrencySelect = useCallback(async (code: CurrencyCode) => {
+    await changeCurrency(code);
+  }, [changeCurrency]);
 
   return (
     <SettingsPageLayout
@@ -176,21 +100,22 @@ export function CurrencyPage({ onBack }: CurrencyPageProps): React.ReactElement 
       onBack={onBack}
     >
         <StyledList>
-          {CURRENCIES.map((currency) => {
-            const isSelected = selectedCurrency === currency.code;
+          {SUPPORTED_CURRENCIES.map((code) => {
+            const info = CURRENCY_MAP[code];
+            const isSelected = currency === code;
 
             return (
-              <ListItem key={currency.code} disablePadding>
+              <ListItem key={code} disablePadding>
                 <StyledListItemButton
                   selected={isSelected}
-                  onClick={() => handleCurrencySelect(currency.code)}
+                  onClick={() => handleCurrencySelect(code)}
                 >
                   <CurrencySymbol>
-                    <SymbolText>{currency.symbol}</SymbolText>
+                    <SymbolText>{info.symbol}</SymbolText>
                   </CurrencySymbol>
                   <ListItemText
-                    primary={currency.name}
-                    secondary={currency.code.toUpperCase()}
+                    primary={info.name}
+                    secondary={code.toUpperCase()}
                     primaryTypographyProps={{
                       sx: {
                         color: colors.text.primary,

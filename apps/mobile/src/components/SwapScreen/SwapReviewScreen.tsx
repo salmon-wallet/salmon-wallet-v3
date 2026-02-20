@@ -1,4 +1,4 @@
-import { borderRadius, colors, componentSizes, formatAmountWithSymbol, formatSolFee, ms, s, spacing, vs } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, formatAmountWithSymbol, formatSolFee, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SwapDetailRow } from './SwapDetailRow';
@@ -11,9 +11,6 @@ const FONT_FAMILY = {
 } as const;
 
 const formatPercent = (value: number): string => `${value.toFixed(2)}%`;
-
-const formatUsd = (value: number | undefined): string | undefined =>
-  value != null ? `~$${value.toFixed(2)}` : undefined;
 
 /**
  * SwapReviewScreen - Second step of swap flow
@@ -30,6 +27,10 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
   isConfirming = false,
   style,
 }) => {
+  const [, { formatValue }] = useCurrencyContext();
+  const formatUsd = (value: number | undefined): string | undefined =>
+    value != null ? `~${formatValue(value)}` : undefined;
+
   // Extract data from backend response structure (custom contains all swap details)
   const { input, output, fee, routeNames, custom: details } = quote;
 
