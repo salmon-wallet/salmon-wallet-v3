@@ -18,7 +18,14 @@ export {
 } from './account';
 
 // Avatar utilities
-export { getAvatar, getRandomAvatar } from './avatar';
+export {
+  getAvatar,
+  getRandomAvatar,
+  AVATAR_BASE_URL,
+  PRESET_AVATAR_COUNT,
+  PRESET_AVATAR_URLS,
+  isPresetAvatar,
+} from './avatar';
 
 // Address utilities
 export { getShortAddress, truncateHash } from './address';

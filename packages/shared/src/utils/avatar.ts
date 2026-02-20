@@ -3,7 +3,7 @@
  * Migrated from salmon-wallet-v2/src/adapter/services/avatar-service.js
  *
  * Provides avatar URL generation for wallet profiles.
- * Avatars are hosted on static.salmonwallet.io with 24 options (01-24).
+ * Avatars are hosted on static.salmonwallet.io with 25 options (00-24).
  */
 
 // ============================================================================
@@ -13,12 +13,20 @@
 /**
  * Base URL for avatar images
  */
-const AVATAR_BASE_URL = 'https://static.salmonwallet.io/avatar';
+export const AVATAR_BASE_URL = 'https://static.salmonwallet.io/avatar';
 
 /**
- * Total number of available avatar options
+ * Total number of available preset avatar options (indices 0-24)
  */
-const TOTAL_AVATARS = 24;
+export const PRESET_AVATAR_COUNT = 25;
+
+/**
+ * Pre-built array of all preset avatar URLs (indices 0-24)
+ */
+export const PRESET_AVATAR_URLS: string[] = Array.from(
+  { length: PRESET_AVATAR_COUNT },
+  (_, i) => `${AVATAR_BASE_URL}/${i.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}.png`,
+);
 
 // ============================================================================
 // Functions
@@ -43,7 +51,7 @@ export function getAvatar(index: number): string {
 }
 
 /**
- * Gets a random avatar URL from the available options (1-24).
+ * Gets a random avatar URL from the available options (0-24).
  *
  * @returns The full URL to a randomly selected avatar image
  *
@@ -51,6 +59,16 @@ export function getAvatar(index: number): string {
  * getRandomAvatar() // 'https://static.salmonwallet.io/avatar/07.png' (random)
  */
 export function getRandomAvatar(): string {
-  const randomIndex = Math.floor(Math.random() * TOTAL_AVATARS) + 1;
+  const randomIndex = Math.floor(Math.random() * PRESET_AVATAR_COUNT);
   return getAvatar(randomIndex);
+}
+
+/**
+ * Checks whether a URL is one of the preset avatar URLs.
+ *
+ * @param url - The URL to check
+ * @returns true if the URL matches a preset avatar
+ */
+export function isPresetAvatar(url: string): boolean {
+  return url.startsWith(AVATAR_BASE_URL) && url.endsWith('.png');
 }
