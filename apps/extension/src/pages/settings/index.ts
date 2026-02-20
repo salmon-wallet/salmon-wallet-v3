@@ -16,3 +16,4 @@ export * from './TrustedAppsPage';
 export * from './BackupPage';
 export * from './CurrencyPage';
 export * from './AboutPage';
+export * from './SupportPage';

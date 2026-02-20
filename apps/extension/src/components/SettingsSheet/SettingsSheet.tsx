@@ -54,6 +54,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import InfoIcon from '@mui/icons-material/Info';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
@@ -88,6 +89,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   removeWallet: <DeleteIcon />,
   removeAll: <DeleteForeverIcon />,
   about: <InfoIcon />,
+  support: <HelpOutlineIcon />,
 };
 
 /**
@@ -156,6 +158,11 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
       {
         id: 'about',
         labelKey: 'settings.about',
+        type: 'navigation',
+      },
+      {
+        id: 'support',
+        labelKey: 'settings.help_support',
         type: 'navigation',
       },
     ],
