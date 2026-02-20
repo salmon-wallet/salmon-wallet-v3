@@ -18,7 +18,8 @@ const Card = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  backgroundColor: colors.skeleton?.base ?? 'rgba(255, 255, 255, 0.05)',
+  backgroundColor: colors.card.background,
+  border: `1px solid ${colors.card.border}`,
   borderRadius: borderRadius.xl,
   padding: spacing.lg,
   marginBottom: spacing.md,
@@ -42,7 +43,7 @@ const DerivedAccountCardSkeletonComponent: React.FC<DerivedAccountCardSkeletonPr
 
       {/* Info skeleton */}
       <Box sx={{ flex: 1 }}>
-        <SkeletonRect sx={{ width: '55%', height: 16, mb: '6px' }} />
+        <SkeletonRect sx={{ width: '55%', height: 16, mb: '2px' }} />
         <SkeletonRect sx={{ width: '40%', height: 12 }} />
       </Box>
 

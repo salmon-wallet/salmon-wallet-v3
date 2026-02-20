@@ -45,6 +45,9 @@ export const NftCarouselSectionSkeleton = memo<NftCarouselSectionSkeletonProps>(
         <HeaderRow>
           <StyledSkeleton variant="circular" width={24} height={24} animation="wave" />
           <StyledSkeleton variant="rounded" width={80} height={18} animation="wave" sx={{ borderRadius: '6px' }} />
+          <StyledSkeleton variant="rounded" width={28} height={14} animation="wave" sx={{ borderRadius: '4px' }} />
+          <Box sx={{ flex: 1 }} />
+          <StyledSkeleton variant="rounded" width={20} height={20} animation="wave" sx={{ borderRadius: '4px' }} />
         </HeaderRow>
         <CardRow>
           {Array.from({ length: count }).map((_, i) => (
