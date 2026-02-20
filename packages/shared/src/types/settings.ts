@@ -279,6 +279,22 @@ export interface CurrencySelectorBaseProps {
 }
 
 // ============================================================================
+// Private Key Reveal
+// ============================================================================
+
+/**
+ * Account key info extracted for display in the private key reveal UI.
+ */
+export interface AccountKeyInfo {
+  /** BIP44 derivation path (e.g. "m/44'/501'/0'/0'") */
+  path: string;
+  /** Public receive address */
+  address: string;
+  /** Private key string (hex, base58, or WIF depending on blockchain) */
+  privateKey: string;
+}
+
+// ============================================================================
 // Settings Options
 // ============================================================================
 

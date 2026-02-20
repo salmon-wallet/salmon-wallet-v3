@@ -10,6 +10,8 @@ import { createBitcoinAccount, BITCOIN_NETWORKS } from '../blockchain/bitcoin';
 import { createEthereumAccount, ETHEREUM_NETWORKS } from '../blockchain/ethereum';
 import { bitcoinApiFunctions } from '../api/services/bitcoin-account';
 import type { BlockchainAccount, BlockchainType } from '../types/blockchain';
+import type { Account } from '../types/account';
+import type { AccountKeyInfo } from '../types/settings';
 
 // ============================================================================
 // Blockchain Type Detection from Network ID
@@ -206,4 +208,57 @@ export async function createBlockchainAccountForNetwork(
 export function getPathIndex(path: string): number | undefined {
   const index = Number(path?.split('/')?.[3]?.replace("'", ''));
   return !isNaN(index) ? index : undefined;
+}
+
+// ============================================================================
+// Private Key Reveal Utilities
+// ============================================================================
+
+/**
+ * Builds a network list from an account's networksAccounts, filtering out
+ * networks that have no loaded accounts.
+ *
+ * Shared between mobile and extension private key reveal screens.
+ */
+export function buildNetworkListFromAccount(
+  activeAccount: Account | null | undefined,
+): Array<{ id: string; name: string; blockchain: string }> {
+  if (!activeAccount?.networksAccounts) return [];
+
+  return Object.keys(activeAccount.networksAccounts)
+    .filter((id) => {
+      const accounts = activeAccount.networksAccounts[id];
+      return accounts && accounts.some((a) => a !== null);
+    })
+    .map((id) => {
+      const blockchain = getBlockchainFromNetworkId(id);
+      const name = id
+        .split('-')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+      return { id, name, blockchain };
+    });
+}
+
+/**
+ * Extracts AccountKeyInfo (path, address, privateKey) for every non-null
+ * account in a specific network.
+ *
+ * Shared between mobile and extension private key reveal screens.
+ */
+export function getAccountKeysForNetwork(
+  activeAccount: Account | null | undefined,
+  networkId: string | null,
+): AccountKeyInfo[] {
+  if (!networkId || !activeAccount?.networksAccounts) return [];
+  const networkAccounts = activeAccount.networksAccounts[networkId];
+  if (!networkAccounts) return [];
+
+  return networkAccounts
+    .filter((account): account is NonNullable<typeof account> => account !== null)
+    .map((account) => ({
+      path: account.path,
+      address: account.getReceiveAddress(),
+      privateKey: account.retrieveSecurePrivateKey(),
+    }));
 }

@@ -13,6 +13,8 @@ export {
   generateAccountId,
   generateAccountName,
   createBlockchainAccountForNetwork,
+  buildNetworkListFromAccount,
+  getAccountKeysForNetwork,
 } from './account';
 
 // Avatar utilities
