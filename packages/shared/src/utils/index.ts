@@ -227,6 +227,9 @@ export {
 // NFT spam filter
 export { isSpamNft, filterSpamNfts } from './nft-spam-filter';
 
+// Price constants & helpers
+export { BLOCKCHAIN_TO_COINGECKO, PERIOD_TO_DAYS, coinInfoToMarketData } from './price-constants';
+
 // Derived-accounts scanning utilities (shared between mobile and extension)
 export {
   // Constants

@@ -27,7 +27,6 @@ import {
   type NftData,
   type NftBlockchain,
   type Transaction,
-  type BlockchainType,
   type SendToken,
   isSolanaNft,
   createBurnTransaction,
@@ -43,6 +42,10 @@ import {
   CURRENCY_MAP,
   type CurrencyCode,
   type CurrencySelectorItem,
+  getBlockchainFromNetworkId,
+  BLOCKCHAIN_TO_COINGECKO,
+  PERIOD_TO_DAYS,
+  coinInfoToMarketData,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -77,6 +80,7 @@ import IconButton from '@mui/material/IconButton';
 
 // Settings pages for navigation
 import { BackupPage } from '../settings/BackupPage';
+import { PrivateKeyPage } from '../settings/PrivateKeyPage';
 import { AboutPage } from '../settings/AboutPage';
 
 // i18n
@@ -110,7 +114,8 @@ type PageView =
   | 'addressBook'
   | 'trustedApps'
   | 'security'
-  | 'support';
+  | 'support'
+  | 'privateKey';
 
 // Network ID → BlockchainId mapping for carousel theming
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
@@ -121,34 +126,6 @@ const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
   'ethereum-mainnet': 'ethereum',
   'ethereum-sepolia': 'ethereum-sepolia',
 };
-
-// Map blockchain to CoinGecko ID for price data
-const BLOCKCHAIN_TO_COINGECKO: Record<BlockchainId, string> = {
-  'solana': 'solana',
-  'solana-devnet': 'solana',
-  'bitcoin': 'bitcoin',
-  'bitcoin-testnet': 'bitcoin',
-  'ethereum': 'ethereum',
-  'ethereum-sepolia': 'ethereum',
-};
-
-// Map period to days for API call
-const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
-  '1H': 1,
-  '1D': 1,
-  '1W': 7,
-  '1M': 30,
-  '3M': 90,
-  '1Y': 365,
-};
-
-type BaseBlockchain = 'solana' | 'bitcoin' | 'ethereum';
-
-function getBaseBlockchain(id: BlockchainId): BaseBlockchain {
-  if (id.startsWith('solana')) return 'solana';
-  if (id.startsWith('bitcoin')) return 'bitcoin';
-  return 'ethereum';
-}
 
 /**
  * Styled components for HomePage layout
@@ -540,6 +517,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       trustedApps: 'trustedApps',
       about: 'about',
       support: 'support',
+      privateKey: 'privateKey',
     };
 
     const targetPage = pageMap[screen];
@@ -899,25 +877,8 @@ export function HomePage({ onAddAccount }: HomePageProps) {
 
   // Transform CoinInfo to MarketData for TokenMarketData component
   const bitcoinMarketData: MarketData | undefined = useMemo(() => {
-    if (!bitcoinCoinInfo?.marketData) return undefined;
-    const md = bitcoinCoinInfo.marketData;
-    return {
-      currentPrice: md.currentPrice,
-      marketCap: md.marketCap,
-      marketCapRank: md.marketCapRank,
-      volume24h: md.totalVolume,
-      high24h: md.high24h,
-      low24h: md.low24h,
-      circulatingSupply: md.circulatingSupply,
-      totalSupply: md.totalSupply,
-      maxSupply: md.maxSupply,
-      ath: md.ath,
-      athChangePercentage: md.athChangePercentage,
-      athDate: md.athDate,
-      atl: md.atl,
-      atlChangePercentage: md.atlChangePercentage,
-      atlDate: md.atlDate,
-    };
+    if (!bitcoinCoinInfo) return undefined;
+    return coinInfoToMarketData(bitcoinCoinInfo);
   }, [bitcoinCoinInfo]);
 
   // Create Bitcoin token for display
@@ -986,26 +947,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         if (infoResponse) {
           setSelectedTokenCoinInfo(infoResponse);
 
-          if (infoResponse.marketData) {
-            const md = infoResponse.marketData;
-            setSelectedTokenMarketData({
-              currentPrice: md.currentPrice,
-              marketCap: md.marketCap,
-              marketCapRank: md.marketCapRank,
-              volume24h: md.totalVolume,
-              high24h: md.high24h,
-              low24h: md.low24h,
-              circulatingSupply: md.circulatingSupply,
-              totalSupply: md.totalSupply,
-              maxSupply: md.maxSupply,
-              ath: md.ath,
-              athChangePercentage: md.athChangePercentage,
-              athDate: md.athDate,
-              atl: md.atl,
-              atlChangePercentage: md.atlChangePercentage,
-              atlDate: md.atlDate,
-            });
-          }
+          setSelectedTokenMarketData(coinInfoToMarketData(infoResponse));
         }
       } catch (error) {
         console.error('Failed to load token coin info:', error);
@@ -1025,7 +967,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
           return (
             <TokenDetailPage
               token={selectedToken}
-              blockchain={getBaseBlockchain(currentBlockchain)}
+              blockchain={getBlockchainFromNetworkId(currentBlockchain)}
               chartData={selectedTokenChartData}
               chartPeriod={selectedTokenChartPeriod}
               onChartPeriodChange={handleSelectedTokenChartPeriodChange}
@@ -1098,7 +1040,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         return (
           <SendPage
             tokens={formattedTokens as SendToken[]}
-            blockchain={getBaseBlockchain(currentBlockchain) as BlockchainType}
+            blockchain={getBlockchainFromNetworkId(currentBlockchain)}
             account={activeBlockchainAccount}
             onBack={handleSendBack}
             onSuccess={handleSendBack}
@@ -1130,6 +1072,8 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         );
       case 'backup':
         return <BackupPage onBack={handleBack} />;
+      case 'privateKey':
+        return <PrivateKeyPage onBack={handleBack} />;
       case 'currency': {
         const currencyItems: CurrencySelectorItem[] = SUPPORTED_CURRENCIES.map(
           (code) => ({
@@ -1348,7 +1292,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
                         loading={loading && formattedTokens.length === 0}
                         onTokenPress={handleTokenPress}
                         hiddenBalance={hiddenBalance}
-                        blockchain={getBaseBlockchain(currentBlockchain)}
+                        blockchain={getBlockchainFromNetworkId(currentBlockchain)}
                       />
                     ) : (
                       <EmptyState>

@@ -46,6 +46,10 @@ import {
   useTransactions,
   useUserConfig,
   vs,
+  getBlockchainFromNetworkId,
+  BLOCKCHAIN_TO_COINGECKO,
+  PERIOD_TO_DAYS,
+  coinInfoToMarketData,
   type AnyNetwork,
   type CoinInfo,
   type NetworkId,
@@ -74,16 +78,6 @@ import {
   type Transaction,
 } from '../../../src/components';
 
-// Map blockchain to CoinGecko ID (outside component to avoid recreation)
-// Devnets/testnets map to their mainnet counterparts for price data
-const BLOCKCHAIN_TO_COINGECKO: Record<BlockchainId, string> = {
-  'solana': 'solana',
-  'solana-devnet': 'solana',
-  'bitcoin': 'bitcoin',
-  'bitcoin-testnet': 'bitcoin',
-  'ethereum': 'ethereum',
-  'ethereum-sepolia': 'ethereum',
-};
 
 // Map blockchain to logo URL (outside component to avoid recreation)
 const BLOCKCHAIN_LOGOS: Record<BlockchainId, string> = {
@@ -95,27 +89,6 @@ const BLOCKCHAIN_LOGOS: Record<BlockchainId, string> = {
   'ethereum-sepolia': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
 };
 
-// Map period to days for API call (outside component to avoid recreation)
-// CoinGecko Free Tier limits: max 365 days
-const PERIOD_TO_DAYS: Record<PriceChartPeriod, 1 | 7 | 30 | 90 | 365> = {
-  '1H': 1,   // 1 day with 5-min intervals
-  '1D': 1,   // 1 day with 5-min intervals
-  '1W': 7,   // 7 days with hourly intervals
-  '1M': 30,  // 30 days with hourly intervals
-  '3M': 90,  // 90 days with hourly intervals
-  '1Y': 365, // 365 days with daily intervals
-  // 'All': requires paid CoinGecko tier for >365 days
-};
-
-// Type for base blockchain (mainnet only)
-type BaseBlockchain = 'solana' | 'bitcoin' | 'ethereum';
-
-// Map BlockchainId to base blockchain type (for UI components that don't support devnets)
-function getBaseBlockchain(blockchainId: BlockchainId): BaseBlockchain {
-  if (blockchainId.startsWith('solana')) return 'solana';
-  if (blockchainId.startsWith('bitcoin')) return 'bitcoin';
-  return 'ethereum';
-}
 
 // Network ID to BlockchainId mapping
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
@@ -644,27 +617,7 @@ export default function HomeScreen() {
         if (infoResponse) {
           setSelectedTokenCoinInfo(infoResponse);
 
-          // Transform CoinInfo to MarketData
-          if (infoResponse.marketData) {
-            const md = infoResponse.marketData;
-            setSelectedTokenMarketData({
-              currentPrice: md.currentPrice,
-              marketCap: md.marketCap,
-              marketCapRank: md.marketCapRank,
-              volume24h: md.totalVolume,
-              high24h: md.high24h,
-              low24h: md.low24h,
-              circulatingSupply: md.circulatingSupply,
-              totalSupply: md.totalSupply,
-              maxSupply: md.maxSupply,
-              ath: md.ath,
-              athChangePercentage: md.athChangePercentage,
-              athDate: md.athDate,
-              atl: md.atl,
-              atlChangePercentage: md.atlChangePercentage,
-              atlDate: md.atlDate,
-            });
-          }
+          setSelectedTokenMarketData(coinInfoToMarketData(infoResponse));
         }
       } catch (error) {
         console.error('Failed to load token coin info:', error);
@@ -681,25 +634,8 @@ export default function HomeScreen() {
 
   // Transform CoinInfo to MarketData for TokenMarketData component
   const bitcoinMarketData: MarketData | undefined = useMemo(() => {
-    if (!bitcoinCoinInfo?.marketData) return undefined;
-    const md = bitcoinCoinInfo.marketData;
-    return {
-      currentPrice: md.currentPrice,
-      marketCap: md.marketCap,
-      marketCapRank: md.marketCapRank,
-      volume24h: md.totalVolume,
-      high24h: md.high24h,
-      low24h: md.low24h,
-      circulatingSupply: md.circulatingSupply,
-      totalSupply: md.totalSupply,
-      maxSupply: md.maxSupply,
-      ath: md.ath,
-      athChangePercentage: md.athChangePercentage,
-      athDate: md.athDate,
-      atl: md.atl,
-      atlChangePercentage: md.atlChangePercentage,
-      atlDate: md.atlDate,
-    };
+    if (!bitcoinCoinInfo) return undefined;
+    return coinInfoToMarketData(bitcoinCoinInfo);
   }, [bitcoinCoinInfo]);
 
   // Create a mock Bitcoin token for display
@@ -1002,7 +938,7 @@ export default function HomeScreen() {
             onScroll={handleScroll}
             scrollEventThrottle={16}
             contentContainerStyle={styles.listContent}
-            blockchain={getBaseBlockchain(currentBlockchain)}
+            blockchain={getBlockchainFromNetworkId(currentBlockchain)}
           />
         )}
         {/* Top fade gradient - shows only when scrolled, fades in dynamically */}
@@ -1023,7 +959,7 @@ export default function HomeScreen() {
           visible={tokenSheetVisible}
           onClose={handleTokenSheetClose}
           token={selectedToken}
-          blockchain={getBaseBlockchain(currentBlockchain)}
+          blockchain={getBlockchainFromNetworkId(currentBlockchain)}
           chartData={selectedTokenChartData}
           chartPeriod={selectedTokenChartPeriod}
           onChartPeriodChange={handleSelectedTokenChartPeriodChange}
@@ -1046,7 +982,7 @@ export default function HomeScreen() {
         visible={sendSheetVisible}
         onClose={handleSendSheetClose}
         tokens={tokens}
-        blockchain={getBaseBlockchain(currentBlockchain)}
+        blockchain={getBlockchainFromNetworkId(currentBlockchain)}
         account={activeBlockchainAccount}
         onSuccess={handleSendSuccess}
         showUnverifiedTokens={developerNetworks}
