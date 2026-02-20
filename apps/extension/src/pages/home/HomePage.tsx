@@ -38,6 +38,7 @@ import {
   type ExplorerSelectorItem,
   type LanguageSelectorItem,
   type TrustedAppItem,
+  SUPPORT_OPTIONS,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -65,6 +66,7 @@ import {
   ExplorerSelector,
   LanguageSelector,
   TrustedAppsSelector,
+  SupportSelector,
 } from '../../components';
 import IconButton from '@mui/material/IconButton';
 
@@ -72,7 +74,6 @@ import IconButton from '@mui/material/IconButton';
 import { BackupPage } from '../settings/BackupPage';
 import { CurrencyPage } from '../settings/CurrencyPage';
 import { AboutPage } from '../settings/AboutPage';
-import { SupportPage } from '../settings/SupportPage';
 
 // i18n
 import { useLanguage } from '../../i18n';
@@ -1130,7 +1131,13 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       case 'about':
         return <AboutPage onBack={handleBack} />;
       case 'support':
-        return <SupportPage onBack={handleBack} />;
+        return (
+          <SupportSelector
+            options={SUPPORT_OPTIONS}
+            onOpenLink={(url) => window.open(url, '_blank', 'noopener,noreferrer')}
+            onBack={handleBack}
+          />
+        );
       case 'language': {
         const languageItems: LanguageSelectorItem[] = supportedLanguages.map(
           (lang) => ({

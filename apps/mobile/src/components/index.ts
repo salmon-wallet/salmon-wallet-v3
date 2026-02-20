@@ -310,4 +310,7 @@ export { LanguageSelector } from './LanguageSelector';
 // TrustedAppsSelector - Connected dApps management for settings
 export { TrustedAppsSelector } from './TrustedAppsSelector';
 
+// SupportSelector - Help & Support for settings
+export { SupportSelector } from './SupportSelector';
+
 export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';

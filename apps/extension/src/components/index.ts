@@ -228,6 +228,9 @@ export { LanguageSelector } from './LanguageSelector';
 // TrustedAppsSelector - Connected dApps management for settings
 export { TrustedAppsSelector } from './TrustedAppsSelector';
 
+// SupportSelector - Help & Support for settings
+export { SupportSelector } from './SupportSelector';
+
 // DerivedAccountCard - Selectable account card for derived account discovery
 export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
 export type {
