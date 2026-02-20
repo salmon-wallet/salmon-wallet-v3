@@ -33,7 +33,7 @@ export default function ChangeNetworkScreen() {
     if (!activeAccount?.networksAccounts) return allNetworks;
     const userNetworkIds = Object.keys(activeAccount.networksAccounts);
     return allNetworks.filter((n) => userNetworkIds.includes(n.id));
-  }, [allNetworks, activeAccount?.networksAccounts]);
+  }, [allNetworks, activeAccount]);
 
   const networkItems: NetworkSelectorItem[] = useMemo(
     () =>

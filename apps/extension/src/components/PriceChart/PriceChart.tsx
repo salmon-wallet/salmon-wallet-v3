@@ -3,22 +3,22 @@
  *
  * Web version using recharts and MUI for browser extension
  */
-import { useMemo, useCallback, useId } from 'react';
-import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
+import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
+import { borderRadius, colors, fontFamily, fontWeight, formatFiatIntl, PRICE_CHART_PERIODS, spacing, useCurrencyContext } from '@salmon/shared';
+import { useCallback, useId, useMemo } from 'react';
 import {
-  ResponsiveContainer,
-  AreaChart,
   Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
 } from 'recharts';
-import { colors, spacing, borderRadius, fontFamily, fontWeight, PRICE_CHART_PERIODS, useCurrencyContext, formatFiatIntl } from '@salmon/shared';
-import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
+import { styled } from '../../utils/styled';
 import type { PriceChartProps } from './types';
 
 /**
@@ -231,12 +231,6 @@ export function PriceChart({
   style,
   className,
 }: PriceChartProps) {
-  const [{ currency }] = useCurrencyContext();
-  const formatPrice = useCallback(
-    (price: number): string => formatFiatIntl(price, currency),
-    [currency]
-  );
-
   // Determine chart color based on performance
   const chartColor = useMemo(() => {
     if (color) return color;
