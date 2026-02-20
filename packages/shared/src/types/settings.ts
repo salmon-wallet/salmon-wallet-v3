@@ -181,6 +181,73 @@ export interface TrustedAppsSelectorBaseProps {
 }
 
 // ============================================================================
+// Support Selector
+// ============================================================================
+
+/**
+ * A support option item as displayed in the support selector UI.
+ */
+export interface SupportOptionItem {
+  /** Unique identifier */
+  id: string;
+  /** Display title */
+  title: string;
+  /** Short description */
+  description: string;
+  /** Link URL (https or mailto) */
+  url: string;
+}
+
+/**
+ * Base props shared between mobile and extension SupportSelector components.
+ */
+export interface SupportSelectorBaseProps {
+  /** Support options to display */
+  options: SupportOptionItem[];
+  /** Called when the user taps a support link */
+  onOpenLink: (url: string) => void;
+  /** Called when the user navigates back */
+  onBack: () => void;
+}
+
+/**
+ * Default support options shared across platforms.
+ * Icons are platform-specific and mapped by id in each component.
+ */
+export const SUPPORT_OPTIONS: SupportOptionItem[] = [
+  {
+    id: 'faq',
+    title: 'Frequently Asked Questions',
+    description: 'Find answers to common questions',
+    url: 'https://salmonwallet.io/faq',
+  },
+  {
+    id: 'docs',
+    title: 'Documentation',
+    description: 'Learn how to use Salmon Wallet',
+    url: 'https://docs.salmonwallet.io',
+  },
+  {
+    id: 'twitter',
+    title: 'Twitter / X',
+    description: 'Get updates and reach out to us',
+    url: 'https://twitter.com/salmonwallet',
+  },
+  {
+    id: 'discord',
+    title: 'Discord Community',
+    description: 'Join our community for support',
+    url: 'https://discord.gg/salmonwallet',
+  },
+  {
+    id: 'email',
+    title: 'Email Support',
+    description: 'Contact us directly for help',
+    url: 'mailto:support@salmonwallet.io',
+  },
+];
+
+// ============================================================================
 // Settings Options
 // ============================================================================
 
