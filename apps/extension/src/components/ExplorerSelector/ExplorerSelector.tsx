@@ -1,13 +1,8 @@
 /**
- * ExplorerPage - Block explorer selection page for browser extension
+ * ExplorerSelector - Block explorer selection component for browser extension
  *
- * This page allows users to select their preferred block explorer
- * for viewing transactions on the currently active blockchain.
- *
- * Features:
- * - List of available explorers for the active blockchain
- * - Visual indicator for selected explorer
- * - Persists selection via useUserConfig
+ * Displays a list of available block explorers and allows the user
+ * to select their preferred one for the active blockchain.
  */
 
 import React, { useCallback } from 'react';
@@ -24,20 +19,9 @@ import { useTranslation } from 'react-i18next';
 import {
   colors,
   spacing,
-  useAccountsContext,
-  useUserConfig,
-  type ExplorerWithKey,
+  type ExplorerSelectorBaseProps,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface ExplorerPageProps {
-  /** Callback to navigate back */
-  onBack: () => void;
-}
+import { SettingsPageLayout } from '../SettingsPageLayout';
 
 // ============================================================================
 // Styled Components
@@ -82,28 +66,23 @@ const EmptyState = styled(Typography)({
 // Component
 // ============================================================================
 
-export function ExplorerPage({ onBack }: ExplorerPageProps): React.ReactElement {
+export function ExplorerSelector({
+  explorers,
+  activeExplorerName,
+  onSelectExplorer,
+  onBack,
+  loading,
+}: ExplorerSelectorBaseProps): React.ReactElement {
   const { t } = useTranslation();
-  const [accountState] = useAccountsContext();
-  const { networkId } = accountState;
 
-  const { explorer, explorers, changeExplorer, isLoading } = useUserConfig({
-    activeBlockchainAccount: {
-      network: {
-        environment: (networkId || 'solana-mainnet') as 'solana-mainnet' | 'solana-devnet',
-        blockchain: networkId?.split('-')[0] || 'solana',
-      },
+  const handleSelect = useCallback(
+    (explorerKey: string) => {
+      onSelectExplorer(explorerKey);
     },
-  });
-
-  const handleExplorerSelect = useCallback(
-    async (explorerKey: string) => {
-      await changeExplorer(explorerKey);
-    },
-    [changeExplorer]
+    [onSelectExplorer]
   );
 
-  if (isLoading) {
+  if (loading) {
     return (
       <SettingsPageLayout
         title={t('settings.explorer', 'Block Explorer')}
@@ -123,14 +102,14 @@ export function ExplorerPage({ onBack }: ExplorerPageProps): React.ReactElement 
     >
       {explorers.length > 0 ? (
         <StyledList>
-          {explorers.map((item: ExplorerWithKey) => {
-            const isSelected = explorer?.name === item.name;
+          {explorers.map((item) => {
+            const isSelected = activeExplorerName === item.name;
 
             return (
               <ListItem key={item.key} disablePadding>
                 <StyledListItemButton
                   selected={isSelected}
-                  onClick={() => handleExplorerSelect(item.key)}
+                  onClick={() => handleSelect(item.key)}
                 >
                   <ListItemText
                     primary={item.name}
@@ -157,4 +136,4 @@ export function ExplorerPage({ onBack }: ExplorerPageProps): React.ReactElement 
   );
 }
 
-export default ExplorerPage;
+export default ExplorerSelector;
