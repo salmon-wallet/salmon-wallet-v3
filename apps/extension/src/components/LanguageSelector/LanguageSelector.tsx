@@ -1,13 +1,8 @@
 /**
- * LanguagePage - Display language selection page for browser extension
+ * LanguageSelector - Language selection component for browser extension
  *
- * This page allows users to select their preferred display language.
- * Uses the extension's useLanguage hook for i18n integration and persistence.
- *
- * Features:
- * - List of supported languages with native names
- * - Visual indicator for selected language
- * - Persists selection via i18next + localStorage
+ * Displays a list of supported languages and allows the user
+ * to select their preferred display language.
  */
 
 import React, { useCallback } from 'react';
@@ -21,20 +16,9 @@ import { useTranslation } from 'react-i18next';
 import {
   colors,
   spacing,
-  LANGUAGE_NAMES,
-  type LanguageCode,
+  type LanguageSelectorBaseProps,
 } from '@salmon/shared';
-import { useLanguage } from '../../i18n';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface LanguagePageProps {
-  /** Callback to navigate back */
-  onBack: () => void;
-}
+import { SettingsPageLayout } from '../SettingsPageLayout';
 
 // ============================================================================
 // Styled Components
@@ -65,15 +49,19 @@ const CheckIconStyled = styled(CheckIcon)({
 // Component
 // ============================================================================
 
-export function LanguagePage({ onBack }: LanguagePageProps): React.ReactElement {
+export function LanguageSelector({
+  languages,
+  activeLanguageCode,
+  onSelectLanguage,
+  onBack,
+}: LanguageSelectorBaseProps): React.ReactElement {
   const { t } = useTranslation();
-  const { currentLanguage, supportedLanguages, setLanguage } = useLanguage();
 
-  const handleLanguageSelect = useCallback(
-    async (lang: LanguageCode) => {
-      await setLanguage(lang);
+  const handleSelect = useCallback(
+    (code: string) => {
+      onSelectLanguage(code);
     },
-    [setLanguage]
+    [onSelectLanguage]
   );
 
   return (
@@ -82,19 +70,18 @@ export function LanguagePage({ onBack }: LanguagePageProps): React.ReactElement 
       onBack={onBack}
     >
       <StyledList>
-        {supportedLanguages.map((lang) => {
-          const isSelected = currentLanguage === lang;
-          const nativeName = LANGUAGE_NAMES[lang];
+        {languages.map((lang) => {
+          const isSelected = activeLanguageCode === lang.code;
 
           return (
-            <ListItem key={lang} disablePadding>
+            <ListItem key={lang.code} disablePadding>
               <StyledListItemButton
                 selected={isSelected}
-                onClick={() => handleLanguageSelect(lang)}
+                onClick={() => handleSelect(lang.code)}
               >
                 <ListItemText
-                  primary={nativeName}
-                  secondary={lang.toUpperCase()}
+                  primary={lang.nativeName}
+                  secondary={lang.code.toUpperCase()}
                   primaryTypographyProps={{
                     sx: {
                       color: colors.text.primary,
@@ -119,4 +106,4 @@ export function LanguagePage({ onBack }: LanguagePageProps): React.ReactElement 
   );
 }
 
-export default LanguagePage;
+export default LanguageSelector;
