@@ -92,6 +92,11 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
         icon: 'key-outline',
         labelKey: 'settings.backup',
       },
+      {
+        id: 'privateKey',
+        icon: 'lock-closed-outline',
+        labelKey: 'settings.private_key',
+      },
     ],
   },
   {

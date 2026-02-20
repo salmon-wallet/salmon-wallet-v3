@@ -55,6 +55,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import InfoIcon from '@mui/icons-material/Info';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
@@ -79,6 +80,7 @@ const DRAWER_WIDTH = 320;
 const ICON_MAP: Record<string, React.ReactNode> = {
   security: <SecurityIcon />,
   backup: <BackupIcon />,
+  privateKey: <VpnKeyIcon />,
   network: <PublicIcon />,
   language: <LanguageIcon />,
   currency: <AttachMoneyIcon />,
@@ -107,6 +109,11 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
       {
         id: 'backup',
         labelKey: 'settings.backup',
+        type: 'navigation',
+      },
+      {
+        id: 'privateKey',
+        labelKey: 'settings.private_key',
         type: 'navigation',
       },
     ],

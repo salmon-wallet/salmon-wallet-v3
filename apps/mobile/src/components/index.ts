@@ -313,4 +313,7 @@ export { TrustedAppsSelector } from './TrustedAppsSelector';
 // SupportSelector - Help & Support for settings
 export { SupportSelector } from './SupportSelector';
 
+// PrivateKeyReveal - Private key reveal with biometric auth
+export { PrivateKeyReveal } from './PrivateKeyReveal';
+
 export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';

@@ -14,6 +14,7 @@ declare global {
   const ContentScriptContext: typeof import('wxt/utils/content-script-context')['ContentScriptContext']
   const ConversionRateDisplay: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index')['ConversionRateDisplay']
   const CopyIcon: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index')['CopyIcon']
+  const CurrencySelector: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index')['CurrencySelector']
   const DerivedAccountCard: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index')['DerivedAccountCard']
   const DerivedAccountCardSkeleton: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index')['DerivedAccountCardSkeleton']
   const EditAccountDialog: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index')['EditAccountDialog']

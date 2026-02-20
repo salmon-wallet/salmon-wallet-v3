@@ -45,6 +45,7 @@ const globals = {
   "ConversionRateDisplay": true,
   "ConversionRateDisplayProps": true,
   "CopyIcon": true,
+  "CurrencySelector": true,
   "DerivedAccountCard": true,
   "DerivedAccountCardProps": true,
   "DerivedAccountCardSkeleton": true,
