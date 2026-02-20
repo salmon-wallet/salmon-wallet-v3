@@ -17,12 +17,20 @@ export const fontFamily = {
  * Used in React Native mobile app for fontFamily style property
  */
 export const fontFamilyNative = {
+  /** DM Sans Light (300) */
+  light: 'DMSansLight',
   /** DM Sans Regular (400) */
   regular: 'DMSansRegular',
   /** DM Sans Medium (500) */
   medium: 'DMSansMedium',
+  /** DM Sans SemiBold (600) */
+  semiBold: 'DMSansSemiBold',
   /** DM Sans Bold (700) */
   bold: 'DMSansBold',
+  /** DM Sans ExtraBold (800) */
+  extraBold: 'DMSansExtraBold',
+  /** DM Sans Black (900) */
+  black: 'DMSansBlack',
 } as const;
 
 /**

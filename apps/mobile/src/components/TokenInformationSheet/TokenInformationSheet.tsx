@@ -14,6 +14,7 @@ import {
   ms,
   vs,
   s,
+  fontFamilyNative,
 } from '@salmon/shared';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
@@ -23,11 +24,6 @@ import { TokenMarketData } from '../TokenMarketData';
 import { TokenAbout } from '../TokenAbout';
 import { TokenBadgesSection } from './TokenBadgesSection';
 import type { TokenInformationSheetProps } from './types';
-
-// Font family constants
-const FONT_FAMILY = {
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 /**
  * TokenListItem skeleton for loading state
@@ -191,7 +187,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(24),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(15),

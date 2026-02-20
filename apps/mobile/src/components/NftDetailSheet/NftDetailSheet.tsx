@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import {
   colors,
+  fontFamilyNative,
   gradients,
   componentSizes,
   ms,
@@ -37,15 +38,6 @@ import {
 import { BlurContainer } from '../BlurContainer';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import type { NftDetailSheetProps, NftAttribute } from './types';
-
-// Font family constants
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-  black: 'DMSansBlack',
-} as const;
 
 /**
  * Burn/Fire icon for NFT burning action
@@ -426,7 +418,7 @@ const styles = StyleSheet.create({
   },
   nftName: {
     fontSize: ms(24),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(8),
@@ -453,7 +445,7 @@ const styles = StyleSheet.create({
   },
   blockchainLabel: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   scrollView: {
@@ -498,13 +490,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     marginBottom: vs(8),
   },
   descriptionText: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     lineHeight: ms(18),
   },
@@ -520,7 +512,7 @@ const styles = StyleSheet.create({
   },
   attributeName: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.black,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     marginBottom: vs(4),
     textTransform: 'uppercase',
@@ -528,7 +520,7 @@ const styles = StyleSheet.create({
   },
   attributeValue: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
   detailRow: {
@@ -541,12 +533,12 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   detailValue: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   detailValueWithCopy: {
@@ -561,7 +553,7 @@ const styles = StyleSheet.create({
   },
   rarityText: {
     fontSize: ms(11),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textTransform: 'capitalize',
   },

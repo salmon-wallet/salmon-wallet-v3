@@ -22,19 +22,10 @@ import {
   getDefaultExplorer,
   type Blockchain,
   type NetworkEnvironment,
+  fontFamilyNative,
   type ExplorerWithKey,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 // ============================================================================
 // Types
@@ -251,7 +242,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.accent.primary,
   },
   chevron: {
@@ -274,7 +265,7 @@ const styles = StyleSheet.create({
   },
   menuTitle: {
     fontSize: ms(fontSize.lg),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(16),
@@ -294,7 +285,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     flex: 1,
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
 });

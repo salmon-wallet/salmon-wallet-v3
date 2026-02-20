@@ -1,5 +1,6 @@
 import {
   colors,
+  fontFamilyNative,
   ms,
   s,
   vs,
@@ -21,15 +22,6 @@ import type { ReceiveSheetProps } from './types';
 // Layout constants
 const CONTENT_PADDING_HORIZONTAL = 24;
 const QR_BORDER_WIDTH = 24;
-
-// Font family constants
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  semiBold: 'DMSansSemiBold',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 /**
  * ReceiveSheet - Bottom sheet modal for receiving tokens
@@ -121,7 +113,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(24),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: 0.24,
@@ -142,7 +134,7 @@ const styles = StyleSheet.create({
   },
   address: {
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: 0.14,
@@ -160,7 +152,7 @@ const styles = StyleSheet.create({
   },
   copyButtonText: {
     fontSize: ms(15),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     color: '#000000',
     textAlign: 'center',
     textTransform: 'capitalize',

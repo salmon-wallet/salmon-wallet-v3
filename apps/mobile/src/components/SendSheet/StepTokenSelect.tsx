@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
   componentSizes,
+  fontFamilyNative,
   ms,
   vs,
   s,
@@ -22,18 +23,6 @@ import {
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
 import type { StepTokenSelectProps, SendToken } from './types';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  semiBold: 'DMSansSemiBold',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 // ============================================================================
 // Token Row Component
@@ -218,13 +207,13 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     paddingVertical: 0,
   },
   sectionHeader: {
     fontSize: ms(16),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     marginBottom: vs(12),
   },
@@ -256,12 +245,12 @@ const styles = StyleSheet.create({
   tokenName: {
     flex: 1,
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: '#d6d6d6',
   },
   tokenBalance: {
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: '#d6d6d6',
     marginLeft: s(8),
   },

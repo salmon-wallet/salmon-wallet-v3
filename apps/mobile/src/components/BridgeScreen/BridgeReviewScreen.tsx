@@ -1,15 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { colors, spacing, borderRadius, ms, vs, s, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
+import { colors, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
 import { SwapReviewButtons } from '../SwapScreen/SwapReviewButtons';
 import type { BridgeReviewScreenProps } from './types';
-
-const FONT_FAMILY = {
-  medium: 'DMSansMedium',
-  semiBold: 'DMSansSemiBold',
-} as const;
 
 /**
  * BridgeReviewScreen - Third step of bridge flow
@@ -111,7 +106,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(24),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: 0.24,
@@ -142,14 +137,14 @@ const styles = StyleSheet.create({
   },
   warningTitle: {
     fontSize: ms(13),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
     letterSpacing: 0.02,
   },
   warningText: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     letterSpacing: 0.018,
     lineHeight: ms(18),

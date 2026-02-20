@@ -10,13 +10,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
 import { PrimaryButton } from '../Button';
-
-const FONT_FAMILY = {
-  semiBold: 'DMSansSemiBold',
-  regular: 'DMSansRegular',
-} as const;
 
 interface SwapSuccessScreenProps {
   inAmount: string;
@@ -123,14 +118,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(24),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(spacing.sm),
   },
   summary: {
     fontSize: ms(16),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     textAlign: 'center',
   },

@@ -32,9 +32,13 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('@salmon/assets/src/fonts/SpaceMono-Regular.ttf'),
-    DMSansBold: require('@salmon/assets/src/fonts/DMSans-Bold.ttf'),
-    DMSansMedium: require('@salmon/assets/src/fonts/DMSans-Medium.ttf'),
+    DMSansLight: require('@salmon/assets/src/fonts/DMSans-Light.ttf'),
     DMSansRegular: require('@salmon/assets/src/fonts/DMSans-Regular.ttf'),
+    DMSansMedium: require('@salmon/assets/src/fonts/DMSans-Medium.ttf'),
+    DMSansSemiBold: require('@salmon/assets/src/fonts/DMSans-SemiBold.ttf'),
+    DMSansBold: require('@salmon/assets/src/fonts/DMSans-Bold.ttf'),
+    DMSansExtraBold: require('@salmon/assets/src/fonts/DMSans-ExtraBold.ttf'),
+    DMSansBlack: require('@salmon/assets/src/fonts/DMSans-Black.ttf'),
     ...FontAwesome.font,
   });
 

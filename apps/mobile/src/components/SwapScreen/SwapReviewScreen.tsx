@@ -1,14 +1,10 @@
-import { borderRadius, colors, componentSizes, formatAmountWithSymbol, formatSolFee, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, fontFamilyNative, formatAmountWithSymbol, formatSolFee, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SwapDetailRow } from './SwapDetailRow';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapReviewButtons } from './SwapReviewButtons';
 import type { SwapReviewScreenProps } from './types';
-
-const FONT_FAMILY = {
-  semiBold: 'DMSansSemiBold',
-} as const;
 
 const formatPercent = (value: number): string => `${value.toFixed(2)}%`;
 
@@ -178,7 +174,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(24),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: 0.24,
@@ -209,14 +205,14 @@ const styles = StyleSheet.create({
   },
   warningTitle: {
     fontSize: ms(13),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
     letterSpacing: 0.02,
   },
   warningText: {
     fontSize: ms(12),
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     lineHeight: ms(12 * 1.5),
     letterSpacing: 0.01,

@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, ms, vs, s, fontSize, borderRadius, getShortAddress } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, fontFamilyNative, borderRadius, getShortAddress } from '@salmon/shared';
 
 // ============================================================================
 // Types
@@ -29,11 +29,6 @@ export interface AddressCopyRowProps {
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-} as const;
 
 /** Character counts for each truncation mode */
 const TRUNCATE_CHARS: Record<'short' | 'medium' | 'long', number> = {
@@ -166,7 +161,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   rightSection: {
@@ -178,7 +173,7 @@ const styles = StyleSheet.create({
   },
   address: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     marginRight: s(8),
     flexShrink: 1,

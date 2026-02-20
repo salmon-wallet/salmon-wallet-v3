@@ -14,16 +14,11 @@ import {
   ms,
   vs,
   s,
+  fontFamilyNative,
   useAddressValidation,
 } from '@salmon/shared';
 import type { BlockchainType } from '@salmon/shared';
 import type { RecipientAddressInputProps } from './types';
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  bold: 'DMSansBold',
-  medium: 'DMSansMedium',
-} as const;
 
 /**
  * RecipientAddressInput - Input field for bridge recipient address
@@ -161,14 +156,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     letterSpacing: 0.02,
     lineHeight: ms(18),
   },
   chainHint: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     letterSpacing: 0.018,
     lineHeight: ms(16),
@@ -195,7 +190,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
     paddingVertical: 0,
   },
@@ -216,7 +211,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     letterSpacing: 0.018,
     lineHeight: ms(16),
     color: colors.text.secondary,
@@ -229,7 +224,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: ms(11),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     letterSpacing: 0.018,
     lineHeight: ms(16),

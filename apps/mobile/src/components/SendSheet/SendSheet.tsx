@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import {
   colors,
+  fontFamilyNative,
   ms,
   vs,
   s,
@@ -27,13 +28,6 @@ import type { SendSheetProps, SendStep, SendToken } from './types';
 // ============================================================================
 
 const ANIMATION_DURATION = 300;
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 // ============================================================================
 // Component
@@ -232,7 +226,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(24),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: ms(-0.12, 0.3),

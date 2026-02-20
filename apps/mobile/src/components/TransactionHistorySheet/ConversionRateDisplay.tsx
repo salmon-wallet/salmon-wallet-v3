@@ -1,16 +1,11 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, s, fontSize, formatConversionRate } from '@salmon/shared';
+import { colors, ms, s, fontSize, formatConversionRate, fontFamilyNative } from '@salmon/shared';
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-} as const;
 
 // ============================================================================
 // Types
@@ -121,20 +116,20 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
   symbolText: {
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   equalsText: {
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
   rateText: {
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
   compactText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
 });

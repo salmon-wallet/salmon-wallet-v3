@@ -18,22 +18,12 @@ import {
   s,
   spacing,
   fontSize,
+  fontFamilyNative,
 } from '@salmon/shared';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { TransactionItem } from './TransactionItem';
 import type { TransactionHistorySheetProps, Transaction } from './types';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 // ============================================================================
 // Skeleton Components
@@ -280,7 +270,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
 const styles = StyleSheet.create({
   title: {
     fontSize: ms(fontSize['2xl']),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(18),
@@ -312,13 +302,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: ms(fontSize.xl),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
     marginBottom: vs(10),
   },
   emptySubtitle: {
     fontSize: ms(fontSize.md),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     textAlign: 'center',
   },
@@ -331,13 +321,13 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: ms(fontSize.xl),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
     marginBottom: vs(10),
   },
   errorMessage: {
     fontSize: ms(fontSize.md),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     textAlign: 'center',
     marginBottom: vs(18),
@@ -350,7 +340,7 @@ const styles = StyleSheet.create({
   },
   retryText: {
     fontSize: ms(fontSize.md),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   // Loading more

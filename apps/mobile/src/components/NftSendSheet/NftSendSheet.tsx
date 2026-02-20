@@ -45,6 +45,7 @@ import {
   useNftTransfer,
   type NftData,
   type BlockchainAccount,
+  fontFamilyNative,
   type BlockchainType,
   type ValidationCallbackResult,
 } from '@salmon/shared';
@@ -62,12 +63,6 @@ const SPRING_CONFIG = {
   stiffness: 200,
   mass: 0.5,
 };
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 // ============================================================================
 // Types
@@ -347,7 +342,7 @@ const styles = StyleSheet.create({
     backgroundColor: `rgba(255, 255, 255, ${componentSizes.sheetHandleOpacity})`,
   },
   title: {
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     fontSize: ms(18),
     fontWeight: '700',
     color: colors.text.primary,
@@ -371,13 +366,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   nftName: {
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: ms(16),
     fontWeight: '600',
     color: colors.text.primary,
   },
   nftCollection: {
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: ms(12),
     color: colors.text.secondary,
     marginTop: vs(2),
@@ -392,7 +387,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   messageText: {
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: ms(14),
     color: colors.text.secondary,
     textAlign: 'center',
@@ -403,12 +398,12 @@ const styles = StyleSheet.create({
     gap: vs(12),
   },
   loadingText: {
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: ms(14),
     color: colors.text.secondary,
   },
   errorText: {
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: ms(12),
     color: colors.status.error,
     marginTop: vs(8),
@@ -427,7 +422,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cancelButtonText: {
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: ms(15),
     fontWeight: '600',
     color: colors.text.primary,
@@ -444,7 +439,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 107, 53, 0.3)',
   },
   confirmButtonText: {
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: ms(15),
     fontWeight: '600',
     color: '#FFFFFF',

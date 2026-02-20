@@ -13,6 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
+  fontFamilyNative,
   ms,
   vs,
   s,
@@ -26,14 +27,6 @@ import type { StepAddressAmountProps } from './types';
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  semiBold: 'DMSansSemiBold',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 const QUICK_FILL_OPTIONS = [
   { label: '25%', value: 0.25 },
@@ -328,12 +321,12 @@ const styles = StyleSheet.create({
   },
   tokenCardName: {
     fontSize: ms(16),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   tokenCardBalance: {
     fontSize: ms(16),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   // Fields
@@ -342,7 +335,7 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     marginBottom: vs(8),
   },
@@ -368,7 +361,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: ms(15),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     paddingVertical: 0,
   },
@@ -389,7 +382,7 @@ const styles = StyleSheet.create({
   },
   validationMessage: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     marginTop: vs(4),
   },
@@ -410,7 +403,7 @@ const styles = StyleSheet.create({
   amountInput: {
     flex: 1,
     fontSize: ms(15),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     paddingVertical: 0,
   },
@@ -426,14 +419,14 @@ const styles = StyleSheet.create({
   },
   quickFillText: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textTransform: 'uppercase',
   },
   // USD
   usdConversion: {
     fontSize: ms(20),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     marginTop: vs(4),
@@ -463,7 +456,7 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: ms(13),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   reviewButton: {
@@ -490,7 +483,7 @@ const styles = StyleSheet.create({
   },
   reviewButtonText: {
     fontSize: ms(15),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
 });

@@ -21,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Logo } from '@salmon/assets';
 import {
   colors,
+  fontFamilyNative,
   fontSize,
   gradients,
   lineHeight,
@@ -65,19 +66,6 @@ import type { LockScreenOverlayProps } from './types';
 // ============================================================================
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
-
-// ============================================================================
-// Font families for React Native (DM Sans loaded fonts)
-// ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  // SemiBold/ExtraBold not available - using Bold as fallback
-  semiBold: 'DMSansBold',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansBold',
-} as const;
 
 // Animation configuration
 const ANIMATION_DURATION = 800; // ms - slower for better visual effect
@@ -534,7 +522,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     fontSize: ms(27),
     letterSpacing: -0.46,
     lineHeight: vs(38),
@@ -551,12 +539,12 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     paddingHorizontal: s(spacing.lg),
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: ms(17),
   },
   errorText: {
     color: colors.status.error,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: ms(fontSize.sm),
     lineHeight: ms(fontSize.sm * lineHeight.normal),
     marginTop: vs(spacing.sm),
@@ -589,7 +577,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     fontSize: ms(16),
     lineHeight: ms(16 * 1.5),
   },
@@ -609,7 +597,7 @@ const styles = StyleSheet.create({
   },
   biometricText: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: ms(fontSize.sm),
     lineHeight: ms(fontSize.sm * lineHeight.normal),
     textAlign: 'center',
@@ -619,7 +607,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     fontSize: ms(15),
     letterSpacing: -0.46,
     lineHeight: vs(38),

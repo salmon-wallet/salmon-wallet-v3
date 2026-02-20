@@ -9,6 +9,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
+  fontFamilyNative,
   ms,
   vs,
   s,
@@ -22,14 +23,6 @@ import type { StepConfirmationProps } from './types';
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  semiBold: 'DMSansSemiBold',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 const BUTTON_SHADOW = {
   shadowColor: '#000',
@@ -234,7 +227,7 @@ const styles = StyleSheet.create({
   // Amount
   amountText: {
     fontSize: ms(22),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(24),
@@ -252,13 +245,13 @@ const styles = StyleSheet.create({
   addressText: {
     flex: 1,
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   // Fee
   feeText: {
     fontSize: ms(13),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     marginTop: vs(14),
     textAlign: 'center',
@@ -266,7 +259,7 @@ const styles = StyleSheet.create({
   // Error
   errorText: {
     fontSize: ms(13),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.status.error,
     marginTop: vs(12),
     textAlign: 'center',
@@ -292,7 +285,7 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: ms(13),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   confirmButton: {
@@ -314,7 +307,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     fontSize: ms(13),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   sendingRow: {

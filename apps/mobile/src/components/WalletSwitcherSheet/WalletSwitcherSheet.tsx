@@ -25,7 +25,7 @@
  * ```
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -38,6 +38,7 @@ import {
   type NativeSyntheticEvent,
   type NativeScrollEvent,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -52,6 +53,7 @@ import {
   getAvatarColor,
   type Account,
   getShortAddress,
+  fontFamilyNative,
 } from '@salmon/shared';
 
 import type {
@@ -62,13 +64,6 @@ import type {
 // ============================================================================
 // Constants
 // ============================================================================
-
-// Font family for React Native (DM Sans loaded fonts)
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 // ============================================================================
 // Helper Functions
@@ -138,6 +133,7 @@ function AccountListItem({
   const initials = useMemo(() => getInitials(account.name), [account.name]);
   const address = useMemo(() => getAccountAddress(account), [account]);
   const truncatedAddress = useMemo(() => getShortAddress(address), [address]);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <TouchableOpacity
@@ -152,9 +148,18 @@ function AccountListItem({
       accessibilityState={{ selected: isActive }}
     >
       {/* Avatar */}
-      <View style={[styles.avatar, { backgroundColor: avatarColor }]}>
-        <Text style={styles.avatarText}>{initials}</Text>
-      </View>
+      {account.avatar && !imgError ? (
+        <Image
+          source={{ uri: account.avatar }}
+          style={styles.avatar}
+          contentFit="cover"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <View style={[styles.avatar, { backgroundColor: avatarColor }]}>
+          <Text style={styles.avatarText}>{initials}</Text>
+        </View>
+      )}
 
       {/* Account Info */}
       <View style={styles.accountInfo}>
@@ -469,7 +474,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     fontSize: fontSize.md,
     lineHeight: fontSize.md * lineHeight.none,
   },
@@ -480,13 +485,13 @@ const styles = StyleSheet.create({
   },
   accountName: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: fontSize.md,
     lineHeight: fontSize.md * lineHeight.normal,
   },
   accountAddress: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.sm,
     lineHeight: fontSize.sm * lineHeight.normal,
     marginTop: spacing['2xs'],
@@ -536,7 +541,7 @@ const styles = StyleSheet.create({
   },
   addAccountText: {
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: fontSize.md,
     lineHeight: fontSize.md * lineHeight.normal,
     marginLeft: spacing.md,
@@ -548,7 +553,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.md,
     lineHeight: fontSize.md * lineHeight.normal,
     marginTop: spacing.md,

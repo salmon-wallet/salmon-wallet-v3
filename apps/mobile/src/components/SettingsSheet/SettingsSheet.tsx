@@ -50,6 +50,7 @@ import {
   borderRadius,
   fontSize,
   componentSizes,
+  fontFamilyNative,
 } from '@salmon/shared';
 import type { SettingsScreen } from '@salmon/shared';
 
@@ -58,12 +59,6 @@ import type { SettingsSheetProps, SettingsOption, SettingsSection } from './type
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 /**
  * Danger zone colors
@@ -82,6 +77,11 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     titleKey: 'settings.sections.account',
     options: [
+      {
+        id: 'avatar',
+        icon: 'person-circle-outline',
+        labelKey: 'settings.profile_picture',
+      },
       {
         id: 'security',
         icon: 'shield-checkmark-outline',
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
   },
   sectionHeaderText: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: fontSize.sm,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   optionLabel: {
     flex: 1,
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     fontSize: fontSize.md,
   },
   optionLabelDanger: {
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   },
   toggleDescription: {
     color: colors.text.secondary,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.sm,
     marginTop: 2,
   },

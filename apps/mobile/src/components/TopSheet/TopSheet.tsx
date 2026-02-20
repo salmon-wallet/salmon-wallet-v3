@@ -53,6 +53,7 @@ import Animated, {
 import { Ionicons } from '@expo/vector-icons';
 import {
   colors,
+  fontFamilyNative,
   spacing,
   borderRadius,
   fontSize,
@@ -68,14 +69,6 @@ import type { TopSheetProps } from './types';
 const DEFAULT_ANIMATION_DURATION = 300;
 const DEFAULT_BACKDROP_OPACITY = 0.5;
 const DEFAULT_MAX_HEIGHT_PERCENTAGE = 0.7;
-
-// Font family for React Native (DM Sans loaded fonts)
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 // ============================================================================
 // Component
@@ -326,7 +319,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     color: colors.text.primary,
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     fontSize: fontSize.lg,
     textAlign: 'center',
     marginLeft: 40, // Offset for close button centering

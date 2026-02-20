@@ -25,7 +25,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
+import { colors, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
@@ -51,14 +51,6 @@ const SPRING_CONFIG = {
   stiffness: 200,
   mass: 0.5,
 };
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  semiBold: 'DMSansSemiBold',
-  bold: 'DMSansBold',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 /**
  * Transaction type display configuration
@@ -941,7 +933,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(fontSize['2xl']),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   sourceBadge: {
@@ -952,7 +944,7 @@ const styles = StyleSheet.create({
   },
   sourceText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.tertiary,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
@@ -964,7 +956,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
   },
   content: {
     flex: 1,
@@ -987,7 +979,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.secondary,
     marginBottom: vs(spacing.md),
   },
@@ -998,12 +990,12 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   sectionValue: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   hashRow: {
@@ -1013,7 +1005,7 @@ const styles = StyleSheet.create({
   },
   hashValue: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   copyIconButton: {
@@ -1039,18 +1031,18 @@ const styles = StyleSheet.create({
   },
   tokenSymbol: {
     fontSize: ms(fontSize.lg),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   tokenName: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     marginTop: vs(spacing['2xs']),
   },
   tokenAmount: {
     fontSize: ms(fontSize.lg),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
   },
   // Swap visualization styles
   swapContainer: {
@@ -1065,13 +1057,13 @@ const styles = StyleSheet.create({
   },
   swapAmount: {
     fontSize: ms(fontSize.lg),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     marginTop: vs(spacing.sm),
   },
   swapSymbol: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     marginTop: vs(spacing['2xs']),
   },
@@ -1132,7 +1124,7 @@ const styles = StyleSheet.create({
   },
   nftAttributesLabel: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     marginBottom: vs(spacing.sm),
   },
@@ -1152,7 +1144,7 @@ const styles = StyleSheet.create({
   },
   nftAttributeType: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.tertiary,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
@@ -1160,7 +1152,7 @@ const styles = StyleSheet.create({
   },
   nftAttributeValue: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   // Confirmation status badge
@@ -1171,7 +1163,7 @@ const styles = StyleSheet.create({
   },
   confirmationText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
   },
@@ -1192,7 +1184,7 @@ const styles = StyleSheet.create({
   },
   hopBadgeText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   hopTokens: {
@@ -1203,12 +1195,12 @@ const styles = StyleSheet.create({
   },
   hopTokenText: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   hopPercent: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.tertiary,
   },
   // Developer info section styles
@@ -1228,7 +1220,7 @@ const styles = StyleSheet.create({
   },
   devBadgeText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
@@ -1241,7 +1233,7 @@ const styles = StyleSheet.create({
   },
   devSubTitle: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.tertiary,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
@@ -1255,12 +1247,12 @@ const styles = StyleSheet.create({
   },
   devMonoText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   devSecondaryText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
   },
   // Fixed bottom action bar
@@ -1293,7 +1285,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
 });

@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, ms, vs, s, fontSize, borderRadius, spacing, formatBlockNumber, formatDateTime, getShortAddress, formatRawAmount, truncateHash } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, borderRadius, spacing, formatBlockNumber, formatDateTime, getShortAddress, formatRawAmount, truncateHash, fontFamilyNative } from '@salmon/shared';
 import type { Transaction, SwapRouteHop } from './types';
 import { TokenLogo } from '../TokenLogo';
 import { PriceImpactBadge } from './PriceImpactBadge';
@@ -18,12 +18,6 @@ import { ConversionRateDisplay } from './ConversionRateDisplay';
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 const ANIMATION_CONFIG = {
   duration: 300,
@@ -539,7 +533,7 @@ const styles = StyleSheet.create({
   },
   routeHeaderText: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   simpleRoute: {
@@ -552,7 +546,7 @@ const styles = StyleSheet.create({
   },
   routeLabel: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.tertiary,
     marginBottom: vs(spacing.xs),
     textTransform: 'uppercase',
@@ -566,7 +560,7 @@ const styles = StyleSheet.create({
   },
   routeTokenText: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     flex: 1,
   },
@@ -576,7 +570,7 @@ const styles = StyleSheet.create({
   },
   moreText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
     marginTop: vs(2),
   },
@@ -591,7 +585,7 @@ const styles = StyleSheet.create({
   },
   feeText: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
   },
 
@@ -617,7 +611,7 @@ const styles = StyleSheet.create({
   },
   hopAmount: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     flex: 1,
   },
@@ -638,12 +632,12 @@ const styles = StyleSheet.create({
   },
   dexText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   percentText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
   },
 
@@ -662,12 +656,12 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
   },
   summaryValue: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   summaryValueWarning: {

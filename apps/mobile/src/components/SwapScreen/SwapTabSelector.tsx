@@ -1,11 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors, spacing, ms, s } from '@salmon/shared';
+import { colors, spacing, ms, s, fontFamilyNative } from '@salmon/shared';
 import type { SwapTabSelectorProps, SwapTab } from './types';
-
-const FONT_FAMILY = {
-  bold: 'DMSansBold',
-} as const;
 
 /**
  * Tab selector for switching between Swap and Bridge
@@ -84,7 +80,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: ms(18),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     letterSpacing: 0.18,
     lineHeight: ms(18 * 1.3),
   },

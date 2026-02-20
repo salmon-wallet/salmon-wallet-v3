@@ -1,15 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
 import { RecipientAddressInput } from './RecipientAddressInput';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
-
-const FONT_FAMILY = {
-  semiBold: 'DMSansSemiBold',
-  medium: 'DMSansMedium',
-} as const;
 
 /**
  * BridgeRecipientScreen - Second step of bridge flow
@@ -96,7 +91,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(24),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: 0.24,
@@ -105,7 +100,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     textAlign: 'center',
     letterSpacing: 0.02,
@@ -125,14 +120,14 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: ms(13),
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
     letterSpacing: 0.02,
   },
   infoText: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     letterSpacing: 0.018,
     lineHeight: ms(18),

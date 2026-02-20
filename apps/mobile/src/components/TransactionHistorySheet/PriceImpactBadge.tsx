@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, fontSize, spacing, borderRadius } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, spacing, borderRadius, fontFamilyNative } from '@salmon/shared';
 
 // ============================================================================
 // Types
@@ -32,10 +32,6 @@ export interface PriceImpactBadgeProps {
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  medium: 'DMSansMedium',
-} as const;
 
 /**
  * Price impact thresholds
@@ -196,7 +192,7 @@ const styles = StyleSheet.create({
     marginRight: s(spacing.xs),
   },
   text: {
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
   },
 });
 

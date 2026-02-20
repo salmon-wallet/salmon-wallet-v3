@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getShortAddress } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getShortAddress, fontFamilyNative } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
@@ -15,12 +15,6 @@ import type { TransactionItemProps, TransactionType, TransactionTokenAmount } fr
 // ============================================================================
 // Constants
 // ============================================================================
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  medium: 'DMSansMedium',
-  bold: 'DMSansBold',
-} as const;
 
 const HIDDEN_VALUE = '****';
 
@@ -535,7 +529,7 @@ const styles = StyleSheet.create({
   },
   typeText: {
     fontSize: ms(fontSize.lg),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   sourceBadge: {
@@ -546,14 +540,14 @@ const styles = StyleSheet.create({
   },
   sourceText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.tertiary,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
   descriptionText: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
   rightSection: {
@@ -565,7 +559,7 @@ const styles = StyleSheet.create({
   },
   amountText: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     marginBottom: vs(2),
   },
   timeRow: {
@@ -575,7 +569,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
   },
   expandChevron: {
@@ -588,7 +582,7 @@ const styles = StyleSheet.create({
   },
   failedText: {
     fontSize: ms(fontSize.base),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.status.error,
   },
   pendingBadge: {
@@ -602,7 +596,7 @@ const styles = StyleSheet.create({
   },
   pendingText: {
     fontSize: ms(fontSize.sm),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.status.warning,
   },
   expandBadge: {
@@ -613,7 +607,7 @@ const styles = StyleSheet.create({
   },
   expandText: {
     fontSize: ms(fontSize.xs),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.accent.primary,
   },
 });

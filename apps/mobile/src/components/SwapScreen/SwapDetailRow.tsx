@@ -1,13 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, ms, vs, s, fontFamilyNative } from '@salmon/shared';
 import type { SwapDetailRowProps } from './types';
-
-const FONT_FAMILY = {
-  medium: 'DMSansMedium',
-  extraBold: 'DMSansExtraBold',
-} as const;
 
 /**
  * SwapDetailRow - A single row in the swap details section
@@ -46,14 +41,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: ms(15),
-    fontFamily: FONT_FAMILY.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
     letterSpacing: -0.075,
     lineHeight: ms(15 * 1.5),
   },
   value: {
     fontSize: ms(15),
-    fontFamily: FONT_FAMILY.extraBold,
+    fontFamily: fontFamilyNative.extraBold,
     color: colors.text.primary,
     letterSpacing: -0.075,
     lineHeight: ms(15 * 1.5),

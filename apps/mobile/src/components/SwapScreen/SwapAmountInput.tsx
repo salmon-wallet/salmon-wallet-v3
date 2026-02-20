@@ -7,16 +7,9 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s, formatTokenBalance, useCurrencyContext } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import type { SwapAmountInputProps } from './types';
-
-const FONT_FAMILY = {
-  regular: 'DMSansRegular',
-  light: 'DMSansLight',
-  bold: 'DMSansBold',
-  black: 'DMSansBlack',
-} as const;
 
 /**
  * SwapAmountInput - Input field for swap amounts with token selector
@@ -102,7 +95,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     letterSpacing: 0.02,
     lineHeight: ms(18),
@@ -124,7 +117,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: ms(16),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     paddingVertical: 0,
     height: '100%',
@@ -149,7 +142,7 @@ const styles = StyleSheet.create({
   },
   tokenSymbol: {
     fontSize: ms(14),
-    fontFamily: FONT_FAMILY.bold,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     opacity: 0.9,
     letterSpacing: 0.018,
@@ -162,14 +155,14 @@ const styles = StyleSheet.create({
   },
   usdValue: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.black,
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     letterSpacing: 0.018,
     lineHeight: ms(21),
   },
   availableBalance: {
     fontSize: ms(12),
-    fontFamily: FONT_FAMILY.light,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     letterSpacing: 0.018,
     lineHeight: ms(21),
