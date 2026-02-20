@@ -32,6 +32,12 @@ import {
   isSolanaNft,
   createBurnTransaction,
   isSolanaAccount,
+  useCurrencyContext,
+  LANGUAGE_NAMES,
+  type LanguageCode,
+  type ExplorerSelectorItem,
+  type LanguageSelectorItem,
+  type TrustedAppItem,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -55,6 +61,10 @@ import {
   ScalesBackground,
   SendPage,
   NftSendDialog,
+  NetworkSelector,
+  ExplorerSelector,
+  LanguageSelector,
+  TrustedAppsSelector,
 } from '../../components';
 import IconButton from '@mui/material/IconButton';
 
@@ -62,6 +72,10 @@ import IconButton from '@mui/material/IconButton';
 import { BackupPage } from '../settings/BackupPage';
 import { CurrencyPage } from '../settings/CurrencyPage';
 import { AboutPage } from '../settings/AboutPage';
+import { SupportPage } from '../settings/SupportPage';
+
+// i18n
+import { useLanguage } from '../../i18n';
 
 // Tab content pages
 import { CollectiblesPage } from '../collectibles/CollectiblesPage';
@@ -90,7 +104,8 @@ type PageView =
   | 'explorer'
   | 'addressBook'
   | 'trustedApps'
-  | 'security';
+  | 'security'
+  | 'support';
 
 // Network ID → BlockchainId mapping for carousel theming
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
@@ -319,19 +334,30 @@ interface HomePageProps {
 export function HomePage({ onAddAccount }: HomePageProps) {
   const { t } = useTranslation();
   const [state, actions] = useAccountsContext();
-  const { ready, activeAccount, activeBlockchainAccount, networkId, accounts, accountId } = state;
+  const [{ currency }] = useCurrencyContext();
+  const { ready, activeAccount, activeBlockchainAccount, networkId, accounts, accountId, activeTrustedApps } = state;
 
-  // User configuration (developer networks toggle)
+  // User configuration (developer networks toggle, explorer selection)
   // Note: useUserConfig requires activeBlockchainAccount parameter with specific structure
   const userConfig = useUserConfig({
     activeBlockchainAccount: {
       network: {
         environment: (networkId || 'solana-mainnet') as 'solana-mainnet' | 'solana-devnet',
-        blockchain: 'solana',
+        blockchain: networkId?.split('-')[0] || 'solana',
       },
     },
   });
-  const { developerNetworks, toggleDeveloperNetworks } = userConfig;
+  const {
+    developerNetworks,
+    toggleDeveloperNetworks,
+    explorer,
+    explorers,
+    changeExplorer,
+    isLoading: explorerLoading,
+  } = userConfig;
+
+  // Language selection
+  const { currentLanguage, supportedLanguages, setLanguage } = useLanguage();
 
   // Fetch backend RPC URLs and merge into network configs before balance fetch
   const { allNetworks: availableNetworks, networksReady } = useAvailableNetworks({
@@ -508,6 +534,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       addressBook: 'addressBook',
       trustedApps: 'trustedApps',
       about: 'about',
+      support: 'support',
     };
 
     const targetPage = pageMap[screen];
@@ -826,7 +853,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       try {
         const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
         const days = PERIOD_TO_DAYS[bitcoinChartPeriod];
-        const chartResponse = await getMarketChart(coinId, days);
+        const chartResponse = await getMarketChart(coinId, days, currency);
 
         if (chartResponse?.prices) {
           const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
@@ -843,7 +870,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     };
 
     loadBitcoinChartData();
-  }, [currentBlockchain, bitcoinChartPeriod]);
+  }, [currentBlockchain, bitcoinChartPeriod, currency]);
 
   // Load Bitcoin coin info once when on Bitcoin mainnet
   useEffect(() => {
@@ -853,7 +880,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
 
       try {
         const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
-        const infoResponse = await getCoinInfo(coinId);
+        const infoResponse = await getCoinInfo(coinId, currency);
         if (infoResponse) {
           setBitcoinCoinInfo(infoResponse);
         }
@@ -863,7 +890,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     };
 
     loadBitcoinCoinInfo();
-  }, [currentBlockchain, bitcoinCoinInfo]);
+  }, [currentBlockchain, bitcoinCoinInfo, currency]);
 
   // Transform CoinInfo to MarketData for TokenMarketData component
   const bitcoinMarketData: MarketData | undefined = useMemo(() => {
@@ -922,7 +949,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       setSelectedTokenLoading(true);
       try {
         const days = PERIOD_TO_DAYS[selectedTokenChartPeriod];
-        const chartResponse = await getMarketChart(coinId, days);
+        const chartResponse = await getMarketChart(coinId, days, currency);
 
         if (chartResponse?.prices) {
           const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
@@ -939,7 +966,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     };
 
     loadSelectedTokenChartData();
-  }, [selectedToken, selectedTokenChartPeriod, currentPage]);
+  }, [selectedToken, selectedTokenChartPeriod, currentPage, currency]);
 
   // Load selected token coin info when token is selected
   useEffect(() => {
@@ -950,7 +977,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       if (!coinId) return;
 
       try {
-        const infoResponse = await getCoinInfo(coinId);
+        const infoResponse = await getCoinInfo(coinId, currency);
         if (infoResponse) {
           setSelectedTokenCoinInfo(infoResponse);
 
@@ -981,7 +1008,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     };
 
     loadSelectedTokenCoinInfo();
-  }, [selectedToken, currentPage]);
+  }, [selectedToken, currentPage, currency]);
 
   const accountName = activeAccount?.name || t('home.unnamed_account', 'Account');
 
@@ -1102,27 +1129,67 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         return <CurrencyPage onBack={handleBack} />;
       case 'about':
         return <AboutPage onBack={handleBack} />;
-      case 'language':
+      case 'support':
+        return <SupportPage onBack={handleBack} />;
+      case 'language': {
+        const languageItems: LanguageSelectorItem[] = supportedLanguages.map(
+          (lang) => ({
+            code: lang,
+            nativeName: LANGUAGE_NAMES[lang as LanguageCode] || lang,
+          })
+        );
         return (
-          <PlaceholderPage
-            title={t('settings.display_language', 'Language')}
+          <LanguageSelector
+            languages={languageItems}
+            activeLanguageCode={currentLanguage}
+            onSelectLanguage={(code) => {
+              setLanguage(code as LanguageCode);
+              setCurrentPage('home');
+            }}
             onBack={handleBack}
           />
         );
-      case 'network':
+      }
+      case 'network': {
+        const networkItems = allNetworks.map((n) => ({
+          id: n.id,
+          name: n.name,
+          blockchain: n.id.split('-')[0],
+        }));
         return (
-          <PlaceholderPage
-            title={t('settings.change_network', 'Network')}
+          <NetworkSelector
+            networks={networkItems}
+            activeNetworkId={networkId || ''}
+            onSelectNetwork={(id) => {
+              const idx = allNetworks.findIndex((n) => n.id === id);
+              if (idx >= 0) {
+                setActiveBlockchainIndex(idx);
+                actions.changeNetwork(id);
+              }
+              setCurrentPage('home');
+            }}
             onBack={handleBack}
           />
         );
-      case 'explorer':
+      }
+      case 'explorer': {
+        const explorerItems: ExplorerSelectorItem[] = explorers.map((e) => ({
+          key: e.key,
+          name: e.name,
+        }));
         return (
-          <PlaceholderPage
-            title={t('settings.explorer', 'Explorer')}
+          <ExplorerSelector
+            explorers={explorerItems}
+            activeExplorerName={explorer?.name || ''}
+            onSelectExplorer={(key) => {
+              changeExplorer(key);
+              setCurrentPage('home');
+            }}
             onBack={handleBack}
+            loading={explorerLoading}
           />
         );
+      }
       case 'addressBook':
         return (
           <PlaceholderPage
@@ -1130,13 +1197,24 @@ export function HomePage({ onAddAccount }: HomePageProps) {
             onBack={handleBack}
           />
         );
-      case 'trustedApps':
+      case 'trustedApps': {
+        const trustedAppItems: TrustedAppItem[] = Object.entries(
+          activeTrustedApps || {}
+        ).map(([domain, app]) => ({
+          domain,
+          name: app.name,
+          icon: app.icon,
+        }));
         return (
-          <PlaceholderPage
-            title={t('settings.trusted_apps', 'Trusted Apps')}
+          <TrustedAppsSelector
+            apps={trustedAppItems}
+            onRevokeApp={(domain) => {
+              actions.removeTrustedApp(domain);
+            }}
             onBack={handleBack}
           />
         );
+      }
       case 'security':
         return (
           <PlaceholderPage

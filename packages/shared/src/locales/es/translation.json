@@ -79,6 +79,8 @@
     "security": "Seguridad",
     "notifications": "Notificaciones",
     "trusted_apps": "Apps Autorizadas",
+    "no_trusted_apps": "No hay apps conectadas",
+    "no_trusted_apps_hint": "Las apps que conectes aparecerán aquí",
     "help_support": "Ayuda & Soporte",
     "currency": "Moneda de visualización",
     "backup": "Respaldar Seed Phrase",

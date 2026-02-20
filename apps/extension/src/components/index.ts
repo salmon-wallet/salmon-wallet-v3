@@ -216,6 +216,18 @@ export type { NftSendDialogProps } from './NftSendDialog';
 // SeedPhrase - Seed word display grid and validation input
 export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
 
+// NetworkSelector - Network selection for settings
+export { NetworkSelector } from './NetworkSelector';
+
+// ExplorerSelector - Block explorer selection for settings
+export { ExplorerSelector } from './ExplorerSelector';
+
+// LanguageSelector - Language selection for settings
+export { LanguageSelector } from './LanguageSelector';
+
+// TrustedAppsSelector - Connected dApps management for settings
+export { TrustedAppsSelector } from './TrustedAppsSelector';
+
 // DerivedAccountCard - Selectable account card for derived account discovery
 export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
 export type {

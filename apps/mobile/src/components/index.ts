@@ -297,4 +297,17 @@ export type { SubAccount, SubAccountSelectorProps } from './SubAccountSelector';
 
 // SettingsScreenLayout - Reusable layout for settings screens
 export { SettingsScreenLayout } from './SettingsScreenLayout';
+
+// NetworkSelector - Network selection for settings
+export { NetworkSelector } from './NetworkSelector';
+
+// ExplorerSelector - Block explorer selection for settings
+export { ExplorerSelector } from './ExplorerSelector';
+
+// LanguageSelector - Language selection for settings
+export { LanguageSelector } from './LanguageSelector';
+
+// TrustedAppsSelector - Connected dApps management for settings
+export { TrustedAppsSelector } from './TrustedAppsSelector';
+
 export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';

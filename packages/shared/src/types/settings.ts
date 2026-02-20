@@ -60,6 +60,130 @@ export interface SettingsSheetBaseProps {
   onRemoveAllWallets?: () => void;
 }
 
+// ============================================================================
+// Network Selector
+// ============================================================================
+
+/**
+ * A network item as displayed in the network selector UI.
+ */
+export interface NetworkSelectorItem {
+  /** Network identifier (e.g. 'solana-mainnet') */
+  id: string;
+  /** Human-readable display name */
+  name: string;
+  /** Blockchain family (e.g. 'solana', 'bitcoin', 'ethereum') */
+  blockchain: string;
+}
+
+/**
+ * Base props shared between mobile and extension NetworkSelector components.
+ */
+export interface NetworkSelectorBaseProps {
+  /** Available networks to display */
+  networks: NetworkSelectorItem[];
+  /** Currently active network id */
+  activeNetworkId: string;
+  /** Called when the user selects a network */
+  onSelectNetwork: (networkId: string) => void;
+  /** Called when the user navigates back */
+  onBack: () => void;
+  /** Whether the data is still loading */
+  loading?: boolean;
+}
+
+// ============================================================================
+// Explorer Selector
+// ============================================================================
+
+/**
+ * An explorer item as displayed in the explorer selector UI.
+ */
+export interface ExplorerSelectorItem {
+  /** Explorer key identifier */
+  key: string;
+  /** Human-readable explorer name */
+  name: string;
+}
+
+/**
+ * Base props shared between mobile and extension ExplorerSelector components.
+ */
+export interface ExplorerSelectorBaseProps {
+  /** Available explorers to display */
+  explorers: ExplorerSelectorItem[];
+  /** Name of the currently active explorer */
+  activeExplorerName: string;
+  /** Called when the user selects an explorer */
+  onSelectExplorer: (explorerKey: string) => void;
+  /** Called when the user navigates back */
+  onBack: () => void;
+  /** Whether the data is still loading */
+  loading?: boolean;
+}
+
+// ============================================================================
+// Language Selector
+// ============================================================================
+
+/**
+ * A language item as displayed in the language selector UI.
+ */
+export interface LanguageSelectorItem {
+  /** Language code (e.g. 'en', 'es') */
+  code: string;
+  /** Native name of the language (e.g. 'English', 'Español') */
+  nativeName: string;
+}
+
+/**
+ * Base props shared between mobile and extension LanguageSelector components.
+ */
+export interface LanguageSelectorBaseProps {
+  /** Available languages to display */
+  languages: LanguageSelectorItem[];
+  /** Currently active language code */
+  activeLanguageCode: string;
+  /** Called when the user selects a language */
+  onSelectLanguage: (code: string) => void;
+  /** Called when the user navigates back */
+  onBack: () => void;
+}
+
+// ============================================================================
+// Trusted Apps Selector
+// ============================================================================
+
+/**
+ * A trusted app item as displayed in the trusted apps selector UI.
+ */
+export interface TrustedAppItem {
+  /** Domain/origin of the connected dApp */
+  domain: string;
+  /** Optional display name */
+  name?: string;
+  /** Optional icon URL */
+  icon?: string;
+}
+
+/**
+ * Base props shared between mobile and extension TrustedAppsSelector components.
+ */
+export interface TrustedAppsSelectorBaseProps {
+  /** Connected dApps to display */
+  apps: TrustedAppItem[];
+  /** Called when the user revokes a dApp connection */
+  onRevokeApp: (domain: string) => void;
+  /** Called when the user navigates back */
+  onBack: () => void;
+  /** Whether the data is still loading */
+  loading?: boolean;
+}
+
+// ============================================================================
+// Settings Options
+// ============================================================================
+
 /**
  * Settings option/item configuration (mobile uses SettingsOption, extension uses SettingsItem)
  */
