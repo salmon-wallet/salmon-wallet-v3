@@ -14,6 +14,10 @@ export interface WalletHeaderPropsBase<TStyle> {
   onWalletPress?: () => void;
   /** Developer mode - shows more address characters (8+8 instead of 4+4) */
   developerMode?: boolean;
+  /** Avatar image URL for the active account */
+  avatarUrl?: string;
+  /** Account ID (used for deterministic fallback color) */
+  accountId?: string;
   /** Optional custom styles for the container */
   style?: TStyle;
 }

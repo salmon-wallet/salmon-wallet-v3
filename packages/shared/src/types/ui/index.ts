@@ -106,3 +106,9 @@ export type {
   WalletSwitcherSheetPropsBase,
   AccountListItemPropsBase,
 } from './wallet-switcher-sheet';
+
+// Avatar Picker
+export type {
+  NftAvatarItem,
+  AvatarPickerPropsBase,
+} from './avatar-picker';
