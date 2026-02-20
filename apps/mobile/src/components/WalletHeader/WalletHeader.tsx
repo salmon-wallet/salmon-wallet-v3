@@ -1,6 +1,7 @@
-import { borderRadius, colors, fontSize, letterSpacing, ms, s, shadows, spacing, vs, getShortAddress } from '@salmon/shared';
-import React, { useCallback } from 'react';
+import { borderRadius, colors, fontSize, letterSpacing, ms, s, shadows, spacing, vs, getShortAddress, getAvatarColor } from '@salmon/shared';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContentCopySvgIcon, SettingsSvgIcon, WalletSvgIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
@@ -34,9 +35,12 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   onSettingsPress,
   onWalletPress,
   developerMode = false,
+  avatarUrl,
+  accountId,
   style,
 }) => {
   const insets = useSafeAreaInsets();
+  const [imgError, setImgError] = useState(false);
 
   const handleCopyPress = useCallback(() => {
     onCopyAddress?.();
@@ -61,12 +65,24 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   // - Web: No safe area needed (use 0)
   const safeAreaTop = Platform.OS === 'web' ? 0 : insets.top;
 
+  // Fallback avatar color based on account ID
+  const avatarColor = useMemo(
+    () => (accountId ? getAvatarColor(accountId) : colors.text.muted),
+    [accountId],
+  );
+  const initials = useMemo(() => {
+    if (!accountName) return '?';
+    const words = accountName.trim().split(/\s+/);
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }, [accountName]);
+
   return (
     <View style={[styles.outerContainer, { paddingTop: safeAreaTop }, style]}>
       <View style={styles.innerContainer}>
-        {/* Left side - Wallet icon + Account info */}
+        {/* Left side - Avatar/Wallet icon + Account info */}
         <View style={styles.leftSection}>
-          {/* Wallet icon */}
+          {/* Avatar or wallet icon */}
           <TouchableOpacity
             style={styles.walletIconContainer}
             onPress={handleWalletPress}
@@ -74,7 +90,20 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
             accessibilityRole="button"
             accessibilityLabel="Switch wallet account"
           >
-            <WalletSvgIcon size={s(28)} color={colors.text.muted} />
+            {avatarUrl && !imgError ? (
+              <Image
+                source={{ uri: avatarUrl }}
+                style={styles.headerAvatar}
+                contentFit="cover"
+                onError={() => setImgError(true)}
+              />
+            ) : accountId ? (
+              <View style={[styles.headerAvatarFallback, { backgroundColor: avatarColor }]}>
+                <Text style={styles.headerAvatarText}>{initials}</Text>
+              </View>
+            ) : (
+              <WalletSvgIcon size={s(28)} color={colors.text.muted} />
+            )}
           </TouchableOpacity>
 
           {/* Account name + address in single line */}
@@ -176,6 +205,23 @@ const styles = StyleSheet.create({
     height: vs(32),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerAvatar: {
+    width: s(28),
+    height: s(28),
+    borderRadius: s(14),
+  },
+  headerAvatarFallback: {
+    width: s(28),
+    height: s(28),
+    borderRadius: s(14),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerAvatarText: {
+    color: colors.text.primary,
+    fontSize: ms(11),
+    fontWeight: '700',
   },
 });
 

@@ -232,6 +232,8 @@ export default function TabLayout() {
         onSettingsPress={() => setSettingsVisible(true)}
         onWalletPress={() => setWalletSwitcherVisible(true)}
         developerMode={developerNetworks}
+        avatarUrl={activeAccount?.avatar}
+        accountId={activeAccount?.id}
       />
 
       {/* Settings Sheet */}
