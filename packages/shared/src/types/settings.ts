@@ -19,7 +19,8 @@ export type SettingsScreen =
   | 'explorer'
   | 'trustedApps'
   | 'removeWallet'
-  | 'removeAll';
+  | 'removeAll'
+  | 'avatar';
 
 /**
  * Base props shared between mobile and extension SettingsSheet
@@ -353,6 +354,55 @@ export function getAvatarColor(id: string): string {
   }
   const index = Math.abs(hash) % AVATAR_COLORS.length;
   return AVATAR_COLORS[index];
+}
+
+// ============================================================================
+// Address Book
+// ============================================================================
+
+/**
+ * A contact item as displayed in the address book UI.
+ */
+export interface AddressBookItem {
+  name: string;
+  address: string;
+  networkId: string;
+  networkName: string;
+  domain?: string | null;
+}
+
+/**
+ * Base props shared between mobile and extension AddressBookSelector components.
+ */
+export interface AddressBookSelectorBaseProps {
+  contacts: AddressBookItem[];
+  activeNetworkId: string;
+  onAddContact: () => void;
+  onEditContact: (contact: AddressBookItem) => void;
+  onRemoveContact: (address: string) => Promise<void>;
+  onBack: () => void;
+  loading?: boolean;
+}
+
+/**
+ * Base props for the Add Address screen.
+ */
+export interface AddressBookAddBaseProps {
+  activeNetworkId: string;
+  activeNetworkName: string;
+  activeBlockchain: string;
+  onSave: (input: import('./address').AddressInput) => Promise<void>;
+  onBack: () => void;
+}
+
+/**
+ * Base props for the Edit Address screen.
+ */
+export interface AddressBookEditBaseProps {
+  contact: AddressBookItem;
+  activeBlockchain: string;
+  onSave: (originalAddress: string, input: import('./address').AddressInput) => Promise<void>;
+  onBack: () => void;
 }
 
 // ============================================================================

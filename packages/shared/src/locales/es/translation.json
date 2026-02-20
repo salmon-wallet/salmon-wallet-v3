@@ -148,6 +148,10 @@
       "select_avatar_to_profile": "Seleccionar Avatar como imagen de perfil",
       "full_nft_description": "Descripción completa"
     },
+    "profile_picture": "Foto de Perfil",
+    "avatar_presets": "Avatares",
+    "avatar_nfts": "NFTs",
+    "avatar_empty_nfts": "No se encontraron coleccionables",
     "addressbook": {
       "add": "Agregar dirección",
       "addnew": "Agregar nueva dirección",
@@ -155,7 +159,7 @@
       "save": "Guardar dirección",
       "label": "Etiqueta",
       "empty": "Parece vacío aquí.\nAgrega tu primer contacto haciendo clic en el botón.",
-      "remove_confirmation": ""
+      "remove_confirmation": "¿Estás seguro que quieres eliminar a {{name}} de tu libreta de contactos?"
     },
     "languages": {
       "title": "Idioma",

@@ -147,6 +147,10 @@
       "select_nft_to_profile": "Select Collectible to Profile",
       "full_nft_description": "Full Collectible Description"
     },
+    "profile_picture": "Profile Picture",
+    "avatar_presets": "Avatars",
+    "avatar_nfts": "NFTs",
+    "avatar_empty_nfts": "No collectibles found",
     "addressbook": {
       "add": "Add Address",
       "addnew": "Add New Address",
@@ -154,7 +158,7 @@
       "save": "Save Address",
       "label": "Label",
       "empty": "Looks empty in here.\nAdd your first contact clicking the button.",
-      "remove_confirmation": ""
+      "remove_confirmation": "Are you sure you want to remove {{name}} from your address book?"
     },
     "languages": {
       "title": "Language",

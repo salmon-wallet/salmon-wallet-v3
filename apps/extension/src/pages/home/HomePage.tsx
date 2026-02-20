@@ -10,6 +10,7 @@ import {
   useBalance,
   useUserConfig,
   useTransactions,
+  useAddressbook,
   getMarketChart,
   getCoinInfo,
   colors,
@@ -28,6 +29,11 @@ import {
   type NftBlockchain,
   type Transaction,
   type SendToken,
+  type AddressBookItem,
+  type NetworkAdapter,
+  type AddressBookNetwork,
+  type AddressInput,
+  type BlockchainType,
   isSolanaNft,
   createBurnTransaction,
   isSolanaAccount,
@@ -82,6 +88,10 @@ import IconButton from '@mui/material/IconButton';
 import { BackupPage } from '../settings/BackupPage';
 import { PrivateKeyPage } from '../settings/PrivateKeyPage';
 import { AboutPage } from '../settings/AboutPage';
+import { AccountAvatarPage } from '../settings/AccountAvatarPage';
+import { AddressBookPage } from '../settings/AddressBookPage';
+import { AddressAddPage } from '../settings/AddressAddPage';
+import { AddressEditPage } from '../settings/AddressEditPage';
 
 // i18n
 import { useLanguage } from '../../i18n';
@@ -112,10 +122,13 @@ type PageView =
   | 'network'
   | 'explorer'
   | 'addressBook'
+  | 'addressBookAdd'
+  | 'addressBookEdit'
   | 'trustedApps'
   | 'security'
   | 'support'
-  | 'privateKey';
+  | 'privateKey'
+  | 'avatar';
 
 // Network ID → BlockchainId mapping for carousel theming
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
@@ -373,6 +386,33 @@ export function HomePage({ onAddAccount }: HomePageProps) {
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
 
+  // Address book state
+  const [editingContact, setEditingContact] = useState<AddressBookItem | null>(null);
+
+  // Build NetworkAdapter from available networks for address book
+  const addressBookNetworkAdapter: NetworkAdapter = useMemo(() => ({
+    getNetwork: async (id: string): Promise<AddressBookNetwork | undefined> => {
+      const found = availableNetworks.find((n) => n.id === id);
+      if (!found) return undefined;
+      return { id: found.id, name: found.name, blockchain: found.id.split('-')[0] as BlockchainType };
+    },
+    getNetworks: async (): Promise<AddressBookNetwork[]> =>
+      availableNetworks.map((n) => ({ id: n.id, name: n.name, blockchain: n.id.split('-')[0] as BlockchainType })),
+  }), [availableNetworks]);
+
+  const [{ contacts: addressBookContacts }, { addContact, editContact: editAddressBookContact, removeContact }] = useAddressbook({ networkAdapter: addressBookNetworkAdapter });
+
+  const addressBookItems: AddressBookItem[] = useMemo(
+    () => addressBookContacts.map((c) => ({
+      name: c.name,
+      address: c.address,
+      networkId: c.network.id,
+      networkName: c.network.name,
+      domain: c.domain,
+    })),
+    [addressBookContacts],
+  );
+
   // NFT action dialog state
   const [nftSendDialogVisible, setNftSendDialogVisible] = useState(false);
   const [burnConfirmVisible, setBurnConfirmVisible] = useState(false);
@@ -507,6 +547,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     // Map SettingsScreen to PageView
     // Note: 'removeWallet' and 'removeAll' are handled separately via callbacks
     const pageMap: Partial<Record<SettingsScreen, PageView>> = {
+      avatar: 'avatar',
       security: 'security',
       backup: 'backup',
       network: 'network',
@@ -1070,6 +1111,8 @@ export function HomePage({ onAddAccount }: HomePageProps) {
             />
           </>
         );
+      case 'avatar':
+        return <AccountAvatarPage onBack={handleBack} />;
       case 'backup':
         return <BackupPage onBack={handleBack} />;
       case 'privateKey':
@@ -1163,13 +1206,59 @@ export function HomePage({ onAddAccount }: HomePageProps) {
           />
         );
       }
-      case 'addressBook':
+      case 'addressBook': {
+        const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
         return (
-          <PlaceholderPage
-            title={t('settings.address_book', 'Address Book')}
+          <AddressBookPage
+            contacts={addressBookItems}
+            activeNetworkId={networkId || 'solana-mainnet'}
+            onAddContact={() => setCurrentPage('addressBookAdd')}
+            onEditContact={(contact) => {
+              setEditingContact(contact);
+              setCurrentPage('addressBookEdit');
+            }}
+            onRemoveContact={async (address) => {
+              await removeContact(address);
+            }}
             onBack={handleBack}
           />
         );
+      }
+      case 'addressBookAdd': {
+        const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
+        const blockchain = (networkId || 'solana-mainnet').split('-')[0];
+        return (
+          <AddressAddPage
+            activeNetworkId={activeNet?.id || 'solana-mainnet'}
+            activeNetworkName={activeNet?.name || 'Solana Mainnet'}
+            activeBlockchain={blockchain}
+            onSave={async (input: AddressInput) => {
+              await addContact(input);
+              setCurrentPage('addressBook');
+            }}
+            onBack={() => setCurrentPage('addressBook')}
+          />
+        );
+      }
+      case 'addressBookEdit': {
+        if (!editingContact) {
+          setCurrentPage('addressBook');
+          return null;
+        }
+        const blockchain = (editingContact.networkId || 'solana-mainnet').split('-')[0];
+        return (
+          <AddressEditPage
+            contact={editingContact}
+            activeBlockchain={blockchain}
+            onSave={async (originalAddress: string, input: AddressInput) => {
+              await editAddressBookContact(originalAddress, input);
+              setEditingContact(null);
+              setCurrentPage('addressBook');
+            }}
+            onBack={() => setCurrentPage('addressBook')}
+          />
+        );
+      }
       case 'trustedApps': {
         const trustedAppItems: TrustedAppItem[] = Object.entries(
           activeTrustedApps || {}
@@ -1209,6 +1298,8 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         onCopyAddress={handleCopyAddress}
         onSettingsPress={handleSettingsPress}
         onWalletPress={handleWalletPress}
+        avatarUrl={activeAccount?.avatar}
+        accountId={activeAccount?.id}
       />
 
       {/* Tab Bar */}

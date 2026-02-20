@@ -307,6 +307,11 @@ export { ExplorerSelector } from './ExplorerSelector';
 // LanguageSelector - Language selection for settings
 export { LanguageSelector } from './LanguageSelector';
 
+// AddressBook - Address book management for settings
+export { AddressBookSelector } from './AddressBookSelector';
+export { AddressBookAdd } from './AddressBookAdd';
+export { AddressBookEdit } from './AddressBookEdit';
+
 // TrustedAppsSelector - Connected dApps management for settings
 export { TrustedAppsSelector } from './TrustedAppsSelector';
 
@@ -315,5 +320,9 @@ export { SupportSelector } from './SupportSelector';
 
 // PrivateKeyReveal - Private key reveal with biometric auth
 export { PrivateKeyReveal } from './PrivateKeyReveal';
+
+// AvatarPicker - Avatar selection with presets and NFTs
+export { AvatarPicker } from './AvatarPicker';
+export type { AvatarPickerProps } from './AvatarPicker';
 
 export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';

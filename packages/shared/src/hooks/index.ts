@@ -181,6 +181,38 @@ export type {
 // SwapScreen logic hook (shared between mobile & extension)
 export { useSwapScreenLogic } from './useSwapScreenLogic';
 
+// Address book hook
+export {
+  useAddressbook,
+  default as useAddressbookDefault,
+} from './useAddressbook';
+export type {
+  UseAddressbookParams,
+  UseAddressbookState,
+  UseAddressbookActions,
+  UseAddressbookResult,
+} from './useAddressbook';
+
+// Address book form hook (shared form logic for Add/Edit screens)
+export {
+  useAddressBookForm,
+  default as useAddressBookFormDefault,
+} from './useAddressBookForm';
+export type {
+  AddressBookFormInitial,
+  UseAddressBookFormResult,
+} from './useAddressBookForm';
+
+// Avatar NFTs hook (shared between mobile & extension)
+export {
+  useAvatarNfts,
+  default as useAvatarNftsDefault,
+} from './useAvatarNfts';
+export type {
+  UseAvatarNftsParams,
+  UseAvatarNftsResult,
+} from './useAvatarNfts';
+
 // Currency context (re-export for discoverability)
 export { useCurrencyContext } from '../contexts/CurrencyContext';
 export type { CurrencyState, CurrencyActions } from '../contexts/CurrencyContext';
