@@ -56,6 +56,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import InfoIcon from '@mui/icons-material/Info';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
@@ -78,6 +79,7 @@ const DRAWER_WIDTH = 320;
  * Icon mapping for settings items
  */
 const ICON_MAP: Record<string, React.ReactNode> = {
+  avatar: <AccountCircleIcon />,
   security: <SecurityIcon />,
   backup: <BackupIcon />,
   privateKey: <VpnKeyIcon />,
@@ -101,6 +103,11 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     titleKey: 'settings.sections.account',
     items: [
+      {
+        id: 'avatar',
+        labelKey: 'settings.profile_picture',
+        type: 'navigation',
+      },
       {
         id: 'security',
         labelKey: 'settings.security',
