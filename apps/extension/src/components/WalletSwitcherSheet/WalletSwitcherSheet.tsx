@@ -6,7 +6,7 @@
  * and action buttons for editing and deleting accounts.
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, type SyntheticEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Dialog from '@mui/material/Dialog';
@@ -206,6 +206,7 @@ function AccountListItem({
 }: AccountListItemProps) {
   const avatarColor = useMemo(() => getAvatarColor(account.id), [account.id]);
   const initials = useMemo(() => getInitials(account.name), [account.name]);
+  const [imgError, setImgError] = useState(false);
 
   // Get the primary address from the first available network account
   const address = (() => {
@@ -246,7 +247,15 @@ function AccountListItem({
   return (
     <StyledListItem isActive={isActive} onClick={onSelect}>
       <ListItemAvatar>
-        <AccountAvatar bgColor={avatarColor}>{initials}</AccountAvatar>
+        {account.avatar && !imgError ? (
+          <Avatar
+            src={account.avatar}
+            sx={{ width: 40, height: 40 }}
+            imgProps={{ onError: () => setImgError(true) }}
+          />
+        ) : (
+          <AccountAvatar bgColor={avatarColor}>{initials}</AccountAvatar>
+        )}
       </ListItemAvatar>
       <ListItemText
         primary={<AccountName>{account.name}</AccountName>}

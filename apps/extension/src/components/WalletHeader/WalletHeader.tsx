@@ -3,12 +3,13 @@
  *
  * Web version using MUI and @emotion/styled for browser extension
  */
-import { useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
+import MuiAvatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import { colors, spacing, borderRadius, fontFamily, fontWeight } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontWeight, getAvatarColor } from '@salmon/shared';
 import { CopyIcon, SettingsIcon, WalletIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
@@ -124,9 +125,13 @@ export function WalletHeader({
   onCopyAddress,
   onSettingsPress,
   onWalletPress,
+  avatarUrl,
+  accountId,
   style,
   className,
 }: WalletHeaderProps) {
+  const [imgError, setImgError] = useState(false);
+
   const handleCopyPress = useCallback(() => {
     onCopyAddress?.();
   }, [onCopyAddress]);
@@ -141,6 +146,17 @@ export function WalletHeader({
 
   const truncatedAddress = truncateAddress(address);
 
+  const avatarColor = useMemo(
+    () => (accountId ? getAvatarColor(accountId) : '#666'),
+    [accountId],
+  );
+  const initials = useMemo(() => {
+    if (!accountName) return '?';
+    const words = accountName.trim().split(/\s+/);
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }, [accountName]);
+
   return (
     <Container style={style} className={className}>
       {/* Left side - Account info (click copies address) */}
@@ -149,6 +165,36 @@ export function WalletHeader({
         role="button"
         aria-label={`Copy wallet address ${truncatedAddress}`}
       >
+        {/* Avatar */}
+        {avatarUrl && !imgError ? (
+          <MuiAvatar
+            src={avatarUrl}
+            sx={{ width: 32, height: 32, marginRight: `${spacing.md}px`, cursor: 'pointer' }}
+            imgProps={{ onError: () => setImgError(true) }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleWalletPress();
+            }}
+          />
+        ) : accountId ? (
+          <MuiAvatar
+            sx={{
+              width: 32,
+              height: 32,
+              marginRight: `${spacing.md}px`,
+              backgroundColor: avatarColor,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleWalletPress();
+            }}
+          >
+            {initials}
+          </MuiAvatar>
+        ) : null}
         <AccountTextContainer>
           <AccountName>{accountName}</AccountName>
           <AddressContainer>
