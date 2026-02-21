@@ -11,7 +11,8 @@
  * Note: Token list endpoints (verified, top, batch, search) are in tokens.ts
  */
 
-import { apiClient, ApiError } from '../client';
+import { get, apiClient, ApiError } from '../client';
+import { removeDecimals } from '../../utils/decimals';
 import type { SolanaNetworkId } from '../../types/blockchain';
 import type {
   SolanaTransaction,
@@ -318,3 +319,39 @@ export async function getTransactionsByType(
   });
   return response.transactions;
 }
+
+// ============================================================================
+// DI adapter (matches BitcoinAccount pattern in bitcoin.ts)
+// ============================================================================
+
+import { getPricesByPlatform } from './price';
+import type { SolanaAccountApiFunctions, SolanaBalanceItem } from '../../types/transfer';
+
+export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'] = async (
+  networkId,
+  address
+) => {
+  const data = await get<SolanaBalanceItem[]>(
+    `/v1/${networkId}/account/${address}/balance`,
+    { params: { include: 'logo' } },
+  );
+
+  return data.map((token) => ({
+    ...token,
+    uiAmount: removeDecimals(token.amount, token.decimals),
+  }));
+};
+
+/**
+ * Pre-wired API functions for SolanaAccount dependency injection.
+ * Pass this to factory functions so SolanaAccount can call the API
+ * without importing this module directly.
+ */
+export const solanaApiFunctions: SolanaAccountApiFunctions = {
+  fetchBalance: fetchSolanaAccountBalance,
+  fetchPrices: async (platform) => {
+    return getPricesByPlatform(platform as Parameters<typeof getPricesByPlatform>[0]);
+  },
+  fetchTransaction: getSolanaTransaction,
+  fetchTransactions: getSolanaTransactions,
+};

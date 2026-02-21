@@ -220,6 +220,77 @@ async function getEthplorerTokenBalances(
 }
 
 // ============================================================================
+// DI Adapter (account)
+// ============================================================================
+
+import { getPricesByPlatform } from './price';
+import type {
+  EthereumBalanceItem,
+  EthereumAccountApiFunctions,
+  AccountTransaction,
+  AccountTransactionListResponse,
+  TransactionPaging,
+} from '../../types/transfer';
+
+export const fetchEthereumAccountBalance: EthereumAccountApiFunctions['fetchBalance'] = async (
+  networkId,
+  address
+) => {
+  const data = await get<EthereumBalanceItem[]>(
+    `/v1/${networkId}/account/${address}/balance`,
+    { params: { include: 'logo' } },
+  );
+
+  return data.map((token) => ({
+    ...token,
+    uiAmount: removeDecimals(token.amount, token.decimals),
+  }));
+};
+
+export const fetchEthereumAccountPrices: EthereumAccountApiFunctions['fetchPrices'] = async (
+  platform
+) => {
+  return getPricesByPlatform(platform as Parameters<typeof getPricesByPlatform>[0]);
+};
+
+export const fetchEthereumAccountTransaction: EthereumAccountApiFunctions['fetchTransaction'] = async (
+  networkId,
+  address,
+  txHash
+) => {
+  try {
+    return await get<AccountTransaction>(
+      `/v1/${networkId}/account/${address}/transactions/${txHash}`,
+    );
+  } catch {
+    return null;
+  }
+};
+
+export const fetchEthereumAccountRecentTransactions: EthereumAccountApiFunctions['fetchRecentTransactions'] = async (
+  networkId,
+  address,
+  paging?
+) => {
+  const { nextPageToken, pageSize } = paging || {};
+  const params: Record<string, string | number> = {};
+  if (nextPageToken) params.pageToken = nextPageToken;
+  if (pageSize) params.pageSize = pageSize;
+
+  return get<AccountTransactionListResponse>(
+    `/v1/${networkId}/account/${address}/transactions`,
+    { params },
+  );
+};
+
+export const ethereumApiFunctions: EthereumAccountApiFunctions = {
+  fetchBalance: fetchEthereumAccountBalance,
+  fetchPrices: fetchEthereumAccountPrices,
+  fetchTransaction: fetchEthereumAccountTransaction,
+  fetchRecentTransactions: fetchEthereumAccountRecentTransactions,
+};
+
+// ============================================================================
 // Token Metadata Functions
 // ============================================================================
 
