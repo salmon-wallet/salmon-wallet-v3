@@ -50,8 +50,6 @@ const globals = {
   "DerivedAccountCardProps": true,
   "DerivedAccountCardSkeleton": true,
   "DerivedAccountCardSkeletonProps": true,
-  "EditAccountDialog": true,
-  "EditAccountDialogProps": true,
   "ExplorerLinkButton": true,
   "ExplorerLinkButtonProps": true,
   "ExplorerSelector": true,

@@ -298,7 +298,7 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
       });
 
       if (!result.success) {
-        console.log('Biometric authentication failed:', result.error);
+        console.warn('Biometric authentication failed:', result.error);
         return null;
       }
 

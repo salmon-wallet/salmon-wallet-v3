@@ -719,7 +719,6 @@ export default function HomeScreen() {
     const explorerUrl = networkId === 'solana-devnet'
       ? `https://explorer.solana.com/tx/${transaction.id}?cluster=devnet`
       : `https://explorer.solana.com/tx/${transaction.id}`;
-    console.log('Opening transaction:', explorerUrl);
     // TODO: Open in browser or in-app browser
   }, [networkId]);
 
@@ -781,7 +780,6 @@ export default function HomeScreen() {
     if (selectedBalance) {
       const newNetworkId = selectedBalance.network.id;
       accountActions.changeNetwork(newNetworkId);
-      console.log('Switched to blockchain:', blockchain, 'network:', newNetworkId);
     }
   }, [blockchainBalances, accountActions]);
 

@@ -215,9 +215,6 @@ async function fetchToken2022Extensions(
       }
     }
 
-    console.log(
-      `[NFT Service] Fetched Token2022 extensions for ${extensionsMap.size} tokens`
-    );
   } catch (err) {
     console.warn(
       '[NFT Service] Failed to fetch Token2022 extensions:',
@@ -257,10 +254,6 @@ export async function getAllFromHeliusDirect(
   const limit = Math.min(Math.max(1, options.limit ?? 50), 100);
   const offset = Math.max(0, options.offset ?? 0);
 
-  console.log(
-    `[NFT Service] Fetching NFTs directly from Helius for: ${publicKey} (limit: ${limit}, offset: ${offset})`
-  );
-
   const response = await axios.post<HeliusDasResponse>(
     heliusUrl,
     {
@@ -288,15 +281,9 @@ export async function getAllFromHeliusDirect(
   }
 
   const assets = response.data.result?.items || [];
-  console.log(
-    `[NFT Service] Helius DAS API returned ${assets.length} assets for: ${publicKey}`
-  );
 
   // Filter out burnt NFTs
   const filteredAssets = assets.filter((asset) => !asset.burnt);
-  console.log(
-    `[NFT Service] Filtered out ${assets.length - filteredAssets.length} burnt NFTs`
-  );
 
   // Fetch Token2022 extensions for enrichment
   const connection = new Connection(nodeUrl);
@@ -336,10 +323,6 @@ async function getAllFromBackend(
   noCache: boolean,
   fetchNftsFromBackend: FetchNftsFromBackendFn
 ): Promise<Nft[]> {
-  console.log(
-    `[NFT Service] Fetching NFTs from backend for: ${publicKey} (noCache: ${noCache})`
-  );
-
   return fetchNftsFromBackend(network.id, publicKey, noCache);
 }
 
