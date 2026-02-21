@@ -142,7 +142,7 @@ export default function TabLayout() {
               console.error('Failed to remove all wallets:', error);
               Alert.alert(
                 t('general.error'),
-                'Failed to remove wallets. Please try again.'
+                t('settings.remove_wallets_error')
               );
             }
           },
@@ -181,7 +181,7 @@ export default function TabLayout() {
               console.error('Failed to remove wallet:', error);
               Alert.alert(
                 t('general.error'),
-                'Failed to remove wallet. Please try again.'
+                t('settings.remove_wallet_error')
               );
             }
           },

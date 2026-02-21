@@ -1,20 +1,159 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  # Salmon Wallet v3 — Project Context
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  ## Architecture
+  Monorepo with pnpm workspaces + Turborepo. Three main packages:
+  - `packages/shared` (@salmon/shared) — Business logic, types, hooks, utils, theme, API, blockchain, i18n locales
+  - `packages/assets` (@salmon/assets) — Shared static assets (images, icons SVG, fonts TTF)
+  - `apps/mobile` (@salmon/mobile) — React Native app (Expo SDK 54, Expo Router, React 19)
+  - `apps/extension` (@salmon/extension) — Browser extension (WXT 0.20, Vite, React 19, Manifest V3)
+
+  ## Code Organization Rules (CRITICAL)
+  All shared code MUST live in `packages/shared/src/`:
+  - Types → `packages/shared/src/types/` (domain types) or `packages/shared/src/types/ui/` (component prop types)
+  - Hooks → `packages/shared/src/hooks/`
+  - Utils → `packages/shared/src/utils/`
+  - API services → `packages/shared/src/api/services/`
+  - Blockchain logic → `packages/shared/src/blockchain/{solana,ethereum,bitcoin}/`
+  - Theme/tokens → `packages/shared/src/theme/`
+  - i18n locales → `packages/shared/src/locales/`
+  - Contexts → `packages/shared/src/contexts/`
+  - Crypto utilities → `packages/shared/src/crypto/`
+  - Storage → `packages/shared/src/storage/`
+
+  Components are platform-specific and CANNOT be shared:
+  - Mobile components → `apps/mobile/src/components/{ComponentName}/`
+  - Extension components → `apps/extension/src/components/{ComponentName}/`
+  Both consume the same types, hooks, utils, and tokens from @salmon/shared.
+
+  ## BEFORE CREATING ANYTHING: Search First (MANDATORY)
+  Before writing ANY new function, type, hook, or utility, you MUST:
+  1. Search `packages/shared/src/` for existing implementations that do the same thing
+  2. Search with multiple terms — the existing function may have a different name
+     (e.g., `getShortAddress` exists but you might think to create `truncateAddress`)
+  3. Check the barrel exports (`index.ts`) in utils/, hooks/, types/ to see what's available
+  4. If a matching function exists: USE IT. Import from `@salmon/shared`.
+  5. If no match exists but it's reusable: CREATE it in `packages/shared/` and export it.
+  6. ONLY create app-local code if it's truly platform-specific UI logic.
+
+  Known anti-patterns to avoid:
+  - `truncateAddress` duplicated in 4 places → use `getShortAddress` from `packages/shared/src/utils/address.ts`
+  - Local type definitions in components → move to `packages/shared/src/types/`
+  - Inline formatting functions in screens → use existing utils from `packages/shared/src/utils/formatting.ts`
+
+  ## Feature Parity (MANDATORY)
+  Every feature MUST be implemented in BOTH mobile and extension.
+  If a change adds UI to mobile, it MUST include corresponding extension tasks (and vice versa).
+  Shared logic goes to packages/shared FIRST, then both apps consume it.
+
+  ## State Management
+  React Context API via AccountsContext and CurrencyContext in `packages/shared/src/contexts/`.
+  Consumed through custom hooks: `useAccountsContext()`, `useCurrencyContext()`.
+  This is the canonical state management approach.
+
+  ## Styling
+  - Mobile: React Native `StyleSheet.create()` + design tokens from `@salmon/shared`
+  - Extension: MUI (Material-UI) + @emotion/styled + design tokens from `@salmon/shared`
+  - ALWAYS use theme tokens (colors, spacing, fontSize, borderRadius, shadows, etc.). NEVER hardcode values.
+  - Mobile responsive scaling: `s()`, `vs()`, `ms()` functions from `@salmon/shared`
+  - Base design dimensions: 440x956 (iPhone 17 Pro Max)
+
+  ## Navigation
+  - Mobile: Expo Router (file-based routing in `apps/mobile/app/`)
+    - Route groups: `(auth)` for unauthenticated, `(app)` for authenticated
+    - Tab navigation in `(app)/(tabs)/`
+  - Extension: React Router v7 in `apps/extension/src/pages/`
+    - Entrypoints: popup and sidepanel in `apps/extension/src/entrypoints/`
+
+  ## Blockchain
+  Multi-chain wallet supporting Solana, Ethereum, and Bitcoin.
+  Architecture should be extensible to add new chains.
+  Each chain has its own module in `packages/shared/src/blockchain/{chain}/`.
+  Goal: refactor toward generic chain-agnostic functions (e.g., `getBlockchainBalance` instead of per-chain variants).
+
+  ## API Layer
+  Mixed backend: own API server + external APIs (Helius, RPCs, etc.).
+  HTTP client: Axios with custom ApiError class in `packages/shared/src/api/client.ts`.
+  Services pattern: one file per domain in `packages/shared/src/api/services/`.
+
+  ## i18n
+  i18next + react-i18next. ALL user-visible strings MUST use `t()`.
+  Translation files in `packages/shared/src/locales/{lang}/translation.json`.
+  Currently supports: en, es. Structure must scale to any number of languages.
+
+  ## Naming Conventions
+  - Component directories: PascalCase (`Button/`, `WalletHeader/`)
+  - Component files: PascalCase (`WalletHeader.tsx`)
+  - Hooks: camelCase with `use` prefix (`useBalance.ts`)
+  - Utils: camelCase (`formatting.ts`, `avatar.ts`)
+  - Types: kebab-case for files (`transaction-detail-modal.ts`), PascalCase for type names
+  - Platform-specific files: `.native.ts` / `.web.ts` suffixes
+
+  ## Exports
+  - Named exports (no default exports, except hooks which export both)
+  - Barrel exports via `index.ts` in component directories
+  - When creating anything new in packages/shared, ALWAYS add it to the corresponding barrel `index.ts`
+  - NO re-exports of the same thing from multiple locations
+  - NO circular imports/exports
+
+  ## Imports
+  - Use workspace aliases: `@salmon/shared`, `@salmon/assets`
+  - Within apps: `@/*` path alias (e.g., `@/components/Button`)
+  - Relative imports only within the same package/app for same-directory references
+
+  ## Git
+  Conventional Commits: `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `style:`, `test:`, `build:`
+  Scopes: `(shared)`, `(mobile)`, `(extension)`, `(assets)`
+
+  ## Security (baseline)
+  - Never log mnemonics, private keys, or passwords
+  - Never store sensitive data in plain text — use secure storage abstractions
+  - Password-based key derivation uses PBKDF2
+  - Biometric auth caches derived key, never the password itself
+  - Validate all external input (addresses, amounts, URLs)
+
+  ## Testing (current)
+  - Shared: Vitest (`*.test.ts` alongside source)
+  - Mobile: Jest + jest-expo
+  - Extension: Vitest
+  - Not enforced in OpenSpec tasks for now
+
+  ## Build & Run
+  - Package manager: pnpm (with `pnpm-workspace.yaml`)
+  - Build orchestration: Turborepo (`turbo.json`)
+  - Typecheck: `pnpm turbo run typecheck`
+  - Mobile dev: `pnpm mobile:start`
+  - Extension dev: `pnpm extension:dev`
+
+rules:
+  proposal:
+    - Always identify which packages/apps are affected (shared, mobile, extension, assets)
+    - If the change involves shared logic, specify exactly where in packages/shared it belongs
+    - Flag any risk of code duplication — reference existing utils/hooks/types that could be reused
+    - Consider impact on both mobile and extension platforms
+
+  specs:
+    - Requirements MUST specify which package the behavior belongs to
+    - If a requirement affects both platforms, document shared logic separately from platform-specific UI
+    - Use Given/When/Then scenarios that cover both mobile and extension contexts when applicable
+    - Reference existing types from packages/shared/src/types/ when defining data contracts
+
+  design:
+    - BEFORE proposing new code, search packages/shared/ for existing functions/types/hooks that already do what you need
+    - Always specify file locations using full paths from repo root
+    - Document which existing hooks/utils/types will be reused vs created
+    - If creating new shared code, explain why it doesn't already exist (prove no duplicate exists)
+    - Consider platform differences (React Native vs Web) in technical decisions
+    - For blockchain changes, consider chain-agnostic patterns
+    - Reference the Bottom Sheet / Top Sheet components as the model pattern for new sheet/modal components
+
+  tasks:
+    - FIRST task group must always be "Search & Reuse Audit" — list existing shared code to reuse before any creation
+    - Group remaining tasks by package/app (shared first, then mobile, then extension)
+    - Every feature MUST have tasks for BOTH mobile and extension — no single-platform changes
+    - Each task must specify the target file path
+    - When creating new shared code, include a task to add it to the barrel export (index.ts)
+    - Do NOT include testing tasks unless explicitly requested
+    - Include i18n tasks (add translation keys to both en and es) when new user-visible strings are introduced

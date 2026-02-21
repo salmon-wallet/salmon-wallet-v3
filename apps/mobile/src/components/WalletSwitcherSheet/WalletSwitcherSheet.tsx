@@ -53,6 +53,7 @@ import {
   getAvatarColor,
   type Account,
   getShortAddress,
+  getInitials,
   fontFamilyNative,
 } from '@salmon/shared';
 
@@ -68,20 +69,6 @@ import type {
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-/**
- * Gets the initials from an account name
- * @param name - The account name
- * @returns Up to 2 characters for initials
- */
-function getInitials(name: string): string {
-  if (!name) return '?';
-  const words = name.trim().split(/\s+/);
-  if (words.length === 1) {
-    return words[0].slice(0, 2).toUpperCase();
-  }
-  return (words[0][0] + words[1][0]).toUpperCase();
-}
 
 /**
  * Gets the primary address from an account
@@ -129,6 +116,7 @@ function AccountListItem({
   onDelete,
   canDelete,
 }: AccountListItemProps): React.ReactElement {
+  const { t } = useTranslation();
   const avatarColor = useMemo(() => getAvatarColor(account.id), [account.id]);
   const initials = useMemo(() => getInitials(account.name), [account.name]);
   const address = useMemo(() => getAccountAddress(account), [account]);
@@ -181,7 +169,7 @@ function AccountListItem({
             style={styles.actionButton}
             onPress={onEdit}
             activeOpacity={0.7}
-            accessibilityLabel="Edit account"
+            accessibilityLabel={t('accessibility.edit_account')}
             accessibilityRole="button"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
@@ -199,7 +187,7 @@ function AccountListItem({
             style={[styles.actionButton, !canDelete && styles.actionButtonDisabled]}
             onPress={canDelete ? onDelete : undefined}
             activeOpacity={canDelete ? 0.7 : 1}
-            accessibilityLabel="Delete account"
+            accessibilityLabel={t('accessibility.delete_account')}
             accessibilityRole="button"
             accessibilityState={{ disabled: !canDelete }}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}

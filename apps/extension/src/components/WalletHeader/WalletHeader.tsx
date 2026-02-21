@@ -4,22 +4,16 @@
  * Web version using MUI and @emotion/styled for browser extension
  */
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import MuiAvatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import { colors, spacing, borderRadius, fontFamily, fontWeight, getAvatarColor } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials } from '@salmon/shared';
 import { CopyIcon, SettingsIcon, WalletIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
-/**
- * Truncates an address to show first 6 and last 4 characters
- */
-function truncateAddress(address: string): string {
-  if (!address || address.length < 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
 
 const Container = styled(Box)({
   display: 'flex',
@@ -27,7 +21,7 @@ const Container = styled(Box)({
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: `${spacing.md}px ${spacing.xl}px`,
-  backgroundColor: '#0D0D0D',
+  backgroundColor: colors.background.primary,
   borderBottomLeftRadius: borderRadius['2xl'],
   borderBottomRightRadius: borderRadius['2xl'],
 });
@@ -49,7 +43,7 @@ const AccountTextContainer = styled(Box)({
 });
 
 const AccountName = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -66,18 +60,18 @@ const AddressContainer = styled(Box)({
 });
 
 const Address = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontFamily: 'monospace',
-  color: 'rgba(255, 255, 255, 0.6)',
+  color: colors.text.muted,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
 });
 
 const CopyIconStyled = styled(CopyIcon)({
-  marginLeft: 6,
-  fontSize: 14,
-  color: 'rgba(255, 255, 255, 0.6)',
+  marginLeft: spacing.sm,
+  fontSize: fontSize.base,
+  color: colors.text.muted,
 });
 
 const ActionButtons = styled(Box)({
@@ -144,18 +138,15 @@ export function WalletHeader({
     onWalletPress?.();
   }, [onWalletPress]);
 
-  const truncatedAddress = truncateAddress(address);
+  const truncatedAddress = getShortAddress(address, 6);
+
+  const { t } = useTranslation();
 
   const avatarColor = useMemo(
-    () => (accountId ? getAvatarColor(accountId) : '#666'),
+    () => (accountId ? getAvatarColor(accountId) : colors.text.muted),
     [accountId],
   );
-  const initials = useMemo(() => {
-    if (!accountName) return '?';
-    const words = accountName.trim().split(/\s+/);
-    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }, [accountName]);
+  const initials = useMemo(() => getInitials(accountName), [accountName]);
 
   return (
     <Container style={style} className={className}>
@@ -163,7 +154,7 @@ export function WalletHeader({
       <AccountInfo
         onClick={handleCopyPress}
         role="button"
-        aria-label={`Copy wallet address ${truncatedAddress}`}
+        aria-label={t('accessibility.copy_address', { address: truncatedAddress })}
       >
         {/* Avatar */}
         {avatarUrl && !imgError ? (
@@ -206,11 +197,11 @@ export function WalletHeader({
 
       {/* Right side - Settings + Wallet buttons */}
       <ActionButtons>
-        <HeaderButton onClick={handleSettingsPress} aria-label="Open settings">
+        <HeaderButton onClick={handleSettingsPress} aria-label={t('accessibility.open_settings')}>
           <SettingsIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
         </HeaderButton>
         {onWalletPress && (
-          <HeaderButton onClick={handleWalletPress} aria-label="Switch wallet">
+          <HeaderButton onClick={handleWalletPress} aria-label={t('accessibility.switch_wallet')}>
             <WalletIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
           </HeaderButton>
         )}

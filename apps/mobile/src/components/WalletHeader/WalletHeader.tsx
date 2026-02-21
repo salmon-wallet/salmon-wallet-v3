@@ -1,5 +1,6 @@
-import { borderRadius, colors, fontSize, letterSpacing, ms, s, shadows, spacing, vs, getShortAddress, getAvatarColor } from '@salmon/shared';
+import { borderRadius, colors, fontSize, letterSpacing, ms, s, shadows, spacing, vs, getShortAddress, getAvatarColor, getInitials } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,6 +40,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   accountId,
   style,
 }) => {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [imgError, setImgError] = useState(false);
 
@@ -70,12 +72,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
     () => (accountId ? getAvatarColor(accountId) : colors.text.muted),
     [accountId],
   );
-  const initials = useMemo(() => {
-    if (!accountName) return '?';
-    const words = accountName.trim().split(/\s+/);
-    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }, [accountName]);
+  const initials = useMemo(() => getInitials(accountName), [accountName]);
 
   return (
     <View style={[styles.outerContainer, { paddingTop: safeAreaTop }, style]}>
@@ -88,7 +85,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
             onPress={handleWalletPress}
             activeOpacity={0.7}
             accessibilityRole="button"
-            accessibilityLabel="Switch wallet account"
+            accessibilityLabel={t('accessibility.switch_wallet')}
           >
             {avatarUrl && !imgError ? (
               <Image
@@ -116,7 +113,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
               onPress={handleCopyPress}
               activeOpacity={0.7}
               accessibilityRole="button"
-              accessibilityLabel={`Copy wallet address ${truncatedAddress}`}
+              accessibilityLabel={t('accessibility.copy_address', { address: truncatedAddress })}
               style={styles.copyButton}
             >
               <ContentCopySvgIcon size={s(16)} color={colors.text.primary} />
@@ -130,7 +127,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
           onPress={handleSettingsPress}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel="Open settings"
+          accessibilityLabel={t('accessibility.open_settings')}
         >
           <SettingsSvgIcon size={s(30)} color={colors.text.muted} />
         </TouchableOpacity>

@@ -21,6 +21,7 @@ export {
 export {
   getAvatar,
   getRandomAvatar,
+  getInitials,
   AVATAR_BASE_URL,
   PRESET_AVATAR_COUNT,
   PRESET_AVATAR_URLS,

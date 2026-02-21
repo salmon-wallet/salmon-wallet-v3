@@ -72,3 +72,26 @@ export function getRandomAvatar(): string {
 export function isPresetAvatar(url: string): boolean {
   return url.startsWith(AVATAR_BASE_URL) && url.endsWith('.png');
 }
+
+/**
+ * Gets the initials from a name for avatar fallback display.
+ *
+ * - Single word: returns first 2 characters uppercased
+ * - Multiple words: returns first letter of first two words uppercased
+ * - Empty/falsy: returns '?'
+ *
+ * @param name - The name to extract initials from
+ * @returns Up to 2 characters for initials
+ *
+ * @example
+ * getInitials('Account 1')  // 'A1'
+ * getInitials('My Wallet')  // 'MW'
+ * getInitials('Savings')    // 'SA'
+ * getInitials('')           // '?'
+ */
+export function getInitials(name: string): string {
+  if (!name) return '?';
+  const words = name.trim().split(/\s+/);
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}

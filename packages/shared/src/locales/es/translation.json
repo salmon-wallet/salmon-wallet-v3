@@ -116,6 +116,8 @@
     "remove_all_message": "Esto eliminará todas las billeteras y restablecerá la aplicación. Asegúrate de haber respaldado todas las frases de recuperación.",
     "confirm_remove": "Sí, Eliminar",
     "cancel": "Cancelar",
+    "remove_wallet_error": "Error al eliminar la billetera. Por favor, inténtalo de nuevo.",
+    "remove_wallets_error": "Error al eliminar las billeteras. Por favor, inténtalo de nuevo.",
     "wallets": {
       "your_wallets": "Tus Billeteras",
       "my_wallets": "Mis Cuentas de Blockchain",
@@ -469,5 +471,12 @@
   "header": {
     "connected": "Conectado a {{hostname}}",
     "disconnected": "No conectado a {{hostname}}"
+  },
+  "accessibility": {
+    "copy_address": "Copiar dirección de billetera {{address}}",
+    "open_settings": "Abrir configuración",
+    "switch_wallet": "Cambiar cuenta de billetera",
+    "edit_account": "Editar cuenta",
+    "delete_account": "Eliminar cuenta"
   }
 }

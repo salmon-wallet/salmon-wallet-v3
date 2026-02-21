@@ -17,6 +17,8 @@ import {
   colors,
   spacing,
   borderRadius,
+  fontSize,
+  fontWeight,
   PRESET_AVATAR_URLS,
   useAccountsContext,
   useAvatarNfts,
@@ -47,12 +49,12 @@ const TabButton = styled(Button, {
 })<{ isActive?: boolean }>(({ isActive }) => ({
   flex: 1,
   textTransform: 'none',
-  fontWeight: 600,
-  fontSize: 14,
+  fontWeight: fontWeight.semibold,
+  fontSize: fontSize.base,
   padding: `${spacing.sm}px 0`,
   borderRadius: borderRadius.md,
   backgroundColor: isActive ? colors.accent.primary : 'rgba(255, 255, 255, 0.08)',
-  color: isActive ? '#FFFFFF' : colors.text.secondary,
+  color: isActive ? colors.text.primary : colors.text.secondary,
   '&:hover': {
     backgroundColor: isActive ? colors.accent.primary : 'rgba(255, 255, 255, 0.12)',
   },
@@ -124,11 +126,11 @@ const SaveButton = styled(Button, {
   padding: `${spacing.md}px`,
   margin: `${spacing.lg}px ${spacing.lg}px 0`,
   textTransform: 'none',
-  fontWeight: 700,
-  fontSize: 16,
+  fontWeight: fontWeight.bold,
+  fontSize: fontSize.md,
   borderRadius: borderRadius.lg,
   backgroundColor: isDisabled ? 'rgba(255, 255, 255, 0.1)' : colors.accent.primary,
-  color: isDisabled ? colors.text.secondary : '#FFFFFF',
+  color: isDisabled ? colors.text.secondary : colors.text.primary,
   '&:hover': {
     backgroundColor: isDisabled ? 'rgba(255, 255, 255, 0.1)' : colors.accent.primary,
   },
@@ -223,7 +225,7 @@ export function AccountAvatarPage({ onBack }: AccountAvatarPageProps): React.Rea
           </LoadingState>
         ) : nfts.length === 0 ? (
           <EmptyState>
-            <Typography sx={{ color: colors.text.secondary, fontSize: 14 }}>
+            <Typography sx={{ color: colors.text.secondary, fontSize: fontSize.base }}>
               {t('settings.avatar_empty_nfts')}
             </Typography>
           </EmptyState>

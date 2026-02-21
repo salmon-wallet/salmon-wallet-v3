@@ -116,6 +116,8 @@
     "remove_all_message": "This will remove all wallets and reset the app. Make sure you have backed up all seed phrases.",
     "confirm_remove": "Yes, Remove",
     "cancel": "Cancel",
+    "remove_wallet_error": "Failed to remove wallet. Please try again.",
+    "remove_wallets_error": "Failed to remove wallets. Please try again.",
     "wallets": {
       "your_wallets": "Your Wallets",
       "my_wallets": "My Blockchain Accounts",
@@ -468,5 +470,12 @@
   "header": {
     "connected": "Connected to {{hostname}}",
     "disconnected": "Not connected to {{hostname}}"
+  },
+  "accessibility": {
+    "copy_address": "Copy wallet address {{address}}",
+    "open_settings": "Open settings",
+    "switch_wallet": "Switch wallet account",
+    "edit_account": "Edit account",
+    "delete_account": "Delete account"
   }
 }

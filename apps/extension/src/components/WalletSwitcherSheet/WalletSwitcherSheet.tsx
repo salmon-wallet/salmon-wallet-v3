@@ -6,7 +6,7 @@
  * and action buttons for editing and deleting accounts.
  */
 
-import React, { useCallback, useMemo, useState, type SyntheticEvent } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Dialog from '@mui/material/Dialog';
@@ -31,6 +31,9 @@ import {
   borderRadius,
   getShortAddress,
   getAvatarColor,
+  getInitials,
+  fontSize as fontSizeTokens,
+  fontWeight as fontWeightTokens,
 } from '@salmon/shared';
 import { BaseSheetDialog } from '../BaseSheetDialog';
 
@@ -39,18 +42,6 @@ import type { WalletSwitcherSheetProps, AccountListItemProps } from './types';
 // ============================================================================
 // Utility Functions
 // ============================================================================
-
-/**
- * Gets initials from an account name.
- * Returns first letter of first two words, or first two letters if single word.
- */
-function getInitials(name: string): string {
-  const words = name.trim().split(/\s+/);
-  if (words.length >= 2) {
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }
-  return name.slice(0, 2).toUpperCase();
-}
 
 // ============================================================================
 // Styled Components
@@ -76,14 +67,14 @@ const AccountAvatar = styled(Avatar)<{ bgColor: string }>(({ bgColor }) => ({
   backgroundColor: bgColor,
   width: 40,
   height: 40,
-  fontSize: 14,
-  fontWeight: 600,
-  color: '#FFFFFF',
+  fontSize: fontSizeTokens.base,
+  fontWeight: fontWeightTokens.semibold,
+  color: colors.text.primary,
 }));
 
 const AccountName = styled(Typography)({
-  fontSize: 14,
-  fontWeight: 600,
+  fontSize: fontSizeTokens.base,
+  fontWeight: fontWeightTokens.semibold,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -91,7 +82,7 @@ const AccountName = styled(Typography)({
 });
 
 const AccountAddress = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSizeTokens.sm,
   color: colors.text.secondary,
   fontFamily: 'monospace',
 });
@@ -129,8 +120,8 @@ const AddAccountButton = styled(Button)({
   justifyContent: 'flex-start',
   textTransform: 'none',
   color: colors.accent.primary,
-  fontSize: 14,
-  fontWeight: 600,
+  fontSize: fontSizeTokens.base,
+  fontWeight: fontWeightTokens.semibold,
   '&:hover': {
     backgroundColor: 'rgba(255, 92, 69, 0.1)',
   },
@@ -146,14 +137,14 @@ const ConfirmDialogPaper = styled(Box)({
 });
 
 const ConfirmTitle = styled(Typography)({
-  fontSize: 16,
-  fontWeight: 600,
+  fontSize: fontSizeTokens.md,
+  fontWeight: fontWeightTokens.semibold,
   color: colors.text.primary,
   marginBottom: spacing.md,
 });
 
 const ConfirmMessage = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSizeTokens.base,
   color: colors.text.secondary,
   marginBottom: spacing.xl,
 });
@@ -169,7 +160,7 @@ const CancelButton = styled(Button)({
   backgroundColor: colors.button.secondaryBackground,
   color: colors.button.secondaryText,
   textTransform: 'none',
-  fontWeight: 600,
+  fontWeight: fontWeightTokens.semibold,
   padding: `${spacing.sm}px ${spacing.lg}px`,
   borderRadius: borderRadius.md,
   '&:hover': {
@@ -180,9 +171,9 @@ const CancelButton = styled(Button)({
 const DeleteButton = styled(Button)({
   flex: 1,
   backgroundColor: colors.status.error,
-  color: '#FFFFFF',
+  color: colors.text.primary,
   textTransform: 'none',
-  fontWeight: 600,
+  fontWeight: fontWeightTokens.semibold,
   padding: `${spacing.sm}px ${spacing.lg}px`,
   borderRadius: borderRadius.md,
   '&:hover': {
@@ -204,6 +195,7 @@ function AccountListItem({
   onEdit,
   onDelete,
 }: AccountListItemProps) {
+  const { t } = useTranslation();
   const avatarColor = useMemo(() => getAvatarColor(account.id), [account.id]);
   const initials = useMemo(() => getInitials(account.name), [account.name]);
   const [imgError, setImgError] = useState(false);
@@ -269,7 +261,7 @@ function AccountListItem({
             <ActionIconButton
               size="small"
               onClick={handleEditClick}
-              aria-label="Edit account"
+              aria-label={t('accessibility.edit_account')}
             >
               <EditIcon fontSize="small" />
             </ActionIconButton>
@@ -278,7 +270,7 @@ function AccountListItem({
             <DeleteIconButton
               size="small"
               onClick={handleDeleteClick}
-              aria-label="Delete account"
+              aria-label={t('accessibility.delete_account')}
             >
               <DeleteIcon fontSize="small" />
             </DeleteIconButton>
