@@ -216,19 +216,19 @@ describe('BitcoinAccount.btcToSatoshis', () => {
 
 describe('btcToSatoshis (transfer.ts)', () => {
   it('should convert 0 BTC to 0 satoshis', () => {
-    expect(btcToSatoshis(0)).toBe(0);
+    expect(btcToSatoshis(0)).toBe(0n);
   });
 
   it('should convert 1 BTC to 100,000,000 satoshis', () => {
-    expect(btcToSatoshis(1)).toBe(SATOSHIS_PER_BTC);
+    expect(btcToSatoshis(1)).toBe(BigInt(SATOSHIS_PER_BTC));
   });
 
   it('should convert 0.001 BTC correctly', () => {
-    expect(btcToSatoshis(0.001)).toBe(100_000);
+    expect(btcToSatoshis(0.001)).toBe(100_000n);
   });
 
   it('should floor fractional satoshis', () => {
-    expect(btcToSatoshis(0.000000015)).toBe(1);
+    expect(btcToSatoshis(0.000000015)).toBe(1n);
   });
 });
 
@@ -251,22 +251,16 @@ describe('satoshisToBtc (transfer.ts)', () => {
 // ============================================================================
 
 describe('BitcoinAccount.formatAddress', () => {
-  it('should format long address with default parameters', () => {
+  it('should format long address with default parameters (8 chars)', () => {
     const address = 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4';
     const formatted = BitcoinAccount.formatAddress(address);
     expect(formatted).toBe('bc1qw508...7kv8f3t4');
   });
 
-  it('should format address with custom start and end chars', () => {
+  it('should format address with custom chars', () => {
     const address = 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4';
-    const formatted = BitcoinAccount.formatAddress(address, 6, 6);
+    const formatted = BitcoinAccount.formatAddress(address, 6);
     expect(formatted).toBe('bc1qw5...v8f3t4');
-  });
-
-  it('should return full address if shorter than start + end', () => {
-    const address = '1A1zP1eP';
-    const formatted = BitcoinAccount.formatAddress(address, 8, 8);
-    expect(formatted).toBe(address);
   });
 
   it('should handle very short addresses', () => {
@@ -277,7 +271,7 @@ describe('BitcoinAccount.formatAddress', () => {
 
   it('should format P2PKH address', () => {
     const address = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
-    const formatted = BitcoinAccount.formatAddress(address, 10, 10);
+    const formatted = BitcoinAccount.formatAddress(address, 10);
     expect(formatted).toBe('1A1zP1eP5Q...Lmv7DivfNa');
   });
 });

@@ -98,6 +98,7 @@ export {
   // ETH conversions
   ethToWei,
   weiToEth,
+  weiToEthNumber,
   // BTC conversions
   btcToSatoshis,
   satoshisToBtc,

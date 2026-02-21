@@ -1,5 +1,6 @@
 import { JsonRpcProvider, Wallet, isAddress, getAddress } from 'ethers';
-import { WEI_PER_ETH_BIGINT } from '../../utils/decimals';
+import { ethToWei, weiToEthNumber } from '../../utils/decimals';
+import { getShortAddress } from '../../utils/address';
 import type { EthereumAccountBalance } from '../../types/balance';
 import type { EthereumNetworkId } from '../../types/blockchain';
 
@@ -193,7 +194,7 @@ export class EthereumAccount {
     const wei = await this.getCredit();
     return {
       wei,
-      eth: EthereumAccount.weiToEth(wei),
+      eth: weiToEthNumber(wei),
     };
   }
 
@@ -211,19 +212,11 @@ export class EthereumAccount {
    * Formats an Ethereum address for display (shortened version).
    *
    * @param address - Full Ethereum address
-   * @param startChars - Number of characters to show at start (default: 6)
-   * @param endChars - Number of characters to show at end (default: 4)
+   * @param chars - Number of characters to show at start and end (default: 6)
    * @returns Formatted address like "0x1234...5678"
    */
-  static formatAddress(
-    address: string,
-    startChars: number = 6,
-    endChars: number = 4
-  ): string {
-    if (address.length <= startChars + endChars) {
-      return address;
-    }
-    return `${address.slice(0, startChars)}...${address.slice(-endChars)}`;
+  static formatAddress(address: string, chars: number = 6): string {
+    return getShortAddress(address, chars) ?? address;
   }
 
   /**
@@ -247,25 +240,11 @@ export class EthereumAccount {
     return EthereumAccount.isValidAddress(address);
   }
 
-  /**
-   * Converts wei to ETH.
-   *
-   * @param wei - Amount in wei
-   * @returns Amount in ETH
-   */
-  static weiToEth(wei: bigint): number {
-    return Number(wei) / Number(WEI_PER_ETH_BIGINT);
-  }
+  /** @deprecated Use `weiToEthNumber` from `utils/decimals` directly */
+  static weiToEth = weiToEthNumber;
 
-  /**
-   * Converts ETH to wei.
-   *
-   * @param eth - Amount in ETH
-   * @returns Amount in wei
-   */
-  static ethToWei(eth: number): bigint {
-    return BigInt(Math.floor(eth * Number(WEI_PER_ETH_BIGINT)));
-  }
+  /** @deprecated Use `ethToWei` from `utils/decimals` directly */
+  static ethToWei = ethToWei;
 
   // ============================================================================
   // Address Validation Methods
@@ -463,7 +442,7 @@ export class EthereumAccount {
   static createBalance(wei: bigint): EthereumBalance {
     return {
       wei,
-      eth: EthereumAccount.weiToEth(wei),
+      eth: weiToEthNumber(wei),
     };
   }
 }

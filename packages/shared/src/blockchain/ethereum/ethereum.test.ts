@@ -753,18 +753,18 @@ describe('EthereumAccount Static Methods', () => {
   });
 
   describe('formatAddress', () => {
-    it('should format address with default parameters', () => {
+    it('should format address with default parameters (6 chars)', () => {
       const address = '0x742d35Cc6634C0532925a3b844Bc9e7595f35b32';
       const formatted = EthereumAccount.formatAddress(address);
 
-      expect(formatted).toBe('0x742d...5b32');
+      expect(formatted).toBe('0x742d...f35b32');
     });
 
-    it('should format address with custom parameters', () => {
+    it('should format address with custom chars', () => {
       const address = '0x742d35Cc6634C0532925a3b844Bc9e7595f35b32';
-      const formatted = EthereumAccount.formatAddress(address, 8, 6);
+      const formatted = EthereumAccount.formatAddress(address, 8);
 
-      expect(formatted).toBe('0x742d35...f35b32');
+      expect(formatted).toBe('0x742d35...95f35b32');
     });
 
     it('should return full address if too short', () => {

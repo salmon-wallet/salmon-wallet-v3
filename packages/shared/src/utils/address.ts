@@ -33,6 +33,10 @@ export const getShortAddress = (
     return undefined;
   }
 
+  if (address.length <= chars * 2 + 3) {
+    return address;
+  }
+
   const start = address.slice(0, chars);
   const end = address.slice(-chars);
 

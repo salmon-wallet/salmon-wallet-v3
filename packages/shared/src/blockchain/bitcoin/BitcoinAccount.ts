@@ -2,7 +2,8 @@ import * as bitcoin from 'bitcoinjs-lib';
 import type { BIP32Interface } from 'bip32';
 import type { TokenPrice } from '../../types/price';
 import { decorateBalancePrices } from '../../utils/balance';
-import { SATOSHIS_PER_BTC } from '../../utils/decimals';
+import { SATOSHIS_PER_BTC, satoshisToBtc, btcToSatoshis } from '../../utils/decimals';
+import { getShortAddress } from '../../utils/address';
 import type {
   BitcoinBalanceItem,
   TransactionPaging,
@@ -193,19 +194,11 @@ export class BitcoinAccount {
    * Formats a Bitcoin address for display (shortened version).
    *
    * @param address - Full Bitcoin address
-   * @param startChars - Number of characters to show at start (default: 8)
-   * @param endChars - Number of characters to show at end (default: 8)
+   * @param chars - Number of characters to show at start and end (default: 8)
    * @returns Formatted address like "1A1zP1eP...b4Vr9HG"
    */
-  static formatAddress(
-    address: string,
-    startChars: number = 8,
-    endChars: number = 8
-  ): string {
-    if (address.length <= startChars + endChars) {
-      return address;
-    }
-    return `${address.slice(0, startChars)}...${address.slice(-endChars)}`;
+  static formatAddress(address: string, chars: number = 8): string {
+    return getShortAddress(address, chars) ?? address;
   }
 
   /**
@@ -279,25 +272,11 @@ export class BitcoinAccount {
     }
   }
 
-  /**
-   * Converts satoshis to BTC.
-   *
-   * @param satoshis - Amount in satoshis
-   * @returns Amount in BTC
-   */
-  static satoshisToBtc(satoshis: number | bigint): number {
-    return Number(satoshis) / SATOSHIS_PER_BTC;
-  }
+  /** @deprecated Use `satoshisToBtc` from `utils/decimals` directly */
+  static satoshisToBtc = satoshisToBtc;
 
-  /**
-   * Converts BTC to satoshis.
-   *
-   * @param btc - Amount in BTC
-   * @returns Amount in satoshis
-   */
-  static btcToSatoshis(btc: number): bigint {
-    return BigInt(Math.floor(btc * SATOSHIS_PER_BTC));
-  }
+  /** @deprecated Use `btcToSatoshis` from `utils/decimals` directly */
+  static btcToSatoshis = btcToSatoshis;
 
   // ============================================================================
   // Balance Methods
@@ -321,7 +300,7 @@ export class BitcoinAccount {
     try {
       return await this.fetchPricesFn('bitcoin');
     } catch (e) {
-      console.log('Could not get Bitcoin prices', (e as Error).message);
+      console.warn('Could not get Bitcoin prices', (e as Error).message);
       return null;
     }
   }
@@ -624,7 +603,7 @@ export class BitcoinAccount {
     const satoshisBigInt = typeof satoshis === 'bigint' ? satoshis : BigInt(satoshis);
     return {
       satoshis: satoshisBigInt,
-      btc: BitcoinAccount.satoshisToBtc(satoshisBigInt),
+      btc: satoshisToBtc(satoshisBigInt),
     };
   }
 

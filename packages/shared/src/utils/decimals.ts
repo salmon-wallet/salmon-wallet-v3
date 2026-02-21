@@ -81,6 +81,16 @@ export function weiToEth(weiAmount: bigint): string {
   return formatUnits(weiAmount, 18);
 }
 
+/**
+ * Convert wei to ETH as a number
+ *
+ * @param weiAmount - Amount in wei
+ * @returns Amount in ETH as number
+ */
+export function weiToEthNumber(weiAmount: bigint): number {
+  return Number(weiAmount) / Number(WEI_PER_ETH_BIGINT);
+}
+
 // ============================================================================
 // BTC-specific Conversion Functions
 // ============================================================================
@@ -89,10 +99,10 @@ export function weiToEth(weiAmount: bigint): string {
  * Converts BTC to satoshis
  *
  * @param btc - Amount in BTC
- * @returns Amount in satoshis
+ * @returns Amount in satoshis as bigint
  */
-export function btcToSatoshis(btc: number): number {
-  return Math.floor(btc * SATOSHIS_PER_BTC);
+export function btcToSatoshis(btc: number): bigint {
+  return BigInt(Math.floor(btc * SATOSHIS_PER_BTC));
 }
 
 /**
@@ -101,6 +111,6 @@ export function btcToSatoshis(btc: number): number {
  * @param satoshis - Amount in satoshis
  * @returns Amount in BTC
  */
-export function satoshisToBtc(satoshis: number): number {
-  return satoshis / SATOSHIS_PER_BTC;
+export function satoshisToBtc(satoshis: number | bigint): number {
+  return Number(satoshis) / SATOSHIS_PER_BTC;
 }
