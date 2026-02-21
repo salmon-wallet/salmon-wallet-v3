@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Linking } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,27 +10,27 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import type { TransactionSuccessScreenProps } from '@salmon/shared';
 import { PrimaryButton } from '../Button';
 
-interface SwapSuccessScreenProps {
-  inAmount: string;
-  outAmount: string;
-  inSymbol: string;
-  outSymbol: string;
-  onContinue: () => void;
-}
+// ============================================================================
+// Component
+// ============================================================================
 
-export const SwapSuccessScreen: React.FC<SwapSuccessScreenProps> = ({
-  inAmount,
-  outAmount,
-  inSymbol,
-  outSymbol,
+export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> = ({
+  title,
+  summary,
+  explorerUrl,
   onContinue,
 }) => {
+  const { t } = useTranslation();
+
   const circleScale = useSharedValue(0);
   const checkOpacity = useSharedValue(0);
   const textOpacity = useSharedValue(0);
+  const linkOpacity = useSharedValue(0);
   const buttonOpacity = useSharedValue(0);
 
   useEffect(() => {
@@ -39,8 +39,9 @@ export const SwapSuccessScreen: React.FC<SwapSuccessScreenProps> = ({
     circleScale.value = withSpring(1, { damping: 12, stiffness: 180, mass: 0.8 });
     checkOpacity.value = withDelay(200, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }));
     textOpacity.value = withDelay(400, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }));
+    linkOpacity.value = withDelay(500, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }));
     buttonOpacity.value = withDelay(600, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }));
-  }, [circleScale, checkOpacity, textOpacity, buttonOpacity]);
+  }, [circleScale, checkOpacity, textOpacity, linkOpacity, buttonOpacity]);
 
   const circleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: circleScale.value }],
@@ -54,26 +55,39 @@ export const SwapSuccessScreen: React.FC<SwapSuccessScreenProps> = ({
     opacity: textOpacity.value,
   }));
 
+  const linkStyle = useAnimatedStyle(() => ({
+    opacity: linkOpacity.value,
+  }));
+
   const buttonStyle = useAnimatedStyle(() => ({
     opacity: buttonOpacity.value,
   }));
 
+  const handleExplorerPress = () => {
+    if (explorerUrl) {
+      Linking.openURL(explorerUrl);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* Checkmark Circle */}
       <Animated.View style={[styles.circleOuter, circleStyle]}>
         <Animated.Text style={[styles.checkmark, checkStyle]}>✓</Animated.Text>
       </Animated.View>
 
-      {/* Text */}
       <Animated.View style={[styles.textContainer, textStyle]}>
-        <Text style={styles.title}>Swap Complete</Text>
-        <Text style={styles.summary}>
-          {inAmount} {inSymbol} → {outAmount} {outSymbol}
-        </Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.summary}>{summary}</Text>
       </Animated.View>
 
-      {/* Continue Button */}
+      {explorerUrl && (
+        <Animated.View style={[styles.linkContainer, linkStyle]}>
+          <TouchableOpacity onPress={handleExplorerPress} activeOpacity={0.7}>
+            <Text style={styles.explorerLink}>{t('transaction.viewOnExplorer')}</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
+
       <Animated.View style={[styles.buttonContainer, buttonStyle]}>
         <LinearGradient
           colors={gradients.primaryButton.colors}
@@ -82,13 +96,17 @@ export const SwapSuccessScreen: React.FC<SwapSuccessScreenProps> = ({
           style={styles.buttonGradient}
         >
           <PrimaryButton onPress={onContinue} style={styles.button}>
-            Continue
+            {t('transaction.continue')}
           </PrimaryButton>
         </LinearGradient>
       </Animated.View>
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
@@ -114,7 +132,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     alignItems: 'center',
-    marginBottom: vs(spacing['4xl']),
+    marginBottom: vs(spacing.lg),
   },
   title: {
     fontSize: ms(24),
@@ -128,6 +146,17 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     textAlign: 'center',
+  },
+  linkContainer: {
+    alignItems: 'center',
+    marginBottom: vs(spacing['4xl']),
+  },
+  explorerLink: {
+    fontSize: ms(14),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.accent.primary,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
   buttonContainer: {
     alignItems: 'center',

@@ -509,6 +509,12 @@
     "connected": "Connected to {{hostname}}",
     "disconnected": "Not connected to {{hostname}}"
   },
+  "transaction": {
+    "sendComplete": "Send Complete",
+    "swapComplete": "Swap Complete",
+    "viewOnExplorer": "View on Explorer",
+    "continue": "Continue"
+  },
   "accessibility": {
     "copy_address": "Copy wallet address {{address}}",
     "open_settings": "Open settings",

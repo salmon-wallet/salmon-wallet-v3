@@ -4,7 +4,7 @@ import type { BlockchainType, BlockchainAccount } from '../blockchain';
 /**
  * Steps in the send flow
  */
-export type SendStep = 'token-select' | 'address-amount' | 'confirmation';
+export type SendStep = 'token-select' | 'address-amount' | 'confirmation' | 'success';
 
 /**
  * Token data for the send flow (extends Token with decimals)

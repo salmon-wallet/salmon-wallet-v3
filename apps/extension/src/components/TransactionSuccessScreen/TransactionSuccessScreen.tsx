@@ -2,9 +2,16 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import { colors, spacing, borderRadius, fontFamily } from '@salmon/shared';
+import type { TransactionSuccessScreenProps } from '@salmon/shared';
+
+// ============================================================================
+// Keyframes
+// ============================================================================
 
 const scaleIn = keyframes`
   0% { transform: scale(0); }
@@ -17,9 +24,14 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
+// ============================================================================
+// Styled Components
+// ============================================================================
+
 const Container = styled(Box)({
   display: 'flex',
   flex: 1,
+  height: '100%',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
@@ -61,9 +73,20 @@ const Summary = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   textAlign: 'center',
-  marginBottom: spacing['4xl'],
+  marginBottom: spacing.lg,
   opacity: 0,
   animation: `${fadeIn} 0.3s ease-out 0.5s forwards`,
+});
+
+const ExplorerLink = styled(Link)({
+  fontSize: 14,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.accent.primary,
+  textAlign: 'center',
+  cursor: 'pointer',
+  marginBottom: spacing['4xl'],
+  opacity: 0,
+  animation: `${fadeIn} 0.3s ease-out 0.55s forwards`,
 });
 
 const ContinueButton = styled(Button)({
@@ -84,31 +107,39 @@ const ContinueButton = styled(Button)({
   },
 });
 
-interface SwapSuccessScreenProps {
-  inAmount: string;
-  outAmount: string;
-  inSymbol: string;
-  outSymbol: string;
-  onContinue: () => void;
-}
+// ============================================================================
+// Component
+// ============================================================================
 
-export function SwapSuccessScreen({
-  inAmount,
-  outAmount,
-  inSymbol,
-  outSymbol,
+export function TransactionSuccessScreen({
+  title,
+  summary,
+  explorerUrl,
   onContinue,
-}: SwapSuccessScreenProps): React.ReactElement {
+}: TransactionSuccessScreenProps): React.ReactElement {
+  const { t } = useTranslation();
+
+  const handleExplorerClick = () => {
+    if (explorerUrl) {
+      window.open(explorerUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <Container>
       <Circle>
         <Checkmark>✓</Checkmark>
       </Circle>
-      <Title>Swap Complete</Title>
-      <Summary>
-        {inAmount} {inSymbol} → {outAmount} {outSymbol}
-      </Summary>
-      <ContinueButton onClick={onContinue}>Continue</ContinueButton>
+      <Title>{title}</Title>
+      <Summary>{summary}</Summary>
+      {explorerUrl && (
+        <ExplorerLink onClick={handleExplorerClick} underline="always">
+          {t('transaction.viewOnExplorer')}
+        </ExplorerLink>
+      )}
+      <ContinueButton onClick={onContinue}>
+        {t('transaction.continue')}
+      </ContinueButton>
     </Container>
   );
 }

@@ -127,3 +127,6 @@ export type {
   SecurityPagePropsBase,
   SecurityPagePropsMobile,
 } from './security-page';
+
+// Transaction Success Screen
+export type { TransactionSuccessScreenProps } from './transaction-success-screen';

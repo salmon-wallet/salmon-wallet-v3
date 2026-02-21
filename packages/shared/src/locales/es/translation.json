@@ -510,6 +510,12 @@
     "connected": "Conectado a {{hostname}}",
     "disconnected": "No conectado a {{hostname}}"
   },
+  "transaction": {
+    "sendComplete": "Envio Completado",
+    "swapComplete": "Swap Completado",
+    "viewOnExplorer": "Ver en Explorer",
+    "continue": "Continuar"
+  },
   "accessibility": {
     "copy_address": "Copiar dirección de billetera {{address}}",
     "open_settings": "Abrir configuración",

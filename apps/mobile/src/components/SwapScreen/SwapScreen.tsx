@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { useSwapScreenLogic } from '@salmon/shared';
+import { useSwapScreenLogic, getTransactionUrl, getDefaultExplorer } from '@salmon/shared';
+import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
+import { useTranslation } from 'react-i18next';
 import { SwapInputScreen } from './SwapInputScreen';
 import { SwapReviewScreen } from './SwapReviewScreen';
-import { SwapSuccessScreen } from './SwapSuccessScreen';
+import { TransactionSuccessScreen } from '../TransactionSuccessScreen';
 import { TokenSelectorModal } from '../TokenSelector';
 import { BridgeRecipientScreen } from '../BridgeScreen/BridgeRecipientScreen';
 import { BridgeReviewScreen } from '../BridgeScreen/BridgeReviewScreen';
@@ -18,6 +20,7 @@ import type { SwapScreenProps } from './types';
  */
 export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
   const { style } = props;
+  const { t } = useTranslation();
 
   const logic = useSwapScreenLogic({
     ...props,
@@ -89,11 +92,18 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
       )}
 
       {logic.step === 'success' && (
-        <SwapSuccessScreen
-          inAmount={logic.inAmount}
-          outAmount={logic.outAmount}
-          inSymbol={logic.inToken?.symbol ?? ''}
-          outSymbol={logic.outToken?.symbol ?? ''}
+        <TransactionSuccessScreen
+          title={t('transaction.swapComplete')}
+          summary={`${logic.inAmount} ${logic.inToken?.symbol ?? ''} → ${logic.outAmount} ${logic.outToken?.symbol ?? ''}`}
+          explorerUrl={logic.successTxId && logic.inToken?.chain
+            ? getTransactionUrl(
+                logic.inToken.chain.toUpperCase() as Blockchain,
+                (logic.inToken.networkId ?? 'mainnet') as NetworkEnvironment,
+                getDefaultExplorer(logic.inToken.chain.toUpperCase() as Blockchain),
+                logic.successTxId
+              )
+            : null
+          }
           onContinue={logic.handleSuccessContinue}
         />
       )}

@@ -11,11 +11,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { useSendTransaction } from '@salmon/shared';
+import {
+  useSendTransaction,
+  getTransactionUrl,
+  getDefaultExplorer,
+  getShortAddress,
+} from '@salmon/shared';
+import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
+import { useTranslation } from 'react-i18next';
 import { PageShell } from '../PageShell';
 import { StepTokenSelect } from './StepTokenSelect';
 import { StepAddressAmount } from './StepAddressAmount';
 import { StepConfirmation } from './StepConfirmation';
+import { TransactionSuccessScreen } from '../TransactionSuccessScreen';
 import type { SendPageProps, SendStep, SendToken } from './types';
 
 // ============================================================================
@@ -55,6 +63,9 @@ export function SendPage({
   );
   const [recipientAddress, setRecipientAddress] = useState('');
   const [amount, setAmount] = useState('');
+  const [successTxId, setSuccessTxId] = useState<string | null>(null);
+
+  const { t } = useTranslation();
 
   // Send hook
   const sendHook = useSendTransaction({ account, blockchain });
@@ -70,6 +81,7 @@ export function SendPage({
     }
     setRecipientAddress('');
     setAmount('');
+    setSuccessTxId(null);
   }, [skipTokenSelect, tokens]);
 
   // Exit handler (navigates back to home)
@@ -99,17 +111,23 @@ export function SendPage({
     sendHook.reset();
   }, [sendHook]);
 
-  const handleSuccess = useCallback(
-    (txId: string) => {
-      onSuccess?.(txId);
-      onBack();
-    },
-    [onSuccess, onBack]
-  );
+  const handleSuccess = useCallback((txId: string) => {
+    setSuccessTxId(txId);
+    setStep('success');
+  }, []);
+
+  const handleSuccessContinue = useCallback(() => {
+    if (successTxId) {
+      onSuccess?.(successTxId);
+    }
+    onBack();
+  }, [successTxId, onSuccess, onBack]);
 
   // Header back button handler
   const handleBackPress = useCallback(() => {
-    if (step === 'confirmation') {
+    if (step === 'success') {
+      handleSuccessContinue();
+    } else if (step === 'confirmation') {
       handleBackToAddressAmount();
     } else if (step === 'address-amount') {
       if (skipTokenSelect) {
@@ -121,7 +139,7 @@ export function SendPage({
       // token-select step: go back to home
       handleExit();
     }
-  }, [step, skipTokenSelect, handleBackToAddressAmount, handleBackToTokenSelect, handleExit]);
+  }, [step, skipTokenSelect, handleSuccessContinue, handleBackToAddressAmount, handleBackToTokenSelect, handleExit]);
 
   return (
     <PageShell
@@ -165,6 +183,20 @@ export function SendPage({
             onBack={handleBackToAddressAmount}
             onCancel={handleExit}
             onSuccess={handleSuccess}
+          />
+        )}
+
+        {step === 'success' && successTxId && selectedToken && (
+          <TransactionSuccessScreen
+            title={t('transaction.sendComplete')}
+            summary={`${amount} ${selectedToken.symbol} to ${getShortAddress(recipientAddress) ?? recipientAddress}`}
+            explorerUrl={getTransactionUrl(
+              blockchain.toUpperCase() as Blockchain,
+              (account as { network: { networkId: string } }).network.networkId as NetworkEnvironment,
+              getDefaultExplorer(blockchain.toUpperCase() as Blockchain),
+              successTxId
+            )}
+            onContinue={handleSuccessContinue}
           />
         )}
       </ContentArea>

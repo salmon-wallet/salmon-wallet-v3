@@ -15,12 +15,18 @@ import {
   vs,
   s,
   useSendTransaction,
+  getTransactionUrl,
+  getDefaultExplorer,
+  getShortAddress,
 } from '@salmon/shared';
+import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
+import { useTranslation } from 'react-i18next';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { StepTokenSelect } from './StepTokenSelect';
 import { StepAddressAmount } from './StepAddressAmount';
 import { StepConfirmation } from './StepConfirmation';
+import { TransactionSuccessScreen } from '../TransactionSuccessScreen';
 import type { SendSheetProps, SendStep, SendToken } from './types';
 
 // ============================================================================
@@ -53,6 +59,9 @@ export const SendSheet: React.FC<SendSheetProps> = ({
   );
   const [recipientAddress, setRecipientAddress] = useState('');
   const [amount, setAmount] = useState('');
+  const [successTxId, setSuccessTxId] = useState<string | null>(null);
+
+  const { t } = useTranslation();
 
   // Send hook
   const sendHook = useSendTransaction({ account, blockchain });
@@ -70,6 +79,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
       }
       setRecipientAddress('');
       setAmount('');
+      setSuccessTxId(null);
       sendHook.reset();
     }, ANIMATION_DURATION);
   }, [onClose, sendHook, skipTokenSelect, tokens]);
@@ -81,7 +91,9 @@ export const SendSheet: React.FC<SendSheetProps> = ({
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        if (step === 'confirmation') {
+        if (step === 'success') {
+          handleSuccessContinue();
+        } else if (step === 'confirmation') {
           setStep('address-amount');
         } else if (step === 'address-amount' && !skipTokenSelect) {
           setStep('token-select');
@@ -117,9 +129,16 @@ export const SendSheet: React.FC<SendSheetProps> = ({
   }, [sendHook]);
 
   const handleSuccess = useCallback((txId: string) => {
-    onSuccess?.(txId);
+    setSuccessTxId(txId);
+    setStep('success');
+  }, []);
+
+  const handleSuccessContinue = useCallback(() => {
+    if (successTxId) {
+      onSuccess?.(successTxId);
+    }
     handleClose();
-  }, [onSuccess, handleClose]);
+  }, [successTxId, onSuccess, handleClose]);
 
   // Back button handler for the header
   const handleBackPress = useCallback(() => {
@@ -135,6 +154,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
   }, [step, skipTokenSelect, handleBackToAddressAmount, handleBackToTokenSelect, handleClose]);
 
   const showBackButton = step !== 'token-select' || skipTokenSelect;
+  const showHeader = step !== 'success';
 
   // Custom header content: title row with optional back button
   const headerContent = (
@@ -163,7 +183,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
     <BottomSheetContainer
       visible={visible}
       onClose={handleClose}
-      headerContent={headerContent}
+      headerContent={showHeader ? headerContent : undefined}
       style={style}
     >
       {/* Content */}
@@ -197,6 +217,20 @@ export const SendSheet: React.FC<SendSheetProps> = ({
             onBack={handleBackToAddressAmount}
             onCancel={handleClose}
             onSuccess={handleSuccess}
+          />
+        )}
+
+        {step === 'success' && successTxId && selectedToken && (
+          <TransactionSuccessScreen
+            title={t('transaction.sendComplete')}
+            summary={`${amount} ${selectedToken.symbol} to ${getShortAddress(recipientAddress) ?? recipientAddress}`}
+            explorerUrl={getTransactionUrl(
+              blockchain.toUpperCase() as Blockchain,
+              (account as { network: { networkId: string } }).network.networkId as NetworkEnvironment,
+              getDefaultExplorer(blockchain.toUpperCase() as Blockchain),
+              successTxId
+            )}
+            onContinue={handleSuccessContinue}
           />
         )}
       </View>

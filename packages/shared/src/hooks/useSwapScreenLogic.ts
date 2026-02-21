@@ -65,6 +65,7 @@ export interface UseSwapScreenLogicReturn {
   showInTokenModal: boolean;
   showOutTokenModal: boolean;
   tokensLoading: boolean;
+  successTxId: string | null;
 
   // Computed
   swapMode: 'jupiter' | 'stealthex' | null;
@@ -148,6 +149,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   const [recipientAddress, setRecipientAddress] = useState('');
   const [addressError, setAddressError] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [successTxId, setSuccessTxId] = useState<string | null>(null);
   const [showInTokenModal, setShowInTokenModal] = useState(false);
   const [showOutTokenModal, setShowOutTokenModal] = useState(false);
   const [isLoadingBridgeTokens, setIsLoadingBridgeTokens] = useState(false);
@@ -382,6 +384,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setIsConfirming(true);
     try {
       const result = await onSwap(quote);
+      setSuccessTxId(result.txId);
       setStep('success');
       onSuccess?.(result.txId);
     } catch (error) {
@@ -436,6 +439,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setQuote(null);
     setRecipientAddress('');
     setBridgeEstimate(null);
+    setSuccessTxId(null);
     onNavigateHome?.();
   }, [onNavigateHome]);
 
@@ -554,6 +558,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     showInTokenModal,
     showOutTokenModal,
     tokensLoading: loading,
+    successTxId,
 
     swapMode,
     inUsdValue,
