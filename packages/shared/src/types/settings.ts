@@ -20,7 +20,11 @@ export type SettingsScreen =
   | 'trustedApps'
   | 'removeWallet'
   | 'removeAll'
-  | 'avatar';
+  | 'avatar'
+  | 'accounts'
+  | 'account-edit'
+  | 'account-name'
+  | 'account-add';
 
 /**
  * Base props shared between mobile and extension SettingsSheet

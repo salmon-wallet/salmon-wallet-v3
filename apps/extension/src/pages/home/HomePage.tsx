@@ -70,7 +70,6 @@ import {
   ReceiveSheet,
   SettingsSheet,
   WalletSwitcherSheet,
-  EditAccountDialog,
   ConfirmDialog,
   ScalesBackground,
   SendPage,
@@ -92,6 +91,11 @@ import { AccountAvatarPage } from '../settings/AccountAvatarPage';
 import { AddressBookPage } from '../settings/AddressBookPage';
 import { AddressAddPage } from '../settings/AddressAddPage';
 import { AddressEditPage } from '../settings/AddressEditPage';
+import { AccountsPage } from '../settings/AccountsPage';
+import { AccountEditPage } from '../settings/AccountEditPage';
+import { AccountNamePage } from '../settings/AccountNamePage';
+import { AccountAddPage } from '../settings/AccountAddPage';
+import { SecurityPage } from '../settings/SecurityPage';
 
 // i18n
 import { useLanguage } from '../../i18n';
@@ -128,7 +132,11 @@ type PageView =
   | 'security'
   | 'support'
   | 'privateKey'
-  | 'avatar';
+  | 'avatar'
+  | 'accounts'
+  | 'accountEdit'
+  | 'accountName'
+  | 'accountAdd';
 
 // Network ID → BlockchainId mapping for carousel theming
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
@@ -377,10 +385,8 @@ export function HomePage({ onAddAccount }: HomePageProps) {
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
-  // Edit account dialog state
-  const [editAccountDialogVisible, setEditAccountDialogVisible] = useState(false);
+  // Edit account navigation state
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
-  const [editingAccountName, setEditingAccountName] = useState('');
 
   // Remove wallet dialog state
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
@@ -547,6 +553,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     // Map SettingsScreen to PageView
     // Note: 'removeWallet' and 'removeAll' are handled separately via callbacks
     const pageMap: Partial<Record<SettingsScreen, PageView>> = {
+      accounts: 'accounts',
       avatar: 'avatar',
       security: 'security',
       backup: 'backup',
@@ -616,21 +623,14 @@ export function HomePage({ onAddAccount }: HomePageProps) {
 
   const handleAddAccount = useCallback(() => {
     setWalletSwitcherVisible(false);
-    onAddAccount();
-  }, [onAddAccount]);
+    setCurrentPage('accountAdd');
+  }, []);
 
   const handleEditAccount = useCallback((targetAccountId: string) => {
-    const account = accounts.find(acc => acc.id === targetAccountId);
-    if (account) {
-      setEditingAccountId(targetAccountId);
-      setEditingAccountName(account.name);
-      setEditAccountDialogVisible(true);
-    }
-  }, [accounts]);
-
-  const handleSaveAccountName = useCallback(async (targetAccountId: string, newName: string) => {
-    await actions.editAccount(targetAccountId, { name: newName });
-  }, [actions]);
+    setEditingAccountId(targetAccountId);
+    setWalletSwitcherVisible(false);
+    setCurrentPage('accountEdit');
+  }, []);
 
   const handleDeleteAccount = useCallback(async (targetAccountId: string) => {
     // The WalletSwitcherSheet already shows a confirmation dialog
@@ -1207,7 +1207,6 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         );
       }
       case 'addressBook': {
-        const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
         return (
           <AddressBookPage
             contacts={addressBookItems}
@@ -1278,9 +1277,43 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         );
       }
       case 'security':
+        return <SecurityPage onBack={handleBack} />;
+      case 'accounts':
         return (
-          <PlaceholderPage
-            title={t('settings.security', 'Security')}
+          <AccountsPage
+            onBack={handleBack}
+            onEditAccount={(id) => {
+              setEditingAccountId(id);
+              setCurrentPage('accountEdit');
+            }}
+            onAddAccount={() => setCurrentPage('accountAdd')}
+          />
+        );
+      case 'accountEdit':
+        return (
+          <AccountEditPage
+            accountId={editingAccountId || accountId || ''}
+            onEditName={(id) => {
+              setEditingAccountId(id);
+              setCurrentPage('accountName');
+            }}
+            onEditAvatar={() => setCurrentPage('avatar')}
+            onBackupSeed={() => setCurrentPage('backup')}
+            onExportPrivateKey={() => setCurrentPage('privateKey')}
+            onBack={handleBack}
+          />
+        );
+      case 'accountName':
+        return (
+          <AccountNamePage
+            accountId={editingAccountId || accountId || ''}
+            onBack={() => setCurrentPage('accountEdit')}
+          />
+        );
+      case 'accountAdd':
+        return (
+          <AccountAddPage
+            onComplete={() => setCurrentPage('home')}
             onBack={handleBack}
           />
         );
@@ -1437,15 +1470,6 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         onAddAccount={handleAddAccount}
         onEditAccount={handleEditAccount}
         onDeleteAccount={handleDeleteAccount}
-      />
-
-      {/* Edit Account Dialog */}
-      <EditAccountDialog
-        visible={editAccountDialogVisible}
-        onClose={() => setEditAccountDialogVisible(false)}
-        currentName={editingAccountName}
-        accountId={editingAccountId || ''}
-        onSave={handleSaveAccountName}
       />
 
       {/* Remove Current Wallet Confirmation Dialog */}

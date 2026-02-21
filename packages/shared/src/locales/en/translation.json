@@ -166,6 +166,44 @@
       "title": "Language",
       "en": "English",
       "es": "Spanish"
+    },
+    "accounts": {
+      "title": "Accounts",
+      "switch_success": "Switched to {{name}}"
+    },
+    "account_edit": {
+      "title": "Edit Account",
+      "name_section": "Account Name",
+      "avatar_section": "Profile Picture",
+      "backup_section": "Backup Seed Phrase",
+      "private_key_section": "Export Private Key"
+    },
+    "account_add": {
+      "title": "Add Account",
+      "create_new": "Create New Account",
+      "create_new_description": "Derive a new account from your existing seed phrase",
+      "import_seed": "Import Seed Phrase",
+      "import_seed_description": "Import an account using a different seed phrase",
+      "set_name": "Account Name",
+      "set_name_placeholder": "Enter account name",
+      "default_name": "Account {{number}}",
+      "scanning": "Scanning for accounts...",
+      "scan_complete": "Scan complete",
+      "confirm_create": "Create Account",
+      "confirm_import": "Import Account"
+    },
+    "security": {
+      "title": "Security",
+      "change_password": "Change Password",
+      "current_password": "Current Password",
+      "new_password": "New Password",
+      "confirm_password": "Confirm New Password",
+      "password_mismatch": "Passwords don't match",
+      "password_changed": "Password changed successfully",
+      "wrong_password": "Current password is incorrect",
+      "biometric_unlock": "Biometric Unlock",
+      "biometric_description": "Use Face ID or Touch ID to unlock your wallet",
+      "change_password_button": "Update Password"
     }
   },
   "token": {

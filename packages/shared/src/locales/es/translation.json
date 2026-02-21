@@ -167,6 +167,44 @@
       "title": "Idioma",
       "en": "Inglés",
       "es": "Español"
+    },
+    "accounts": {
+      "title": "Cuentas",
+      "switch_success": "Cambiado a {{name}}"
+    },
+    "account_edit": {
+      "title": "Editar Cuenta",
+      "name_section": "Nombre de la Cuenta",
+      "avatar_section": "Foto de Perfil",
+      "backup_section": "Respaldar Seed Phrase",
+      "private_key_section": "Exportar Clave Privada"
+    },
+    "account_add": {
+      "title": "Agregar Cuenta",
+      "create_new": "Crear Nueva Cuenta",
+      "create_new_description": "Derivar una nueva cuenta desde tu seed phrase existente",
+      "import_seed": "Importar Seed Phrase",
+      "import_seed_description": "Importar una cuenta usando una seed phrase diferente",
+      "set_name": "Nombre de la Cuenta",
+      "set_name_placeholder": "Ingresa el nombre de la cuenta",
+      "default_name": "Cuenta {{number}}",
+      "scanning": "Buscando cuentas...",
+      "scan_complete": "Búsqueda completada",
+      "confirm_create": "Crear Cuenta",
+      "confirm_import": "Importar Cuenta"
+    },
+    "security": {
+      "title": "Seguridad",
+      "change_password": "Cambiar Contraseña",
+      "current_password": "Contraseña Actual",
+      "new_password": "Nueva Contraseña",
+      "confirm_password": "Confirmar Nueva Contraseña",
+      "password_mismatch": "Las contraseñas no coinciden",
+      "password_changed": "Contraseña cambiada exitosamente",
+      "wrong_password": "La contraseña actual es incorrecta",
+      "biometric_unlock": "Desbloqueo Biométrico",
+      "biometric_description": "Usar Face ID o Touch ID para desbloquear tu billetera",
+      "change_password_button": "Actualizar Contraseña"
     }
   },
   "token": {

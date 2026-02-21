@@ -104,6 +104,11 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
     titleKey: 'settings.sections.account',
     items: [
       {
+        id: 'accounts',
+        labelKey: 'settings.accounts.title',
+        type: 'navigation',
+      },
+      {
         id: 'avatar',
         labelKey: 'settings.profile_picture',
         type: 'navigation',

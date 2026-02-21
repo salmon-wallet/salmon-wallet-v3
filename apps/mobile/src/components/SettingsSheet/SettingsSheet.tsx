@@ -78,6 +78,11 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
     titleKey: 'settings.sections.account',
     options: [
       {
+        id: 'accounts',
+        icon: 'people-outline',
+        labelKey: 'settings.accounts.title',
+      },
+      {
         id: 'avatar',
         icon: 'person-circle-outline',
         labelKey: 'settings.profile_picture',

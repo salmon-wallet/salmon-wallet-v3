@@ -128,6 +128,8 @@ export interface UseAccountsState {
 export interface UseAccountsActions {
   /** Check if a password is valid */
   checkPassword: (password: string) => Promise<boolean>;
+  /** Change the wallet password (re-encrypts all stored mnemonics) */
+  changePassword: (oldPassword: string, newPassword: string) => Promise<boolean>;
   /** Lock accounts (require password to unlock) */
   lockAccounts: () => Promise<void>;
   /** Unlock accounts with password */
@@ -712,6 +714,33 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     }
   }, []);
 
+  const changePassword = useCallback(async (oldPassword: string, newPassword: string): Promise<boolean> => {
+    try {
+      const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
+      if (!storedMnemonics || !isEncryptedMnemonics(storedMnemonics)) {
+        return false;
+      }
+
+      // Decrypt with old password
+      const { data: mnemonics } = await unlockAndGetKey<Record<string, string>>(
+        storedMnemonics,
+        oldPassword
+      );
+
+      // Re-encrypt with new password (fresh salt + PBKDF2 derivation)
+      const newVault = await lock(mnemonics, newPassword);
+      await setStorageItem(STORAGE_KEYS.MNEMONICS, newVault);
+
+      // Update stash caches
+      await setStashItem(STASH_KEYS.PASSWORD, newPassword);
+      await removeStashItem(STASH_KEYS.DERIVED_KEY);
+
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
   const lockAccounts = useCallback(async (): Promise<void> => {
     setLocked(true);
     await removeStashItem(STASH_KEYS.PASSWORD);
@@ -1246,6 +1275,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
   const actions: UseAccountsActions = {
     checkPassword,
+    changePassword,
     lockAccounts,
     unlockAccounts,
     unlockWithCachedKey,

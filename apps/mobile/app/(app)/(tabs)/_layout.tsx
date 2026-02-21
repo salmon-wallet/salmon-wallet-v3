@@ -108,14 +108,14 @@ export default function TabLayout() {
 
   const handleAddAccount = useCallback(() => {
     setWalletSwitcherVisible(false);
-    router.push('/(auth)');
+    router.push('/(app)/settings/account-add' as Href);
   }, [router]);
 
   const handleEditAccount = useCallback((id: string) => {
     setWalletSwitcherVisible(false);
     router.push({
       pathname: '/(app)/settings/account-edit',
-      params: { id },
+      params: { accountId: id },
     } as unknown as Href);
   }, [router]);
 

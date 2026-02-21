@@ -112,3 +112,18 @@ export type {
   NftAvatarItem,
   AvatarPickerPropsBase,
 } from './avatar-picker';
+
+// Accounts Page
+export type { AccountsPagePropsBase } from './accounts-page';
+
+// Account Edit Page
+export type { AccountEditPagePropsBase } from './account-edit-page';
+
+// Account Add Page
+export type { AccountAddStep, AccountAddPagePropsBase } from './account-add';
+
+// Security Page
+export type {
+  SecurityPagePropsBase,
+  SecurityPagePropsMobile,
+} from './security-page';

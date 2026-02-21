@@ -326,3 +326,23 @@ export { AvatarPicker } from './AvatarPicker';
 export type { AvatarPickerProps } from './AvatarPicker';
 
 export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';
+
+// AccountsPage - Account management list
+export { AccountsPage } from './AccountsPage';
+export type { AccountsPageProps } from './AccountsPage';
+
+// AccountEditPage - Account editing options
+export { AccountEditPage } from './AccountEditPage';
+export type { AccountEditPageProps } from './AccountEditPage';
+
+// AccountNamePage - Edit account name
+export { AccountNamePage } from './AccountNamePage';
+export type { AccountNamePageProps } from './AccountNamePage';
+
+// AccountAddPage - Multi-step account creation
+export { AccountAddPage } from './AccountAddPage';
+export type { AccountAddPageProps } from './AccountAddPage';
+
+// SecurityPage - Security settings with password change and biometrics
+export { SecurityPage } from './SecurityPage';
+export type { SecurityPageProps } from './SecurityPage';

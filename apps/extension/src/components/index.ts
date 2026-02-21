@@ -205,10 +205,6 @@ export type {
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
 
-// EditAccountDialog - Account name editing dialog
-export { EditAccountDialog } from './EditAccountDialog';
-export type { EditAccountDialogProps } from './EditAccountDialog';
-
 // NftSendDialog - Dialog for sending NFTs to another address
 export { NftSendDialog } from './NftSendDialog';
 export type { NftSendDialogProps } from './NftSendDialog';
