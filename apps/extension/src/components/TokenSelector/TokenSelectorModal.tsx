@@ -29,6 +29,7 @@ import {
   fontFamily,
   fontWeight,
   getShortAddress,
+  getTokenKey,
   ContentLoader,
   Rect,
   Circle,
@@ -38,17 +39,6 @@ import { useTokenSearch } from '@salmon/shared';
 import type { TokenSelectorToken, TokenSelectorModalProps } from './types';
 
 const HIDDEN_VALUE = '******';
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Get a unique key for a token
- */
-const getTokenKey = (token: TokenSelectorToken): string => {
-  return token.mint || token.address || token.symbol || Math.random().toString();
-};
 
 // ============================================================================
 // Styled Components

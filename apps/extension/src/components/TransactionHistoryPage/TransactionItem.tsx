@@ -29,7 +29,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { colors, borderRadius } from '@salmon/shared';
+import { colors, borderRadius, getShortAddress } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
 import type { TransactionItemProps, TransactionType, TransactionTokenAmount } from './types';
@@ -146,10 +146,6 @@ function formatTimestamp(timestamp: number): string {
   });
 }
 
-function truncateAddress(address: string): string {
-  if (!address || address.length < 10) return address;
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
-}
 
 function getDescription(
   type: TransactionType,
@@ -174,10 +170,10 @@ function getDescription(
 
   switch (type) {
     case 'send':
-      if (outputs[0]?.destination) return `To ${truncateAddress(outputs[0].destination)}`;
+      if (outputs[0]?.destination) return `To ${getShortAddress(outputs[0].destination)}`;
       return 'Sent tokens';
     case 'receive':
-      if (inputs[0]?.source) return `From ${truncateAddress(inputs[0].source)}`;
+      if (inputs[0]?.source) return `From ${getShortAddress(inputs[0].source)}`;
       return 'Received tokens';
     case 'mint':
       return 'Token minted';

@@ -1,12 +1,10 @@
-import { borderRadius, colors, componentSizes, fontFamilyNative, formatAmountWithSymbol, formatSolFee, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, fontFamilyNative, formatAmountWithSymbol, formatSolFee, formatPercent, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SwapDetailRow } from './SwapDetailRow';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapReviewButtons } from './SwapReviewButtons';
 import type { SwapReviewScreenProps } from './types';
-
-const formatPercent = (value: number): string => `${value.toFixed(2)}%`;
 
 /**
  * SwapReviewScreen - Second step of swap flow

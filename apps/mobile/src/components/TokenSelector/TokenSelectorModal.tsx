@@ -13,27 +13,11 @@ import {
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 
-import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle } from '@salmon/shared';
+import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import type { TokenSelectorToken, TokenSelectorModalProps } from './types';
 
 const HIDDEN_VALUE = '******';
-
-/**
- * Get a unique key for a token
- */
-const getTokenKey = (token: TokenSelectorToken): string => {
-  return token.mint || token.address || token.symbol || Math.random().toString();
-};
-
-/**
- * Get a short address for display
- */
-const getShortAddress = (address: string | undefined): string => {
-  if (!address) return '';
-  if (address.length <= 10) return address;
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
-};
 
 /**
  * Modal component for selecting tokens

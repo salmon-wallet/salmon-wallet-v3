@@ -77,6 +77,7 @@ export {
   formatUsdPrecise,
   formatAmountWithSymbol,
   formatPercentageCompact,
+  formatPercent,
   formatSolFee,
   formatConversionRate,
   // Balance/price display formatting
@@ -116,6 +117,7 @@ export {
   hexToBalance,
   formatERC20TokenBalance,
   mergeTokenLists,
+  getTokenKey,
   // ETH constants
   ETH_CONSTANTS,
   ETH_ADDRESS,

@@ -291,3 +291,10 @@ export function mergeTokenLists(
   // Return only tokens with non-zero balance
   return Array.from(tokenMap.values()).filter((token) => token.uiAmount > 0);
 }
+
+/**
+ * Get a unique key for a token (used as React key / keyExtractor)
+ */
+export function getTokenKey(token: TokenSelectorToken): string {
+  return token.mint || token.address || token.symbol || Math.random().toString();
+}

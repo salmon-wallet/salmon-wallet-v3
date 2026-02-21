@@ -18,17 +18,11 @@ import {
   fontSize,
   formatLargeNumber,
   useCurrencyContext,
+  getShortAddress,
 } from '@salmon/shared';
 import { CopyIcon } from '../Icon';
 import type { TokenInfoProps } from './types';
 
-/**
- * Truncate address for display
- */
-function truncateAddress(address: string): string {
-  if (address.length <= 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
 
 const Container = styled(Box)({
   backgroundColor: colors.background.card,
@@ -361,7 +355,7 @@ export function TokenInfo({
             role="button"
             aria-label="Copy contract address"
           >
-            <ContractAddress>{truncateAddress(contractAddress)}</ContractAddress>
+            <ContractAddress>{getShortAddress(contractAddress, 6)}</ContractAddress>
             <CopyButton>
               <CopyIcon sx={{ color: colors.text.muted, fontSize: 18 }} />
             </CopyButton>

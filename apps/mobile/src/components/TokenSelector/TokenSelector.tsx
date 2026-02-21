@@ -8,17 +8,9 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+import { getShortAddress } from '@salmon/shared';
 import { TokenSelectorModal } from './TokenSelectorModal';
 import type { TokenSelectorToken, TokenSelectorProps } from './types';
-
-/**
- * Get a short address for display
- */
-const getShortAddress = (address: string | undefined): string => {
-  if (!address) return '';
-  if (address.length <= 10) return address;
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
-};
 
 /**
  * TokenSelector component for selecting tokens and entering amounts

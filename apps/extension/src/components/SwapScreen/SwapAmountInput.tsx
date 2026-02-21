@@ -3,37 +3,23 @@
  *
  * Web version using MUI and @emotion/styled for browser extension
  */
-import React, { useCallback } from 'react';
-import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import InputBase from '@mui/material/InputBase';
 import ButtonBase from '@mui/material/ButtonBase';
 import CircularProgress from '@mui/material/CircularProgress';
+import InputBase from '@mui/material/InputBase';
+import Typography from '@mui/material/Typography';
 import {
-  colors,
-  spacing,
   borderRadius,
+  colors,
   fontFamily,
   fontWeight,
+  formatTokenBalance,
+  spacing,
   useCurrencyContext,
 } from '@salmon/shared';
+import React, { useCallback } from 'react';
+import { styled } from '../../utils/styled';
 import type { SwapAmountInputProps } from './types';
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Format a number to display with appropriate decimals
- */
-const formatBalance = (value: number | undefined, decimals = 10): string => {
-  if (value === undefined || value === null) return '0';
-  if (value === 0) return '0';
-  return value.toFixed(decimals).replace(/\.?0+$/, '');
-};
-
-// formatUsd is now provided by CurrencyContext (formatPrecise)
 
 // ============================================================================
 // Styled Components
@@ -243,7 +229,7 @@ export function SwapAmountInput({
           <UsdValue>{formatPrecise(usdValue)} {currency.toUpperCase()}</UsdValue>
           {availableBalance !== undefined && token && (
             <AvailableBalance>
-              Available: {formatBalance(availableBalance)} {token.symbol}
+              Available: {formatTokenBalance(availableBalance)} {token.symbol}
             </AvailableBalance>
           )}
         </InfoRow>

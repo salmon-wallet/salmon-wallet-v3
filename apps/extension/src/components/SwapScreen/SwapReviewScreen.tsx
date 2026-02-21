@@ -15,40 +15,14 @@ import {
   fontFamily,
   fontWeight,
   useCurrencyContext,
+  formatAmountWithSymbol,
+  formatSolFee,
+  formatPercent,
 } from '@salmon/shared';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapDetailRow } from './SwapDetailRow';
 import { SwapReviewButtons } from './SwapReviewButtons';
 import type { SwapReviewScreenProps } from './types';
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Format amount with symbol
- */
-const formatAmountWithSymbol = (amount: number, symbol: string, decimals = 8): string => {
-  const formatted = amount.toFixed(decimals).replace(/\.?0+$/, '');
-  return `${formatted} ${symbol}`;
-};
-
-/**
- * Format fee percentage
- */
-const formatPercent = (value: number): string => {
-  return `${value.toFixed(2)}%`;
-};
-
-// formatUsd is now defined inside the component using CurrencyContext
-
-/**
- * Format SOL amount for fees
- */
-const formatSolFee = (lamports: number): string => {
-  const sol = lamports / 1_000_000_000;
-  return `${sol.toFixed(7).replace(/\.?0+$/, '')} SOL`;
-};
 
 // ============================================================================
 // Styled Components

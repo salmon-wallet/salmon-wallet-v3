@@ -428,6 +428,10 @@ export function formatUsdValue(amount: number | undefined): string {
  * @param percent - Percentage value
  * @returns Formatted percentage string with sign
  */
+export function formatPercent(value: number): string {
+  return `${value.toFixed(2)}%`;
+}
+
 export function formatPercentChange(percent: number | undefined): string {
   if (percent === undefined || percent === null) {
     return '-';

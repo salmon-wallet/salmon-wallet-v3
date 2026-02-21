@@ -16,6 +16,7 @@ import type {
   SolanaTransaction,
 } from '../types/transaction';
 import type { BlockchainType } from '../types/blockchain';
+import { getShortAddress } from './address';
 import { SOL_CONSTANTS } from './balance';
 import { ETH_CONSTANTS, ETH_ADDRESS } from './tokens';
 
@@ -39,13 +40,6 @@ const NATIVE_CONSTANTS: Record<BlockchainType, {
   ethereum: { DECIMALS: ETH_CONSTANTS.DECIMALS, SYMBOL: ETH_CONSTANTS.SYMBOL, NAME: ETH_CONSTANTS.NAME, ADDRESS: ETH_ADDRESS, LOGO: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png' },
 };
 
-/**
- * Truncate a contract/mint address for display: "EPjF...EGGk"
- */
-function truncateAddress(address: string): string {
-  if (!address || address.length < 8) return address || '';
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
-}
 
 /**
  * Check if a token looks like the native token for its chain.
@@ -89,7 +83,7 @@ function normalizeTokenAmount(
     ...token,
     amount: String(token.amount ?? '0'),
     decimals: token.decimals ?? (nativeToken ? native.DECIMALS : 0),
-    symbol: token.symbol || (nativeToken ? native.SYMBOL : truncateAddress(token.contract)),
+    symbol: token.symbol || (nativeToken ? native.SYMBOL : getShortAddress(token.contract) ?? ''),
     name: token.name || (nativeToken ? native.NAME : undefined),
     logo: token.logo ?? (nativeToken ? native.LOGO : undefined),
     contract: token.contract || (nativeToken ? native.ADDRESS : ''),
