@@ -14,21 +14,10 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  getFeatureColor,
 } from '@salmon/shared';
 import type { TokenFeature } from '@salmon/shared';
 import type { TokenFeaturesProps } from './types';
-
-/**
- * Default feature colors for variety
- */
-const DEFAULT_FEATURE_COLORS = [
-  '#FF5C45', // Orange/Red (accent)
-  '#10B981', // Green
-  '#8B5CF6', // Purple
-  '#F59E0B', // Amber
-  '#3B82F6', // Blue
-  '#EC4899', // Pink
-];
 
 /**
  * Feature icon SVG paths (Material Design icons)
@@ -96,14 +85,6 @@ function getFeatureIconPath(feature: TokenFeature): string {
 
   // Default icon
   return FEATURE_ICONS.default;
-}
-
-/**
- * Get color for a feature (with index for variety)
- */
-function getFeatureColor(feature: TokenFeature, index: number): string {
-  if (feature.color) return feature.color;
-  return DEFAULT_FEATURE_COLORS[index % DEFAULT_FEATURE_COLORS.length];
 }
 
 const Container = styled(Box)({

@@ -21,12 +21,11 @@ import {
   getTimeAgo,
   isStakingTransaction,
   isTokenMintOrBurn,
-  getExplorerUrl,
-  getSolscanUrl,
   type SolanaTransaction,
   type SolanaTransactionPaging,
   type GetSolanaTransactionsFn,
 } from './transactions';
+import { getExplorerUrl, getSolscanUrl } from '../../utils/url';
 
 // ============================================================================
 // Mocks
@@ -469,13 +468,13 @@ describe('Solana Transaction History Service', () => {
 
   describe('getExplorerUrl', () => {
     it('should return mainnet explorer URL', () => {
-      const url = getExplorerUrl(MOCK_SEND_TX, 'solana-mainnet');
+      const url = getExplorerUrl(TEST_SIGNATURE, 'solana-mainnet');
 
       expect(url).toBe(`https://explorer.solana.com/tx/${TEST_SIGNATURE}`);
     });
 
     it('should return devnet explorer URL', () => {
-      const url = getExplorerUrl(MOCK_SEND_TX, 'solana-devnet');
+      const url = getExplorerUrl(TEST_SIGNATURE, 'solana-devnet');
 
       expect(url).toBe(`https://explorer.solana.com/tx/${TEST_SIGNATURE}?cluster=devnet`);
     });
@@ -483,13 +482,13 @@ describe('Solana Transaction History Service', () => {
 
   describe('getSolscanUrl', () => {
     it('should return mainnet Solscan URL', () => {
-      const url = getSolscanUrl(MOCK_SEND_TX, 'solana-mainnet');
+      const url = getSolscanUrl(TEST_SIGNATURE, 'solana-mainnet');
 
       expect(url).toBe(`https://solscan.io/tx/${TEST_SIGNATURE}`);
     });
 
     it('should return devnet Solscan URL', () => {
-      const url = getSolscanUrl(MOCK_SEND_TX, 'solana-devnet');
+      const url = getSolscanUrl(TEST_SIGNATURE, 'solana-devnet');
 
       expect(url).toBe(`https://solscan.io/tx/${TEST_SIGNATURE}?cluster=devnet`);
     });

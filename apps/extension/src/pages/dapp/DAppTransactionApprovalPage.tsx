@@ -14,7 +14,7 @@ import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '../../utils/styled';
 import { PrimaryButton, SecondaryButton } from '../../components';
-import { colors, fontFamily, fontSize, fontWeight, spacing, isSolanaAccount, fetchAndMergeNetworkConfigs } from '@salmon/shared';
+import { colors, fontFamily, fontSize, fontWeight, spacing, isSolanaAccount, fetchAndMergeNetworkConfigs, formatOrigin } from '@salmon/shared';
 import type { BlockchainAccount } from '@salmon/shared';
 
 export interface DAppTransactionRequest {
@@ -101,15 +101,6 @@ const ButtonsContainer = styled(Box)({
   gap: spacing.md,
   marginTop: spacing['2xl'],
 });
-
-function formatOrigin(origin: string): string {
-  try {
-    const url = new URL(origin);
-    return url.hostname || origin;
-  } catch {
-    return origin;
-  }
-}
 
 type ParsedTransaction = 
   | { type: 'legacy'; message: Message; tx: Transaction }

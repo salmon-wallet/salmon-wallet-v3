@@ -1,41 +1,20 @@
 import { JsonRpcProvider, Wallet, isAddress, getAddress } from 'ethers';
 import { ethToWei, weiToEthNumber } from '../../utils/decimals';
 import { getShortAddress } from '../../utils/address';
-import type { EthereumAccountBalance } from '../../types/balance';
-import type { EthereumNetworkId } from '../../types/blockchain';
-
-/**
- * @deprecated Use `EthereumNetworkId` from `types/blockchain` instead.
- */
-export type EthereumEnvironment = 'mainnet' | 'sepolia';
-
-/**
- * Network configuration for Ethereum connections
- */
-export interface EthereumNetworkConfig {
-  /** RPC endpoint URL */
-  rpcUrl: string;
-  /** Chain ID */
-  chainId: number;
-}
-
-/**
- * Network definition with ID and configuration
- */
-export interface EthereumNetwork {
-  /** Network identifier (e.g., 'ethereum-mainnet', 'ethereum-sepolia') */
-  id: EthereumNetworkId;
-  /** Human-readable network name */
-  name: string;
-  /** Network ID for environment identification */
-  networkId: EthereumNetworkId;
-  /**
-   * @deprecated Use `networkId` instead. Will be removed in a future version.
-   */
-  environment?: EthereumEnvironment;
-  /** Network configuration */
-  config: EthereumNetworkConfig;
-}
+import { decorateBalancePrices } from '../../utils/balance';
+import type { TokenPrice } from '../../types/price';
+import type { EthereumAccountBalance, EthereumWalletBalance } from '../../types/balance';
+import type { EthereumBalanceItem } from '../../types/transfer';
+import type { EthereumNetwork, EthereumEnvironment } from '../../types/blockchain';
+import type {
+  FetchEthereumBalanceFn,
+  FetchEthereumPricesFn,
+  FetchEthereumTransactionFn,
+  FetchEthereumRecentTransactionsFn,
+  AccountTransaction,
+  AccountTransactionListResponse,
+  TransactionPaging,
+} from '../../types/transfer';
 
 /**
  * Options for creating an EthereumAccount instance
@@ -49,12 +28,20 @@ export interface EthereumAccountOptions {
   path: string;
   /** ethers.js Wallet instance for signing transactions */
   wallet: Wallet;
+  /** Function to fetch token balances (DI) */
+  fetchBalance: FetchEthereumBalanceFn;
+  /** Function to fetch token prices (DI) */
+  fetchPrices: FetchEthereumPricesFn;
+  /** Function to fetch a single transaction (DI) */
+  fetchTransaction: FetchEthereumTransactionFn;
+  /** Function to fetch recent transactions (DI) */
+  fetchRecentTransactions: FetchEthereumRecentTransactionsFn;
 }
 
 /**
- * @deprecated Use `EthereumAccountBalance` from `types/balance` instead.
+ * @deprecated Use `EthereumWalletBalance` from `types/balance` instead.
  */
-export type EthereumBalance = EthereumAccountBalance;
+export type EthereumBalance = EthereumWalletBalance;
 
 /**
  * Result of destination address validation for Ethereum
@@ -104,6 +91,15 @@ export class EthereumAccount {
   /** Cached connected wallet instance */
   private connectedWallet: Wallet | null = null;
 
+  /** Injected function to fetch token balances */
+  private fetchBalanceFn: FetchEthereumBalanceFn;
+  /** Injected function to fetch token prices */
+  private fetchPricesFn: FetchEthereumPricesFn;
+  /** Injected function to fetch a single transaction */
+  private fetchTransactionFn: FetchEthereumTransactionFn;
+  /** Injected function to fetch recent transactions */
+  private fetchRecentTransactionsFn: FetchEthereumRecentTransactionsFn;
+
   /**
    * Creates a new EthereumAccount instance
    *
@@ -115,6 +111,10 @@ export class EthereumAccount {
     this.path = options.path;
     this.wallet = options.wallet;
     this.publicKey = options.wallet.signingKey.publicKey;
+    this.fetchBalanceFn = options.fetchBalance;
+    this.fetchPricesFn = options.fetchPrices;
+    this.fetchTransactionFn = options.fetchTransaction;
+    this.fetchRecentTransactionsFn = options.fetchRecentTransactions;
   }
 
   /**
@@ -184,18 +184,90 @@ export class EthereumAccount {
     return balance;
   }
 
+  // ==========================================================================
+  // Balance Methods (DI-backed, mirrors BitcoinAccount)
+  // ==========================================================================
+
   /**
-   * Gets the account balance with both wei and ETH values.
-   * This is a placeholder - actual balance fetching will be in a balance service.
-   *
-   * @returns Promise resolving to balance object with wei and ETH
+   * Fetches the raw Ethereum balance items from the backend API.
    */
-  async getBalance(): Promise<EthereumBalance> {
-    const wei = await this.getCredit();
-    return {
-      wei,
-      eth: weiToEthNumber(wei),
-    };
+  private async fetchEthereumBalance(): Promise<EthereumBalanceItem[]> {
+    return this.fetchBalanceFn(this.network.id, this.wallet.address);
+  }
+
+  /**
+   * Gets Ethereum prices from the price service.
+   *
+   * @returns Token prices or null if unavailable
+   */
+  private async getPrices(): Promise<TokenPrice[] | null> {
+    try {
+      return await this.fetchPricesFn('ethereum');
+    } catch (e) {
+      console.warn('Could not get Ethereum prices', (e as Error).message);
+      return null;
+    }
+  }
+
+  /**
+   * Helper to calculate 24h change from balances.
+   */
+  private calculateLast24HoursChange(
+    balances: EthereumBalanceItem[],
+    usdTotal: number
+  ): number {
+    if (!usdTotal || usdTotal === 0) return 0;
+
+    let previousTotal = 0;
+    balances.forEach((balance) => {
+      if (balance.usdBalance && balance.priceChange24h !== undefined) {
+        const priceChangeFactor = 1 + balance.priceChange24h / 100;
+        const previousBalance = balance.usdBalance / priceChangeFactor;
+        previousTotal += previousBalance;
+      } else if (balance.usdBalance) {
+        previousTotal += balance.usdBalance;
+      }
+    });
+
+    return previousTotal === 0 ? 0 : usdTotal - previousTotal;
+  }
+
+  /**
+   * Gets the complete wallet balance with USD values and price info.
+   * Uses injected DI functions to fetch balance and prices from the backend.
+   *
+   * @returns Promise resolving to wallet balance object
+   */
+  async getBalance(): Promise<EthereumWalletBalance> {
+    const ethereumBalance = await this.fetchEthereumBalance();
+    const prices = await this.getPrices();
+
+    const balances = decorateBalancePrices(
+      ethereumBalance.map((b) => ({
+        mint: b.mint || 'ethereum',
+        owner: this.wallet.address,
+        amount: b.amount,
+        decimals: b.decimals,
+        uiAmount: b.uiAmount || b.amount / Math.pow(10, b.decimals),
+        symbol: b.symbol,
+        name: b.name,
+        logo: b.logo || undefined,
+        address: b.mint || 'ethereum',
+        coingeckoId: b.coingeckoId,
+      })),
+      prices
+    ) as EthereumBalanceItem[];
+
+    if (prices) {
+      const usdTotal = balances.reduce(
+        (currentValue, next) => (next.usdBalance || 0) + currentValue,
+        0
+      );
+      const last24HoursChange = this.calculateLast24HoursChange(balances, usdTotal);
+      return { usdTotal, last24HoursChange, items: balances };
+    }
+
+    return { items: balances };
   }
 
   /**
@@ -307,6 +379,30 @@ export class EthereumAccount {
     }
     this.provider = null;
     this.connectedWallet = null;
+  }
+
+  // ============================================================================
+  // Transaction History
+  // ============================================================================
+
+  /**
+   * Gets a single transaction by hash.
+   *
+   * @param txHash - Transaction hash
+   * @returns Transaction data or null if not found
+   */
+  async getTransaction(txHash: string): Promise<AccountTransaction | null> {
+    return this.fetchTransactionFn(this.network.id, this.wallet.address, txHash);
+  }
+
+  /**
+   * Gets recent transactions for this account.
+   *
+   * @param paging - Optional paging parameters
+   * @returns Transaction list with pagination
+   */
+  async getRecentTransactions(paging?: TransactionPaging): Promise<AccountTransactionListResponse> {
+    return this.fetchRecentTransactionsFn(this.network.id, this.wallet.address, paging);
   }
 
   // ============================================================================
@@ -433,13 +529,13 @@ export class EthereumAccount {
   // ============================================================================
 
   /**
-   * Creates an EthereumBalance object from wei.
+   * Creates an EthereumAccountBalance object from wei.
    * Utility method for services that fetch balance data.
    *
    * @param wei - Balance in wei
-   * @returns EthereumBalance object with wei and eth values
+   * @returns EthereumAccountBalance object with wei and eth values
    */
-  static createBalance(wei: bigint): EthereumBalance {
+  static createBalance(wei: bigint): EthereumAccountBalance {
     return {
       wei,
       eth: weiToEthNumber(wei),

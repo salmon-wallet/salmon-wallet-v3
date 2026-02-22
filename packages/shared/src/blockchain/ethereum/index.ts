@@ -2,11 +2,8 @@
 export { EthereumAccount } from './EthereumAccount';
 // Note: WEI_PER_ETH removed — use WEI_PER_ETH_BIGINT from utils/decimals
 export type {
-  EthereumNetwork,
-  EthereumNetworkConfig,
   EthereumAccountOptions,
   EthereumBalance,
-  EthereumEnvironment,
   EthereumAddressValidationResult,
 } from './EthereumAccount';
 
@@ -38,7 +35,8 @@ export {
 // Note: isZeroBalance, compareBalances → utils/balance
 export type {
   EthereumTokenBalance as BalanceEthereumTokenBalance,
-  EthereumWalletBalance,
+  EthereumOnChainWalletBalance,
+  EthereumWalletBalance as BalanceEthereumWalletBalance,
   TokenInfo as BalanceTokenInfo,
   EthereumTokenBalanceResult,
 } from './balance';

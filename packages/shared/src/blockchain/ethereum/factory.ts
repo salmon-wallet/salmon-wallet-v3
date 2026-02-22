@@ -1,8 +1,7 @@
 import { HDNodeWallet, Wallet } from 'ethers';
-import {
-  EthereumAccount,
-  EthereumNetwork,
-} from './EthereumAccount';
+import { EthereumAccount } from './EthereumAccount';
+import type { EthereumNetwork } from '../../types/blockchain';
+import type { EthereumAccountApiFunctions } from '../../types/transfer';
 
 /**
  * SLIP-0044 coin type for Ethereum
@@ -20,6 +19,8 @@ export interface CreateEthereumAccountOptions {
   mnemonic: string;
   /** Account derivation index (defaults to 0) */
   index?: number;
+  /** API functions for dependency injection */
+  apiFunctions: EthereumAccountApiFunctions;
 }
 
 /**
@@ -34,6 +35,8 @@ export interface DeriveEthereumAccountsOptions {
   startIndex?: number;
   /** Number of accounts to derive (defaults to 1) */
   count?: number;
+  /** API functions for dependency injection */
+  apiFunctions: EthereumAccountApiFunctions;
 }
 
 /**
@@ -75,7 +78,7 @@ export function getEthereumDerivationPath(index: number): string {
 export async function createEthereumAccount(
   options: CreateEthereumAccountOptions
 ): Promise<EthereumAccount> {
-  const { network, mnemonic, index = 0 } = options;
+  const { network, mnemonic, index = 0, apiFunctions } = options;
 
   const path = getEthereumDerivationPath(index);
 
@@ -90,6 +93,7 @@ export async function createEthereumAccount(
     index,
     path,
     wallet,
+    ...apiFunctions,
   });
 }
 
@@ -116,7 +120,7 @@ export async function createEthereumAccount(
 export async function deriveEthereumAccounts(
   options: DeriveEthereumAccountsOptions
 ): Promise<EthereumAccount[]> {
-  const { network, mnemonic, startIndex = 0, count = 1 } = options;
+  const { network, mnemonic, startIndex = 0, count = 1, apiFunctions } = options;
 
   const accounts: EthereumAccount[] = [];
 
@@ -125,6 +129,7 @@ export async function deriveEthereumAccounts(
       network,
       mnemonic,
       index: startIndex + i,
+      apiFunctions,
     });
     accounts.push(account);
   }
@@ -146,13 +151,15 @@ export async function deriveEthereumAccounts(
 export function createEthereumAccountFromWallet(
   network: EthereumNetwork,
   wallet: Wallet,
-  index: number = 0
+  index: number = 0,
+  apiFunctions: EthereumAccountApiFunctions
 ): EthereumAccount {
   return new EthereumAccount({
     network,
     index,
     path: getEthereumDerivationPath(index),
     wallet,
+    ...apiFunctions,
   });
 }
 
@@ -176,10 +183,11 @@ export function createEthereumAccountFromWallet(
 export function createEthereumAccountFromPrivateKey(
   network: EthereumNetwork,
   privateKey: string,
-  index: number = 0
+  index: number = 0,
+  apiFunctions: EthereumAccountApiFunctions
 ): EthereumAccount {
   const wallet = new Wallet(privateKey);
-  return createEthereumAccountFromWallet(network, wallet, index);
+  return createEthereumAccountFromWallet(network, wallet, index, apiFunctions);
 }
 
 /**

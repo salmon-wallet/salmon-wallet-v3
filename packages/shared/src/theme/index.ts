@@ -31,7 +31,7 @@ import {
 import { shadows, shadowsCSS } from './shadows';
 
 // Re-export all tokens from colors
-export { colors, gradients } from './colors';
+export { colors, gradients, getScalesColorForBlockchain } from './colors';
 export type { Colors, Gradients } from './colors';
 
 // Re-export all tokens from spacing

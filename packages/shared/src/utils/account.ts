@@ -8,7 +8,9 @@ import type { EthereumAccount } from '../blockchain/ethereum';
 import { createSolanaAccount, SOLANA_NETWORKS } from '../blockchain/solana';
 import { createBitcoinAccount, BITCOIN_NETWORKS } from '../blockchain/bitcoin';
 import { createEthereumAccount, ETHEREUM_NETWORKS } from '../blockchain/ethereum';
-import { bitcoinApiFunctions } from '../api/services/bitcoin-account';
+import { bitcoinApiFunctions } from '../api/services/bitcoin';
+import { solanaApiFunctions } from '../api/services/solana';
+import { ethereumApiFunctions } from '../api/services/ethereum';
 import type { BlockchainAccount, BlockchainType } from '../types/blockchain';
 import type { Account } from '../types/account';
 import type { AccountKeyInfo } from '../types/settings';
@@ -165,7 +167,7 @@ export async function createBlockchainAccountForNetwork(
         console.warn(`Unknown Ethereum network: ${networkId}`);
         return null;
       }
-      return createEthereumAccount({ network, mnemonic, index });
+      return createEthereumAccount({ network, mnemonic, index, apiFunctions: ethereumApiFunctions });
     }
 
     case 'solana':
@@ -175,7 +177,7 @@ export async function createBlockchainAccountForNetwork(
         console.warn(`Unknown Solana network: ${networkId}`);
         return null;
       }
-      return createSolanaAccount({ network, mnemonic, index });
+      return createSolanaAccount({ network, mnemonic, index, apiFunctions: solanaApiFunctions });
     }
   }
 }
@@ -238,6 +240,26 @@ export function buildNetworkListFromAccount(
         .join(' ');
       return { id, name, blockchain };
     });
+}
+
+/**
+ * Returns the primary receive address for an account.
+ * Prefers solana-mainnet, falls back to any available network.
+ */
+export function getAccountAddress(account: Account): string {
+  const { networksAccounts } = account;
+  const mainnetAccounts = networksAccounts['solana-mainnet'];
+  if (mainnetAccounts) {
+    const active = mainnetAccounts.find(Boolean);
+    if (active) return active.getReceiveAddress?.() || '';
+  }
+  for (const networkAccounts of Object.values(networksAccounts)) {
+    if (networkAccounts) {
+      const active = networkAccounts.find(Boolean);
+      if (active) return active.getReceiveAddress?.() || '';
+    }
+  }
+  return '';
 }
 
 /**

@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
-import { borderRadius, colors, fontFamily, fontWeight, formatFiatIntl, PRICE_CHART_PERIODS, spacing, useCurrencyContext } from '@salmon/shared';
+import { borderRadius, colors, fontFamily, fontWeight, formatFiatIntl, isPositivePerformance, PRICE_CHART_PERIODS, spacing, useCurrencyContext } from '@salmon/shared';
 import { useCallback, useId, useMemo } from 'react';
 import {
   Area,
@@ -28,14 +28,6 @@ const CHART_COLORS = {
   positive: colors.status.success,
   negative: colors.status.error,
 } as const;
-
-/**
- * Determine if period performance is positive
- */
-const isPositivePerformance = (data: PriceDataPoint[]): boolean => {
-  if (data.length < 2) return true;
-  return data[data.length - 1].price >= data[0].price;
-};
 
 // formatPrice is defined inside the component to use currency context
 

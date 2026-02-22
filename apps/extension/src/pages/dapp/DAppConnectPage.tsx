@@ -19,6 +19,8 @@ import {
   fontSize,
   fontWeight,
   spacing,
+  getShortAddress,
+  formatOrigin,
 } from '@salmon/shared';
 
 // ============================================================================
@@ -121,19 +123,6 @@ const ButtonsContainer = styled(Box)({
 });
 
 // ============================================================================
-// Helpers
-// ============================================================================
-
-function formatOrigin(origin: string): string {
-  try {
-    const url = new URL(origin);
-    return url.hostname || origin;
-  } catch {
-    return origin;
-  }
-}
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -196,7 +185,7 @@ export function DAppConnectPage({
   }, [request.id, onDeny]);
 
   const displayOrigin = formatOrigin(origin);
-  const shortAddress = address ? `${address.slice(0, 4)}...${address.slice(-4)}` : '';
+  const shortAddress = address ? getShortAddress(address, 4) ?? '' : '';
 
   return (
     <Container>

@@ -47,7 +47,7 @@ import { isNativeEth, createNativeToken, createERC20Token } from '../utils/token
 import {
   fetchUtxos,
   broadcastTransaction,
-} from '../api/services/bitcoin-transfer';
+} from '../api/services/bitcoin';
 
 import type { BlockchainType, BlockchainAccount } from '../types/blockchain';
 import type {

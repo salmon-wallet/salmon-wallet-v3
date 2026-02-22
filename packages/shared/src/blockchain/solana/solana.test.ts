@@ -5,7 +5,7 @@
  * Uses Vitest 4.0.18 for testing.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { PublicKey } from '@solana/web3.js';
 
 // Factory functions
@@ -57,6 +57,13 @@ const EXPECTED_ADDRESSES = {
   0: 'HAgk14JpMQLgt6rVgv7cBQFJWFto5Dqxi472uT3DKpqk',
   1: 'Hh8QwFUA6MtVu1qAoq12ucvFHNwCcVTV7hpWjeY1Hztb',
   5: '2EUrWmf5xMmWER9BtDbXbGbZjoL7R3eTDMXYR6H6cKPj',
+};
+
+const mockSolanaApiFunctions = {
+  fetchBalance: vi.fn().mockResolvedValue([]),
+  fetchPrices: vi.fn().mockResolvedValue(null),
+  fetchTransaction: vi.fn().mockResolvedValue(null),
+  fetchTransactions: vi.fn().mockResolvedValue({ transactions: [], oldestSignature: null, hasMore: false }),
 };
 
 // ============================================================================
@@ -901,6 +908,7 @@ describe('createSolanaAccount - Deterministic Derivation', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const address = account.getReceiveAddress();
@@ -912,6 +920,7 @@ describe('createSolanaAccount - Deterministic Derivation', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 1,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const address = account.getReceiveAddress();
@@ -923,6 +932,7 @@ describe('createSolanaAccount - Deterministic Derivation', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 5,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const address = account.getReceiveAddress();
@@ -934,12 +944,14 @@ describe('createSolanaAccount - Deterministic Derivation', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const account1 = await createSolanaAccount({
       network,
       mnemonic: TEST_MNEMONIC,
       index: 1,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const address0 = account0.getReceiveAddress();
@@ -953,6 +965,7 @@ describe('createSolanaAccount - Deterministic Derivation', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const publicKey = account.getPublicKey();
@@ -965,6 +978,7 @@ describe('createSolanaAccount - Deterministic Derivation', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 3,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     expect(account.index).toBe(3);
@@ -976,6 +990,7 @@ describe('createSolanaAccount - Deterministic Derivation', () => {
     const account = await createSolanaAccount({
       network,
       mnemonic: TEST_MNEMONIC,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     expect(account.index).toBe(0);
@@ -987,12 +1002,14 @@ describe('createSolanaAccount - Deterministic Derivation', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const account2 = await createSolanaAccount({
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     expect(account1.getReceiveAddress()).toBe(account2.getReceiveAddress());

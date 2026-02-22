@@ -37,18 +37,10 @@ import {
   type LockedVault,
   type DerivedKeyCache,
 } from '../crypto/encryption';
-import {
-  type SolanaNetwork,
-  SOLANA_NETWORKS,
-} from '../blockchain/solana';
-import {
-  type BitcoinNetwork,
-  BITCOIN_NETWORKS,
-} from '../blockchain/bitcoin';
-import {
-  type EthereumNetwork,
-  ETHEREUM_NETWORKS,
-} from '../blockchain/ethereum';
+import { SOLANA_NETWORKS } from '../blockchain/solana';
+import { BITCOIN_NETWORKS } from '../blockchain/bitcoin';
+import { ETHEREUM_NETWORKS } from '../blockchain/ethereum';
+import type { SolanaNetwork, BitcoinNetwork, EthereumNetwork } from '../types/blockchain';
 import { getApiUrl } from '../api/config';
 import {
   getPathIndex,

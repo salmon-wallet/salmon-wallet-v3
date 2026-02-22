@@ -7,57 +7,35 @@
  * Shows the path a swap took through different DEXes and tokens.
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
-import { styled } from '../../utils/styled';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CheckIcon from '@mui/icons-material/Check';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckIcon from '@mui/icons-material/Check';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import {
-  colors,
-  spacing,
   borderRadius,
+  colors,
+  copyToClipboard,
   formatBlockNumber,
   formatDateTime,
+  formatRawAmount,
   getShortAddress,
-  copyToClipboard,
+  spacing,
+  truncateHash,
 } from '@salmon/shared';
-import { PriceImpactBadge } from './PriceImpactBadge';
+import React, { useCallback, useMemo, useState } from 'react';
+import { styled } from '../../utils/styled';
 import { ConversionRateDisplay } from './ConversionRateDisplay';
-import type { SwapRouteVisualizationProps, Transaction, SwapRouteHop } from './types';
+import { PriceImpactBadge } from './PriceImpactBadge';
+import type { SwapRouteHop, SwapRouteVisualizationProps, Transaction } from './types';
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 const COPIED_FEEDBACK_DURATION = 1500;
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-function formatAmount(amount: string, decimals: number): string {
-  const rawAmount = parseFloat(amount);
-  if (isNaN(rawAmount)) return '0';
-
-  const formattedAmount = rawAmount / Math.pow(10, decimals);
-
-  if (formattedAmount === 0) return '0';
-  if (formattedAmount < 0.0001) return '<0.0001';
-  if (formattedAmount >= 1000000) return `${(formattedAmount / 1000000).toFixed(2)}M`;
-  if (formattedAmount >= 1000) return `${(formattedAmount / 1000).toFixed(2)}K`;
-  if (formattedAmount >= 1) return formattedAmount.toFixed(4).replace(/\.?0+$/, '');
-
-  return formattedAmount.toFixed(6).replace(/\.?0+$/, '');
-}
-
-function truncateHash(hash: string): string {
-  if (!hash || hash.length < 16) return hash;
-  return `${hash.slice(0, 6)}...${hash.slice(-6)}`;
-}
 
 // ============================================================================
 // Styled Components
@@ -311,7 +289,7 @@ const RouteHop: React.FC<{ hop: SwapRouteHop; isLast: boolean }> = ({ hop, isLas
       <HopToken>
         <TokenIcon uri={hop.inputToken.logo} size={20} />
         <HopAmount>
-          {formatAmount(hop.inputToken.amount, hop.inputToken.decimals)} {hop.inputToken.symbol}
+          {formatRawAmount(hop.inputToken.amount, hop.inputToken.decimals)} {hop.inputToken.symbol}
         </HopAmount>
       </HopToken>
 
@@ -327,7 +305,7 @@ const RouteHop: React.FC<{ hop: SwapRouteHop; isLast: boolean }> = ({ hop, isLas
         <HopToken>
           <TokenIcon uri={hop.outputToken.logo} size={20} />
           <HopAmount>
-            {formatAmount(hop.outputToken.amount, hop.outputToken.decimals)} {hop.outputToken.symbol}
+            {formatRawAmount(hop.outputToken.amount, hop.outputToken.decimals)} {hop.outputToken.symbol}
           </HopAmount>
         </HopToken>
       )}
@@ -476,7 +454,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
             <RouteTokenRow key={`out-${i}`}>
               <TokenIcon uri={output.logo} size={18} />
               <RouteTokenText>
-                {formatAmount(output.amount, output.decimals)} {output.symbol}
+                {formatRawAmount(output.amount, output.decimals)} {output.symbol}
               </RouteTokenText>
             </RouteTokenRow>
           ))}
@@ -495,7 +473,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
             <RouteTokenRow key={`in-${i}`}>
               <TokenIcon uri={input.logo} size={18} />
               <RouteTokenText>
-                {formatAmount(input.amount, input.decimals)} {input.symbol}
+                {formatRawAmount(input.amount, input.decimals)} {input.symbol}
               </RouteTokenText>
             </RouteTokenRow>
           ))}

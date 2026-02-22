@@ -9,21 +9,10 @@ import {
   borderRadius,
   fontWeight,
   fontSize,
+  getFeatureColor,
 } from '@salmon/shared';
 import type { TokenFeature } from '@salmon/shared';
 import type { TokenFeaturesProps } from './types';
-
-/**
- * Default feature colors from the palette for variety
- */
-const DEFAULT_FEATURE_COLORS = [
-  colors.palette.orange,
-  colors.palette.green,
-  colors.palette.purple,
-  colors.palette.amber,
-  colors.palette.blue,
-  colors.palette.pink,
-];
 
 /**
  * Map common feature icons to Ionicons names
@@ -67,14 +56,6 @@ function getFeatureIcon(feature: TokenFeature): string {
 
   // Default icon
   return 'pricetag-outline';
-}
-
-/**
- * Get color for a feature (with index for variety)
- */
-function getFeatureColor(feature: TokenFeature, index: number): string {
-  if (feature.color) return feature.color;
-  return DEFAULT_FEATURE_COLORS[index % DEFAULT_FEATURE_COLORS.length];
 }
 
 /**

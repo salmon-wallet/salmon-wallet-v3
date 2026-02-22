@@ -4,14 +4,12 @@
  *
  * API Endpoints:
  * - GET /v1/{networkId}/account/{address}/transactions - Get paginated transactions
- * - GET /v1/{networkId}/account/{address}/transactions/{txId} - Get single transaction
  *
  * Note: Solana transactions are handled separately in solana.ts
  */
 
 import { apiClient, ApiError } from '../client';
 import type {
-  TransactionItem,
   TransactionPagingParams,
   TransactionsResponse,
 } from '../../types/transaction';
@@ -70,99 +68,4 @@ export async function getTransactions(
     console.error('[TransactionService] Failed to get transactions:', error);
     throw error;
   }
-}
-
-/**
- * Get a single transaction by ID
- *
- * Endpoint: GET /v1/{networkId}/account/{address}/transactions/{txId}
- *
- * @param networkId - Network identifier
- * @param address - Wallet address
- * @param txId - Transaction ID/hash
- * @returns Transaction data, or null if not found
- */
-export async function getTransaction(
-  networkId: NetworkId,
-  address: string,
-  txId: string
-): Promise<TransactionItem | null> {
-  try {
-    const { data } = await apiClient.get<TransactionItem>(
-      `/v1/${networkId}/account/${address}/transactions/${txId}`
-    );
-    return data;
-  } catch (error) {
-    if (error instanceof ApiError && error.isNotFound()) {
-      return null;
-    }
-    console.error('[TransactionService] Failed to get transaction:', error);
-    throw error;
-  }
-}
-
-// ============================================================================
-// Convenience Functions
-// ============================================================================
-
-/**
- * Get recent transactions (last N transactions)
- *
- * @param networkId - Network identifier
- * @param address - Wallet address
- * @param count - Number of recent transactions to fetch (default: 10, max: 100)
- * @returns Array of recent transactions
- */
-export async function getRecentTransactions(
-  networkId: NetworkId,
-  address: string,
-  count: number = 10
-): Promise<TransactionItem[]> {
-  const response = await getTransactions(networkId, address, {
-    pageSize: Math.min(count, 100),
-  });
-  return response.data;
-}
-
-/**
- * Get all transactions for an address (handles pagination automatically)
- *
- * Warning: This can make multiple API calls. Use with caution for addresses
- * with many transactions. Consider using getTransactions with manual
- * pagination for better control.
- *
- * @param networkId - Network identifier
- * @param address - Wallet address
- * @param maxTransactions - Maximum number of transactions to fetch (default: 100)
- * @returns Array of all transactions up to the limit
- */
-export async function getAllTransactions(
-  networkId: NetworkId,
-  address: string,
-  maxTransactions: number = 100
-): Promise<TransactionItem[]> {
-  const allTransactions: TransactionItem[] = [];
-  let pageToken: string | undefined;
-  let hasMore = true;
-
-  while (hasMore && allTransactions.length < maxTransactions) {
-    const remaining = maxTransactions - allTransactions.length;
-    const pageSize = Math.min(remaining, 100);
-
-    const response = await getTransactions(networkId, address, {
-      pageSize,
-      pageToken,
-    });
-
-    allTransactions.push(...response.data);
-    hasMore = !!response.pageToken;
-    pageToken = response.pageToken;
-
-    // Safety check to prevent infinite loops
-    if (response.data.length === 0) {
-      break;
-    }
-  }
-
-  return allTransactions;
 }

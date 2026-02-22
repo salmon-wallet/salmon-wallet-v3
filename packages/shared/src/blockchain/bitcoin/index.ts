@@ -2,12 +2,9 @@
 export { BitcoinAccount } from './BitcoinAccount';
 // Note: SATOSHIS_PER_BTC is now canonical in utils/decimals
 export type {
-  BitcoinNetwork,
-  BitcoinNetworkConfig,
   BitcoinAccountOptions,
   BitcoinAccountBalance,
   BitcoinKeyPair,
-  BitcoinEnvironment,
   AddressValidationResult,
   BitcoinWalletBalance,
 } from './BitcoinAccount';

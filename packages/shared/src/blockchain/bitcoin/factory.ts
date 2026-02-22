@@ -1,9 +1,9 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import {
   BitcoinAccount,
-  BitcoinNetwork,
   BitcoinKeyPair,
 } from './BitcoinAccount';
+import type { BitcoinNetwork } from '../../types/blockchain';
 import type { BitcoinAccountApiFunctions } from '../../types/transfer';
 import type { BitcoinNetworkId } from '../../types/blockchain';
 import {

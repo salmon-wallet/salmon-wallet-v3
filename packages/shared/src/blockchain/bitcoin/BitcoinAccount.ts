@@ -18,40 +18,7 @@ import type {
   BitcoinAccountBalance,
   BitcoinWalletBalance,
 } from '../../types/balance';
-import type { BitcoinNetworkId } from '../../types/blockchain';
-
-/**
- * @deprecated Use `BitcoinNetworkId` from `types/blockchain` instead.
- */
-export type BitcoinEnvironment = 'mainnet' | 'testnet';
-
-/**
- * Network configuration for Bitcoin connections
- */
-export interface BitcoinNetworkConfig {
-  /** API endpoint URL for balance and transaction queries */
-  apiUrl?: string;
-  /** bitcoinjs-lib network configuration */
-  network: bitcoin.Network;
-}
-
-/**
- * Network definition with ID and configuration
- */
-export interface BitcoinNetwork {
-  /** Network identifier (e.g., 'bitcoin-mainnet', 'bitcoin-testnet') */
-  id: BitcoinNetworkId;
-  /** Human-readable network name */
-  name: string;
-  /** Network ID for environment identification */
-  networkId: BitcoinNetworkId;
-  /**
-   * @deprecated Use `networkId` instead. Will be removed in a future version.
-   */
-  environment?: BitcoinEnvironment;
-  /** Network configuration */
-  config: BitcoinNetworkConfig;
-}
+import type { BitcoinNetwork, BitcoinEnvironment } from '../../types/blockchain';
 
 /**
  * Bitcoin keypair containing public address and private key (WIF format)

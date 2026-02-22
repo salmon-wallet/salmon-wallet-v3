@@ -11,10 +11,6 @@
  */
 
 import { formatRelativeTimeCompact } from '../../utils/date';
-import {
-  getExplorerUrl as _getExplorerUrl,
-  getSolscanUrl as _getSolscanUrl,
-} from '../../utils/url';
 
 import type {
   SolanaTransaction,
@@ -28,6 +24,7 @@ import type {
   TransactionType,
   TransactionDisplayStatus,
 } from '../../types/transaction';
+import type { FetchSolanaTransactionsFn } from '../../types/transfer';
 
 // ============================================================================
 // Re-export API types for convenience
@@ -72,11 +69,7 @@ export interface SolanaTransactionListResponse {
 // API Function Types
 // ============================================================================
 
-export type GetSolanaTransactionsFn = (
-  networkId: SolanaNetworkId,
-  address: string,
-  paging?: SolanaPagingParams
-) => Promise<SolanaTransactionsResponse>;
+export type GetSolanaTransactionsFn = FetchSolanaTransactionsFn;
 
 // ============================================================================
 // API Functions (v2 compatible interface)
@@ -248,22 +241,3 @@ export function isTokenMintOrBurn(tx: SolanaTransaction): boolean {
   return tx.type === 'mint' || tx.type === 'burn';
 }
 
-/**
- * Get the transaction explorer URL
- * @param tx - Transaction to get URL for
- * @param networkId - Network ID
- * @returns Solana explorer URL for the transaction
- */
-export function getExplorerUrl(tx: SolanaTransaction, networkId: string): string {
-  return _getExplorerUrl(tx.signature, networkId);
-}
-
-/**
- * Get the Solscan explorer URL
- * @param tx - Transaction to get URL for
- * @param networkId - Network ID
- * @returns Solscan explorer URL for the transaction
- */
-export function getSolscanUrl(tx: SolanaTransaction, networkId: string): string {
-  return _getSolscanUrl(tx.signature, networkId);
-}

@@ -8,6 +8,7 @@
 
 import round from 'lodash-es/round';
 import isNil from 'lodash-es/isNil';
+import type { PriceDataPoint } from '../types/ui';
 
 // ============================================================================
 // Types
@@ -439,4 +440,37 @@ export function formatPercentChange(percent: number | undefined): string {
 
   const sign = percent >= 0 ? '+' : '';
   return `${sign}${percent.toFixed(2)}%`;
+}
+
+// ============================================================================
+// Price Impact Severity
+// ============================================================================
+
+export type PriceImpactSeverity = 'safe' | 'warning' | 'high';
+
+export const PRICE_IMPACT_THRESHOLDS = {
+  safe: 0.5,
+  warning: 1,
+} as const;
+
+/**
+ * Returns the severity level for a price impact percentage string.
+ */
+export function getPriceImpactSeverity(value: string): PriceImpactSeverity {
+  const numericValue = parseFloat(value);
+  if (isNaN(numericValue) || numericValue < PRICE_IMPACT_THRESHOLDS.safe) return 'safe';
+  if (numericValue <= PRICE_IMPACT_THRESHOLDS.warning) return 'warning';
+  return 'high';
+}
+
+// ============================================================================
+// Price Performance
+// ============================================================================
+
+/**
+ * Returns true if the last data point's price is >= the first's.
+ */
+export function isPositivePerformance(data: PriceDataPoint[]): boolean {
+  if (data.length < 2) return true;
+  return data[data.length - 1].price >= data[0].price;
 }

@@ -10,7 +10,9 @@
  * - POST /v1/{networkId}/account/{address}/transactions - Broadcast transaction
  */
 
-import { apiClient, ApiError } from '../client';
+import { apiClient, get, ApiError } from '../client';
+import { getPricesByPlatform } from './price';
+import { removeDecimals } from '../../utils/decimals';
 import type { BitcoinNetworkId } from '../../types/blockchain';
 import type {
   BitcoinBalance,
@@ -20,6 +22,18 @@ import type {
   BitcoinTransaction,
   BroadcastTransactionRequest,
   BroadcastTransactionResponse,
+  UTXO,
+  FetchUtxosFn,
+  BroadcastTransactionFn,
+  BitcoinBalanceItem,
+  AccountTransaction,
+  AccountTransactionListResponse,
+  TransactionPaging,
+  BitcoinAccountApiFunctions,
+  FetchBitcoinBalanceFn,
+  FetchBitcoinPricesFn,
+  FetchBitcoinTransactionFn,
+  FetchBitcoinRecentTransactionsFn,
 } from '../../types/transfer';
 
 // Re-export types for backwards compatibility
@@ -203,3 +217,92 @@ export async function broadcastBitcoinTransaction(
     throw error;
   }
 }
+
+// ============================================================================
+// DI Adapter Functions (for blockchain/bitcoin/transfer module)
+// ============================================================================
+
+export const fetchUtxos: FetchUtxosFn = async (networkId, address) => {
+  const { data } = await apiClient.get<{ data: UTXO[]; nextPageToken?: string }>(
+    `/v1/${networkId}/account/${address}/utxo`,
+    { params: { pageSize: 100 } },
+  );
+  return data.data;
+};
+
+export const broadcastTransaction: BroadcastTransactionFn = async (networkId, address, serializedTx) => {
+  const { data } = await apiClient.post<{ txId?: string; success?: boolean }>(
+    `/v1/${networkId}/account/${address}/transactions`,
+    { tx: serializedTx },
+  );
+  return {
+    txId: data.txId,
+    success: true,
+  };
+};
+
+// ============================================================================
+// DI Adapter Functions (for BitcoinAccount creation)
+// ============================================================================
+
+export const fetchBitcoinAccountBalance: FetchBitcoinBalanceFn = async (
+  networkId: string,
+  address: string
+): Promise<BitcoinBalanceItem[]> => {
+  const data = await get<BitcoinBalanceItem[]>(
+    `/v1/${networkId}/account/${address}/balance`,
+    { params: { include: 'logo' } },
+  );
+
+  return data.map((token) => ({
+    ...token,
+    uiAmount: removeDecimals(token.amount, token.decimals),
+    coingeckoId: 'bitcoin',
+  }));
+};
+
+export const fetchBitcoinAccountPrices: FetchBitcoinPricesFn = async (
+  platform: string
+) => {
+  return getPricesByPlatform(platform as Parameters<typeof getPricesByPlatform>[0]);
+};
+
+export const fetchBitcoinAccountTransaction: FetchBitcoinTransactionFn = async (
+  networkId: string,
+  address: string,
+  txId: string
+): Promise<AccountTransaction> => {
+  return get<AccountTransaction>(`/v1/${networkId}/account/${address}/transactions/${txId}`);
+};
+
+export const fetchBitcoinAccountRecentTransactions: FetchBitcoinRecentTransactionsFn = async (
+  networkId: string,
+  address: string,
+  paging?: TransactionPaging
+): Promise<AccountTransactionListResponse> => {
+  const { nextPageToken, pageSize } = paging || {};
+
+  const params: Record<string, string | number> = {};
+  if (nextPageToken) {
+    params.pageToken = nextPageToken;
+  }
+  if (pageSize) {
+    params.pageSize = pageSize;
+  }
+
+  return get<AccountTransactionListResponse>(
+    `/v1/${networkId}/account/${address}/transactions`,
+    { params },
+  );
+};
+
+/**
+ * Pre-wired Bitcoin API functions for account creation.
+ * Centralizes the dependency injection wiring so callers don't repeat it.
+ */
+export const bitcoinApiFunctions: BitcoinAccountApiFunctions = {
+  fetchBalance: fetchBitcoinAccountBalance,
+  fetchPrices: fetchBitcoinAccountPrices,
+  fetchTransaction: fetchBitcoinAccountTransaction,
+  fetchRecentTransactions: fetchBitcoinAccountRecentTransactions,
+};

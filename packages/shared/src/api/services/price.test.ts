@@ -999,7 +999,6 @@ describe('Price Service', () => {
       it('should return empty status when cache is empty', () => {
         const status = getPriceCacheStatus();
 
-        expect(status.platforms).toEqual([]);
         expect(status.entries).toBe(0);
       });
 
@@ -1013,8 +1012,6 @@ describe('Price Service', () => {
 
         const status = getPriceCacheStatus();
 
-        expect(status.platforms).toContain('solana');
-        expect(status.platforms).toContain('bitcoin');
         expect(status.entries).toBe(2);
       });
 
@@ -1026,7 +1023,6 @@ describe('Price Service', () => {
 
         const status = getPriceCacheStatus();
 
-        expect(status.platforms).toEqual([]);
         expect(status.entries).toBe(0);
       });
 
@@ -1041,7 +1037,6 @@ describe('Price Service', () => {
 
         const status = getPriceCacheStatus();
 
-        expect(status.platforms).toEqual([]);
         expect(status.entries).toBe(0);
       });
     });

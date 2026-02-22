@@ -14,9 +14,7 @@
  */
 
 import * as bitcoin from 'bitcoinjs-lib';
-import {
-  BitcoinNetwork,
-} from './BitcoinAccount';
+import type { BitcoinNetwork } from '../../types/blockchain';
 import {
   btcToSatoshis,
   satoshisToBtc,

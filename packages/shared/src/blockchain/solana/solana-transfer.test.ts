@@ -25,6 +25,13 @@ import { SOLANA_NETWORKS } from './factory';
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 
+const mockSolanaApiFunctions = {
+  fetchBalance: vi.fn().mockResolvedValue([]),
+  fetchPrices: vi.fn().mockResolvedValue(null),
+  fetchTransaction: vi.fn().mockResolvedValue(null),
+  fetchTransactions: vi.fn().mockResolvedValue({ transactions: [], oldestSignature: null, hasMore: false }),
+};
+
 // ============================================================================
 // Test Helpers
 // ============================================================================
@@ -540,6 +547,7 @@ describe('SolanaAccount.validateDestinationAccount', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     // Mock connection
@@ -568,6 +576,7 @@ describe('SolanaAccount.validateDestinationAccount', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     // Create a PDA address
@@ -593,6 +602,7 @@ describe('SolanaAccount.validateDestinationAccount', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const [pdaAddress] = PublicKey.findProgramAddressSync(
@@ -623,6 +633,7 @@ describe('SolanaAccount.validateDestinationAccount', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const result = await account.validateDestinationAccount('invalid-address-123');
@@ -636,6 +647,7 @@ describe('SolanaAccount.validateDestinationAccount', () => {
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
 
     const mockGetAccountInfo = vi.fn().mockResolvedValue(null);
@@ -656,95 +668,87 @@ describe('SolanaAccount.validateDestinationAccount', () => {
 
 describe('SolanaAccount.getBalance', () => {
   const network = SOLANA_NETWORKS['solana-devnet'];
-  let useRealBackend = false;
 
-  beforeAll(async () => {
-    // Check if backend is available
-    useRealBackend = await checkBackend();
-    if (!useRealBackend) {
-      console.warn('⚠️  Backend not available at localhost:3000, using mocks for getBalance tests');
-    }
-  });
+  it('should return SolanaWalletBalance from DI functions', async () => {
+    const mockFetchBalance = vi.fn().mockResolvedValue([
+      {
+        mint: 'So11111111111111111111111111111111111111112',
+        amount: 5000000000,
+        decimals: 9,
+        symbol: 'SOL',
+        name: 'Solana',
+        uiAmount: 5,
+        coingeckoId: 'solana',
+      },
+    ]);
+    const mockFetchPrices = vi.fn().mockResolvedValue([
+      { id: 'solana', symbol: 'sol', usdPrice: 150, perc24HoursChange: 2.5 },
+    ]);
 
-  it('should get balance from backend or mock', async () => {
     const account = await createSolanaAccount({
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: {
+        ...mockSolanaApiFunctions,
+        fetchBalance: mockFetchBalance,
+        fetchPrices: mockFetchPrices,
+      },
     });
-
-    if (!useRealBackend) {
-      // Use mock
-      const mockBalance = 5000000000; // 5 SOL
-      const connection = await account.getConnection();
-      vi.spyOn(connection, 'getBalance').mockResolvedValue(mockBalance);
-    }
 
     const balance = await account.getBalance();
 
     expect(balance).toBeDefined();
-    expect(balance.lamports).toBeDefined();
-    expect(balance.sol).toBeDefined();
-    expect(typeof balance.lamports).toBe('bigint');
-    expect(typeof balance.sol).toBe('number');
-    expect(Number(balance.lamports) / 1e9).toBe(balance.sol);
+    expect(balance.items).toBeDefined();
+    expect(Array.isArray(balance.items)).toBe(true);
+    expect(balance.items.length).toBe(1);
+    expect(balance.items[0].symbol).toBe('SOL');
+    expect(balance.usdTotal).toBeDefined();
+    expect(typeof balance.usdTotal).toBe('number');
   });
 
-  it('should return zero balance for new account', async () => {
+  it('should return empty items when DI returns empty', async () => {
     const account = await createSolanaAccount({
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockSolanaApiFunctions,
     });
-
-    if (!useRealBackend) {
-      const connection = await account.getConnection();
-      vi.spyOn(connection, 'getBalance').mockResolvedValue(0);
-    }
 
     const balance = await account.getBalance();
 
-    if (!useRealBackend) {
-      expect(balance.lamports).toBe(BigInt(0));
-      expect(balance.sol).toBe(0);
-    } else {
-      // Real backend might have different balance
-      expect(balance.lamports).toBeGreaterThanOrEqual(BigInt(0));
-      expect(balance.sol).toBeGreaterThanOrEqual(0);
-    }
+    expect(balance).toBeDefined();
+    expect(balance.items).toEqual([]);
   });
 
-  it('should convert lamports to SOL correctly', async () => {
+  it('should handle prices being unavailable', async () => {
+    const mockFetchBalance = vi.fn().mockResolvedValue([
+      {
+        mint: 'So11111111111111111111111111111111111111112',
+        amount: 1500000000,
+        decimals: 9,
+        symbol: 'SOL',
+        name: 'Solana',
+        uiAmount: 1.5,
+      },
+    ]);
+    const mockFetchPrices = vi.fn().mockRejectedValue(new Error('Network error'));
+
     const account = await createSolanaAccount({
       network,
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: {
+        ...mockSolanaApiFunctions,
+        fetchBalance: mockFetchBalance,
+        fetchPrices: mockFetchPrices,
+      },
     });
-
-    const mockBalance = 1500000000; // 1.5 SOL
-    const connection = await account.getConnection();
-    vi.spyOn(connection, 'getBalance').mockResolvedValue(mockBalance);
 
     const balance = await account.getBalance();
 
-    expect(balance.lamports).toBe(BigInt(1500000000));
-    expect(balance.sol).toBe(1.5);
-  });
-
-  it('should handle large balances correctly', async () => {
-    const account = await createSolanaAccount({
-      network,
-      mnemonic: TEST_MNEMONIC,
-      index: 0,
-    });
-
-    const mockBalance = 1000000000000; // 1000 SOL
-    const connection = await account.getConnection();
-    vi.spyOn(connection, 'getBalance').mockResolvedValue(mockBalance);
-
-    const balance = await account.getBalance();
-
-    expect(balance.lamports).toBe(BigInt(1000000000000));
-    expect(balance.sol).toBe(1000);
+    expect(balance).toBeDefined();
+    expect(balance.items.length).toBe(1);
+    expect(balance.usdTotal).toBeUndefined();
   });
 });

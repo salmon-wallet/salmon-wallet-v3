@@ -108,27 +108,16 @@ export {
   getBitcoinTransactions,
   getBitcoinTransaction,
   broadcastBitcoinTransaction,
-} from './bitcoin';
-
-// ============================================================================
-// Bitcoin Transfer Service
-// ============================================================================
-
-export {
+  // DI adapters (transfer)
   fetchUtxos,
   broadcastTransaction,
-} from './bitcoin-transfer';
-
-// ============================================================================
-// Bitcoin Account Service (DI adapters for BitcoinAccount)
-// ============================================================================
-
-export {
+  // DI adapters (account)
   fetchBitcoinAccountBalance,
   fetchBitcoinAccountPrices,
   fetchBitcoinAccountTransaction,
   fetchBitcoinAccountRecentTransactions,
-} from './bitcoin-account';
+  bitcoinApiFunctions,
+} from './bitcoin';
 
 // ============================================================================
 // Solana Service
@@ -160,6 +149,8 @@ export {
   // Functions - Swap
   getSwapOrder,
   executeSwapApi,
+  // DI adapter
+  solanaApiFunctions,
 } from './solana';
 
 // ============================================================================
@@ -212,6 +203,8 @@ export {
   // Functions
   getERC20TokenBalances,
   getTokenMetadataBatch,
+  // DI adapter (account)
+  ethereumApiFunctions,
 } from './ethereum';
 
 // ============================================================================
@@ -225,9 +218,6 @@ export {
   type TransactionsResponse,
   // Functions - aliased to avoid conflicts with chain-specific services
   getTransactions as getMultichainTransactions,
-  getTransaction as getMultichainTransaction,
-  getRecentTransactions as getRecentMultichainTransactions,
-  getAllTransactions as getAllMultichainTransactions,
 } from './transactions';
 
 // ============================================================================

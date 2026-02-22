@@ -14,56 +14,59 @@
  * - Developer mode support for test networks
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  RefreshControl,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  useAccountsContext,
-  useUserConfig,
+  SECTION_TO_NETWORK as SHARED_SECTION_TO_NETWORK,
+  SOLANA_NETWORKS,
+  SolanaAccount,
+  canonicalNftToSolanaNftData,
   colors,
   componentSizes,
-  vs,
-  s,
-  ms,
-  getAllNfts,
-  getSolanaNfts,
-  type Nft,
-  SOLANA_NETWORKS,
+  createBurnTransaction,
   // getEthereumNfts,
   // getBitcoinOrdinals,
   // ethereumNftToNftData,
   // bitcoinOrdinalToNftData,
   filterSpamNfts,
+  getAllNfts,
+  getNftSectionTitle,
+  getShortAddress,
+  getSolanaNfts,
+  ms,
+  s,
+  useAccountsContext,
+  useUserConfig,
+  vs,
   // type EthereumNft,
   // type BitcoinOrdinal,
   type BlockchainAccount,
+  type Nft,
   type SolanaNetworkId,
-  SolanaAccount,
-  getShortAddress,
-  createBurnTransaction,
 } from '@salmon/shared';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  NftCard,
+  NftCardSkeleton,
   // NftCarouselSection,
   // NftCarouselSectionSkeleton,
   // NftSeeAllSheet,
   NftDetailSheet,
   NftSendSheet,
-  NftCard,
-  NftCardSkeleton,
-  SubAccountSelector,
   SolanaSvgIcon,
-  type SubAccount,
-  type NftData,
+  SubAccountSelector,
   type NftBlockchain,
+  type NftData,
   type NftDetailData,
+  type SubAccount,
 } from '../../../src/components';
 
 // ============================================================================
@@ -76,9 +79,9 @@ import {
 type NftSectionKey =
   | 'solana'
   | 'solana-devnet';
-  // | 'ethereum'
-  // | 'ethereum-sepolia'
-  // | 'bitcoin';
+// | 'ethereum'
+// | 'ethereum-sepolia'
+// | 'bitcoin';
 
 interface NftSection {
   nfts: NftData[];
@@ -100,16 +103,7 @@ type NftsBySection = Record<NftSectionKey, NftSection>;
 // Constants
 // ============================================================================
 
-/**
- * Maps each UI section to its network account key in networksAccounts.
- */
-const SECTION_TO_NETWORK: Record<NftSectionKey, string> = {
-  'solana': 'solana-mainnet',
-  'solana-devnet': 'solana-devnet',
-  // 'ethereum': 'ethereum-mainnet',
-  // 'ethereum-sepolia': 'ethereum-sepolia',
-  // 'bitcoin': 'bitcoin-mainnet',
-};
+const SECTION_TO_NETWORK = SHARED_SECTION_TO_NETWORK;
 
 const INITIAL_SECTION_INDEXES: Record<NftSectionKey, number> = {
   'solana': 0,
@@ -136,25 +130,6 @@ const GRID_HORIZONTAL_PADDING = s(18);
 // ============================================================================
 
 /**
- * Convert Solana Nft to NftData for UI components
- */
-function solanaNftToNftData(nft: Nft): NftData {
-  return {
-    blockchain: 'solana',
-    mint: nft.mint.address,
-    name: nft.name || 'Unnamed NFT',
-    image: nft.media || undefined,
-    description: nft.description || undefined,
-    collectionName: nft.collection?.name || undefined,
-    attributes: nft.extras?.attributes?.map((attr) => ({
-      trait_type: attr.trait_type,
-      value: String(attr.value),
-    })),
-    blacklisted: nft.blacklisted ?? false,
-  };
-}
-
-/**
  * Convert Solana Nft to NftDetailData for detail sheet
  */
 function solanaNftToDetailData(nft: Nft): NftDetailData {
@@ -172,20 +147,6 @@ function solanaNftToDetailData(nft: Nft): NftDetailData {
   };
 }
 
-/**
- * Get section title with optional network label
- */
-function getSectionTitle(_sectionKey: NftSectionKey, section: NftSection): string {
-  // Only Solana for now
-  const baseName = 'Solana';
-  // const baseNames: Record<NftBlockchain, string> = {
-  //   solana: 'Solana',
-  //   ethereum: 'Ethereum',
-  //   bitcoin: 'Bitcoin Ordinals',
-  // };
-  // const baseName = baseNames[section.blockchain];
-  return section.networkLabel ? `${baseName} ${section.networkLabel}` : baseName;
-}
 
 // ============================================================================
 // Main Component
@@ -351,7 +312,7 @@ export default function CollectiblesScreen() {
 
         if (key === 'solana' || key === 'solana-devnet') {
           const solanaNfts = result as Nft[];
-          const mapped = solanaNfts.map(solanaNftToNftData);
+          const mapped = solanaNfts.map(canonicalNftToSolanaNftData);
           newSections[key] = {
             ...section,
             nfts: applyFilter ? filterSpamNfts(mapped) : mapped,
@@ -554,7 +515,7 @@ export default function CollectiblesScreen() {
 
   // Check if Solana section is loading
   const isLoading = nftsBySections.solana.loading;
-    // was: nftsBySections.solana.loading && nftsBySections.ethereum.loading && nftsBySections.bitcoin.loading;
+  // was: nftsBySections.solana.loading && nftsBySections.ethereum.loading && nftsBySections.bitcoin.loading;
 
   // Check if all visible sections are empty (after loading)
   const isEmpty = useMemo(() => {
@@ -577,7 +538,7 @@ export default function CollectiblesScreen() {
   //   }
   //   const section = nftsBySections[seeAllSheet.sectionKey];
   //   return {
-  //     title: getSectionTitle(seeAllSheet.sectionKey, section),
+  //     title: getNftSectionTitle(seeAllSheet.sectionKey, section),
   //     blockchain: section.blockchain,
   //   };
   // }, [seeAllSheet.sectionKey, nftsBySections]);
@@ -641,7 +602,7 @@ export default function CollectiblesScreen() {
             return null;
           }
 
-          const title = getSectionTitle(sectionKey, section);
+          const title = getNftSectionTitle(sectionKey, section);
           const subAccounts = sectionSubAccounts[sectionKey] ?? [];
 
           return (
@@ -705,7 +666,7 @@ export default function CollectiblesScreen() {
         {visibleSectionKeys.map((sectionKey) => {
           const section = nftsBySections[sectionKey];
           if (section.loading || section.nfts.length === 0) return null;
-          const title = getSectionTitle(sectionKey, section);
+          const title = getNftSectionTitle(sectionKey, section);
           const subAccounts = sectionSubAccounts[sectionKey] ?? [];
           return (
             <NftCarouselSection

@@ -3,6 +3,8 @@
  * Works for both React Native (Expo) and Web (WXT+Vite extension)
  */
 
+import type { BlockchainId } from '../types/ui/balance-card';
+
 export const colors = {
   background: {
     primary: '#10131c', // bg-darken
@@ -330,3 +332,30 @@ export const gradients = {
 
 export type Colors = typeof colors;
 export type Gradients = typeof gradients;
+
+// ============================================================================
+// Blockchain Scale Overlay Colors
+// ============================================================================
+
+/**
+ * Returns an rgba overlay color (15% opacity) for a blockchain.
+ * Used for balance card scale/shimmer effects.
+ */
+export const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
+  switch (blockchain) {
+    case 'solana':
+      return 'rgba(153, 69, 255, 0.15)';
+    case 'solana-devnet':
+      return 'rgba(0, 255, 163, 0.15)';
+    case 'bitcoin':
+      return 'rgba(247, 147, 26, 0.15)';
+    case 'bitcoin-testnet':
+      return 'rgba(255, 149, 0, 0.15)';
+    case 'ethereum':
+      return 'rgba(98, 126, 234, 0.15)';
+    case 'ethereum-sepolia':
+      return 'rgba(76, 175, 80, 0.15)';
+    default:
+      return 'rgba(153, 69, 255, 0.15)';
+  }
+};

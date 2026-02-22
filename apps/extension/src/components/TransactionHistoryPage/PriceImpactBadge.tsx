@@ -16,23 +16,12 @@ import Typography from '@mui/material/Typography';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, spacing, borderRadius, getPriceImpactSeverity, type PriceImpactSeverity } from '@salmon/shared';
 import type { PriceImpactBadgeProps } from './types';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-type PriceImpactSeverity = 'safe' | 'warning' | 'high';
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const THRESHOLDS = {
-  safe: 0.5,
-  warning: 1,
-} as const;
 
 const SEVERITY_COLORS: Record<PriceImpactSeverity, string> = {
   safe: colors.status.success,
@@ -49,13 +38,6 @@ const SIZE_CONFIG = {
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-function getSeverity(value: string): PriceImpactSeverity {
-  const numericValue = parseFloat(value);
-  if (isNaN(numericValue) || numericValue < THRESHOLDS.safe) return 'safe';
-  if (numericValue <= THRESHOLDS.warning) return 'warning';
-  return 'high';
-}
 
 function getSeverityIcon(severity: PriceImpactSeverity, size: number) {
   const sx = { fontSize: size };
@@ -89,7 +71,7 @@ export const PriceImpactBadge: React.FC<PriceImpactBadgeProps> = ({
   size = 'medium',
   showIcon = false,
 }) => {
-  const severity = getSeverity(value);
+  const severity = getPriceImpactSeverity(value);
   const color = SEVERITY_COLORS[severity];
   const sizeConfig = SIZE_CONFIG[size];
 

@@ -9,9 +9,9 @@
  * @module types/blockchain
  */
 
-import type { SolanaAccount, SolanaNetwork } from '../blockchain/solana';
-import type { BitcoinAccount, BitcoinNetwork } from '../blockchain/bitcoin';
-import type { EthereumAccount, EthereumNetwork } from '../blockchain/ethereum';
+import type { SolanaAccount } from '../blockchain/solana';
+import type { BitcoinAccount } from '../blockchain/bitcoin';
+import type { EthereumAccount } from '../blockchain/ethereum';
 
 /**
  * Supported blockchain identifiers.
@@ -88,6 +88,102 @@ export type EthereumNetworkId = 'ethereum-mainnet' | 'ethereum-sepolia';
  * Previously defined in useBalance as `NetworkId`.
  */
 export type NetworkId = SolanaNetworkId | BitcoinNetworkId | EthereumNetworkId;
+
+// ============================================================================
+// Per-chain network configs and definitions
+// ============================================================================
+
+/**
+ * Network configuration for Solana connections
+ */
+export interface SolanaNetworkConfig {
+  /** RPC endpoint URL */
+  nodeUrl: string;
+  /** WebSocket endpoint URL (optional) */
+  wsUrl?: string;
+  /** Network commitment level */
+  commitment?: import('@solana/web3.js').Commitment;
+}
+
+/**
+ * Network definition for Solana
+ */
+export interface SolanaNetwork {
+  /** Network identifier */
+  id: SolanaNetworkId;
+  /** Human-readable network name */
+  name: string;
+  /** Network ID for environment identification */
+  networkId: SolanaNetworkId;
+  /** Network configuration */
+  config: SolanaNetworkConfig;
+}
+
+/**
+ * Network configuration for Bitcoin connections
+ */
+export interface BitcoinNetworkConfig {
+  /** API endpoint URL for balance and transaction queries */
+  apiUrl?: string;
+  /** bitcoinjs-lib network configuration */
+  network: import('bitcoinjs-lib').Network;
+}
+
+/**
+ * Network definition for Bitcoin
+ */
+export interface BitcoinNetwork {
+  /** Network identifier */
+  id: BitcoinNetworkId;
+  /** Human-readable network name */
+  name: string;
+  /** Network ID for environment identification */
+  networkId: BitcoinNetworkId;
+  /**
+   * @deprecated Use `networkId` instead. Will be removed in a future version.
+   */
+  environment?: BitcoinEnvironment;
+  /** Network configuration */
+  config: BitcoinNetworkConfig;
+}
+
+/**
+ * @deprecated Use `BitcoinNetworkId` from `types/blockchain` instead.
+ */
+export type BitcoinEnvironment = 'mainnet' | 'testnet';
+
+/**
+ * Network configuration for Ethereum connections
+ */
+export interface EthereumNetworkConfig {
+  /** RPC endpoint URL */
+  rpcUrl: string;
+  /** Chain ID */
+  chainId: number;
+}
+
+/**
+ * Network definition for Ethereum
+ */
+export interface EthereumNetwork {
+  /** Network identifier */
+  id: EthereumNetworkId;
+  /** Human-readable network name */
+  name: string;
+  /** Network ID for environment identification */
+  networkId: EthereumNetworkId;
+  /**
+   * @deprecated Use `networkId` instead. Will be removed in a future version.
+   */
+  environment?: EthereumEnvironment;
+  /** Network configuration */
+  config: EthereumNetworkConfig;
+}
+
+/**
+ * @deprecated Use `EthereumNetworkId` from `types/blockchain` instead.
+ */
+export type EthereumEnvironment = 'mainnet' | 'sepolia';
 
 // ============================================================================
 // API network data

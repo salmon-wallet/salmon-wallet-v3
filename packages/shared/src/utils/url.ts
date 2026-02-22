@@ -164,6 +164,23 @@ export function normalizeIpfsUrl(url: string | undefined | null): string | undef
 }
 
 // ============================================================================
+// Origin Formatting
+// ============================================================================
+
+/**
+ * Extracts the hostname from a URL string.
+ * Returns the original string if parsing fails.
+ */
+export function formatOrigin(origin: string): string {
+  try {
+    const url = new URL(origin);
+    return url.hostname || origin;
+  } catch {
+    return origin;
+  }
+}
+
+// ============================================================================
 // Blockchain Explorer URLs
 // ============================================================================
 

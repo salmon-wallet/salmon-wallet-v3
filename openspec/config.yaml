@@ -157,3 +157,8 @@ rules:
     - When creating new shared code, include a task to add it to the barrel export (index.ts)
     - Do NOT include testing tasks unless explicitly requested
     - Include i18n tasks (add translation keys to both en and es) when new user-visible strings are introduced
+    - LAST task group must always be "Verification" — run the following checks to ensure nothing is broken:
+      - "[ ] Run typecheck: `pnpm turbo run typecheck`"
+      - "[ ] Run lint: `pnpm turbo run lint`"
+      - "[ ] Run build: `pnpm turbo run build`"
+      - Fix any errors found before marking the change as complete

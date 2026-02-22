@@ -374,3 +374,101 @@ export interface BroadcastTransactionResponse {
   /** Error message if broadcast failed */
   error?: string;
 }
+
+// ============================================================================
+// Ethereum account DI function signatures
+// ============================================================================
+
+export interface EthereumBalanceItem {
+  mint?: string;
+  amount: number;
+  decimals: number;
+  symbol: string;
+  name: string;
+  logo?: string;
+  uiAmount?: number;
+  coingeckoId?: string;
+  price?: number;
+  usdBalance?: number;
+  priceChange24h?: number;
+}
+
+export type FetchEthereumBalanceFn = (
+  networkId: import('./blockchain').EthereumNetworkId,
+  address: string
+) => Promise<EthereumBalanceItem[]>;
+
+export type FetchEthereumPricesFn = (
+  platform: string
+) => Promise<import('./price').TokenPrice[] | null>;
+
+export type FetchEthereumTransactionFn = (
+  networkId: import('./blockchain').EthereumNetworkId,
+  address: string,
+  txHash: string
+) => Promise<AccountTransaction | null>;
+
+export type FetchEthereumRecentTransactionsFn = (
+  networkId: import('./blockchain').EthereumNetworkId,
+  address: string,
+  paging?: TransactionPaging
+) => Promise<AccountTransactionListResponse>;
+
+/**
+ * API dependencies required for EthereumAccount operations
+ */
+export interface EthereumAccountApiFunctions {
+  fetchBalance: FetchEthereumBalanceFn;
+  fetchPrices: FetchEthereumPricesFn;
+  fetchTransaction: FetchEthereumTransactionFn;
+  fetchRecentTransactions: FetchEthereumRecentTransactionsFn;
+}
+
+// ============================================================================
+// Solana account DI function signatures
+// ============================================================================
+
+export interface SolanaBalanceItem {
+  mint?: string;
+  amount: number;
+  decimals: number;
+  symbol: string;
+  name: string;
+  logo?: string;
+  uiAmount?: number;
+  coingeckoId?: string;
+  price?: number;
+  usdBalance?: number;
+  priceChange24h?: number;
+}
+
+export type FetchSolanaBalanceFn = (
+  networkId: import('./blockchain').SolanaNetworkId,
+  address: string
+) => Promise<SolanaBalanceItem[]>;
+
+export type FetchSolanaPricesFn = (
+  platform: string
+) => Promise<import('./price').TokenPrice[] | null>;
+
+export type FetchSolanaTransactionFn = (
+  networkId: import('./blockchain').SolanaNetworkId,
+  address: string,
+  signature: string
+) => Promise<import('./transaction').SolanaTransaction | null>;
+
+export type FetchSolanaTransactionsFn = (
+  networkId: import('./blockchain').SolanaNetworkId,
+  address: string,
+  paging?: import('./transaction').SolanaPagingParams
+) => Promise<import('./transaction').SolanaTransactionsResponse>;
+
+/**
+ * API dependencies required for SolanaAccount operations
+ */
+export interface SolanaAccountApiFunctions {
+  fetchBalance: FetchSolanaBalanceFn;
+  fetchPrices: FetchSolanaPricesFn;
+  fetchTransaction: FetchSolanaTransactionFn;
+  fetchTransactions: FetchSolanaTransactionsFn;
+}

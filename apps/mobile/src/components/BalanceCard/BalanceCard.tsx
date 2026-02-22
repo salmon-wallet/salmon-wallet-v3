@@ -15,6 +15,8 @@ import {
   spacing,
   useCurrencyContext,
   vs,
+  getScalesColorForBlockchain,
+  getNetworkLabel,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
@@ -53,28 +55,6 @@ const getGradientForBlockchain = (blockchain: BlockchainId) => {
 };
 
 /**
- * Get ScalesBackground stroke color for a blockchain (15% opacity)
- */
-const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
-  switch (blockchain) {
-    case 'solana':
-      return 'rgba(153, 69, 255, 0.15)';   // Solana purple (#9945FF)
-    case 'solana-devnet':
-      return 'rgba(0, 255, 163, 0.15)';    // Solana Devnet green (#00FFA3)
-    case 'bitcoin':
-      return 'rgba(247, 147, 26, 0.15)';   // Bitcoin orange (#F7931A)
-    case 'bitcoin-testnet':
-      return 'rgba(255, 149, 0, 0.15)';    // Bitcoin Testnet orange (#FF9500)
-    case 'ethereum':
-      return 'rgba(98, 126, 234, 0.15)';   // Ethereum blue (#627EEA)
-    case 'ethereum-sepolia':
-      return 'rgba(76, 175, 80, 0.15)';    // Ethereum Sepolia green (#4CAF50)
-    default:
-      return 'rgba(153, 69, 255, 0.15)';   // Solana purple (#9945FF)
-  }
-};
-
-/**
  * Render the blockchain logo using local SVG icons
  */
 const renderBlockchainLogo = (blockchain: BlockchainId) => {
@@ -91,23 +71,6 @@ const renderBlockchainLogo = (blockchain: BlockchainId) => {
       return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
     default:
       return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
-  }
-};
-
-/**
- * Get network label for non-mainnet networks (Devnet, Testnet, etc.)
- * Returns null for mainnet networks
- */
-const getNetworkLabel = (blockchain: BlockchainId): string | null => {
-  switch (blockchain) {
-    case 'solana-devnet':
-      return 'Devnet';
-    case 'bitcoin-testnet':
-      return 'Testnet';
-    case 'ethereum-sepolia':
-      return 'Sepolia';
-    default:
-      return null;
   }
 };
 

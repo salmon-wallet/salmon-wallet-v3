@@ -26,6 +26,7 @@ import {
   getAvatarColor,
   getShortAddress,
   getInitials,
+  getAccountAddress,
   useAccountsContext,
   type Account,
 } from '@salmon/shared';
@@ -106,26 +107,6 @@ const AddAccountIcon = styled(Box)({
   backgroundColor: 'rgba(255, 255, 255, 0.06)',
   border: `1px dashed ${colors.border.default}`,
 });
-
-// ============================================================================
-// Helper
-// ============================================================================
-
-function getAccountAddress(account: Account): string {
-  const { networksAccounts } = account;
-  const mainnetAccounts = networksAccounts['solana-mainnet'];
-  if (mainnetAccounts) {
-    const active = mainnetAccounts.find(Boolean);
-    if (active) return active.getReceiveAddress?.() || '';
-  }
-  for (const networkAccounts of Object.values(networksAccounts)) {
-    if (networkAccounts) {
-      const active = networkAccounts.find(Boolean);
-      if (active) return active.getReceiveAddress?.() || '';
-    }
-  }
-  return '';
-}
 
 // ============================================================================
 // Component

@@ -7,6 +7,7 @@
  */
 
 import type { BlockchainType } from '../types/blockchain';
+import type { BlockchainId } from '../types/ui/balance-card';
 
 /**
  * Mainnet network IDs for each blockchain.
@@ -27,6 +28,23 @@ export const MAINNET_NETWORK_ID: Record<BlockchainType, string> = {
   bitcoin: 'bitcoin-mainnet',
   ethereum: 'ethereum-mainnet',
 };
+
+/**
+ * Returns a human-readable label for non-mainnet blockchain IDs.
+ * Returns null for mainnet networks.
+ */
+export function getNetworkLabel(blockchain: BlockchainId): string | null {
+  switch (blockchain) {
+    case 'solana-devnet':
+      return 'Devnet';
+    case 'bitcoin-testnet':
+      return 'Testnet';
+    case 'ethereum-sepolia':
+      return 'Sepolia';
+    default:
+      return null;
+  }
+}
 
 /**
  * Sorts networks according to a predefined order.

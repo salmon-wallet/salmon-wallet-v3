@@ -2,7 +2,7 @@ import React, { useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ContentLoader, Rect } from '@salmon/shared';
-import { colors, spacing, borderRadius, PRICE_CHART_PERIODS } from '@salmon/shared';
+import { colors, spacing, borderRadius, isPositivePerformance, PRICE_CHART_PERIODS } from '@salmon/shared';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
 import type { PriceChartProps } from './types';
 
@@ -87,14 +87,6 @@ const generateAreaPath = (
 ): string => {
   if (!linePath) return '';
   return `${linePath} L ${width} ${height} L 0 ${height} Z`;
-};
-
-/**
- * Determine if period performance is positive
- */
-const isPositivePerformance = (data: PriceDataPoint[]): boolean => {
-  if (data.length < 2) return true;
-  return data[data.length - 1].price >= data[0].price;
 };
 
 /**

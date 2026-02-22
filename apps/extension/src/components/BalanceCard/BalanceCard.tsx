@@ -33,6 +33,8 @@ import {
   getLabelValue,
   hiddenValue,
   useCurrencyContext,
+  getNetworkLabel,
+  getScalesColorForBlockchain,
 } from '@salmon/shared';
 import type { BlockchainId } from '@salmon/shared';
 import { EyeIcon, EyeOffIcon, Icon, SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
@@ -62,28 +64,6 @@ const getGradientCSSForBlockchain = (blockchain: BlockchainId): string => {
 };
 
 /**
- * Get ScalesBackground stroke color for a blockchain (15% opacity)
- */
-const getScalesColorForBlockchain = (blockchain: BlockchainId): string => {
-  switch (blockchain) {
-    case 'solana':
-      return 'rgba(153, 69, 255, 0.15)';
-    case 'solana-devnet':
-      return 'rgba(0, 255, 163, 0.15)';
-    case 'bitcoin':
-      return 'rgba(247, 147, 26, 0.15)';
-    case 'bitcoin-testnet':
-      return 'rgba(255, 149, 0, 0.15)';
-    case 'ethereum':
-      return 'rgba(98, 126, 234, 0.15)';
-    case 'ethereum-sepolia':
-      return 'rgba(76, 175, 80, 0.15)';
-    default:
-      return 'rgba(153, 69, 255, 0.15)';
-  }
-};
-
-/**
  * Render the blockchain logo using SVG icons
  */
 const renderBlockchainLogo = (blockchain: BlockchainId) => {
@@ -105,22 +85,6 @@ const renderBlockchainLogo = (blockchain: BlockchainId) => {
       return <EthereumSvgIcon style={iconStyle} />;
     default:
       return <SolanaSvgIcon style={iconStyle} />;
-  }
-};
-
-/**
- * Get network label for non-mainnet networks
- */
-const getNetworkLabel = (blockchain: BlockchainId): string | null => {
-  switch (blockchain) {
-    case 'solana-devnet':
-      return 'Devnet';
-    case 'bitcoin-testnet':
-      return 'Testnet';
-    case 'ethereum-sepolia':
-      return 'Sepolia';
-    default:
-      return null;
   }
 };
 

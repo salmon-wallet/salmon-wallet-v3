@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getShortAddress, fontFamilyNative } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontFamilyNative } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
@@ -78,66 +78,6 @@ const TRANSACTION_TYPE_CONFIG: Record<
     color: colors.text.secondary,
   },
 };
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Get description text for a transaction
- */
-function getDescription(
-  type: TransactionType,
-  inputs: TransactionTokenAmount[],
-  outputs: TransactionTokenAmount[],
-  source?: string,
-  description?: string
-): string {
-  // For swaps, show route summary
-  if (type === 'swap') {
-    const outputSymbols = [...new Set(outputs.map(o => o.symbol))];
-    const inputSymbols = [...new Set(inputs.map(i => i.symbol))];
-
-    // Simple swap
-    if (outputSymbols.length <= 2 && inputSymbols.length <= 2) {
-      const route = `${outputSymbols.join(', ')} to ${inputSymbols.join(', ')}`;
-      return source ? `${route}` : route;
-    }
-
-    // Complex swap
-    return `${outputSymbols.length} tokens to ${inputSymbols.length} tokens`;
-  }
-
-  // Use Helius description if available and meaningful
-  if (description && description.length > 0 && !description.includes('Unknown')) {
-    return description;
-  }
-
-  switch (type) {
-    case 'send':
-      if (outputs[0]?.destination) {
-        return `To ${getShortAddress(outputs[0].destination, 4) ?? ''}`;
-      }
-      return 'Sent tokens';
-    case 'receive':
-      if (inputs[0]?.source) {
-        return `From ${getShortAddress(inputs[0].source, 4) ?? ''}`;
-      }
-      return 'Received tokens';
-    case 'mint':
-      return 'Token minted';
-    case 'burn':
-      return 'Token burned';
-    case 'stake':
-      return 'Staking operation';
-    case 'loan':
-      return 'Loan operation';
-    case 'interaction':
-      return 'Contract interaction';
-    default:
-      return 'Transaction';
-  }
-}
 
 // ============================================================================
 // Sub-components
@@ -279,7 +219,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 
   // Get description text
   const descriptionText = useMemo(
-    () => getDescription(type, inputs, outputs, source, description),
+    () => getTransactionDescription(type, inputs, outputs, source, description),
     [type, inputs, outputs, source, description]
   );
 

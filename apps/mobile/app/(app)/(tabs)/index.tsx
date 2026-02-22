@@ -50,7 +50,6 @@ import {
   BLOCKCHAIN_TO_COINGECKO,
   PERIOD_TO_DAYS,
   coinInfoToMarketData,
-  type AnyNetwork,
   type CoinInfo,
   type NetworkId,
   type PriceChartPeriod,
@@ -89,54 +88,6 @@ const BLOCKCHAIN_LOGOS: Record<BlockchainId, string> = {
   'ethereum-sepolia': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
 };
 
-
-// Network ID to BlockchainId mapping
-const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
-  // Solana networks
-  'solana-mainnet': 'solana',
-  'solana-devnet': 'solana-devnet',
-
-  // Bitcoin networks
-  'bitcoin-mainnet': 'bitcoin',
-  'bitcoin-testnet': 'bitcoin-testnet',
-
-  // Ethereum networks
-  'ethereum-mainnet': 'ethereum',
-  'ethereum-sepolia': 'ethereum-sepolia',
-};
-
-/**
- * Determines the blockchain type from a network object.
- * Maps network IDs to their corresponding BlockchainIds.
- */
-function getBlockchainFromNetwork(network: AnyNetwork): BlockchainId {
-  const networkId = network.id.toLowerCase();
-
-  // Direct mapping lookup
-  const blockchain = NETWORK_TO_BLOCKCHAIN[networkId];
-  if (blockchain) {
-    return blockchain;
-  }
-
-  // Fallback: check for partial matches
-  if (networkId.includes('solana')) {
-    if (networkId.includes('devnet')) return 'solana-devnet';
-    return 'solana';
-  }
-
-  if (networkId.includes('bitcoin')) {
-    if (networkId.includes('testnet')) return 'bitcoin-testnet';
-    return 'bitcoin';
-  }
-
-  if (networkId.includes('ethereum')) {
-    if (networkId.includes('sepolia')) return 'ethereum-sepolia';
-    return 'ethereum';
-  }
-
-  // Default to solana mainnet if unable to determine
-  return 'solana';
-}
 
 /**
  * Maps context networkId to transaction API networkId format.
@@ -350,7 +301,7 @@ export default function HomeScreen() {
   // Includes preloaded balance data for adjacent networks (±1 from active index)
   const blockchainBalances: BlockchainBalance[] = useMemo(() => {
     return allNetworks.map((network, index) => {
-      const blockchain = getBlockchainFromNetwork(network);
+      const blockchain = network.id.replace('-mainnet', '') as BlockchainId;
       const isActiveNetwork = network.id === networkId;
       const isPrevNetwork = index === activeBlockchainIndex - 1;
       const isNextNetwork = index === activeBlockchainIndex + 1;

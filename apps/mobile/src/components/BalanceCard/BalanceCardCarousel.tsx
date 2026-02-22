@@ -14,6 +14,7 @@ import {
   spacing,
   useCurrencyContext,
   vs,
+  getNetworkLabel,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
@@ -224,20 +225,6 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
       return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
     }
     return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
-  };
-
-  // Get network label for non-mainnet networks (developer mode only)
-  const getNetworkLabel = (blockchain: BlockchainId): string | null => {
-    switch (blockchain) {
-      case 'solana-devnet':
-        return 'Devnet';
-      case 'bitcoin-testnet':
-        return 'Testnet';
-      case 'ethereum-sepolia':
-        return 'Sepolia';
-      default:
-        return null;
-    }
   };
 
   // Get network label if in developer mode

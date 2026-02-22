@@ -10,29 +10,29 @@
  * - Click to expand swap routes, right-click or double-click for detail view
  */
 
-import React, { useCallback, useState, useMemo } from 'react';
-import { styled } from '../../utils/styled';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import ButtonBase from '@mui/material/ButtonBase';
-import Chip from '@mui/material/Chip';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CancelIcon from '@mui/icons-material/Cancel';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import LockIcon from '@mui/icons-material/Lock';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import WidgetsIcon from '@mui/icons-material/Widgets';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import CancelIcon from '@mui/icons-material/Cancel';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { colors, borderRadius, getShortAddress } from '@salmon/shared';
+import Box from '@mui/material/Box';
+import ButtonBase from '@mui/material/ButtonBase';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
+import { borderRadius, colors, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription } from '@salmon/shared';
+import React, { useCallback, useMemo, useState } from 'react';
+import { styled } from '../../utils/styled';
 import { BlurContainer } from '../BlurContainer';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
-import type { TransactionItemProps, TransactionType, TransactionTokenAmount } from './types';
+import type { TransactionItemProps, TransactionTokenAmount, TransactionType } from './types';
 
 // ============================================================================
 // Constants
@@ -108,86 +108,6 @@ function getTypeConfig(type: TransactionType): TypeConfig & { icon: React.ReactN
     icon: <IconComponent sx={{ fontSize: 22 }} />,
     badgeIcon: <IconComponent sx={{ fontSize: 10, color: '#FFFFFF' }} />,
   };
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-function formatAmount(amount: string | number, decimals: number): string {
-  const rawAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(rawAmount)) return '0';
-
-  const formattedAmount = rawAmount / Math.pow(10, decimals);
-
-  if (formattedAmount === 0) return '0';
-  if (formattedAmount < 0.000001) return '<0.000001';
-  if (formattedAmount >= 1000000) return `${(formattedAmount / 1000000).toFixed(2)}M`;
-  if (formattedAmount >= 1000) return `${(formattedAmount / 1000).toFixed(2)}K`;
-  if (formattedAmount >= 1) return formattedAmount.toFixed(4).replace(/\.?0+$/, '');
-
-  return formattedAmount.toFixed(6).replace(/\.?0+$/, '');
-}
-
-function formatTimestamp(timestamp: number): string {
-  const now = Date.now() / 1000;
-  const diff = now - timestamp;
-
-  if (diff < 60) return 'Just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
-  });
-}
-
-
-function getDescription(
-  type: TransactionType,
-  inputs: TransactionTokenAmount[],
-  outputs: TransactionTokenAmount[],
-  _source?: string,
-  description?: string
-): string {
-  if (type === 'swap') {
-    const outputSymbols = [...new Set(outputs.map((o) => o.symbol))];
-    const inputSymbols = [...new Set(inputs.map((i) => i.symbol))];
-
-    if (outputSymbols.length <= 2 && inputSymbols.length <= 2) {
-      return `${outputSymbols.join(', ')} to ${inputSymbols.join(', ')}`;
-    }
-    return `${outputSymbols.length} tokens to ${inputSymbols.length} tokens`;
-  }
-
-  if (description && description.length > 0 && !description.includes('Unknown')) {
-    return description;
-  }
-
-  switch (type) {
-    case 'send':
-      if (outputs[0]?.destination) return `To ${getShortAddress(outputs[0].destination)}`;
-      return 'Sent tokens';
-    case 'receive':
-      if (inputs[0]?.source) return `From ${getShortAddress(inputs[0].source)}`;
-      return 'Received tokens';
-    case 'mint':
-      return 'Token minted';
-    case 'burn':
-      return 'Token burned';
-    case 'stake':
-      return 'Staking operation';
-    case 'loan':
-      return 'Loan operation';
-    case 'interaction':
-      return 'Contract interaction';
-    default:
-      return 'Transaction';
-  }
 }
 
 // ============================================================================
@@ -441,7 +361,7 @@ const AmountDisplay: React.FC<{
 }> = ({ token, sign, hidden }) => {
   const displayAmount = hidden
     ? `${sign} ${HIDDEN_VALUE} ${token.symbol}`
-    : `${sign} ${formatAmount(token.amount, token.decimals)} ${token.symbol}`;
+    : `${sign} ${formatRawAmount(token.amount, token.decimals)} ${token.symbol}`;
 
   const color = sign === '+' ? colors.change.positive : colors.change.negative;
 
@@ -486,7 +406,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
   }, [onDetailClick, transaction]);
 
   const descriptionText = useMemo(
-    () => getDescription(type, inputs, outputs, source, description),
+    () => getTransactionDescription(type, inputs, outputs, source, description),
     [type, inputs, outputs, source, description]
   );
 
@@ -605,51 +525,51 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 
   return (
     <ItemWrapper className={className} style={style}>
-    <BlurContainer
-      borderColor={colors.border.subtle}
-      style={{ borderRadius: borderRadius.lg, overflow: 'hidden' }}
-    >
-      <ItemButton
-        onClick={handleClick}
-        onDoubleClick={handleDoubleClick}
-        aria-label={`${config.label} transaction, ${descriptionText}`}
+      <BlurContainer
+        borderColor={colors.border.subtle}
+        style={{ borderRadius: borderRadius.lg, overflow: 'hidden' }}
       >
-        {/* Left: Logo/Icon */}
-        <LogoSection>{renderLogo()}</LogoSection>
+        <ItemButton
+          onClick={handleClick}
+          onDoubleClick={handleDoubleClick}
+          aria-label={`${config.label} transaction, ${descriptionText}`}
+        >
+          {/* Left: Logo/Icon */}
+          <LogoSection>{renderLogo()}</LogoSection>
 
-        {/* Center: Type and description */}
-        <InfoSection>
-          <TypeRow>
-            <TypeText>{config.label}</TypeText>
-            {source && <SourceBadge label={source} size="small" />}
-          </TypeRow>
-          <DescriptionText>{descriptionText}</DescriptionText>
-        </InfoSection>
+          {/* Center: Type and description */}
+          <InfoSection>
+            <TypeRow>
+              <TypeText>{config.label}</TypeText>
+              {source && <SourceBadge label={source} size="small" />}
+            </TypeRow>
+            <DescriptionText>{descriptionText}</DescriptionText>
+          </InfoSection>
 
-        {/* Right: Amounts and time */}
-        <RightSection>
-          {renderAmounts()}
-          <TimeRow>
-            <TimeText>{formatTimestamp(timestamp)}</TimeText>
-            {isSwap && (
-              expanded ? (
-                <ExpandLessIcon sx={{ fontSize: 14, color: colors.text.tertiary, ml: '4px' }} />
-              ) : (
-                <ExpandMoreIcon sx={{ fontSize: 14, color: colors.text.tertiary, ml: '4px' }} />
-              )
-            )}
-          </TimeRow>
-        </RightSection>
-      </ItemButton>
+          {/* Right: Amounts and time */}
+          <RightSection>
+            {renderAmounts()}
+            <TimeRow>
+              <TimeText>{formatRelativeTimeCompact(timestamp)}</TimeText>
+              {isSwap && (
+                expanded ? (
+                  <ExpandLessIcon sx={{ fontSize: 14, color: colors.text.tertiary, ml: '4px' }} />
+                ) : (
+                  <ExpandMoreIcon sx={{ fontSize: 14, color: colors.text.tertiary, ml: '4px' }} />
+                )
+              )}
+            </TimeRow>
+          </RightSection>
+        </ItemButton>
 
-      {/* Expandable route visualization for swaps */}
-      {type === 'swap' && (
-        <SwapRouteVisualization
-          transaction={transaction}
-          expanded={expanded}
-        />
-      )}
-    </BlurContainer>
+        {/* Expandable route visualization for swaps */}
+        {type === 'swap' && (
+          <SwapRouteVisualization
+            transaction={transaction}
+            expanded={expanded}
+          />
+        )}
+      </BlurContainer>
     </ItemWrapper>
   );
 };

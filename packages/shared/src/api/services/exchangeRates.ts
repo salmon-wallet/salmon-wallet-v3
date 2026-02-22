@@ -9,19 +9,15 @@
  */
 
 import { apiClient } from '../client';
+import { SmartCache } from '../../utils/cache';
 import type { ExchangeRates } from '../../types/currency';
 
 // ============================================================================
 // In-memory cache
 // ============================================================================
 
-interface RateCache {
-  data: ExchangeRates;
-  timestamp: number;
-}
-
-let rateCache: RateCache | null = null;
-const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const rateCache = new SmartCache<ExchangeRates>({ maxSize: 1, ttl: 15 * 60 * 1000 });
+const RATE_CACHE_KEY = 'exchange-rates';
 
 // ============================================================================
 // Fallback
@@ -43,16 +39,16 @@ const FALLBACK_RATES: ExchangeRates = {
  * On failure, returns fallback with usd=1 only.
  */
 export async function getExchangeRates(): Promise<ExchangeRates> {
-  // Return cached if fresh
-  if (rateCache && Date.now() - rateCache.timestamp < CACHE_TTL_MS) {
-    return rateCache.data;
+  const cached = rateCache.get(RATE_CACHE_KEY);
+  if (cached) {
+    return cached;
   }
 
   try {
     const { data } = await apiClient.get<ExchangeRates>('/v1/exchange-rates');
 
     if (data?.rates) {
-      rateCache = { data, timestamp: Date.now() };
+      rateCache.set(RATE_CACHE_KEY, data);
       return data;
     }
 
@@ -67,5 +63,5 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
  * Clear the exchange rate cache, forcing a fresh fetch on next call.
  */
 export function clearExchangeRateCache(): void {
-  rateCache = null;
+  rateCache.clear();
 }

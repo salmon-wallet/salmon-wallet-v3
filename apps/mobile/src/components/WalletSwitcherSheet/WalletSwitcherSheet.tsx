@@ -54,6 +54,7 @@ import {
   type Account,
   getShortAddress,
   getInitials,
+  getAccountAddress,
   fontFamilyNative,
 } from '@salmon/shared';
 
@@ -65,41 +66,6 @@ import type {
 // ============================================================================
 // Constants
 // ============================================================================
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Gets the primary address from an account
- * Looks for mainnet address first, then any available address
- * @param account - The account object
- * @returns The address string or empty string if not found
- */
-function getAccountAddress(account: Account): string {
-  const { networksAccounts } = account;
-
-  // Try mainnet first
-  const mainnetAccounts = networksAccounts['solana-mainnet'];
-  if (mainnetAccounts) {
-    const activeAccount = mainnetAccounts.find(Boolean);
-    if (activeAccount) {
-      return activeAccount.getReceiveAddress?.() || '';
-    }
-  }
-
-  // Fall back to any available network
-  for (const networkAccounts of Object.values(networksAccounts)) {
-    if (networkAccounts) {
-      const activeAccount = networkAccounts.find(Boolean);
-      if (activeAccount) {
-        return activeAccount.getReceiveAddress?.() || '';
-      }
-    }
-  }
-
-  return '';
-}
 
 // ============================================================================
 // AccountListItem Component

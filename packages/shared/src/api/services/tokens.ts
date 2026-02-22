@@ -20,6 +20,7 @@
 
 import axios from 'axios';
 import { apiClient } from '../client';
+import { SmartCache } from '../../utils/cache';
 import { normalizeIpfsUrl } from '../../utils/url';
 import type { SolanaNetworkId } from '../../types/blockchain';
 import type { TokenMetadata, TokenListSource } from '../../types/token';
@@ -89,25 +90,13 @@ const EXTERNAL_TIMEOUT_MS = 30000;
 // In-memory Cache
 // ============================================================================
 
-interface TokenListCache {
+interface TokenListCacheEntry {
   tokens: TokenMetadata[];
   source: TokenListSource;
-  timestamp: number;
 }
 
-let tokenListCache: TokenListCache | null = null;
-const TOKEN_LIST_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-function getCachedTokenList(): TokenListCache | null {
-  if (tokenListCache && Date.now() - tokenListCache.timestamp < TOKEN_LIST_CACHE_TTL_MS) {
-    return tokenListCache;
-  }
-  return null;
-}
-
-function setCachedTokenList(tokens: TokenMetadata[], source: TokenListSource): void {
-  tokenListCache = { tokens, source, timestamp: Date.now() };
-}
+const tokenListCache = new SmartCache<TokenListCacheEntry>({ maxSize: 5, ttl: 5 * 60 * 1000 });
+const TOKEN_LIST_CACHE_KEY = 'default';
 
 // ============================================================================
 // Token List Retrieval (Multi-tier fallback)
@@ -127,8 +116,7 @@ function setCachedTokenList(tokens: TokenMetadata[], source: TokenListSource): v
 async function retrieveTokenList(
   networkId: SolanaNetworkId = 'solana-mainnet'
 ): Promise<{ tokens: TokenMetadata[]; source: TokenListSource }> {
-  // Check cache first
-  const cached = getCachedTokenList();
+  const cached = tokenListCache.get(TOKEN_LIST_CACHE_KEY);
   if (cached) {
     return { tokens: cached.tokens, source: cached.source };
   }
@@ -137,7 +125,7 @@ async function retrieveTokenList(
   try {
     const { data } = await apiClient.get<BackendToken[]>(`/v1/${networkId}/ft/verified`);
     const tokens = normalizeBackendTokens(data);
-    setCachedTokenList(tokens, 'backend');
+    tokenListCache.set(TOKEN_LIST_CACHE_KEY, { tokens, source: 'backend' });
     return { tokens, source: 'backend' };
   } catch {
     console.warn('[TokenService] Backend unavailable, trying Jupiter...');
@@ -149,7 +137,7 @@ async function retrieveTokenList(
       timeout: EXTERNAL_TIMEOUT_MS,
     });
     const tokens = normalizeJupiterTokens(data);
-    setCachedTokenList(tokens, 'jupiter');
+    tokenListCache.set(TOKEN_LIST_CACHE_KEY, { tokens, source: 'jupiter' });
     return { tokens, source: 'jupiter' };
   } catch {
     console.warn('[TokenService] Jupiter unavailable, using CDN fallback...');
@@ -160,7 +148,7 @@ async function retrieveTokenList(
     timeout: EXTERNAL_TIMEOUT_MS,
   });
   const tokens = normalizeJupiterTokens(data.tokens);
-  setCachedTokenList(tokens, 'cdn');
+  tokenListCache.set(TOKEN_LIST_CACHE_KEY, { tokens, source: 'cdn' });
   return { tokens, source: 'cdn' };
 }
 
@@ -457,7 +445,7 @@ export async function getTokenByAddress(
  * Clear the token list cache
  */
 export function clearTokenListCache(): void {
-  tokenListCache = null;
+  tokenListCache.clear();
 }
 
 /**
@@ -466,6 +454,6 @@ export function clearTokenListCache(): void {
  * @returns Source of the current cached token list, or null if not cached
  */
 export function getTokenListSource(): TokenListSource | null {
-  const cached = getCachedTokenList();
+  const cached = tokenListCache.get(TOKEN_LIST_CACHE_KEY);
   return cached?.source ?? null;
 }

@@ -30,30 +30,11 @@ import {
   getAvatarColor,
   getShortAddress,
   getInitials,
+  getAccountAddress,
   type Account,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import type { AccountsPageProps } from './types';
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-function getAccountAddress(account: Account): string {
-  const { networksAccounts } = account;
-  const mainnetAccounts = networksAccounts['solana-mainnet'];
-  if (mainnetAccounts) {
-    const active = mainnetAccounts.find(Boolean);
-    if (active) return active.getReceiveAddress?.() || '';
-  }
-  for (const networkAccounts of Object.values(networksAccounts)) {
-    if (networkAccounts) {
-      const active = networkAccounts.find(Boolean);
-      if (active) return active.getReceiveAddress?.() || '';
-    }
-  }
-  return '';
-}
 
 // ============================================================================
 // AccountListItem

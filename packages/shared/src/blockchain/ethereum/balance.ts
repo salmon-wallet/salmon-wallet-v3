@@ -21,13 +21,16 @@ import {
 import { formatBalance } from '../../utils/formatting';
 import type {
   EthereumOnChainTokenBalance,
-  EthereumWalletBalance,
+  EthereumOnChainWalletBalance,
   BalanceLookupToken,
   EthereumTokenBalanceResult,
 } from '../../types/balance';
 
 // Re-export canonical types from types/balance
-export type { EthereumOnChainTokenBalance, EthereumWalletBalance, BalanceLookupToken, EthereumTokenBalanceResult };
+export type { EthereumOnChainTokenBalance, EthereumOnChainWalletBalance, BalanceLookupToken, EthereumTokenBalanceResult };
+
+/** @deprecated Use `EthereumOnChainWalletBalance` from `types/balance` instead. */
+export type EthereumWalletBalance = EthereumOnChainWalletBalance;
 
 // Backwards-compatible aliases
 /** @deprecated Use `EthereumOnChainTokenBalance` from `types/balance` instead. */
@@ -220,7 +223,7 @@ export async function getBalance(
   provider: Provider,
   walletAddress: string,
   tokenAddresses?: (string | TokenInfo)[]
-): Promise<EthereumWalletBalance> {
+): Promise<EthereumOnChainWalletBalance> {
   // Fetch ETH balance and token balances in parallel
   const [ethBalance, tokenBalances] = await Promise.all([
     getEthBalance(provider, walletAddress),

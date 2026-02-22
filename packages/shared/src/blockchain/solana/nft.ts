@@ -19,7 +19,7 @@ import { TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import axios from 'axios';
 import { normalizeIpfsUrl } from '../../utils';
 import { nftImageOverrides } from './nft-image-overrides';
-import type { SolanaNetwork } from './SolanaAccount';
+import type { SolanaNetwork } from '../../types/blockchain';
 import type {
   Nft,
   NftCreator,

@@ -111,6 +111,60 @@ function inferTransactionType(
 }
 
 // ============================================================================
+// Transaction Description
+// ============================================================================
+
+/**
+ * Returns a human-readable description for a transaction.
+ */
+export function getTransactionDescription(
+  type: TransactionType,
+  inputs: TransactionTokenAmount[],
+  outputs: TransactionTokenAmount[],
+  _source?: string,
+  description?: string,
+): string {
+  if (type === 'swap') {
+    const outputSymbols = [...new Set(outputs.map((o) => o.symbol))];
+    const inputSymbols = [...new Set(inputs.map((i) => i.symbol))];
+
+    if (outputSymbols.length <= 2 && inputSymbols.length <= 2) {
+      return `${outputSymbols.join(', ')} to ${inputSymbols.join(', ')}`;
+    }
+    return `${outputSymbols.length} tokens to ${inputSymbols.length} tokens`;
+  }
+
+  if (description && description.length > 0 && !description.includes('Unknown')) {
+    return description;
+  }
+
+  switch (type) {
+    case 'send':
+      if (outputs[0]?.destination) {
+        return `To ${getShortAddress(outputs[0].destination, 4) ?? ''}`;
+      }
+      return 'Sent tokens';
+    case 'receive':
+      if (inputs[0]?.source) {
+        return `From ${getShortAddress(inputs[0].source, 4) ?? ''}`;
+      }
+      return 'Received tokens';
+    case 'mint':
+      return 'Token minted';
+    case 'burn':
+      return 'Token burned';
+    case 'stake':
+      return 'Staking operation';
+    case 'loan':
+      return 'Loan operation';
+    case 'interaction':
+      return 'Contract interaction';
+    default:
+      return 'Transaction';
+  }
+}
+
+// ============================================================================
 // Transform functions
 // ============================================================================
 

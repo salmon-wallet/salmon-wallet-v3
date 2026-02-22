@@ -60,6 +60,13 @@ import { Wallet } from 'ethers';
 // Test Constants
 // ============================================================================
 
+const mockEthereumApiFunctions = {
+  fetchBalance: vi.fn().mockResolvedValue([]),
+  fetchPrices: vi.fn().mockResolvedValue(null),
+  fetchTransaction: vi.fn().mockResolvedValue(null),
+  fetchRecentTransactions: vi.fn().mockResolvedValue({ items: [] }),
+};
+
 /**
  * Standard test mnemonic (BIP39 reference)
  * This is a publicly known test mnemonic - NEVER use in production
@@ -623,6 +630,7 @@ describe('Account Derivation', () => {
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     const address = account.getReceiveAddress();
@@ -640,12 +648,14 @@ describe('Account Derivation', () => {
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     const account1 = await createEthereumAccount({
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 1,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     const address0 = account0.getReceiveAddress();
@@ -661,6 +671,7 @@ describe('Account Derivation', () => {
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     expect(account.network.id).toBe('ethereum-mainnet');
@@ -673,6 +684,7 @@ describe('Account Derivation', () => {
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 3,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     expect(account.path).toBe(`m/44'/60'/0'/0/3`);
@@ -684,6 +696,7 @@ describe('Account Derivation', () => {
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     const publicKey = account.getPublicKey();
@@ -698,6 +711,7 @@ describe('Account Derivation', () => {
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     const privateKey = account.retrieveSecurePrivateKey();
@@ -711,12 +725,14 @@ describe('Account Derivation', () => {
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     const sepoliaAccount = await createEthereumAccount({
       network: ETHEREUM_NETWORKS['ethereum-sepolia'],
       mnemonic: TEST_MNEMONIC,
       index: 0,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     // Same mnemonic and index = same address, different network
@@ -1192,6 +1208,7 @@ describe('EthereumAccount Integration Tests', () => {
         network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockEthereumApiFunctions,
       });
 
       const mockProvider = {
@@ -1215,6 +1232,7 @@ describe('EthereumAccount Integration Tests', () => {
         network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockEthereumApiFunctions,
       });
 
       const mockProvider = {
@@ -1237,6 +1255,7 @@ describe('EthereumAccount Integration Tests', () => {
         network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockEthereumApiFunctions,
       });
 
       const result = await account.validateDestinationAccount('invalid_address');
@@ -1251,6 +1270,7 @@ describe('EthereumAccount Integration Tests', () => {
         network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockEthereumApiFunctions,
       });
 
       const result = await account.validateDestinationAccount('');
@@ -1264,6 +1284,7 @@ describe('EthereumAccount Integration Tests', () => {
         network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockEthereumApiFunctions,
       });
 
       // Test with completely invalid address
@@ -1278,6 +1299,7 @@ describe('EthereumAccount Integration Tests', () => {
         network: ETHEREUM_NETWORKS['ethereum-mainnet'],
         mnemonic: TEST_MNEMONIC,
         index: 0,
+        apiFunctions: mockEthereumApiFunctions,
       });
 
       // This test validates the function signature and error handling
@@ -1457,7 +1479,8 @@ describe('Factory - createEthereumAccountFromWallet', () => {
     const account = createEthereumAccountFromWallet(
       ETHEREUM_NETWORKS['ethereum-mainnet'],
       wallet,
-      0
+      0,
+      mockEthereumApiFunctions
     );
 
     expect(account).toBeDefined();
@@ -1473,7 +1496,8 @@ describe('Factory - createEthereumAccountFromWallet', () => {
     const account = createEthereumAccountFromWallet(
       ETHEREUM_NETWORKS['ethereum-mainnet'],
       wallet,
-      5
+      5,
+      mockEthereumApiFunctions
     );
 
     expect(account.index).toBe(5);
@@ -1484,7 +1508,7 @@ describe('Factory - createEthereumAccountFromWallet', () => {
     const privateKey = '0x0123456789012345678901234567890123456789012345678901234567890123';
     const wallet = new Wallet(privateKey);
 
-    const account = createEthereumAccountFromWallet(ETHEREUM_NETWORKS['ethereum-mainnet'], wallet);
+    const account = createEthereumAccountFromWallet(ETHEREUM_NETWORKS['ethereum-mainnet'], wallet, undefined, mockEthereumApiFunctions);
 
     expect(account.index).toBe(0);
   });
@@ -1500,7 +1524,8 @@ describe('Factory - createEthereumAccountFromPrivateKey', () => {
     const account = createEthereumAccountFromPrivateKey(
       ETHEREUM_NETWORKS['ethereum-mainnet'],
       privateKey,
-      0
+      0,
+      mockEthereumApiFunctions
     );
 
     expect(account).toBeDefined();
@@ -1513,7 +1538,8 @@ describe('Factory - createEthereumAccountFromPrivateKey', () => {
     const account = createEthereumAccountFromPrivateKey(
       ETHEREUM_NETWORKS['ethereum-mainnet'],
       `0x${privateKey}`,
-      0
+      0,
+      mockEthereumApiFunctions
     );
 
     expect(account).toBeDefined();
@@ -1525,7 +1551,8 @@ describe('Factory - createEthereumAccountFromPrivateKey', () => {
     const account = createEthereumAccountFromPrivateKey(
       ETHEREUM_NETWORKS['ethereum-mainnet'],
       privateKey,
-      3
+      3,
+      mockEthereumApiFunctions
     );
 
     expect(account.index).toBe(3);
@@ -1533,7 +1560,7 @@ describe('Factory - createEthereumAccountFromPrivateKey', () => {
 
   it('should create account with default index', () => {
     const privateKey = '0x0123456789012345678901234567890123456789012345678901234567890123';
-    const account = createEthereumAccountFromPrivateKey(ETHEREUM_NETWORKS['ethereum-mainnet'], privateKey);
+    const account = createEthereumAccountFromPrivateKey(ETHEREUM_NETWORKS['ethereum-mainnet'], privateKey, undefined, mockEthereumApiFunctions);
 
     expect(account.index).toBe(0);
   });
@@ -1548,6 +1575,7 @@ describe('Factory - deriveEthereumAccounts', () => {
     const accounts = await deriveEthereumAccounts({
       network: ETHEREUM_NETWORKS['ethereum-mainnet'],
       mnemonic: TEST_MNEMONIC,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     expect(accounts).toHaveLength(1);
@@ -1561,6 +1589,7 @@ describe('Factory - deriveEthereumAccounts', () => {
       mnemonic: TEST_MNEMONIC,
       startIndex: 0,
       count: 3,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     expect(accounts).toHaveLength(3);
@@ -1577,6 +1606,7 @@ describe('Factory - deriveEthereumAccounts', () => {
       mnemonic: TEST_MNEMONIC,
       startIndex: 5,
       count: 2,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     expect(accounts).toHaveLength(2);
@@ -1591,6 +1621,7 @@ describe('Factory - deriveEthereumAccounts', () => {
       mnemonic: TEST_MNEMONIC,
       startIndex: 0,
       count: 2,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     expect(accounts).toHaveLength(2);
@@ -1606,6 +1637,7 @@ describe('Factory - deriveEthereumAccounts', () => {
       mnemonic: TEST_MNEMONIC,
       startIndex: 0,
       count: 5,
+      apiFunctions: mockEthereumApiFunctions,
     });
 
     const addresses = accounts.map(acc => acc.getReceiveAddress());

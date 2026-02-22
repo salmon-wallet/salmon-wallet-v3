@@ -1,5 +1,5 @@
 // URL utilities
-export { normalizeIpfsUrl, DEAD_DOMAINS, getExplorerUrl, getSolscanUrl } from './url';
+export { normalizeIpfsUrl, DEAD_DOMAINS, getExplorerUrl, getSolscanUrl, formatOrigin } from './url';
 
 // Account utilities
 export {
@@ -15,6 +15,7 @@ export {
   createBlockchainAccountForNetwork,
   buildNetworkListFromAccount,
   getAccountKeysForNetwork,
+  getAccountAddress,
 } from './account';
 
 // Avatar utilities
@@ -84,6 +85,12 @@ export {
   formatBalance,
   formatUsdValue,
   formatPercentChange,
+  // Price impact
+  type PriceImpactSeverity,
+  PRICE_IMPACT_THRESHOLDS,
+  getPriceImpactSeverity,
+  // Price performance
+  isPositivePerformance,
 } from './formatting';
 
 // Decimal & unit conversion utilities
@@ -134,6 +141,9 @@ export {
   createERC20Token,
   createERC721Token,
   createERC1155Token,
+  // Feature badge colors
+  DEFAULT_FEATURE_COLORS,
+  getFeatureColor,
 } from './tokens';
 
 // Currency formatting utilities
@@ -193,6 +203,7 @@ export {
   MAINNET_NETWORK_ID,
   sortNetworks,
   filterNetworks,
+  getNetworkLabel,
 } from './network';
 
 // Validation utilities
@@ -206,10 +217,12 @@ export {
   getChainFromNetwork,
   validateAddress,
   SUPPORTED_CHAINS,
+  mapToSwapToken,
+  unifiedToSwapToken,
 } from './swap';
 
 // Transaction transform utilities
-export { transformSolanaTransaction, transformMultichainTransaction } from './transactions';
+export { transformSolanaTransaction, transformMultichainTransaction, getTransactionDescription } from './transactions';
 
 // Content loader (platform-split: native uses react-content-loader/native, web uses SVG)
 export { default as ContentLoader, ContentLoader as NamedContentLoader, Rect, Circle } from './ContentLoader';

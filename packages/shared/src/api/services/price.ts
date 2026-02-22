@@ -13,6 +13,7 @@
  */
 
 import { apiClient, staticApiClient, ApiError } from '../client';
+import { SmartCache } from '../../utils/cache';
 import type { SolanaNetworkId } from '../../types/blockchain';
 import type {
   TokenPrice,
@@ -27,25 +28,7 @@ import type {
 // In-memory cache for prices
 // ============================================================================
 
-interface PriceCache {
-  data: TokenPrice[] | null;
-  timestamp: number;
-}
-
-const priceCache: Map<PricePlatform, PriceCache> = new Map();
-const CACHE_TTL_MS = 60000; // 1 minute cache
-
-function getCachedPrices(platform: PricePlatform): TokenPrice[] | null {
-  const cached = priceCache.get(platform);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    return cached.data;
-  }
-  return null;
-}
-
-function setCachedPrices(platform: PricePlatform, data: TokenPrice[]): void {
-  priceCache.set(platform, { data, timestamp: Date.now() });
-}
+const priceCache = new SmartCache<TokenPrice[]>({ maxSize: 10, ttl: 60000 });
 
 // ============================================================================
 // Price Service Functions
@@ -60,8 +43,7 @@ function setCachedPrices(platform: PricePlatform, data: TokenPrice[]): void {
  * @returns Array of token prices or null if unavailable
  */
 export async function getPricesByPlatform(platform: PricePlatform): Promise<TokenPrice[] | null> {
-  // Check cache first
-  const cached = getCachedPrices(platform);
+  const cached = priceCache.get(platform);
   if (cached) {
     return cached;
   }
@@ -70,7 +52,7 @@ export async function getPricesByPlatform(platform: PricePlatform): Promise<Toke
     const { data } = await staticApiClient.get<TokenPrice[]>(`/v1/coins/${platform}`);
 
     if (Array.isArray(data)) {
-      setCachedPrices(platform, data);
+      priceCache.set(platform, data);
       return data;
     }
 
@@ -256,12 +238,9 @@ export function clearPriceCache(platform?: PricePlatform): void {
  * @returns Object with cache stats
  */
 export function getPriceCacheStatus(): {
-  platforms: PricePlatform[];
   entries: number;
 } {
-  const platforms = Array.from(priceCache.keys());
   return {
-    platforms,
-    entries: platforms.length,
+    entries: priceCache.size,
   };
 }

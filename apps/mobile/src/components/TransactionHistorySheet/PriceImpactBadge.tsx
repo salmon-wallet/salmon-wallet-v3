@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, fontSize, spacing, borderRadius, fontFamilyNative } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, spacing, borderRadius, fontFamilyNative, getPriceImpactSeverity, type PriceImpactSeverity } from '@salmon/shared';
 
 // ============================================================================
 // Types
@@ -11,11 +11,6 @@ import { colors, ms, vs, s, fontSize, spacing, borderRadius, fontFamilyNative } 
  * Size variants for the PriceImpactBadge
  */
 type PriceImpactSize = 'small' | 'medium' | 'large';
-
-/**
- * Severity levels for price impact
- */
-type PriceImpactSeverity = 'safe' | 'warning' | 'high';
 
 /**
  * Props for the PriceImpactBadge component
@@ -39,11 +34,6 @@ export interface PriceImpactBadgeProps {
  * - Warning: 0.5% - 1%
  * - High: > 1%
  */
-const THRESHOLDS = {
-  safe: 0.5,
-  warning: 1,
-} as const;
-
 /**
  * Icon mapping for each severity level
  */
@@ -87,29 +77,6 @@ const SIZE_CONFIG: Record<PriceImpactSize, { iconSize: number; fontSize: number;
 };
 
 // ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Determine the severity level based on price impact value
- * @param value - Price impact as a string percentage
- * @returns The severity level
- */
-function getSeverity(value: string): PriceImpactSeverity {
-  const numericValue = parseFloat(value);
-
-  if (isNaN(numericValue) || numericValue < THRESHOLDS.safe) {
-    return 'safe';
-  }
-
-  if (numericValue <= THRESHOLDS.warning) {
-    return 'warning';
-  }
-
-  return 'high';
-}
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -139,7 +106,7 @@ export const PriceImpactBadge: React.FC<PriceImpactBadgeProps> = ({
   size = 'medium',
   showIcon = false,
 }) => {
-  const severity = getSeverity(value);
+  const severity = getPriceImpactSeverity(value);
   const color = SEVERITY_COLORS[severity];
   const iconName = SEVERITY_ICONS[severity];
   const sizeConfig = SIZE_CONFIG[size];

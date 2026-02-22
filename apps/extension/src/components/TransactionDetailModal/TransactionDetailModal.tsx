@@ -28,46 +28,46 @@
  * ```
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
-import { styled } from '../../utils/styled';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import ButtonBase from '@mui/material/ButtonBase';
-import CloseIcon from '@mui/icons-material/Close';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckIcon from '@mui/icons-material/Check';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CloseIcon from '@mui/icons-material/Close';
+import CodeIcon from '@mui/icons-material/Code';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
-import ViewInArOutlinedIcon from '@mui/icons-material/ViewInArOutlined';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import VerifiedIcon from '@mui/icons-material/Verified';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckIcon from '@mui/icons-material/Check';
 import ShareIcon from '@mui/icons-material/Share';
-import CodeIcon from '@mui/icons-material/Code';
-import { colors, spacing, borderRadius, fontSize, fontFamily, fontWeight, letterSpacing, formatBlockNumber, formatDateTime, getShortAddress, copyToClipboard } from '@salmon/shared';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import ViewInArOutlinedIcon from '@mui/icons-material/ViewInArOutlined';
+import Box from '@mui/material/Box';
+import ButtonBase from '@mui/material/ButtonBase';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { borderRadius, colors, copyToClipboard, fontFamily, fontSize, fontWeight, formatBlockNumber, formatDateTime, formatRawAmount, getShortAddress, letterSpacing, spacing, truncateHash } from '@salmon/shared';
+import React, { useCallback, useMemo, useState } from 'react';
+import { styled } from '../../utils/styled';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { AddressCopyRow } from '../TransactionHistoryPage/AddressCopyRow';
+import { ConversionRateDisplay } from '../TransactionHistoryPage/ConversionRateDisplay';
 import { ExplorerLinkButton } from '../TransactionHistoryPage/ExplorerLinkButton';
 import { PriceImpactBadge } from '../TransactionHistoryPage/PriceImpactBadge';
-import { ConversionRateDisplay } from '../TransactionHistoryPage/ConversionRateDisplay';
-import type { TransactionDetailModalProps } from './types';
 import type {
-  TransactionType,
-  TransactionTokenAmount,
   NftAttribute,
+  TransactionTokenAmount,
+  TransactionType,
 } from '../TransactionHistoryPage/types';
+import type { TransactionDetailModalProps } from './types';
 
 // ============================================================================
 // Constants
@@ -163,36 +163,6 @@ const CONFIRMATION_STATUS_CONFIG: Record<string, { label: string; color: string 
   confirmed: { label: 'Confirmed', color: colors.palette.blue },
   finalized: { label: 'Finalized', color: colors.status.success },
 };
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Format a raw amount with decimals
- */
-function formatAmount(amount: string | number, decimals: number): string {
-  const rawAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(rawAmount)) return '0';
-
-  const formattedAmount = rawAmount / Math.pow(10, decimals);
-
-  if (formattedAmount === 0) return '0';
-  if (formattedAmount < 0.000001) return '<0.000001';
-  if (formattedAmount >= 1000000) return `${(formattedAmount / 1000000).toFixed(2)}M`;
-  if (formattedAmount >= 1000) return `${(formattedAmount / 1000).toFixed(2)}K`;
-  if (formattedAmount >= 1) return formattedAmount.toFixed(4).replace(/\.?0+$/, '');
-
-  return formattedAmount.toFixed(6).replace(/\.?0+$/, '');
-}
-
-/**
- * Truncate a transaction hash for display
- */
-function truncateHash(hash: string): string {
-  if (!hash || hash.length < 16) return hash;
-  return `${hash.slice(0, 8)}...${hash.slice(-8)}`;
-}
 
 // ============================================================================
 // Styled Components
@@ -761,7 +731,7 @@ const TokenAmountRow: React.FC<{
   sign: '+' | '-';
 }> = ({ token, sign }) => {
   const color = sign === '+' ? colors.change.positive : colors.change.negative;
-  const formattedAmount = formatAmount(token.amount, token.decimals);
+  const formattedAmount = formatRawAmount(token.amount, token.decimals);
 
   return (
     <TokenRow>
@@ -800,7 +770,7 @@ const SwapVisualization: React.FC<{
           </SwapLogoPlaceholder>
         )}
         <SwapAmount>
-          {formatAmount(fromToken.amount, fromToken.decimals)}
+          {formatRawAmount(fromToken.amount, fromToken.decimals)}
         </SwapAmount>
         <SwapSymbol>{fromToken.symbol}</SwapSymbol>
       </SwapTokenSection>
@@ -816,7 +786,7 @@ const SwapVisualization: React.FC<{
           </SwapLogoPlaceholder>
         )}
         <SwapAmount>
-          {formatAmount(toToken.amount, toToken.decimals)}
+          {formatRawAmount(toToken.amount, toToken.decimals)}
         </SwapAmount>
         <SwapSymbol>{toToken.symbol}</SwapSymbol>
       </SwapTokenSection>
@@ -1135,39 +1105,39 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         {(transaction.outputs.some((t) => t.destination) ||
           transaction.inputs.some((t) => t.source) ||
           transaction.feePayer) && (
-          <Section>
-            <SectionTitle>Addresses</SectionTitle>
-            <AddressesContainer>
-              {transaction.outputs.map((token, index) =>
-                token.destination ? (
+            <Section>
+              <SectionTitle>Addresses</SectionTitle>
+              <AddressesContainer>
+                {transaction.outputs.map((token, index) =>
+                  token.destination ? (
+                    <AddressCopyRow
+                      key={`to-${index}`}
+                      label="To"
+                      address={token.destination}
+                      truncate="medium"
+                    />
+                  ) : null
+                )}
+                {transaction.inputs.map((token, index) =>
+                  token.source ? (
+                    <AddressCopyRow
+                      key={`from-${index}`}
+                      label="From"
+                      address={token.source}
+                      truncate="medium"
+                    />
+                  ) : null
+                )}
+                {transaction.feePayer && (
                   <AddressCopyRow
-                    key={`to-${index}`}
-                    label="To"
-                    address={token.destination}
+                    label="Fee Payer"
+                    address={transaction.feePayer}
                     truncate="medium"
                   />
-                ) : null
-              )}
-              {transaction.inputs.map((token, index) =>
-                token.source ? (
-                  <AddressCopyRow
-                    key={`from-${index}`}
-                    label="From"
-                    address={token.source}
-                    truncate="medium"
-                  />
-                ) : null
-              )}
-              {transaction.feePayer && (
-                <AddressCopyRow
-                  label="Fee Payer"
-                  address={transaction.feePayer}
-                  truncate="medium"
-                />
-              )}
-            </AddressesContainer>
-          </Section>
-        )}
+                )}
+              </AddressesContainer>
+            </Section>
+          )}
 
         {/* NFT Metadata Sections */}
         {transaction.inputs
@@ -1188,7 +1158,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               <SectionRow>
                 <SectionLabel>Network Fee</SectionLabel>
                 <SectionValue>
-                  {formatAmount(transaction.fee.amount, transaction.fee.decimals)}{' '}
+                  {formatRawAmount(transaction.fee.amount, transaction.fee.decimals)}{' '}
                   {transaction.fee.symbol}
                 </SectionValue>
               </SectionRow>
@@ -1211,7 +1181,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             <SectionRow>
               <SectionLabel>Transaction Hash</SectionLabel>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: `${spacing.xs}px` }}>
-                <HashValue>{truncateHash(transaction.id)}</HashValue>
+                <HashValue>{truncateHash(transaction.id, 8)}</HashValue>
                 <CopyIconButton
                   onClick={handleCopyInlineHash}
                   size="small"

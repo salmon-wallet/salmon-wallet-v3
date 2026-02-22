@@ -7,7 +7,7 @@
  * @module types/balance
  */
 
-import type { BitcoinBalanceItem } from './transfer';
+import type { BitcoinBalanceItem, SolanaBalanceItem, EthereumBalanceItem } from './transfer';
 
 // ============================================================================
 // Chain-specific native account balances
@@ -37,6 +37,34 @@ export interface BitcoinWalletBalance {
   last24HoursChange?: number;
   /** Balance items */
   items: BitcoinBalanceItem[];
+}
+
+/**
+ * Wallet balance response with totals for Solana.
+ *
+ * Mirrors BitcoinWalletBalance shape for uniform hook consumption.
+ */
+export interface SolanaWalletBalance {
+  /** Total USD value */
+  usdTotal?: number;
+  /** 24h change in USD */
+  last24HoursChange?: number;
+  /** Balance items */
+  items: SolanaBalanceItem[];
+}
+
+/**
+ * Wallet balance response with totals for Ethereum.
+ *
+ * Mirrors BitcoinWalletBalance shape for uniform hook consumption.
+ */
+export interface EthereumWalletBalance {
+  /** Total USD value */
+  usdTotal?: number;
+  /** 24h change in USD */
+  last24HoursChange?: number;
+  /** Balance items */
+  items: EthereumBalanceItem[];
 }
 
 /**
@@ -95,11 +123,13 @@ export interface EthereumOnChainTokenBalance {
 }
 
 /**
- * Complete wallet balance with native ETH and tokens.
+ * Complete on-chain wallet balance with native ETH and tokens.
  *
  * Previously defined in blockchain/ethereum/balance.ts.
+ * Renamed from EthereumWalletBalance to avoid conflict with the
+ * items-based EthereumWalletBalance used by EthereumAccount.getBalance().
  */
-export interface EthereumWalletBalance {
+export interface EthereumOnChainWalletBalance {
   /** Native ETH balance */
   native: EthereumOnChainTokenBalance;
   /** ERC20 token balances */

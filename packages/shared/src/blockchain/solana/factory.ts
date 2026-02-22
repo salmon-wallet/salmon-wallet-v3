@@ -1,6 +1,8 @@
 import { Keypair } from '@solana/web3.js';
 import HDKey from 'micro-key-producer/slip10.js';
-import { SolanaAccount, SolanaNetwork } from './SolanaAccount';
+import { SolanaAccount } from './SolanaAccount';
+import type { SolanaNetwork, SolanaNetworkId } from '../../types/blockchain';
+import type { SolanaAccountApiFunctions } from '../../types/transfer';
 import {
   mnemonicToSeed,
   COIN_TYPES,
@@ -24,12 +26,14 @@ export interface CreateSolanaAccountOptions {
   mnemonic: string;
   /** Account derivation index (defaults to 0) */
   index?: number;
+  /** API functions for dependency injection */
+  apiFunctions: SolanaAccountApiFunctions;
 }
 
 /**
  * Options for deriving multiple accounts from a single mnemonic
  */
-export interface DeriveAccountsOptions {
+export interface DeriveSolanaAccountsOptions {
   /** Network configuration */
   network: SolanaNetwork;
   /** BIP39 mnemonic phrase */
@@ -38,6 +42,8 @@ export interface DeriveAccountsOptions {
   startIndex?: number;
   /** Number of accounts to derive (defaults to 1) */
   count?: number;
+  /** API functions for dependency injection */
+  apiFunctions: SolanaAccountApiFunctions;
 }
 
 /**
@@ -101,7 +107,7 @@ export async function generateKeyPair(
 export async function createSolanaAccount(
   options: CreateSolanaAccountOptions
 ): Promise<SolanaAccount> {
-  const { network, mnemonic, index = 0 } = options;
+  const { network, mnemonic, index = 0, apiFunctions } = options;
 
   const path = getSolanaDerivationPath(index);
   const keyPair = await generateKeyPair(mnemonic, path);
@@ -111,6 +117,7 @@ export async function createSolanaAccount(
     index,
     path,
     keyPair,
+    ...apiFunctions,
   });
 }
 
@@ -135,9 +142,9 @@ export async function createSolanaAccount(
  * ```
  */
 export async function deriveSolanaAccounts(
-  options: DeriveAccountsOptions
+  options: DeriveSolanaAccountsOptions
 ): Promise<SolanaAccount[]> {
-  const { network, mnemonic, startIndex = 0, count = 1 } = options;
+  const { network, mnemonic, startIndex = 0, count = 1, apiFunctions } = options;
 
   const accounts: SolanaAccount[] = [];
 
@@ -146,6 +153,7 @@ export async function deriveSolanaAccounts(
       network,
       mnemonic,
       index: startIndex + i,
+      apiFunctions,
     });
     accounts.push(account);
   }
@@ -167,13 +175,15 @@ export async function deriveSolanaAccounts(
 export function createSolanaAccountFromKeyPair(
   network: SolanaNetwork,
   keyPair: Keypair,
-  index: number = 0
+  index: number = 0,
+  apiFunctions: SolanaAccountApiFunctions
 ): SolanaAccount {
   return new SolanaAccount({
     network,
     index,
     path: getSolanaDerivationPath(index),
     keyPair,
+    ...apiFunctions,
   });
 }
 
@@ -183,15 +193,17 @@ export function createSolanaAccountFromKeyPair(
  * @param network - Network configuration
  * @param secretKey - Base58-encoded secret key string
  * @param index - Optional account index (defaults to 0)
+ * @param apiFunctions - Optional API functions for dependency injection
  * @returns SolanaAccount instance
  */
 export function createSolanaAccountFromSecretKey(
   network: SolanaNetwork,
   secretKey: Uint8Array,
-  index: number = 0
+  index: number = 0,
+  apiFunctions: SolanaAccountApiFunctions
 ): SolanaAccount {
   const keyPair = Keypair.fromSecretKey(secretKey);
-  return createSolanaAccountFromKeyPair(network, keyPair, index);
+  return createSolanaAccountFromKeyPair(network, keyPair, index, apiFunctions);
 }
 
 /**
@@ -202,6 +214,7 @@ export function createSolanaAccountFromSecretKey(
 export const SOLANA_NETWORKS: Record<string, SolanaNetwork> = {
   'solana-mainnet': {
     id: 'solana-mainnet',
+    networkId: 'solana-mainnet',
     name: 'Mainnet Beta',
     config: {
       nodeUrl: 'https://api.mainnet-beta.solana.com',
@@ -210,6 +223,7 @@ export const SOLANA_NETWORKS: Record<string, SolanaNetwork> = {
   },
   'solana-devnet': {
     id: 'solana-devnet',
+    networkId: 'solana-devnet',
     name: 'Devnet',
     config: {
       nodeUrl: 'https://api.devnet.solana.com',

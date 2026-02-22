@@ -13,6 +13,7 @@ import type { BlockchainAccount } from '../types/blockchain';
 import { SolanaAccount } from '../blockchain/solana';
 import { BitcoinAccount } from '../blockchain/bitcoin';
 import { EthereumAccount } from '../blockchain/ethereum';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { SATOSHIS_PER_BTC, WEI_PER_ETH_BIGINT } from './decimals';
 
 // ============================================================================
@@ -124,8 +125,8 @@ export async function getAccountBalance(
 
   try {
     if (info.blockchain === 'solana') {
-      const balanceInfo = await (account as SolanaAccount).getBalance();
-      return balanceInfo.sol;
+      const lamports = await (account as SolanaAccount).getCredit();
+      return lamports / LAMPORTS_PER_SOL;
     }
     if (info.blockchain === 'bitcoin') {
       const satoshis = await (account as BitcoinAccount).getCredit();

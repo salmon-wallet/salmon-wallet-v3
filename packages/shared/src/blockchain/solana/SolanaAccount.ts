@@ -3,7 +3,6 @@ import {
   Keypair,
   PublicKey,
   Commitment,
-  LAMPORTS_PER_SOL,
   Message,
 } from '@solana/web3.js';
 import bs58 from 'bs58';
@@ -21,42 +20,23 @@ import {
   validateDestinationAccount as validateDestination,
   type ValidationResult,
 } from './validation';
-import {
-  getSolanaTransaction,
-  getSolanaTransactions,
-} from '../../api/services/solana';
-import type { SolanaNetworkId } from '../../types/blockchain';
-import type { SolanaAccountBalance } from '../../types/balance';
+import type { TokenPrice } from '../../types/price';
+import { decorateBalancePrices } from '../../utils/balance';
+import type { SolanaNetwork } from '../../types/blockchain';
+import type { SolanaWalletBalance } from '../../types/balance';
+import type { SolanaBalanceItem } from '../../types/transfer';
+import type {
+  FetchSolanaBalanceFn,
+  FetchSolanaPricesFn,
+  FetchSolanaTransactionFn,
+  FetchSolanaTransactionsFn,
+} from '../../types/transfer';
 import {
   getRecentTransactions as getRecentTransactionsService,
   type SolanaTransaction,
   type SolanaTransactionPaging,
   type SolanaTransactionListResponse,
 } from './transactions';
-
-/**
- * Network configuration for Solana connections
- */
-export interface SolanaNetworkConfig {
-  /** RPC endpoint URL */
-  nodeUrl: string;
-  /** WebSocket endpoint URL (optional) */
-  wsUrl?: string;
-  /** Network commitment level */
-  commitment?: Commitment;
-}
-
-/**
- * Network definition with ID and configuration
- */
-export interface SolanaNetwork {
-  /** Network identifier (e.g., 'solana-mainnet', 'solana-devnet') */
-  id: string;
-  /** Human-readable network name */
-  name: string;
-  /** Network configuration */
-  config: SolanaNetworkConfig;
-}
 
 /**
  * Options for creating a SolanaAccount instance
@@ -70,12 +50,20 @@ export interface SolanaAccountOptions {
   path: string;
   /** Solana keypair for signing transactions */
   keyPair: Keypair;
+  /** Function to fetch token balances (DI) */
+  fetchBalance: FetchSolanaBalanceFn;
+  /** Function to fetch token prices (DI) */
+  fetchPrices: FetchSolanaPricesFn;
+  /** Function to fetch a single transaction (DI) */
+  fetchTransaction: FetchSolanaTransactionFn;
+  /** Function to fetch transactions list (DI) */
+  fetchTransactions: FetchSolanaTransactionsFn;
 }
 
 /**
- * @deprecated Use `SolanaAccountBalance` from `types/balance` instead.
+ * @deprecated Use `SolanaWalletBalance` from `types/balance` instead.
  */
-export type SolanaBalance = SolanaAccountBalance;
+export type SolanaBalance = SolanaWalletBalance;
 
 // Re-export types from services for convenience
 export type { SolanaTransactionPaging, SolanaTransactionListResponse, SolanaTransaction } from './transactions';
@@ -112,6 +100,14 @@ export class SolanaAccount {
   private connection: Connection | null = null;
   /** The nodeUrl used to create the current connection (for comparison) */
   private connectionNodeUrl: string | null = null;
+  /** Injected function to fetch token balances */
+  private fetchBalanceFn: FetchSolanaBalanceFn;
+  /** Injected function to fetch token prices */
+  private fetchPricesFn: FetchSolanaPricesFn;
+  /** Injected function to fetch a single transaction */
+  private fetchTransactionFn: FetchSolanaTransactionFn;
+  /** Injected function to fetch transactions list */
+  private fetchTransactionsFn: FetchSolanaTransactionsFn;
 
   /**
    * Creates a new SolanaAccount instance
@@ -124,6 +120,10 @@ export class SolanaAccount {
     this.path = options.path;
     this.keyPair = options.keyPair;
     this.publicKey = options.keyPair.publicKey;
+    this.fetchBalanceFn = options.fetchBalance;
+    this.fetchPricesFn = options.fetchPrices;
+    this.fetchTransactionFn = options.fetchTransaction;
+    this.fetchTransactionsFn = options.fetchTransactions;
   }
 
   /**
@@ -168,18 +168,90 @@ export class SolanaAccount {
     return connection.getBalance(this.publicKey);
   }
 
+  // ==========================================================================
+  // Balance Methods (DI-backed, mirrors BitcoinAccount)
+  // ==========================================================================
+
   /**
-   * Gets the account balance with both lamports and SOL values.
-   *
-   * @returns Promise resolving to balance object with lamports and SOL
+   * Fetches the raw Solana balance items from the backend API.
    */
-  async getBalance(): Promise<SolanaBalance> {
-    const connection = await this.getConnection();
-    const lamports = await connection.getBalance(this.publicKey);
-    return {
-      lamports: BigInt(lamports),
-      sol: lamports / LAMPORTS_PER_SOL,
-    };
+  private async fetchSolanaBalance(): Promise<SolanaBalanceItem[]> {
+    return this.fetchBalanceFn(this.network.id, this.publicKey.toBase58());
+  }
+
+  /**
+   * Gets Solana prices from the price service.
+   *
+   * @returns Token prices or null if unavailable
+   */
+  private async getPrices(): Promise<TokenPrice[] | null> {
+    try {
+      return await this.fetchPricesFn('solana');
+    } catch (e) {
+      console.warn('Could not get Solana prices', (e as Error).message);
+      return null;
+    }
+  }
+
+  /**
+   * Helper to calculate 24h change from balances.
+   */
+  private calculateLast24HoursChange(
+    balances: SolanaBalanceItem[],
+    usdTotal: number
+  ): number {
+    if (!usdTotal || usdTotal === 0) return 0;
+
+    let previousTotal = 0;
+    balances.forEach((balance) => {
+      if (balance.usdBalance && balance.priceChange24h !== undefined) {
+        const priceChangeFactor = 1 + balance.priceChange24h / 100;
+        const previousBalance = balance.usdBalance / priceChangeFactor;
+        previousTotal += previousBalance;
+      } else if (balance.usdBalance) {
+        previousTotal += balance.usdBalance;
+      }
+    });
+
+    return previousTotal === 0 ? 0 : usdTotal - previousTotal;
+  }
+
+  /**
+   * Gets the complete wallet balance with USD values and price info.
+   * Uses injected DI functions to fetch balance and prices from the backend.
+   *
+   * @returns Promise resolving to wallet balance object
+   */
+  async getBalance(): Promise<SolanaWalletBalance> {
+    const solanaBalance = await this.fetchSolanaBalance();
+    const prices = await this.getPrices();
+
+    const balances = decorateBalancePrices(
+      solanaBalance.map((b) => ({
+        mint: b.mint || 'solana',
+        owner: this.publicKey.toBase58(),
+        amount: b.amount,
+        decimals: b.decimals,
+        uiAmount: b.uiAmount || b.amount / Math.pow(10, b.decimals),
+        symbol: b.symbol,
+        name: b.name,
+        logo: b.logo || undefined,
+        address: b.mint || 'solana',
+        coingeckoId: b.coingeckoId,
+      })),
+      prices
+    ) as SolanaBalanceItem[];
+
+    if (prices) {
+      const usdTotal = balances.reduce(
+        (currentValue, next) => (next.usdBalance || 0) + currentValue,
+        0
+      );
+      const last24HoursChange = this.calculateLast24HoursChange(balances, usdTotal);
+      return { usdTotal, last24HoursChange, items: balances };
+    }
+
+    return { items: balances };
   }
 
   /**
@@ -302,7 +374,7 @@ export class SolanaAccount {
    */
   async getTransaction(txId: string): Promise<SolanaTransaction | null> {
     const address = this.publicKey.toBase58();
-    return getSolanaTransaction(this.network.id as SolanaNetworkId, address, txId);
+    return this.fetchTransactionFn(this.network.id, address, txId);
   }
 
   /**
@@ -315,7 +387,7 @@ export class SolanaAccount {
     paging?: SolanaTransactionPaging
   ): Promise<SolanaTransactionListResponse> {
     const address = this.publicKey.toBase58();
-    return getRecentTransactionsService(this.network.id, address, paging, getSolanaTransactions);
+    return getRecentTransactionsService(this.network.id, address, paging, this.fetchTransactionsFn);
   }
 
   // ==========================================================================

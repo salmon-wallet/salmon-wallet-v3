@@ -21,8 +21,7 @@
  */
 
 import { apiClient, ApiError } from '../client';
-import type { SolanaNetwork } from '../../blockchain/solana/SolanaAccount';
-import type { SolanaNetworkId } from '../../types/blockchain';
+import type { SolanaNetwork, SolanaNetworkId } from '../../types/blockchain';
 import type {
   ListNftParams,
   UnlistNftParams,

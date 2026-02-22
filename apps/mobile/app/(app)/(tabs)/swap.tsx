@@ -33,52 +33,17 @@ import {
   type SwapQuote as SharedSwapQuote,
   type SolanaAccount,
   type SwapNetworkId,
-  type TokenMetadata,
-  type UnifiedToken
+  mapToSwapToken,
+  unifiedToSwapToken,
 } from '@salmon/shared';
 import {
   SwapScreen,
   type BridgeEstimateSimple,
   type BridgeExchangeSimple,
   type BridgeTokenSimple,
-  type SwapChainType,
   type SwapQuote,
   type SwapToken,
 } from '../../../src/components';
-
-/**
- * Convert TokenMetadata to SwapToken (for search results)
- */
-function mapToSwapToken(token: TokenMetadata, balance?: number, usdPrice?: number): SwapToken {
-  return {
-    address: token.address,
-    symbol: token.symbol,
-    name: token.name,
-    decimals: token.decimals,
-    logo: token.logo || undefined,
-    balance: balance || 0,
-    usdPrice: usdPrice,
-    chain: 'solana', // Search results are always Solana tokens
-    networkId: 'solana-mainnet',
-  };
-}
-
-/**
- * Convert UnifiedToken (from useMultiChainTokens) to SwapToken
- */
-function unifiedToSwapToken(token: UnifiedToken): SwapToken {
-  return {
-    address: token.address,
-    symbol: token.symbol,
-    name: token.name,
-    decimals: token.decimals,
-    logo: token.logo,
-    balance: token.balance,
-    usdPrice: token.usdPrice,
-    chain: token.chain as SwapChainType,
-    networkId: token.networkId,
-  };
-}
 
 /**
  * Since SwapQuote now uses the backend structure directly,

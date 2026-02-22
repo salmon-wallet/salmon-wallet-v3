@@ -1,8 +1,6 @@
 // Solana Account
 export { SolanaAccount } from './SolanaAccount';
 export type {
-  SolanaNetwork,
-  SolanaNetworkConfig,
   SolanaAccountOptions,
   SolanaBalance,
 } from './SolanaAccount';
@@ -20,7 +18,7 @@ export {
 } from './factory';
 export type {
   CreateSolanaAccountOptions,
-  DeriveAccountsOptions,
+  DeriveSolanaAccountsOptions,
 } from './factory';
 
 // Transfer functions

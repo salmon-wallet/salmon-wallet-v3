@@ -11,26 +11,8 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import { colors } from '@salmon/shared';
+import { colors, formatConversionRate } from '@salmon/shared';
 import type { ConversionRateDisplayProps } from './types';
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-function formatRate(rate: string): string {
-  const numericRate = parseFloat(rate);
-
-  if (isNaN(numericRate) || numericRate === 0) return '0';
-  if (numericRate < 0.0001) return '<0.0001';
-
-  if (numericRate >= 1000) {
-    const kValue = numericRate / 1000;
-    return `${kValue.toFixed(2).replace(/\.?0+$/, '')}K`;
-  }
-
-  return numericRate.toFixed(4).replace(/\.?0+$/, '');
-}
 
 // ============================================================================
 // Styled Components
@@ -69,7 +51,7 @@ export const ConversionRateDisplay: React.FC<ConversionRateDisplayProps> = ({
   size = 'medium',
   className,
 }) => {
-  const formattedRate = useMemo(() => formatRate(rate), [rate]);
+  const formattedRate = useMemo(() => formatConversionRate(rate), [rate]);
   const isSmall = size === 'small';
 
   if (isSmall) {
