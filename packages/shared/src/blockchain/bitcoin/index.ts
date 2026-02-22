@@ -5,7 +5,6 @@ export type {
   BitcoinAccountOptions,
   BitcoinAccountBalance,
   BitcoinKeyPair,
-  AddressValidationResult,
   BitcoinWalletBalance,
 } from './BitcoinAccount';
 // Note: BitcoinBalanceItem, TransactionPaging, AccountTransaction,

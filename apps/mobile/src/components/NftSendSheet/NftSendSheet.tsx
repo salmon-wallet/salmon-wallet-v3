@@ -258,7 +258,6 @@ export function NftSendSheet({
                   onChange={setAddress}
                   onValidation={handleValidation}
                   placeholder="Enter recipient address"
-                  blockchain={blockchain}
                   label="Recipient"
                 />
 

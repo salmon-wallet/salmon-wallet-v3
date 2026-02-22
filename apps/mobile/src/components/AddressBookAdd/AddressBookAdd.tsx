@@ -67,7 +67,6 @@ export function AddressBookAdd({
           address={form.address}
           onChange={form.setAddress}
           onValidation={form.handleValidation}
-          blockchain={activeBlockchain as 'solana' | 'ethereum' | 'bitcoin'}
           label={t('general.address', 'Address')}
           placeholder={t('general.name_or_address', {
             token: activeBlockchain,

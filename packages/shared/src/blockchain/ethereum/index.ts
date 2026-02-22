@@ -4,7 +4,6 @@ export { EthereumAccount } from './EthereumAccount';
 export type {
   EthereumAccountOptions,
   EthereumBalance,
-  EthereumAddressValidationResult,
 } from './EthereumAccount';
 
 // Factory functions and utilities

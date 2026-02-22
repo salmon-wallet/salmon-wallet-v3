@@ -10,7 +10,7 @@
  * - Cancel and Review & Send action buttons
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -24,8 +24,6 @@ import {
   fontFamily,
   fontWeight,
   useAddressValidation,
-  isEthereumAccount,
-  isSolanaAccount,
   useCurrencyContext,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
@@ -333,39 +331,15 @@ export function StepAddressAmount({
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
 
-  // Resolve chain-specific connection/provider from account
-  const [chainConnection, setChainConnection] = useState<Parameters<typeof useAddressValidation>[1]>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const resolveConnection = async () => {
-      if (!account) return;
-      try {
-        if (isEthereumAccount(account)) {
-          const provider = await account.getProvider();
-          if (!cancelled) setChainConnection(provider);
-        } else if (isSolanaAccount(account)) {
-          const connection = await account.getConnection();
-          if (!cancelled) setChainConnection(connection);
-        }
-      } catch (err) {
-        console.error('Failed to resolve chain connection:', err);
-      }
-    };
-    resolveConnection();
-    return () => { cancelled = true; };
-  }, [account, blockchain]);
-
-  // Address validation with chain-specific connection
+  // Address validation — account owns its own connection/provider
   const {
     validationState,
     isValidating,
     isValid: isAddressValid,
     message: addressMessage,
     messageType: addressMessageType,
-  } = useAddressValidation(address, chainConnection, {
+  } = useAddressValidation(address, account, {
     debounceMs: 500,
-    blockchain,
   });
 
   // Parse balance

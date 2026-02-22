@@ -16,8 +16,8 @@ import {
   s,
   fontFamilyNative,
   useAddressValidation,
+  useAccountsContext,
 } from '@salmon/shared';
-import type { BlockchainType } from '@salmon/shared';
 import type { RecipientAddressInputProps } from './types';
 
 /**
@@ -35,24 +35,16 @@ export const RecipientAddressInput: React.FC<RecipientAddressInputProps> = ({
   error,
   onValidation,
 }) => {
-  // Derive blockchain type from targetChain id
-  const blockchain = useMemo<BlockchainType | undefined>(() => {
-    if (!targetChain) return undefined;
-    const id = targetChain.id.toLowerCase();
-    if (id === 'solana' || id === 'ethereum' || id === 'bitcoin') {
-      return id as BlockchainType;
-    }
-    return undefined;
-  }, [targetChain]);
+  const [state] = useAccountsContext();
+  const { activeBlockchainAccount } = state;
 
-  // Address validation hook (connection is null until context is wired up)
+  // Address validation hook — account owns its own connection/provider
   const {
     validationState,
     isValidating,
     message: validationMessage,
-  } = useAddressValidation(value, null, {
+  } = useAddressValidation(value, activeBlockchainAccount, {
     debounceMs: 500,
-    blockchain,
     onValidation: onValidation
       ? (result) => onValidation({ isValid: result.isValid, message: null })
       : undefined,

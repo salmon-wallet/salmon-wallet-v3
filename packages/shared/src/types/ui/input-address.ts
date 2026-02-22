@@ -1,4 +1,3 @@
-import type { BlockchainType } from '../blockchain';
 import type { ValidationCallbackResult } from '../validation';
 
 /**
@@ -13,8 +12,6 @@ export interface InputAddressPropsBase<TStyle> {
   onValidation?: (result: ValidationCallbackResult) => void;
   /** Placeholder text */
   placeholder?: string;
-  /** Blockchain type for validation context */
-  blockchain?: BlockchainType;
   /** Label to show above input (e.g., "To") */
   label?: string;
   /** Whether the input is disabled */

@@ -90,7 +90,7 @@ const SaveButton = styled(Button)({
 
 export function AddressEditPage({
   contact,
-  activeBlockchain,
+  activeBlockchain: _activeBlockchain,
   onSave,
   onBack,
 }: AddressBookEditBaseProps): React.ReactElement {
@@ -130,7 +130,6 @@ export function AddressEditPage({
             address={form.address}
             onChange={form.setAddress}
             onValidation={form.handleValidation}
-            blockchain={activeBlockchain as 'solana' | 'ethereum' | 'bitcoin'}
             label={t('general.address', 'Address')}
           />
         </Box>

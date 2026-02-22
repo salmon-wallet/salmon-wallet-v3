@@ -91,7 +91,7 @@ const SaveButton = styled(Button)({
 export function AddressAddPage({
   activeNetworkId,
   activeNetworkName,
-  activeBlockchain,
+  activeBlockchain: _activeBlockchain,
   onSave,
   onBack,
 }: AddressBookAddBaseProps): React.ReactElement {
@@ -125,7 +125,6 @@ export function AddressAddPage({
             address={form.address}
             onChange={form.setAddress}
             onValidation={form.handleValidation}
-            blockchain={activeBlockchain as 'solana' | 'ethereum' | 'bitcoin'}
             label={t('general.address', 'Address')}
           />
         </Box>

@@ -2,7 +2,22 @@ import { JsonRpcProvider, Wallet, isAddress, getAddress } from 'ethers';
 import { ethToWei, weiToEthNumber } from '../../utils/decimals';
 import { getShortAddress } from '../../utils/address';
 import { decorateBalancePrices } from '../../utils/balance';
+import {
+  sendTransaction as ethSendTransaction,
+  estimateTransferFee as ethEstimateTransferFee,
+  formatAmount,
+  type TransferOptions,
+} from './transfer';
+import {
+  isNativeEth,
+  createNativeToken,
+  createERC20Token,
+  createERC721Token,
+  createERC1155Token,
+} from '../../utils/tokens';
 import type { TokenPrice } from '../../types/price';
+import type { FeeEstimateResult } from '../../types/send';
+import type { ValidationResult } from '../../types/validation';
 import type { EthereumAccountBalance, EthereumWalletBalance } from '../../types/balance';
 import type { EthereumBalanceItem } from '../../types/transfer';
 import type { EthereumNetwork, EthereumEnvironment } from '../../types/blockchain';
@@ -15,6 +30,18 @@ import type {
   AccountTransactionListResponse,
   TransactionPaging,
 } from '../../types/transfer';
+
+/**
+ * Transfer options for EthereumAccount.transfer() and estimateTransferFee()
+ */
+export interface EthereumAccountTransferOptions extends TransferOptions {
+  /** Token type for routing to the correct contract ABI */
+  tokenType?: 'native' | 'erc20' | 'erc721' | 'erc1155';
+  /** Token symbol */
+  symbol?: string;
+  /** Token decimals (default 18) */
+  decimals?: number;
+}
 
 /**
  * Options for creating an EthereumAccount instance
@@ -43,17 +70,7 @@ export interface EthereumAccountOptions {
  */
 export type EthereumBalance = EthereumWalletBalance;
 
-/**
- * Result of destination address validation for Ethereum
- */
-export interface EthereumAddressValidationResult {
-  /** Validation result type */
-  type: 'SUCCESS' | 'ERROR';
-  /** Validation code */
-  code: string;
-  /** Address type if valid (EOA or CONTRACT) */
-  addressType?: string;
-}
+// EthereumAddressValidationResult removed — validateDestinationAccount now returns shared ValidationResult
 
 
 /**
@@ -328,21 +345,15 @@ export class EthereumAccount {
    * @param address - The destination address to validate
    * @returns Validation result object
    */
-  async validateDestinationAccount(address: string): Promise<EthereumAddressValidationResult> {
+  async validateDestinationAccount(address: string): Promise<ValidationResult> {
     if (!address || address.trim() === '') {
-      return {
-        type: 'ERROR',
-        code: 'INVALID_ADDRESS',
-      };
+      return { type: 'ERROR', code: 'invalid' };
     }
 
     const isValid = EthereumAccount.isValidAddress(address);
 
     if (!isValid) {
-      return {
-        type: 'ERROR',
-        code: 'INVALID_ADDRESS',
-      };
+      return { type: 'ERROR', code: 'invalid' };
     }
 
     // Check if it's a contract address
@@ -352,8 +363,8 @@ export class EthereumAccount {
 
     return {
       type: 'SUCCESS',
-      code: 'VALID_ACCOUNT',
-      addressType: isContract ? 'CONTRACT' : 'EOA',
+      code: 'valid',
+      addressType: isContract ? 'ADDRESS' : 'PUBLIC_KEY',
     };
   }
 
@@ -403,6 +414,75 @@ export class EthereumAccount {
    */
   async getRecentTransactions(paging?: TransactionPaging): Promise<AccountTransactionListResponse> {
     return this.fetchRecentTransactionsFn(this.network.id, this.wallet.address, paging);
+  }
+
+  // ============================================================================
+  // Transfer Methods
+  // ============================================================================
+
+  /**
+   * Executes a transfer of ETH or tokens.
+   *
+   * @param to - Recipient address
+   * @param token - Token contract address (ETH_ADDRESS for native ETH)
+   * @param amount - Amount to transfer (human-readable)
+   * @param opts - Transfer options (tokenType, decimals, symbol, gasLimit, etc.)
+   * @returns Object containing the transaction hash
+   */
+  async transfer(
+    to: string,
+    token: string,
+    amount: number,
+    opts?: EthereumAccountTransferOptions,
+  ): Promise<{ txId: string }> {
+    const wallet = await this.getConnection();
+
+    let transferToken;
+    if (isNativeEth(token) || opts?.tokenType === 'native') {
+      transferToken = createNativeToken();
+    } else if (opts?.tokenType === 'erc721') {
+      transferToken = createERC721Token(token, opts?.symbol);
+    } else if (opts?.tokenType === 'erc1155') {
+      transferToken = createERC1155Token(token, opts?.symbol);
+    } else {
+      transferToken = createERC20Token(token, opts?.decimals ?? 18, opts?.symbol);
+    }
+
+    const result = await ethSendTransaction(wallet, to, transferToken, amount, opts);
+    return { txId: result.txHash };
+  }
+
+  /**
+   * Estimates the fee for a transfer transaction.
+   *
+   * @param to - Recipient address
+   * @param token - Token contract address
+   * @param amount - Amount to transfer (human-readable)
+   * @param opts - Transfer options
+   * @returns Fee estimate result or null
+   */
+  async estimateTransferFee(
+    to: string,
+    token: string,
+    amount: number,
+    opts?: EthereumAccountTransferOptions,
+  ): Promise<FeeEstimateResult | null> {
+    const provider = await this.getProvider();
+
+    let transferToken;
+    if (isNativeEth(token) || opts?.tokenType === 'native') {
+      transferToken = createNativeToken();
+    } else if (opts?.tokenType === 'erc721') {
+      transferToken = createERC721Token(token, opts?.symbol);
+    } else if (opts?.tokenType === 'erc1155') {
+      transferToken = createERC1155Token(token, opts?.symbol);
+    } else {
+      transferToken = createERC20Token(token, opts?.decimals ?? 18, opts?.symbol);
+    }
+
+    const estimate = await ethEstimateTransferFee(provider, to, transferToken, amount, opts);
+    const feeInEth = formatAmount(estimate.estimatedFee, 18);
+    return { fee: feeInEth };
   }
 
   // ============================================================================

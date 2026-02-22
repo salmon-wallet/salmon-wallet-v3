@@ -29,7 +29,7 @@ import { InputAddress } from '../InputAddress';
 
 export function AddressBookEdit({
   contact,
-  activeBlockchain,
+  activeBlockchain: _activeBlockchain,
   onSave,
   onBack,
 }: AddressBookEditBaseProps) {
@@ -72,7 +72,6 @@ export function AddressBookEdit({
           address={form.address}
           onChange={form.setAddress}
           onValidation={form.handleValidation}
-          blockchain={activeBlockchain as 'solana' | 'ethereum' | 'bitcoin'}
           label={t('general.address', 'Address')}
         />
       </View>

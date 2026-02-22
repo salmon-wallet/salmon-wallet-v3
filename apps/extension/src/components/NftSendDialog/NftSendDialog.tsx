@@ -179,7 +179,6 @@ export function NftSendDialog({
               onChange={setAddress}
               onValidation={handleValidation}
               placeholder={t('send.enter_address', 'Enter recipient address')}
-              blockchain={blockchain}
               label={t('send.recipient', 'Recipient')}
             />
 

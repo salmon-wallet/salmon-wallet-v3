@@ -1,15 +1,19 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import type { BIP32Interface } from 'bip32';
 import type { TokenPrice } from '../../types/price';
+import type { FeeEstimateResult } from '../../types/send';
+import type { ValidationResult } from '../../types/validation';
 import { decorateBalancePrices } from '../../utils/balance';
 import { SATOSHIS_PER_BTC, satoshisToBtc, btcToSatoshis } from '../../utils/decimals';
 import { getShortAddress } from '../../utils/address';
+import { sendBitcoin, estimateBitcoinFee } from './transfer';
 import type {
   BitcoinBalanceItem,
   UTXO,
   TransactionPaging,
   AccountTransaction,
   AccountTransactionListResponse,
+  SigningKeyPair,
   FetchBitcoinBalanceFn,
   FetchBitcoinPricesFn,
   FetchBitcoinTransactionFn,
@@ -17,6 +21,14 @@ import type {
   FetchUtxosFn,
   BroadcastTransactionFn,
 } from '../../types/transfer';
+
+/**
+ * Transfer options for BitcoinAccount.transfer() and estimateTransferFee()
+ */
+export interface BitcoinTransferOptions {
+  /** Fee rate in satoshis per byte */
+  feeRate?: number;
+}
 import type {
   BitcoinAccountBalance,
   BitcoinWalletBalance,
@@ -66,17 +78,7 @@ export interface BitcoinAccountOptions {
 // Re-export for backwards compatibility
 export type { BitcoinAccountBalance } from '../../types/balance';
 
-/**
- * Result of destination address validation
- */
-export interface AddressValidationResult {
-  /** Validation result type */
-  type: 'SUCCESS' | 'ERROR';
-  /** Validation code */
-  code: string;
-  /** Address type if valid */
-  addressType?: string;
-}
+// AddressValidationResult removed — validateDestinationAccount now returns shared ValidationResult
 
 // Re-export for backwards compatibility
 export type { BitcoinWalletBalance } from '../../types/balance';
@@ -375,30 +377,18 @@ export class BitcoinAccount {
    * @param address - The destination address to validate
    * @returns Validation result object
    */
-  async validateDestinationAccount(address: string): Promise<AddressValidationResult> {
+  async validateDestinationAccount(address: string): Promise<ValidationResult> {
     if (!address || address.trim() === '') {
-      return {
-        type: 'ERROR',
-        code: 'INVALID_ADDRESS',
-      };
+      return { type: 'ERROR', code: 'invalid' };
     }
 
     const isValid = this.isValidAddressForNetwork(address);
 
     if (!isValid) {
-      return {
-        type: 'ERROR',
-        code: 'INVALID_ADDRESS',
-      };
+      return { type: 'ERROR', code: 'invalid' };
     }
 
-    const addressType = BitcoinAccount.getAddressType(address, this.network.config.network);
-
-    return {
-      type: 'SUCCESS',
-      code: 'VALID_ACCOUNT',
-      addressType: addressType?.toUpperCase() || 'PUBLIC_KEY',
-    };
+    return { type: 'SUCCESS', code: 'valid', addressType: 'PUBLIC_KEY' };
   }
 
   /**
@@ -460,6 +450,70 @@ export class BitcoinAccount {
    */
   async broadcast(serializedTx: string): Promise<{ txId?: string; success: boolean }> {
     return this.broadcastTransactionFn(this.network.id, this.address, serializedTx);
+  }
+
+  // ============================================================================
+  // Transfer Methods
+  // ============================================================================
+
+  /**
+   * Executes a Bitcoin transfer.
+   *
+   * @param to - Recipient address
+   * @param _token - Ignored (Bitcoin has no tokens)
+   * @param amount - Amount in BTC (human-readable)
+   * @param opts - Transfer options (feeRate)
+   * @returns Object containing the transaction ID
+   */
+  async transfer(
+    to: string,
+    _token: string,
+    amount: number,
+    _opts?: BitcoinTransferOptions,
+  ): Promise<{ txId: string }> {
+    const node = this.getBip32Node();
+    if (!node) {
+      throw new Error('Bitcoin BIP32 node not available');
+    }
+    const signingKeyPair: SigningKeyPair = { ...this.keyPair, node };
+
+    const result = await sendBitcoin(
+      this.network,
+      signingKeyPair,
+      to,
+      amount,
+      () => this.getUtxos(),
+      (_networkId, _address, serializedTx) => this.broadcast(serializedTx),
+    );
+
+    if (!result.success) {
+      throw new Error(result.error || 'Bitcoin transaction failed');
+    }
+
+    return { txId: result.txId || '' };
+  }
+
+  /**
+   * Estimates the fee for a Bitcoin transfer.
+   *
+   * @param _to - Recipient address (unused for fee estimation)
+   * @param _token - Ignored
+   * @param _amount - Amount (unused for fee estimation)
+   * @param opts - Transfer options (feeRate)
+   * @returns Fee estimate result or null
+   */
+  async estimateTransferFee(
+    _to: string,
+    _token: string,
+    _amount: number,
+    opts?: BitcoinTransferOptions,
+  ): Promise<FeeEstimateResult | null> {
+    const utxos = await this.getUtxos();
+    const fee = estimateBitcoinFee(utxos.length, 2, opts?.feeRate);
+    const feeInBtc = satoshisToBtc(fee);
+    return {
+      fee: feeInBtc.toFixed(8).replace(/0+$/, '').replace(/\.$/, ''),
+    };
   }
 
   // ============================================================================

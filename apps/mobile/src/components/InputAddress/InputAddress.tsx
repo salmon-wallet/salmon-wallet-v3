@@ -11,7 +11,7 @@
  * - Accessible and customizable
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   TextInput,
@@ -20,7 +20,7 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from 'react-native';
-import { colors, useAddressValidation, useAccountsContext, isSolanaAccount, type ValidationState } from '@salmon/shared';
+import { colors, useAddressValidation, useAccountsContext, type ValidationState } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 
 // ============================================================================
@@ -91,7 +91,6 @@ function ValidationIndicator({ state }: ValidationIndicatorProps) {
  *     }
  *   }}
  *   placeholder="Enter recipient address"
- *   blockchain="solana"
  * />
  * ```
  */
@@ -100,7 +99,6 @@ export function InputAddress({
   onChange,
   onValidation,
   placeholder = 'Enter address or domain',
-  blockchain = 'solana',
   label,
   disabled = false,
   errorMessage,
@@ -110,31 +108,7 @@ export function InputAddress({
   const [state] = useAccountsContext();
   const { activeBlockchainAccount } = state;
 
-  // Resolve chain-specific connection/provider from the active account
-  const [connection, setConnection] = useState<Parameters<typeof useAddressValidation>[1]>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const resolveConnection = async () => {
-      if (!activeBlockchainAccount) return;
-      try {
-        if (blockchain === 'ethereum' && 'getProvider' in activeBlockchainAccount) {
-          const provider = await (activeBlockchainAccount as { getProvider: () => Promise<NonNullable<typeof connection>> }).getProvider();
-          if (!cancelled) setConnection(provider);
-        } else if (blockchain === 'solana' && isSolanaAccount(activeBlockchainAccount)) {
-          const conn = await activeBlockchainAccount.getConnection();
-          if (!cancelled) setConnection(conn);
-        }
-        // Bitcoin: no connection needed, stays null
-      } catch (err) {
-        console.error('Failed to resolve chain connection:', err);
-      }
-    };
-    resolveConnection();
-    return () => { cancelled = true; };
-  }, [activeBlockchainAccount, blockchain]);
-
-  // Use validation hook
+  // Use validation hook — account owns its own connection/provider
   const {
     validationState,
     isValidating,
@@ -142,9 +116,8 @@ export function InputAddress({
     messageType,
     resolvedAddress,
     isDomain,
-  } = useAddressValidation(address, connection, {
+  } = useAddressValidation(address, activeBlockchainAccount, {
     debounceMs: 500,
-    blockchain,
     onValidation,
   });
 
