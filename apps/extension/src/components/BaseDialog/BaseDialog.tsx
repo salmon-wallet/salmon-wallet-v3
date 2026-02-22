@@ -65,6 +65,7 @@ export function BaseDialog({
         open={visible}
         onClose={onClose}
         aria-labelledby={ariaLabelledBy}
+        disableEnforceFocus
       >
         {children}
       </StyledDialog>

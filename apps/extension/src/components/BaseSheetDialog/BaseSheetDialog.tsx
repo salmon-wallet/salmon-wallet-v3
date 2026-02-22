@@ -73,6 +73,7 @@ export function BaseSheetDialog({
         PaperProps={{ style }}
         $colorScheme={colorScheme}
         $size={size}
+        disableEnforceFocus
       >
         {/* Decorative background (optional) */}
         {showScalesBackground && (

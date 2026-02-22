@@ -462,6 +462,7 @@ export function SettingsSheet({
       anchor="right"
       open={visible}
       onClose={onClose}
+      disableEnforceFocus
       PaperProps={{
         sx: {
           backgroundColor: 'transparent',

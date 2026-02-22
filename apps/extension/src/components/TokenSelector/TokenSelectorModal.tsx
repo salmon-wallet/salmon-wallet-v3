@@ -396,6 +396,7 @@ export function TokenSelectorModal({
       open={visible}
       onClose={handleClose}
       aria-labelledby="token-selector-title"
+      disableEnforceFocus
     >
       {/* Header */}
       <StyledDialogTitle id="token-selector-title">

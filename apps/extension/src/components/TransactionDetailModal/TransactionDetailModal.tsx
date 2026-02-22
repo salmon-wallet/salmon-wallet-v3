@@ -927,6 +927,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
       aria-labelledby="transaction-detail-title"
       className={className}
       PaperProps={{ style }}
+      disableEnforceFocus
     >
       {/* Decorative background */}
       <BackgroundWrapper>

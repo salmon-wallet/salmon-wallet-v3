@@ -10,7 +10,7 @@
  */
 
 export default defineContentScript({
-  matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+  matches: ['http://*/*', 'https://*/*'],
   runAt: 'document_start',
   allFrames: true,
 
