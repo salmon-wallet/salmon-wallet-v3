@@ -229,7 +229,6 @@ import type {
   EthereumAccountApiFunctions,
   AccountTransaction,
   AccountTransactionListResponse,
-  TransactionPaging,
 } from '../../types/transfer';
 
 export const fetchEthereumAccountBalance: EthereumAccountApiFunctions['fetchBalance'] = async (

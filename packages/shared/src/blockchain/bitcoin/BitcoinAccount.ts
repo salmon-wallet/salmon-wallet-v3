@@ -4,7 +4,7 @@ import type { TokenPrice } from '../../types/price';
 import type { FeeEstimateResult } from '../../types/send';
 import type { ValidationResult } from '../../types/validation';
 import { decorateBalancePrices } from '../../utils/balance';
-import { SATOSHIS_PER_BTC, satoshisToBtc, btcToSatoshis } from '../../utils/decimals';
+import { satoshisToBtc, btcToSatoshis } from '../../utils/decimals';
 import { getShortAddress } from '../../utils/address';
 import { sendBitcoin, estimateBitcoinFee } from './transfer';
 import type {
@@ -33,7 +33,7 @@ import type {
   BitcoinAccountBalance,
   BitcoinWalletBalance,
 } from '../../types/balance';
-import type { BitcoinNetwork, BitcoinEnvironment } from '../../types/blockchain';
+import type { BitcoinNetwork } from '../../types/blockchain';
 
 /**
  * Bitcoin keypair containing public address and private key (WIF format)

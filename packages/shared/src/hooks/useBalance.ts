@@ -117,7 +117,7 @@ const CACHE_TTL = 60 * 1000;
  */
 export function useBalance({
   account,
-  networkId = 'solana-mainnet',
+  networkId: _networkId = 'solana-mainnet',
   skip = false,
 }: UseBalanceOptions): UseBalanceResult {
   const [balance, setBalance] = useState<WalletBalance | null>(null);

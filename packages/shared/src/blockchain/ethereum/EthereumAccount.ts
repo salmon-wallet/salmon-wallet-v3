@@ -20,7 +20,7 @@ import type { FeeEstimateResult } from '../../types/send';
 import type { ValidationResult } from '../../types/validation';
 import type { EthereumAccountBalance, EthereumWalletBalance } from '../../types/balance';
 import type { EthereumBalanceItem } from '../../types/transfer';
-import type { EthereumNetwork, EthereumEnvironment } from '../../types/blockchain';
+import type { EthereumNetwork } from '../../types/blockchain';
 import type {
   FetchEthereumBalanceFn,
   FetchEthereumPricesFn,

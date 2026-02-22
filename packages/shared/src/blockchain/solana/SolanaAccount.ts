@@ -268,7 +268,7 @@ export class SolanaAccount {
       return (b.usdBalance || 0) - (a.usdBalance || 0);
     });
 
-    if (jupiterPrices.size > 0) {
+    if (jupiterPrices && jupiterPrices.size > 0) {
       const usdTotal = balances.reduce(
         (currentValue, next) => (next.usdBalance || 0) + currentValue,
         0

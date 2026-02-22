@@ -1,7 +1,7 @@
 import { Keypair } from '@solana/web3.js';
 import HDKey from 'micro-key-producer/slip10.js';
 import { SolanaAccount } from './SolanaAccount';
-import type { SolanaNetwork, SolanaNetworkId } from '../../types/blockchain';
+import type { SolanaNetwork } from '../../types/blockchain';
 import type { SolanaAccountApiFunctions } from '../../types/transfer';
 import {
   mnemonicToSeed,

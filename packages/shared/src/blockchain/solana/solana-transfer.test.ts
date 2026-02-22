@@ -5,7 +5,7 @@
  * Uses Vitest 4.0.18 with mocked connections.
  */
 
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { Connection, PublicKey, Keypair, Transaction } from '@solana/web3.js';
 import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, getMint, getOrCreateAssociatedTokenAccount } from '@solana/spl-token';
 import {
@@ -27,30 +27,11 @@ const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 
 const mockSolanaApiFunctions = {
   fetchBalance: vi.fn().mockResolvedValue([]),
-  fetchPrices: vi.fn().mockResolvedValue(null),
+  fetchPrices: vi.fn().mockResolvedValue(new Map()),
   fetchTransaction: vi.fn().mockResolvedValue(null),
   fetchTransactions: vi.fn().mockResolvedValue({ transactions: [], oldestSignature: null, hasMore: false }),
   fetchNfts: vi.fn().mockResolvedValue([]),
 };
-
-// ============================================================================
-// Test Helpers
-// ============================================================================
-
-/**
- * Check if backend is available
- */
-async function checkBackend(): Promise<boolean> {
-  try {
-    const response = await fetch('http://localhost:3000/health', {
-      method: 'GET',
-      signal: AbortSignal.timeout(1000)
-    });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
 
 // ============================================================================
 // Test 1: createSolTransaction
@@ -682,9 +663,9 @@ describe('SolanaAccount.getBalance', () => {
         coingeckoId: 'solana',
       },
     ]);
-    const mockFetchPrices = vi.fn().mockResolvedValue([
-      { id: 'solana', symbol: 'sol', usdPrice: 150, perc24HoursChange: 2.5 },
-    ]);
+    const mockFetchPrices = vi.fn().mockResolvedValue(new Map([
+      ['So11111111111111111111111111111111111111112', { usdPrice: 150, priceChange24h: 2.5 }],
+    ]));
 
     const account = await createSolanaAccount({
       network,
