@@ -439,6 +439,7 @@ export interface SolanaBalanceItem {
   logo?: string;
   uiAmount?: number;
   coingeckoId?: string;
+  tags?: string[];
   price?: number;
   usdBalance?: number;
   priceChange24h?: number;

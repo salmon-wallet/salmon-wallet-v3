@@ -178,6 +178,7 @@ export function useBalance({
           logo: item.logo || undefined,
           address: item.mint || 'solana',
           coingeckoId: item.coingeckoId || 'solana',
+          tags: item.tags,
           price: item.price,
           usdBalance: item.usdBalance,
           priceChange24h: item.priceChange24h,

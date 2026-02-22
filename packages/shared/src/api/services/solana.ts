@@ -327,6 +327,7 @@ export async function getTransactionsByType(
 import { getJupiterPrices } from './balance';
 import { getTokenMetadataByMints } from './tokens';
 import { getSolanaNfts } from './solana-nft';
+import { SOL_CONSTANTS } from '../../utils/balance';
 import type { SolanaAccountApiFunctions, SolanaBalanceItem } from '../../types/transfer';
 
 export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'] = async (
@@ -353,17 +354,21 @@ export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'
     metadata.map((m) => [m.address.toLowerCase(), m])
   );
 
-  return data.map((token) => {
-    const meta = token.mint ? metadataMap.get(token.mint.toLowerCase()) : undefined;
-    return {
-      ...token,
-      // Jupiter metadata wins over Ubiquity when available
-      logo: meta?.logo || token.logo,
-      name: meta?.name || token.name,
-      symbol: meta?.symbol || token.symbol,
-      uiAmount: removeDecimals(token.amount, token.decimals),
-    };
-  });
+  return data
+    .filter((token) => token.amount > 0)
+    .map((token) => {
+      const meta = token.mint ? metadataMap.get(token.mint.toLowerCase()) : undefined;
+      const isNativeSol = !token.mint;
+      return {
+        ...token,
+        // Jupiter metadata wins over Ubiquity when available
+        logo: meta?.logo || token.logo,
+        name: meta?.name || token.name,
+        symbol: meta?.symbol || token.symbol,
+        tags: isNativeSol ? [...SOL_CONSTANTS.TAGS] : meta?.tags,
+        uiAmount: removeDecimals(token.amount, token.decimals),
+      };
+    });
 };
 
 /**

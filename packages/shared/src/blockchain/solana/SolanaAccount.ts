@@ -256,6 +256,7 @@ export class SolanaAccount {
         logo: b.logo || undefined,
         address: b.mint || SOL_CONSTANTS.ADDRESS,
         coingeckoId: b.coingeckoId,
+        tags: b.tags,
       })),
       null,
       jupiterPrices

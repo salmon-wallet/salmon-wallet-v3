@@ -26,6 +26,7 @@ import {
   useCurrencyContext,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
+import { TokenBadges } from './TokenBadges';
 import type { TokenListItemProps } from './types';
 
 /**
@@ -139,12 +140,19 @@ const InfoContainer = styled(Box)({
   minWidth: 0,
 });
 
+const NameRow = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: vs(spacing['2xs']),
+  minWidth: 0,
+});
+
 const TokenName = styled(Typography)({
   fontSize: ms(fontSize.tokenNamePrice),
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  marginBottom: vs(spacing['2xs']),
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -206,7 +214,7 @@ export function TokenListItem({
   className,
 }: TokenListItemProps) {
   const [, { formatValue, formatChange }] = useCurrencyContext();
-  const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange } = token;
+  const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange, tags } = token;
 
   const handlePress = useCallback(() => {
     onPress(token);
@@ -302,7 +310,10 @@ export function TokenListItem({
       )}
 
       <InfoContainer>
-        <TokenName>{name}</TokenName>
+        <NameRow>
+          <TokenName>{name}</TokenName>
+          <TokenBadges tags={tags} />
+        </NameRow>
         <PriceRow>
           {displayPrice && <Price>{displayPrice}</Price>}
           {displayPercentage && (
