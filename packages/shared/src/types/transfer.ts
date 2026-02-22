@@ -448,8 +448,9 @@ export type FetchSolanaBalanceFn = (
 ) => Promise<SolanaBalanceItem[]>;
 
 export type FetchSolanaPricesFn = (
-  platform: string
-) => Promise<import('./price').TokenPrice[] | null>;
+  networkId: import('./blockchain').SolanaNetworkId,
+  addresses: string[]
+) => Promise<Map<string, import('./price').JupiterApiPriceData>>;
 
 export type FetchSolanaTransactionFn = (
   networkId: import('./blockchain').SolanaNetworkId,

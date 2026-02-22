@@ -46,7 +46,7 @@ import type { JupiterApiPriceData } from '../../types/price';
  * @param networkId - Network identifier
  * @returns Map of address -> { usdPrice, priceChange24h }
  */
-async function getJupiterPrices(
+export async function getJupiterPrices(
   addresses: string[],
   networkId: 'solana-mainnet' | 'solana-devnet' = 'solana-mainnet'
 ): Promise<Map<string, JupiterApiPriceData>> {

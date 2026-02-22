@@ -324,7 +324,8 @@ export async function getTransactionsByType(
 // DI adapter (matches BitcoinAccount pattern in bitcoin.ts)
 // ============================================================================
 
-import { getPricesByPlatform } from './price';
+import { getJupiterPrices } from './balance';
+import { getTokenMetadataByMints } from './tokens';
 import type { SolanaAccountApiFunctions, SolanaBalanceItem } from '../../types/transfer';
 
 export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'] = async (
@@ -336,10 +337,32 @@ export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'
     { params: { include: 'logo' } },
   );
 
-  return data.map((token) => ({
-    ...token,
-    uiAmount: removeDecimals(token.amount, token.decimals),
-  }));
+  // Extract mint addresses from non-native tokens for metadata enrichment
+  const mintAddresses = data
+    .filter((token) => token.mint && token.mint !== 'solana')
+    .map((token) => token.mint!);
+
+  // Fetch Jupiter V2 metadata for better logos, names, symbols
+  const metadata = mintAddresses.length > 0
+    ? await getTokenMetadataByMints(mintAddresses, networkId)
+    : [];
+
+  // Create metadata lookup map
+  const metadataMap = new Map(
+    metadata.map((m) => [m.address.toLowerCase(), m])
+  );
+
+  return data.map((token) => {
+    const meta = token.mint ? metadataMap.get(token.mint.toLowerCase()) : undefined;
+    return {
+      ...token,
+      // Jupiter metadata wins over Ubiquity when available
+      logo: meta?.logo || token.logo,
+      name: meta?.name || token.name,
+      symbol: meta?.symbol || token.symbol,
+      uiAmount: removeDecimals(token.amount, token.decimals),
+    };
+  });
 };
 
 /**
@@ -349,8 +372,8 @@ export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'
  */
 export const solanaApiFunctions: SolanaAccountApiFunctions = {
   fetchBalance: fetchSolanaAccountBalance,
-  fetchPrices: async (platform) => {
-    return getPricesByPlatform(platform as Parameters<typeof getPricesByPlatform>[0]);
+  fetchPrices: async (networkId, addresses) => {
+    return getJupiterPrices(addresses, networkId);
   },
   fetchTransaction: getSolanaTransaction,
   fetchTransactions: getSolanaTransactions,

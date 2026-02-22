@@ -20,8 +20,8 @@ import {
   validateDestinationAccount as validateDestination,
   type ValidationResult,
 } from './validation';
-import type { TokenPrice } from '../../types/price';
-import { decorateBalancePrices } from '../../utils/balance';
+import type { JupiterApiPriceData } from '../../types/price';
+import { decorateBalancePrices, SOL_CONSTANTS } from '../../utils/balance';
 import type { SolanaNetwork } from '../../types/blockchain';
 import type { SolanaWalletBalance } from '../../types/balance';
 import type { SolanaBalanceItem } from '../../types/transfer';
@@ -180,16 +180,17 @@ export class SolanaAccount {
   }
 
   /**
-   * Gets Solana prices from the price service.
+   * Gets Solana prices from Jupiter via the DI function.
    *
-   * @returns Token prices or null if unavailable
+   * @param addresses - Token mint addresses to fetch prices for
+   * @returns Map of address -> Jupiter price data
    */
-  private async getPrices(): Promise<TokenPrice[] | null> {
+  private async getPrices(addresses: string[]): Promise<Map<string, JupiterApiPriceData>> {
     try {
-      return await this.fetchPricesFn('solana');
+      return await this.fetchPricesFn(this.network.id, addresses);
     } catch (e) {
       console.warn('Could not get Solana prices', (e as Error).message);
-      return null;
+      return new Map();
     }
   }
 
@@ -224,11 +225,15 @@ export class SolanaAccount {
    */
   async getBalance(): Promise<SolanaWalletBalance> {
     const solanaBalance = await this.fetchSolanaBalance();
-    const prices = await this.getPrices();
+
+    // Extract all addresses for Jupiter price fetching
+    const addresses = solanaBalance.map((b) => b.mint || SOL_CONSTANTS.ADDRESS);
+
+    const jupiterPrices = await this.getPrices(addresses);
 
     const balances = decorateBalancePrices(
       solanaBalance.map((b) => ({
-        mint: b.mint || 'solana',
+        mint: b.mint || SOL_CONSTANTS.ADDRESS,
         owner: this.publicKey.toBase58(),
         amount: b.amount,
         decimals: b.decimals,
@@ -236,13 +241,21 @@ export class SolanaAccount {
         symbol: b.symbol,
         name: b.name,
         logo: b.logo || undefined,
-        address: b.mint || 'solana',
+        address: b.mint || SOL_CONSTANTS.ADDRESS,
         coingeckoId: b.coingeckoId,
       })),
-      prices
+      null,
+      jupiterPrices
     ) as SolanaBalanceItem[];
 
-    if (prices) {
+    // Sort: SOL first, then by usdBalance descending
+    balances.sort((a, b) => {
+      if (a.mint === SOL_CONSTANTS.ADDRESS) return -1;
+      if (b.mint === SOL_CONSTANTS.ADDRESS) return 1;
+      return (b.usdBalance || 0) - (a.usdBalance || 0);
+    });
+
+    if (jupiterPrices.size > 0) {
       const usdTotal = balances.reduce(
         (currentValue, next) => (next.usdBalance || 0) + currentValue,
         0
