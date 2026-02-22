@@ -552,6 +552,104 @@ describe('useAccounts Hook', () => {
       expect(storage.setStashItem).toHaveBeenCalledWith('password', MOCK_PASSWORD);
     });
 
+    it('should re-encrypt mnemonics when adding account without explicit password to encrypted wallet', async () => {
+      // When addAccount is called without a password but the wallet is encrypted,
+      // it should re-encrypt using cached derived key or stashed password
+      // instead of storing plain mnemonics.
+      const mockKeyCache = {
+        salt: 'test-salt',
+        derivedKey: new Uint8Array(32),
+        createdAt: Date.now(),
+      };
+
+      const mockVault = {
+        nonce: 'new-nonce',
+        salt: 'test-salt',
+        ciphertext: 'new-encrypted',
+      };
+
+      // Pre-populate stash with a cached derived key (simulates post-unlock state)
+      stashStore['derived_key_cache'] = mockKeyCache;
+
+      (encryption.isKeyCacheValid as any).mockReturnValue(true);
+      (encryption.lockWithKey as any).mockReturnValue(mockVault);
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      const newAccount = createMockAccount();
+
+      // Call addAccount WITHOUT password
+      await act(async () => {
+        await result.current[1].addAccount(newAccount);
+      });
+
+      // Should have re-encrypted with cached key
+      expect(encryption.lockWithKey).toHaveBeenCalled();
+      expect(storage.setStorageItem).toHaveBeenCalledWith(
+        'salmon_mnemonics',
+        expect.objectContaining({ isEncrypted: true })
+      );
+    });
+
+    it('should re-encrypt mnemonics when removing account without explicit password from encrypted wallet', async () => {
+      // When removeAccount is called without a password but the wallet is encrypted,
+      // it should re-encrypt using stashed password instead of storing plain mnemonics.
+      const mockAccount1 = createMockAccount();
+      const mockAccount2 = { ...createMockAccount(), id: 'account_789' };
+
+      // Pre-populate stash with password (simulates post-unlock state)
+      stashStore['password'] = MOCK_PASSWORD;
+
+      const mockVault = {
+        nonce: 'new-nonce',
+        salt: 'new-salt',
+        ciphertext: 'new-encrypted',
+      };
+
+      (encryption.isKeyCacheValid as any).mockReturnValue(false);
+      (encryption.lock as any).mockResolvedValue(mockVault);
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_accounts') return Promise.resolve([
+          { id: mockAccount1.id, name: mockAccount1.name, avatar: mockAccount1.avatar, pathIndexes: mockAccount1.pathIndexes },
+          { id: mockAccount2.id, name: mockAccount2.name, avatar: mockAccount2.avatar, pathIndexes: mockAccount2.pathIndexes },
+        ]);
+        if (key === 'salmon_mnemonics') return Promise.resolve({
+          [mockAccount1.id]: MOCK_MNEMONIC,
+          [mockAccount2.id]: MOCK_MNEMONIC,
+        });
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount1.id);
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
+        return Promise.resolve(null);
+      });
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+        expect(result.current[0].accounts).toHaveLength(2);
+      });
+
+      // Remove account WITHOUT password
+      await act(async () => {
+        await result.current[1].removeAccount(mockAccount1.id);
+      });
+
+      // Should have re-encrypted with stashed password
+      expect(encryption.lock).toHaveBeenCalledWith(
+        { [mockAccount2.id]: MOCK_MNEMONIC },
+        MOCK_PASSWORD
+      );
+      expect(storage.setStorageItem).toHaveBeenCalledWith(
+        'salmon_mnemonics',
+        expect.objectContaining({ isEncrypted: true })
+      );
+    });
+
     it('should edit account name', async () => {
       const mockAccount = createMockAccount();
       (storage.getStorageItem as any).mockImplementation((key: string) => {
@@ -851,16 +949,10 @@ describe('useAccounts Hook', () => {
       expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_account_id', account1.id);
     });
 
-    it('should fail silently when networkId is null (v3 guard bug demonstration)', async () => {
-      // This test demonstrates that the !networkId guard in changeAccount
-      // blocks switching even when the target account exists.
-      // In v2, the guard was only: if (account) { ... }
-      // In v3, it became: if (!account || !networkId) return;
-      //
-      // We simulate: locked state where loadMetadata sets networkId from storage,
-      // but NETWORK_ID was never stored (networkId = null).
-      // Then unlock, which calls load() and defaults networkId.
-      // But BEFORE unlock, we test changeAccount with null networkId.
+    it('should switch accounts even when networkId is null', async () => {
+      // Verifies that the !networkId guard (which blocked switching in locked
+      // state when no NETWORK_ID was stored) has been removed.
+      // v2 only checked: if (account) { ... }
 
       const mockAccount1 = createMockAccount();
       const mockAccount2 = { ...createMockAccount(), id: 'account_789', name: 'Account 2' };
@@ -870,12 +962,6 @@ describe('useAccounts Hook', () => {
         nonce: 'test-nonce',
         salt: 'test-salt',
         ciphertext: 'encrypted-data',
-      };
-
-      const mockKeyCache = {
-        salt: 'test-salt',
-        derivedKey: new Uint8Array(32),
-        createdAt: Date.now(),
       };
 
       (storage.getStorageItem as any).mockImplementation((key: string) => {
@@ -901,18 +987,15 @@ describe('useAccounts Hook', () => {
       expect(result.current[0].locked).toBe(true);
       expect(result.current[0].accounts).toHaveLength(2);
       expect(result.current[0].accountId).toBe(mockAccount1.id);
-      expect(result.current[0].networkId).toBeNull(); // <-- THIS is the key condition
+      expect(result.current[0].networkId).toBeNull();
 
-      // Try to switch accounts with networkId = null
+      // Switch accounts with networkId = null — should succeed now
       await act(async () => {
         await result.current[1].changeAccount(mockAccount2.id);
       });
 
-      // BUG PROOF: The switch SILENTLY FAILS because of !networkId guard
-      // In v2, this guard didn't exist and the switch would succeed
-      expect(result.current[0].accountId).toBe(mockAccount1.id); // Still on account 1!
-      // Storage was NOT updated - the switch never happened
-      expect(storage.setStorageItem).not.toHaveBeenCalledWith(
+      expect(result.current[0].accountId).toBe(mockAccount2.id);
+      expect(storage.setStorageItem).toHaveBeenCalledWith(
         'salmon_active_account_id',
         mockAccount2.id
       );

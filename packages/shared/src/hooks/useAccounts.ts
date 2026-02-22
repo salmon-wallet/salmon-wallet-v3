@@ -957,10 +957,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       if (accountId === targetId) return;
 
       const account = findAccount(targetId);
-      if (!account || !networkId) return;
+      if (!account) return;
 
       setAccountId(targetId);
-      setPathIndex(getDefaultPathIndex(account, networkId));
+      setPathIndex(networkId ? getDefaultPathIndex(account, networkId) : 0);
 
       await setStorageItem(STORAGE_KEYS.ACCOUNT_ID, targetId);
       await setStorageItem(STORAGE_KEYS.PATH_INDEX, 0);
@@ -1059,8 +1059,23 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
         await setStorageItem(STORAGE_KEYS.MNEMONICS, lockedMnemonics);
         await setStashItem(STASH_KEYS.PASSWORD, password);
+        setRequiredLock(true);
       } else {
-        await setStorageItem(STORAGE_KEYS.MNEMONICS, newMnemonics);
+        // No explicit password - re-encrypt if wallet was previously encrypted
+        const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
+        if (isKeyCacheValid(cachedKey)) {
+          const vault = lockWithKey(newMnemonics, cachedKey);
+          await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...vault, isEncrypted: true as const });
+        } else {
+          const stashedPassword = await getStashItem<string>(STASH_KEYS.PASSWORD);
+          if (stashedPassword) {
+            const vault = await lock(newMnemonics, stashedPassword);
+            await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...vault, isEncrypted: true as const });
+          } else {
+            await setStorageItem(STORAGE_KEYS.MNEMONICS, newMnemonics);
+            setRequiredLock(false);
+          }
+        }
       }
 
       await setStorageItem(STORAGE_KEYS.COUNTER, newCounter);
@@ -1068,8 +1083,6 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       await setStorageItem(STORAGE_KEYS.ACCOUNT_ID, newAccountId);
       await setStorageItem(STORAGE_KEYS.NETWORK_ID, newNetworkId);
       await setStorageItem(STORAGE_KEYS.PATH_INDEX, 0);
-
-      setRequiredLock(!!password);
     },
     [counter, accounts, networkId]
   );
@@ -1153,9 +1166,9 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
       if (accountId === targetId) {
         const account = accounts.find(({ id }) => id !== targetId);
-        if (account && networkId) {
+        if (account) {
           setAccountId(account.id);
-          setPathIndex(getDefaultPathIndex(account, networkId));
+          setPathIndex(networkId ? getDefaultPathIndex(account, networkId) : 0);
 
           await setStorageItem(STORAGE_KEYS.ACCOUNT_ID, account.id);
           await setStorageItem(STORAGE_KEYS.PATH_INDEX, 0);
@@ -1184,8 +1197,21 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         await setStorageItem(STORAGE_KEYS.MNEMONICS, lockedMnemonics);
         await setStashItem(STASH_KEYS.PASSWORD, password);
       } else {
-        setRequiredLock(false);
-        await setStorageItem(STORAGE_KEYS.MNEMONICS, newMnemonics);
+        // No explicit password - re-encrypt if wallet was previously encrypted
+        const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
+        if (isKeyCacheValid(cachedKey)) {
+          const vault = lockWithKey(newMnemonics, cachedKey);
+          await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...vault, isEncrypted: true as const });
+        } else {
+          const stashedPassword = await getStashItem<string>(STASH_KEYS.PASSWORD);
+          if (stashedPassword) {
+            const vault = await lock(newMnemonics, stashedPassword);
+            await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...vault, isEncrypted: true as const });
+          } else {
+            await setStorageItem(STORAGE_KEYS.MNEMONICS, newMnemonics);
+            setRequiredLock(false);
+          }
+        }
       }
     },
     [accounts, accountId, networkId, removeAllAccounts]

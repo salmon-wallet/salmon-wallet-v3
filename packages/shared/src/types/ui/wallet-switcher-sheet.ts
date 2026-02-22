@@ -13,7 +13,7 @@ export interface WalletSwitcherSheetPropsBase {
   /** The ID of the currently active account */
   activeAccountId: string;
   /** Callback when user selects a different account */
-  onSelectAccount: (accountId: string) => void;
+  onSelectAccount: (accountId: string) => void | Promise<void>;
   /** Callback when user taps the "Add Account" button */
   onAddAccount: () => void;
   /** Callback when user taps the "Edit Account" button */

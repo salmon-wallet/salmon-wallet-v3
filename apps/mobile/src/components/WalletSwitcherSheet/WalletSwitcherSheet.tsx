@@ -216,9 +216,9 @@ export function WalletSwitcherSheet({
    * Closes the sheet after selecting a different account
    */
   const handleSelectAccount = useCallback(
-    (accountId: string) => {
+    async (accountId: string) => {
       if (accountId !== activeAccountId) {
-        onSelectAccount(accountId);
+        await onSelectAccount(accountId);
       }
       onClose();
     },
