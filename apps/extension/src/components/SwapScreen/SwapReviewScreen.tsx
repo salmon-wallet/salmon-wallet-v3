@@ -32,6 +32,7 @@ const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
+  overflow: 'hidden',
   padding: `${spacing['2xl']}px ${spacing.headerPadding}px 0`,
   position: 'relative',
 });
@@ -59,6 +60,7 @@ const Title = styled(Typography)({
 
 const ScrollContainer = styled(Box)({
   flex: 1,
+  minHeight: 0,
   overflowY: 'auto',
   '&::-webkit-scrollbar': {
     display: 'none',
@@ -131,6 +133,7 @@ export function SwapReviewScreen({
   onBack,
   onConfirm,
   isConfirming = false,
+  confirmLabel,
   style,
 }: SwapReviewScreenProps): React.ReactElement {
   const [, { formatValue }] = useCurrencyContext();
@@ -261,7 +264,7 @@ export function SwapReviewScreen({
         onBack={onBack}
         onConfirm={onConfirm}
         isConfirming={isConfirming}
-        confirmLabel="Confirm"
+        confirmLabel={confirmLabel ?? 'Confirm'}
       />
     </Container>
   );

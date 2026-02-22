@@ -30,6 +30,7 @@ import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
 
 const MIN_SWAP_USD = 1;
 const QUOTE_DEBOUNCE_MS = 500;
+const QUOTE_COUNTDOWN_SECONDS = 10;
 
 // ============================================================================
 // Hook options
@@ -105,7 +106,9 @@ export interface UseSwapScreenLogicReturn {
   handleBackFromReview: () => void;
   handleConfirmSwap: () => Promise<void>;
   handleConfirmBridge: () => Promise<void>;
+  handleConfirmOrRefresh: () => Promise<void>;
   handleSuccessContinue: () => void;
+  swapConfirmLabel: string;
 }
 
 // ============================================================================
@@ -155,6 +158,8 @@ export function useSwapScreenLogic<StyleType = unknown>({
   const [isLoadingBridgeTokens, setIsLoadingBridgeTokens] = useState(false);
 
   const quoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [countdown, setCountdown] = useState(QUOTE_COUNTDOWN_SECONDS);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Computed ───────────────────────────────────────────────────────────
 
@@ -309,6 +314,43 @@ export function useSwapScreenLogic<StyleType = unknown>({
     };
   }, [inToken, outToken, inAmount]);
 
+  // ── Countdown helpers ──────────────────────────────────────────────────
+
+  const clearCountdownInterval = useCallback(() => {
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+  }, []);
+
+  const startCountdown = useCallback(() => {
+    clearCountdownInterval();
+    setCountdown(QUOTE_COUNTDOWN_SECONDS);
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownIntervalRef.current!);
+          countdownIntervalRef.current = null;
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [clearCountdownInterval]);
+
+  // Start/stop countdown based on review step and confirming state
+  useEffect(() => {
+    if (step === 'review' && !isConfirming) {
+      startCountdown();
+    } else {
+      clearCountdownInterval();
+      if (step !== 'review') {
+        setCountdown(QUOTE_COUNTDOWN_SECONDS);
+      }
+    }
+    return clearCountdownInterval;
+  }, [step, isConfirming, startCountdown, clearCountdownInterval]);
+
   // ── Handlers ───────────────────────────────────────────────────────────
 
   const handleInTokenSelect = useCallback((token: SwapToken) => {
@@ -431,6 +473,60 @@ export function useSwapScreenLogic<StyleType = unknown>({
       setIsConfirming(false);
     }
   }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onBridgeSuccess, onBridgeError, onBridgeInitiated]);
+
+  const handleRefreshQuote = useCallback(async () => {
+    if (isLoadingQuote || isLoadingEstimate) return;
+    if (!inToken || !outToken || !inAmount || parseFloat(inAmount) <= 0) return;
+
+    const mode = getSwapMode(inToken, outToken);
+    if (mode === 'jupiter') {
+      setIsLoadingQuote(true);
+      try {
+        const fetchedQuote = await onGetQuoteRef.current(inToken, outToken, inAmount);
+        setQuote(fetchedQuote);
+        const outDecimals = fetchedQuote.output?.decimals ?? outToken.decimals;
+        setOutAmount((Number(fetchedQuote.output.amount) / (10 ** outDecimals)).toString());
+        setQuoteError(null);
+      } catch (error) {
+        console.error('Failed to refresh quote:', error);
+        setQuoteError('Failed to refresh quote');
+      } finally {
+        setIsLoadingQuote(false);
+      }
+    } else if (mode === 'stealthex' && onGetBridgeEstimateRef.current) {
+      setIsLoadingEstimate(true);
+      try {
+        const estimate = await onGetBridgeEstimateRef.current!(
+          inToken.symbol, outToken.symbol, parseFloat(inAmount)
+        );
+        if (estimate) {
+          setBridgeEstimate(estimate);
+          setOutAmount(estimate.estimatedAmount.toString());
+        }
+      } catch (error) {
+        console.warn('Failed to refresh estimate:', error);
+      } finally {
+        setIsLoadingEstimate(false);
+      }
+    }
+    startCountdown();
+  }, [isLoadingQuote, isLoadingEstimate, inToken, outToken, inAmount, startCountdown]);
+
+  const swapConfirmLabel = useMemo(() => {
+    if (countdown <= 0) return 'Refresh Quote';
+    const base = swapMode === 'stealthex' ? 'Confirm Swap' : 'Confirm';
+    return `${base} (${countdown})`;
+  }, [countdown, swapMode]);
+
+  const handleConfirmOrRefresh = useCallback(async () => {
+    if (countdown <= 0) {
+      await handleRefreshQuote();
+    } else if (swapMode === 'stealthex') {
+      await handleConfirmBridge();
+    } else {
+      await handleConfirmSwap();
+    }
+  }, [countdown, swapMode, handleRefreshQuote, handleConfirmBridge, handleConfirmSwap]);
 
   const handleSuccessContinue = useCallback(() => {
     setStep('input');
@@ -593,6 +689,8 @@ export function useSwapScreenLogic<StyleType = unknown>({
     handleBackFromReview,
     handleConfirmSwap,
     handleConfirmBridge,
+    handleConfirmOrRefresh,
     handleSuccessContinue,
+    swapConfirmLabel,
   };
 }

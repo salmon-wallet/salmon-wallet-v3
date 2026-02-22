@@ -31,6 +31,7 @@ const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
+  overflow: 'hidden',
   padding: `${spacing['2xl']}px ${spacing.headerPadding}px 0`,
   position: 'relative',
 });
@@ -48,6 +49,7 @@ const Title = styled(Typography)({
 
 const ScrollContainer = styled(Box)({
   flex: 1,
+  minHeight: 0,
   overflowY: 'auto',
   '&::-webkit-scrollbar': {
     display: 'none',
@@ -117,6 +119,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
   onBack,
   onConfirm,
   isConfirming = false,
+  confirmLabel,
   style,
 }) => {
   return (
@@ -190,7 +193,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
         onBack={onBack}
         onConfirm={onConfirm}
         isConfirming={isConfirming}
-        confirmLabel="Confirm Swap"
+        confirmLabel={confirmLabel ?? 'Confirm Swap'}
       />
     </Container>
   );

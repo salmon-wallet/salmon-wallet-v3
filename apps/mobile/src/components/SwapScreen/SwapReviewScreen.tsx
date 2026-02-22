@@ -19,6 +19,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
   onBack,
   onConfirm,
   isConfirming = false,
+  confirmLabel,
   style,
 }) => {
   const [, { formatValue }] = useCurrencyContext();
@@ -149,7 +150,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
         onBack={onBack}
         onConfirm={onConfirm}
         isConfirming={isConfirming}
-        confirmLabel="Confirm"
+        confirmLabel={confirmLabel ?? 'Confirm'}
       />
     </View>
   );

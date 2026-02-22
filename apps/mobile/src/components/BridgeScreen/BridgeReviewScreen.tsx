@@ -21,6 +21,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
   onBack,
   onConfirm,
   isConfirming = false,
+  confirmLabel,
   style,
 }) => {
   return (
@@ -92,7 +93,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
         onBack={onBack}
         onConfirm={onConfirm}
         isConfirming={isConfirming}
-        confirmLabel="Confirm Swap"
+        confirmLabel={confirmLabel ?? 'Confirm Swap'}
       />
     </View>
   );

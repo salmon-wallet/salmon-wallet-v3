@@ -72,8 +72,9 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
           inAmount={logic.inAmount}
           outAmount={logic.outAmount}
           onBack={logic.handleBackFromReview}
-          onConfirm={logic.handleConfirmSwap}
+          onConfirm={logic.handleConfirmOrRefresh}
           isConfirming={logic.isConfirming}
+          confirmLabel={logic.swapConfirmLabel}
         />
       )}
 
@@ -86,8 +87,9 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
           recipientAddress={logic.recipientAddress}
           estimate={logic.bridgeEstimateForReview}
           onBack={logic.handleBackFromReview}
-          onConfirm={logic.handleConfirmBridge}
+          onConfirm={logic.handleConfirmOrRefresh}
           isConfirming={logic.isConfirming}
+          confirmLabel={logic.swapConfirmLabel}
         />
       )}
 

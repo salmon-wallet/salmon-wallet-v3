@@ -483,6 +483,8 @@ export interface SwapReviewScreenProps<StyleType> {
   onConfirm: () => void;
   /** Whether confirm is in progress */
   isConfirming?: boolean;
+  /** Override label for the confirm button (e.g. countdown or refresh) */
+  confirmLabel?: string;
   /** Custom style */
   style?: StyleType;
 }

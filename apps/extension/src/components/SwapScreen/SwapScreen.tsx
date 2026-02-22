@@ -22,6 +22,7 @@ const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
+  overflow: 'hidden',
   position: 'relative',
 });
 
@@ -65,8 +66,9 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
           inAmount={logic.inAmount}
           outAmount={logic.outAmount}
           onBack={logic.handleBackFromReview}
-          onConfirm={logic.handleConfirmSwap}
+          onConfirm={logic.handleConfirmOrRefresh}
           isConfirming={logic.isConfirming}
+          confirmLabel={logic.swapConfirmLabel}
         />
       )}
 
@@ -91,8 +93,9 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
           recipientAddress={logic.recipientAddress}
           estimate={logic.bridgeEstimateForReview}
           onBack={logic.handleBackFromReview}
-          onConfirm={logic.handleConfirmBridge}
+          onConfirm={logic.handleConfirmOrRefresh}
           isConfirming={logic.isConfirming}
+          confirmLabel={logic.swapConfirmLabel}
         />
       )}
 
