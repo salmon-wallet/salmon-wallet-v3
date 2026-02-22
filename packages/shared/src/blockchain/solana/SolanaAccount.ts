@@ -10,7 +10,13 @@ import { SOLANA_NETWORKS } from './factory';
 import {
   requiresMemo as checkRequiresMemo,
   calculateTransferFee as calcTransferFee,
+  createTransfer,
+  estimateFee as estimateSolanaFee,
+  type TransferOptions as SolanaTransferOptions,
+  type EstimateFeeOptions,
 } from './transfer';
+import { removeDecimals } from '../../utils/decimals';
+import type { FeeEstimateResult } from '../../types/send';
 import {
   getDomain as getDomainFromService,
   getDomainFromPublicKey as getDomainFromPublicKeyService,
@@ -461,6 +467,68 @@ export class SolanaAccount {
     return results
       .map(({ value }) => value ?? 0)
       .reduce((sum, fee) => sum + fee, 0);
+  }
+
+  // ==========================================================================
+  // Transfer Methods
+  // ==========================================================================
+
+  /**
+   * Creates and executes a transfer transaction for SOL or SPL tokens.
+   *
+   * @param to - Recipient address (base58)
+   * @param token - Token mint address (SOL_ADDRESS for native SOL)
+   * @param amount - Amount to transfer (human-readable)
+   * @param opts - Transfer options (simulate, memo, decimals)
+   * @returns Object containing the transaction ID
+   */
+  async transfer(
+    to: string,
+    token: string,
+    amount: number,
+    opts?: SolanaTransferOptions,
+  ): Promise<{ txId: string }> {
+    const connection = await this.getConnection();
+    const result = await createTransfer(
+      connection,
+      this.keyPair,
+      new PublicKey(to),
+      token,
+      amount,
+      opts,
+    );
+    return { txId: result.txId as string };
+  }
+
+  /**
+   * Estimates the fee for a transfer transaction.
+   *
+   * @param to - Recipient address (base58)
+   * @param token - Token mint address
+   * @param amount - Amount to transfer (human-readable)
+   * @param opts - Estimation options
+   * @returns Fee estimate result or null if estimation fails
+   */
+  async estimateTransferFee(
+    to: string,
+    token: string,
+    amount: number,
+    opts?: EstimateFeeOptions,
+  ): Promise<FeeEstimateResult | null> {
+    const connection = await this.getConnection();
+    const fee = await estimateSolanaFee(
+      connection,
+      this.keyPair,
+      new PublicKey(to),
+      token,
+      amount,
+      opts,
+    );
+    if (fee === null) return null;
+    const feeInSol = removeDecimals(fee, 9);
+    return {
+      fee: feeInSol.toFixed(9).replace(/0+$/, '').replace(/\.$/, ''),
+    };
   }
 
   // ==========================================================================

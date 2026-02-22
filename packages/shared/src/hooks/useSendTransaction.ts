@@ -2,8 +2,8 @@
  * useSendTransaction Hook
  *
  * Shared hook for multi-chain token transfers.
- * Routes to the appropriate blockchain transfer service (Solana, Ethereum, Bitcoin)
- * based on the account type.
+ * Delegates to the account's transfer() and estimateTransferFee() methods,
+ * which internally route to the appropriate blockchain transfer service.
  *
  * Features:
  * - Multi-chain transfer execution
@@ -24,25 +24,6 @@
  */
 
 import { useState, useCallback } from 'react';
-import { PublicKey } from '@solana/web3.js';
-import { isSolanaAccount, isBitcoinAccount, isEthereumAccount } from '../utils/account';
-import type { BitcoinAccount } from '../blockchain/bitcoin';
-import type { EthereumAccount } from '../blockchain/ethereum';
-import {
-  createTransfer as solanaCreateTransfer,
-  estimateFee as solanaEstimateFee,
-} from '../blockchain/solana/transfer';
-import {
-  sendTransaction as ethSendTransaction,
-  estimateTransferFee as ethEstimateTransferFee,
-  formatAmount as ethFormatAmount,
-} from '../blockchain/ethereum/transfer';
-import {
-  sendBitcoin,
-  estimateBitcoinFee,
-} from '../blockchain/bitcoin/transfer';
-import { removeDecimals, satoshisToBtc } from '../utils/decimals';
-import { isNativeEth, createNativeToken, createERC20Token } from '../utils/tokens';
 
 import type { BlockchainType, BlockchainAccount } from '../types/blockchain';
 import type {
@@ -90,7 +71,7 @@ export interface UseSendTransactionResult {
 
 export function useSendTransaction({
   account,
-  blockchain,
+  blockchain: _blockchain,
 }: UseSendTransactionParams): UseSendTransactionResult {
   const [status, setStatus] = useState<SendTransactionStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -102,74 +83,6 @@ export function useSendTransaction({
 
   // ---- Fee Estimation ----
 
-  const estimateFeeSolana = useCallback(
-    async (params: SendTransactionParams): Promise<FeeEstimateResult | null> => {
-      if (!account || !isSolanaAccount(account)) return null;
-
-      const connection = await account.getConnection();
-      const fee = await solanaEstimateFee(
-        connection,
-        account.keyPair,
-        new PublicKey(params.recipientAddress),
-        params.token.address,
-        params.amount,
-      );
-
-      if (fee === null) return null;
-
-      const feeInSol = removeDecimals(fee, 9);
-      return {
-        fee: feeInSol.toFixed(9).replace(/0+$/, '').replace(/\.$/, ''),
-        feeUsd: undefined, // USD conversion handled by UI layer
-      };
-    },
-    [account],
-  );
-
-  const estimateFeeEthereum = useCallback(
-    async (params: SendTransactionParams): Promise<FeeEstimateResult | null> => {
-      if (!account || !isEthereumAccount(account)) return null;
-
-      const provider = await (account as EthereumAccount).getProvider();
-      const transferToken = isNativeEth(params.token.address)
-        ? createNativeToken()
-        : createERC20Token(params.token.address, params.token.decimals, params.token.symbol);
-
-      const estimate = await ethEstimateTransferFee(
-        provider,
-        params.recipientAddress,
-        transferToken,
-        params.amount,
-      );
-
-      const feeInEth = ethFormatAmount(estimate.estimatedFee, 18);
-      return {
-        fee: feeInEth,
-        feeUsd: undefined,
-      };
-    },
-    [account],
-  );
-
-  const estimateFeeBitcoin = useCallback(
-    async (_params: SendTransactionParams): Promise<FeeEstimateResult | null> => {
-      if (!account || !isBitcoinAccount(account)) return null;
-
-      const btcAccount = account as BitcoinAccount;
-
-      const utxos = await btcAccount.getUtxos();
-      // 2 outputs: recipient + change
-      const fee = estimateBitcoinFee(utxos.length, 2);
-      const feeInBtc = satoshisToBtc(fee);
-
-      return {
-        fee: feeInBtc.toFixed(8).replace(/0+$/, '').replace(/\.$/, ''),
-        feeUsd: undefined,
-      };
-    },
-    [account],
-  );
-
   const estimateFee = useCallback(
     async (params: SendTransactionParams): Promise<FeeEstimateResult | null> => {
       if (!account) return null;
@@ -178,15 +91,11 @@ export function useSendTransaction({
       setError(null);
 
       try {
-        let result: FeeEstimateResult | null = null;
-
-        if (blockchain === 'solana' && isSolanaAccount(account)) {
-          result = await estimateFeeSolana(params);
-        } else if (blockchain === 'ethereum' && isEthereumAccount(account)) {
-          result = await estimateFeeEthereum(params);
-        } else if (blockchain === 'bitcoin' && isBitcoinAccount(account)) {
-          result = await estimateFeeBitcoin(params);
-        }
+        const result = await account.estimateTransferFee(
+          params.recipientAddress,
+          params.token.address,
+          params.amount,
+        );
 
         setStatus('idle');
         return result;
@@ -197,88 +106,10 @@ export function useSendTransaction({
         return null;
       }
     },
-    [account, blockchain, estimateFeeSolana, estimateFeeEthereum, estimateFeeBitcoin],
+    [account],
   );
 
   // ---- Transaction Execution ----
-
-  const sendSolana = useCallback(
-    async (params: SendTransactionParams): Promise<{ txId: string }> => {
-      if (!account || !isSolanaAccount(account)) {
-        throw new Error('Solana account not available');
-      }
-
-      const connection = await account.getConnection();
-      const result = await solanaCreateTransfer(
-        connection,
-        account.keyPair,
-        new PublicKey(params.recipientAddress),
-        params.token.address,
-        params.amount,
-      );
-
-      return { txId: result.txId as string };
-    },
-    [account],
-  );
-
-  const sendEthereum = useCallback(
-    async (params: SendTransactionParams): Promise<{ txId: string }> => {
-      if (!account || !isEthereumAccount(account)) {
-        throw new Error('Ethereum account not available');
-      }
-
-      const ethAccount = account as EthereumAccount;
-      const wallet = await ethAccount.getConnection();
-      const transferToken = isNativeEth(params.token.address)
-        ? createNativeToken()
-        : createERC20Token(params.token.address, params.token.decimals, params.token.symbol);
-
-      const result = await ethSendTransaction(
-        wallet,
-        params.recipientAddress,
-        transferToken,
-        params.amount,
-      );
-
-      return { txId: result.txHash };
-    },
-    [account],
-  );
-
-  const sendBtc = useCallback(
-    async (params: SendTransactionParams): Promise<{ txId: string }> => {
-      if (!account || !isBitcoinAccount(account)) {
-        throw new Error('Bitcoin account not available');
-      }
-
-      const btcAccount = account as BitcoinAccount;
-      const node = btcAccount.getBip32Node();
-      if (!node) {
-        throw new Error('Bitcoin BIP32 node not available');
-      }
-      const signingKeyPair = {
-        ...btcAccount.keyPair,
-        node,
-      };
-
-      const result = await sendBitcoin(
-        btcAccount.network,
-        signingKeyPair,
-        params.recipientAddress,
-        params.amount,
-        () => btcAccount.getUtxos(),
-        (_networkId, _address, serializedTx) => btcAccount.broadcast(serializedTx),
-      );
-
-      if (!result.success) {
-        throw new Error(result.error || 'Bitcoin transaction failed');
-      }
-
-      return { txId: result.txId || '' };
-    },
-    [account],
-  );
 
   const sendTransaction = useCallback(
     async (params: SendTransactionParams): Promise<{ txId: string }> => {
@@ -292,17 +123,13 @@ export function useSendTransaction({
       try {
         setStatus('sending');
 
-        let result: { txId: string };
-
-        if (blockchain === 'solana' && isSolanaAccount(account)) {
-          result = await sendSolana(params);
-        } else if (blockchain === 'ethereum' && isEthereumAccount(account)) {
-          result = await sendEthereum(params);
-        } else if (blockchain === 'bitcoin' && isBitcoinAccount(account)) {
-          result = await sendBtc(params);
-        } else {
-          throw new Error(`Unsupported blockchain: ${blockchain}`);
-        }
+        const result = await account.transfer(
+          params.recipientAddress,
+          params.token.address,
+          params.amount,
+          // Pass token metadata for Ethereum ERC20/NFT transfers
+          { decimals: params.token.decimals, symbol: params.token.symbol },
+        );
 
         setStatus('success');
         return result;
@@ -314,7 +141,7 @@ export function useSendTransaction({
         throw err;
       }
     },
-    [account, blockchain, sendSolana, sendEthereum, sendBtc],
+    [account],
   );
 
   return {
