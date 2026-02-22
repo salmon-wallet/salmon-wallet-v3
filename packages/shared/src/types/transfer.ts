@@ -221,6 +221,8 @@ export interface BitcoinAccountApiFunctions {
   fetchPrices: FetchBitcoinPricesFn;
   fetchTransaction: FetchBitcoinTransactionFn;
   fetchRecentTransactions: FetchBitcoinRecentTransactionsFn;
+  fetchUtxos: FetchUtxosFn;
+  broadcastTransaction: BroadcastTransactionFn;
 }
 
 // ============================================================================
@@ -472,4 +474,5 @@ export interface SolanaAccountApiFunctions {
   fetchPrices: FetchSolanaPricesFn;
   fetchTransaction: FetchSolanaTransactionFn;
   fetchTransactions: FetchSolanaTransactionsFn;
+  fetchNfts: import('./nft').FetchNftsFromBackendFn;
 }

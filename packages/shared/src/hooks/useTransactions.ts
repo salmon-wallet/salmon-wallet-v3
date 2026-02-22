@@ -30,15 +30,9 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  getSolanaTransactions,
-} from '../api/services/solana';
-import {
-  getTransactions as getMultichainTransactions,
-} from '../api/services/transactions';
-import type { NetworkId } from '../types/blockchain';
-import type { Transaction } from '../types/transaction';
-import { getBlockchainFromNetworkId } from '../utils/account';
+import type { BlockchainAccount, NetworkId } from '../types/blockchain';
+import type { Transaction, TransactionItem } from '../types/transaction';
+import { isSolanaAccount, getBlockchainFromNetworkId } from '../utils/account';
 import { transformSolanaTransaction, transformMultichainTransaction } from '../utils/transactions';
 
 /**
@@ -53,6 +47,8 @@ export interface UseTransactionsOptions {
   pageSize?: number;
   /** Whether to skip initial fetch */
   skip?: boolean;
+  /** Blockchain account instance (used for DI-based transaction fetching) */
+  account?: BlockchainAccount;
 }
 
 /**
@@ -104,6 +100,7 @@ export function useTransactions({
   networkId = 'solana-mainnet',
   pageSize = DEFAULT_PAGE_SIZE,
   skip = false,
+  account,
 }: UseTransactionsOptions): UseTransactionsResult {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
@@ -159,28 +156,29 @@ export function useTransactions({
         let nextPageToken: string | undefined;
         let hasMorePages: boolean;
 
-        if (blockchain === 'solana') {
-          // Use Solana-specific service
-          const response = await getSolanaTransactions(
-            networkId as 'solana-mainnet' | 'solana-devnet',
-            address,
-            {
-              pageToken: isLoadMore ? oldestSignatureRef.current : undefined,
-              pageSize,
-            }
-          );
-          newTransactions = response.transactions.map(transformSolanaTransaction);
-          nextPageToken = response.oldestSignature ?? undefined;
-          hasMorePages = response.hasMore;
-        } else {
-          // Use multi-chain service for Bitcoin and Ethereum
-          const response = await getMultichainTransactions(networkId, address, {
-            pageToken: isLoadMore ? oldestSignatureRef.current : undefined,
+        if (!account) {
+          return;
+        }
+
+        if (isSolanaAccount(account)) {
+          // Use SolanaAccount DI method
+          const response = await account.getRecentTransactions({
+            nextPageToken: isLoadMore ? oldestSignatureRef.current : undefined,
             pageSize,
           });
-          newTransactions = response.data.map(tx => transformMultichainTransaction(tx, blockchain));
+          newTransactions = response.data.map(transformSolanaTransaction);
           nextPageToken = response.pageToken;
           hasMorePages = !!response.pageToken;
+        } else {
+          // Use BitcoinAccount/EthereumAccount DI method
+          const response = await account.getRecentTransactions({
+            nextPageToken: isLoadMore ? oldestSignatureRef.current : undefined,
+            pageSize,
+          });
+          // AccountTransaction and TransactionItem share the same backend shape
+          newTransactions = response.items.map(tx => transformMultichainTransaction(tx as unknown as TransactionItem, blockchain));
+          nextPageToken = response.nextPageToken;
+          hasMorePages = !!response.nextPageToken;
         }
 
         if (isLoadMore) {
@@ -206,7 +204,7 @@ export function useTransactions({
         setRefreshing(false);
       }
     },
-    [address, networkId, pageSize, skip]
+    [address, networkId, pageSize, skip, account]
   );
 
   // Initial fetch

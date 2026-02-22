@@ -266,6 +266,7 @@ export default function HomeScreen() {
     address,
     networkId: getTransactionNetworkId(networkId) as NetworkId,
     skip: !ready || !activeBlockchainAccount || !transactionHistoryVisible,
+    account: activeBlockchainAccount,
   });
 
   // Preload balance data for previous network (activeIndex - 1)

@@ -348,7 +348,7 @@ describe('Solana blockchain module', () => {
       network: SOLANA_NETWORKS['solana-mainnet'],
       mnemonic: 'test mnemonic',
       index: 0,
-      apiFunctions: { fetchBalance: vi.fn(), fetchPrices: vi.fn(), fetchTransaction: vi.fn(), fetchTransactions: vi.fn() },
+      apiFunctions: { fetchBalance: vi.fn(), fetchPrices: vi.fn(), fetchTransaction: vi.fn(), fetchTransactions: vi.fn(), fetchNfts: vi.fn() },
     });
 
     expect(account.getReceiveAddress()).toBe('MockSolanaAddress123456789');
@@ -569,7 +569,7 @@ describe('Integration scenarios', () => {
       network: SOLANA_NETWORKS['solana-mainnet'],
       mnemonic: 'test mnemonic phrase',
       index: 0,
-      apiFunctions: { fetchBalance: vi.fn(), fetchPrices: vi.fn(), fetchTransaction: vi.fn(), fetchTransactions: vi.fn() },
+      apiFunctions: { fetchBalance: vi.fn(), fetchPrices: vi.fn(), fetchTransaction: vi.fn(), fetchTransactions: vi.fn(), fetchNfts: vi.fn() },
     });
 
     expect(account.getReceiveAddress()).toBeDefined();

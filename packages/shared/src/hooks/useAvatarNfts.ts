@@ -9,9 +9,7 @@ import { useState, useEffect } from 'react';
 import type { Account } from '../types/account';
 import type { NftAvatarItem } from '../types/ui/avatar-picker';
 import type { Nft } from '../types/nft';
-import { getAllNfts } from '../blockchain/solana';
-import { SOLANA_NETWORKS } from '../blockchain/solana';
-import { getSolanaNfts } from '../api/services';
+import { isSolanaAccount } from '../utils/account';
 import { filterSpamNfts } from '../utils/nft-spam-filter';
 
 // ============================================================================
@@ -49,19 +47,13 @@ export function useAvatarNfts({ account, enabled }: UseAvatarNftsParams): UseAva
       try {
         const solanaMainnet = account.networksAccounts?.['solana-mainnet'];
         const solanaAccount = solanaMainnet?.[0];
-        if (!solanaAccount) {
+        if (!solanaAccount || !isSolanaAccount(solanaAccount)) {
           setLoading(false);
           setFetched(true);
           return;
         }
 
-        const address = solanaAccount.getReceiveAddress();
-        const raw: Nft[] = await getAllNfts(
-          SOLANA_NETWORKS['solana-mainnet'],
-          address,
-          false,
-          getSolanaNfts,
-        );
+        const raw: Nft[] = await solanaAccount.getAllNfts();
 
         const converted = raw.map((nft) => ({
           mint: nft.mint.address,

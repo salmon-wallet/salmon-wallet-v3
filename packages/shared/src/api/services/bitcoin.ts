@@ -305,4 +305,6 @@ export const bitcoinApiFunctions: BitcoinAccountApiFunctions = {
   fetchPrices: fetchBitcoinAccountPrices,
   fetchTransaction: fetchBitcoinAccountTransaction,
   fetchRecentTransactions: fetchBitcoinAccountRecentTransactions,
+  fetchUtxos,
+  broadcastTransaction,
 };

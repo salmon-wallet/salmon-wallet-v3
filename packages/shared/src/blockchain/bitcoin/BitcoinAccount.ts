@@ -6,6 +6,7 @@ import { SATOSHIS_PER_BTC, satoshisToBtc, btcToSatoshis } from '../../utils/deci
 import { getShortAddress } from '../../utils/address';
 import type {
   BitcoinBalanceItem,
+  UTXO,
   TransactionPaging,
   AccountTransaction,
   AccountTransactionListResponse,
@@ -13,6 +14,8 @@ import type {
   FetchBitcoinPricesFn,
   FetchBitcoinTransactionFn,
   FetchBitcoinRecentTransactionsFn,
+  FetchUtxosFn,
+  BroadcastTransactionFn,
 } from '../../types/transfer';
 import type {
   BitcoinAccountBalance,
@@ -54,6 +57,10 @@ export interface BitcoinAccountOptions {
   fetchTransaction: FetchBitcoinTransactionFn;
   /** Function to fetch recent transactions */
   fetchRecentTransactions: FetchBitcoinRecentTransactionsFn;
+  /** Function to fetch UTXOs for transaction building */
+  fetchUtxos: FetchUtxosFn;
+  /** Function to broadcast signed transactions */
+  broadcastTransaction: BroadcastTransactionFn;
 }
 
 // Re-export for backwards compatibility
@@ -110,6 +117,8 @@ export class BitcoinAccount {
   private readonly fetchPricesFn: FetchBitcoinPricesFn;
   private readonly fetchTransactionFn: FetchBitcoinTransactionFn;
   private readonly fetchRecentTransactionsFn: FetchBitcoinRecentTransactionsFn;
+  private readonly fetchUtxosFn: FetchUtxosFn;
+  private readonly broadcastTransactionFn: BroadcastTransactionFn;
 
   /**
    * Creates a new BitcoinAccount instance
@@ -127,6 +136,8 @@ export class BitcoinAccount {
     this.fetchPricesFn = options.fetchPrices;
     this.fetchTransactionFn = options.fetchTransaction;
     this.fetchRecentTransactionsFn = options.fetchRecentTransactions;
+    this.fetchUtxosFn = options.fetchUtxos;
+    this.broadcastTransactionFn = options.broadcastTransaction;
   }
 
   /**
@@ -426,6 +437,29 @@ export class BitcoinAccount {
     paging?: TransactionPaging
   ): Promise<AccountTransactionListResponse> {
     return this.fetchRecentTransactionsFn(this.network.id, this.address, paging);
+  }
+
+  // ============================================================================
+  // UTXO and Broadcast Methods (DI-backed)
+  // ============================================================================
+
+  /**
+   * Fetches UTXOs for this account's address.
+   *
+   * @returns Promise resolving to array of UTXOs
+   */
+  async getUtxos(): Promise<UTXO[]> {
+    return this.fetchUtxosFn(this.network.id, this.address);
+  }
+
+  /**
+   * Broadcasts a signed transaction.
+   *
+   * @param serializedTx - Signed transaction hex
+   * @returns Promise resolving to broadcast result
+   */
+  async broadcast(serializedTx: string): Promise<{ txId?: string; success: boolean }> {
+    return this.broadcastTransactionFn(this.network.id, this.address, serializedTx);
   }
 
   // ============================================================================

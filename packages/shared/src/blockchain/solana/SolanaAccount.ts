@@ -31,6 +31,8 @@ import type {
   FetchSolanaTransactionFn,
   FetchSolanaTransactionsFn,
 } from '../../types/transfer';
+import type { FetchNftsFromBackendFn, Nft } from '../../types/nft';
+import { getAll as getAllNftsFromService } from './nft';
 import {
   getRecentTransactions as getRecentTransactionsService,
   type SolanaTransaction,
@@ -58,6 +60,8 @@ export interface SolanaAccountOptions {
   fetchTransaction: FetchSolanaTransactionFn;
   /** Function to fetch transactions list (DI) */
   fetchTransactions: FetchSolanaTransactionsFn;
+  /** Function to fetch NFTs from backend (DI) */
+  fetchNfts: FetchNftsFromBackendFn;
 }
 
 /**
@@ -108,6 +112,8 @@ export class SolanaAccount {
   private fetchTransactionFn: FetchSolanaTransactionFn;
   /** Injected function to fetch transactions list */
   private fetchTransactionsFn: FetchSolanaTransactionsFn;
+  /** Injected function to fetch NFTs from backend */
+  private fetchNftsFn: FetchNftsFromBackendFn;
 
   /**
    * Creates a new SolanaAccount instance
@@ -124,6 +130,7 @@ export class SolanaAccount {
     this.fetchPricesFn = options.fetchPrices;
     this.fetchTransactionFn = options.fetchTransaction;
     this.fetchTransactionsFn = options.fetchTransactions;
+    this.fetchNftsFn = options.fetchNfts;
   }
 
   /**
@@ -498,10 +505,16 @@ export class SolanaAccount {
 
   /**
    * Gets all NFTs for this account.
-   * @deprecated Use getAllNfts from nft.ts directly
-   * @throws Error indicating method is not supported
+   * Uses Helius DAS API with backend fallback via injected fetchNfts.
+   *
+   * @returns Array of NFTs
    */
-  async getAllNfts(): Promise<never> {
-    throw new Error('method_not_supported: Use getAllNfts from nft.ts directly');
+  async getAllNfts(): Promise<Nft[]> {
+    return getAllNftsFromService(
+      this.network,
+      this.publicKey.toBase58(),
+      false,
+      this.fetchNftsFn,
+    );
   }
 }

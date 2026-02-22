@@ -326,6 +326,7 @@ export async function getTransactionsByType(
 
 import { getJupiterPrices } from './balance';
 import { getTokenMetadataByMints } from './tokens';
+import { getSolanaNfts } from './solana-nft';
 import type { SolanaAccountApiFunctions, SolanaBalanceItem } from '../../types/transfer';
 
 export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'] = async (
@@ -377,4 +378,5 @@ export const solanaApiFunctions: SolanaAccountApiFunctions = {
   },
   fetchTransaction: getSolanaTransaction,
   fetchTransactions: getSolanaTransactions,
+  fetchNfts: getSolanaNfts,
 };

@@ -805,6 +805,119 @@ describe('useAccounts Hook', () => {
       expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_network_id', 'solana-devnet');
     });
 
+    it('should switch accounts after adding two accounts via addAccount (real user flow)', async () => {
+      // This test simulates the ACTUAL user flow:
+      // 1. Start with empty wallet
+      // 2. Add first account
+      // 3. Add second account
+      // 4. Try to switch back to first account
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      // Verify initial state: no accounts, networkId is null
+      expect(result.current[0].accounts).toHaveLength(0);
+      expect(result.current[0].networkId).toBeNull();
+
+      const account1 = createMockAccount();
+      const account2 = { ...createMockAccount(), id: 'account_second_xyz', name: 'Account 2' };
+
+      // Add first account
+      await act(async () => {
+        await result.current[1].addAccount(account1);
+      });
+
+      expect(result.current[0].accountId).toBe(account1.id);
+      expect(result.current[0].networkId).toBe('solana-mainnet');
+      expect(result.current[0].accounts).toHaveLength(1);
+
+      // Add second account (uses latest actions with updated closure)
+      await act(async () => {
+        await result.current[1].addAccount(account2);
+      });
+
+      expect(result.current[0].accountId).toBe(account2.id);
+      expect(result.current[0].accounts).toHaveLength(2);
+
+      // CRITICAL: Try to switch back to account 1
+      await act(async () => {
+        await result.current[1].changeAccount(account1.id);
+      });
+
+      // Did the switch actually happen?
+      expect(result.current[0].accountId).toBe(account1.id);
+      expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_active_account_id', account1.id);
+    });
+
+    it('should fail silently when networkId is null (v3 guard bug demonstration)', async () => {
+      // This test demonstrates that the !networkId guard in changeAccount
+      // blocks switching even when the target account exists.
+      // In v2, the guard was only: if (account) { ... }
+      // In v3, it became: if (!account || !networkId) return;
+      //
+      // We simulate: locked state where loadMetadata sets networkId from storage,
+      // but NETWORK_ID was never stored (networkId = null).
+      // Then unlock, which calls load() and defaults networkId.
+      // But BEFORE unlock, we test changeAccount with null networkId.
+
+      const mockAccount1 = createMockAccount();
+      const mockAccount2 = { ...createMockAccount(), id: 'account_789', name: 'Account 2' };
+
+      const encryptedData = {
+        isEncrypted: true,
+        nonce: 'test-nonce',
+        salt: 'test-salt',
+        ciphertext: 'encrypted-data',
+      };
+
+      const mockKeyCache = {
+        salt: 'test-salt',
+        derivedKey: new Uint8Array(32),
+        createdAt: Date.now(),
+      };
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
+        if (key === 'salmon_accounts') return Promise.resolve([
+          { id: mockAccount1.id, name: mockAccount1.name, avatar: mockAccount1.avatar, pathIndexes: mockAccount1.pathIndexes },
+          { id: mockAccount2.id, name: mockAccount2.name, avatar: mockAccount2.avatar, pathIndexes: mockAccount2.pathIndexes },
+        ]);
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount1.id);
+        // INTENTIONALLY not providing salmon_active_network_id
+        // loadMetadata will set networkId = null
+        if (key === 'salmon_account_counter') return Promise.resolve(2);
+        return Promise.resolve(null);
+      });
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      // Verify: locked state, accounts loaded via metadata, networkId is null
+      expect(result.current[0].locked).toBe(true);
+      expect(result.current[0].accounts).toHaveLength(2);
+      expect(result.current[0].accountId).toBe(mockAccount1.id);
+      expect(result.current[0].networkId).toBeNull(); // <-- THIS is the key condition
+
+      // Try to switch accounts with networkId = null
+      await act(async () => {
+        await result.current[1].changeAccount(mockAccount2.id);
+      });
+
+      // BUG PROOF: The switch SILENTLY FAILS because of !networkId guard
+      // In v2, this guard didn't exist and the switch would succeed
+      expect(result.current[0].accountId).toBe(mockAccount1.id); // Still on account 1!
+      // Storage was NOT updated - the switch never happened
+      expect(storage.setStorageItem).not.toHaveBeenCalledWith(
+        'salmon_active_account_id',
+        mockAccount2.id
+      );
+    });
+
     it('should change path index', async () => {
       const mockAccount = createMockAccount();
       mockAccount.networksAccounts['solana-mainnet'] = [mockSolanaAccount as any, mockSolanaAccount as any];

@@ -40,14 +40,9 @@ import {
 import {
   sendBitcoin,
   estimateBitcoinFee,
-  getUtxos,
 } from '../blockchain/bitcoin/transfer';
 import { removeDecimals, satoshisToBtc } from '../utils/decimals';
 import { isNativeEth, createNativeToken, createERC20Token } from '../utils/tokens';
-import {
-  fetchUtxos,
-  broadcastTransaction,
-} from '../api/services/bitcoin';
 
 import type { BlockchainType, BlockchainAccount } from '../types/blockchain';
 import type {
@@ -161,10 +156,8 @@ export function useSendTransaction({
       if (!account || !isBitcoinAccount(account)) return null;
 
       const btcAccount = account as BitcoinAccount;
-      const address = btcAccount.getReceiveAddress();
-      const network = btcAccount.network;
 
-      const utxos = await getUtxos(network, address, fetchUtxos);
+      const utxos = await btcAccount.getUtxos();
       // 2 outputs: recipient + change
       const fee = estimateBitcoinFee(utxos.length, 2);
       const feeInBtc = satoshisToBtc(fee);
@@ -274,8 +267,8 @@ export function useSendTransaction({
         signingKeyPair,
         params.recipientAddress,
         params.amount,
-        fetchUtxos,
-        broadcastTransaction,
+        () => btcAccount.getUtxos(),
+        (_networkId, _address, serializedTx) => btcAccount.broadcast(serializedTx),
       );
 
       if (!result.success) {
