@@ -2,7 +2,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import type { BIP32Interface } from 'bip32';
 import type { TokenPrice } from '../../types/price';
 import type { FeeEstimateResult } from '../../types/send';
-import type { ValidationResult } from '../../types/validation';
+import type { ValidationResult, AddressType } from '../../types/validation';
 import { decorateBalancePrices } from '../../utils/balance';
 import { satoshisToBtc, btcToSatoshis } from '../../utils/decimals';
 import { getShortAddress } from '../../utils/address';
@@ -388,7 +388,10 @@ export class BitcoinAccount {
       return { type: 'ERROR', code: 'invalid' };
     }
 
-    return { type: 'SUCCESS', code: 'valid', addressType: 'PUBLIC_KEY' };
+    const addrType = BitcoinAccount.getAddressType(address, this.network.config.network);
+    const addressType = addrType ? addrType.toUpperCase() as AddressType : 'PUBLIC_KEY';
+
+    return { type: 'SUCCESS', code: 'valid', addressType };
   }
 
   /**

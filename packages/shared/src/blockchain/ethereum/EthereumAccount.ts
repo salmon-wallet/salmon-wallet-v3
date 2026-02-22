@@ -364,7 +364,7 @@ export class EthereumAccount {
     return {
       type: 'SUCCESS',
       code: 'valid',
-      addressType: isContract ? 'ADDRESS' : 'PUBLIC_KEY',
+      addressType: isContract ? 'CONTRACT' : 'EOA',
     };
   }
 

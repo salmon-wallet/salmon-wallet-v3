@@ -1223,7 +1223,7 @@ describe('EthereumAccount Integration Tests', () => {
       );
 
       expect(result.type).toBe('SUCCESS');
-      expect(result.code).toBe('VALID_ACCOUNT');
+      expect(result.code).toBe('valid');
       expect(result.addressType).toBe('EOA');
     });
 
@@ -1246,7 +1246,7 @@ describe('EthereumAccount Integration Tests', () => {
       );
 
       expect(result.type).toBe('SUCCESS');
-      expect(result.code).toBe('VALID_ACCOUNT');
+      expect(result.code).toBe('valid');
       expect(result.addressType).toBe('CONTRACT');
     });
 
@@ -1261,7 +1261,7 @@ describe('EthereumAccount Integration Tests', () => {
       const result = await account.validateDestinationAccount('invalid_address');
 
       expect(result.type).toBe('ERROR');
-      expect(result.code).toBe('INVALID_ADDRESS');
+      expect(result.code).toBe('invalid');
       expect(result.addressType).toBeUndefined();
     });
 
@@ -1276,7 +1276,7 @@ describe('EthereumAccount Integration Tests', () => {
       const result = await account.validateDestinationAccount('');
 
       expect(result.type).toBe('ERROR');
-      expect(result.code).toBe('INVALID_ADDRESS');
+      expect(result.code).toBe('invalid');
     });
 
     it('should reject invalid address formats', async () => {
@@ -1291,7 +1291,7 @@ describe('EthereumAccount Integration Tests', () => {
       const result = await account.validateDestinationAccount('invalid_address_123');
 
       expect(result.type).toBe('ERROR');
-      expect(result.code).toBe('INVALID_ADDRESS');
+      expect(result.code).toBe('invalid');
     });
 
     it('should handle mainnet RPC timeout gracefully', async () => {

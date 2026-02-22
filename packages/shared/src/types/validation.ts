@@ -49,11 +49,35 @@ export type ValidationResultCode =
 /**
  * Address type indicator.
  *
- * - 'PUBLIC_KEY' - Solana public key or Bitcoin address
- * - 'ADDRESS' - Ethereum hex address
+ * Shared:
+ * - 'PUBLIC_KEY' - Solana public key
+ * - 'ADDRESS' - Generic address
  * - 'DOMAIN' - Domain name (SNS, ENS, etc.)
+ *
+ * Bitcoin-specific:
+ * - 'P2PKH' - Pay-to-Public-Key-Hash (legacy, starts with 1)
+ * - 'P2SH' - Pay-to-Script-Hash (starts with 3)
+ * - 'P2WPKH' - Pay-to-Witness-Public-Key-Hash (SegWit native, bc1q)
+ * - 'P2WSH' - Pay-to-Witness-Script-Hash (bc1q, 32-byte witness)
+ * - 'P2TR' - Pay-to-Taproot (bc1p)
+ *
+ * Ethereum-specific:
+ * - 'EOA' - Externally Owned Account
+ * - 'CONTRACT' - Smart contract address
  */
-export type AddressType = 'PUBLIC_KEY' | 'ADDRESS' | 'DOMAIN';
+export type AddressType =
+  | 'PUBLIC_KEY'
+  | 'ADDRESS'
+  | 'DOMAIN'
+  // Bitcoin
+  | 'P2PKH'
+  | 'P2SH'
+  | 'P2WPKH'
+  | 'P2WSH'
+  | 'P2TR'
+  // Ethereum
+  | 'EOA'
+  | 'CONTRACT';
 
 /**
  * Validation result returned by chain-specific validate functions.

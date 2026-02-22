@@ -1170,7 +1170,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const result = await account.validateDestinationAccount(SAMPLE_ADDRESSES.p2pkh_mainnet);
 
       expect(result.type).toBe('SUCCESS');
-      expect(result.code).toBe('VALID_ACCOUNT');
+      expect(result.code).toBe('valid');
       expect(result.addressType).toBe('P2PKH');
     });
 
@@ -1185,7 +1185,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const result = await account.validateDestinationAccount(SAMPLE_ADDRESSES.p2wpkh_mainnet);
 
       expect(result.type).toBe('SUCCESS');
-      expect(result.code).toBe('VALID_ACCOUNT');
+      expect(result.code).toBe('valid');
       expect(result.addressType).toBe('P2WPKH');
     });
 
@@ -1200,7 +1200,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const result = await account.validateDestinationAccount('invalid-address');
 
       expect(result.type).toBe('ERROR');
-      expect(result.code).toBe('INVALID_ADDRESS');
+      expect(result.code).toBe('invalid');
       expect(result.addressType).toBeUndefined();
     });
 
@@ -1215,7 +1215,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const result = await account.validateDestinationAccount('');
 
       expect(result.type).toBe('ERROR');
-      expect(result.code).toBe('INVALID_ADDRESS');
+      expect(result.code).toBe('invalid');
     });
 
     it('should reject testnet address on mainnet account', async () => {
@@ -1229,7 +1229,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const result = await account.validateDestinationAccount(SAMPLE_ADDRESSES.p2pkh_testnet);
 
       expect(result.type).toBe('ERROR');
-      expect(result.code).toBe('INVALID_ADDRESS');
+      expect(result.code).toBe('invalid');
     });
 
     it('should validate P2SH address', async () => {
@@ -1244,7 +1244,7 @@ describe('Bitcoin Transfer Integration Tests', () => {
       const result = await account.validateDestinationAccount(validP2SH);
 
       expect(result.type).toBe('SUCCESS');
-      expect(result.code).toBe('VALID_ACCOUNT');
+      expect(result.code).toBe('valid');
       expect(result.addressType).toBe('P2SH');
     });
   });
