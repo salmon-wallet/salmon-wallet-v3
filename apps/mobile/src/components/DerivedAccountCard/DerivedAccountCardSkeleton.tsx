@@ -7,7 +7,6 @@ import {
   componentSizes,
   contentPadding,
   spacing,
-  s,
 } from '@salmon/shared';
 import type { DerivedAccountCardSkeletonProps } from './types';
 
@@ -21,21 +20,23 @@ const DerivedAccountCardSkeletonComponent: React.FC<DerivedAccountCardSkeletonPr
   testID,
   animated = true,
 }) => {
-  const checkboxSize = s(componentSizes.checkboxSize);
-  const checkboxMarginRight = s(spacing.lg);
+  const checkboxSize = componentSizes.checkboxSize;
+  const checkboxMarginRight = spacing.lg;
 
   // Content area width (screen minus screen padding, card padding, and border)
   const screenWidth = Dimensions.get('window').width;
   const contentStartX = checkboxSize + checkboxMarginRight;
-  const cardInnerWidth = screenWidth - 2 * contentPadding.screen - 2 * spacing.lg;
+  const cardInnerWidth = screenWidth - 2 * contentPadding.screen - 2 * spacing.lg - 2;
   const contentWidth = cardInnerWidth - contentStartX;
 
-  // Vertical layout — gap matches loaded marginTop: 2
+  // Vertical layout — matches loaded card:
+  // address (16px) + marginTop (2px) + networkRow (16px, driven by blockchain icon)
   const addressHeight = 16;
-  const pathHeight = 12;
+  const iconSize = 16;
+  const iconGap = 4;
   const gap = 2;
-  const totalHeight = addressHeight + gap + pathHeight;
-  const topOffset = 0;
+  const pathTextHeight = 12;
+  const totalHeight = addressHeight + gap + iconSize;
 
   return (
     <View style={[styles.card, style]} testID={testID}>
@@ -61,21 +62,31 @@ const DerivedAccountCardSkeletonComponent: React.FC<DerivedAccountCardSkeletonPr
         {/* Address */}
         <Rect
           x={String(contentStartX)}
-          y={String(topOffset)}
+          y="0"
           rx="4"
           ry="4"
           width={String(contentWidth * 0.55)}
           height={String(addressHeight)}
         />
 
-        {/* Network · Path */}
+        {/* Blockchain icon (circle) */}
         <Rect
           x={String(contentStartX)}
-          y={String(topOffset + addressHeight + gap)}
+          y={String(addressHeight + gap)}
+          rx="8"
+          ry="8"
+          width={String(iconSize)}
+          height={String(iconSize)}
+        />
+
+        {/* Network · Path text */}
+        <Rect
+          x={String(contentStartX + iconSize + iconGap)}
+          y={String(addressHeight + gap + (iconSize - pathTextHeight) / 2)}
           rx="4"
           ry="4"
-          width={String(contentWidth * 0.4)}
-          height={String(pathHeight)}
+          width={String(contentWidth * 0.35)}
+          height={String(pathTextHeight)}
         />
 
         {/* Balance (right aligned) */}

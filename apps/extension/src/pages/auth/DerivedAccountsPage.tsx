@@ -18,6 +18,7 @@ import {
   useAccountsContext,
   fetchAndMergeNetworkConfigs,
   SCAN_NETWORKS,
+  NETWORK_DISPLAY,
   scanDerivedAccounts,
   getMirrorNetworkId,
   type DerivedAccountInfo,
@@ -92,6 +93,7 @@ const LoadingContainer = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  width: '100%',
   paddingTop: spacing['3xl'],
 });
 
@@ -304,6 +306,7 @@ export function DerivedAccountsPage({ onComplete, onBack }: DerivedAccountsPageP
               balanceFormatted={acc.balanceFormatted}
               selected={acc.selected}
               dimmed={acc.balance === 0}
+              blockchain={NETWORK_DISPLAY[acc.networkId]?.blockchain as 'solana' | 'bitcoin' | 'ethereum'}
               onToggle={() => handleToggleAccount(key)}
             />
           );

@@ -9,7 +9,24 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
 import { colors, spacing, borderRadius, componentSizes, fontFamily } from '@salmon/shared';
+import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import type { DerivedAccountCardProps } from './types';
+
+const ICON_SIZE = 16;
+
+const BlockchainIcon: React.FC<{ blockchain?: string }> = ({ blockchain }) => {
+  const iconStyle = { fontSize: ICON_SIZE, width: ICON_SIZE, height: ICON_SIZE, color: colors.text.placeholder };
+  switch (blockchain) {
+    case 'solana':
+      return <SolanaSvgIcon style={iconStyle} />;
+    case 'bitcoin':
+      return <BitcoinSvgIcon style={iconStyle} />;
+    case 'ethereum':
+      return <EthereumSvgIcon style={iconStyle} />;
+    default:
+      return null;
+  }
+};
 
 const Card = styled(Box)<{ $selected: boolean }>(({ $selected }) => ({
   display: 'flex',
@@ -86,6 +103,7 @@ const DerivedAccountCardComponent: React.FC<DerivedAccountCardProps> = ({
   selected,
   dimmed,
   onToggle,
+  blockchain,
   style,
   className,
 }) => {
@@ -98,6 +116,7 @@ const DerivedAccountCardComponent: React.FC<DerivedAccountCardProps> = ({
       <Info>
         <Address>{address}</Address>
         <NetworkRow>
+          <BlockchainIcon blockchain={blockchain} />
           <PathText>{networkName} &middot; {path}</PathText>
         </NetworkRow>
       </Info>
