@@ -115,7 +115,7 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
       },
       {
         id: 'security',
-        labelKey: 'settings.security',
+        labelKey: 'settings.security.title',
         type: 'navigation',
       },
       {

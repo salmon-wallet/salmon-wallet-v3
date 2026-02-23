@@ -76,7 +76,6 @@
     "change_network": "Cambiar Network",
     "select_explorer": "Seleccionar Explorador",
     "explorer": "Explorador de Bloques",
-    "security": "Seguridad",
     "notifications": "Notificaciones",
     "trusted_apps": "Apps Autorizadas",
     "no_trusted_apps": "No hay apps conectadas",
@@ -93,6 +92,10 @@
     "authenticate_to_reveal": "Autenticar para revelar",
     "no_accounts_for_network": "No se encontraron cuentas para esta red",
     "about": "Acerca de",
+    "about_website": "Sitio Web",
+    "about_documentation": "Documentación",
+    "about_terms": "Términos de Servicio",
+    "about_privacy": "Política de Privacidad",
     "developer_networks": "Redes de Desarrollo",
     "developer_networks_description": "Mostrar redes testnet y devnet",
     "developer_networks_desc": "Mostrar redes testnet y devnet",
@@ -148,7 +151,8 @@
       "upload_photo": "Selccionar foto",
       "select_nft_to_profile": "Seleccionar NFT como imagen de perfil",
       "select_avatar_to_profile": "Seleccionar Avatar como imagen de perfil",
-      "full_nft_description": "Descripción completa"
+      "full_nft_description": "Descripción completa",
+      "edit_name_empty": "El nombre de la cuenta no puede estar vacío"
     },
     "profile_picture": "Foto de Perfil",
     "avatar_presets": "Avatares",
@@ -191,7 +195,8 @@
       "scanning": "Buscando cuentas...",
       "scan_complete": "Búsqueda completada",
       "confirm_create": "Crear Cuenta",
-      "confirm_import": "Importar Cuenta"
+      "confirm_import": "Importar Cuenta",
+      "confirm": "Confirmar"
     },
     "security": {
       "title": "Seguridad",
@@ -281,7 +286,12 @@
     "enter_password_error": "Por favor ingresa tu contraseña",
     "unlock_failed": "Error al desbloquear la billetera. Por favor, inténtalo de nuevo.",
     "reset_failed": "Error al restablecer la billetera. Por favor, inténtalo de nuevo.",
-    "unlocking": "Desbloqueando Wallet"
+    "unlocking": "Desbloqueando Wallet",
+    "use_face_id": "Usar Face ID",
+    "use_touch_id": "Usar Touch ID",
+    "use_iris": "Usar Iris",
+    "use_biometric": "Usar Biométrico",
+    "biometric_unlock_failed": "Error al desbloquear con biométrico"
   },
   "wallet": {
     "name_template": "Cuenta Nro {{number}}",
@@ -336,7 +346,9 @@
       "derivable_description": "Las Derivables son \"sub cuentas\" que nacen del mismo seed-phrase. Usando criptografía, se combina la seed-phrase con un patrón de derivación que genera estas diferentes cuentas. Permite así la generación de tantas cuentas como se quieran crear bajo la misma seed-phrase.",
       "info_icon": "ⓘ",
       "recover": "Recuperar",
-      "skip": "Omitir"
+      "skip": "Omitir",
+      "invalidSeed": "Seed phrase inválida",
+      "recovery_error": "Error al recuperar la cuenta. Por favor, verifica tu seed phrase e inténtalo de nuevo."
     },
     "recover": {
       "messageTitle": "Recuperar Cuenta existente",

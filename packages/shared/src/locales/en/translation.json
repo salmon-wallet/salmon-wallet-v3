@@ -76,7 +76,6 @@
     "change_network": "Change Network",
     "select_explorer": "Select Explorer",
     "explorer": "Block Explorer",
-    "security": "Security",
     "notifications": "Notifications",
     "trusted_apps": "Trusted Apps",
     "no_trusted_apps": "No connected apps",
@@ -93,6 +92,10 @@
     "authenticate_to_reveal": "Authenticate to reveal",
     "no_accounts_for_network": "No accounts found for this network",
     "about": "About",
+    "about_website": "Website",
+    "about_documentation": "Documentation",
+    "about_terms": "Terms of Service",
+    "about_privacy": "Privacy Policy",
     "developer_networks": "Developer Networks",
     "developer_networks_description": "Show testnet and devnet networks",
     "developer_networks_desc": "Show testnet and devnet networks",
@@ -147,7 +150,8 @@
       "no_avatars_found": "No Avatars found",
       "upload_photo": "Upload Photo",
       "select_nft_to_profile": "Select Collectible to Profile",
-      "full_nft_description": "Full Collectible Description"
+      "full_nft_description": "Full Collectible Description",
+      "edit_name_empty": "Account name cannot be empty"
     },
     "profile_picture": "Profile Picture",
     "avatar_presets": "Avatars",
@@ -190,7 +194,8 @@
       "scanning": "Scanning for accounts...",
       "scan_complete": "Scan complete",
       "confirm_create": "Create Account",
-      "confirm_import": "Import Account"
+      "confirm_import": "Import Account",
+      "confirm": "Confirm"
     },
     "security": {
       "title": "Security",
@@ -280,7 +285,12 @@
     "enter_password_error": "Please enter your password",
     "unlock_failed": "Failed to unlock wallet. Please try again.",
     "reset_failed": "Failed to reset wallet. Please try again.",
-    "unlocking": "Unlocking Wallet"
+    "unlocking": "Unlocking Wallet",
+    "use_face_id": "Use Face ID",
+    "use_touch_id": "Use Touch ID",
+    "use_iris": "Use Iris",
+    "use_biometric": "Use Biometric",
+    "biometric_unlock_failed": "Biometric unlock failed"
   },
   "wallet": {
     "name_template": "Account #{{number}}",
@@ -335,7 +345,9 @@
       "derivable_description": "Derivables are \"sub accounts\" that are born from the same seed phrase. Using cryptography, the seed phrase it combined with a derivation path to create these different accounts. It allows the generation of as many accounts as you wish to have under the same seed phrase.",
       "info_icon": "ⓘ",
       "recover": "Recover",
-      "skip": "Skip"
+      "skip": "Skip",
+      "invalidSeed": "Invalid seed phrase",
+      "recovery_error": "Failed to recover account. Please check your seed phrase and try again."
     },
     "recover": {
       "messageTitle": "Recover Existing Account",

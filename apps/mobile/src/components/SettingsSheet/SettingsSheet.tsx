@@ -90,7 +90,7 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
       {
         id: 'security',
         icon: 'shield-checkmark-outline',
-        labelKey: 'settings.security',
+        labelKey: 'settings.security.title',
       },
       {
         id: 'backup',
