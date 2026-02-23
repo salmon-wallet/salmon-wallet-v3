@@ -59,6 +59,7 @@ import {
   ActionButtonRow,
   TokenList,
   TokenListItem,
+  TokenListSkeleton,
   PriceChart,
   TokenMarketData,
   TokenAbout,
@@ -74,7 +75,6 @@ import {
   ScalesBackground,
   SendPage,
   NftSendDialog,
-  NetworkSelector,
   ExplorerSelector,
   LanguageSelector,
   TrustedAppsSelector,
@@ -123,7 +123,6 @@ type PageView =
   | 'currency'
   | 'about'
   | 'language'
-  | 'network'
   | 'explorer'
   | 'addressBook'
   | 'addressBookAdd'
@@ -338,7 +337,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
   const { t } = useTranslation();
   const [state, actions] = useAccountsContext();
   const [{ currency }, { changeCurrency }] = useCurrencyContext();
-  const { ready, activeAccount, activeBlockchainAccount, networkId, accounts, accountId, activeTrustedApps } = state;
+  const { ready, activeAccount, activeBlockchainAccount, networkId, accounts, accountId, activeTrustedApps, switchingNetwork } = state;
 
   // User configuration (developer networks toggle, explorer selection)
   // Note: useUserConfig requires activeBlockchainAccount parameter with specific structure
@@ -507,6 +506,13 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     skip: !ready || !adjacentAccounts.nextAccount || !nextNetwork,
   });
 
+  // Clear switching network flag once new data has loaded
+  useEffect(() => {
+    if (!loading && switchingNetwork) {
+      actions.clearSwitchingNetwork();
+    }
+  }, [loading, switchingNetwork, actions]);
+
   // Fetch transaction history (only when on activity page)
   const accountAddress = activeBlockchainAccount?.getReceiveAddress() || '';
   const {
@@ -558,7 +564,6 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       avatar: 'avatar',
       security: 'security',
       backup: 'backup',
-      network: 'network',
       language: 'language',
       currency: 'currency',
       explorer: 'explorer',
@@ -786,10 +791,10 @@ export function HomePage({ onAddAccount }: HomePageProps) {
 
       if (isActiveNetwork) {
         balanceData = {
-          usdTotal,
-          changePercent,
-          changeAmount,
-          loading: loading && usdTotal === undefined,
+          usdTotal: switchingNetwork ? undefined : usdTotal,
+          changePercent: switchingNetwork ? undefined : changePercent,
+          changeAmount: switchingNetwork ? undefined : changeAmount,
+          loading: switchingNetwork || (loading && usdTotal === undefined),
         };
       } else if (isPrevNetwork && prevNetwork) {
         balanceData = {
@@ -815,7 +820,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       };
     });
   }, [
-    allNetworks, networkId, activeBlockchainIndex,
+    allNetworks, networkId, activeBlockchainIndex, switchingNetwork,
     usdTotal, changePercent, changeAmount, loading,
     prevNetwork, prevUsdTotal, prevChangePercent, prevChangeAmount, prevLoading,
     nextNetwork, nextUsdTotal, nextChangePercent, nextChangeAmount, nextLoading,
@@ -1167,28 +1172,6 @@ export function HomePage({ onAddAccount }: HomePageProps) {
           />
         );
       }
-      case 'network': {
-        const networkItems = allNetworks.map((n) => ({
-          id: n.id,
-          name: n.name,
-          blockchain: n.id.split('-')[0],
-        }));
-        return (
-          <NetworkSelector
-            networks={networkItems}
-            activeNetworkId={networkId || ''}
-            onSelectNetwork={(id) => {
-              const idx = allNetworks.findIndex((n) => n.id === id);
-              if (idx >= 0) {
-                setActiveBlockchainIndex(idx);
-                actions.changeNetwork(id);
-              }
-              setCurrentPage('home');
-            }}
-            onBack={handleBack}
-          />
-        );
-      }
       case 'explorer': {
         const explorerItems: ExplorerSelectorItem[] = explorers.map((e) => ({
           key: e.key,
@@ -1380,7 +1363,9 @@ export function HomePage({ onAddAccount }: HomePageProps) {
                 <TopListFade ref={topFadeRef} />
                 {currentBlockchain === 'bitcoin' ? (
                   <TokenSection onScroll={handleTokenListScroll}>
-                    {bitcoinToken && (
+                    {switchingNetwork ? (
+                      <TokenListSkeleton count={1} />
+                    ) : bitcoinToken && (
                       <TokenListItem
                         token={bitcoinToken}
                         onPress={handleTokenPress}
@@ -1411,10 +1396,10 @@ export function HomePage({ onAddAccount }: HomePageProps) {
                   </TokenSection>
                 ) : (
                   <TokenSection onScroll={handleTokenListScroll}>
-                    {formattedTokens.length > 0 || loading ? (
+                    {formattedTokens.length > 0 || loading || switchingNetwork ? (
                       <TokenList
-                        tokens={formattedTokens}
-                        loading={loading && formattedTokens.length === 0}
+                        tokens={switchingNetwork ? [] : formattedTokens}
+                        loading={switchingNetwork || (loading && formattedTokens.length === 0)}
                         onTokenPress={handleTokenPress}
                         hiddenBalance={hiddenBalance}
                         blockchain={getBlockchainFromNetworkId(currentBlockchain)}

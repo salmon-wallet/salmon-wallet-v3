@@ -45,7 +45,6 @@ import IconButton from '@mui/material/IconButton';
 import SecurityIcon from '@mui/icons-material/Security';
 import BackupIcon from '@mui/icons-material/Key';
 import LanguageIcon from '@mui/icons-material/Language';
-import PublicIcon from '@mui/icons-material/Public';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ExploreIcon from '@mui/icons-material/Explore';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -83,7 +82,6 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   security: <SecurityIcon />,
   backup: <BackupIcon />,
   privateKey: <VpnKeyIcon />,
-  network: <PublicIcon />,
   language: <LanguageIcon />,
   currency: <AttachMoneyIcon />,
   explorer: <ExploreIcon />,
@@ -133,11 +131,6 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     titleKey: 'settings.sections.preferences',
     items: [
-      {
-        id: 'network',
-        labelKey: 'settings.change_network',
-        type: 'navigation',
-      },
       {
         id: 'language',
         labelKey: 'settings.display_language',

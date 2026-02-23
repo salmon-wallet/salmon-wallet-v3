@@ -108,11 +108,6 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
     titleKey: 'settings.sections.preferences',
     options: [
       {
-        id: 'network',
-        icon: 'globe-outline',
-        labelKey: 'settings.change_network',
-      },
-      {
         id: 'language',
         icon: 'language-outline',
         labelKey: 'settings.display_language',
