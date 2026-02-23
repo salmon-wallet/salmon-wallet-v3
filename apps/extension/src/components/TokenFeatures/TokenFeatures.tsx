@@ -106,7 +106,9 @@ const ScrollContainer = styled(Box)({
   },
 });
 
-const Badge = styled(Box)<{ badgeColor: string }>(({ badgeColor }) => ({
+const Badge = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'badgeColor',
+})<{ badgeColor: string }>(({ badgeColor }) => ({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',

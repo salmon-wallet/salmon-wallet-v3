@@ -365,6 +365,7 @@ export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'
         logo: meta?.logo || token.logo,
         name: meta?.name || token.name,
         symbol: meta?.symbol || token.symbol,
+        coingeckoId: meta?.coingeckoId || token.coingeckoId,
         tags: isNativeSol ? [...SOL_CONSTANTS.TAGS] : meta?.tags,
         uiAmount: removeDecimals(token.amount, token.decimals),
       };

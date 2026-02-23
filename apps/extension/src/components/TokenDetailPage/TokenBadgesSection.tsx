@@ -230,7 +230,9 @@ const BadgeItemContainer = styled(Box)({
   minWidth: 55,
 });
 
-const BadgeIconWrapper = styled(Box)<{ badgeColor: string }>(({ badgeColor }) => ({
+const BadgeIconWrapper = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'badgeColor',
+})<{ badgeColor: string }>(({ badgeColor }) => ({
   width: 40,
   height: 40,
   borderRadius: 20,
@@ -241,7 +243,9 @@ const BadgeIconWrapper = styled(Box)<{ badgeColor: string }>(({ badgeColor }) =>
   backgroundColor: `${badgeColor}15`,
 }));
 
-const BadgeLabel = styled(Typography)<{ badgeColor: string }>(({ badgeColor }) => ({
+const BadgeLabel = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'badgeColor',
+})<{ badgeColor: string }>(({ badgeColor }) => ({
   fontSize: 10,
   fontWeight: 500,
   textAlign: 'center',
