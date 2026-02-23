@@ -24,6 +24,7 @@ import Paper from '@mui/material/Paper';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import PublicIcon from '@mui/icons-material/Public';
@@ -352,11 +353,11 @@ export function PrivateKeyPage({ onBack }: PrivateKeyPageProps): React.ReactElem
                   >
                     <CopyButton
                       variant="outlined"
-                      startIcon={<ContentCopyIcon />}
+                      startIcon={isCopied ? <CheckIcon sx={{ color: colors.status.success }} /> : <ContentCopyIcon />}
                       onClick={() => handleCopy(accountKey.privateKey, index)}
                       disabled={!isRevealed}
                     >
-                      {t('actions.copy', 'Copy')}
+                      {isCopied ? t('wallet.copied', 'Copied!') : t('actions.copy', 'Copy')}
                     </CopyButton>
                   </Tooltip>
                   <ActionButton

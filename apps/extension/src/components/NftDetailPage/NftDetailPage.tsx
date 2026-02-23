@@ -9,13 +9,14 @@
  * blockchain-specific details, and Send/Burn action buttons.
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import IconButton from '@mui/material/IconButton';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
@@ -270,8 +271,12 @@ export function NftDetailPage({
     return null;
   }, [nft]);
 
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
   const handleCopy = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
+    setCopiedField(text);
+    setTimeout(() => setCopiedField(null), 1500);
   }, []);
 
   const renderBlockchainDetails = useCallback(() => {
@@ -322,7 +327,11 @@ export function NftDetailPage({
                 onClick={() => handleCopy(nft.contractAddress)}
                 sx={{ padding: '2px' }}
               >
-                <ContentCopyIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
+                {copiedField === nft.contractAddress ? (
+                  <CheckIcon sx={{ fontSize: 14, color: colors.status.success }} />
+                ) : (
+                  <ContentCopyIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
+                )}
               </IconButton>
             </DetailValueWithCopy>
           </DetailRow>

@@ -10,6 +10,7 @@ import Box from '@mui/material/Box';
 import MuiAvatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import CheckIcon from '@mui/icons-material/Check';
 import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials } from '@salmon/shared';
 import { CopyIcon, SettingsIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
@@ -125,9 +126,12 @@ export function WalletHeader({
   className,
 }: WalletHeaderProps) {
   const [imgError, setImgError] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleCopyPress = useCallback(() => {
     onCopyAddress?.();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }, [onCopyAddress]);
 
   const handleSettingsPress = useCallback(() => {
@@ -190,7 +194,11 @@ export function WalletHeader({
           <AccountName>{accountName}</AccountName>
           <AddressContainer>
             <Address>{truncatedAddress}</Address>
-            <CopyIconStyled />
+            {copied ? (
+              <CheckIcon sx={{ marginLeft: `${spacing.sm}px`, fontSize: fontSize.base, color: colors.status.success }} />
+            ) : (
+              <CopyIconStyled />
+            )}
           </AddressContainer>
         </AccountTextContainer>
       </AccountInfo>

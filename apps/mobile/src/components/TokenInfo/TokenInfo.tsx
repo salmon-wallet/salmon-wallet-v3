@@ -12,9 +12,8 @@ import {
   useCurrencyContext,
 } from '@salmon/shared';
 import * as Clipboard from 'expo-clipboard';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
-  Alert,
   Linking,
   StyleSheet,
   Text,
@@ -59,11 +58,13 @@ export const TokenInfo: React.FC<TokenInfoProps> = ({
   style,
 }) => {
   const [, { formatLarge }] = useCurrencyContext();
+  const [copied, setCopied] = useState(false);
 
   const handleCopyAddress = useCallback(async () => {
     if (contractAddress) {
       await Clipboard.setStringAsync(contractAddress);
-      Alert.alert('Copied', 'Contract address copied to clipboard');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   }, [contractAddress]);
 
@@ -207,9 +208,9 @@ export const TokenInfo: React.FC<TokenInfoProps> = ({
             </Text>
             <View style={styles.copyButton}>
               <Ionicons
-                name="copy-outline"
+                name={copied ? 'checkmark' : 'copy-outline'}
                 size={18}
-                color={colors.text.muted}
+                color={copied ? colors.status.success : colors.text.muted}
               />
             </View>
           </TouchableOpacity>

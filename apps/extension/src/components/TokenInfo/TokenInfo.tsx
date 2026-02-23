@@ -20,6 +20,7 @@ import {
   useCurrencyContext,
   getShortAddress,
 } from '@salmon/shared';
+import CheckIcon from '@mui/icons-material/Check';
 import { CopyIcon } from '../Icon';
 import type { TokenInfoProps } from './types';
 
@@ -207,12 +208,15 @@ export function TokenInfo({
 }: TokenInfoProps) {
   const [, { formatLarge }] = useCurrencyContext();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleCopyAddress = useCallback(async () => {
     if (contractAddress) {
       try {
         await navigator.clipboard.writeText(contractAddress);
         setSnackbarOpen(true);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       } catch (err) {
         console.error('Failed to copy address:', err);
       }
@@ -357,7 +361,11 @@ export function TokenInfo({
           >
             <ContractAddress>{getShortAddress(contractAddress, 6)}</ContractAddress>
             <CopyButton>
-              <CopyIcon sx={{ color: colors.text.muted, fontSize: 18 }} />
+              {copied ? (
+                <CheckIcon sx={{ color: colors.status.success, fontSize: 18 }} />
+              ) : (
+                <CopyIcon sx={{ color: colors.text.muted, fontSize: 18 }} />
+              )}
             </CopyButton>
           </ContractRow>
         </Section>

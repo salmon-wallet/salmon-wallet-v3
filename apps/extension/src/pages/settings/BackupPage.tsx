@@ -21,6 +21,7 @@ import Tooltip from '@mui/material/Tooltip';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
@@ -259,11 +260,11 @@ export function BackupPage({ onBack }: BackupPageProps): React.ReactElement {
                 <Tooltip title={copied ? t('actions.copied', 'Copied!') : ''} open={copied}>
                   <CopyButton
                     variant="outlined"
-                    startIcon={<ContentCopyIcon />}
+                    startIcon={copied ? <CheckIcon sx={{ color: colors.status.success }} /> : <ContentCopyIcon />}
                     onClick={handleCopy}
                     disabled={!seedPhraseVisible}
                   >
-                    {t('actions.copy', 'Copy')}
+                    {copied ? t('actions.copied', 'Copied!') : t('actions.copy', 'Copy')}
                   </CopyButton>
                 </Tooltip>
                 <ActionButton

@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import {
   colors,
   fontFamilyNative,
@@ -143,10 +144,11 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
             <Text style={styles.addressText} numberOfLines={1} ellipsizeMode="middle">
               {truncatedAddress}
             </Text>
-            <ContentCopySvgIcon
-              size={ms(20)}
-              color={copied ? colors.status.success : colors.text.secondary}
-            />
+            {copied ? (
+              <Ionicons name="checkmark" size={ms(20)} color={colors.status.success} />
+            ) : (
+              <ContentCopySvgIcon size={ms(20)} color={colors.text.secondary} />
+            )}
           </BlurContainer>
         </TouchableOpacity>
 
