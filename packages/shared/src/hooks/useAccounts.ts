@@ -964,6 +964,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       const account = findAccount(targetId);
       if (!account) return;
 
+      setSwitchingNetwork(true);
       setAccountId(targetId);
       setPathIndex(networkId ? getDefaultPathIndex(account, networkId) : 0);
 

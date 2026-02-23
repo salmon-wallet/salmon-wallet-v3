@@ -5,7 +5,7 @@
  * Shared between mobile (AvatarPicker) and extension (AccountAvatarPage).
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Account } from '../types/account';
 import type { NftAvatarItem } from '../types/ui/avatar-picker';
 import type { Nft } from '../types/nft';
@@ -38,6 +38,17 @@ export function useAvatarNfts({ account, enabled }: UseAvatarNftsParams): UseAva
   const [nfts, setNfts] = useState<NftAvatarItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
+
+  // Reset when account changes so NFTs are re-fetched for the new account
+  const prevAccountIdRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    const currentId = account?.id;
+    if (currentId !== prevAccountIdRef.current) {
+      prevAccountIdRef.current = currentId;
+      setFetched(false);
+      setNfts([]);
+    }
+  }, [account]);
 
   useEffect(() => {
     if (!enabled || fetched || !account) return;
