@@ -47,7 +47,6 @@ export function SettingsPageLayout({
       title={title}
       onBack={onBack}
       backgroundColor="primary"
-      fullHeight={false}
       scrollContentStyle={{ paddingTop: spacing.lg }}
       className={className}
     >
