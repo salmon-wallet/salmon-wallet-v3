@@ -11,7 +11,7 @@ import MuiAvatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials } from '@salmon/shared';
-import { CopyIcon, SettingsIcon, WalletIcon } from '../Icon';
+import { CopyIcon, SettingsIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
 
@@ -200,11 +200,6 @@ export function WalletHeader({
         <HeaderButton onClick={handleSettingsPress} aria-label={t('accessibility.open_settings')}>
           <SettingsIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
         </HeaderButton>
-        {onWalletPress && (
-          <HeaderButton onClick={handleWalletPress} aria-label={t('accessibility.switch_wallet')}>
-            <WalletIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
-          </HeaderButton>
-        )}
       </ActionButtons>
     </Container>
   );
