@@ -37,27 +37,44 @@ export interface AccountAvatarPageProps {
 // Styled Components
 // ============================================================================
 
-const TabBar = styled(Box)({
+const ToggleContainer = styled(Box)({
   display: 'flex',
-  gap: spacing.sm,
-  padding: `0 ${spacing.lg}px`,
+  margin: `0 ${spacing.lg}px`,
   marginBottom: spacing.lg,
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  borderRadius: borderRadius.md,
+  position: 'relative',
+  padding: spacing.xxs,
 });
 
-const TabButton = styled(Button, {
+const ToggleHighlight = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'isRight',
+})<{ isRight?: boolean }>(({ isRight }) => ({
+  position: 'absolute',
+  top: spacing.xxs,
+  left: isRight ? '50%' : spacing.xxs,
+  width: `calc(50% - ${spacing.xxs}px)`,
+  height: `calc(100% - ${spacing.xxs * 2}px)`,
+  backgroundColor: colors.accent.primary,
+  borderRadius: borderRadius.md - spacing.xxs,
+  transition: 'left 0.25s ease',
+}));
+
+const ToggleButton = styled('button', {
   shouldForwardProp: (prop) => prop !== 'isActive',
 })<{ isActive?: boolean }>(({ isActive }) => ({
   flex: 1,
-  textTransform: 'none',
+  position: 'relative',
+  zIndex: 1,
+  background: 'none',
+  border: 'none',
+  padding: `${spacing.sm}px 0`,
+  cursor: 'pointer',
   fontWeight: fontWeight.semibold,
   fontSize: fontSize.base,
-  padding: `${spacing.sm}px 0`,
-  borderRadius: borderRadius.md,
-  backgroundColor: isActive ? colors.accent.primary : 'rgba(255, 255, 255, 0.08)',
   color: isActive ? colors.text.primary : colors.text.secondary,
-  '&:hover': {
-    backgroundColor: isActive ? colors.accent.primary : 'rgba(255, 255, 255, 0.12)',
-  },
+  transition: 'color 0.25s ease',
+  fontFamily: 'inherit',
 }));
 
 const Grid = styled(Box)({
@@ -122,9 +139,10 @@ const NftCard = styled('button', {
 const SaveButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== 'isDisabled',
 })<{ isDisabled?: boolean }>(({ isDisabled }) => ({
-  width: '100%',
+  display: 'flex',
+  width: `calc(100% - ${spacing.lg * 2}px)`,
+  margin: `${spacing.lg}px auto 0`,
   padding: `${spacing.md}px`,
-  margin: `${spacing.lg}px ${spacing.lg}px 0`,
   textTransform: 'none',
   fontWeight: fontWeight.bold,
   fontSize: fontSize.md,
@@ -189,21 +207,22 @@ export function AccountAvatarPage({ onBack }: AccountAvatarPageProps): React.Rea
 
   return (
     <SettingsPageLayout title={t('settings.profile_picture')} onBack={onBack}>
-      {/* Tab Bar */}
-      <TabBar>
-        <TabButton
+      {/* Toggle */}
+      <ToggleContainer>
+        <ToggleHighlight isRight={activeTab === 'nfts'} />
+        <ToggleButton
           isActive={activeTab === 'presets'}
           onClick={() => setActiveTab('presets')}
         >
           {t('settings.avatar_presets')}
-        </TabButton>
-        <TabButton
+        </ToggleButton>
+        <ToggleButton
           isActive={activeTab === 'nfts'}
           onClick={() => setActiveTab('nfts')}
         >
           {t('settings.avatar_nfts')}
-        </TabButton>
-      </TabBar>
+        </ToggleButton>
+      </ToggleContainer>
 
       {/* Content */}
       <ScrollContent>

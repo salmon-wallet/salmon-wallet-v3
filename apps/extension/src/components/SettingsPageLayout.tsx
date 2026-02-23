@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+import { spacing } from '@salmon/shared';
 import { PageShell } from './PageShell';
 
 // ============================================================================
@@ -47,6 +48,7 @@ export function SettingsPageLayout({
       onBack={onBack}
       backgroundColor="primary"
       fullHeight={false}
+      scrollContentStyle={{ paddingTop: spacing.lg }}
       className={className}
     >
       {children}
