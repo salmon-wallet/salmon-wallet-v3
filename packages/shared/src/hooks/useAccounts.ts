@@ -112,6 +112,8 @@ export interface UseAccountsState {
   activeTokens: Record<string, TokenInfo>;
   /** Whether the current account is whitelisted */
   whitelisted: boolean;
+  /** Whether a network switch is in progress (shows skeletons) */
+  switchingNetwork: boolean;
 }
 
 /**
@@ -130,6 +132,8 @@ export interface UseAccountsActions {
   unlockWithCachedKey: (keyCache: DerivedKeyCache) => Promise<boolean>;
   /** Change the active account */
   changeAccount: (targetId: string) => Promise<void>;
+  /** Clear the network switching flag */
+  clearSwitchingNetwork: () => void;
   /** Change the active network */
   changeNetwork: (targetId: string) => Promise<void>;
   /** Switch to a different network (alias for changeNetwork) */
@@ -379,6 +383,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   const [trustedApps, setTrustedApps] = useState<TrustedApps>({});
   const [tokens, setTokens] = useState<CustomTokens>({});
   const [whitelisted, setWhitelisted] = useState(false);
+  const [switchingNetwork, setSwitchingNetwork] = useState(false);
 
   // --------------------------------------------------------------------------
   // Legacy Migration (v2 -> v3)
@@ -968,12 +973,16 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     [accountId, networkId, findAccount]
   );
 
+  const clearSwitchingNetwork = useCallback(() => setSwitchingNetwork(false), []);
+
   const changeNetwork = useCallback(
     async (targetId: string): Promise<void> => {
       if (networkId === targetId || !activeAccount) return;
 
       const { networksAccounts } = activeAccount;
       if (!Object.keys(networksAccounts).includes(targetId)) return;
+
+      setSwitchingNetwork(true);
 
       const targetIndex = networksAccounts[targetId]?.[pathIndex]
         ? pathIndex
@@ -1289,6 +1298,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     activeTrustedApps,
     activeTokens,
     whitelisted,
+    switchingNetwork,
   };
 
   const actions: UseAccountsActions = {
@@ -1298,6 +1308,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     unlockAccounts,
     unlockWithCachedKey,
     changeAccount,
+    clearSwitchingNetwork,
     changeNetwork,
     switchNetwork,
     getNetworkId,

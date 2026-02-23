@@ -127,8 +127,29 @@ export function useBalance({
   const [hiddenBalance, setHiddenBalance] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
-  // Cache ref to avoid stale closures
-  const cacheRef = useRef<{ data: WalletBalance; timestamp: number } | null>(null);
+  // Cache ref to avoid stale closures — keyed by account address to prevent cross-chain stale data
+  const cacheRef = useRef<{ data: WalletBalance; timestamp: number; accountKey: string } | null>(null);
+
+  // Track previous account to detect changes and reset stale state
+  const prevAccountKeyRef = useRef<string | undefined>(undefined);
+
+  // Reset state when account changes to prevent stale cross-chain data
+  useEffect(() => {
+    const currentKey = account?.getReceiveAddress();
+    if (currentKey !== prevAccountKeyRef.current) {
+      prevAccountKeyRef.current = currentKey;
+      if (currentKey === undefined) {
+        // Account removed — clear state, no loading
+        setBalance(null);
+        setLoading(false);
+      } else if (cacheRef.current?.accountKey !== currentKey) {
+        // Different account — clear stale data and show loading
+        setBalance(null);
+        setLoading(true);
+        cacheRef.current = null;
+      }
+    }
+  }, [account]);
 
   // Load hidden balance preference
   useEffect(() => {
@@ -346,9 +367,15 @@ export function useBalance({
         return;
       }
 
-      // Check cache validity
+      // Check cache validity — must match current account to prevent cross-chain stale data
       const now = Date.now();
-      if (cacheRef.current && now - cacheRef.current.timestamp < CACHE_TTL && !isRefresh) {
+      const currentAccountKey = account.getReceiveAddress();
+      if (
+        cacheRef.current &&
+        cacheRef.current.accountKey === currentAccountKey &&
+        now - cacheRef.current.timestamp < CACHE_TTL &&
+        !isRefresh
+      ) {
         setBalance(cacheRef.current.data);
         setLastUpdated(cacheRef.current.timestamp);
         return;
@@ -376,8 +403,8 @@ export function useBalance({
           walletBalance = await fetchSolanaBalance(account as SolanaAccount);
         }
 
-        // Update cache
-        cacheRef.current = { data: walletBalance, timestamp: now };
+        // Update cache with account identity
+        cacheRef.current = { data: walletBalance, timestamp: now, accountKey: currentAccountKey };
 
         setBalance(walletBalance);
         setLastUpdated(now);

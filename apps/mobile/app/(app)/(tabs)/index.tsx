@@ -67,6 +67,7 @@ import {
   TokenInformationSheet,
   TokenList,
   TokenListItem,
+  TokenListSkeleton,
   TokenMarketData,
   TransactionDetailModal,
   TransactionHistorySheet,
@@ -192,6 +193,7 @@ export default function HomeScreen() {
     activeBlockchainAccount,
     networkId,
     pathIndex,
+    switchingNetwork,
   } = accountState;
 
   // User configuration (developer networks toggle)
@@ -251,6 +253,13 @@ export default function HomeScreen() {
     networkId: (networkId ?? undefined) as NetworkId | undefined,
     skip: !ready || !activeBlockchainAccount,
   });
+
+  // Clear switching network flag once new data has loaded
+  useEffect(() => {
+    if (!loading && switchingNetwork) {
+      accountActions.clearSwitchingNetwork();
+    }
+  }, [loading, switchingNetwork, accountActions]);
 
   // Get transaction history for current account
   const address = activeBlockchainAccount?.getReceiveAddress() ?? '';
@@ -317,12 +326,13 @@ export default function HomeScreen() {
 
       if (isActiveNetwork) {
         // Active network: show current balance data
-        // Show loading during sub-account switch OR when balance is loading
+        // Show loading during sub-account switch, network switch, OR when balance is loading
+        const isSwitching = switchingSubAccount || switchingNetwork;
         balanceData = {
-          usdTotal: switchingSubAccount ? undefined : usdTotal,
-          changePercent: switchingSubAccount ? undefined : changePercent,
-          changeAmount: switchingSubAccount ? undefined : changeAmount,
-          loading: switchingSubAccount || (loading && !refreshing),
+          usdTotal: isSwitching ? undefined : usdTotal,
+          changePercent: isSwitching ? undefined : changePercent,
+          changeAmount: isSwitching ? undefined : changeAmount,
+          loading: isSwitching || (loading && !refreshing),
         };
       } else if (isPrevNetwork && prevNetwork) {
         // Previous network (index - 1): show preloaded data
@@ -365,6 +375,7 @@ export default function HomeScreen() {
     networkId,
     activeBlockchainIndex,
     switchingSubAccount,
+    switchingNetwork,
     // Current network balance
     usdTotal,
     changePercent,
@@ -838,7 +849,9 @@ export default function HomeScreen() {
             showsVerticalScrollIndicator={false}
           >
             {/* Bitcoin Token Item */}
-            {bitcoinToken && (
+            {switchingNetwork ? (
+              <TokenListSkeleton count={1} />
+            ) : bitcoinToken && (
               <TokenListItem
                 token={bitcoinToken}
                 onPress={handleTokenPress}
@@ -878,8 +891,8 @@ export default function HomeScreen() {
         ) : (
           // Normal token list for Solana/Ethereum
           <TokenList
-            tokens={switchingSubAccount ? [] : tokenListItems}
-            loading={switchingSubAccount || (loading && tokenListItems.length === 0)}
+            tokens={(switchingSubAccount || switchingNetwork) ? [] : tokenListItems}
+            loading={(switchingSubAccount || switchingNetwork) || (loading && tokenListItems.length === 0)}
             onTokenPress={handleTokenPress}
             hiddenBalance={hiddenBalance}
             ListEmptyComponent={ListEmptyComponent}
