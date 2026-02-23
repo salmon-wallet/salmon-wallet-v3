@@ -156,6 +156,8 @@ const TokenName = styled(Typography)({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
+  flexShrink: 1,
+  minWidth: 0,
 });
 
 const PriceRow = styled(Box)({
