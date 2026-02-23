@@ -37,6 +37,7 @@ import {
 } from '@salmon/shared';
 import { SettingsPageLayout } from '../../components/SettingsPageLayout';
 import { DerivedAccountCard } from '../../components/DerivedAccountCard';
+import { LoadingScreen } from '../../components/LoadingScreen';
 
 // ============================================================================
 // Types
@@ -131,6 +132,7 @@ export function AccountAddPage({
   const [scanning, setScanning] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState('');
   const [seedError, setSeedError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const defaultName = useMemo(
     () => t('settings.account_add.default_name', { number: accounts.length + 1 }),
@@ -183,6 +185,7 @@ export function AccountAddPage({
 
   const handleConfirm = useCallback(async () => {
     const name = accountName.trim() || defaultName;
+    setLoading(true);
     try {
       const mnemonic = selectedDerived ? (activeAccount?.mnemonic || '') : seedPhrase;
       const startIndex = selectedDerived ? selectedDerived.index : 0;
@@ -195,7 +198,7 @@ export function AccountAddPage({
       await accountActions.addAccount(account);
       onComplete();
     } catch {
-      // Error handled by context
+      setLoading(false);
     }
   }, [accountName, defaultName, selectedDerived, activeAccount, seedPhrase, accountActions, onComplete]);
 
@@ -218,6 +221,14 @@ export function AccountAddPage({
   };
 
   return (
+    <>
+    <LoadingScreen
+      visible={loading}
+      title={selectedDerived
+        ? t('settings.account_add.confirm_create')
+        : t('settings.account_add.confirm_import')}
+      subtitle={t('general.loading')}
+    />
     <SettingsPageLayout title={stepTitles[step]} onBack={handleStepBack}>
       <Box sx={{ padding: `0 ${spacing.lg}px` }}>
         {step === 'select-method' && (
@@ -322,9 +333,6 @@ export function AccountAddPage({
 
         {step === 'set-name' && (
           <>
-            <Typography sx={{ color: colors.text.secondary, fontSize: fontSize.sm, marginBottom: spacing.sm }}>
-              {t('settings.account_add.set_name')}
-            </Typography>
             <StyledTextField
               fullWidth
               value={accountName}
@@ -341,11 +349,14 @@ export function AccountAddPage({
               variant="contained"
               onClick={handleConfirm}
             >
-              {t('settings.account_add.confirm')}
+              {selectedDerived
+                ? t('settings.account_add.confirm_create')
+                : t('settings.account_add.confirm_import')}
             </ConfirmButton>
           </>
         )}
       </Box>
     </SettingsPageLayout>
+    </>
   );
 }
