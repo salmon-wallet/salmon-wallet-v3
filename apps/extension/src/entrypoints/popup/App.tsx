@@ -7,6 +7,8 @@ import {
   type DAppConnectRequest,
   DAppTransactionApprovalPage,
   type DAppTransactionRequest,
+  DAppSignMessageApprovalPage,
+  type DAppSignMessageRequest,
 } from '../../pages/dapp';
 import { SelectOptionsPage } from '../../pages/auth/SelectOptionsPage';
 import { CreateWalletPage } from '../../pages/auth/CreateWalletPage';
@@ -69,6 +71,12 @@ function App() {
     request: DAppTransactionRequest;
   } | null>(null);
 
+  // dApp sign message flow (when popup is launched for message signing)
+  const [pendingDAppSignMessageRequest, setPendingDAppSignMessageRequest] = useState<{
+    origin: string;
+    request: DAppSignMessageRequest;
+  } | null>(null);
+
   useEffect(() => {
     const hash = window.location.hash?.slice(1);
     if (!hash) return;
@@ -77,9 +85,11 @@ function App() {
     const requestStr = params.get('request');
     if (origin && requestStr) {
       try {
-        const request = JSON.parse(requestStr) as DAppConnectRequest & DAppTransactionRequest;
+        const request = JSON.parse(requestStr) as DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest;
         if (request.method === 'connect' && request.id != null) {
           setPendingDAppRequest({ origin, request });
+        } else if (request.method === 'sign' && request.id != null) {
+          setPendingDAppSignMessageRequest({ origin, request });
         } else if (
           (request.method === 'signTransaction' ||
             request.method === 'signAllTransactions' ||
@@ -91,6 +101,84 @@ function App() {
       } catch {
         // Ignore malformed request
       }
+    }
+  }, []);
+
+  // Helper: route a single approval to the right pending state
+  const routeApproval = useCallback(
+    (approval: { origin: string; request: DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest }) => {
+      const { origin, request } = approval;
+      if (request.method === 'connect' && request.id != null) {
+        setPendingDAppRequest({ origin, request });
+      } else if (request.method === 'sign' && request.id != null) {
+        setPendingDAppSignMessageRequest({ origin, request });
+      } else if (
+        (request.method === 'signTransaction' ||
+          request.method === 'signAllTransactions' ||
+          request.method === 'signAndSendTransaction') &&
+        request.id != null
+      ) {
+        setPendingDAppTxRequest({ origin, request });
+      }
+    },
+    []
+  );
+
+  // Listen for approval requests from background via chrome.storage.session
+  useEffect(() => {
+    if (typeof chrome === 'undefined' || !chrome.storage?.session) return;
+
+    // Check for existing pending approvals on mount
+    chrome.storage.session.get('salmon_pending_approval').then((result) => {
+      const queue = result['salmon_pending_approval'] as Array<{
+        origin: string;
+        request: DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest;
+      }> | undefined;
+      if (queue && queue.length > 0) {
+        routeApproval(queue[0]);
+      }
+    }).catch(() => { /* ignore */ });
+
+    // Watch for new approvals written by background.ts
+    const listener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      areaName: string
+    ) => {
+      if (areaName !== 'session') return;
+      const change = changes['salmon_pending_approval'];
+      if (!change) return;
+      const queue = change.newValue as Array<{
+        origin: string;
+        request: DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest;
+      }> | undefined;
+      if (queue && queue.length > 0) {
+        routeApproval(queue[0]);
+      }
+    };
+
+    chrome.storage.onChanged.addListener(listener);
+    return () => {
+      chrome.storage.onChanged.removeListener(listener);
+    };
+  }, [routeApproval]);
+
+  // Dismiss the current approval — clear storage entry and all pending states
+  const dismissApproval = useCallback(() => {
+    setPendingDAppRequest(null);
+    setPendingDAppTxRequest(null);
+    setPendingDAppSignMessageRequest(null);
+
+    if (typeof chrome !== 'undefined' && chrome.storage?.session) {
+      chrome.storage.session.get('salmon_pending_approval').then((result) => {
+        const queue = result['salmon_pending_approval'] as unknown[] | undefined;
+        if (queue && queue.length > 1) {
+          // Pop the first item; the storage listener will route the next one
+          const remaining = queue.slice(1);
+          chrome.storage.session.set({ 'salmon_pending_approval': remaining });
+        } else {
+          chrome.storage.session.remove('salmon_pending_approval');
+        }
+      }).catch(() => { /* ignore */ });
     }
   }, []);
 
@@ -305,7 +393,24 @@ function App() {
     ? activeBlockchainAccount.getReceiveAddress()
     : '';
 
-  // dApp transaction approval (popup launched by tx request)
+  // dApp sign message approval
+  if (
+    pendingDAppSignMessageRequest &&
+    !locked &&
+    accounts.length > 0 &&
+    isSolanaNetwork
+  ) {
+    return (
+      <DAppSignMessageApprovalPage
+        origin={pendingDAppSignMessageRequest.origin}
+        request={pendingDAppSignMessageRequest.request}
+        account={activeBlockchainAccount}
+        onDismiss={dismissApproval}
+      />
+    );
+  }
+
+  // dApp transaction approval
   if (
     pendingDAppTxRequest &&
     !locked &&
@@ -318,6 +423,7 @@ function App() {
         request={pendingDAppTxRequest.request}
         account={activeBlockchainAccount}
         networkId={networkId ?? null}
+        onDismiss={dismissApproval}
       />
     );
   }
@@ -337,6 +443,7 @@ function App() {
         networkId={networkId ?? null}
         onApprove={handleDAppApprove}
         onDeny={handleDAppDeny}
+        onDismiss={dismissApproval}
       />
     );
   }

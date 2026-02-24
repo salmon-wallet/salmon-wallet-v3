@@ -28,6 +28,7 @@ interface Props {
   request: DAppTransactionRequest;
   account: BlockchainAccount | undefined;
   networkId: string | null;
+  onDismiss: () => void;
 }
 
 const Container = styled(Box)({
@@ -131,7 +132,7 @@ function requestHasMethod(request: DAppTransactionRequest, method: string): bool
   return request.method === method;
 }
 
-export function DAppTransactionApprovalPage({ origin, request, account, networkId }: Props) {
+export function DAppTransactionApprovalPage({ origin, request, account, networkId, onDismiss }: Props) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [parsingError, setParsingError] = useState<string | null>(null);
@@ -260,8 +261,8 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
 
   const handleDeny = useCallback(() => {
     sendToBackground({ error: 'User rejected the request' });
-    window.close();
-  }, [sendToBackground]);
+    onDismiss();
+  }, [sendToBackground, onDismiss]);
 
   const handleApprove = useCallback(async () => {
     setLoading(true);
@@ -300,7 +301,7 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
             },
           });
         }
-        window.close();
+        onDismiss();
         return;
       }
 
@@ -334,7 +335,7 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
             publicKey,
           },
         });
-        window.close();
+        onDismiss();
         return;
       }
 
@@ -360,7 +361,7 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
           const signature = await connection.sendTransaction(parsed.tx, options as never);
           sendToBackground({ result: { signature } });
         }
-        window.close();
+        onDismiss();
         return;
       }
 
@@ -368,11 +369,11 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Transaction approval failed';
       sendToBackground({ error: msg });
-      window.close();
+      onDismiss();
     } finally {
       setLoading(false);
     }
-  }, [account, request.method, request.params, sendToBackground]);
+  }, [account, request.method, request.params, sendToBackground, onDismiss]);
 
   const feeSol = useMemo(() => {
     if (feeLamports == null) return null;

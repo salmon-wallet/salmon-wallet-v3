@@ -40,6 +40,7 @@ interface DAppConnectPageProps {
   networkId: string | null;
   onApprove: (origin: string) => Promise<void>;
   onDeny: () => void;
+  onDismiss: () => void;
 }
 
 // ============================================================================
@@ -133,6 +134,7 @@ export function DAppConnectPage({
   networkId,
   onApprove,
   onDeny,
+  onDismiss,
 }: DAppConnectPageProps) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -152,7 +154,7 @@ export function DAppConnectPage({
           },
         });
       }
-      window.close();
+      onDismiss();
     } catch (err) {
       console.error('[Salmon] DApp connect approve failed:', err);
       if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -164,11 +166,11 @@ export function DAppConnectPage({
           },
         });
       }
-      window.close();
+      onDismiss();
     } finally {
       setLoading(false);
     }
-  }, [origin, address, request.id, onApprove]);
+  }, [origin, address, request.id, onApprove, onDismiss]);
 
   const handleDeny = useCallback(() => {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -181,8 +183,8 @@ export function DAppConnectPage({
       });
     }
     onDeny();
-    window.close();
-  }, [request.id, onDeny]);
+    onDismiss();
+  }, [request.id, onDeny, onDismiss]);
 
   const displayOrigin = formatOrigin(origin);
   const shortAddress = address ? getShortAddress(address, 4) ?? '' : '';

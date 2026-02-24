@@ -52,4 +52,8 @@ const waitForLayout = (): Promise<void> =>
       </I18nextProvider>
     </React.StrictMode>
   );
+
+  // Connect a persistent port so the background knows the side panel is open.
+  // The background uses this to route dApp approvals to the panel instead of a popup window.
+  chrome.runtime.connect({ name: 'salmon_sidepanel' });
 })();

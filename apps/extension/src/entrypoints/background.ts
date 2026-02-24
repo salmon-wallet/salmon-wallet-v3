@@ -17,6 +17,14 @@ const STASH_KEYS = {
   LAST_ACTIVITY: 'salmon_last_activity',
 } as const;
 
+const APPROVAL_STORAGE_KEY = 'salmon_pending_approval';
+const APPROVAL_TIMEOUT_MS = 30_000;
+
+interface PendingApproval {
+  origin: string;
+  request: MessageData;
+}
+
 // Type definitions
 interface MessageData {
   id: string;
@@ -58,6 +66,18 @@ export default defineBackground(() => {
   // Maps to track response handlers and stashed values
   const responseHandlers = new Map<string, ResponseHandler>();
   const stashedValues = new Map<string, unknown>();
+
+  // Track whether the side panel is open via a persistent port
+  let sidePanelPort: chrome.runtime.Port | null = null;
+
+  chrome.runtime.onConnect.addListener((port) => {
+    if (port.name === 'salmon_sidepanel') {
+      sidePanelPort = port;
+      port.onDisconnect.addListener(() => {
+        sidePanelPort = null;
+      });
+    }
+  });
 
   /**
    * Get the active tab ID from the current window
@@ -119,9 +139,33 @@ export default defineBackground(() => {
   };
 
   /**
-   * Launch a popup window for user interaction (approval dialogs, etc.)
+   * Append a pending approval to the session storage queue.
    */
-  const launchPopup = (
+  const writeApprovalToStorage = async (approval: PendingApproval): Promise<void> => {
+    const existing = await chrome.storage.session.get(APPROVAL_STORAGE_KEY);
+    const queue: PendingApproval[] = existing[APPROVAL_STORAGE_KEY] ?? [];
+    queue.push(approval);
+    await chrome.storage.session.set({ [APPROVAL_STORAGE_KEY]: queue });
+  };
+
+  /**
+   * Remove a specific request from the session storage queue.
+   */
+  const removeApprovalFromStorage = async (requestId: string): Promise<void> => {
+    const existing = await chrome.storage.session.get(APPROVAL_STORAGE_KEY);
+    const queue: PendingApproval[] = existing[APPROVAL_STORAGE_KEY] ?? [];
+    const filtered = queue.filter((a) => a.request.id !== requestId);
+    if (filtered.length > 0) {
+      await chrome.storage.session.set({ [APPROVAL_STORAGE_KEY]: filtered });
+    } else {
+      await chrome.storage.session.remove(APPROVAL_STORAGE_KEY);
+    }
+  };
+
+  /**
+   * Launch a popup window as fallback for user interaction (approval dialogs, etc.)
+   */
+  const launchPopupWindow = (
     message: Message,
     sender: chrome.runtime.MessageSender,
     sendResponse: ResponseHandler
@@ -163,6 +207,43 @@ export default defineBackground(() => {
     });
 
     responseHandlers.set(message.data.id, sendResponse);
+  };
+
+  /**
+   * Route an approval request to the side panel (via storage) or fall back to a popup window.
+   * If the side panel is open (port connected), writes to storage only — no popup.
+   * If the side panel is closed, falls back to the popup window.
+   */
+  const routeApproval = (
+    message: Message,
+    sender: chrome.runtime.MessageSender,
+    sendResponse: ResponseHandler
+  ): void => {
+    responseHandlers.set(message.data.id, sendResponse);
+
+    const approval: PendingApproval = {
+      origin: sender.origin || '',
+      request: message.data,
+    };
+
+    if (sidePanelPort) {
+      // Side panel is open — write to storage, it will pick it up
+      writeApprovalToStorage(approval).catch(() => { /* ignore */ });
+    } else {
+      // Side panel is not open — fall back to popup window
+      launchPopupWindow(message, sender, sendResponse);
+      return; // launchPopupWindow already registered the handler
+    }
+
+    // Auto-reject after timeout if the side panel doesn't respond
+    setTimeout(() => {
+      const handler = responseHandlers.get(message.data.id);
+      if (handler) {
+        responseHandlers.delete(message.data.id);
+        handler({ error: 'Request timeout', id: message.data.id });
+        removeApprovalFromStorage(message.data.id).catch(() => { /* ignore */ });
+      }
+    }, APPROVAL_TIMEOUT_MS);
   };
 
   /**
@@ -215,7 +296,7 @@ export default defineBackground(() => {
             id: message.data.id,
           });
         } else {
-          launchPopup(message, sender, callback);
+          routeApproval(message, sender, callback);
         }
       }
     );
@@ -281,12 +362,27 @@ export default defineBackground(() => {
 
       if (message.channel === 'salmon_contentscript_background_channel') {
         const msg = message as Message;
+
+        // For methods that always need approval UI (sign, signTransaction, etc.),
+        // open the side panel IMMEDIATELY — before any await — to preserve the
+        // user gesture chain from the dApp click. This is a Chrome API requirement:
+        // sidePanel.open() silently fails if called after any async operation.
+        if (
+          msg.data.method !== 'connect' &&
+          msg.data.method !== 'disconnect' &&
+          !sidePanelPort &&
+          sender.tab?.id != null &&
+          chrome.sidePanel?.open
+        ) {
+          chrome.sidePanel.open({ tabId: sender.tab.id }).catch(() => { /* ignore */ });
+        }
+
         if (msg.data.method === 'connect') {
           handleConnect(msg, sender, sendResponse);
         } else if (msg.data.method === 'disconnect') {
           handleDisconnect(msg, sender, sendResponse);
         } else {
-          launchPopup(msg, sender, sendResponse);
+          routeApproval(msg, sender, sendResponse);
         }
         // Keep response channel open for async response
         return true;
