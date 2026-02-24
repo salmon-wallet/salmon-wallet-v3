@@ -14,6 +14,7 @@ import { ethereumApiFunctions } from '../api/services/ethereum';
 import type { BlockchainAccount, BlockchainType } from '../types/blockchain';
 import type { Account } from '../types/account';
 import type { AccountKeyInfo } from '../types/settings';
+import { isNetworkEnabled } from '../config/blockchains';
 
 // ============================================================================
 // Blockchain Type Detection from Network ID
@@ -149,6 +150,12 @@ export async function createBlockchainAccountForNetwork(
   mnemonic: string,
   index: number
 ): Promise<BlockchainAccount | null> {
+  // Gate on the blockchain feature flag — skip disabled chains
+  if (!isNetworkEnabled(networkId)) {
+    console.warn(`Blockchain disabled for network: ${networkId}`);
+    return null;
+  }
+
   const blockchainType = getBlockchainFromNetworkId(networkId);
 
   switch (blockchainType) {

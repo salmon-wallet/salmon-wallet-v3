@@ -24,3 +24,12 @@ export {
   getAvailableExplorers,
   getDefaultExplorer,
 } from './explorers';
+
+// Blockchain feature-flag configuration
+// NOTE: isNetworkEnabled is intentionally not re-exported here to avoid
+// colliding with the async isNetworkEnabled in api/services/switch.ts.
+// Import directly from '../config/blockchains' when needed.
+export {
+  ENABLED_BLOCKCHAINS,
+  isBlockchainEnabled,
+} from './blockchains';

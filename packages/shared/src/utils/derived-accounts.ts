@@ -15,6 +15,7 @@ import { BitcoinAccount } from '../blockchain/bitcoin';
 import { EthereumAccount } from '../blockchain/ethereum';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { SATOSHIS_PER_BTC, WEI_PER_ETH_BIGINT } from './decimals';
+import { isNetworkEnabled } from '../config/blockchains';
 
 // ============================================================================
 // Constants
@@ -31,22 +32,30 @@ export const GAP_LIMIT = 20;
  * Only scan networks that produce unique keypairs.
  * Solana devnet and Ethereum sepolia share keypairs with their mainnets,
  * so we skip them during scanning and auto-mirror on import.
+ *
+ * Filtered at module load time to exclude networks belonging to disabled
+ * blockchains (see config/blockchains.ts ENABLED_BLOCKCHAINS).
  */
-export const SCAN_NETWORKS: readonly string[] = [
+export const SCAN_NETWORKS: readonly string[] = ([
   'solana-mainnet',
   'bitcoin-mainnet',
   'bitcoin-testnet',
   'ethereum-mainnet',
-];
+] as const).filter(isNetworkEnabled);
 
 /**
  * Networks that share keypairs with a mainnet.
  * When importing a mainnet account, also derive and import its mirror.
+ *
+ * Filtered at module load time to exclude entries whose source network
+ * belongs to a disabled blockchain (see config/blockchains.ts).
  */
-export const MIRROR_NETWORKS: Record<string, string> = {
-  'solana-mainnet': 'solana-devnet',
-  'ethereum-mainnet': 'ethereum-sepolia',
-};
+export const MIRROR_NETWORKS: Record<string, string> = Object.fromEntries(
+  Object.entries({
+    'solana-mainnet': 'solana-devnet',
+    'ethereum-mainnet': 'ethereum-sepolia',
+  } as Record<string, string>).filter(([sourceNetwork]) => isNetworkEnabled(sourceNetwork)),
+);
 
 /**
  * Display metadata for each network used during scanning.

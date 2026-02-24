@@ -254,6 +254,12 @@ export { isSpamNft, filterSpamNfts } from './nft-spam-filter';
 // Price constants & helpers
 export { BLOCKCHAIN_TO_COINGECKO, PERIOD_TO_DAYS, coinInfoToMarketData } from './price-constants';
 
+// Blockchain feature-flag configuration
+// NOTE: isNetworkEnabled is intentionally not re-exported here to avoid
+// colliding with the async isNetworkEnabled in api/services/switch.ts.
+// Import directly from '../config/blockchains' when needed.
+export { ENABLED_BLOCKCHAINS, isBlockchainEnabled } from '../config/blockchains';
+
 // Derived-accounts scanning utilities (shared between mobile and extension)
 export {
   // Constants
