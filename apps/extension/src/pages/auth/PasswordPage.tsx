@@ -22,6 +22,8 @@ import {
   PASSWORD_CONSTRAINTS,
   validatePassword,
   useAccountsContext,
+  SCAN_NETWORKS,
+  MIRROR_NETWORKS,
 } from '@salmon/shared';
 import {
   ScreenHeader,
@@ -205,11 +207,7 @@ export function PasswordPage({ mnemonic, flowType, onCreating, onSuccess, onBack
       const { account } = await createAccount({
         name: accountName,
         mnemonic,
-        networkIds: [
-          'solana-mainnet', 'solana-devnet',
-          'bitcoin-mainnet', 'bitcoin-testnet',
-          'ethereum-mainnet', 'ethereum-sepolia',
-        ],
+        networkIds: [...SCAN_NETWORKS, ...Object.values(MIRROR_NETWORKS)],
         startIndex: 0,
       });
 

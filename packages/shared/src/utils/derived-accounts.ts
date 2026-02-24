@@ -29,32 +29,26 @@ import { isNetworkEnabled } from '../config/blockchains';
 export const GAP_LIMIT = 20;
 
 /**
- * Only scan networks that produce unique keypairs.
- * Solana devnet and Ethereum sepolia share keypairs with their mainnets,
- * so we skip them during scanning and auto-mirror on import.
- *
- * Filtered at module load time to exclude networks belonging to disabled
- * blockchains (see config/blockchains.ts ENABLED_BLOCKCHAINS).
+ * Mainnet networks to scan and create accounts for.
+ * Filtered by ENABLED_BLOCKCHAINS in config/blockchains.ts.
  */
 export const SCAN_NETWORKS: readonly string[] = ([
   'solana-mainnet',
   'bitcoin-mainnet',
-  'bitcoin-testnet',
   'ethereum-mainnet',
 ] as const).filter(isNetworkEnabled);
 
 /**
- * Networks that share keypairs with a mainnet.
+ * Networks that share keypairs with a mainnet (devnets / testnets).
  * When importing a mainnet account, also derive and import its mirror.
- *
- * Filtered at module load time to exclude entries whose source network
- * belongs to a disabled blockchain (see config/blockchains.ts).
+ * Filtered by ENABLED_BLOCKCHAINS in config/blockchains.ts.
  */
 export const MIRROR_NETWORKS: Record<string, string> = Object.fromEntries(
   Object.entries({
     'solana-mainnet': 'solana-devnet',
+    'bitcoin-mainnet': 'bitcoin-testnet',
     'ethereum-mainnet': 'ethereum-sepolia',
-  } as Record<string, string>).filter(([sourceNetwork]) => isNetworkEnabled(sourceNetwork)),
+  } as Record<string, string>).filter(([source]) => isNetworkEnabled(source)),
 );
 
 /**

@@ -32,6 +32,7 @@ import {
   normalizeMnemonic,
   createAccount,
   NETWORK_DISPLAY,
+  SCAN_NETWORKS,
   type AccountAddStep,
   type DerivedAccountInfo,
 } from '@salmon/shared';
@@ -147,7 +148,7 @@ export function AccountAddPage({
     try {
       const results = await scanDerivedAccounts(
         activeAccount.mnemonic,
-        ['solana-mainnet', 'ethereum-mainnet', 'bitcoin-mainnet'],
+        [...SCAN_NETWORKS],
       );
       setDerivedAccounts(results);
     } catch {
@@ -192,7 +193,7 @@ export function AccountAddPage({
       const { account } = await createAccount({
         name,
         mnemonic,
-        networkIds: ['solana-mainnet', 'ethereum-mainnet', 'bitcoin-mainnet'],
+        networkIds: [...SCAN_NETWORKS],
         startIndex,
       });
       await accountActions.addAccount(account);
