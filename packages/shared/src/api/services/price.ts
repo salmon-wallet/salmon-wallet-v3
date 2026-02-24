@@ -131,10 +131,24 @@ export async function getSolanaTokenPrice(
     return null;
   } catch (error) {
     if (error instanceof ApiError && error.isNotFound()) {
-      // Token not found, return null silently
+      // Token not found — no known price, skip CoinGecko fallback
       return null;
     }
     console.error(`[PriceService] Failed to fetch price for ${mintAddress}:`, error);
+
+    // Fallback: try CoinGecko static API for non-404 errors
+    try {
+      const fallback = await findTokenPrice(mintAddress, 'solana');
+      if (fallback) {
+        return {
+          usdPrice: fallback.usdPrice,
+          priceChange24h: fallback.perc24HoursChange,
+        };
+      }
+    } catch (fallbackError) {
+      console.error(`[PriceService] CoinGecko fallback also failed for ${mintAddress}:`, fallbackError);
+    }
+
     return null;
   }
 }
