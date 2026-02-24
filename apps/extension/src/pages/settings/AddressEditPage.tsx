@@ -90,7 +90,7 @@ const SaveButton = styled(Button)({
 
 export function AddressEditPage({
   contact,
-  activeBlockchain: _activeBlockchain,
+  activeBlockchain,
   onSave,
   onBack,
 }: AddressBookEditBaseProps): React.ReactElement {
@@ -137,7 +137,7 @@ export function AddressEditPage({
         {/* Network */}
         <FieldLabel>Network</FieldLabel>
         <NetworkBox>
-          <NetworkText>{contact.networkName}</NetworkText>
+          <NetworkText>{contact.networkId.split('-')[0].charAt(0).toUpperCase() + contact.networkId.split('-')[0].slice(1)}</NetworkText>
         </NetworkBox>
 
         {/* Save */}

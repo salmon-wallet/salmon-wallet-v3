@@ -140,7 +140,7 @@ export function AddressBookPage({
                       <>
                         {contact.domain || getShortAddress(contact.address, 6)}
                         {' \u00B7 '}
-                        {contact.networkName}
+                        {contact.networkId.split('-')[0].charAt(0).toUpperCase() + contact.networkId.split('-')[0].slice(1)}
                       </>
                     }
                     primaryTypographyProps={{

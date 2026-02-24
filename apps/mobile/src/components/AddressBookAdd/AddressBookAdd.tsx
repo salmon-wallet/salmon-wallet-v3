@@ -78,7 +78,7 @@ export function AddressBookAdd({
       {/* Network (read-only) */}
       <Text style={styles.fieldLabel}>Network</Text>
       <View style={styles.networkDisplay}>
-        <Text style={styles.networkText}>{activeNetworkName}</Text>
+        <Text style={styles.networkText}>{activeBlockchain.charAt(0).toUpperCase() + activeBlockchain.slice(1)}</Text>
       </View>
 
       {/* Save Button */}

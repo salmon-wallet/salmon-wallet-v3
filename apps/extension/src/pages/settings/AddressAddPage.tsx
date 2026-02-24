@@ -91,7 +91,7 @@ const SaveButton = styled(Button)({
 export function AddressAddPage({
   activeNetworkId,
   activeNetworkName,
-  activeBlockchain: _activeBlockchain,
+  activeBlockchain,
   onSave,
   onBack,
 }: AddressBookAddBaseProps): React.ReactElement {
@@ -132,7 +132,7 @@ export function AddressAddPage({
         {/* Network */}
         <FieldLabel>Network</FieldLabel>
         <NetworkBox>
-          <NetworkText>{activeNetworkName}</NetworkText>
+          <NetworkText>{activeBlockchain.charAt(0).toUpperCase() + activeBlockchain.slice(1)}</NetworkText>
         </NetworkBox>
 
         {/* Save */}

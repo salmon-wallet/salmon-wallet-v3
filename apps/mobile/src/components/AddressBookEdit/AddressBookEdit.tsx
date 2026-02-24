@@ -29,7 +29,7 @@ import { InputAddress } from '../InputAddress';
 
 export function AddressBookEdit({
   contact,
-  activeBlockchain: _activeBlockchain,
+  activeBlockchain,
   onSave,
   onBack,
 }: AddressBookEditBaseProps) {
@@ -79,7 +79,7 @@ export function AddressBookEdit({
       {/* Network (read-only) */}
       <Text style={styles.fieldLabel}>Network</Text>
       <View style={styles.networkDisplay}>
-        <Text style={styles.networkText}>{contact.networkName}</Text>
+        <Text style={styles.networkText}>{contact.networkId.split('-')[0].charAt(0).toUpperCase() + contact.networkId.split('-')[0].slice(1)}</Text>
       </View>
 
       {/* Save Button */}

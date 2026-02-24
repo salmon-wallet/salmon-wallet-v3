@@ -80,7 +80,7 @@ export function AddressBookSelector({
               {contact.domain || getShortAddress(contact.address, 6)}
             </Text>
             <Text style={styles.contactNetwork} numberOfLines={1}>
-              {contact.networkName}
+              {contact.networkId.split('-')[0].charAt(0).toUpperCase() + contact.networkId.split('-')[0].slice(1)}
             </Text>
           </View>
         </View>
