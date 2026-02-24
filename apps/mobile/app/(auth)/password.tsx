@@ -42,6 +42,8 @@ import {
   spacing,
   useAccountsContext,
   validatePassword,
+  SCAN_NETWORKS,
+  MIRROR_NETWORKS,
 } from '@salmon/shared';
 import {
   LoadingScreen,
@@ -205,11 +207,7 @@ export default function PasswordScreen() {
       const { account } = await createAccount({
         name: accountName,
         mnemonic: params.mnemonic,
-        networkIds: [
-          'solana-mainnet', 'solana-devnet',  // Solana
-          'bitcoin-mainnet', 'bitcoin-testnet', // Bitcoin
-          'ethereum-mainnet', 'ethereum-sepolia', // Ethereum
-        ],
+        networkIds: [...SCAN_NETWORKS, ...Object.values(MIRROR_NETWORKS)],
         startIndex: 0,
       });
 

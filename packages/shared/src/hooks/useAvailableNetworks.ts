@@ -16,6 +16,7 @@ import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/factory';
 import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/factory';
 import type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
 import { MAINNET_NETWORK_IDS, filterNetworks } from '../utils/network';
+import { isBlockchainEnabled } from '../config/blockchains';
 import { getNetworks } from '../api/services/network';
 
 // Re-export domain types for backward compatibility
@@ -123,24 +124,24 @@ export function useAvailableNetworks(
 
   const networks = useMemo<NetworksByBlockchain>(() => {
     return {
-      solana: filterNetworks(
+      solana: isBlockchainEnabled('solana') ? filterNetworks(
         SOLANA_NETWORKS,
         MAINNET_NETWORK_IDS.solana,
         developerNetworks,
         NETWORK_ORDER.solana
-      ),
-      bitcoin: filterNetworks(
+      ) : [],
+      bitcoin: isBlockchainEnabled('bitcoin') ? filterNetworks(
         BITCOIN_NETWORKS,
         MAINNET_NETWORK_IDS.bitcoin,
         developerNetworks,
         NETWORK_ORDER.bitcoin
-      ),
-      ethereum: filterNetworks(
+      ) : [],
+      ethereum: isBlockchainEnabled('ethereum') ? filterNetworks(
         ETHEREUM_NETWORKS,
         MAINNET_NETWORK_IDS.ethereum,
         developerNetworks,
         NETWORK_ORDER.ethereum
-      ),
+      ) : [],
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- apiMerged is an intentional cache-invalidation signal after fetchAndMergeNetworkConfigs completes
   }, [developerNetworks, apiMerged]);
