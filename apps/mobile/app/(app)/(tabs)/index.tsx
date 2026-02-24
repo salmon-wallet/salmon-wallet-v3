@@ -39,9 +39,9 @@ import {
   getShortAddress,
   spacing,
   useAccountsContext,
-  useAdjacentBalances,
   useAvailableNetworks,
   useBalance,
+  useRefreshOnFocus,
   useCurrencyContext,
   useTransactions,
   useUserConfig,
@@ -230,13 +230,6 @@ export default function HomeScreen() {
     return availableNetworks.filter(network => userNetworkIds.includes(network.id));
   }, [availableNetworks, activeAccount?.networksAccounts]);
 
-  // Get adjacent network accounts for preloading
-  const { adjacentAccounts } = useAdjacentBalances({
-    activeAccount,
-    allNetworks,
-    activeIndex: activeBlockchainIndex,
-  });
-
   // Get balance data for current network (active)
   const {
     tokens,
@@ -246,12 +239,20 @@ export default function HomeScreen() {
     loading,
     refreshing,
     refresh,
+    lastUpdated,
     hiddenBalance,
     toggleHidden,
   } = useBalance({
     account: activeBlockchainAccount,
     networkId: (networkId ?? undefined) as NetworkId | undefined,
     skip: !ready || !activeBlockchainAccount,
+  });
+
+  // Refresh balance when app returns from background (if cache is stale)
+  useRefreshOnFocus({
+    onFocus: refresh,
+    lastUpdated,
+    enabled: !!activeBlockchainAccount,
   });
 
   // Clear switching network flag once new data has loaded
@@ -278,45 +279,13 @@ export default function HomeScreen() {
     account: activeBlockchainAccount,
   });
 
-  // Preload balance data for previous network (activeIndex - 1)
-  const prevNetwork = allNetworks[activeBlockchainIndex - 1];
-  const {
-    usdTotal: prevUsdTotal,
-    changePercent: prevChangePercent,
-    changeAmount: prevChangeAmount,
-    loading: prevLoading,
-    refreshing: prevRefreshing,
-  } = useBalance({
-    account: adjacentAccounts.prevAccount,
-    networkId: prevNetwork?.id as NetworkId | undefined,
-    skip: !ready || !adjacentAccounts.prevAccount || !prevNetwork,
-  });
-
-  // Preload balance data for next network (activeIndex + 1)
-  const nextNetwork = allNetworks[activeBlockchainIndex + 1];
-  const {
-    usdTotal: nextUsdTotal,
-    changePercent: nextChangePercent,
-    changeAmount: nextChangeAmount,
-    loading: nextLoading,
-    refreshing: nextRefreshing,
-  } = useBalance({
-    account: adjacentAccounts.nextAccount,
-    networkId: nextNetwork?.id as NetworkId | undefined,
-    skip: !ready || !adjacentAccounts.nextAccount || !nextNetwork,
-  });
-
   // Create blockchain balances array for carousel
   // Maps available networks from useAvailableNetworks to BlockchainBalance objects
-  // Includes preloaded balance data for adjacent networks (±1 from active index)
   const blockchainBalances: BlockchainBalance[] = useMemo(() => {
-    return allNetworks.map((network, index) => {
+    return allNetworks.map((network) => {
       const blockchain = network.id.replace('-mainnet', '') as BlockchainId;
       const isActiveNetwork = network.id === networkId;
-      const isPrevNetwork = index === activeBlockchainIndex - 1;
-      const isNextNetwork = index === activeBlockchainIndex + 1;
 
-      // Determine which balance data to show based on preloading strategy
       let balanceData: {
         usdTotal: number | undefined;
         changePercent: number | undefined;
@@ -325,33 +294,15 @@ export default function HomeScreen() {
       };
 
       if (isActiveNetwork) {
-        // Active network: show current balance data
-        // Show loading during sub-account switch, network switch, OR when balance is loading
         const isSwitching = switchingSubAccount || switchingNetwork;
+        const showSkeleton = isSwitching || refreshing;
         balanceData = {
-          usdTotal: isSwitching ? undefined : usdTotal,
-          changePercent: isSwitching ? undefined : changePercent,
-          changeAmount: isSwitching ? undefined : changeAmount,
-          loading: isSwitching || (loading && !refreshing),
-        };
-      } else if (isPrevNetwork && prevNetwork) {
-        // Previous network (index - 1): show preloaded data
-        balanceData = {
-          usdTotal: prevUsdTotal,
-          changePercent: prevChangePercent,
-          changeAmount: prevChangeAmount,
-          loading: prevLoading && !prevRefreshing,
-        };
-      } else if (isNextNetwork && nextNetwork) {
-        // Next network (index + 1): show preloaded data
-        balanceData = {
-          usdTotal: nextUsdTotal,
-          changePercent: nextChangePercent,
-          changeAmount: nextChangeAmount,
-          loading: nextLoading && !nextRefreshing,
+          usdTotal: showSkeleton ? undefined : usdTotal,
+          changePercent: showSkeleton ? undefined : changePercent,
+          changeAmount: showSkeleton ? undefined : changeAmount,
+          loading: showSkeleton || (loading && !refreshing),
         };
       } else {
-        // Non-adjacent networks: show undefined (not preloaded)
         balanceData = {
           usdTotal: undefined,
           changePercent: undefined,
@@ -373,29 +324,13 @@ export default function HomeScreen() {
   }, [
     allNetworks,
     networkId,
-    activeBlockchainIndex,
     switchingSubAccount,
     switchingNetwork,
-    // Current network balance
     usdTotal,
     changePercent,
     changeAmount,
     loading,
     refreshing,
-    // Previous network balance
-    prevNetwork,
-    prevUsdTotal,
-    prevChangePercent,
-    prevChangeAmount,
-    prevLoading,
-    prevRefreshing,
-    // Next network balance
-    nextNetwork,
-    nextUsdTotal,
-    nextChangePercent,
-    nextChangeAmount,
-    nextLoading,
-    nextRefreshing,
   ]);
 
   // Get current blockchain type for TokenList styling
@@ -849,7 +784,7 @@ export default function HomeScreen() {
             showsVerticalScrollIndicator={false}
           >
             {/* Bitcoin Token Item */}
-            {switchingNetwork ? (
+            {(switchingNetwork || refreshing) ? (
               <TokenListSkeleton count={1} />
             ) : bitcoinToken && (
               <TokenListItem
@@ -891,8 +826,8 @@ export default function HomeScreen() {
         ) : (
           // Normal token list for Solana/Ethereum
           <TokenList
-            tokens={(switchingSubAccount || switchingNetwork) ? [] : tokenListItems}
-            loading={(switchingSubAccount || switchingNetwork) || (loading && tokenListItems.length === 0)}
+            tokens={(switchingSubAccount || switchingNetwork || refreshing) ? [] : tokenListItems}
+            loading={(switchingSubAccount || switchingNetwork || refreshing) || (loading && tokenListItems.length === 0)}
             onTokenPress={handleTokenPress}
             hiddenBalance={hiddenBalance}
             ListEmptyComponent={ListEmptyComponent}

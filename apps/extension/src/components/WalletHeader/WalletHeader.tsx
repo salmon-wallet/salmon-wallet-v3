@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CheckIcon from '@mui/icons-material/Check';
 import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials } from '@salmon/shared';
-import { CopyIcon, SettingsIcon } from '../Icon';
+import { CopyIcon, RefreshIcon, SettingsIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
 
@@ -119,6 +119,8 @@ export function WalletHeader({
   address,
   onCopyAddress,
   onSettingsPress,
+  onRefreshPress,
+  refreshing,
   onWalletPress,
   avatarUrl,
   accountId,
@@ -203,8 +205,25 @@ export function WalletHeader({
         </AccountTextContainer>
       </AccountInfo>
 
-      {/* Right side - Settings + Wallet buttons */}
+      {/* Right side - Refresh + Settings buttons */}
       <ActionButtons>
+        {onRefreshPress && (
+          <HeaderButton onClick={onRefreshPress} aria-label={t('accessibility.refresh_balance', 'Refresh balance')}>
+            <RefreshIcon
+              sx={{
+                color: colors.text.primary,
+                fontSize: 24,
+                ...(refreshing && {
+                  animation: 'spin 1s linear infinite',
+                  '@keyframes spin': {
+                    from: { transform: 'rotate(0deg)' },
+                    to: { transform: 'rotate(360deg)' },
+                  },
+                }),
+              }}
+            />
+          </HeaderButton>
+        )}
         <HeaderButton onClick={handleSettingsPress} aria-label={t('accessibility.open_settings')}>
           <SettingsIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
         </HeaderButton>

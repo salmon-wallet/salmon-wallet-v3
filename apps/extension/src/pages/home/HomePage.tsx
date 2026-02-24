@@ -6,8 +6,8 @@ import Typography from '@mui/material/Typography';
 import {
   useAccountsContext,
   useAvailableNetworks,
-  useAdjacentBalances,
   useBalance,
+  useRefreshOnFocus,
   useUserConfig,
   useTransactions,
   useAddressbook,
@@ -458,13 +458,6 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     }
   }, [allNetworks, activeBlockchainIndex, actions]);
 
-  // Get adjacent network accounts for preloading
-  const { adjacentAccounts } = useAdjacentBalances({
-    activeAccount,
-    allNetworks,
-    activeIndex: activeBlockchainIndex,
-  });
-
   // Fetch balance data for current network
   const {
     tokens,
@@ -472,6 +465,9 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     changePercent,
     changeAmount,
     loading,
+    refreshing,
+    refresh,
+    lastUpdated,
     hiddenBalance,
     toggleHidden,
   } = useBalance({
@@ -480,30 +476,11 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     skip: !ready || !activeBlockchainAccount || !networksReady,
   });
 
-  // Preload balance data for previous network (activeIndex - 1)
-  const prevNetwork = allNetworks[activeBlockchainIndex - 1];
-  const {
-    usdTotal: prevUsdTotal,
-    changePercent: prevChangePercent,
-    changeAmount: prevChangeAmount,
-    loading: prevLoading,
-  } = useBalance({
-    account: adjacentAccounts.prevAccount,
-    networkId: prevNetwork?.id as NetworkId | undefined,
-    skip: !ready || !adjacentAccounts.prevAccount || !prevNetwork,
-  });
-
-  // Preload balance data for next network (activeIndex + 1)
-  const nextNetwork = allNetworks[activeBlockchainIndex + 1];
-  const {
-    usdTotal: nextUsdTotal,
-    changePercent: nextChangePercent,
-    changeAmount: nextChangeAmount,
-    loading: nextLoading,
-  } = useBalance({
-    account: adjacentAccounts.nextAccount,
-    networkId: nextNetwork?.id as NetworkId | undefined,
-    skip: !ready || !adjacentAccounts.nextAccount || !nextNetwork,
+  // Refresh balance when extension regains focus (if cache is stale)
+  useRefreshOnFocus({
+    onFocus: refresh,
+    lastUpdated,
+    enabled: !!activeBlockchainAccount,
   });
 
   // Clear switching network flag once new data has loaded
@@ -656,6 +633,11 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     setCurrentPage('home');
   }, []);
 
+  const handleSendSuccess = useCallback(() => {
+    setCurrentPage('home');
+    refresh();
+  }, [refresh]);
+
   const handleReceivePress = useCallback(() => {
     setReceiveSheetVisible(true);
   }, []);
@@ -779,8 +761,6 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     return allNetworks.map((network, index) => {
       const blockchain = NETWORK_TO_BLOCKCHAIN[network.id] || 'solana';
       const isActiveNetwork = network.id === networkId;
-      const isPrevNetwork = index === activeBlockchainIndex - 1;
-      const isNextNetwork = index === activeBlockchainIndex + 1;
 
       let balanceData: {
         usdTotal: number | undefined;
@@ -790,25 +770,12 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       };
 
       if (isActiveNetwork) {
+        const showSkeleton = switchingNetwork || refreshing;
         balanceData = {
-          usdTotal: switchingNetwork ? undefined : usdTotal,
-          changePercent: switchingNetwork ? undefined : changePercent,
-          changeAmount: switchingNetwork ? undefined : changeAmount,
-          loading: switchingNetwork || (loading && usdTotal === undefined),
-        };
-      } else if (isPrevNetwork && prevNetwork) {
-        balanceData = {
-          usdTotal: prevUsdTotal,
-          changePercent: prevChangePercent,
-          changeAmount: prevChangeAmount,
-          loading: prevLoading,
-        };
-      } else if (isNextNetwork && nextNetwork) {
-        balanceData = {
-          usdTotal: nextUsdTotal,
-          changePercent: nextChangePercent,
-          changeAmount: nextChangeAmount,
-          loading: nextLoading,
+          usdTotal: showSkeleton ? undefined : usdTotal,
+          changePercent: showSkeleton ? undefined : changePercent,
+          changeAmount: showSkeleton ? undefined : changeAmount,
+          loading: showSkeleton || (loading && usdTotal === undefined),
         };
       } else {
         balanceData = { usdTotal: undefined, changePercent: undefined, changeAmount: undefined, loading: false };
@@ -820,10 +787,8 @@ export function HomePage({ onAddAccount }: HomePageProps) {
       };
     });
   }, [
-    allNetworks, networkId, activeBlockchainIndex, switchingNetwork,
+    allNetworks, networkId, activeBlockchainIndex, switchingNetwork, refreshing,
     usdTotal, changePercent, changeAmount, loading,
-    prevNetwork, prevUsdTotal, prevChangePercent, prevChangeAmount, prevLoading,
-    nextNetwork, nextUsdTotal, nextChangePercent, nextChangeAmount, nextLoading,
   ]);
 
   // Handle blockchain change from carousel arrows
@@ -1047,6 +1012,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
                   setNftSendDialogVisible(false);
                   setCurrentPage('home');
                   setSelectedNft(null);
+                  refresh();
                 }}
               />
 
@@ -1090,7 +1056,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
             blockchain={getBlockchainFromNetworkId(currentBlockchain)}
             account={activeBlockchainAccount}
             onBack={handleSendBack}
-            onSuccess={handleSendBack}
+            onSuccess={handleSendSuccess}
           />
         );
       case 'activity':
@@ -1314,6 +1280,8 @@ export function HomePage({ onAddAccount }: HomePageProps) {
         address={accountAddress}
         onCopyAddress={handleCopyAddress}
         onSettingsPress={handleSettingsPress}
+        onRefreshPress={refresh}
+        refreshing={refreshing}
         onWalletPress={handleWalletPress}
         avatarUrl={activeAccount?.avatar}
         accountId={activeAccount?.id}
@@ -1363,7 +1331,7 @@ export function HomePage({ onAddAccount }: HomePageProps) {
                 <TopListFade ref={topFadeRef} />
                 {currentBlockchain === 'bitcoin' ? (
                   <TokenSection onScroll={handleTokenListScroll}>
-                    {switchingNetwork ? (
+                    {(switchingNetwork || refreshing) ? (
                       <TokenListSkeleton count={1} />
                     ) : bitcoinToken && (
                       <TokenListItem
@@ -1396,10 +1364,10 @@ export function HomePage({ onAddAccount }: HomePageProps) {
                   </TokenSection>
                 ) : (
                   <TokenSection onScroll={handleTokenListScroll}>
-                    {formattedTokens.length > 0 || loading || switchingNetwork ? (
+                    {formattedTokens.length > 0 || loading || switchingNetwork || refreshing ? (
                       <TokenList
-                        tokens={switchingNetwork ? [] : formattedTokens}
-                        loading={switchingNetwork || (loading && formattedTokens.length === 0)}
+                        tokens={(switchingNetwork || refreshing) ? [] : formattedTokens}
+                        loading={(switchingNetwork || refreshing) || (loading && formattedTokens.length === 0)}
                         onTokenPress={handleTokenPress}
                         hiddenBalance={hiddenBalance}
                         blockchain={getBlockchainFromNetworkId(currentBlockchain)}

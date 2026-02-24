@@ -81,17 +81,6 @@ export type {
   UseBalanceResult,
 } from './useBalance';
 
-// Adjacent balances hook
-export {
-  useAdjacentBalances,
-  default as useAdjacentBalancesDefault,
-} from './useAdjacentBalances';
-export type {
-  AdjacentAccounts,
-  UseAdjacentBalancesParams,
-  UseAdjacentBalancesResult,
-} from './useAdjacentBalances';
-
 // Transactions hook
 export {
   useTransactions,

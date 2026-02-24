@@ -18,6 +18,10 @@ export interface WalletHeaderPropsBase<TStyle> {
   avatarUrl?: string;
   /** Account ID (used for deterministic fallback color) */
   accountId?: string;
+  /** Callback when refresh button is pressed (extension only) */
+  onRefreshPress?: () => void;
+  /** Whether a balance refresh is in progress */
+  refreshing?: boolean;
   /** Optional custom styles for the container */
   style?: TStyle;
 }
