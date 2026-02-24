@@ -181,6 +181,12 @@ export type {
 // SwapScreen logic hook (shared between mobile & extension)
 export { useSwapScreenLogic } from './useSwapScreenLogic';
 
+// Send contacts hook (address book + own wallets for send flow)
+export {
+  useSendContacts,
+  default as useSendContactsDefault,
+} from './useSendContacts';
+
 // Address book hook
 export {
   useAddressbook,
@@ -212,6 +218,10 @@ export type {
   UseAvatarNftsParams,
   UseAvatarNftsResult,
 } from './useAvatarNfts';
+
+// Refresh on focus hook (platform-split: .native.ts / .web.ts)
+export { default as useRefreshOnFocus } from './useRefreshOnFocus';
+export type { UseRefreshOnFocusOptions } from './useRefreshOnFocus';
 
 // Currency context (re-export for discoverability)
 export { useCurrencyContext } from '../contexts/CurrencyContext';

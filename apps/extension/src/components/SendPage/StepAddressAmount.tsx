@@ -17,6 +17,7 @@ import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import ButtonBase from '@mui/material/ButtonBase';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useTranslation } from 'react-i18next';
 import {
   colors,
   spacing,
@@ -25,6 +26,8 @@ import {
   fontWeight,
   useAddressValidation,
   useCurrencyContext,
+  useSendContacts,
+  getShortAddress,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepAddressAmountProps } from './types';
@@ -315,6 +318,74 @@ const ReviewButtonText = styled(Typography)({
   color: colors.text.primary,
 });
 
+// Contact / Wallet sections
+const ContactSection = styled(Box)({
+  marginBottom: spacing.lg,
+});
+
+const ContactSectionHeader = styled(Typography)({
+  fontSize: 13,
+  fontWeight: fontWeight.bold,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.secondary,
+  marginBottom: spacing.sm,
+});
+
+const ContactRow = styled(ButtonBase)({
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  borderRadius: 10,
+  padding: `${spacing.md}px ${spacing.lg}px`,
+  marginBottom: spacing.xs,
+  transition: 'opacity 0.15s ease',
+  '&:hover': {
+    opacity: 0.8,
+  },
+});
+
+const ContactInfo = styled(Box)({
+  flex: 1,
+  minWidth: 0,
+  marginRight: spacing.sm,
+  textAlign: 'left',
+});
+
+const ContactName = styled(Typography)({
+  fontSize: 14,
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  textAlign: 'left',
+});
+
+const ContactAddress = styled(Typography)({
+  fontSize: 12,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.secondary,
+  textAlign: 'left',
+});
+
+const BlockchainBadge = styled(Box)({
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  borderRadius: 6,
+  padding: `${spacing.xs}px ${spacing.sm}px`,
+  flexShrink: 0,
+});
+
+const BlockchainBadgeText = styled(Typography)({
+  fontSize: 11,
+  fontWeight: fontWeight.medium,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.secondary,
+});
+
 // ============================================================================
 // Component
 // ============================================================================
@@ -327,9 +398,14 @@ export function StepAddressAmount({
   onReview,
   onCancel,
 }: StepAddressAmountProps) {
+  const { t } = useTranslation();
   const [{ currency }, { formatPrecise }] = useCurrencyContext();
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
+
+  // Address book contacts and own wallets
+  const senderAddress = account.getReceiveAddress();
+  const { contacts, ownWallets } = useSendContacts(senderAddress);
 
   // Address validation — account owns its own connection/provider
   const {
@@ -508,6 +584,45 @@ export function StepAddressAmount({
             </ValidationMessage>
           )}
         </FieldGroup>
+
+        {/* My Wallets */}
+        {address.length === 0 && ownWallets.length > 0 && (
+          <ContactSection>
+            <ContactSectionHeader>{t('token.send.myWallets')}</ContactSectionHeader>
+            {ownWallets.map((wallet) => (
+              <ContactRow
+                key={wallet.address}
+                onClick={() => setAddress(wallet.address)}
+              >
+                <ContactName>{wallet.accountName}</ContactName>
+                <ContactAddress>{getShortAddress(wallet.address)}</ContactAddress>
+              </ContactRow>
+            ))}
+          </ContactSection>
+        )}
+
+        {/* Address Book */}
+        {address.length === 0 && contacts.length > 0 && (
+          <ContactSection>
+            <ContactSectionHeader>{t('token.send.addressBook')}</ContactSectionHeader>
+            {contacts.map((contact) => (
+              <ContactRow
+                key={contact.address}
+                onClick={() => setAddress(contact.address)}
+              >
+                <ContactInfo>
+                  <ContactName>{contact.name}</ContactName>
+                  <ContactAddress>{getShortAddress(contact.address)}</ContactAddress>
+                </ContactInfo>
+                <BlockchainBadge>
+                  <BlockchainBadgeText>
+                    {contact.blockchain.charAt(0).toUpperCase() + contact.blockchain.slice(1)}
+                  </BlockchainBadgeText>
+                </BlockchainBadge>
+              </ContactRow>
+            ))}
+          </ContactSection>
+        )}
 
         {/* Amount */}
         <FieldGroup>

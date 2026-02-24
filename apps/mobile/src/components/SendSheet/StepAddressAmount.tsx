@@ -11,6 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import {
   colors,
   fontFamilyNative,
@@ -19,6 +20,8 @@ import {
   s,
   useAddressValidation,
   useCurrencyContext,
+  useSendContacts,
+  getShortAddress,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -46,9 +49,14 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   onReview,
   onCancel,
 }) => {
+  const { t } = useTranslation();
   const [{ currency }, { formatPrecise }] = useCurrencyContext();
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
+
+  // Address book contacts and own wallets
+  const senderAddress = account.getReceiveAddress();
+  const { contacts, ownWallets, isLoading: contactsLoading } = useSendContacts(senderAddress);
 
   // Address validation — account owns its own connection/provider
   const {
@@ -201,6 +209,49 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
             </Text>
           )}
         </View>
+
+        {/* My Wallets */}
+        {address.length === 0 && ownWallets.length > 0 && (
+          <View style={styles.contactSection}>
+            <Text style={styles.contactSectionHeader}>{t('token.send.myWallets')}</Text>
+            {ownWallets.map((wallet) => (
+              <TouchableOpacity
+                key={wallet.address}
+                style={styles.contactRow}
+                onPress={() => setAddress(wallet.address)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.contactName} numberOfLines={1}>{wallet.accountName}</Text>
+                <Text style={styles.contactAddress} numberOfLines={1}>{getShortAddress(wallet.address)}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* Address Book */}
+        {address.length === 0 && contacts.length > 0 && (
+          <View style={styles.contactSection}>
+            <Text style={styles.contactSectionHeader}>{t('token.send.addressBook')}</Text>
+            {contacts.map((contact) => (
+              <TouchableOpacity
+                key={contact.address}
+                style={styles.contactRow}
+                onPress={() => setAddress(contact.address)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.contactInfo}>
+                  <Text style={styles.contactName} numberOfLines={1}>{contact.name}</Text>
+                  <Text style={styles.contactAddress} numberOfLines={1}>{getShortAddress(contact.address)}</Text>
+                </View>
+                <View style={styles.blockchainBadge}>
+                  <Text style={styles.blockchainBadgeText}>
+                    {contact.blockchain.charAt(0).toUpperCase() + contact.blockchain.slice(1)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {/* Amount */}
         <View style={styles.fieldGroup}>
@@ -366,6 +417,53 @@ const styles = StyleSheet.create({
   },
   validationMessageWarning: {
     color: colors.status.warning,
+  },
+  // Contact / Wallet sections
+  contactSection: {
+    marginBottom: vs(16),
+  },
+  contactSectionHeader: {
+    fontSize: ms(13),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.secondary,
+    marginBottom: vs(8),
+  },
+  contactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: ms(10),
+    paddingVertical: vs(12),
+    paddingHorizontal: s(14),
+    marginBottom: vs(6),
+  },
+  contactInfo: {
+    flex: 1,
+    marginRight: s(8),
+  },
+  contactName: {
+    fontSize: ms(14),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.primary,
+  },
+  contactAddress: {
+    fontSize: ms(12),
+    fontFamily: fontFamilyNative.regular,
+    color: colors.text.secondary,
+    marginTop: vs(2),
+  },
+  blockchainBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: ms(6),
+    paddingHorizontal: s(8),
+    paddingVertical: vs(3),
+    flexShrink: 0,
+  },
+  blockchainBadgeText: {
+    fontSize: ms(11),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.secondary,
   },
   // Amount
   amountInputContainer: {

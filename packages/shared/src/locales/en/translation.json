@@ -67,7 +67,11 @@
     "requesting_site": "Requesting site",
     "wallet_address": "Wallet",
     "approve": "Approve",
-    "deny": "Deny"
+    "deny": "Deny",
+    "sign_message_title": "Sign Message",
+    "sign_message_subtitle": "This site wants you to sign a message",
+    "message_label": "Message",
+    "hex_message_label": "Message (hex)"
   },
   "settings": {
     "title": "Settings",
@@ -226,6 +230,8 @@
       "warning": "This address is for tokens on the {{blockchain}} blockchain. Please, do not send any other tokens as it may result in funds loss."
     },
     "send": {
+      "myWallets": "My Wallets",
+      "addressBook": "Address Book",
       "address": {
         "INVALID_ADDRESS": "Destination address is not valid",
         "EMPTY_ACCOUNT": "Destination address is empty",
@@ -532,6 +538,7 @@
     "open_settings": "Open settings",
     "switch_wallet": "Switch wallet account",
     "edit_account": "Edit account",
-    "delete_account": "Delete account"
+    "delete_account": "Delete account",
+    "refresh_balance": "Refresh balance"
   }
 }

@@ -66,6 +66,48 @@ export interface StepAddressAmountPropsBase {
   onCancel: () => void;
 }
 
+// ============================================================================
+// Send contact selector types
+// ============================================================================
+
+/**
+ * A contact from the address book, filtered for the send flow.
+ */
+export interface SendContact {
+  /** User-defined label */
+  name: string;
+  /** Blockchain address */
+  address: string;
+  /** Human-readable network name */
+  networkName: string;
+  /** Blockchain type (e.g., 'solana', 'ethereum', 'bitcoin') */
+  blockchain: string;
+  /** Optional domain name (e.g., .sol, .eth) */
+  domain?: string | null;
+}
+
+/**
+ * One of the user's own wallet addresses on the active network.
+ */
+export interface SendOwnWallet {
+  /** Account name (e.g., "Account #1") */
+  accountName: string;
+  /** Blockchain address */
+  address: string;
+}
+
+/**
+ * Return type for the useSendContacts hook.
+ */
+export interface UseSendContactsResult {
+  /** Address book contacts matching the active network, excluding the sender */
+  contacts: SendContact[];
+  /** User's other wallets on the active network, excluding the sender */
+  ownWallets: SendOwnWallet[];
+  /** Whether address book data is still loading */
+  isLoading: boolean;
+}
+
 /**
  * Props for the confirmation step
  */

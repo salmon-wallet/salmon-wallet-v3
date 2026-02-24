@@ -33,6 +33,9 @@ export type {
   StepTokenSelectProps,
   StepAddressAmountPropsBase,
   StepConfirmationProps,
+  SendContact,
+  SendOwnWallet,
+  UseSendContactsResult,
 } from './send-sheet';
 
 // Transaction History

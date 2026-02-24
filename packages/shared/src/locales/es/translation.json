@@ -67,7 +67,11 @@
     "requesting_site": "Sitio que solicita",
     "wallet_address": "Billetera",
     "approve": "Aprobar",
-    "deny": "Rechazar"
+    "deny": "Rechazar",
+    "sign_message_title": "Firmar Mensaje",
+    "sign_message_subtitle": "Este sitio quiere que firmes un mensaje",
+    "message_label": "Mensaje",
+    "hex_message_label": "Mensaje (hex)"
   },
   "settings": {
     "title": "Configuración",
@@ -227,6 +231,8 @@
       "warning": "Esta dirección es para tokens en la block chain {{blockchain}}. Por favor, no envíe ningún otro token, ya que puede provocar la pérdida de fondos."
     },
     "send": {
+      "myWallets": "Mis Billeteras",
+      "addressBook": "Libreta de Direcciones",
       "address": {
         "INVALID_ADDRESS": "La dirección destino no es valida",
         "EMPTY_ACCOUNT": "La dirección destino esta vacia",
@@ -533,6 +539,7 @@
     "open_settings": "Abrir configuración",
     "switch_wallet": "Cambiar cuenta de billetera",
     "edit_account": "Editar cuenta",
-    "delete_account": "Eliminar cuenta"
+    "delete_account": "Eliminar cuenta",
+    "refresh_balance": "Actualizar balance"
   }
 }
