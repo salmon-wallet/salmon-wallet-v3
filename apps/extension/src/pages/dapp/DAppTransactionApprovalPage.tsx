@@ -28,7 +28,7 @@ interface Props {
   request: DAppTransactionRequest;
   account: BlockchainAccount | undefined;
   networkId: string | null;
-  onDismiss: () => void;
+  onDismiss: (approved: boolean) => void;
 }
 
 const Container = styled(Box)({
@@ -261,7 +261,7 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
 
   const handleDeny = useCallback(() => {
     sendToBackground({ error: 'User rejected the request' });
-    onDismiss();
+    onDismiss(false);
   }, [sendToBackground, onDismiss]);
 
   const handleApprove = useCallback(async () => {
@@ -301,7 +301,7 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
             },
           });
         }
-        onDismiss();
+        onDismiss(true);
         return;
       }
 
@@ -335,7 +335,7 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
             publicKey,
           },
         });
-        onDismiss();
+        onDismiss(true);
         return;
       }
 
@@ -361,7 +361,7 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
           const signature = await connection.sendTransaction(parsed.tx, options as never);
           sendToBackground({ result: { signature } });
         }
-        onDismiss();
+        onDismiss(true);
         return;
       }
 
@@ -369,7 +369,7 @@ export function DAppTransactionApprovalPage({ origin, request, account, networkI
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Transaction approval failed';
       sendToBackground({ error: msg });
-      onDismiss();
+      onDismiss(false);
     } finally {
       setLoading(false);
     }

@@ -327,13 +327,14 @@ function PlaceholderPage({
 
 interface HomePageProps {
   onAddAccount: () => void;
+  refreshKey?: number;
 }
 
 /**
  * Home page component displayed when wallet is unlocked.
  * Shows account info and provides access to main wallet features.
  */
-export function HomePage({ onAddAccount }: HomePageProps) {
+export function HomePage({ onAddAccount, refreshKey }: HomePageProps) {
   const { t } = useTranslation();
   const [state, actions] = useAccountsContext();
   const [{ currency }, { changeCurrency }] = useCurrencyContext();
@@ -482,6 +483,13 @@ export function HomePage({ onAddAccount }: HomePageProps) {
     lastUpdated,
     enabled: !!activeBlockchainAccount,
   });
+
+  // Refresh balance after a dApp transaction approval
+  useEffect(() => {
+    if (refreshKey && refreshKey > 0) {
+      refresh();
+    }
+  }, [refreshKey, refresh]);
 
   // Clear switching network flag once new data has loaded
   useEffect(() => {

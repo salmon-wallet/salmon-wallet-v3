@@ -41,7 +41,7 @@ interface Props {
   origin: string;
   request: DAppSignMessageRequest;
   account: BlockchainAccount | undefined;
-  onDismiss: () => void;
+  onDismiss: (approved: boolean) => void;
 }
 
 // ============================================================================
@@ -197,7 +197,7 @@ export function DAppSignMessageApprovalPage({ origin, request, account, onDismis
 
   const handleDeny = useCallback(() => {
     sendToBackground({ error: 'User rejected the request' });
-    onDismiss();
+    onDismiss(false);
   }, [sendToBackground, onDismiss]);
 
   const handleApprove = useCallback(async () => {
@@ -222,11 +222,11 @@ export function DAppSignMessageApprovalPage({ origin, request, account, onDismis
           publicKey,
         },
       });
-      onDismiss();
+      onDismiss(true);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Message signing failed';
       sendToBackground({ error: msg });
-      onDismiss();
+      onDismiss(false);
     } finally {
       setLoading(false);
     }

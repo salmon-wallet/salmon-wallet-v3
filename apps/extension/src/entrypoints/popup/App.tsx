@@ -182,6 +182,14 @@ function App() {
     }
   }, []);
 
+  // Refresh signal for HomePage after dApp approval
+  const [dappRefreshKey, setDappRefreshKey] = useState(0);
+
+  const dismissApprovalWithRefresh = useCallback((approved: boolean) => {
+    dismissApproval();
+    if (approved) setDappRefreshKey((k) => k + 1);
+  }, [dismissApproval]);
+
   // Auth flow state
   const [authStep, setAuthStep] = useState<AuthStep>('select');
   const [authData, setAuthData] = useState<AuthData | null>(null);
@@ -405,7 +413,7 @@ function App() {
         origin={pendingDAppSignMessageRequest.origin}
         request={pendingDAppSignMessageRequest.request}
         account={activeBlockchainAccount}
-        onDismiss={dismissApproval}
+        onDismiss={dismissApprovalWithRefresh}
       />
     );
   }
@@ -423,7 +431,7 @@ function App() {
         request={pendingDAppTxRequest.request}
         account={activeBlockchainAccount}
         networkId={networkId ?? null}
-        onDismiss={dismissApproval}
+        onDismiss={dismissApprovalWithRefresh}
       />
     );
   }
@@ -449,7 +457,7 @@ function App() {
   }
 
   // Wallet is unlocked
-  return <HomePage onAddAccount={handleAddAccountFromHome} />;
+  return <HomePage onAddAccount={handleAddAccountFromHome} refreshKey={dappRefreshKey} />;
 }
 
 // ============================================================================
