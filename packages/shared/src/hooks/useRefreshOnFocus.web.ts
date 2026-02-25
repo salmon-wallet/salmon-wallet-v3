@@ -14,10 +14,10 @@ function useRefreshOnFocus({
   enabled = true,
 }: UseRefreshOnFocusOptions): void {
   const onFocusRef = useRef(onFocus);
-  onFocusRef.current = onFocus;
+  useEffect(() => { onFocusRef.current = onFocus; }, [onFocus]);
 
   const lastUpdatedRef = useRef(lastUpdated);
-  lastUpdatedRef.current = lastUpdated;
+  useEffect(() => { lastUpdatedRef.current = lastUpdated; }, [lastUpdated]);
 
   useEffect(() => {
     if (!enabled) return;

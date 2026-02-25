@@ -30,7 +30,7 @@ import type { UseSendContactsResult } from '../types/ui/send-sheet';
  */
 export function useSendContacts(senderAddress: string): UseSendContactsResult {
   const [accountState] = useAccountsContext();
-  const { accounts, networkId, activeBlockchainAccount } = accountState;
+  const { accounts, networkId } = accountState;
 
   // Build network adapter from available networks
   const { allNetworks } = useAvailableNetworks({

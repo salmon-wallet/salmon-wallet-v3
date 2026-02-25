@@ -141,7 +141,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onSendDeposit,
   onRefreshBalances,
   // Platform-specific
-  onBridgeInitiated,
+  onBridgeInitiated: _onBridgeInitiated,
   onNavigateHome,
 }: UseSwapScreenLogicOptions<StyleType>): UseSwapScreenLogicReturn {
   // ── State ──────────────────────────────────────────────────────────────
@@ -540,7 +540,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   const swapConfirmLabel = useMemo(() => {
     if (countdown <= 0) return 'Refresh Quote';
     return `Confirm (${countdown})`;
-  }, [countdown, swapMode]);
+  }, [countdown]);
 
   const handleConfirmOrRefresh = useCallback(async () => {
     if (countdown <= 0) {
