@@ -56,7 +56,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
 
   // Address book contacts and own wallets
   const senderAddress = account.getReceiveAddress();
-  const { contacts, ownWallets, isLoading: contactsLoading } = useSendContacts(senderAddress);
+  const { contacts, ownWallets, isLoading: _contactsLoading } = useSendContacts(senderAddress);
 
   // Address validation — account owns its own connection/provider
   const {

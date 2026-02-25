@@ -84,6 +84,13 @@ export const SendSheet: React.FC<SendSheetProps> = ({
     }, ANIMATION_DURATION);
   }, [onClose, sendHook, skipTokenSelect, tokens]);
 
+  const handleSuccessContinue = useCallback(() => {
+    if (successTxId) {
+      onSuccess?.(successTxId);
+    }
+    handleClose();
+  }, [successTxId, onSuccess, handleClose]);
+
   // Handle Android back button (step-aware)
   useEffect(() => {
     if (Platform.OS !== 'android' || !visible) return;
@@ -105,7 +112,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
     );
 
     return () => backHandler.remove();
-  }, [visible, step, skipTokenSelect, handleClose]);
+  }, [visible, step, skipTokenSelect, handleClose, handleSuccessContinue]);
 
   // Step navigation handlers
   const handleSelectToken = useCallback((token: SendToken) => {
@@ -132,13 +139,6 @@ export const SendSheet: React.FC<SendSheetProps> = ({
     setSuccessTxId(txId);
     setStep('success');
   }, []);
-
-  const handleSuccessContinue = useCallback(() => {
-    if (successTxId) {
-      onSuccess?.(successTxId);
-    }
-    handleClose();
-  }, [successTxId, onSuccess, handleClose]);
 
   // Back button handler for the header
   const handleBackPress = useCallback(() => {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSwapScreenLogic, getTransactionUrl, getDefaultExplorer } from '@salmon/shared';
 import type { Blockchain, NetworkEnvironment } from '@salmon/shared';

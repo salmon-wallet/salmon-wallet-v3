@@ -14,7 +14,6 @@ export default function SecurityScreen() {
     state: biometricState,
     enableBiometric,
     setEnableBiometric,
-    storeKeyForBiometric,
   } = useBiometricAuth();
 
   const handleBack = useCallback(() => {

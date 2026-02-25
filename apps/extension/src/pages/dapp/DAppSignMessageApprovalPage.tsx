@@ -59,6 +59,7 @@ function decodeMessage(data: number[]): { text: string; isHex: boolean } {
   try {
     const decoded = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
     // Check for control characters (except common whitespace)
+    // eslint-disable-next-line no-control-regex
     if (/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(decoded)) {
       return { text: toHex(bytes), isHex: true };
     }

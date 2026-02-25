@@ -334,7 +334,7 @@ interface HomePageProps {
  * Home page component displayed when wallet is unlocked.
  * Shows account info and provides access to main wallet features.
  */
-export function HomePage({ onAddAccount, refreshKey }: HomePageProps) {
+export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePageProps) {
   const { t } = useTranslation();
   const [state, actions] = useAccountsContext();
   const [{ currency }, { changeCurrency }] = useCurrencyContext();
@@ -766,7 +766,7 @@ export function HomePage({ onAddAccount, refreshKey }: HomePageProps) {
 
   // Build blockchain balances array for carousel
   const blockchainBalances: BlockchainBalance[] = useMemo(() => {
-    return allNetworks.map((network, index) => {
+    return allNetworks.map((network, _index) => {
       const blockchain = NETWORK_TO_BLOCKCHAIN[network.id] || 'solana';
       const isActiveNetwork = network.id === networkId;
 
@@ -795,7 +795,7 @@ export function HomePage({ onAddAccount, refreshKey }: HomePageProps) {
       };
     });
   }, [
-    allNetworks, networkId, activeBlockchainIndex, switchingNetwork, refreshing,
+    allNetworks, networkId, switchingNetwork, refreshing,
     usdTotal, changePercent, changeAmount, loading,
   ]);
 

@@ -379,7 +379,7 @@ export function NftDetailPage({
     }
 
     return null;
-  }, [nft, handleCopy]);
+  }, [nft, handleCopy, copiedField]);
 
   const renderAttribute = useCallback((attribute: NftAttribute, index: number) => {
     return (

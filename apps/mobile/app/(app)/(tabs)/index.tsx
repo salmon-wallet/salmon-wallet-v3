@@ -614,7 +614,7 @@ export default function HomeScreen() {
 
   const handleTransactionPress = useCallback((transaction: Transaction) => {
     // Open transaction in Solana Explorer
-    const explorerUrl = networkId === 'solana-devnet'
+    const _explorerUrl = networkId === 'solana-devnet'
       ? `https://explorer.solana.com/tx/${transaction.id}?cluster=devnet`
       : `https://explorer.solana.com/tx/${transaction.id}`;
     // TODO: Open in browser or in-app browser
@@ -671,7 +671,7 @@ export default function HomeScreen() {
     setSelectedTokenChartPeriod(period);
   }, []);
 
-  const handleBlockchainChange = useCallback((blockchain: BlockchainId, index: number) => {
+  const handleBlockchainChange = useCallback((_blockchain: BlockchainId, index: number) => {
     setActiveBlockchainIndex(index);
     // Switch to the selected network
     const selectedBalance = blockchainBalances[index];

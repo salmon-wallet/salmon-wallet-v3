@@ -8,7 +8,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import PersonIcon from '@mui/icons-material/Person';

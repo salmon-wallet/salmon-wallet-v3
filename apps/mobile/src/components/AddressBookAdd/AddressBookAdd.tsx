@@ -29,7 +29,7 @@ import { InputAddress } from '../InputAddress';
 
 export function AddressBookAdd({
   activeNetworkId,
-  activeNetworkName,
+  activeNetworkName: _activeNetworkName,
   activeBlockchain,
   onSave,
   onBack,

@@ -29,7 +29,7 @@ import { InputAddress } from '../InputAddress';
 
 export function AddressBookEdit({
   contact,
-  activeBlockchain,
+  activeBlockchain: _activeBlockchain,
   onSave,
   onBack,
 }: AddressBookEditBaseProps) {

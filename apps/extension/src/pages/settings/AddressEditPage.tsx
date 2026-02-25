@@ -90,7 +90,7 @@ const SaveButton = styled(Button)({
 
 export function AddressEditPage({
   contact,
-  activeBlockchain,
+  activeBlockchain: _activeBlockchain,
   onSave,
   onBack,
 }: AddressBookEditBaseProps): React.ReactElement {

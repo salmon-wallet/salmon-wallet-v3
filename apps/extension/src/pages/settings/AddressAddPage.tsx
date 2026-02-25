@@ -90,7 +90,7 @@ const SaveButton = styled(Button)({
 
 export function AddressAddPage({
   activeNetworkId,
-  activeNetworkName,
+  activeNetworkName: _activeNetworkName,
   activeBlockchain,
   onSave,
   onBack,
