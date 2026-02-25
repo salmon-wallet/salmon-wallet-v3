@@ -145,6 +145,7 @@ export function TransactionSuccessScreen({
   bridgeAmountIn,
   bridgeAmountOut,
   bridgeExchangeId,
+  bridgeDepositTxId,
 }: TransactionSuccessScreenProps): React.ReactElement {
   const { t } = useTranslation();
   const isBridge = !!bridgeDepositAddress;
@@ -176,6 +177,21 @@ export function TransactionSuccessScreen({
             <>
               <BridgeLabel>{t('bridge.estimatedReceive', 'You will receive approximately')}</BridgeLabel>
               <BridgeValue>{bridgeAmountOut}</BridgeValue>
+            </>
+          )}
+          {bridgeDepositTxId && (
+            <>
+              <BridgeLabel>{t('bridge.depositTxId', 'Deposit Transaction')}</BridgeLabel>
+              <BridgeValue>
+                <ExplorerLink
+                  href={`https://solscan.io/tx/${bridgeDepositTxId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginBottom: 0, animation: 'none', opacity: 1 }}
+                >
+                  {bridgeDepositTxId.slice(0, 8)}...{bridgeDepositTxId.slice(-8)}
+                </ExplorerLink>
+              </BridgeValue>
             </>
           )}
           {bridgeExchangeId && (

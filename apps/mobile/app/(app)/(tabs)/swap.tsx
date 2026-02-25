@@ -108,6 +108,7 @@ export default function SwapScreenPage() {
     tokens: multiChainTokens,
     featuredTokens: topTokens,
     loading,
+    refresh: refreshBalances,
   } = useMultiChainTokens({
     activeAccount,
     skip: !ready || !activeAccount,
@@ -317,6 +318,15 @@ export default function SwapScreenPage() {
     }
   }, [createBridgeExchange]);
 
+  const handleSendDeposit = useCallback(async (
+    depositAddress: string,
+    tokenAddress: string,
+    amount: number,
+  ): Promise<{ txId: string }> => {
+    if (!activeBlockchainAccount) throw new Error('No active account');
+    return activeBlockchainAccount.transfer(depositAddress, tokenAddress, amount);
+  }, [activeBlockchainAccount]);
+
   const handleBridgeSuccess = useCallback((_exchange: BridgeExchangeSimple) => {
     resetBridge();
   }, [resetBridge]);
@@ -361,8 +371,10 @@ export default function SwapScreenPage() {
           onGetAvailableTokens={handleGetAvailableTokens}
           onGetBridgeEstimate={handleGetBridgeEstimate}
           onCreateBridgeExchange={handleCreateBridgeExchange}
+          onSendDeposit={handleSendDeposit}
           onBridgeSuccess={handleBridgeSuccess}
           onBridgeError={handleBridgeError}
+          onRefreshBalances={refreshBalances}
           onNavigateHome={handleNavigateHome}
         />
       </View>

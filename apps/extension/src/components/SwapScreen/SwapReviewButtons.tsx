@@ -74,6 +74,7 @@ export const SwapReviewButtons: React.FC<SwapReviewButtonsProps> = ({
           style={{
             height: 42,
             background: 'transparent',
+            whiteSpace: 'nowrap',
           }}
         >
           {confirmLabel}

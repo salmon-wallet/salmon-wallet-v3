@@ -215,6 +215,7 @@ export {
   getSwapType,
   getSwapMode,
   getChainFromNetwork,
+  toStealthExNetwork,
   validateAddress,
   mapToSwapToken,
   unifiedToSwapToken,

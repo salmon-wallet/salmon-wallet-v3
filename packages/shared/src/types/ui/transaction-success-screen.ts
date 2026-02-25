@@ -20,4 +20,6 @@ export interface TransactionSuccessScreenProps {
   bridgeAmountOut?: string;
   /** Bridge exchange ID for tracking */
   bridgeExchangeId?: string;
+  /** Bridge deposit transaction ID (on-chain tx signature) */
+  bridgeDepositTxId?: string;
 }

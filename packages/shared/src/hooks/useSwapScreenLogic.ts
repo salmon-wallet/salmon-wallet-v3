@@ -20,7 +20,7 @@ import type {
   BridgeToken,
   BridgeEstimate,
 } from '../types/ui/bridge-screen';
-import { getSwapMode, validateAddress, getChainFromNetwork } from '../utils/swap';
+import { getSwapMode, validateAddress, getChainFromNetwork, toStealthExNetwork } from '../utils/swap';
 import { getChainDisplayName } from '../utils/account';
 import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
 import { isBlockchainEnabled } from '../config/blockchains';
@@ -70,6 +70,7 @@ export interface UseSwapScreenLogicReturn {
   tokensLoading: boolean;
   successTxId: string | null;
   successExchange: BridgeExchangeSimple | null;
+  depositTxId: string | null;
 
   // Computed
   swapMode: 'jupiter' | 'stealthex' | null;
@@ -137,6 +138,8 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onCreateBridgeExchange,
   onBridgeSuccess,
   onBridgeError,
+  onSendDeposit,
+  onRefreshBalances,
   // Platform-specific
   onBridgeInitiated,
   onNavigateHome,
@@ -159,6 +162,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   const [isConfirming, setIsConfirming] = useState(false);
   const [successTxId, setSuccessTxId] = useState<string | null>(null);
   const [successExchange, setSuccessExchange] = useState<BridgeExchangeSimple | null>(null);
+  const [depositTxId, setDepositTxId] = useState<string | null>(null);
   const [showInTokenModal, setShowInTokenModal] = useState(false);
   const [showOutTokenModal, setShowOutTokenModal] = useState(false);
   const [isLoadingBridgeTokens, setIsLoadingBridgeTokens] = useState(false);
@@ -297,8 +301,8 @@ export function useSwapScreenLogic<StyleType = unknown>({
             inToken.symbol,
             outToken.symbol,
             parseFloat(inAmount),
-            inToken.networkId,
-            outToken.networkId
+            toStealthExNetwork(inToken.networkId || inToken.chain),
+            toStealthExNetwork(outToken.networkId || outToken.chain)
           );
           if (estimate) {
             setBridgeEstimate(estimate);
@@ -460,11 +464,20 @@ export function useSwapScreenLogic<StyleType = unknown>({
         outToken.symbol,
         parseFloat(inAmount),
         recipientAddress,
-        inToken.networkId,
-        outToken.networkId
+        toStealthExNetwork(inToken.networkId || inToken.chain),
+        toStealthExNetwork(outToken.networkId || outToken.chain)
       );
 
       if (exchange) {
+        // Send deposit to the exchange's deposit address
+        if (onSendDeposit && exchange.depositAddress) {
+          const { txId } = await onSendDeposit(
+            exchange.depositAddress,
+            inToken.address,
+            parseFloat(inAmount)
+          );
+          setDepositTxId(txId);
+        }
         setSuccessExchange(exchange);
         setStep('success');
         onBridgeSuccess?.(exchange);
@@ -482,7 +495,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onBridgeSuccess, onBridgeError]);
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onBridgeSuccess, onBridgeError]);
 
   const handleRefreshQuote = useCallback(async () => {
     if (isLoadingQuote || isLoadingEstimate) return;
@@ -508,7 +521,8 @@ export function useSwapScreenLogic<StyleType = unknown>({
       try {
         const estimate = await onGetBridgeEstimateRef.current!(
           inToken.symbol, outToken.symbol, parseFloat(inAmount),
-          inToken.networkId, outToken.networkId
+          toStealthExNetwork(inToken.networkId || inToken.chain),
+          toStealthExNetwork(outToken.networkId || outToken.chain)
         );
         if (estimate) {
           setBridgeEstimate(estimate);
@@ -525,8 +539,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
 
   const swapConfirmLabel = useMemo(() => {
     if (countdown <= 0) return 'Refresh Quote';
-    const base = swapMode === 'stealthex' ? 'Confirm Swap' : 'Confirm';
-    return `${base} (${countdown})`;
+    return `Confirm (${countdown})`;
   }, [countdown, swapMode]);
 
   const handleConfirmOrRefresh = useCallback(async () => {
@@ -548,8 +561,10 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setBridgeEstimate(null);
     setSuccessTxId(null);
     setSuccessExchange(null);
+    setDepositTxId(null);
+    onRefreshBalances?.();
     onNavigateHome?.();
-  }, [onNavigateHome]);
+  }, [onRefreshBalances, onNavigateHome]);
 
   // ── Derived / memoised ─────────────────────────────────────────────────
 
@@ -675,6 +690,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     tokensLoading: loading,
     successTxId,
     successExchange,
+    depositTxId,
 
     swapMode,
     inUsdValue,

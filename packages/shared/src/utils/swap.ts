@@ -73,6 +73,27 @@ export function getChainFromNetwork(network?: string | null, symbol?: string): S
 }
 
 /**
+ * Converts a wallet chain type or networkId to a StealthEx network code.
+ *
+ * Inverse of getChainFromNetwork. Handles both:
+ * - Wallet chain types: 'solana' → 'sol', 'bitcoin' → 'btc', 'ethereum' → 'eth'
+ * - Wallet networkIds: 'solana-mainnet' → 'sol', 'bitcoin-mainnet' → 'btc'
+ * - Already-correct StealthEx codes: 'sol' → 'sol' (passthrough)
+ *
+ * Returns undefined when value is missing or unrecognized.
+ */
+export function toStealthExNetwork(chainOrNetworkId?: string): string | undefined {
+  if (!chainOrNetworkId) return undefined;
+  const v = chainOrNetworkId.toLowerCase();
+  if (v === 'solana' || v.startsWith('solana-')) return 'sol';
+  if (v === 'bitcoin' || v.startsWith('bitcoin-')) return 'btc';
+  if (v === 'ethereum' || v.startsWith('ethereum-')) return 'eth';
+  // Already a StealthEx code (sol, btc, eth, base) — passthrough
+  if (['sol', 'btc', 'eth', 'base'].includes(v)) return v;
+  return undefined;
+}
+
+/**
  * Converts a TokenMetadata to a SwapToken.
  * Defaults to solana-mainnet since search results are Solana tokens.
  */

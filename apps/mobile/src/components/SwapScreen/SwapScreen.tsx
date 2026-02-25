@@ -104,6 +104,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
           bridgeAmountIn={logic.successExchange ? `${logic.inAmount} ${logic.inToken?.symbol ?? ''}` : undefined}
           bridgeAmountOut={logic.successExchange ? `${logic.successExchange.amountOut} ${logic.outToken?.symbol ?? ''}` : undefined}
           bridgeExchangeId={logic.successExchange?.id}
+          bridgeDepositTxId={logic.depositTxId ?? undefined}
         />
       )}
 

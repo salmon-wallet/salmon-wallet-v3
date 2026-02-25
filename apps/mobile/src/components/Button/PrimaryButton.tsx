@@ -39,7 +39,7 @@ export function PrimaryButton({
       {loading ? (
         <ActivityIndicator color={colors.button.primaryText} />
       ) : (
-        <Text style={styles.text}>{children}</Text>
+        <Text style={styles.text} numberOfLines={1} adjustsFontSizeToFit>{children}</Text>
       )}
     </TouchableOpacity>
   );
