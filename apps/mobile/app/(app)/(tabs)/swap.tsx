@@ -17,7 +17,7 @@
  * - Transaction signing and execution
  */
 
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +25,7 @@ import { useRouter } from 'expo-router';
 
 import {
   componentSizes,
+  getTokenList,
   searchTokens,
   useAccountsContext,
   useBridge,
@@ -121,6 +122,16 @@ export default function SwapScreenPage() {
   const featuredTokens: SwapToken[] = useMemo(() => {
     return topTokens.map(unifiedToSwapToken);
   }, [topTokens]);
+
+  // Load full Jupiter verified token catalog for Solana output selection
+  const [jupiterTokens, setJupiterTokens] = useState<SwapToken[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    getTokenList(swapNetworkId).then((list) => {
+      if (!cancelled) setJupiterTokens(list.map((t) => mapToSwapToken(t)));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [swapNetworkId]);
 
   // Swap handlers - Now using real useSwap hook
   const handleGetQuote = useCallback(async (
@@ -329,6 +340,7 @@ export default function SwapScreenPage() {
         <SwapScreen
           tokens={swapTokens}
           featuredTokens={featuredTokens}
+          jupiterTokens={jupiterTokens}
           loading={loading}
           onGetQuote={handleGetQuote}
           onSwap={handleSwap}

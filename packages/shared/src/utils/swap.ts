@@ -45,12 +45,6 @@ export function getSwapMode(
 }
 
 /**
- * Supported chains in the wallet.
- * Used to filter out bridge tokens from unsupported chains (e.g. NEAR).
- */
-export const SUPPORTED_CHAINS: readonly SwapChainType[] = ['solana', 'bitcoin', 'ethereum'];
-
-/**
  * Infers a SwapChainType from a network name string and/or token symbol.
  *
  * StealthEX returns `network: null` for mainnet tokens (BTC, ETH, NEAR),

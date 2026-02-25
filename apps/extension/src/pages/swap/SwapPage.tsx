@@ -4,7 +4,7 @@
  * Wrapper around SwapScreen from extension components.
  * Wires useSwap, useBridge, useMultiChainTokens hooks.
  */
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -12,6 +12,7 @@ import {
   colors,
   spacing,
   fontFamily,
+  getTokenList,
   searchTokens,
   useAccountsContext,
   useBridge,
@@ -110,6 +111,16 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
   const featuredTokens: SwapToken[] = useMemo(() => {
     return topTokens.map(unifiedToSwapToken);
   }, [topTokens]);
+
+  // Load full Jupiter verified token catalog for Solana output selection
+  const [jupiterTokens, setJupiterTokens] = useState<SwapToken[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    getTokenList(swapNetworkId).then((list) => {
+      if (!cancelled) setJupiterTokens(list.map((t) => mapToSwapToken(t)));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [swapNetworkId]);
 
   // Swap handlers
   const handleGetQuote = useCallback(async (
@@ -272,6 +283,7 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
       <SwapScreen
         tokens={swapTokens}
         featuredTokens={featuredTokens}
+        jupiterTokens={jupiterTokens}
         loading={loading}
         onGetQuote={handleGetQuote}
         onSwap={handleSwap}

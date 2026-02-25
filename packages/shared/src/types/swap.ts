@@ -543,6 +543,8 @@ export interface SwapScreenProps<StyleType> {
   initialInToken?: SwapToken;
   /** Initial output token */
   initialOutToken?: SwapToken;
+  /** Full Jupiter verified token catalog for Solana output selection */
+  jupiterTokens?: SwapToken[];
   /** Whether tokens are still loading */
   loading?: boolean;
   /** Custom style */

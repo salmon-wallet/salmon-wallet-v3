@@ -20,9 +20,11 @@ import type {
   BridgeToken,
   BridgeEstimate,
 } from '../types/ui/bridge-screen';
-import { getSwapMode, validateAddress, getChainFromNetwork, SUPPORTED_CHAINS } from '../utils/swap';
+import { getSwapMode, validateAddress, getChainFromNetwork } from '../utils/swap';
 import { getChainDisplayName } from '../utils/account';
 import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
+import { isBlockchainEnabled } from '../config/blockchains';
+import type { BlockchainType } from '../types/blockchain';
 
 // ============================================================================
 // Constants
@@ -126,6 +128,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onSearchTokens,
   initialInToken,
   initialOutToken,
+  jupiterTokens = [],
   // Bridge props
   onGetAvailableTokens,
   onGetBridgeEstimate,
@@ -224,7 +227,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
         const bridgeOutputTokens: SwapToken[] = [];
         for (const t of available) {
           const chain = getChainFromNetwork(t.network, t.symbol);
-          if (!chain || !SUPPORTED_CHAINS.includes(chain)) continue;
+          if (!chain || !isBlockchainEnabled(chain as BlockchainType)) continue;
           bridgeOutputTokens.push({
             address: t.symbol,
             symbol: t.symbol,
@@ -547,14 +550,21 @@ export function useSwapScreenLogic<StyleType = unknown>({
     const inChain = inToken.chain || 'solana';
 
     if (inChain === 'solana') {
-      const solanaTokens = tokens.filter(t => (t.chain || 'solana') === 'solana');
-      const solanaSymbols = new Set(solanaTokens.map(t => t.symbol.toLowerCase()));
-      const uniqueBridgeTokens = availableOutTokens.filter(t => !solanaSymbols.has(t.symbol.toLowerCase()));
-      return [...solanaTokens, ...uniqueBridgeTokens];
+      // 1. User's Solana balance tokens first (they have balance/price data)
+      const userSolanaTokens = tokens.filter(t => (t.chain || 'solana') === 'solana');
+      const userAddresses = new Set(userSolanaTokens.map(t => t.address.toLowerCase()));
+
+      // 2. Jupiter catalog tokens not already in user's list
+      const remainingJupiter = jupiterTokens.filter(t => !userAddresses.has(t.address.toLowerCase()));
+
+      // 3. Only cross-chain bridge tokens (exclude Solana — Jupiter covers those)
+      const crossChainBridgeTokens = availableOutTokens.filter(t => t.chain !== 'solana');
+
+      return [...crossChainBridgeTokens, ...userSolanaTokens, ...remainingJupiter];
     } else {
       return availableOutTokens;
     }
-  }, [inToken, tokens, availableOutTokens]);
+  }, [inToken, tokens, jupiterTokens, availableOutTokens]);
 
   // Modal-level handler for output token (needs outputTokens, so defined after it)
   const handleOutTokenModalSelect = useCallback((token: TokenSelectorToken) => {

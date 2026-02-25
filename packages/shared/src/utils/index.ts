@@ -216,7 +216,6 @@ export {
   getSwapMode,
   getChainFromNetwork,
   validateAddress,
-  SUPPORTED_CHAINS,
   mapToSwapToken,
   unifiedToSwapToken,
 } from './swap';
