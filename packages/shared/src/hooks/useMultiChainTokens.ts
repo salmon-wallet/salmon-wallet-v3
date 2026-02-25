@@ -226,7 +226,11 @@ export function useMultiChainTokens(
       ...solanaBalance.tokens,
       ...bitcoinBalance.tokens,
       ...ethereumBalance.tokens,
-    ];
+    ].filter((token) => {
+      const hasName = !!token.name && token.name !== 'Unknown Token';
+      const hasSymbol = !!token.symbol && token.symbol !== 'UNKNOWN';
+      return hasName || hasSymbol;
+    });
 
     // Sort by USD balance descending
     return allTokens.sort((a, b) => (b.usdBalance || 0) - (a.usdBalance || 0));

@@ -369,6 +369,12 @@ export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'
         tags: isNativeSol ? [...SOL_CONSTANTS.TAGS] : meta?.tags,
         uiAmount: removeDecimals(token.amount, token.decimals),
       };
+    })
+    .filter((token) => {
+      // Native SOL always passes through
+      if (!token.mint) return true;
+      // SPL tokens must have metadata (name or symbol) to be included
+      return !!token.name || !!token.symbol;
     });
 };
 
