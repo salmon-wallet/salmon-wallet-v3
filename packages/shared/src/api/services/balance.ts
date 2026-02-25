@@ -48,7 +48,8 @@ import type { JupiterApiPriceData } from '../../types/price';
  */
 export async function getJupiterPrices(
   addresses: string[],
-  networkId: 'solana-mainnet' | 'solana-devnet' = 'solana-mainnet'
+  networkId: 'solana-mainnet' | 'solana-devnet' = 'solana-mainnet',
+  hints?: Map<string, { coingeckoId?: string }>
 ): Promise<Map<string, JupiterApiPriceData>> {
   if (addresses.length === 0) {
     return new Map();
@@ -61,7 +62,8 @@ export async function getJupiterPrices(
   const processChunk = async (chunk: string[]) => {
     return Promise.all(
       chunk.map(async (address) => {
-        const priceData = await getSolanaTokenPrice(address, networkId);
+        const coingeckoId = hints?.get(address.toLowerCase())?.coingeckoId;
+        const priceData = await getSolanaTokenPrice(address, networkId, coingeckoId);
         return { address, priceData };
       })
     );
@@ -132,12 +134,19 @@ export async function getWalletBalance(
   // Include SOL address for price fetching
   const allAddresses = [SOL_CONSTANTS.ADDRESS, ...mintAddresses];
 
-  // Fetch metadata and Jupiter prices in parallel
-  // Jupiter provides both real-time prices AND 24h change data
-  const [tokenMetadata, jupiterPrices] = await Promise.all([
-    getTokenMetadataByMints(mintAddresses, networkId),
-    getJupiterPrices(allAddresses, networkId),
-  ]);
+  // Fetch metadata first (needed for price hints)
+  const tokenMetadata = await getTokenMetadataByMints(mintAddresses, networkId);
+
+  // Build hints map from metadata so CoinGecko fallback can use coingeckoId
+  const hints = new Map<string, { coingeckoId?: string }>();
+  tokenMetadata.forEach((m) => {
+    if (m.coingeckoId) {
+      hints.set(m.address.toLowerCase(), { coingeckoId: m.coingeckoId });
+    }
+  });
+
+  // Fetch Jupiter prices with hints for CoinGecko fallback
+  const jupiterPrices = await getJupiterPrices(allAddresses, networkId, hints);
 
   // Decorate balances with metadata
   const decoratedTokenBalances = decorateBalanceList(nonEmptyBalances, tokenMetadata);

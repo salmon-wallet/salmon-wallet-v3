@@ -452,7 +452,8 @@ export type FetchSolanaBalanceFn = (
 
 export type FetchSolanaPricesFn = (
   networkId: import('./blockchain').SolanaNetworkId,
-  addresses: string[]
+  addresses: string[],
+  hints?: Map<string, { coingeckoId?: string }>
 ) => Promise<Map<string, import('./price').JupiterApiPriceData>>;
 
 export type FetchSolanaTransactionFn = (

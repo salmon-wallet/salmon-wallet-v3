@@ -385,8 +385,8 @@ export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'
  */
 export const solanaApiFunctions: SolanaAccountApiFunctions = {
   fetchBalance: fetchSolanaAccountBalance,
-  fetchPrices: async (networkId, addresses) => {
-    return getJupiterPrices(addresses, networkId);
+  fetchPrices: async (networkId, addresses, hints) => {
+    return getJupiterPrices(addresses, networkId, hints);
   },
   fetchTransaction: getSolanaTransaction,
   fetchTransactions: getSolanaTransactions,

@@ -196,11 +196,15 @@ export class SolanaAccount {
    * Gets Solana prices from Jupiter via the DI function.
    *
    * @param addresses - Token mint addresses to fetch prices for
+   * @param hints - Optional map of address -> { coingeckoId } for CoinGecko fallback
    * @returns Map of address -> Jupiter price data
    */
-  private async getPrices(addresses: string[]): Promise<Map<string, JupiterApiPriceData>> {
+  private async getPrices(
+    addresses: string[],
+    hints?: Map<string, { coingeckoId?: string }>
+  ): Promise<Map<string, JupiterApiPriceData>> {
     try {
-      return await this.fetchPricesFn(this.network.id, addresses);
+      return await this.fetchPricesFn(this.network.id, addresses, hints);
     } catch (e) {
       console.warn('Could not get Solana prices', (e as Error).message);
       return new Map();
@@ -242,7 +246,16 @@ export class SolanaAccount {
     // Extract all addresses for Jupiter price fetching
     const addresses = solanaBalance.map((b) => b.mint || SOL_CONSTANTS.ADDRESS);
 
-    const jupiterPrices = await this.getPrices(addresses);
+    // Build hints map so CoinGecko fallback can use coingeckoId
+    const hints = new Map<string, { coingeckoId?: string }>();
+    solanaBalance.forEach((b) => {
+      if (b.coingeckoId) {
+        const addr = (b.mint || SOL_CONSTANTS.ADDRESS).toLowerCase();
+        hints.set(addr, { coingeckoId: b.coingeckoId });
+      }
+    });
+
+    const jupiterPrices = await this.getPrices(addresses, hints);
 
     const balances = decorateBalancePrices(
       solanaBalance.map((b) => ({

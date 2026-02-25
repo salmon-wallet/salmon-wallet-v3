@@ -12,7 +12,7 @@
  * - GET /v1/coin/{coinId} - Get detailed coin info
  */
 
-import { apiClient, staticApiClient, ApiError } from '../client';
+import { apiClient, staticApiClient } from '../client';
 import { SmartCache } from '../../utils/cache';
 import type { SolanaNetworkId } from '../../types/blockchain';
 import type {
@@ -116,7 +116,8 @@ export async function getTopTokensByPlatform(platform: PricePlatform): Promise<T
  */
 export async function getSolanaTokenPrice(
   mintAddress: string,
-  networkId: SolanaNetworkId = 'solana-mainnet'
+  networkId: SolanaNetworkId = 'solana-mainnet',
+  coingeckoId?: string
 ): Promise<JupiterApiPriceData | null> {
   try {
     const { data } = await apiClient.get<{ usdPrice?: number; priceChange24h?: number | null }>(
@@ -130,15 +131,13 @@ export async function getSolanaTokenPrice(
     }
     return null;
   } catch (error) {
-    if (error instanceof ApiError && error.isNotFound()) {
-      // Token not found — no known price, skip CoinGecko fallback
-      return null;
-    }
     console.error(`[PriceService] Failed to fetch price for ${mintAddress}:`, error);
 
-    // Fallback: try CoinGecko static API for non-404 errors
+    // Fallback: try CoinGecko static API for ALL errors (including 404)
     try {
-      const fallback = await findTokenPrice(mintAddress, 'solana');
+      // Prefer coingeckoId (e.g. "usd-coin") over mintAddress for CoinGecko lookup
+      const lookupKey = coingeckoId || mintAddress;
+      const fallback = await findTokenPrice(lookupKey, 'solana');
       if (fallback) {
         return {
           usdPrice: fallback.usdPrice,
