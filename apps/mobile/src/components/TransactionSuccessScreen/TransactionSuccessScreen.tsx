@@ -24,7 +24,12 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
   summary,
   explorerUrl,
   onContinue,
+  bridgeDepositAddress,
+  bridgeAmountIn,
+  bridgeAmountOut,
+  bridgeExchangeId,
 }) => {
+  const isBridge = !!bridgeDepositAddress;
   const { t } = useTranslation();
 
   const circleScale = useSharedValue(0);
@@ -80,13 +85,36 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
         <Text style={styles.summary}>{summary}</Text>
       </Animated.View>
 
-      {explorerUrl && (
+      {isBridge ? (
+        <Animated.View style={[styles.bridgeInfoBox, linkStyle]}>
+          <Text style={styles.bridgeLabel}>{t('bridge.depositAddress', 'Send funds to')}</Text>
+          <Text style={styles.bridgeValue}>{bridgeDepositAddress}</Text>
+          {bridgeAmountIn && (
+            <>
+              <Text style={styles.bridgeLabel}>{t('bridge.amountToSend', 'Amount to send')}</Text>
+              <Text style={styles.bridgeValue}>{bridgeAmountIn}</Text>
+            </>
+          )}
+          {bridgeAmountOut && (
+            <>
+              <Text style={styles.bridgeLabel}>{t('bridge.estimatedReceive', 'You will receive approximately')}</Text>
+              <Text style={styles.bridgeValue}>{bridgeAmountOut}</Text>
+            </>
+          )}
+          {bridgeExchangeId && (
+            <>
+              <Text style={styles.bridgeLabel}>{t('bridge.exchangeId', 'Exchange ID')}</Text>
+              <Text style={[styles.bridgeValue, { marginBottom: 0 }]}>{bridgeExchangeId}</Text>
+            </>
+          )}
+        </Animated.View>
+      ) : explorerUrl ? (
         <Animated.View style={[styles.linkContainer, linkStyle]}>
           <TouchableOpacity onPress={handleExplorerPress} activeOpacity={0.7}>
             <Text style={styles.explorerLink}>{t('transaction.viewOnExplorer')}</Text>
           </TouchableOpacity>
         </Animated.View>
-      )}
+      ) : null}
 
       <Animated.View style={[styles.buttonContainer, buttonStyle]}>
         <LinearGradient
@@ -146,6 +174,25 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     textAlign: 'center',
+  },
+  bridgeInfoBox: {
+    width: '100%',
+    backgroundColor: colors.background.tertiary,
+    borderRadius: borderRadius.card,
+    padding: s(spacing.lg),
+    marginBottom: vs(spacing.xl),
+  },
+  bridgeLabel: {
+    fontSize: ms(12),
+    fontFamily: fontFamilyNative.regular,
+    color: colors.text.tertiary,
+    marginBottom: vs(spacing.xs),
+  },
+  bridgeValue: {
+    fontSize: ms(14),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.primary,
+    marginBottom: vs(spacing.md),
   },
   linkContainer: {
     alignItems: 'center',

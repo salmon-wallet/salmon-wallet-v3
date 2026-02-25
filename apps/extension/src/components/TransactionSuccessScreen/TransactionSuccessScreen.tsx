@@ -89,6 +89,31 @@ const ExplorerLink = styled(Link)({
   animation: `${fadeIn} 0.3s ease-out 0.55s forwards`,
 });
 
+const BridgeInfoBox = styled(Box)({
+  width: '100%',
+  backgroundColor: colors.background.tertiary,
+  borderRadius: borderRadius.card,
+  padding: spacing.lg,
+  marginBottom: spacing.xl,
+  opacity: 0,
+  animation: `${fadeIn} 0.3s ease-out 0.5s forwards`,
+});
+
+const BridgeLabel = styled(Typography)({
+  fontSize: 12,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.tertiary,
+  marginBottom: spacing.xs,
+});
+
+const BridgeValue = styled(Typography)({
+  fontSize: 14,
+  fontFamily: `${fontFamily.sans}, sans-serif`,
+  color: colors.text.primary,
+  wordBreak: 'break-all' as const,
+  marginBottom: spacing.md,
+});
+
 const ContinueButton = styled(Button)({
   minWidth: 160,
   height: 42,
@@ -116,8 +141,13 @@ export function TransactionSuccessScreen({
   summary,
   explorerUrl,
   onContinue,
+  bridgeDepositAddress,
+  bridgeAmountIn,
+  bridgeAmountOut,
+  bridgeExchangeId,
 }: TransactionSuccessScreenProps): React.ReactElement {
   const { t } = useTranslation();
+  const isBridge = !!bridgeDepositAddress;
 
   const handleExplorerClick = () => {
     if (explorerUrl) {
@@ -132,11 +162,34 @@ export function TransactionSuccessScreen({
       </Circle>
       <Title>{title}</Title>
       <Summary>{summary}</Summary>
-      {explorerUrl && (
+      {isBridge ? (
+        <BridgeInfoBox>
+          <BridgeLabel>{t('bridge.depositAddress', 'Send funds to')}</BridgeLabel>
+          <BridgeValue>{bridgeDepositAddress}</BridgeValue>
+          {bridgeAmountIn && (
+            <>
+              <BridgeLabel>{t('bridge.amountToSend', 'Amount to send')}</BridgeLabel>
+              <BridgeValue>{bridgeAmountIn}</BridgeValue>
+            </>
+          )}
+          {bridgeAmountOut && (
+            <>
+              <BridgeLabel>{t('bridge.estimatedReceive', 'You will receive approximately')}</BridgeLabel>
+              <BridgeValue>{bridgeAmountOut}</BridgeValue>
+            </>
+          )}
+          {bridgeExchangeId && (
+            <>
+              <BridgeLabel>{t('bridge.exchangeId', 'Exchange ID')}</BridgeLabel>
+              <BridgeValue style={{ marginBottom: 0 }}>{bridgeExchangeId}</BridgeValue>
+            </>
+          )}
+        </BridgeInfoBox>
+      ) : explorerUrl ? (
         <ExplorerLink onClick={handleExplorerClick} underline="always">
           {t('transaction.viewOnExplorer')}
         </ExplorerLink>
-      )}
+      ) : null}
       <ContinueButton onClick={onContinue}>
         {t('transaction.continue')}
       </ContinueButton>

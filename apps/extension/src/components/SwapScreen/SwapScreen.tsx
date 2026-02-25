@@ -32,11 +32,6 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
 
   const logic = useSwapScreenLogic({
     ...props,
-    onBridgeInitiated: (exchange, inAmount, inSymbol, outSymbol) => {
-      window.alert(
-        `Swap Initiated!\n\nPlease send ${inAmount} ${inSymbol} to:\n${exchange.depositAddress}\n\nYou will receive approximately ${exchange.amountOut} ${outSymbol}`
-      );
-    },
   });
 
   return (
@@ -101,7 +96,7 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
 
       {logic.step === 'success' && (
         <TransactionSuccessScreen
-          title={t('transaction.swapComplete')}
+          title={logic.successExchange ? t('bridge.initiated', 'Bridge Initiated') : t('transaction.swapComplete')}
           summary={`${logic.inAmount} ${logic.inToken?.symbol ?? ''} → ${logic.outAmount} ${logic.outToken?.symbol ?? ''}`}
           explorerUrl={logic.successTxId && logic.inToken?.chain
             ? getTransactionUrl(
@@ -113,6 +108,10 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
             : null
           }
           onContinue={logic.handleSuccessContinue}
+          bridgeDepositAddress={logic.successExchange?.depositAddress}
+          bridgeAmountIn={logic.successExchange ? `${logic.inAmount} ${logic.inToken?.symbol ?? ''}` : undefined}
+          bridgeAmountOut={logic.successExchange ? `${logic.successExchange.amountOut} ${logic.outToken?.symbol ?? ''}` : undefined}
+          bridgeExchangeId={logic.successExchange?.id}
         />
       )}
 

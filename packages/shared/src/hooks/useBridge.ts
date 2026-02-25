@@ -83,7 +83,7 @@ export interface UseBridgeResult {
 
   // Estimate operations
   /** Get bridge estimate and minimum amount */
-  getEstimate: (symbolIn: string, symbolOut: string, amount: number) => Promise<BridgeEstimate | null>;
+  getEstimate: (symbolIn: string, symbolOut: string, amount: number, networkIn?: string, networkOut?: string) => Promise<BridgeEstimate | null>;
 
   // Exchange operations
   /** Create a bridge exchange */
@@ -91,7 +91,9 @@ export interface UseBridgeResult {
     symbolIn: string,
     symbolOut: string,
     amount: number,
-    addressTo: string
+    addressTo: string,
+    networkIn?: string,
+    networkOut?: string
   ) => Promise<BridgeExchange | null>;
 
   // Status tracking
@@ -265,15 +267,15 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
    * can catch and display the user-friendly message.
    */
   const getEstimate = useCallback(
-    async (symbolIn: string, symbolOut: string, amount: number): Promise<BridgeEstimate | null> => {
+    async (symbolIn: string, symbolOut: string, amount: number, networkIn?: string, networkOut?: string): Promise<BridgeEstimate | null> => {
       setStatus('getting-estimate');
       setError(null);
       setEstimate(null);
 
       // Use Promise.allSettled so we recover minAmount even when estimate fails
       const [estimateResult, minResult] = await Promise.allSettled([
-        getBridgeEstimatedAmount(symbolIn, symbolOut, amount),
-        getBridgeMinimalAmount(symbolIn, symbolOut),
+        getBridgeEstimatedAmount(symbolIn, symbolOut, amount, networkIn, networkOut),
+        getBridgeMinimalAmount(symbolIn, symbolOut, networkIn, networkOut),
       ]);
 
       const estimatedAmount = estimateResult.status === 'fulfilled' ? estimateResult.value : null;
@@ -322,14 +324,16 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
       symbolIn: string,
       symbolOut: string,
       amount: number,
-      addressTo: string
+      addressTo: string,
+      networkIn?: string,
+      networkOut?: string
     ): Promise<BridgeExchange | null> => {
       setStatus('creating-exchange');
       setError(null);
       setExchange(null);
 
       try {
-        const result = await createBridgeExchange(symbolIn, symbolOut, amount, addressTo);
+        const result = await createBridgeExchange(symbolIn, symbolOut, amount, addressTo, networkIn, networkOut);
 
         if (!result) {
           throw new Error('Bridge exchange returned empty data: no exchange details received from server');

@@ -12,4 +12,12 @@ export interface TransactionSuccessScreenProps {
   explorerUrl: string | null;
   /** Callback when user taps "Continue" to navigate home */
   onContinue: () => void;
+  /** Bridge deposit address (where user must send funds) */
+  bridgeDepositAddress?: string;
+  /** Bridge input amount with symbol (e.g., "33 USDC") */
+  bridgeAmountIn?: string;
+  /** Bridge estimated output with symbol (e.g., "0.00041798 BTC") */
+  bridgeAmountOut?: string;
+  /** Bridge exchange ID for tracking */
+  bridgeExchangeId?: string;
 }

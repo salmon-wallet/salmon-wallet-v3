@@ -112,6 +112,13 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
     return topTokens.map(unifiedToSwapToken);
   }, [topTokens]);
 
+  // Resolve user's BTC address for bridge recipient pre-fill
+  const defaultRecipientAddress = useMemo(() => {
+    const btcAccounts = activeAccount?.networksAccounts?.['bitcoin-mainnet'];
+    const btcAccount = btcAccounts?.find((a: unknown) => a !== null) as { getReceiveAddress(): string } | undefined;
+    return btcAccount?.getReceiveAddress() ?? '';
+  }, [activeAccount]);
+
   // Load full Jupiter verified token catalog for Solana output selection
   const [jupiterTokens, setJupiterTokens] = useState<SwapToken[]>([]);
   useEffect(() => {
@@ -225,8 +232,10 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
     symbolIn: string,
     symbolOut: string,
     amount: number,
+    networkIn?: string,
+    networkOut?: string,
   ): Promise<BridgeEstimateSimple | null> => {
-    const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount);
+    const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount, networkIn, networkOut);
     if (!estimate) return null;
     return {
       estimatedAmount: estimate.estimatedAmount,
@@ -241,9 +250,11 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
     symbolOut: string,
     amount: number,
     addressTo: string,
+    networkIn?: string,
+    networkOut?: string,
   ): Promise<BridgeExchangeSimple | null> => {
     try {
-      const exchange = await createBridgeExchange(symbolIn, symbolOut, amount, addressTo);
+      const exchange = await createBridgeExchange(symbolIn, symbolOut, amount, addressTo, networkIn, networkOut);
       if (!exchange) return null;
       return {
         id: exchange.id,
@@ -262,7 +273,6 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
 
   const handleBridgeSuccess = useCallback((_exchange: BridgeExchangeSimple) => {
     resetBridge();
-    window.alert('Bridge Initiated! Please send funds to the deposit address.');
   }, [resetBridge]);
 
   const handleBridgeError = useCallback((error: Error) => {
@@ -284,6 +294,7 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
         tokens={swapTokens}
         featuredTokens={featuredTokens}
         jupiterTokens={jupiterTokens}
+        defaultRecipientAddress={defaultRecipientAddress}
         loading={loading}
         onGetQuote={handleGetQuote}
         onSwap={handleSwap}

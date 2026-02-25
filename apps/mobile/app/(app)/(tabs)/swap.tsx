@@ -123,6 +123,13 @@ export default function SwapScreenPage() {
     return topTokens.map(unifiedToSwapToken);
   }, [topTokens]);
 
+  // Resolve user's BTC address for bridge recipient pre-fill
+  const defaultRecipientAddress = useMemo(() => {
+    const btcAccounts = activeAccount?.networksAccounts?.['bitcoin-mainnet'];
+    const btcAccount = btcAccounts?.find((a) => a !== null);
+    return btcAccount?.getReceiveAddress() ?? '';
+  }, [activeAccount]);
+
   // Load full Jupiter verified token catalog for Solana output selection
   const [jupiterTokens, setJupiterTokens] = useState<SwapToken[]>([]);
   useEffect(() => {
@@ -269,9 +276,11 @@ export default function SwapScreenPage() {
   const handleGetBridgeEstimate = useCallback(async (
     symbolIn: string,
     symbolOut: string,
-    amount: number
+    amount: number,
+    networkIn?: string,
+    networkOut?: string
   ): Promise<BridgeEstimateSimple | null> => {
-    const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount);
+    const estimate = await getBridgeEstimate(symbolIn, symbolOut, amount, networkIn, networkOut);
     if (!estimate) return null;
     return {
       estimatedAmount: estimate.estimatedAmount,
@@ -285,10 +294,12 @@ export default function SwapScreenPage() {
     symbolIn: string,
     symbolOut: string,
     amount: number,
-    addressTo: string
+    addressTo: string,
+    networkIn?: string,
+    networkOut?: string
   ): Promise<BridgeExchangeSimple | null> => {
     try {
-      const exchange = await createBridgeExchange(symbolIn, symbolOut, amount, addressTo);
+      const exchange = await createBridgeExchange(symbolIn, symbolOut, amount, addressTo, networkIn, networkOut);
       if (!exchange) return null;
       return {
         id: exchange.id,
@@ -308,12 +319,7 @@ export default function SwapScreenPage() {
 
   const handleBridgeSuccess = useCallback((_exchange: BridgeExchangeSimple) => {
     resetBridge();
-    Alert.alert(
-      t('bridge.success_title', 'Bridge Initiated'),
-      t('bridge.success_message', 'Please send funds to the deposit address shown.'),
-      [{ text: 'OK' }]
-    );
-  }, [t, resetBridge]);
+  }, [resetBridge]);
 
   const handleBridgeError = useCallback((error: Error) => {
     resetBridge();
@@ -341,6 +347,7 @@ export default function SwapScreenPage() {
           tokens={swapTokens}
           featuredTokens={featuredTokens}
           jupiterTokens={jupiterTokens}
+          defaultRecipientAddress={defaultRecipientAddress}
           loading={loading}
           onGetQuote={handleGetQuote}
           onSwap={handleSwap}

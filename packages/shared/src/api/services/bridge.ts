@@ -108,11 +108,16 @@ export async function getBridgeFeaturedTokens(
 export async function getBridgeEstimatedAmount(
   symbolIn: string,
   symbolOut: string,
-  amount: number
+  amount: number,
+  networkIn?: string,
+  networkOut?: string
 ): Promise<number | null> {
   try {
+    const params: Record<string, string | number> = { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase(), amount };
+    if (networkIn) params.networkIn = networkIn;
+    if (networkOut) params.networkOut = networkOut;
     const { data } = await apiClient.get<BridgeEstimateResponse>('/v1/bridge/estimate', {
-      params: { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase(), amount },
+      params,
     });
     return data?.estimated_amount ?? null;
   } catch (error) {
@@ -132,11 +137,16 @@ export async function getBridgeEstimatedAmount(
  */
 export async function getBridgeMinimalAmount(
   symbolIn: string,
-  symbolOut: string
+  symbolOut: string,
+  networkIn?: string,
+  networkOut?: string
 ): Promise<number | null> {
   try {
+    const params: Record<string, string> = { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase() };
+    if (networkIn) params.networkIn = networkIn;
+    if (networkOut) params.networkOut = networkOut;
     const { data } = await apiClient.get<BridgeMinimalResponse>('/v1/bridge/minimal', {
-      params: { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase() },
+      params,
     });
     return data?.min_amount ?? null;
   } catch (error) {
@@ -160,11 +170,16 @@ export async function createBridgeExchange(
   symbolIn: string,
   symbolOut: string,
   amount: number,
-  addressTo: string
+  addressTo: string,
+  networkIn?: string,
+  networkOut?: string
 ): Promise<BridgeExchange | null> {
   try {
+    const params: Record<string, string | number> = { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase(), amount, addressTo };
+    if (networkIn) params.networkIn = networkIn;
+    if (networkOut) params.networkOut = networkOut;
     const { data } = await apiClient.get<BridgeExchange>('/v1/bridge/exchange', {
-      params: { symbolIn: symbolIn.toLowerCase(), symbolOut: symbolOut.toLowerCase(), amount, addressTo },
+      params,
     });
     return data ?? null;
   } catch (error) {

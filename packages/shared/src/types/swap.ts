@@ -549,6 +549,8 @@ export interface SwapScreenProps<StyleType> {
   loading?: boolean;
   /** Custom style */
   style?: StyleType;
+  /** Default recipient address for bridge (e.g., user's own BTC address) */
+  defaultRecipientAddress?: string;
 
   // Bridge-related props (optional - if provided, bridge tab becomes functional)
   /** Bridge source tokens (user's tokens available for bridging) */
@@ -561,14 +563,18 @@ export interface SwapScreenProps<StyleType> {
   onGetBridgeEstimate?: (
     symbolIn: string,
     symbolOut: string,
-    amount: number
+    amount: number,
+    networkIn?: string,
+    networkOut?: string
   ) => Promise<BridgeEstimateSimple | null>;
   /** Callback to create bridge exchange */
   onCreateBridgeExchange?: (
     symbolIn: string,
     symbolOut: string,
     amount: number,
-    addressTo: string
+    addressTo: string,
+    networkIn?: string,
+    networkOut?: string
   ) => Promise<BridgeExchangeSimple | null>;
   /** Callback when bridge succeeds */
   onBridgeSuccess?: (exchange: BridgeExchangeSimple) => void;

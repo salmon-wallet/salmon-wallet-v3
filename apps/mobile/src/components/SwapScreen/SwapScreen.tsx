@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useSwapScreenLogic, getTransactionUrl, getDefaultExplorer } from '@salmon/shared';
 import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
@@ -24,13 +24,6 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
 
   const logic = useSwapScreenLogic({
     ...props,
-    onBridgeInitiated: (exchange, inAmount, inSymbol, outSymbol) => {
-      Alert.alert(
-        'Swap Initiated',
-        `Please send ${inAmount} ${inSymbol} to:\n\n${exchange.depositAddress}\n\nYou will receive approximately ${exchange.amountOut} ${outSymbol}`,
-        [{ text: 'OK' }]
-      );
-    },
   });
 
   return (
@@ -95,7 +88,7 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
 
       {logic.step === 'success' && (
         <TransactionSuccessScreen
-          title={t('transaction.swapComplete')}
+          title={logic.successExchange ? t('bridge.initiated', 'Bridge Initiated') : t('transaction.swapComplete')}
           summary={`${logic.inAmount} ${logic.inToken?.symbol ?? ''} → ${logic.outAmount} ${logic.outToken?.symbol ?? ''}`}
           explorerUrl={logic.successTxId && logic.inToken?.chain
             ? getTransactionUrl(
@@ -107,6 +100,10 @@ export const SwapScreen: React.FC<SwapScreenProps> = (props) => {
             : null
           }
           onContinue={logic.handleSuccessContinue}
+          bridgeDepositAddress={logic.successExchange?.depositAddress}
+          bridgeAmountIn={logic.successExchange ? `${logic.inAmount} ${logic.inToken?.symbol ?? ''}` : undefined}
+          bridgeAmountOut={logic.successExchange ? `${logic.successExchange.amountOut} ${logic.outToken?.symbol ?? ''}` : undefined}
+          bridgeExchangeId={logic.successExchange?.id}
         />
       )}
 

@@ -69,6 +69,7 @@ export interface UseSwapScreenLogicReturn {
   showOutTokenModal: boolean;
   tokensLoading: boolean;
   successTxId: string | null;
+  successExchange: BridgeExchangeSimple | null;
 
   // Computed
   swapMode: 'jupiter' | 'stealthex' | null;
@@ -129,6 +130,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   initialInToken,
   initialOutToken,
   jupiterTokens = [],
+  defaultRecipientAddress,
   // Bridge props
   onGetAvailableTokens,
   onGetBridgeEstimate,
@@ -152,10 +154,11 @@ export function useSwapScreenLogic<StyleType = unknown>({
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [bridgeEstimate, setBridgeEstimate] = useState<BridgeEstimateSimple | null>(null);
   const [isLoadingEstimate, setIsLoadingEstimate] = useState(false);
-  const [recipientAddress, setRecipientAddress] = useState('');
+  const [recipientAddress, setRecipientAddress] = useState(defaultRecipientAddress || '');
   const [addressError, setAddressError] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [successTxId, setSuccessTxId] = useState<string | null>(null);
+  const [successExchange, setSuccessExchange] = useState<BridgeExchangeSimple | null>(null);
   const [showInTokenModal, setShowInTokenModal] = useState(false);
   const [showOutTokenModal, setShowOutTokenModal] = useState(false);
   const [isLoadingBridgeTokens, setIsLoadingBridgeTokens] = useState(false);
@@ -293,7 +296,9 @@ export function useSwapScreenLogic<StyleType = unknown>({
           const estimate = await onGetBridgeEstimateRef.current!(
             inToken.symbol,
             outToken.symbol,
-            parseFloat(inAmount)
+            parseFloat(inAmount),
+            inToken.networkId,
+            outToken.networkId
           );
           if (estimate) {
             setBridgeEstimate(estimate);
@@ -454,13 +459,15 @@ export function useSwapScreenLogic<StyleType = unknown>({
         inToken.symbol,
         outToken.symbol,
         parseFloat(inAmount),
-        recipientAddress
+        recipientAddress,
+        inToken.networkId,
+        outToken.networkId
       );
 
       if (exchange) {
+        setSuccessExchange(exchange);
         setStep('success');
         onBridgeSuccess?.(exchange);
-        onBridgeInitiated?.(exchange, inAmount, inToken.symbol, outToken.symbol);
       } else {
         throw new Error('Failed to create bridge exchange');
       }
@@ -475,7 +482,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onBridgeSuccess, onBridgeError, onBridgeInitiated]);
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onBridgeSuccess, onBridgeError]);
 
   const handleRefreshQuote = useCallback(async () => {
     if (isLoadingQuote || isLoadingEstimate) return;
@@ -500,7 +507,8 @@ export function useSwapScreenLogic<StyleType = unknown>({
       setIsLoadingEstimate(true);
       try {
         const estimate = await onGetBridgeEstimateRef.current!(
-          inToken.symbol, outToken.symbol, parseFloat(inAmount)
+          inToken.symbol, outToken.symbol, parseFloat(inAmount),
+          inToken.networkId, outToken.networkId
         );
         if (estimate) {
           setBridgeEstimate(estimate);
@@ -539,6 +547,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setRecipientAddress('');
     setBridgeEstimate(null);
     setSuccessTxId(null);
+    setSuccessExchange(null);
     onNavigateHome?.();
   }, [onNavigateHome]);
 
@@ -665,6 +674,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     showOutTokenModal,
     tokensLoading: loading,
     successTxId,
+    successExchange,
 
     swapMode,
     inUsdValue,
