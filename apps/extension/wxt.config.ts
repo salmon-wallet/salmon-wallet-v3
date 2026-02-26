@@ -56,6 +56,10 @@ export default defineConfig({
       512: 'icon-512.png',
     },
     permissions: ['storage', 'alarms', 'tabs', 'clipboardRead'],
+    host_permissions: [
+      'https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/*',
+      'https://d1fh2pwo7kzely.cloudfront.net/*',
+    ],
     web_accessible_resources: [
       {
         resources: ['injected.js'],
