@@ -21,7 +21,7 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_SALMON_ENV": "staging",
-        "EXPO_PUBLIC_API_URL": "https://api-staging.salmonwallet.io"
+        "EXPO_PUBLIC_HELIUS_API_KEY": "b91df46c-46f2-4d7e-b095-14220b8e4540"
       },
       "ios": {
         "simulator": false
@@ -35,7 +35,7 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_SALMON_ENV": "production",
-        "EXPO_PUBLIC_API_URL": "https://api.salmonwallet.io"
+        "EXPO_PUBLIC_HELIUS_API_KEY": "b91df46c-46f2-4d7e-b095-14220b8e4540"
       },
       "channel": "production"
     }

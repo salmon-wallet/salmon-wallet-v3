@@ -6,8 +6,8 @@ export default defineConfig({
   srcDir: 'src',
   outDir: 'dist',
 
-  vite: () => {
-    const env = loadEnv('development', __dirname, 'VITE_');
+  vite: (wxtEnv) => {
+    const env = loadEnv(wxtEnv.mode, __dirname, 'VITE_');
     return {
       define: {
         'global': 'globalThis',

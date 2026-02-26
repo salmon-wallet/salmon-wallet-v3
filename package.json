@@ -21,6 +21,8 @@
     "extension": "pnpm --filter @salmon/extension",
     "extension:dev": "pnpm --filter @salmon/extension dev",
     "extension:build": "pnpm --filter @salmon/extension build",
+    "extension:build:staging": "pnpm --filter @salmon/extension build:staging",
+    "extension:build:prod": "pnpm --filter @salmon/extension build:prod",
     "check:duplicates": "npx jscpd packages/ apps/ --min-lines 5 --min-tokens 50 --format typescript,javascript,tsx,jsx --ignore \"**/node_modules/**,**/coverage/**,**/dist/**,**/*.test.ts,**/*.spec.ts,**/.expo/**\" --reporters console",
     "check:duplicates:report": "npx jscpd packages/ apps/ --min-lines 5 --min-tokens 50 --format typescript,javascript,tsx,jsx --ignore \"**/node_modules/**,**/coverage/**,**/dist/**,**/*.test.ts,**/*.spec.ts,**/.expo/**\" --reporters html,console --output ./duplication-report"
   },
