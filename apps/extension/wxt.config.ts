@@ -11,13 +11,22 @@ export default defineConfig({
     return {
       define: {
         'global': 'globalThis',
-        'process.env.VITE_SALMON_ENV': JSON.stringify(env.VITE_SALMON_ENV ?? 'local'),
-        'process.env.VITE_API_HOST': JSON.stringify(env.VITE_API_HOST ?? ''),
-        'process.env.VITE_API_PORT': JSON.stringify(env.VITE_API_PORT ?? ''),
-        'process.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL ?? ''),
-        'process.env.VITE_STATIC_API_URL': JSON.stringify(env.VITE_STATIC_API_URL ?? ''),
-        'process.env.VITE_HELIUS_API_KEY': JSON.stringify(env.VITE_HELIUS_API_KEY ?? ''),
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV ?? 'development'),
+        // Define process as a minimal object so typeof process !== 'undefined' guards pass
+        // (process global doesn't exist in extension runtime — the npm polyfill is only
+        // injected during dev pre-bundling, not in production Rollup/esbuild builds)
+        'process': JSON.stringify({ env: {} }),
+        // Define process.env as a complete object so both static (process.env.X) and
+        // dynamic (process.env[key]) access work at runtime.
+        // esbuild/Rollup use the most specific match: process.env wins over process.
+        'process.env': JSON.stringify({
+          VITE_SALMON_ENV: env.VITE_SALMON_ENV ?? 'local',
+          VITE_API_HOST: env.VITE_API_HOST ?? '',
+          VITE_API_PORT: env.VITE_API_PORT ?? '',
+          VITE_API_URL: env.VITE_API_URL ?? '',
+          VITE_STATIC_API_URL: env.VITE_STATIC_API_URL ?? '',
+          VITE_HELIUS_API_KEY: env.VITE_HELIUS_API_KEY ?? '',
+          NODE_ENV: process.env.NODE_ENV ?? 'development',
+        }),
       },
       resolve: {
         alias: {

@@ -55,11 +55,6 @@ function getEnvVar(name: string): string | undefined {
   const viteKey = `VITE_${name}`;
 
   // Access process.env safely for different environments
-  // This works for:
-  // - React Native/Expo (via babel-preset-expo which inlines EXPO_PUBLIC_* vars)
-  // - Node.js environments
-  // - Vite (when configured to use process.env or with define config)
-  // - Webpack/other bundlers that support process.env
   if (typeof process !== 'undefined' && process.env) {
     return process.env[expoKey] || process.env[viteKey] || process.env[name];
   }
