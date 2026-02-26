@@ -29,11 +29,15 @@ export interface ApiResponse<T = unknown> {
 
 /**
  * API error response structure
+ * Supports both v3 format ({ message, code, details }) and
+ * backend OAuth 2.0 format ({ error, error_description })
  */
 export interface ApiErrorResponse {
-  message: string;
+  message?: string;
   code?: string;
   details?: Record<string, unknown>;
+  error?: string;
+  error_description?: string;
 }
 
 /**
@@ -242,8 +246,8 @@ function transformError(error: AxiosError<ApiErrorResponse>): ApiError {
   if (error.response) {
     // Server responded with an error status
     const { status, data } = error.response;
-    const message = data?.message || error.message || 'An error occurred';
-    const code = data?.code;
+    const message = data?.message || data?.error_description || error.message || 'An error occurred';
+    const code = data?.code || data?.error;
     const details = data?.details;
 
     return new ApiError(message, status, code, details, error);
