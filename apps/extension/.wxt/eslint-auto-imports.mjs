@@ -237,6 +237,7 @@ const globals = {
   "getSessionKey": true,
   "hasValidSessionKey": true,
   "injectScript": true,
+  "sessionArea": true,
   "storage": true,
   "storeSessionKey": true,
   "styled": true,

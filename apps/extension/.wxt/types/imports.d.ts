@@ -101,6 +101,7 @@ declare global {
   const getSessionKey: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/utils/sessionKeyCache')['getSessionKey']
   const hasValidSessionKey: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/utils/sessionKeyCache')['hasValidSessionKey']
   const injectScript: typeof import('wxt/utils/inject-script')['injectScript']
+  const sessionArea: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/utils/storageCompat')['sessionArea']
   const storage: typeof import('wxt/utils/storage')['storage']
   const storeSessionKey: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/utils/sessionKeyCache')['storeSessionKey']
   const styled: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/utils/styled')['styled']
