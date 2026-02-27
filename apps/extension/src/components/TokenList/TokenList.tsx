@@ -68,6 +68,8 @@ const SkeletonText = styled(Skeleton)({
 });
 
 const SkeletonValueContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
   alignItems: 'flex-end',
 });
 

@@ -89,6 +89,8 @@ const BitcoinChangeText = styled(Typography, {
 }));
 
 const BitcoinAmountContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
   alignItems: 'flex-end',
   textAlign: 'right',
 });
@@ -188,6 +190,8 @@ const ChangeText = styled(Typography, {
 }));
 
 const ValueContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
   alignItems: 'flex-end',
   textAlign: 'right',
   gap: vs(spacing.tokenAmountGap),

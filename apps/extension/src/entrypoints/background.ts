@@ -5,6 +5,11 @@
 // The barrel export pulls in React, axios, crypto libs, etc. which crash
 // the MV3 service worker (no DOM). Keep this file dependency-free.
 
+import { browser } from 'wxt/browser';
+
+// storage.session is MV3-only; fall back to storage.local for Firefox MV2
+const sessionArea = browser.storage.session ?? browser.storage.local;
+
 const STORAGE_KEYS = {
   CONNECTION: 'salmon_connection',
   NETWORK_ID: 'salmon_active_network_id',
@@ -70,7 +75,7 @@ export default defineBackground(() => {
   // Track whether the side panel is open via a persistent port
   let sidePanelPort: chrome.runtime.Port | null = null;
 
-  chrome.runtime.onConnect.addListener((port) => {
+  browser.runtime.onConnect.addListener((port) => {
     if (port.name === 'salmon_sidepanel') {
       sidePanelPort = port;
       port.onDisconnect.addListener(() => {
@@ -83,7 +88,7 @@ export default defineBackground(() => {
    * Get the active tab ID from the current window
    */
   const getActiveTabId = async (): Promise<number | undefined> => {
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
     return tabs?.[0]?.id;
   };
 
@@ -91,11 +96,8 @@ export default defineBackground(() => {
    * Get the list of connected tab IDs from storage
    */
   const getConnectedTabsIds = async (): Promise<number[]> => {
-    return new Promise((resolve) => {
-      chrome.storage.local.get('connectedTabsIds', (result) => {
-        resolve(JSON.parse(result.connectedTabsIds || 'null') || []);
-      });
-    });
+    const result = await browser.storage.local.get('connectedTabsIds');
+    return JSON.parse((result.connectedTabsIds as string) || 'null') || [];
   };
 
   /**
@@ -105,7 +107,7 @@ export default defineBackground(() => {
     if (tabId) {
       const tabsIds = await getConnectedTabsIds();
       if (!tabsIds.includes(tabId)) {
-        await chrome.storage.local.set({
+        await browser.storage.local.set({
           connectedTabsIds: JSON.stringify([...tabsIds, tabId]),
         });
       }
@@ -118,7 +120,7 @@ export default defineBackground(() => {
   const removeConnectedTabId = async (tabId: number): Promise<void> => {
     const tabsIds = await getConnectedTabsIds();
     if (tabsIds.includes(tabId)) {
-      await chrome.storage.local.set({
+      await browser.storage.local.set({
         connectedTabsIds: JSON.stringify(tabsIds.filter((id) => id !== tabId)),
       });
     }
@@ -128,12 +130,12 @@ export default defineBackground(() => {
    * Clean up connected tabs list by removing closed tabs
    */
   const cleanConnectedTabs = async (): Promise<void> => {
-    const allTabs = await chrome.tabs.query({});
+    const allTabs = await browser.tabs.query({});
     const allTabsIds = allTabs.map((tab) => tab?.id).filter((id): id is number => id !== undefined);
     const connectedTabsIds = await getConnectedTabsIds();
 
     const tabsIds = connectedTabsIds.filter((tabId) => allTabsIds.includes(tabId));
-    await chrome.storage.local.set({
+    await browser.storage.local.set({
       connectedTabsIds: JSON.stringify(tabsIds),
     });
   };
@@ -142,34 +144,34 @@ export default defineBackground(() => {
    * Append a pending approval to the session storage queue.
    */
   const writeApprovalToStorage = async (approval: PendingApproval): Promise<void> => {
-    const existing = await chrome.storage.session.get(APPROVAL_STORAGE_KEY);
+    const existing = await sessionArea.get(APPROVAL_STORAGE_KEY);
     const queue: PendingApproval[] = existing[APPROVAL_STORAGE_KEY] ?? [];
     queue.push(approval);
-    await chrome.storage.session.set({ [APPROVAL_STORAGE_KEY]: queue });
+    await sessionArea.set({ [APPROVAL_STORAGE_KEY]: queue });
   };
 
   /**
    * Remove a specific request from the session storage queue.
    */
   const removeApprovalFromStorage = async (requestId: string): Promise<void> => {
-    const existing = await chrome.storage.session.get(APPROVAL_STORAGE_KEY);
+    const existing = await sessionArea.get(APPROVAL_STORAGE_KEY);
     const queue: PendingApproval[] = existing[APPROVAL_STORAGE_KEY] ?? [];
     const filtered = queue.filter((a) => a.request.id !== requestId);
     if (filtered.length > 0) {
-      await chrome.storage.session.set({ [APPROVAL_STORAGE_KEY]: filtered });
+      await sessionArea.set({ [APPROVAL_STORAGE_KEY]: filtered });
     } else {
-      await chrome.storage.session.remove(APPROVAL_STORAGE_KEY);
+      await sessionArea.remove(APPROVAL_STORAGE_KEY);
     }
   };
 
   /**
    * Launch a popup window as fallback for user interaction (approval dialogs, etc.)
    */
-  const launchPopupWindow = (
+  const launchPopupWindow = async (
     message: Message,
     sender: chrome.runtime.MessageSender,
     sendResponse: ResponseHandler
-  ): void => {
+  ): Promise<void> => {
     const searchParams = new URLSearchParams();
     searchParams.set('origin', sender.origin || '');
     searchParams.set('request', JSON.stringify(message.data));
@@ -177,34 +179,33 @@ export default defineBackground(() => {
       searchParams.set('network', message.data.params.network);
     }
 
-    chrome.windows.getLastFocused(async (focusedWindow) => {
-      const popup = await chrome.windows.create({
-        url: 'popup.html#' + searchParams.toString(),
-        type: 'popup',
-        width: 380,
-        height: 675,
-        top: focusedWindow.top,
-        left: (focusedWindow.left || 0) + (focusedWindow.width || 380) - 380,
-        focused: true,
-      });
-
-      const listener = (windowId: number): void => {
-        if (windowId === popup.id) {
-          const responseHandler = responseHandlers.get(message.data.id);
-          if (responseHandler) {
-            responseHandlers.delete(message.data.id);
-            responseHandler({
-              error: 'Operation cancelled',
-              id: message.data.id,
-            });
-          }
-
-          chrome.windows.onRemoved.removeListener(listener);
-        }
-      };
-
-      chrome.windows.onRemoved.addListener(listener);
+    const focusedWindow = await browser.windows.getLastFocused();
+    const popup = await browser.windows.create({
+      url: 'popup.html#' + searchParams.toString(),
+      type: 'popup',
+      width: 380,
+      height: 675,
+      top: focusedWindow.top,
+      left: (focusedWindow.left || 0) + (focusedWindow.width || 380) - 380,
+      focused: true,
     });
+
+    const listener = (windowId: number): void => {
+      if (windowId === popup.id) {
+        const responseHandler = responseHandlers.get(message.data.id);
+        if (responseHandler) {
+          responseHandlers.delete(message.data.id);
+          responseHandler({
+            error: 'Operation cancelled',
+            id: message.data.id,
+          });
+        }
+
+        browser.windows.onRemoved.removeListener(listener);
+      }
+    };
+
+    browser.windows.onRemoved.addListener(listener);
 
     responseHandlers.set(message.data.id, sendResponse);
   };
@@ -270,36 +271,34 @@ export default defineBackground(() => {
     sender: chrome.runtime.MessageSender,
     sendResponse: ResponseHandler
   ): Promise<void> => {
-    chrome.storage.local.get(
-      [STORAGE_KEYS.CONNECTION, STORAGE_KEYS.NETWORK_ID, STORAGE_KEYS.TRUSTED_APPS],
-      async (result) => {
-        const tabId = await getActiveTabId();
-
-        const callback: ResponseHandler = async (data, id) => {
-          await sendResponse(data, id);
-          await addConnectedTabId(tabId);
-        };
-
-        const data: StorageData = {
-          connection: JSON.parse(result[STORAGE_KEYS.CONNECTION] || 'null'),
-          networkId: JSON.parse(result[STORAGE_KEYS.NETWORK_ID] || 'null'),
-          trustedApps: JSON.parse(result[STORAGE_KEYS.TRUSTED_APPS] || 'null'),
-        };
-
-        const connection = await getConnection(sender.origin || '', data);
-        if (connection) {
-          await callback({
-            method: 'connected',
-            params: {
-              publicKey: connection.address,
-            },
-            id: message.data.id,
-          });
-        } else {
-          routeApproval(message, sender, callback);
-        }
-      }
+    const result = await browser.storage.local.get(
+      [STORAGE_KEYS.CONNECTION, STORAGE_KEYS.NETWORK_ID, STORAGE_KEYS.TRUSTED_APPS]
     );
+    const tabId = await getActiveTabId();
+
+    const callback: ResponseHandler = async (data, id) => {
+      await sendResponse(data, id);
+      await addConnectedTabId(tabId);
+    };
+
+    const data: StorageData = {
+      connection: JSON.parse((result[STORAGE_KEYS.CONNECTION] as string) || 'null'),
+      networkId: JSON.parse((result[STORAGE_KEYS.NETWORK_ID] as string) || 'null'),
+      trustedApps: JSON.parse((result[STORAGE_KEYS.TRUSTED_APPS] as string) || 'null'),
+    };
+
+    const connection = await getConnection(sender.origin || '', data);
+    if (connection) {
+      await callback({
+        method: 'connected',
+        params: {
+          publicKey: connection.address,
+        },
+        id: message.data.id,
+      });
+    } else {
+      routeApproval(message, sender, callback);
+    }
   };
 
   /**
@@ -332,7 +331,7 @@ export default defineBackground(() => {
       if (message.data.key) {
         stashedValues.set(message.data.key, message.data.value);
         if (message.data.key === STASH_KEYS.PASSWORD || message.data.key === STASH_KEYS.LAST_ACTIVITY) {
-          chrome.alarms.create('salmon_lock_alarm', { delayInMinutes: 5 });
+          browser.alarms.create('salmon_lock_alarm', { delayInMinutes: 5 });
         }
       }
       sendResponse(undefined);
@@ -349,14 +348,14 @@ export default defineBackground(() => {
   };
 
   // Main message listener
-  chrome.runtime.onMessage.addListener(
+  browser.runtime.onMessage.addListener(
     (
       message: Message | StashMessage,
       sender: chrome.runtime.MessageSender,
       sendResponse: (response?: unknown) => void
     ): boolean | void => {
       // Only handle messages from our own extension
-      if (sender.id !== chrome.runtime.id) {
+      if (sender.id !== browser.runtime.id) {
         return;
       }
 
@@ -400,20 +399,26 @@ export default defineBackground(() => {
   );
 
   // Alarm listener for session timeout (auto-lock after 5 minutes of inactivity)
-  chrome.alarms.onAlarm.addListener((alarm) => {
+  browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'salmon_lock_alarm') {
       stashedValues.delete(STASH_KEYS.PASSWORD);
     }
   });
 
   // Tab removal listener to clean up connected tabs
-  chrome.tabs.onRemoved.addListener((tabId) => {
+  browser.tabs.onRemoved.addListener((tabId) => {
     removeConnectedTabId(tabId);
   });
 
-  // Open side panel when clicking the extension icon (Chrome/Edge only)
+  // Open side panel / sidebar when clicking the extension icon
   if (import.meta.env.CHROME) {
     chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+  } else if (import.meta.env.FIREFOX) {
+    // Clear default popup so browserAction.onClicked fires, then toggle sidebar
+    browser.browserAction.setPopup({ popup: '' });
+    browser.browserAction.onClicked.addListener(() => {
+      browser.sidebarAction.toggle();
+    });
   }
 
   // Clean up connected tabs on startup

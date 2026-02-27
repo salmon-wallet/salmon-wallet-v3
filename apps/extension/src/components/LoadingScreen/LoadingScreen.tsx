@@ -231,6 +231,7 @@ export function LoadingScreen({
     lineHeight: '16px',
     textTransform: 'uppercase',
     letterSpacing: '1px',
+    textAlign: 'center',
     marginBottom: '8px',
   };
 
@@ -240,6 +241,7 @@ export function LoadingScreen({
     fontWeight: fontWeight.regular,
     fontSize: fontSize.base,
     lineHeight: '20px',
+    textAlign: 'center',
     opacity: tipFading ? 0 : 1,
     transition: 'opacity 0.4s ease-in-out',
     padding: '0 16px',

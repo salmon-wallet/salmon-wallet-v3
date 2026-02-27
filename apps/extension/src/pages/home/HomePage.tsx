@@ -265,6 +265,7 @@ const TabButton = styled('button', {
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: active ? 600 : 400,
   fontSize: 14,
+  textAlign: 'center',
   cursor: 'pointer',
   transition: 'all 0.2s ease',
   '&:hover': {

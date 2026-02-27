@@ -73,6 +73,7 @@ const ToggleButton = styled('button', {
   fontWeight: fontWeight.semibold,
   fontSize: fontSize.base,
   color: isActive ? colors.text.primary : colors.text.secondary,
+  textAlign: 'center',
   transition: 'color 0.25s ease',
   fontFamily: 'inherit',
 }));

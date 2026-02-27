@@ -171,7 +171,13 @@ const EyeButton = styled('button')({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  textAlign: 'center',
+  lineHeight: 1,
   color: colors.text.muted,
+  '&::-moz-focus-inner': {
+    border: 0,
+    padding: 0,
+  },
   '&:hover': {
     opacity: 0.8,
   },

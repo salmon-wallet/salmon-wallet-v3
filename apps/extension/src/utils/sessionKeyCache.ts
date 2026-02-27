@@ -1,4 +1,5 @@
 import { DerivedKeyCache, isKeyCacheValid } from '@salmon/shared';
+import { sessionArea } from './storageCompat';
 
 const SESSION_KEY_STORAGE_KEY = 'salmon_session_key';
 
@@ -8,7 +9,7 @@ const SESSION_KEY_STORAGE_KEY = 'salmon_session_key';
  */
 export async function storeSessionKey(keyCache: DerivedKeyCache): Promise<void> {
   try {
-    await chrome.storage.session.set({
+    await sessionArea.set({
       [SESSION_KEY_STORAGE_KEY]: keyCache
     });
   } catch (error) {
@@ -21,7 +22,7 @@ export async function storeSessionKey(keyCache: DerivedKeyCache): Promise<void> 
  */
 export async function getSessionKey(): Promise<DerivedKeyCache | null> {
   try {
-    const result = await chrome.storage.session.get(SESSION_KEY_STORAGE_KEY);
+    const result = await sessionArea.get(SESSION_KEY_STORAGE_KEY);
     const keyCache = result[SESSION_KEY_STORAGE_KEY] as DerivedKeyCache | undefined;
 
     if (keyCache && isKeyCacheValid(keyCache)) {
@@ -39,7 +40,7 @@ export async function getSessionKey(): Promise<DerivedKeyCache | null> {
  */
 export async function clearSessionKey(): Promise<void> {
   try {
-    await chrome.storage.session.remove(SESSION_KEY_STORAGE_KEY);
+    await sessionArea.remove(SESSION_KEY_STORAGE_KEY);
   } catch (error) {
     console.warn('Failed to clear session key:', error);
   }

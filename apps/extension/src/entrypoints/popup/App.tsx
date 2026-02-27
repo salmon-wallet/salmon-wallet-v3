@@ -17,6 +17,7 @@ import { PasswordPage } from '../../pages/auth/PasswordPage';
 import { SuccessPage } from '../../pages/auth/SuccessPage';
 import { DerivedAccountsPage } from '../../pages/auth/DerivedAccountsPage';
 import { clearSessionKey } from '../../utils/sessionKeyCache';
+import { sessionArea } from '../../utils/storageCompat';
 
 // ============================================================================
 // Types
@@ -124,12 +125,10 @@ function App() {
     []
   );
 
-  // Listen for approval requests from background via chrome.storage.session
+  // Listen for approval requests from background via session storage
   useEffect(() => {
-    if (typeof chrome === 'undefined' || !chrome.storage?.session) return;
-
     // Check for existing pending approvals on mount
-    chrome.storage.session.get('salmon_pending_approval').then((result) => {
+    sessionArea.get('salmon_pending_approval').then((result) => {
       const queue = result['salmon_pending_approval'] as Array<{
         origin: string;
         request: DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest;
@@ -144,7 +143,7 @@ function App() {
       changes: Record<string, chrome.storage.StorageChange>,
       areaName: string
     ) => {
-      if (areaName !== 'session') return;
+      if (areaName !== 'session' && areaName !== 'local') return;
       const change = changes['salmon_pending_approval'];
       if (!change) return;
       const queue = change.newValue as Array<{
@@ -168,18 +167,16 @@ function App() {
     setPendingDAppTxRequest(null);
     setPendingDAppSignMessageRequest(null);
 
-    if (typeof chrome !== 'undefined' && chrome.storage?.session) {
-      chrome.storage.session.get('salmon_pending_approval').then((result) => {
-        const queue = result['salmon_pending_approval'] as unknown[] | undefined;
-        if (queue && queue.length > 1) {
-          // Pop the first item; the storage listener will route the next one
-          const remaining = queue.slice(1);
-          chrome.storage.session.set({ 'salmon_pending_approval': remaining });
-        } else {
-          chrome.storage.session.remove('salmon_pending_approval');
-        }
-      }).catch(() => { /* ignore */ });
-    }
+    sessionArea.get('salmon_pending_approval').then((result) => {
+      const queue = result['salmon_pending_approval'] as unknown[] | undefined;
+      if (queue && queue.length > 1) {
+        // Pop the first item; the storage listener will route the next one
+        const remaining = queue.slice(1);
+        sessionArea.set({ 'salmon_pending_approval': remaining });
+      } else {
+        sessionArea.remove('salmon_pending_approval');
+      }
+    }).catch(() => { /* ignore */ });
   }, []);
 
   // Refresh signal for HomePage after dApp approval

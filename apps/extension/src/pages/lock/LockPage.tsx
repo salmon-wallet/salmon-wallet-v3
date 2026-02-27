@@ -122,6 +122,7 @@ const ForgotPasswordButton = styled('button')({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   cursor: 'pointer',
   width: '100%',
+  textAlign: 'center',
   transition: 'color 0.15s ease',
   '&:hover:not(:disabled)': {
     color: colors.text.primary,
