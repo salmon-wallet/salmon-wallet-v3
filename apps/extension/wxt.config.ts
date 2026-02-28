@@ -57,7 +57,7 @@ export default defineConfig({
     description: '__MSG_extDescription__',
     // Set default locale for i18n
     default_locale: 'en',
-    version: '0.9.0',
+    version: '0.9.1',
     icons: {
       16: 'icon.png',
       48: 'icon.png',
