@@ -20,20 +20,17 @@ const FALLBACK_GRADIENT =
   'linear-gradient(91.6deg, rgb(255, 92, 69) 12%, rgba(161, 42, 42, 0.9) 83%)';
 
 /** Card dimensions */
-const CARD_WIDTH = 194;
-const CARD_HEIGHT = 193;
 const CARD_BORDER_RADIUS = 18;
 
 const Container = styled(Box)<{ $clickable: boolean }>(({ $clickable }) => ({
-  width: CARD_WIDTH,
-  height: CARD_HEIGHT,
+  width: '100%',
+  aspectRatio: '1',
   borderRadius: CARD_BORDER_RADIUS,
   overflow: 'hidden',
   position: 'relative',
   cursor: $clickable ? 'pointer' : 'default',
   boxShadow: '0px 3px 9px rgba(0, 0, 0, 0.4)',
   transition: 'opacity 0.2s ease',
-  flexShrink: 0,
   '&:hover': $clickable
     ? {
         opacity: 0.85,

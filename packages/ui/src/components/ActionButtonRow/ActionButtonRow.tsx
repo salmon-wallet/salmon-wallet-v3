@@ -29,15 +29,15 @@ const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  justifyContent: 'space-between',
-  paddingLeft: s(spacing['4xl']),
-  paddingRight: s(spacing['4xl']),
+  gap: s(spacing.sm),
+  paddingLeft: s(spacing.xl),
+  paddingRight: s(spacing.xl),
   paddingTop: vs(spacing.md),
   paddingBottom: vs(spacing.md),
 });
 
 const ButtonWrapper = styled(Box)<{ disabled?: boolean }>(({ disabled }) => ({
-  width: s(componentSizes.actionButtonWidth),
+  flex: 1,
   height: vs(componentSizes.actionButtonHeight),
   borderRadius: ms(componentSizes.actionButtonRadius),
   overflow: 'hidden',

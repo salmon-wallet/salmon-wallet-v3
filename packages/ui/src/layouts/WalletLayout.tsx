@@ -1,7 +1,7 @@
 /**
  * WalletLayout - Centered container for standalone web wallet views.
  *
- * Constrains content to a phone-like column (max-width 500px) on wide screens,
+ * Constrains content to a phone-like column (max-width 375px) on wide screens,
  * while going full-width on mobile.  Intended to wrap the entire route tree
  * in apps/web so every page gets a consistent centred layout.
  */
@@ -13,7 +13,7 @@ import { colors } from '@salmon/shared';
 
 export interface WalletLayoutProps {
   children: React.ReactNode;
-  /** Override the default 500 px max-width */
+  /** Override the default 375 px max-width */
   maxWidth?: number;
 }
 
@@ -35,7 +35,7 @@ const Inner = styled(Box)<{ $maxWidth: number }>(({ $maxWidth }) => ({
 
 export function WalletLayout({
   children,
-  maxWidth = 500,
+  maxWidth = 375,
 }: WalletLayoutProps): React.ReactElement {
   return (
     <Outer>

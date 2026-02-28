@@ -33,21 +33,21 @@ const StyledSkeleton = styled(Skeleton)({
 });
 
 const CardRow = styled(Box)({
-  display: 'flex',
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, 1fr)',
   gap: CARD_GAP,
   paddingLeft: spacing.lg,
+  paddingRight: spacing.lg,
 });
 
 export const NftCarouselSectionSkeleton = memo<NftCarouselSectionSkeletonProps>(
-  function NftCarouselSectionSkeleton({ count = 2, style, className }) {
+  function NftCarouselSectionSkeleton({ count = 8, style, className }) {
     return (
       <Container style={style} className={className}>
         <HeaderRow>
           <StyledSkeleton variant="circular" width={24} height={24} animation="wave" />
           <StyledSkeleton variant="rounded" width={80} height={18} animation="wave" sx={{ borderRadius: '6px' }} />
           <StyledSkeleton variant="rounded" width={28} height={14} animation="wave" sx={{ borderRadius: '4px' }} />
-          <Box sx={{ flex: 1 }} />
-          <StyledSkeleton variant="rounded" width={20} height={20} animation="wave" sx={{ borderRadius: '4px' }} />
         </HeaderRow>
         <CardRow>
           {Array.from({ length: count }).map((_, i) => (

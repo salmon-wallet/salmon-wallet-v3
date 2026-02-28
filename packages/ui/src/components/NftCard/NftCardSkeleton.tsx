@@ -11,8 +11,6 @@ import { colors } from '@salmon/shared';
 import type { NftCardSkeletonProps } from './types';
 
 /** Card dimensions matching NftCard */
-const CARD_WIDTH = 194;
-const CARD_HEIGHT = 193;
 const CARD_BORDER_RADIUS = 18;
 
 /** Badge dimensions */
@@ -22,12 +20,11 @@ const BADGE_HORIZONTAL = 8;
 const BADGE_BORDER_RADIUS = 9;
 
 const Container = styled(Box)({
-  width: CARD_WIDTH,
-  height: CARD_HEIGHT,
+  width: '100%',
+  aspectRatio: '1',
   borderRadius: CARD_BORDER_RADIUS,
   overflow: 'hidden',
   position: 'relative',
-  flexShrink: 0,
 });
 
 const CardSkeleton = styled(Skeleton)({
@@ -66,8 +63,8 @@ export const NftCardSkeleton = memo<NftCardSkeletonProps>(
         {/* Main card background */}
         <CardSkeleton
           variant="rounded"
-          width={CARD_WIDTH}
-          height={CARD_HEIGHT}
+          width="100%"
+          height="100%"
           animation={animation}
           sx={{ borderRadius: `${CARD_BORDER_RADIUS}px` }}
         />
@@ -75,7 +72,7 @@ export const NftCardSkeleton = memo<NftCardSkeletonProps>(
         {/* Name badge at bottom */}
         <BadgeSkeleton
           variant="rounded"
-          width={CARD_WIDTH - BADGE_HORIZONTAL * 2}
+          width={`calc(100% - ${BADGE_HORIZONTAL * 2}px)`}
           height={BADGE_HEIGHT}
           animation={animation}
           sx={{ borderRadius: `${BADGE_BORDER_RADIUS}px` }}
