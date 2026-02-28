@@ -23,8 +23,7 @@ import {
   useAccountsContext,
   validatePassword,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
-import { PasswordInput, PasswordStrengthBar } from '../../components/PasswordInput';
+import { SettingsPageLayout, PasswordInput, PasswordStrengthBar } from '@/components';
 
 // ============================================================================
 // Types

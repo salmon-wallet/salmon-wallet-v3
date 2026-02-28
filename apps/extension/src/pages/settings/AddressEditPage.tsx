@@ -16,8 +16,7 @@ import {
   useAddressBookForm,
   type AddressBookEditBaseProps,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
-import { InputAddress } from '../../components/InputAddress';
+import { SettingsPageLayout, InputAddress } from '@/components';
 
 // ============================================================================
 // Styled Components

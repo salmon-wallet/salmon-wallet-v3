@@ -36,9 +36,7 @@ import {
   type AccountAddStep,
   type DerivedAccountInfo,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
-import { DerivedAccountCard } from '../../components/DerivedAccountCard';
-import { LoadingScreen } from '../../components/LoadingScreen';
+import { SettingsPageLayout, DerivedAccountCard, LoadingScreen } from '@/components';
 
 // ============================================================================
 // Types

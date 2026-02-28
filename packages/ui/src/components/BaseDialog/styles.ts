@@ -1,0 +1,172 @@
+/**
+ * Shared styled components for BaseDialog
+ */
+
+import { styled } from '../../utils/styled';
+import Dialog from '@mui/material/Dialog';
+import type { DialogProps } from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import type { DialogTitleProps } from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import type { DialogContentProps } from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import type { DialogActionsProps } from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import type { TextFieldProps } from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import type { ButtonProps } from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import type { IconButtonProps } from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import type { TypographyProps } from '@mui/material/Typography';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import type { SvgIconProps } from '@mui/material/SvgIcon';
+import { colors, spacing, borderRadius } from '@salmon/shared';
+
+// ============================================================================
+// Dialog Root
+// ============================================================================
+
+export const StyledDialog: React.ComponentType<DialogProps> = styled(Dialog)({
+  '& .MuiDialog-paper': {
+    backgroundColor: colors.dialog.background,
+    borderRadius: borderRadius.xl,
+    border: `1px solid ${colors.dialog.border}`,
+    minWidth: 'min(340px, 95vw)',
+    maxWidth: 'min(400px, 95vw)',
+  },
+});
+
+// ============================================================================
+// Header Components
+// ============================================================================
+
+export const StyledDialogTitle: React.ComponentType<DialogTitleProps> = styled(DialogTitle)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: `${spacing.lg}px ${spacing.xl}px`,
+  borderBottom: `1px solid ${colors.border.default}`,
+});
+
+export const TitleContainer: React.ComponentType<React.HTMLAttributes<HTMLDivElement>> = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing.sm,
+});
+
+export const TitleText: React.ComponentType<TypographyProps> = styled(Typography)({
+  fontSize: 18,
+  fontWeight: 600,
+  color: colors.text.primary,
+});
+
+export const WarningIcon: React.ComponentType<SvgIconProps> = styled(WarningAmberIcon)({
+  color: colors.status.error,
+  fontSize: 24,
+});
+
+export const CloseButton: React.ComponentType<IconButtonProps> = styled(IconButton)({
+  color: colors.text.secondary,
+  padding: spacing.xs,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+});
+
+// ============================================================================
+// Content Components
+// ============================================================================
+
+export const StyledDialogContent: React.ComponentType<DialogContentProps> = styled(DialogContent)({
+  padding: `${spacing.xl}px`,
+});
+
+export const MessageText: React.ComponentType<TypographyProps> = styled(Typography)({
+  fontSize: 14,
+  color: colors.text.secondary,
+  lineHeight: 1.6,
+  textAlign: 'center',
+});
+
+// ============================================================================
+// TextField Components
+// ============================================================================
+
+export const StyledTextField: React.ComponentType<TextFieldProps> = styled(TextField)({
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.md,
+    color: colors.text.primary,
+    '& fieldset': {
+      borderColor: colors.border.default,
+    },
+    '&:hover fieldset': {
+      borderColor: colors.border.light,
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: colors.accent.primary,
+    },
+    '&.Mui-error fieldset': {
+      borderColor: colors.status.error,
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: colors.text.secondary,
+    '&.Mui-focused': {
+      color: colors.accent.primary,
+    },
+    '&.Mui-error': {
+      color: colors.status.error,
+    },
+  },
+  '& .MuiOutlinedInput-input': {
+    color: colors.text.primary,
+  },
+  '& .MuiFormHelperText-root': {
+    color: colors.status.error,
+  },
+});
+
+// ============================================================================
+// Actions Components
+// ============================================================================
+
+export const StyledDialogActions: React.ComponentType<DialogActionsProps> = styled(DialogActions)({
+  padding: `${spacing.md}px ${spacing.xl}px ${spacing.xl}px`,
+  gap: spacing.md,
+});
+
+export const StyledCancelButton: React.ComponentType<ButtonProps> = styled(Button)({
+  flex: 1,
+  backgroundColor: colors.button.secondaryBackground,
+  color: colors.button.secondaryText,
+  textTransform: 'none',
+  fontWeight: 600,
+  padding: `${spacing.sm}px ${spacing.lg}px`,
+  borderRadius: borderRadius.md,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+});
+
+export const StyledActionButton: React.ComponentType<ButtonProps & { isDanger?: boolean }> = styled(Button)<{ isDanger?: boolean }>(
+  ({ isDanger }) => ({
+    flex: 1,
+    backgroundColor: isDanger ? colors.status.error : colors.accent.primary,
+    color: '#FFFFFF',
+    textTransform: 'none',
+    fontWeight: 600,
+    padding: `${spacing.sm}px ${spacing.lg}px`,
+    borderRadius: borderRadius.md,
+    '&:hover': {
+      backgroundColor: isDanger ? '#DC2626' : '#FF7A64',
+    },
+    '&:disabled': {
+      backgroundColor: isDanger
+        ? 'rgba(239, 68, 68, 0.3)'
+        : 'rgba(255, 92, 69, 0.3)',
+      color: 'rgba(255, 255, 255, 0.5)',
+    },
+  })
+);

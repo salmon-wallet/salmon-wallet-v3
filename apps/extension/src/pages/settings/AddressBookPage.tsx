@@ -26,8 +26,7 @@ import {
   type AddressBookSelectorBaseProps,
   type AddressBookItem,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
-import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { SettingsPageLayout, ConfirmDialog } from '@/components';
 
 // ============================================================================
 // Styled Components

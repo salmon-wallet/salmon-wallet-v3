@@ -30,8 +30,7 @@ import {
   useAccountsContext,
   type Account,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
-import { ConfirmDialog } from '../../components';
+import { SettingsPageLayout, ConfirmDialog } from '@/components';
 
 // ============================================================================
 // Types

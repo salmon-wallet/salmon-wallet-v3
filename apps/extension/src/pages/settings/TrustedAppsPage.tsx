@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useAccountsContext, type TrustedAppItem } from '@salmon/shared';
-import { TrustedAppsSelector } from '@/components/TrustedAppsSelector';
+import { TrustedAppsSelector } from '@/components';
 
 export function TrustedAppsPage({ onBack }: { onBack: () => void }) {
   const [state, actions] = useAccountsContext();

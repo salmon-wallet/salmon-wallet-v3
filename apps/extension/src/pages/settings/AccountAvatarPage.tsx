@@ -23,7 +23,7 @@ import {
   useAccountsContext,
   useAvatarNfts,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
+import { SettingsPageLayout } from '@/components';
 
 // ============================================================================
 // Types

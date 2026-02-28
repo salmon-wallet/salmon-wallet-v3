@@ -39,8 +39,8 @@ import {
   // NftCarouselSectionSkeleton,
   NftCard,
   NftCardSkeleton,
-} from '../../components';
-import { SolanaSvgIcon } from '../../components/Icon';
+  SolanaSvgIcon,
+} from '@/components';
 
 // ============================================================================
 // Props

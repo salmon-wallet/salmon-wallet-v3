@@ -28,7 +28,7 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
+import { SettingsPageLayout } from '@/components';
 
 // ============================================================================
 // Types

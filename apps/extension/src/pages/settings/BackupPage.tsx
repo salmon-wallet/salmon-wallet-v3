@@ -26,7 +26,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius, useAccounts } from '@salmon/shared';
-import { SettingsPageLayout } from '../../components/SettingsPageLayout';
+import { SettingsPageLayout } from '@/components';
 
 // ============================================================================
 // Types
