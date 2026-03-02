@@ -94,22 +94,39 @@ function createSalmonWallet() {
 /**
  * Register the Salmon wallet globally so it's discoverable
  * via wallet-standard's `getWallets()`.
+ *
+ * Follows the wallet-standard protocol (same as salmon-wallet-standard/src/register.ts):
+ * 1. Dispatch 'wallet-standard:register-wallet' for apps already listening
+ * 2. Listen for 'wallet-standard:app-ready' for apps that load later
  */
-function registerSalmonWallet(): void {
-  if (registered) return;
+function registerSalmonWallet(): () => void {
+  if (registered) return () => {};
   registered = true;
 
   const wallet = createSalmonWallet();
+  const callback = ({ register }: { register: (w: unknown) => void }) => register(wallet);
 
-  // Register with wallet-standard event API
-  // dApps listen for 'wallet-standard:register-wallet' events
-  const registerEvent = new CustomEvent('wallet-standard:app-ready', {
-    detail: { register: (cb: (wallet: unknown) => void) => cb(wallet) },
-  });
-  window.dispatchEvent(registerEvent);
+  // Dispatch register-wallet event for dApps already listening
+  window.dispatchEvent(
+    new CustomEvent('wallet-standard:register-wallet', {
+      detail: callback,
+      bubbles: false,
+      cancelable: false,
+    }),
+  );
+
+  // Listen for app-ready events from dApps that load after the wallet
+  const appReadyHandler = (event: Event) => {
+    callback((event as CustomEvent).detail);
+  };
+  window.addEventListener('wallet-standard:app-ready', appReadyHandler);
 
   // Also expose on window for direct access
   (window as unknown as Record<string, unknown>).__salmonWallet = wallet;
+
+  return () => {
+    window.removeEventListener('wallet-standard:app-ready', appReadyHandler);
+  };
 }
 
 /**
@@ -118,7 +135,8 @@ function registerSalmonWallet(): void {
  */
 export function SalmonWalletRegistrar(): null {
   useEffect(() => {
-    registerSalmonWallet();
+    const cleanup = registerSalmonWallet();
+    return cleanup;
   }, []);
 
   return null;
