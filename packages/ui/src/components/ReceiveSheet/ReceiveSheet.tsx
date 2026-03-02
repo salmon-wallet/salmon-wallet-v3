@@ -176,11 +176,11 @@ export function ReceiveSheet({
       className={className}
       style={style}
     >
-      <BaseSheetDialog.StandardHeader title={t('wallet.receive.title')} />
+      <BaseSheetDialog.StandardHeader title={t('token.receive.title')} />
 
       <BaseSheetDialog.Content
         padding="xl"
-        style={{ paddingBottom: spacing['2xl'], flex: 1 }}
+        style={{ paddingTop: spacing.xl, paddingBottom: spacing['2xl'], flex: 1 }}
       >
         <ContentWrapper ref={contentRef}>
           {/* QR Code */}
@@ -199,7 +199,7 @@ export function ReceiveSheet({
           {/* Copy Button */}
           <CopyButton
             onClick={handleCopy}
-            aria-label={t('wallet.receive.copyAddress')}
+            aria-label={t('token.receive.copyAddress')}
           >
             {copied ? (
               <CheckIcon sx={{ fontSize: 20, color: '#000000' }} />
@@ -207,7 +207,7 @@ export function ReceiveSheet({
               <ContentCopyIcon sx={{ fontSize: 20, color: '#000000' }} />
             )}
             <CopyButtonText>
-              {copied ? t('wallet.receive.copied') : t('wallet.receive.copyAddress')}
+              {copied ? t('token.receive.copied') : t('token.receive.copyAddress')}
             </CopyButtonText>
           </CopyButton>
         </ContentWrapper>

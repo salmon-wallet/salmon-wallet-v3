@@ -88,7 +88,7 @@ export const colors = {
   },
   dialog: {
     overlay: 'rgba(0, 0, 0, 0.7)',
-    background: '#1e2330',
+    background: '#10131c',
     border: '#404962',
   },
   card: {
