@@ -132,9 +132,7 @@ const BadgesContainer = styled(Box)({
   marginLeft: s(spacing.sm),
 });
 
-const BadgeBox = styled(Box, {
-  shouldForwardProp: (prop) => prop !== '$bgColor',
-})<{ $bgColor: string }>(({ $bgColor }) => ({
+const BadgeBox = styled(Box)<{ $bgColor: string }>(({ $bgColor }) => ({
   width: s(18),
   height: vs(18),
   borderRadius: borderRadius.sm,

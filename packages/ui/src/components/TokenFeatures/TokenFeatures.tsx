@@ -106,15 +106,13 @@ const ScrollContainer = styled(Box)({
   },
 });
 
-const Badge = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'badgeColor',
-})<{ badgeColor: string }>(({ badgeColor }) => ({
+const Badge = styled(Box)<{ $badgeColor: string }>(({ $badgeColor }) => ({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   padding: `${spacing.sm}px ${spacing.md}px`,
   borderRadius: borderRadius.full,
-  backgroundColor: `${badgeColor}20`,
+  backgroundColor: `${$badgeColor}20`,
   flexShrink: 0,
 }));
 
@@ -122,13 +120,11 @@ const BadgeIcon = styled('svg')({
   marginRight: spacing.xs,
 });
 
-const BadgeLabel = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== 'labelColor',
-})<{ labelColor: string }>(({ labelColor }) => ({
+const BadgeLabel = styled(Typography)<{ $labelColor: string }>(({ $labelColor }) => ({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: labelColor,
+  color: $labelColor,
   whiteSpace: 'nowrap',
 }));
 
@@ -176,9 +172,9 @@ function FeatureBadge({
   const iconPath = getFeatureIconPath(feature);
 
   return (
-    <Badge badgeColor={color}>
+    <Badge $badgeColor={color}>
       <FeatureIcon path={iconPath} color={color} />
-      <BadgeLabel labelColor={color}>{feature.label}</BadgeLabel>
+      <BadgeLabel $labelColor={color}>{feature.label}</BadgeLabel>
     </Badge>
   );
 }

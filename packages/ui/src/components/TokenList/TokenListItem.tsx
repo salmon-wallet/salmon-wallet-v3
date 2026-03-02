@@ -79,9 +79,7 @@ const BitcoinChangeRow = styled(Box)({
   gap: s(spacing['2xs']),
 });
 
-const BitcoinChangeText = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== '$changeColor',
-})<{ $changeColor?: string }>(({ $changeColor }) => ({
+const BitcoinChangeText = styled(Typography)<{ $changeColor?: string }>(({ $changeColor }) => ({
   fontSize: ms(fontSize.tokenChange),
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
@@ -180,9 +178,7 @@ const BulletSeparator = styled(Typography)({
   color: 'rgba(255, 255, 255, 0.5)',
 });
 
-const ChangeText = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== '$changeColor',
-})<{ $changeColor?: string }>(({ $changeColor }) => ({
+const ChangeText = styled(Typography)<{ $changeColor?: string }>(({ $changeColor }) => ({
   fontSize: ms(fontSize.tokenChange),
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,

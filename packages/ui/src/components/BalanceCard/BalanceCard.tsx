@@ -192,9 +192,7 @@ const ChangeRow = styled(Box)({
   justifyContent: 'center',
 });
 
-const ChangeText = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== '$color',
-})<{ $color?: string }>(({ $color }) => ({
+const ChangeText = styled(Typography)<{ $color?: string }>(({ $color }) => ({
   fontSize: ms(fontSize.sm),
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,

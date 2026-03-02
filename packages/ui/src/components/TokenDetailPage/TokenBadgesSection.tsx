@@ -230,9 +230,7 @@ const BadgeItemContainer = styled(Box)({
   minWidth: 55,
 });
 
-const BadgeIconWrapper = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'badgeColor',
-})<{ badgeColor: string }>(({ badgeColor }) => ({
+const BadgeIconWrapper = styled(Box)<{ $badgeColor: string }>(({ $badgeColor }) => ({
   width: 40,
   height: 40,
   borderRadius: 20,
@@ -240,17 +238,15 @@ const BadgeIconWrapper = styled(Box, {
   alignItems: 'center',
   justifyContent: 'center',
   marginBottom: spacing.xs,
-  backgroundColor: `${badgeColor}15`,
+  backgroundColor: `${$badgeColor}15`,
 }));
 
-const BadgeLabel = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== 'badgeColor',
-})<{ badgeColor: string }>(({ badgeColor }) => ({
+const BadgeLabel = styled(Typography)<{ $badgeColor: string }>(({ $badgeColor }) => ({
   fontSize: 10,
   fontWeight: 500,
   textAlign: 'center',
   letterSpacing: -0.05,
-  color: badgeColor,
+  color: $badgeColor,
 }));
 
 const SkeletonContainer = styled(Box)({
@@ -282,10 +278,10 @@ const BadgeItem: React.FC<{ tag: string }> = ({ tag }) => {
 
   return (
     <BadgeItemContainer>
-      <BadgeIconWrapper badgeColor={config.color}>
+      <BadgeIconWrapper $badgeColor={config.color}>
         <IconComponent sx={{ fontSize: 18, color: config.color }} />
       </BadgeIconWrapper>
-      <BadgeLabel badgeColor={config.color} noWrap>
+      <BadgeLabel $badgeColor={config.color} noWrap>
         {config.label}
       </BadgeLabel>
     </BadgeItemContainer>

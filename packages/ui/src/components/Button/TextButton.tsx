@@ -17,10 +17,8 @@ import {
 } from '@salmon/shared';
 import type { TextButtonProps } from './types';
 
-const StyledButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== 'customColor',
-})<{ customColor?: string }>(
-  ({ customColor }) => ({
+const StyledButton = styled(Button)<{ $customColor?: string }>(
+  ({ $customColor }) => ({
     minWidth: 'auto',
     height: componentSizes.buttonHeightSmall,
     paddingLeft: 16,
@@ -31,7 +29,7 @@ const StyledButton = styled(Button, {
     fontSize: fontSize.sm,
     fontWeight: fontWeight.medium,
     letterSpacing: letterSpacing.wide,
-    color: customColor || colors.text.primary,
+    color: $customColor || colors.text.primary,
     textTransform: 'none',
     boxShadow: 'none',
     transition: 'opacity 0.2s ease',
@@ -46,7 +44,7 @@ const StyledButton = styled(Button, {
     '&.Mui-disabled': {
       background: 'transparent',
       opacity: colors.button.disabledOpacity,
-      color: customColor || colors.text.primary,
+      color: $customColor || colors.text.primary,
     },
   })
 );
@@ -76,7 +74,7 @@ export function TextButton({
       type={type}
       style={style}
       className={className}
-      customColor={color}
+      $customColor={color}
       disableRipple={false}
     >
       {loading ? (

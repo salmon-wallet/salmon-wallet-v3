@@ -16,18 +16,16 @@ import {
 } from '@salmon/shared';
 import type { SecondaryButtonProps } from './types';
 
-const StyledButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== 'buttonVariant',
-})<{
+const StyledButton = styled(Button)<{
   fullWidth?: boolean;
-  buttonVariant?: 'filled' | 'outline';
-}>(({ fullWidth, buttonVariant = 'filled' }) => ({
+  $buttonVariant?: 'filled' | 'outline';
+}>(({ fullWidth, $buttonVariant = 'filled' }) => ({
   width: fullWidth ? '100%' : 'auto',
   minWidth: 120,
   height: componentSizes.buttonHeight,
   backgroundColor:
-    buttonVariant === 'outline' ? 'transparent' : colors.button.secondaryBackground,
-  border: buttonVariant === 'outline' ? `1px solid ${colors.border.default}` : 'none',
+    $buttonVariant === 'outline' ? 'transparent' : colors.button.secondaryBackground,
+  border: $buttonVariant === 'outline' ? `1px solid ${colors.border.default}` : 'none',
   borderRadius: componentSizes.buttonRadius,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontSize: fontSize.md,
@@ -39,7 +37,7 @@ const StyledButton = styled(Button, {
   transition: 'opacity 0.2s ease, transform 0.1s ease, background-color 0.2s ease',
   '&:hover': {
     backgroundColor:
-      buttonVariant === 'outline'
+      $buttonVariant === 'outline'
         ? 'rgba(255, 255, 255, 0.05)'
         : colors.button.secondaryBackground,
     opacity: 0.9,
@@ -50,10 +48,10 @@ const StyledButton = styled(Button, {
   },
   '&.Mui-disabled': {
     backgroundColor:
-      buttonVariant === 'outline' ? 'transparent' : colors.button.secondaryBackground,
+      $buttonVariant === 'outline' ? 'transparent' : colors.button.secondaryBackground,
     opacity: colors.button.disabledOpacity,
     color: colors.button.secondaryText,
-    border: buttonVariant === 'outline' ? `1px solid ${colors.border.default}` : 'none',
+    border: $buttonVariant === 'outline' ? `1px solid ${colors.border.default}` : 'none',
   },
 }));
 
@@ -81,7 +79,7 @@ export function SecondaryButton({
       onClick={onClick}
       disabled={isDisabled}
       fullWidth={fullWidth}
-      buttonVariant={variant}
+      $buttonVariant={variant}
       type={type}
       style={style}
       className={className}

@@ -29,27 +29,23 @@ const BarsContainer = styled(Box)({
   gap: spacing.xs,
 });
 
-const Bar = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'active' && prop !== 'barColor',
-})<{ active: boolean; barColor: string }>(
-  ({ active, barColor }) => ({
+const Bar = styled(Box)<{ $active: boolean; $barColor: string }>(
+  ({ $active, $barColor }) => ({
     width: 32,
     height: 4,
     borderRadius: 2,
-    backgroundColor: active ? barColor : colors.step.inactive,
+    backgroundColor: $active ? $barColor : colors.step.inactive,
     transition: 'background-color 0.2s ease',
   }),
 );
 
-const Label = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== 'labelColor',
-})<{ labelColor: string }>(
-  ({ labelColor }) => ({
+const Label = styled(Typography)<{ $labelColor: string }>(
+  ({ $labelColor }) => ({
     fontFamily: `${fontFamily.sans}, sans-serif`,
     fontSize: 12,
     fontWeight: fontWeight.medium,
     textTransform: 'capitalize',
-    color: labelColor,
+    color: $labelColor,
   }),
 );
 
@@ -105,12 +101,12 @@ export function PasswordStrengthBar({
         {[0, 1, 2].map((index) => (
           <Bar
             key={index}
-            active={index < activeCount}
-            barColor={barColor}
+            $active={index < activeCount}
+            $barColor={barColor}
           />
         ))}
       </BarsContainer>
-      <Label labelColor={barColor}>{label}</Label>
+      <Label $labelColor={barColor}>{label}</Label>
     </Container>
   );
 }
