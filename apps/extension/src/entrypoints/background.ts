@@ -145,7 +145,7 @@ export default defineBackground(() => {
    */
   const writeApprovalToStorage = async (approval: PendingApproval): Promise<void> => {
     const existing = await sessionArea.get(APPROVAL_STORAGE_KEY);
-    const queue: PendingApproval[] = existing[APPROVAL_STORAGE_KEY] ?? [];
+    const queue = (existing[APPROVAL_STORAGE_KEY] as PendingApproval[] | undefined) ?? [];
     queue.push(approval);
     await sessionArea.set({ [APPROVAL_STORAGE_KEY]: queue });
   };
@@ -155,7 +155,7 @@ export default defineBackground(() => {
    */
   const removeApprovalFromStorage = async (requestId: string): Promise<void> => {
     const existing = await sessionArea.get(APPROVAL_STORAGE_KEY);
-    const queue: PendingApproval[] = existing[APPROVAL_STORAGE_KEY] ?? [];
+    const queue = (existing[APPROVAL_STORAGE_KEY] as PendingApproval[] | undefined) ?? [];
     const filtered = queue.filter((a) => a.request.id !== requestId);
     if (filtered.length > 0) {
       await sessionArea.set({ [APPROVAL_STORAGE_KEY]: filtered });
@@ -190,8 +190,11 @@ export default defineBackground(() => {
       focused: true,
     });
 
+    const popupId = popup?.id;
+    if (popupId == null) return;
+
     const listener = (windowId: number): void => {
-      if (windowId === popup.id) {
+      if (windowId === popupId) {
         const responseHandler = responseHandlers.get(message.data.id);
         if (responseHandler) {
           responseHandlers.delete(message.data.id);
@@ -417,7 +420,9 @@ export default defineBackground(() => {
     // Clear default popup so browserAction.onClicked fires, then toggle sidebar
     browser.browserAction.setPopup({ popup: '' });
     browser.browserAction.onClicked.addListener(() => {
-      browser.sidebarAction.toggle();
+      // sidebarAction is a Firefox-only API, not present in WXT's Chrome-based types
+      const fx = browser as typeof browser & { sidebarAction: { toggle(): void } };
+      fx.sidebarAction.toggle();
     });
   }
 
