@@ -183,7 +183,11 @@ export function useTransactions({
 
         if (isLoadMore) {
           // Append to existing transactions
-          setTransactions((prev) => [...prev, ...newTransactions]);
+          setTransactions((prev) => {
+            const existingIds = new Set(prev.map((t) => t.id));
+            const unique = newTransactions.filter((t) => !existingIds.has(t.id));
+            return [...prev, ...unique];
+          });
         } else {
           // Replace transactions
           setTransactions(newTransactions);
