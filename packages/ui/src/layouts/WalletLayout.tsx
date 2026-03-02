@@ -20,22 +20,27 @@ export interface WalletLayoutProps {
 const Outer = styled(Box)({
   display: 'flex',
   justifyContent: 'center',
-  minHeight: '100vh',
+  height: '100vh',
   width: '100%',
+  overflow: 'hidden',
   backgroundColor: colors.background.primary,
 });
 
+const DESKTOP_BREAKPOINT = 768;
+
 const Inner = styled(Box)<{ $maxWidth: number }>(({ $maxWidth }) => ({
   width: '100%',
-  maxWidth: $maxWidth,
-  minHeight: '100vh',
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
+  [`@media (min-width: ${DESKTOP_BREAKPOINT}px)`]: {
+    maxWidth: $maxWidth,
+  },
 }));
 
 export function WalletLayout({
   children,
-  maxWidth = 375,
+  maxWidth = 430,
 }: WalletLayoutProps): React.ReactElement {
   return (
     <Outer>

@@ -10,7 +10,8 @@ import { onRequest, sendResponse, type BridgeRequest } from '../../utils/walletB
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: '100vh',
+  height: '100vh',
+  overflow: 'hidden',
   backgroundColor: colors.background.primary,
   padding: spacing['2xl'],
 });

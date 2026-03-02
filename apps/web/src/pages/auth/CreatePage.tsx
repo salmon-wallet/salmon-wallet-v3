@@ -19,7 +19,8 @@ type Step = 'message' | 'seedPhrase' | 'validate';
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: '100vh',
+  height: '100vh',
+  overflow: 'hidden',
   backgroundColor: colors.background.primary,
 });
 
@@ -32,10 +33,12 @@ const Content = styled(Box)({
 
 const CenterContent = styled(Box)({
   flex: 1,
+  minHeight: 0,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
+  overflowY: 'auto',
 });
 
 const Title = styled(Typography)({

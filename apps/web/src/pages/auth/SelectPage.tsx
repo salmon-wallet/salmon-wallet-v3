@@ -11,7 +11,8 @@ import { useAuthFlow } from './AuthFlowContext';
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: '100vh',
+  height: '100vh',
+  overflow: 'hidden',
   padding: `0 ${s(contentPadding.screen)}px`,
   paddingBottom: vs(spacing['3xl']),
   backgroundColor: colors.background.primary,

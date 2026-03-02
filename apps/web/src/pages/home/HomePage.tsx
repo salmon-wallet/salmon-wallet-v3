@@ -74,7 +74,7 @@ const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: '100vh',
+  height: '100vh',
   backgroundColor: colors.background.primary,
 });
 

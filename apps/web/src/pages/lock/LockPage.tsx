@@ -19,7 +19,8 @@ const Container = styled(Box)({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  minHeight: '100vh',
+  height: '100vh',
+  overflow: 'hidden',
   padding: spacing['2xl'],
   background: `linear-gradient(180deg, ${colors.background.primary} 0%, ${colors.background.secondary} 100%)`,
 });
