@@ -5,6 +5,9 @@ import { Buffer } from 'buffer';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+// Fonts
+import './assets/fonts.css';
+
 // i18n — before App
 import i18n from './i18n/config';
 import { I18nextProvider } from 'react-i18next';
