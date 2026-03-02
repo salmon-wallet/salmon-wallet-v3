@@ -371,6 +371,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
         blockchain: 'solana',
       },
     },
+    developerNetworks,
   });
 
   // Active tab state
@@ -459,6 +460,15 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
       actions.changeNetwork(allNetworks[0].id);
     }
   }, [allNetworks, activeBlockchainIndex, actions]);
+
+  // Sync carousel index with persisted networkId on mount / network change
+  useEffect(() => {
+    if (!networkId || allNetworks.length === 0) return;
+    const idx = allNetworks.findIndex((n) => n.id === networkId);
+    if (idx >= 0 && idx !== activeBlockchainIndex) {
+      setActiveBlockchainIndex(idx);
+    }
+  }, [networkId, allNetworks]);
 
   // Fetch balance data for current network
   const {

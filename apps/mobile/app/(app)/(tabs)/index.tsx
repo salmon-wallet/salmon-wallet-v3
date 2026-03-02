@@ -218,6 +218,7 @@ export default function HomeScreen() {
   // Get available networks filtered by developer mode
   const { allNetworks: availableNetworks } = useAvailableNetworks({
     activeBlockchainAccount: userConfigAccount,
+    developerNetworks,
   });
 
   // Filter networks to only include those the user has accounts for
@@ -229,6 +230,15 @@ export default function HomeScreen() {
     const userNetworkIds = Object.keys(activeAccount.networksAccounts);
     return availableNetworks.filter(network => userNetworkIds.includes(network.id));
   }, [availableNetworks, activeAccount?.networksAccounts]);
+
+  // Sync carousel index with persisted networkId on mount / network change
+  useEffect(() => {
+    if (!networkId || allNetworks.length === 0) return;
+    const idx = allNetworks.findIndex((n) => n.id === networkId);
+    if (idx >= 0 && idx !== activeBlockchainIndex) {
+      setActiveBlockchainIndex(idx);
+    }
+  }, [networkId, allNetworks]);
 
   // Get balance data for current network (active)
   const {

@@ -232,6 +232,7 @@ export function HomePage(): React.ReactElement {
         blockchain: 'solana',
       },
     },
+    developerNetworks,
   });
 
   // Tab & UI state
@@ -263,6 +264,15 @@ export function HomePage(): React.ReactElement {
       actions.changeNetwork(allNetworks[0].id);
     }
   }, [allNetworks, activeBlockchainIndex, actions]);
+
+  // Sync carousel index with persisted networkId on mount / network change
+  useEffect(() => {
+    if (!networkId || allNetworks.length === 0) return;
+    const idx = allNetworks.findIndex((n) => n.id === networkId);
+    if (idx >= 0 && idx !== activeBlockchainIndex) {
+      setActiveBlockchainIndex(idx);
+    }
+  }, [networkId, allNetworks]);
 
   // Balance
   const {
