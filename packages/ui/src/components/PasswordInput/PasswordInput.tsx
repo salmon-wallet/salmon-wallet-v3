@@ -25,14 +25,14 @@ const Container = styled(Box)({
 });
 
 const InputWrapper = styled(Box)<{
-  borderColor: string;
-}>(({ borderColor }) => ({
+  $borderColor: string;
+}>(({ $borderColor }) => ({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   height: componentSizes.inputHeight,
   backgroundColor: colors.input.background,
-  border: `1px solid ${borderColor}`,
+  border: `1px solid ${$borderColor}`,
   borderRadius: componentSizes.inputRadius,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
@@ -124,7 +124,7 @@ export function PasswordInput({
 
   return (
     <Container className={className} style={style}>
-      <InputWrapper borderColor={getBorderColor()}>
+      <InputWrapper $borderColor={getBorderColor()}>
         <StyledInput
           type={showPassword ? 'text' : 'password'}
           value={value}

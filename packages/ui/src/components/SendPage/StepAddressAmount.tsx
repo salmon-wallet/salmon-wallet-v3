@@ -194,16 +194,16 @@ const ValidationIndicatorBox = styled(Box)({
 });
 
 const ValidationMessage = styled(Typography)<{
-  messageType?: 'error' | 'warning' | null;
-}>(({ messageType }) => ({
+  $messageType?: 'error' | 'warning' | null;
+}>(({ $messageType }) => ({
   fontSize: 12,
   lineHeight: '16px',
   fontFamily: `${fontFamily.sans}, sans-serif`,
   marginTop: spacing.xs,
   color:
-    messageType === 'error'
+    $messageType === 'error'
       ? colors.status.error
-      : messageType === 'warning'
+      : $messageType === 'warning'
       ? colors.status.warning
       : colors.text.secondary,
 }));
@@ -302,13 +302,13 @@ const ReviewButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
   },
 }));
 
-const ReviewButtonGradient = styled(Box)<{ isDisabled?: boolean }>(({ isDisabled }) => ({
+const ReviewButtonGradient = styled(Box)<{ $isDisabled?: boolean }>(({ $isDisabled }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   width: '100%',
   height: '100%',
-  background: isDisabled ? gradients.disabledCSS : gradients.primaryCSS,
+  background: $isDisabled ? gradients.disabledCSS : gradients.primaryCSS,
 }));
 
 const ReviewButtonText = styled(Typography)({
@@ -579,7 +579,7 @@ export function StepAddressAmount({
           </BlurContainer>
           {/* Validation message */}
           {addressMessage && (
-            <ValidationMessage messageType={addressMessageType}>
+            <ValidationMessage $messageType={addressMessageType}>
               {addressMessage}
             </ValidationMessage>
           )}
@@ -668,7 +668,7 @@ export function StepAddressAmount({
           onClick={handleReview}
           disabled={!isValid}
         >
-          <ReviewButtonGradient isDisabled={!isValid}>
+          <ReviewButtonGradient $isDisabled={!isValid}>
             <ReviewButtonText>Review & Send</ReviewButtonText>
           </ReviewButtonGradient>
         </ReviewButton>

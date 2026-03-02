@@ -23,11 +23,11 @@ const Label = styled(Typography)({
   marginBottom: spacing.xs,
 });
 
-const StyledInput = styled(InputBase)<{ borderColor: string }>(({ borderColor }) => ({
+const StyledInput = styled(InputBase)<{ $borderColor: string }>(({ $borderColor }) => ({
   width: '100%',
   height: componentSizes.inputHeight,
   backgroundColor: colors.input.background,
-  border: `1px solid ${borderColor}`,
+  border: `1px solid ${$borderColor}`,
   borderRadius: componentSizes.inputRadius,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
@@ -73,7 +73,7 @@ export function SeedWordInput({
     <Container>
       <Label>Word #{position}</Label>
       <StyledInput
-        borderColor={getBorderColor(validationState)}
+        $borderColor={getBorderColor(validationState)}
         value={value}
         onChange={(e) => onChangeText(e.target.value)}
         placeholder={`Enter word #${position}`}

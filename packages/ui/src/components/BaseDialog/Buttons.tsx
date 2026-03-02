@@ -34,7 +34,7 @@ export function ActionButton({
 }: ActionButtonProps): React.ReactElement {
   return (
     <StyledActionButton
-      isDanger={isDanger}
+      $isDanger={isDanger}
       onClick={onClick}
       disabled={disabled || loading}
     >

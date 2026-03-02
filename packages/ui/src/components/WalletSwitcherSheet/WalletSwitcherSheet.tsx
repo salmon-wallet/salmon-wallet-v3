@@ -47,20 +47,20 @@ const StyledList = styled(List)({
   padding: `${spacing.sm}px 0`,
 });
 
-const StyledListItem = styled(ListItem)<{ isActive?: boolean }>(({ isActive }) => ({
+const StyledListItem = styled(ListItem)<{ $isActive?: boolean }>(({ $isActive }) => ({
   padding: `${spacing.md}px ${spacing.xl}px`,
   cursor: 'pointer',
-  backgroundColor: isActive ? 'rgba(255, 92, 69, 0.1)' : 'transparent',
+  backgroundColor: $isActive ? 'rgba(255, 92, 69, 0.1)' : 'transparent',
   transition: 'background-color 0.2s ease',
   '&:hover': {
-    backgroundColor: isActive
+    backgroundColor: $isActive
       ? 'rgba(255, 92, 69, 0.15)'
       : 'rgba(255, 255, 255, 0.05)',
   },
 }));
 
-const AccountAvatar = styled(Avatar)<{ bgColor: string }>(({ bgColor }) => ({
-  backgroundColor: bgColor,
+const AccountAvatar = styled(Avatar)<{ $bgColor: string }>(({ $bgColor }) => ({
+  backgroundColor: $bgColor,
   width: 40,
   height: 40,
   fontSize: fontSizeTokens.base,
@@ -233,7 +233,7 @@ function AccountListItem({
   );
 
   return (
-    <StyledListItem isActive={isActive} onClick={onSelect}>
+    <StyledListItem $isActive={isActive} onClick={onSelect}>
       <ListItemAvatar>
         {account.avatar && !imgError ? (
           <Avatar
@@ -242,7 +242,7 @@ function AccountListItem({
             imgProps={{ onError: () => setImgError(true) }}
           />
         ) : (
-          <AccountAvatar bgColor={avatarColor}>{initials}</AccountAvatar>
+          <AccountAvatar $bgColor={avatarColor}>{initials}</AccountAvatar>
         )}
       </ListItemAvatar>
       <ListItemText

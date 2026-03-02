@@ -48,8 +48,8 @@ const Container = styled(Box)({
   backgroundColor: 'transparent',
 });
 
-const ChartContainer = styled(Box)<{ height: number }>(({ height }) => ({
-  height,
+const ChartContainer = styled(Box)<{ $height: number }>(({ $height }) => ({
+  height: $height,
   marginBottom: spacing.lg,
   borderRadius: borderRadius.md,
   overflow: 'hidden',
@@ -63,18 +63,18 @@ const PeriodContainer = styled(Box)({
   gap: spacing.xs,
 });
 
-const PeriodButton = styled(Button)<{ selected?: boolean }>(({ selected }) => ({
+const PeriodButton = styled(Button)<{ $selected?: boolean }>(({ $selected }) => ({
   minWidth: 40,
   padding: `${spacing.sm}px ${spacing.md}px`,
   borderRadius: borderRadius.full,
-  backgroundColor: selected ? colors.text.primary : 'transparent',
-  color: selected ? colors.background.primary : colors.text.secondary,
+  backgroundColor: $selected ? colors.text.primary : 'transparent',
+  color: $selected ? colors.background.primary : colors.text.secondary,
   fontSize: 13,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   textTransform: 'none',
   '&:hover': {
-    backgroundColor: selected
+    backgroundColor: $selected
       ? colors.text.primary
       : 'rgba(255, 255, 255, 0.1)',
   },
@@ -88,8 +88,8 @@ const SkeletonContainer = styled(Box)({
   gap: spacing.xs,
 });
 
-const EmptyState = styled(Box)<{ height: number }>(({ height }) => ({
-  height,
+const EmptyState = styled(Box)<{ $height: number }>(({ $height }) => ({
+  height: $height,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -243,7 +243,7 @@ export function PriceChart({
   return (
     <Container style={style} className={className}>
       {/* Chart area */}
-      <ChartContainer height={height}>
+      <ChartContainer $height={height}>
         {loading ? (
           <ChartSkeleton height={height} />
         ) : data.length > 0 ? (
@@ -279,7 +279,7 @@ export function PriceChart({
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <EmptyState height={height}>
+          <EmptyState $height={height}>
             <EmptyStateText>No data available</EmptyStateText>
           </EmptyState>
         )}
@@ -295,7 +295,7 @@ export function PriceChart({
             return (
               <PeriodButton
                 key={period}
-                selected={isSelected}
+                $selected={isSelected}
                 onClick={() => handlePeriodPress(period)}
                 aria-label={`Select ${period} time period`}
                 aria-pressed={isSelected}

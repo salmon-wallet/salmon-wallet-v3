@@ -150,20 +150,20 @@ export const StyledCancelButton: React.ComponentType<ButtonProps> = styled(Butto
   },
 });
 
-export const StyledActionButton: React.ComponentType<ButtonProps & { isDanger?: boolean }> = styled(Button)<{ isDanger?: boolean }>(
-  ({ isDanger }) => ({
+export const StyledActionButton: React.ComponentType<ButtonProps & { $isDanger?: boolean }> = styled(Button)<{ $isDanger?: boolean }>(
+  ({ $isDanger }) => ({
     flex: 1,
-    backgroundColor: isDanger ? colors.status.error : colors.accent.primary,
+    backgroundColor: $isDanger ? colors.status.error : colors.accent.primary,
     color: '#FFFFFF',
     textTransform: 'none',
     fontWeight: 600,
     padding: `${spacing.sm}px ${spacing.lg}px`,
     borderRadius: borderRadius.md,
     '&:hover': {
-      backgroundColor: isDanger ? '#DC2626' : '#FF7A64',
+      backgroundColor: $isDanger ? '#DC2626' : '#FF7A64',
     },
     '&:disabled': {
-      backgroundColor: isDanger
+      backgroundColor: $isDanger
         ? 'rgba(239, 68, 68, 0.3)'
         : 'rgba(255, 92, 69, 0.3)',
       color: 'rgba(255, 255, 255, 0.5)',

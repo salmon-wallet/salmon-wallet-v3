@@ -238,12 +238,12 @@ const Content = styled(Box)({
   padding: `${spacing.sm}px 0`,
 });
 
-const SectionTitle = styled(Typography)<{ isDanger?: boolean }>(({ isDanger }) => ({
+const SectionTitle = styled(Typography)<{ $isDanger?: boolean }>(({ $isDanger }) => ({
   fontSize: 12,
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: 0.5,
-  color: isDanger ? colors.status.error : colors.text.secondary,
+  color: $isDanger ? colors.status.error : colors.text.secondary,
   padding: `${spacing.md}px ${spacing.lg}px ${spacing.sm}px`,
   marginTop: spacing.sm,
 }));
@@ -252,30 +252,30 @@ const StyledListItem = styled(ListItem)({
   padding: 0,
 });
 
-const StyledListItemButton = styled(ListItemButton)<{ isDanger?: boolean }>(
-  ({ isDanger }) => ({
+const StyledListItemButton = styled(ListItemButton)<{ $isDanger?: boolean }>(
+  ({ $isDanger }) => ({
     padding: `${spacing.md}px ${spacing.lg}px`,
     '&:hover': {
-      backgroundColor: isDanger
+      backgroundColor: $isDanger
         ? 'rgba(239, 68, 68, 0.1)'
         : 'rgba(255, 255, 255, 0.05)',
     },
   })
 );
 
-const StyledListItemIcon = styled(ListItemIcon)<{ isDanger?: boolean }>(
-  ({ isDanger }) => ({
+const StyledListItemIcon = styled(ListItemIcon)<{ $isDanger?: boolean }>(
+  ({ $isDanger }) => ({
     minWidth: 40,
-    color: isDanger ? colors.status.error : colors.text.secondary,
+    color: $isDanger ? colors.status.error : colors.text.secondary,
   })
 );
 
-const StyledListItemText = styled(ListItemText)<{ isDanger?: boolean }>(
-  ({ isDanger }) => ({
+const StyledListItemText = styled(ListItemText)<{ $isDanger?: boolean }>(
+  ({ $isDanger }) => ({
     '& .MuiListItemText-primary': {
       fontSize: 14,
       fontWeight: 500,
-      color: isDanger ? colors.status.error : colors.text.primary,
+      color: $isDanger ? colors.status.error : colors.text.primary,
     },
     '& .MuiListItemText-secondary': {
       fontSize: 12,
@@ -403,14 +403,14 @@ export function SettingsSheet({
       return (
         <StyledListItem key={item.id}>
           <StyledListItemButton
-            isDanger={item.isDanger}
+            $isDanger={item.isDanger}
             onClick={() => handleItemClick(item)}
           >
-            <StyledListItemIcon isDanger={item.isDanger}>
+            <StyledListItemIcon $isDanger={item.isDanger}>
               {icon}
             </StyledListItemIcon>
             <StyledListItemText
-              isDanger={item.isDanger}
+              $isDanger={item.isDanger}
               primary={label}
               secondary={description}
             />
@@ -437,7 +437,7 @@ export function SettingsSheet({
 
       return (
         <React.Fragment key={section.titleKey}>
-          <SectionTitle isDanger={section.isDanger}>
+          <SectionTitle $isDanger={section.isDanger}>
             {t(section.titleKey) || section.titleKey}
           </SectionTitle>
           <List disablePadding>

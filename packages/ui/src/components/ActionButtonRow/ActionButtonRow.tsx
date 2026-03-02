@@ -36,12 +36,12 @@ const Container = styled(Box)({
   paddingBottom: vs(spacing.md),
 });
 
-const ButtonWrapper = styled(Box)<{ disabled?: boolean }>(({ disabled }) => ({
+const ButtonWrapper = styled(Box)<{ $disabled?: boolean }>(({ $disabled }) => ({
   flex: 1,
   height: vs(componentSizes.actionButtonHeight),
   borderRadius: ms(componentSizes.actionButtonRadius),
   overflow: 'hidden',
-  opacity: disabled ? colors.button.disabledOpacity : 1,
+  opacity: $disabled ? colors.button.disabledOpacity : 1,
   transition: 'opacity 0.2s ease',
 }));
 
@@ -91,11 +91,11 @@ const SecondaryButton = styled(Button)({
   },
 });
 
-const ButtonText = styled(Typography)<{ disabled?: boolean }>(({ disabled }) => ({
+const ButtonText = styled(Typography)<{ $disabled?: boolean }>(({ $disabled }) => ({
   fontSize: ms(fontSize.actionButton),
   fontWeight: '400',
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: disabled ? colors.button.disabledText : '#e0e0e0',
+  color: $disabled ? colors.button.disabledText : '#e0e0e0',
 }));
 
 export function ActionButtonRow({
@@ -131,7 +131,7 @@ export function ActionButtonRow({
   return (
     <Container style={style} className={className}>
       {/* Send Button - Primary */}
-      <ButtonWrapper disabled={sendDisabled}>
+      <ButtonWrapper $disabled={sendDisabled}>
         <PrimaryButton
           onClick={handleSendPress}
           disabled={sendDisabled}
@@ -143,7 +143,7 @@ export function ActionButtonRow({
       </ButtonWrapper>
 
       {/* Receive Button - Secondary with BlurContainer */}
-      <ButtonWrapper disabled={receiveDisabled}>
+      <ButtonWrapper $disabled={receiveDisabled}>
         <BlurContainer
           borderColor={colors.accent.primary}
           borderWidth={borderWidth.actionButton}
@@ -155,13 +155,13 @@ export function ActionButtonRow({
             aria-label="Receive tokens"
           >
             <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : '#e0e0e0' }} />
-            <ButtonText disabled={receiveDisabled}>Receive</ButtonText>
+            <ButtonText $disabled={receiveDisabled}>Receive</ButtonText>
           </SecondaryButton>
         </BlurContainer>
       </ButtonWrapper>
 
       {/* Activity Button - Secondary with BlurContainer */}
-      <ButtonWrapper disabled={activityDisabled}>
+      <ButtonWrapper $disabled={activityDisabled}>
         <BlurContainer
           borderColor={colors.accent.primary}
           borderWidth={borderWidth.actionButton}
@@ -173,7 +173,7 @@ export function ActionButtonRow({
             aria-label="View activity"
           >
             <ActivityIcon sx={{ fontSize: iconSize, color: activityDisabled ? colors.button.disabledText : '#e0e0e0' }} />
-            <ButtonText disabled={activityDisabled}>Activity</ButtonText>
+            <ButtonText $disabled={activityDisabled}>Activity</ButtonText>
           </SecondaryButton>
         </BlurContainer>
       </ButtonWrapper>

@@ -18,12 +18,12 @@ const StyledList = styled(List)({
   padding: `${spacing.sm}px 0`,
 });
 
-const StyledListItemButton = styled(ListItemButton)<{ selected?: boolean }>(
-  ({ selected }) => ({
+const StyledListItemButton = styled(ListItemButton)<{ $selected?: boolean }>(
+  ({ $selected }) => ({
     padding: `${spacing.md}px ${spacing.lg}px`,
-    backgroundColor: selected ? 'rgba(255, 107, 74, 0.1)' : 'transparent',
+    backgroundColor: $selected ? 'rgba(255, 107, 74, 0.1)' : 'transparent',
     '&:hover': {
-      backgroundColor: selected
+      backgroundColor: $selected
         ? 'rgba(255, 107, 74, 0.15)'
         : 'rgba(255, 255, 255, 0.05)',
     },
@@ -103,6 +103,7 @@ export function SettingsSelectorList<T>({
           <ListItem key={getKey(item)} disablePadding>
             <StyledListItemButton
               selected={selected}
+              $selected={selected}
               onClick={() => onSelect(item)}
             >
               {renderLeadingElement?.(item)}

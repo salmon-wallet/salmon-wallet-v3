@@ -45,27 +45,27 @@ const Label = styled(Typography)({
 });
 
 const InputWrapper = styled(Box)<{
-  borderColor: string;
-  isDisabled?: boolean;
-}>(({ borderColor, isDisabled }) => ({
+  $borderColor: string;
+  $isDisabled?: boolean;
+}>(({ $borderColor, $isDisabled }) => ({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: colors.input.background,
   borderRadius: 12,
-  border: `1px solid ${borderColor}`,
+  border: `1px solid ${$borderColor}`,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
   minHeight: 56,
   transition: 'border-color 0.2s ease',
-  opacity: isDisabled ? colors.button.disabledOpacity : 1,
+  opacity: $isDisabled ? colors.button.disabledOpacity : 1,
 }));
 
 const StyledInput = styled(InputBase)<{
-  inputDisabled?: boolean;
-}>(({ inputDisabled }) => ({
+  $inputDisabled?: boolean;
+}>(({ $inputDisabled }) => ({
   flex: 1,
-  color: inputDisabled ? colors.text.tertiary : colors.text.primary,
+  color: $inputDisabled ? colors.text.tertiary : colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontSize: 16,
   '& .MuiInputBase-input': {
@@ -107,15 +107,15 @@ const MessageContainer = styled(Box)({
 });
 
 const MessageText = styled(Typography)<{
-  messageType?: 'error' | 'warning' | null;
-}>(({ messageType }) => ({
+  $messageType?: 'error' | 'warning' | null;
+}>(({ $messageType }) => ({
   fontSize: 13,
   lineHeight: '18px',
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color:
-    messageType === 'error'
+    $messageType === 'error'
       ? colors.status.error
-      : messageType === 'warning'
+      : $messageType === 'warning'
       ? colors.status.warning
       : colors.text.secondary,
 }));
@@ -287,15 +287,15 @@ export function InputAddress({
 
       {/* Input Container */}
       <InputWrapper
-        borderColor={getBorderColor()}
-        isDisabled={disabled}
+        $borderColor={getBorderColor()}
+        $isDisabled={disabled}
       >
         <StyledInput
           value={address}
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled || isValidating}
-          inputDisabled={disabled}
+          $inputDisabled={disabled}
           autoComplete="off"
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -318,7 +318,7 @@ export function InputAddress({
       {/* Validation Message */}
       {displayMessage && (
         <MessageContainer data-testid={`${testID}-message`}>
-          <MessageText messageType={displayMessageType}>
+          <MessageText $messageType={displayMessageType}>
             {displayMessage}
           </MessageText>
         </MessageContainer>
