@@ -4,34 +4,34 @@
  * Mirrors mobile password.tsx flow for the extension.
  * Supports both new password creation and existing password verification.
  */
-import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
   colors,
-  spacing,
-  fontSize,
-  fontFamily,
-  s,
-  vs,
-  ms,
   createAccount,
+  fontFamily,
+  fontSize,
   generateAccountName,
-  PASSWORD_CONSTRAINTS,
-  validatePassword,
-  useAccountsContext,
-  SCAN_NETWORKS,
   MIRROR_NETWORKS,
+  ms,
+  PASSWORD_CONSTRAINTS,
+  s,
+  SCAN_NETWORKS,
+  spacing,
+  useAccountsContext,
+  validatePassword,
+  vs,
 } from '@salmon/shared';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  ScreenHeader,
-  PrimaryButton,
+  LoadingScreen,
   PasswordInput,
   PasswordStrengthBar,
-  LoadingScreen,
+  PrimaryButton,
+  ScreenHeader,
 } from '../../components';
+import { styled } from '../../utils/styled';
 
 interface PasswordPageProps {
   mnemonic: string;
@@ -172,7 +172,7 @@ export function PasswordPage({ mnemonic, flowType, onCreating, onSuccess, onBack
   }, []);
 
   const handleTermsPress = useCallback(() => {
-    window.open('https://salmonwallet.io/terms.html', '_blank');
+    window.open('https://salmonwallet.io/terms', '_blank');
   }, []);
 
   const handleSubmit = useCallback(async () => {

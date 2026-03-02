@@ -1,17 +1,25 @@
-import React, { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { styled } from '@salmon/ui';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
-  colors, spacing, fontSize, fontFamily, s, vs, ms,
-  createAccount, generateAccountName, PASSWORD_CONSTRAINTS, validatePassword,
-  useAccountsContext, SCAN_NETWORKS, MIRROR_NETWORKS,
+  colors,
+  createAccount,
+  fontFamily,
+  fontSize,
+  generateAccountName,
+  MIRROR_NETWORKS,
+  ms,
+  PASSWORD_CONSTRAINTS,
+  s,
+  SCAN_NETWORKS,
+  spacing,
+  useAccountsContext,
+  validatePassword,
+  vs,
 } from '@salmon/shared';
-import {
-  ScreenHeader, PrimaryButton, PasswordInput, PasswordStrengthBar, LoadingScreen,
-} from '@salmon/ui';
+import { LoadingScreen, PasswordInput, PasswordStrengthBar, PrimaryButton, ScreenHeader, styled } from '@salmon/ui';
+import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useAuthFlow } from './AuthFlowContext';
 
 const Container = styled(Box)({
@@ -225,7 +233,7 @@ export function PasswordPage(): React.ReactElement {
 
             <TermsText>
               {flowType === 'recover' ? 'By recovering, you accept the ' : 'By creating, you accept the '}
-              <TermsLink onClick={() => window.open('https://salmonwallet.io/terms.html', '_blank')}>
+              <TermsLink onClick={() => window.open('https://salmonwallet.io/terms', '_blank')}>
                 Terms & Conditions
               </TermsLink>
             </TermsText>
