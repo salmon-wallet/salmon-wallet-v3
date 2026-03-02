@@ -10,6 +10,7 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import ButtonBase from '@mui/material/ButtonBase';
 import Typography from '@mui/material/Typography';
@@ -84,6 +85,7 @@ export function ExplorerLinkButton({
   onPress,
   className,
 }: ExplorerLinkButtonProps) {
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
 
@@ -132,8 +134,8 @@ export function ExplorerLinkButton({
 
   const buttonText =
     showMenu && availableExplorers.length > 1
-      ? 'View on Explorer'
-      : `View on ${selectedExplorer.name}`;
+      ? t('transactions.detail.viewOnExplorer')
+      : t('transactions.detail.viewOn', { name: selectedExplorer.name });
 
   return (
     <>

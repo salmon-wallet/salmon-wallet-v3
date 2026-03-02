@@ -1,4 +1,10 @@
 {
+  "time": {
+    "justNow": "Justo ahora",
+    "minutesAgo": "hace {{count}}m",
+    "hoursAgo": "hace {{count}}h",
+    "daysAgo": "hace {{count}}d"
+  },
   "tabs": {
     "wallet": "Billetera",
     "swap": "Intercambiar",
@@ -492,6 +498,13 @@
     "to": "Para",
     "fee": "Comisión",
     "memo": "Memo",
+    "historyTitle": "Historial de Transacciones",
+    "noTransactions": "Sin Transacciones",
+    "emptySubtitle": "Tu historial de transacciones aparecerá aquí",
+    "loadError": "Error al cargar transacciones",
+    "tapToRetry": "Toca para reintentar",
+    "showMore": "ver más",
+    "showLess": "ver menos",
     "detail": {
       "sent": "Enviado",
       "received": "Recibido",
@@ -531,7 +544,25 @@
       "priceImpact": "Impacto en el Precio",
       "rate": "Tasa",
       "feePayer": "Pagador de Comisión",
-      "share": "Compartir"
+      "share": "Compartir",
+      "route": "Ruta",
+      "viaSource": "vía {{source}}",
+      "hopCount_one": "{{count}} salto",
+      "hopCount_other": "{{count}} saltos",
+      "nMore": "+{{count}} más",
+      "totalFees": "Comisiones Totales",
+      "time": "Hora",
+      "txHash": "Hash Tx",
+      "accounts": "Cuentas",
+      "swapFeesNative": "Comisiones de Swap (Nativas)",
+      "feeCount_one": "{{count}} comisión",
+      "feeCount_other": "{{count}} comisiones",
+      "routeHops": "Saltos de Ruta",
+      "viewOnExplorer": "Ver en Explorer",
+      "viewOn": "Ver en {{name}}",
+      "copyAddressLabel": "Copiar dirección de {{label}}",
+      "innerCount": "{{count}} internas",
+      "copyTransactionHash": "Copiar hash de transacción"
     }
   },
   "nft": {

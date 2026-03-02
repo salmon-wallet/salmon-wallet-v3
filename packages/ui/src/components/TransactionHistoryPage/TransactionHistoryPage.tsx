@@ -13,6 +13,7 @@
  */
 
 import React, { useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -194,31 +195,37 @@ const TransactionListSkeleton: React.FC<{ count?: number }> = ({ count = 5 }) =>
 // State Components
 // ============================================================================
 
-const EmptyState: React.FC = () => (
-  <EmptyContainer>
-    <ReceiptLongIcon sx={{ fontSize: 48, color: colors.text.tertiary }} />
-    <EmptyTitle>No Transactions</EmptyTitle>
-    <EmptySubtitle>Your transaction history will appear here</EmptySubtitle>
-  </EmptyContainer>
-);
+const EmptyState: React.FC = () => {
+  const { t } = useTranslation();
+  return (
+    <EmptyContainer>
+      <ReceiptLongIcon sx={{ fontSize: 48, color: colors.text.tertiary }} />
+      <EmptyTitle>{t('transactions.noTransactions')}</EmptyTitle>
+      <EmptySubtitle>{t('transactions.emptySubtitle')}</EmptySubtitle>
+    </EmptyContainer>
+  );
+};
 
 const ErrorState: React.FC<{ message: string; onRetry?: () => void }> = ({
   message,
   onRetry,
-}) => (
-  <ErrorContainer>
-    <ErrorTitle>Failed to load transactions</ErrorTitle>
-    <ErrorMessage>{message}</ErrorMessage>
-    {onRetry && (
-      <RetryButton
-        onClick={onRetry}
-        startIcon={<RefreshIcon />}
-      >
-        Tap to retry
-      </RetryButton>
-    )}
-  </ErrorContainer>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <ErrorContainer>
+      <ErrorTitle>{t('transactions.loadError')}</ErrorTitle>
+      <ErrorMessage>{message}</ErrorMessage>
+      {onRetry && (
+        <RetryButton
+          onClick={onRetry}
+          startIcon={<RefreshIcon />}
+        >
+          {t('transactions.tapToRetry')}
+        </RetryButton>
+      )}
+    </ErrorContainer>
+  );
+};
 
 // ============================================================================
 // Main Component
@@ -239,6 +246,7 @@ export function TransactionHistoryPage({
   className,
   style,
 }: TransactionHistoryPageProps): React.ReactElement {
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Handle scroll for infinite loading
@@ -274,7 +282,7 @@ export function TransactionHistoryPage({
 
   return (
     <PageShell
-      title="Transaction History"
+      title={t('transactions.historyTitle')}
       onBack={onBack}
       showScalesBackground
       scrollContentStyle={{

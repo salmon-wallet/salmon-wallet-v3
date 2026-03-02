@@ -55,6 +55,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { borderRadius, colors, copyToClipboard, fontFamily, fontSize, fontWeight, formatBlockNumber, formatDateTime, formatRawAmount, getShortAddress, letterSpacing, spacing, truncateHash } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 
 import { BlurContainer } from '../BlurContainer';
@@ -163,6 +164,30 @@ const CONFIRMATION_STATUS_CONFIG: Record<string, { label: string; color: string 
   processed: { label: 'Processed', color: colors.status.warning },
   confirmed: { label: 'Confirmed', color: colors.palette.blue },
   finalized: { label: 'Finalized', color: colors.status.success },
+};
+
+const TYPE_LABEL_KEYS: Record<TransactionType, string> = {
+  send: 'transactions.detail.sent',
+  receive: 'transactions.detail.received',
+  swap: 'transactions.detail.swapped',
+  mint: 'transactions.detail.minted',
+  burn: 'transactions.detail.burned',
+  stake: 'transactions.detail.staked',
+  loan: 'transactions.detail.loan',
+  interaction: 'transactions.detail.interaction',
+  unknown: 'transactions.detail.unknown',
+};
+
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  completed: 'transactions.detail.completed',
+  failed: 'transactions.detail.failed',
+  pending: 'transactions.detail.pending',
+};
+
+const CONFIRMATION_LABEL_KEYS: Record<string, string> = {
+  processed: 'transactions.detail.processed',
+  confirmed: 'transactions.detail.confirmed',
+  finalized: 'transactions.detail.finalized',
 };
 
 // ============================================================================
@@ -326,7 +351,7 @@ const HashValue = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.primary,
-  fontFamily: fontFamily.mono,
+  fontFamily: fontFamily.sans,
 });
 
 const CopyIconButton = styled(IconButton)({
@@ -798,11 +823,12 @@ const NftAttributeChipComponent: React.FC<{ attribute: NftAttribute }> = ({
 const NftMetadataSection: React.FC<{
   token: TransactionTokenAmount;
 }> = ({ token }) => {
+  const { t } = useTranslation();
   if (!token.isNft) return null;
 
   return (
     <Section>
-      <SectionTitle>NFT Details</SectionTitle>
+      <SectionTitle>{t('transactions.detail.nftDetails', 'NFT Details')}</SectionTitle>
 
       {/* NFT Media Preview */}
       {token.nftMedia && (
@@ -814,7 +840,7 @@ const NftMetadataSection: React.FC<{
       {/* Collection Info */}
       {token.nftCollection && (
         <NftCollectionRow>
-          <SectionLabel>Collection</SectionLabel>
+          <SectionLabel>{t('transactions.detail.collection', 'Collection')}</SectionLabel>
           <NftCollectionInfo>
             <SectionValue>{token.nftCollection}</SectionValue>
             {token.nftCollectionVerified && (
@@ -837,7 +863,7 @@ const NftMetadataSection: React.FC<{
               mb: `${spacing.sm}px`,
             }}
           >
-            Attributes
+            {t('transactions.detail.attributes', 'Attributes')}
           </Typography>
           <NftAttributesGrid>
             {token.nftAttributes.map((attr, index) => (
@@ -868,6 +894,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   className,
   style,
 }) => {
+  const { t } = useTranslation();
   // Inline hash copy state
   const [hashCopied, setHashCopied] = useState(false);
 
@@ -934,7 +961,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <HeaderInfoBox>
             <TitleRow>
               <TitleText id="transaction-detail-title">
-                {typeConfig.label}
+                {t(TYPE_LABEL_KEYS[transaction.type] ?? TYPE_LABEL_KEYS.unknown, typeConfig.label)}
               </TitleText>
               {transaction.source && (
                 <SourceBadge>
@@ -953,13 +980,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   color: statusConfig.color,
                 }}
               >
-                {statusConfig.label}
+                {t(STATUS_LABEL_KEYS[transaction.status] ?? '', statusConfig.label)}
               </Typography>
             </StatusRow>
           </HeaderInfoBox>
 
           {/* Close button */}
-          <CloseButton onClick={onClose} aria-label="Close">
+          <CloseButton onClick={onClose} aria-label={t('general.close')}>
             <CloseIcon />
           </CloseButton>
         </HeaderRow>
@@ -971,7 +998,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         <Section>
           <BlurContainer style={{ borderRadius: borderRadius.md, padding: spacing.md }}>
             <SectionRow>
-              <SectionLabel>Date & Time</SectionLabel>
+              <SectionLabel>{t('transactions.detail.dateTime', 'Date & Time')}</SectionLabel>
               <SectionValue>{formatDateTime(transaction.timestamp)}</SectionValue>
             </SectionRow>
 
@@ -979,7 +1006,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               <>
                 <InternalDivider />
                 <SectionRow>
-                  <SectionLabel>Confirmation</SectionLabel>
+                  <SectionLabel>{t('transactions.detail.confirmation', 'Confirmation')}</SectionLabel>
                   <ConfirmationBadge
                     sx={{
                       backgroundColor: `${CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary}20`,
@@ -990,7 +1017,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                         color: CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary,
                       }}
                     >
-                      {CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.label ?? transaction.confirmationStatus}
+                      {t(CONFIRMATION_LABEL_KEYS[transaction.confirmationStatus] ?? '', CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.label ?? transaction.confirmationStatus)}
                     </ConfirmationText>
                   </ConfirmationBadge>
                 </SectionRow>
@@ -1001,7 +1028,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               <>
                 <InternalDivider />
                 <SectionRow>
-                  <SectionLabel>Block</SectionLabel>
+                  <SectionLabel>{t('transactions.detail.block', 'Block')}</SectionLabel>
                   <SectionValue>#{formatBlockNumber(transaction.slot)}</SectionValue>
                 </SectionRow>
               </>
@@ -1013,7 +1040,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         {transaction.type === 'swap' && (
           <Section>
             <SwapHeaderRow>
-              <SectionTitle sx={{ mb: 0 }}>Conversion</SectionTitle>
+              <SectionTitle sx={{ mb: 0 }}>{t('transactions.detail.conversion', 'Conversion')}</SectionTitle>
               {transaction.swapRoute?.priceImpact && (
                 <PriceImpactBadge
                   value={transaction.swapRoute.priceImpact}
@@ -1042,7 +1069,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         {/* Swap Route Hops (for multi-hop swaps) */}
         {transaction.type === 'swap' && transaction.swapRoute?.hops && transaction.swapRoute.hops.length > 0 && (
           <Section>
-            <SectionTitle>Swap Route</SectionTitle>
+            <SectionTitle>{t('transactions.detail.swapRoute', 'Swap Route')}</SectionTitle>
             {transaction.swapRoute.hops.map((hop, index) => (
               <HopRow key={`hop-${index}`}>
                 <HopBadge>
@@ -1066,7 +1093,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <Section>
             {transaction.outputs.length > 0 && (
               <>
-                <SectionTitle>Sent</SectionTitle>
+                <SectionTitle>{t('transactions.detail.sentLabel', 'Sent')}</SectionTitle>
                 {transaction.outputs.map((token, index) => (
                   <TokenAmountRow key={`out-${index}`} token={token} sign="-" />
                 ))}
@@ -1077,7 +1104,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             )}
             {transaction.inputs.length > 0 && (
               <>
-                <SectionTitle>Received</SectionTitle>
+                <SectionTitle>{t('transactions.detail.receivedLabel', 'Received')}</SectionTitle>
                 {transaction.inputs.map((token, index) => (
                   <TokenAmountRow key={`in-${index}`} token={token} sign="+" />
                 ))}
@@ -1091,13 +1118,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           transaction.inputs.some((t) => t.source) ||
           transaction.feePayer) && (
             <Section>
-              <SectionTitle>Addresses</SectionTitle>
+              <SectionTitle>{t('transactions.detail.addresses', 'Addresses')}</SectionTitle>
               <AddressesContainer>
                 {transaction.outputs.map((token, index) =>
                   token.destination ? (
                     <AddressCopyRow
                       key={`to-${index}`}
-                      label="To"
+                      label={t('transactions.to', 'To')}
                       address={token.destination}
                       truncate="medium"
                     />
@@ -1107,7 +1134,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   token.source ? (
                     <AddressCopyRow
                       key={`from-${index}`}
-                      label="From"
+                      label={t('transactions.from', 'From')}
                       address={token.source}
                       truncate="medium"
                     />
@@ -1115,7 +1142,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 )}
                 {transaction.feePayer && (
                   <AddressCopyRow
-                    label="Fee Payer"
+                    label={t('transactions.detail.feePayer', 'Fee Payer')}
                     address={transaction.feePayer}
                     truncate="medium"
                   />
@@ -1141,7 +1168,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <BlurContainer style={{ borderRadius: borderRadius.md, padding: spacing.md }}>
             {transaction.fee && (
               <SectionRow>
-                <SectionLabel>Network Fee</SectionLabel>
+                <SectionLabel>{t('transactions.detail.networkFee', 'Network Fee')}</SectionLabel>
                 <SectionValue>
                   {formatRawAmount(transaction.fee.amount, transaction.fee.decimals)}{' '}
                   {transaction.fee.symbol}
@@ -1153,7 +1180,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               <>
                 {transaction.fee && <InternalDivider />}
                 <SectionRow>
-                  <SectionLabel>Swap Fee</SectionLabel>
+                  <SectionLabel>{t('transactions.detail.swapFee', 'Swap Fee')}</SectionLabel>
                   <SectionValue>
                     {transaction.swapRoute.totalFee.amount} {transaction.swapRoute.totalFee.symbol}
                   </SectionValue>
@@ -1164,13 +1191,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             {(transaction.fee || transaction.swapRoute?.totalFee) && <InternalDivider />}
 
             <SectionRow>
-              <SectionLabel>Transaction Hash</SectionLabel>
+              <SectionLabel>{t('transactions.detail.transactionHash', 'Transaction Hash')}</SectionLabel>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: `${spacing.xs}px` }}>
                 <HashValue>{truncateHash(transaction.id, 8)}</HashValue>
                 <CopyIconButton
                   onClick={handleCopyInlineHash}
                   size="small"
-                  aria-label="Copy transaction hash"
+                  aria-label={t('transactions.detail.copyTransactionHash')}
                   sx={hashCopied ? { backgroundColor: `${colors.status.success}20` } : undefined}
                 >
                   {hashCopied ? (
@@ -1189,12 +1216,12 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <Section>
             <DevSectionHeader>
               <CodeIcon sx={{ fontSize: 16, color: colors.text.secondary }} />
-              <SectionTitle sx={{ mb: 0 }}>Developer Info</SectionTitle>
+              <SectionTitle sx={{ mb: 0 }}>{t('transactions.detail.developerInfo', 'Developer Info')}</SectionTitle>
             </DevSectionHeader>
 
             {transaction.heliusType && (
               <SectionRow>
-                <SectionLabel>Helius Type</SectionLabel>
+                <SectionLabel>{t('transactions.detail.heliusType', 'Helius Type')}</SectionLabel>
                 <DevBadge>
                   <DevBadgeText>{transaction.heliusType}</DevBadgeText>
                 </DevBadge>
@@ -1203,14 +1230,14 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {transaction.accountsInvolved != null && (
               <SectionRow sx={{ mt: `${spacing.sm}px` }}>
-                <SectionLabel>Accounts Involved</SectionLabel>
+                <SectionLabel>{t('transactions.detail.accountsInvolved', 'Accounts Involved')}</SectionLabel>
                 <SectionValue>{transaction.accountsInvolved}</SectionValue>
               </SectionRow>
             )}
 
             {transaction.instructions && transaction.instructions.length > 0 && (
               <DevSubSection>
-                <DevSubTitle>Programs</DevSubTitle>
+                <DevSubTitle>{t('transactions.detail.programs', 'Programs')}</DevSubTitle>
                 {transaction.instructions.map((ix, index) => (
                   <DevRow key={`ix-${index}`}>
                     <DevMonoText>
@@ -1218,7 +1245,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     </DevMonoText>
                     {ix.innerInstructionsCount > 0 && (
                       <DevSecondaryText>
-                        {ix.innerInstructionsCount} inner
+                        {t('transactions.detail.innerCount', { count: ix.innerInstructionsCount })}
                       </DevSecondaryText>
                     )}
                   </DevRow>
@@ -1228,7 +1255,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {transaction.innerSwaps && transaction.innerSwaps.length > 0 && (
               <DevSubSection>
-                <DevSubTitle>Inner Swaps</DevSubTitle>
+                <DevSubTitle>{t('transactions.detail.innerSwaps', 'Inner Swaps')}</DevSubTitle>
                 {transaction.innerSwaps.map((swap, index) => (
                   <DevRow key={`inner-${index}`}>
                     <DevMonoText>
@@ -1244,7 +1271,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {transaction.swapFees && (
               <DevSubSection>
-                <DevSubTitle>Swap Fees</DevSubTitle>
+                <DevSubTitle>{t('transactions.detail.swapFees', 'Swap Fees')}</DevSubTitle>
                 {transaction.swapFees.nativeFees.map((fee, index) => (
                   <DevRow key={`nfee-${index}`}>
                     <DevMonoText>
@@ -1288,7 +1315,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <ActionsContainer>
             <ActionButton onClick={handleShare}>
               <ShareIcon sx={{ fontSize: 18, color: colors.text.primary }} />
-              <ActionButtonText>Share</ActionButtonText>
+              <ActionButtonText>{t('transactions.detail.share', 'Share')}</ActionButtonText>
             </ActionButton>
           </ActionsContainer>
         )}

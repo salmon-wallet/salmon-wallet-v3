@@ -119,8 +119,9 @@ export function BlurContainer({
     if (!useGradientBorder || !ref.current) return;
 
     const el = ref.current;
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
+    const observer = new ResizeObserver(() => {
+      const width = el.offsetWidth;
+      const height = el.offsetHeight;
       setLayout((prev) =>
         prev.width === width && prev.height === height
           ? prev

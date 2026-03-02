@@ -29,6 +29,7 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { borderRadius, colors, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import { BlurContainer } from '../BlurContainer';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
@@ -97,6 +98,18 @@ const TYPE_CONFIGS: Record<TransactionType, TypeConfig> = {
     IconComponent: HelpOutlineIcon,
     color: colors.text.secondary,
   },
+};
+
+const TYPE_LABEL_KEYS: Record<TransactionType, string> = {
+  send: 'transactions.detail.sent',
+  receive: 'transactions.detail.received',
+  swap: 'transactions.detail.swapped',
+  mint: 'transactions.detail.minted',
+  burn: 'transactions.detail.burned',
+  stake: 'transactions.detail.staked',
+  loan: 'transactions.detail.loan',
+  interaction: 'transactions.detail.interaction',
+  unknown: 'transactions.detail.unknown',
 };
 
 function getTypeConfig(type: TransactionType): TypeConfig & { icon: React.ReactNode; badgeIcon: React.ReactNode } {
@@ -385,6 +398,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
   className,
   style,
 }) => {
+  const { t } = useTranslation();
   const { type, timestamp, status, inputs, outputs, description, source } = transaction;
   const config = getTypeConfig(type);
 
@@ -465,7 +479,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       return (
         <FailedBadge>
           <CancelIcon sx={{ fontSize: 16, color: colors.status.error }} />
-          <FailedText>Failed</FailedText>
+          <FailedText>{t('transactions.detail.failed', 'Failed')}</FailedText>
         </FailedBadge>
       );
     }
@@ -474,7 +488,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       return (
         <PendingBadge>
           <AccessTimeIcon sx={{ fontSize: 14, color: colors.status.warning }} />
-          <PendingText>Pending</PendingText>
+          <PendingText>{t('transactions.detail.pending', 'Pending')}</PendingText>
         </PendingBadge>
       );
     }
@@ -517,7 +531,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
         <ItemButton
           onClick={handleClick}
           onDoubleClick={handleDoubleClick}
-          aria-label={`${config.label} transaction, ${descriptionText}`}
+          aria-label={`${t(TYPE_LABEL_KEYS[type] ?? TYPE_LABEL_KEYS.unknown, config.label)} transaction, ${descriptionText}`}
         >
           {/* Left: Logo/Icon */}
           <LogoSection>{renderLogo()}</LogoSection>
@@ -525,7 +539,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
           {/* Center: Type and description */}
           <InfoSection>
             <TypeRow>
-              <TypeText>{config.label}</TypeText>
+              <TypeText>{t(TYPE_LABEL_KEYS[type] ?? TYPE_LABEL_KEYS.unknown, config.label)}</TypeText>
               {source && <SourceBadge label={source} size="small" />}
             </TypeRow>
             <DescriptionText>{descriptionText}</DescriptionText>
@@ -535,7 +549,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
           <RightSection>
             {renderAmounts()}
             <TimeRow>
-              <TimeText>{formatRelativeTimeCompact(timestamp)}</TimeText>
+              <TimeText>{formatRelativeTimeCompact(timestamp, t)}</TimeText>
             </TimeRow>
             {isComplex && (
               <ExpandBadge
@@ -547,7 +561,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
                 }}
               >
                 <ExpandText>
-                  {expanded ? 'show less' : 'show more'}
+                  {expanded ? t('transactions.showLess', 'show less') : t('transactions.showMore', 'show more')}
                 </ExpandText>
                 {expanded ? (
                   <ExpandLessIcon sx={{ fontSize: 12, color: colors.palette.amber }} />

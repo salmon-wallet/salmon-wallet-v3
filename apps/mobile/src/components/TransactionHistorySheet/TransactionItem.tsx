@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -187,6 +188,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
   hiddenBalance = false,
   style,
 }) => {
+  const { t } = useTranslation();
   const { type, timestamp, status, inputs, outputs, description, source } = transaction;
   const config = TRANSACTION_TYPE_CONFIG[type] || TRANSACTION_TYPE_CONFIG.unknown;
 
@@ -374,7 +376,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
           {renderAmounts()}
           <View style={styles.timeRow}>
             <Text style={styles.timeText}>
-              {formatRelativeTimeCompact(timestamp)}
+              {formatRelativeTimeCompact(timestamp, t)}
             </Text>
             {isSwap && (
               <Ionicons

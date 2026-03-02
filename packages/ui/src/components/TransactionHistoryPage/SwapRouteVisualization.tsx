@@ -26,6 +26,7 @@ import {
   truncateHash,
 } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import { ConversionRateDisplay } from './ConversionRateDisplay';
 import { PriceImpactBadge } from './PriceImpactBadge';
@@ -318,6 +319,7 @@ const RouteHop: React.FC<{ hop: SwapRouteHop; isLast: boolean }> = ({ hop, isLas
 // ============================================================================
 
 const TransactionSummaryRows: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
+  const { t } = useTranslation();
   const { fee, slot, id, timestamp, swapRoute } = transaction;
 
   const conversionRate = useMemo(() => {
@@ -342,14 +344,14 @@ const TransactionSummaryRows: React.FC<{ transaction: Transaction }> = ({ transa
     <RouteSummary>
       {swapRoute?.priceImpact && (
         <SummaryRow>
-          <SummaryLabel>Price Impact</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.priceImpact')}</SummaryLabel>
           <PriceImpactBadge value={swapRoute.priceImpact} size="small" showIcon />
         </SummaryRow>
       )}
 
       {conversionRate && (
         <SummaryRow>
-          <SummaryLabel>Rate</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.rate')}</SummaryLabel>
           <ConversionRateDisplay
             fromSymbol={conversionRate.fromSymbol}
             toSymbol={conversionRate.toSymbol}
@@ -361,14 +363,14 @@ const TransactionSummaryRows: React.FC<{ transaction: Transaction }> = ({ transa
 
       {swapRoute?.totalFee && (
         <SummaryRow>
-          <SummaryLabel>Total Fees</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.totalFees')}</SummaryLabel>
           <SummaryValue>{swapRoute.totalFee.amount} {swapRoute.totalFee.symbol}</SummaryValue>
         </SummaryRow>
       )}
 
       {!swapRoute?.totalFee && fee && (
         <SummaryRow>
-          <SummaryLabel>Network Fee</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.networkFee')}</SummaryLabel>
           <SummaryValue>
             {(fee.amount / Math.pow(10, fee.decimals)).toFixed(6)} {fee.symbol}
           </SummaryValue>
@@ -377,21 +379,21 @@ const TransactionSummaryRows: React.FC<{ transaction: Transaction }> = ({ transa
 
       {slot != null && (
         <SummaryRow>
-          <SummaryLabel>Block</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.block')}</SummaryLabel>
           <SummaryValue>#{formatBlockNumber(slot)}</SummaryValue>
         </SummaryRow>
       )}
 
       {timestamp != null && (
         <SummaryRow>
-          <SummaryLabel>Time</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.time')}</SummaryLabel>
           <SummaryValue>{formatDateTime(timestamp)}</SummaryValue>
         </SummaryRow>
       )}
 
       {id && (
         <HashCopyRow
-          label="Tx Hash"
+          label={t('transactions.detail.txHash')}
           value={id}
           displayValue={truncateHash(id)}
         />
@@ -399,36 +401,36 @@ const TransactionSummaryRows: React.FC<{ transaction: Transaction }> = ({ transa
 
       {transaction.feePayer && (
         <SummaryRow>
-          <SummaryLabel>Fee Payer</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.feePayer')}</SummaryLabel>
           <SummaryValue>{getShortAddress(transaction.feePayer, 4)}</SummaryValue>
         </SummaryRow>
       )}
 
       {transaction.accountsInvolved != null && transaction.accountsInvolved > 0 && (
         <SummaryRow>
-          <SummaryLabel>Accounts</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.accounts')}</SummaryLabel>
           <SummaryValue>{transaction.accountsInvolved}</SummaryValue>
         </SummaryRow>
       )}
 
       {transaction.instructions && transaction.instructions.length > 0 && (
         <SummaryRow>
-          <SummaryLabel>Programs</SummaryLabel>
+          <SummaryLabel>{t('transactions.detail.programs')}</SummaryLabel>
           <SummaryValue>{transaction.instructions.length}</SummaryValue>
         </SummaryRow>
       )}
 
       {transaction.swapFees?.nativeFees && transaction.swapFees.nativeFees.length > 0 && (
         <SummaryRow>
-          <SummaryLabel>Swap Fees (Native)</SummaryLabel>
-          <SummaryValue>{transaction.swapFees.nativeFees.length} fee(s)</SummaryValue>
+          <SummaryLabel>{t('transactions.detail.swapFeesNative')}</SummaryLabel>
+          <SummaryValue>{t('transactions.detail.feeCount', { count: transaction.swapFees.nativeFees.length })}</SummaryValue>
         </SummaryRow>
       )}
 
       {transaction.innerSwaps && transaction.innerSwaps.length > 0 && (
         <SummaryRow>
-          <SummaryLabel>Route Hops</SummaryLabel>
-          <SummaryValue>{transaction.innerSwaps.length} hop(s)</SummaryValue>
+          <SummaryLabel>{t('transactions.detail.routeHops')}</SummaryLabel>
+          <SummaryValue>{t('transactions.detail.hopCount', { count: transaction.innerSwaps.length })}</SummaryValue>
         </SummaryRow>
       )}
     </RouteSummary>
@@ -436,6 +438,7 @@ const TransactionSummaryRows: React.FC<{ transaction: Transaction }> = ({ transa
 };
 
 const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
+  const { t } = useTranslation();
   const { inputs, outputs, source } = transaction;
 
   return (
@@ -443,13 +446,13 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
       <RouteHeader>
         <AccountTreeIcon sx={{ fontSize: 16, color: colors.text.secondary }} />
         <RouteHeaderText>
-          Route {source ? `via ${source}` : ''}
+          {t('transactions.detail.route')}{source ? ` ${t('transactions.detail.viaSource', { source })}` : ''}
         </RouteHeaderText>
       </RouteHeader>
 
       <SimpleRoute>
         <RouteColumn>
-          <RouteLabel>Sent</RouteLabel>
+          <RouteLabel>{t('transactions.detail.sentLabel')}</RouteLabel>
           {outputs.slice(0, 3).map((output, i) => (
             <RouteTokenRow key={`out-${i}`}>
               <TokenIcon uri={output.logo} size={18} />
@@ -459,7 +462,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
             </RouteTokenRow>
           ))}
           {outputs.length > 3 && (
-            <MoreText>+{outputs.length - 3} more</MoreText>
+            <MoreText>{t('transactions.detail.nMore', { count: outputs.length - 3 })}</MoreText>
           )}
         </RouteColumn>
 
@@ -468,7 +471,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
         </RouteArrowColumn>
 
         <RouteColumn>
-          <RouteLabel>Received</RouteLabel>
+          <RouteLabel>{t('transactions.detail.receivedLabel')}</RouteLabel>
           {inputs.slice(0, 3).map((input, i) => (
             <RouteTokenRow key={`in-${i}`}>
               <TokenIcon uri={input.logo} size={18} />
@@ -478,7 +481,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
             </RouteTokenRow>
           ))}
           {inputs.length > 3 && (
-            <MoreText>+{inputs.length - 3} more</MoreText>
+            <MoreText>{t('transactions.detail.nMore', { count: inputs.length - 3 })}</MoreText>
           )}
         </RouteColumn>
       </SimpleRoute>
@@ -489,6 +492,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
 };
 
 const DetailedRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
+  const { t } = useTranslation();
   const { swapRoute, source } = transaction;
 
   if (!swapRoute || swapRoute.hops.length === 0) {
@@ -500,8 +504,8 @@ const DetailedRouteView: React.FC<{ transaction: Transaction }> = ({ transaction
       <RouteHeader>
         <AccountTreeIcon sx={{ fontSize: 16, color: colors.text.secondary }} />
         <RouteHeaderText>
-          Route {source ? `via ${source}` : ''} ({swapRoute.hops.length}{' '}
-          {swapRoute.hops.length === 1 ? 'hop' : 'hops'})
+          {t('transactions.detail.route')}{source ? ` ${t('transactions.detail.viaSource', { source })}` : ''}{' '}
+          ({t('transactions.detail.hopCount', { count: swapRoute.hops.length })})
         </RouteHeaderText>
       </RouteHeader>
 
