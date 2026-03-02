@@ -227,6 +227,8 @@
     },
     "receive": {
       "title": "Receive",
+      "copyAddress": "Copy address",
+      "copied": "Copied!",
       "warning": "This address is for tokens on the {{blockchain}} blockchain. Please, do not send any other tokens as it may result in funds loss."
     },
     "send": {

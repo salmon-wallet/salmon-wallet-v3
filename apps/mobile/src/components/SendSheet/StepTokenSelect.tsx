@@ -15,6 +15,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
   componentSizes,
+  ContentLoader,
+  Rect,
+  Circle,
   fontFamilyNative,
   ms,
   vs,
@@ -80,13 +83,76 @@ TokenRow.displayName = 'TokenRow';
 // Main Component
 // ============================================================================
 
+const SKELETON_COUNT = 5;
+const SKELETON_ROW_HEIGHT = vs(12) * 2 + ms(32); // paddingVertical * 2 + logo height
+const SKELETON_ROW_WIDTH = 280; // approximate inner width
+
+const TokenSelectSkeleton: React.FC = () => (
+  <View style={styles.container}>
+    {/* Search bar skeleton */}
+    <BlurContainer style={styles.searchContainer}>
+      <ContentLoader
+        speed={1.5}
+        width={SKELETON_ROW_WIDTH}
+        height={vs(20)}
+        viewBox={`0 0 ${SKELETON_ROW_WIDTH} ${vs(20)}`}
+        backgroundColor={colors.skeleton.base}
+        foregroundColor={colors.skeleton.highlight}
+        accessibilityLabel="Loading token list"
+      >
+        <Circle cx={ms(9)} cy={vs(10)} r={ms(9)} />
+        <Rect x={ms(24)} y={vs(4)} rx="4" ry="4" width="120" height={vs(12)} />
+      </ContentLoader>
+    </BlurContainer>
+
+    {/* Section header skeleton */}
+    <View style={styles.skeletonHeaderPlaceholder}>
+      <ContentLoader
+        speed={1.5}
+        width={120}
+        height={ms(18)}
+        viewBox={`0 0 120 ${ms(18)}`}
+        backgroundColor={colors.skeleton.base}
+        foregroundColor={colors.skeleton.highlight}
+      >
+        <Rect x="0" y="0" rx="4" ry="4" width="120" height={ms(18)} />
+      </ContentLoader>
+    </View>
+
+    {/* Token row skeletons */}
+    <View style={styles.skeletonList}>
+      {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+        <BlurContainer key={i} style={styles.tokenRow}>
+          <ContentLoader
+            speed={1.5}
+            width={SKELETON_ROW_WIDTH}
+            height={SKELETON_ROW_HEIGHT}
+            viewBox={`0 0 ${SKELETON_ROW_WIDTH} ${SKELETON_ROW_HEIGHT}`}
+            backgroundColor={colors.skeleton.base}
+            foregroundColor={colors.skeleton.highlight}
+          >
+            <Circle cx={ms(16)} cy={SKELETON_ROW_HEIGHT / 2} r={ms(16)} />
+            <Rect x={ms(40)} y={SKELETON_ROW_HEIGHT / 2 - ms(8)} rx="4" ry="4" width="100" height={ms(16)} />
+            <Rect x={SKELETON_ROW_WIDTH - 80} y={SKELETON_ROW_HEIGHT / 2 - ms(8)} rx="4" ry="4" width="70" height={ms(16)} />
+          </ContentLoader>
+        </BlurContainer>
+      ))}
+    </View>
+  </View>
+);
+
 export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
   tokens,
   onSelectToken,
   showUnverifiedTokens,
+  loading,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
+
+  if (loading) {
+    return <TokenSelectSkeleton />;
+  }
 
   // Filter out unverified tokens unless developer mode is enabled
   const verifiedTokens = useMemo(() => {
@@ -253,6 +319,12 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.medium,
     color: '#d6d6d6',
     marginLeft: s(8),
+  },
+  skeletonHeaderPlaceholder: {
+    marginBottom: vs(12),
+  },
+  skeletonList: {
+    gap: vs(10),
   },
 });
 

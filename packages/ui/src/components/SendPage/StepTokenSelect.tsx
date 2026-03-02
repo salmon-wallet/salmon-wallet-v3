@@ -15,6 +15,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import ButtonBase from '@mui/material/ButtonBase';
+import Skeleton from '@mui/material/Skeleton';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   colors,
@@ -33,6 +34,7 @@ const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
+  paddingTop: spacing.xl,
   paddingLeft: spacing.xl,
   paddingRight: spacing.xl,
   minHeight: 0,
@@ -185,6 +187,29 @@ const EmptyMessage = styled(Typography)({
   padding: `${spacing['2xl']}px 0`,
 });
 
+// Skeleton styled components
+const SkeletonRowContent = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderRadius: 10,
+  padding: `${spacing.md}px ${spacing.md}px`,
+  gap: spacing.md,
+});
+
+const SkeletonLogo = styled(Skeleton)({
+  backgroundColor: colors.skeleton.base,
+  flexShrink: 0,
+});
+
+const SkeletonTextGroup = styled(Box)({
+  flex: 1,
+});
+
+const SkeletonText = styled(Skeleton)({
+  backgroundColor: colors.skeleton.base,
+});
+
 // ============================================================================
 // Token Row Component
 // ============================================================================
@@ -252,9 +277,44 @@ export function StepTokenSelect({
   tokens,
   onSelectToken,
   showUnverifiedTokens,
+  loading,
 }: StepTokenSelectProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
+
+  if (loading) {
+    return (
+      <Container>
+        {/* Search bar skeleton */}
+        <SearchWrapper>
+          <BlurContainer style={{ borderRadius: 8 }}>
+            <Box sx={{ padding: `${spacing.sm}px ${spacing.md}px`, display: 'flex', alignItems: 'center', gap: spacing.sm }}>
+              <SkeletonLogo variant="circular" width={18} height={18} />
+              <SkeletonText variant="text" width="60%" height={20} />
+            </Box>
+          </BlurContainer>
+        </SearchWrapper>
+
+        {/* Section header skeleton */}
+        <SkeletonText variant="text" width={120} height={24} sx={{ mb: `${spacing.md}px` }} />
+
+        {/* Token row skeletons */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: `${spacing.sm}px` }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <BlurContainer key={i} style={{ borderRadius: 10 }}>
+              <SkeletonRowContent>
+                <SkeletonLogo variant="circular" width={32} height={32} />
+                <SkeletonTextGroup>
+                  <SkeletonText variant="text" width="60%" height={16} />
+                </SkeletonTextGroup>
+                <SkeletonText variant="text" width={80} height={16} />
+              </SkeletonRowContent>
+            </BlurContainer>
+          ))}
+        </Box>
+      </Container>
+    );
+  }
 
   // Filter out unverified tokens unless developer mode is enabled
   const verifiedTokens = useMemo(() => {

@@ -228,6 +228,8 @@
     },
     "receive": {
       "title": "Recibir",
+      "copyAddress": "Copiar dirección",
+      "copied": "¡Copiado!",
       "warning": "Esta dirección es para tokens en la block chain {{blockchain}}. Por favor, no envíe ningún otro token, ya que puede provocar la pérdida de fondos."
     },
     "send": {

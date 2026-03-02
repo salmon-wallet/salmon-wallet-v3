@@ -56,6 +56,7 @@ const Container = styled(Box)({
 const ScrollContent = styled(Box)({
   flex: 1,
   overflowY: 'auto',
+  paddingTop: spacing.xl,
   paddingLeft: spacing.xl,
   paddingRight: spacing.xl,
   paddingBottom: spacing.lg,

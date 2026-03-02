@@ -47,6 +47,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
   account,
   onSuccess,
   showUnverifiedTokens,
+  loading,
   style,
 }) => {
   // Bitcoin has only one token (BTC), so skip token selection
@@ -193,6 +194,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
             tokens={tokens}
             onSelectToken={handleSelectToken}
             showUnverifiedTokens={showUnverifiedTokens}
+            loading={loading}
           />
         )}
 

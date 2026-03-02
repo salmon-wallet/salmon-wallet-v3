@@ -31,12 +31,11 @@ import type { SendPageProps, SendStep, SendToken } from './types';
 // ============================================================================
 
 const ContentArea = styled(Box)({
-  flex: 1,
+  minHeight: '100%',
   position: 'relative',
   zIndex: 1,
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 0,
 });
 
 // ============================================================================
@@ -50,6 +49,7 @@ export function SendPage({
   onBack,
   onSuccess,
   showUnverifiedTokens,
+  loading,
 }: SendPageProps) {
   // Bitcoin has only one token (BTC), so skip token selection
   const skipTokenSelect = blockchain === 'bitcoin';
@@ -159,6 +159,7 @@ export function SendPage({
             tokens={tokens}
             onSelectToken={handleSelectToken}
             showUnverifiedTokens={showUnverifiedTokens}
+            loading={loading}
           />
         )}
 

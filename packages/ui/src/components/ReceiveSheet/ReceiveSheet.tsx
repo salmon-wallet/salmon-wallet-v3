@@ -10,7 +10,7 @@
  * - Responsive QR code sizing
  */
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -20,8 +20,10 @@ import CheckIcon from '@mui/icons-material/Check';
 import {
   colors,
   spacing,
+  componentSizes,
   copyToClipboard,
 } from '@salmon/shared';
+import { useTranslation } from 'react-i18next';
 import { QRCode } from '../QRCode';
 import { BaseSheetDialog } from '../BaseSheetDialog';
 import type { ReceiveSheetProps } from './types';
@@ -30,8 +32,7 @@ import type { ReceiveSheetProps } from './types';
 // Constants
 // ============================================================================
 
-const QR_SIZE = 220;
-const QR_BORDER_WIDTH = 20;
+const QR_SIZE_DEFAULT = 220;
 const COPY_FEEDBACK_DURATION = 2000;
 
 // ============================================================================
@@ -43,13 +44,13 @@ const ContentWrapper = styled(Box)({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: spacing.xl,
+  gap: componentSizes.receiveContentGap,
   flex: 1,
 });
 
 const QRContainer = styled(Box)({
   borderRadius: 16,
-  border: `${QR_BORDER_WIDTH}px solid #FFFFFF`,
+  border: `${componentSizes.qrBorderWidth}px solid #FFFFFF`,
   overflow: 'hidden',
   display: 'inline-flex',
   alignItems: 'center',
@@ -123,12 +124,35 @@ export function ReceiveSheet({
   style,
 }: ReceiveSheetProps) {
   const [copied, setCopied] = useState(false);
+  const [qrSize, setQrSize] = useState(QR_SIZE_DEFAULT);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   // Reset copied state when dialog closes
   useEffect(() => {
     if (!visible) {
       setCopied(false);
     }
+  }, [visible]);
+
+  // Measure container width for responsive QR sizing
+  useEffect(() => {
+    if (!visible || !contentRef.current) return;
+
+    const measure = () => {
+      if (contentRef.current) {
+        const width = contentRef.current.clientWidth;
+        if (width > 0) {
+          const padding = spacing.xl * 2;
+          const border = componentSizes.qrBorderWidth * 2;
+          setQrSize(Math.floor(width - padding - border));
+        }
+      }
+    };
+
+    // Measure after dialog animation settles
+    const timer = setTimeout(measure, 50);
+    return () => clearTimeout(timer);
   }, [visible]);
 
   const handleCopy = useCallback(async () => {
@@ -152,18 +176,18 @@ export function ReceiveSheet({
       className={className}
       style={style}
     >
-      <BaseSheetDialog.StandardHeader title="Receive" />
+      <BaseSheetDialog.StandardHeader title={t('wallet.receive.title')} />
 
       <BaseSheetDialog.Content
         padding="xl"
         style={{ paddingBottom: spacing['2xl'], flex: 1 }}
       >
-        <ContentWrapper>
+        <ContentWrapper ref={contentRef}>
           {/* QR Code */}
           <QRContainer>
             <QRCode
               value={address}
-              size={QR_SIZE}
+              size={qrSize}
               backgroundColor="#FFFFFF"
               color="#000000"
             />
@@ -175,7 +199,7 @@ export function ReceiveSheet({
           {/* Copy Button */}
           <CopyButton
             onClick={handleCopy}
-            aria-label="Copy address"
+            aria-label={t('wallet.receive.copyAddress')}
           >
             {copied ? (
               <CheckIcon sx={{ fontSize: 20, color: '#000000' }} />
@@ -183,7 +207,7 @@ export function ReceiveSheet({
               <ContentCopyIcon sx={{ fontSize: 20, color: '#000000' }} />
             )}
             <CopyButtonText>
-              {copied ? 'Copied!' : 'Copy address'}
+              {copied ? t('wallet.receive.copied') : t('wallet.receive.copyAddress')}
             </CopyButtonText>
           </CopyButton>
         </ContentWrapper>

@@ -1,11 +1,12 @@
 import {
   colors,
+  componentSizes,
   fontFamilyNative,
   ms,
   s,
   vs,
 } from '@salmon/shared';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,6 +14,8 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
@@ -21,7 +24,7 @@ import type { ReceiveSheetProps } from './types';
 
 // Layout constants
 const CONTENT_PADDING_HORIZONTAL = 24;
-const QR_BORDER_WIDTH = 24;
+const COPY_FEEDBACK_DURATION = 2000;
 
 /**
  * ReceiveSheet - Bottom sheet modal for receiving tokens
@@ -53,16 +56,27 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
   style,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
+  const [copied, setCopied] = useState(false);
+  const { t } = useTranslation();
 
   // Calculate QR size: full width minus padding and border
-  const qrSize = screenWidth - (CONTENT_PADDING_HORIZONTAL * 2) - (QR_BORDER_WIDTH * 2);
+  const qrSize = screenWidth - (CONTENT_PADDING_HORIZONTAL * 2) - (componentSizes.qrBorderWidth * 2);
+
+  // Reset copied state when sheet closes
+  useEffect(() => {
+    if (!visible) {
+      setCopied(false);
+    }
+  }, [visible]);
 
   const handleCopyPress = useCallback(() => {
     onCopy?.();
+    setCopied(true);
+    setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION);
   }, [onCopy]);
 
   const title = (
-    <Text style={styles.title}>Receive</Text>
+    <Text style={styles.title}>{t('wallet.receive.title')}</Text>
   );
 
   return (
@@ -95,10 +109,16 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
           onPress={handleCopyPress}
           activeOpacity={0.8}
           accessibilityRole="button"
-          accessibilityLabel="Copy address"
+          accessibilityLabel={t('wallet.receive.copyAddress')}
         >
-          <ContentCopySvgIcon size={ms(23)} color="#000000" />
-          <Text style={styles.copyButtonText}>Copy address</Text>
+          {copied ? (
+            <Ionicons name="checkmark" size={ms(23)} color="#000000" />
+          ) : (
+            <ContentCopySvgIcon size={ms(23)} color="#000000" />
+          )}
+          <Text style={styles.copyButtonText}>
+            {copied ? t('wallet.receive.copied') : t('wallet.receive.copyAddress')}
+          </Text>
         </TouchableOpacity>
       </View>
     </BottomSheetContainer>
@@ -123,11 +143,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: s(CONTENT_PADDING_HORIZONTAL),
     paddingBottom: vs(40),
-    gap: vs(42),
+    gap: vs(componentSizes.receiveContentGap),
   },
   qrContainer: {
     borderRadius: ms(16),
-    borderWidth: QR_BORDER_WIDTH,
+    borderWidth: componentSizes.qrBorderWidth,
     borderColor: '#FFFFFF',
     overflow: 'hidden',
     marginTop: vs(18),

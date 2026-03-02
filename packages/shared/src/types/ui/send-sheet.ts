@@ -32,6 +32,8 @@ export interface SendSheetPropsBase<TStyle> {
   onSuccess?: (txId: string) => void;
   /** Show unverified/unknown tokens (developer mode) */
   showUnverifiedTokens?: boolean;
+  /** Whether token data is still loading */
+  loading?: boolean;
   /** Additional styles */
   style?: TStyle;
 }
@@ -46,6 +48,8 @@ export interface StepTokenSelectProps {
   onSelectToken: (token: SendToken) => void;
   /** Show unverified/unknown tokens (developer mode) */
   showUnverifiedTokens?: boolean;
+  /** Whether token data is still loading (shows skeleton when true) */
+  loading?: boolean;
 }
 
 /**

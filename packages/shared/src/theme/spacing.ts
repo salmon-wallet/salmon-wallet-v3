@@ -160,6 +160,12 @@ export const componentSizes = {
   sheetHandleOpacity: 0.4,
   /** Sheet top fade gradient height: 30px */
   sheetFadeGradientHeight: 30,
+
+  // ReceiveSheet
+  /** QR code white border width: 22px */
+  qrBorderWidth: 22,
+  /** Vertical gap between ReceiveSheet content elements: 32px */
+  receiveContentGap: 32,
 } as const;
 
 /**
