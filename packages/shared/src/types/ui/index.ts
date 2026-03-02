@@ -133,3 +133,19 @@ export type {
 
 // Transaction Success Screen
 export type { TransactionSuccessScreenProps } from './transaction-success-screen';
+
+// Backup Page
+export type { BackupPagePropsBase } from './backup-page';
+
+// Private Key Page
+export type { PrivateKeyPagePropsBase } from './private-key-page';
+
+// Address Book Pages
+export type {
+  AddressBookPagePropsBase,
+  AddressAddPagePropsBase,
+  AddressEditPagePropsBase,
+} from './address-book-page';
+
+// About Page
+export type { AboutPagePropsBase } from './about-page';

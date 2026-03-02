@@ -1,0 +1,394 @@
+/**
+ * PrivateKeyPage - Private key reveal page
+ *
+ * Two-step flow:
+ * 1. Network selection (skipped if single network)
+ * 2. Private key display with click-to-reveal and copy functionality
+ *
+ * Follows BackupPage patterns for styled components and reveal overlay.
+ */
+
+import React, { useCallback, useState, useMemo } from 'react';
+import { styled } from '../../utils/styled';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
+import Tooltip from '@mui/material/Tooltip';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import KeyIcon from '@mui/icons-material/Key';
+import PublicIcon from '@mui/icons-material/Public';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { useTranslation } from 'react-i18next';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  useAccounts,
+  getShortAddress,
+  buildNetworkListFromAccount,
+  getAccountKeysForNetwork,
+  type AccountKeyInfo,
+} from '@salmon/shared';
+import { SettingsPageLayout } from '../SettingsPageLayout';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+export interface PrivateKeyPageProps {
+  onBack: () => void;
+}
+
+// ============================================================================
+// Styled Components
+// ============================================================================
+
+const PageContent = styled(Box)({
+  padding: spacing.lg,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing.lg,
+});
+
+const WarningAlert = styled(Alert)({
+  backgroundColor: 'rgba(255, 171, 0, 0.1)',
+  border: '1px solid rgba(255, 171, 0, 0.3)',
+  '& .MuiAlert-icon': {
+    color: '#FFAB00',
+  },
+  '& .MuiAlert-message': {
+    color: colors.text.primary,
+  },
+});
+
+const PrivateKeyCard = styled(Paper)({
+  backgroundColor: colors.background.card,
+  padding: spacing.lg,
+  borderRadius: borderRadius.lg,
+  border: `1px solid ${colors.border.default}`,
+  position: 'relative',
+});
+
+const KeyText = styled(Typography)({
+  fontSize: 13,
+  fontWeight: 500,
+  color: colors.text.primary,
+  fontFamily: 'monospace',
+  wordBreak: 'break-all',
+  lineHeight: 1.6,
+  minHeight: 40,
+});
+
+const PathLabel = styled(Typography)({
+  fontSize: 12,
+  fontWeight: 600,
+  color: colors.text.secondary,
+  textTransform: 'uppercase',
+  letterSpacing: 0.5,
+  marginBottom: spacing.sm,
+});
+
+const PathValue = styled(Typography)({
+  fontSize: 13,
+  fontWeight: 500,
+  color: colors.text.primary,
+  fontFamily: 'monospace',
+});
+
+const AddressValue = styled(Typography)({
+  fontSize: 12,
+  color: colors.text.secondary,
+  marginTop: 2,
+});
+
+const BlurOverlay = styled(Box)({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'rgba(15, 15, 15, 0.95)',
+  borderRadius: borderRadius.lg,
+  gap: spacing.xxs,
+  cursor: 'pointer',
+  transition: 'background-color 0.2s',
+  '&:hover': {
+    backgroundColor: 'rgba(15, 15, 15, 0.9)',
+  },
+});
+
+const RevealText = styled(Typography)({
+  fontSize: 14,
+  fontWeight: 500,
+  color: colors.text.secondary,
+});
+
+const ActionRow = styled(Box)({
+  display: 'flex',
+  gap: spacing.sm,
+  marginTop: spacing.md,
+});
+
+const ActionButton = styled(Button)({
+  flex: 1,
+  textTransform: 'none',
+  fontWeight: 500,
+  borderRadius: borderRadius.md,
+});
+
+const CopyButton = styled(ActionButton)({
+  backgroundColor: colors.background.card,
+  color: colors.text.primary,
+  border: `1px solid ${colors.border.default}`,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: colors.border.light,
+  },
+});
+
+const NetworkListItemButton = styled(ListItemButton)({
+  padding: `${spacing.md}px ${spacing.lg}px`,
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+});
+
+const NetworkListItemIcon = styled(ListItemIcon)({
+  minWidth: 40,
+  color: colors.text.secondary,
+});
+
+const NetworkListItemText = styled(ListItemText)({
+  '& .MuiListItemText-primary': {
+    fontSize: 14,
+    fontWeight: 500,
+    color: colors.text.primary,
+  },
+  '& .MuiListItemText-secondary': {
+    fontSize: 12,
+    color: colors.text.secondary,
+  },
+});
+
+const ChevronIcon = styled(ChevronRightIcon)({
+  color: colors.text.secondary,
+  fontSize: 20,
+});
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export function PrivateKeyPage({ onBack }: PrivateKeyPageProps): React.ReactElement {
+  const { t } = useTranslation();
+  const [state] = useAccounts();
+  const { activeAccount } = state;
+
+  const [selectedNetworkId, setSelectedNetworkId] = useState<string | null>(null);
+  const [revealedIndexes, setRevealedIndexes] = useState<Set<number>>(new Set());
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  // Build network list from the active account
+  const networks = useMemo(
+    () => buildNetworkListFromAccount(activeAccount),
+    [activeAccount],
+  );
+
+  // Auto-select if only one network
+  const effectiveNetworkId = networks.length === 1 ? networks[0].id : selectedNetworkId;
+
+  // Get accounts for the selected network
+  const accountKeys: AccountKeyInfo[] = useMemo(
+    () => getAccountKeysForNetwork(activeAccount, effectiveNetworkId),
+    [effectiveNetworkId, activeAccount],
+  );
+
+  const handleSelectNetwork = useCallback((networkId: string) => {
+    setSelectedNetworkId(networkId);
+    setRevealedIndexes(new Set());
+    setCopiedIndex(null);
+  }, []);
+
+  const handleReveal = useCallback((index: number) => {
+    setRevealedIndexes((prev) => {
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  }, []);
+
+  const handleHide = useCallback((index: number) => {
+    setRevealedIndexes((prev) => {
+      const next = new Set(prev);
+      next.delete(index);
+      return next;
+    });
+  }, []);
+
+  const handleCopy = useCallback(
+    async (privateKey: string, index: number) => {
+      if (!revealedIndexes.has(index)) return;
+
+      await navigator.clipboard.writeText(privateKey);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    },
+    [revealedIndexes],
+  );
+
+  const handleBackToNetworks = useCallback(() => {
+    setSelectedNetworkId(null);
+    setRevealedIndexes(new Set());
+    setCopiedIndex(null);
+  }, []);
+
+  // ========================================================================
+  // Step 1: Network Selection
+  // ========================================================================
+
+  if (!effectiveNetworkId) {
+    return (
+      <SettingsPageLayout
+        title={t('settings.select_network')}
+        onBack={onBack}
+      >
+        <PageContent>
+          <Typography
+            variant="body2"
+            sx={{ color: colors.text.secondary, mb: 1 }}
+          >
+            {t('settings.select_network_description')}
+          </Typography>
+          <List disablePadding>
+            {networks.map((network) => (
+              <ListItem key={network.id} disablePadding>
+                <NetworkListItemButton onClick={() => handleSelectNetwork(network.id)}>
+                  <NetworkListItemIcon>
+                    <PublicIcon />
+                  </NetworkListItemIcon>
+                  <NetworkListItemText
+                    primary={network.name}
+                    secondary={network.blockchain.charAt(0).toUpperCase() + network.blockchain.slice(1)}
+                  />
+                  <ChevronIcon />
+                </NetworkListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </PageContent>
+      </SettingsPageLayout>
+    );
+  }
+
+  // ========================================================================
+  // Step 2: Private Key Display
+  // ========================================================================
+
+  return (
+    <SettingsPageLayout
+      title={t('settings.private_key', 'Private Key')}
+      onBack={networks.length > 1 ? handleBackToNetworks : onBack}
+    >
+      <PageContent>
+        <WarningAlert severity="warning" icon={<WarningAmberIcon />}>
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            {t('settings.private_key_warning')}
+          </Typography>
+        </WarningAlert>
+
+        {accountKeys.length === 0 ? (
+          <Typography
+            variant="body2"
+            sx={{ color: colors.text.secondary, textAlign: 'center', py: 4 }}
+          >
+            {t('settings.no_accounts_for_network')}
+          </Typography>
+        ) : (
+          accountKeys.map((accountKey, index) => {
+            const isRevealed = revealedIndexes.has(index);
+            const isCopied = copiedIndex === index;
+
+            return (
+              <Box key={index}>
+                <PathLabel>{t('settings.derivation_path')}</PathLabel>
+                <PathValue>{accountKey.path}</PathValue>
+                <AddressValue>{getShortAddress(accountKey.address, 8)}</AddressValue>
+
+                <PrivateKeyCard sx={{ mt: 1 }}>
+                  <KeyText>
+                    {isRevealed
+                      ? accountKey.privateKey
+                      : accountKey.privateKey.replace(/./g, '*')}
+                  </KeyText>
+
+                  {!isRevealed && (
+                    <BlurOverlay onClick={() => handleReveal(index)}>
+                      <KeyIcon sx={{ fontSize: 40, color: colors.text.secondary }} />
+                      <RevealText>
+                        {t('settings.tap_to_reveal', 'Tap to reveal')}
+                      </RevealText>
+                    </BlurOverlay>
+                  )}
+                </PrivateKeyCard>
+
+                <ActionRow>
+                  <Tooltip
+                    title={isCopied ? t('wallet.copied', 'Copied!') : ''}
+                    open={isCopied}
+                  >
+                    <CopyButton
+                      variant="outlined"
+                      startIcon={isCopied ? <CheckIcon sx={{ color: colors.status.success }} /> : <ContentCopyIcon />}
+                      onClick={() => handleCopy(accountKey.privateKey, index)}
+                      disabled={!isRevealed}
+                    >
+                      {isCopied ? t('wallet.copied', 'Copied!') : t('actions.copy', 'Copy')}
+                    </CopyButton>
+                  </Tooltip>
+                  <ActionButton
+                    variant="outlined"
+                    startIcon={isRevealed ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    onClick={() => (isRevealed ? handleHide(index) : handleReveal(index))}
+                    sx={{
+                      backgroundColor: isRevealed
+                        ? colors.accent.primary
+                        : colors.background.card,
+                      color: isRevealed ? '#FFFFFF' : colors.text.primary,
+                      border: `1px solid ${
+                        isRevealed ? colors.accent.primary : colors.border.default
+                      }`,
+                      '&:hover': {
+                        backgroundColor: isRevealed
+                          ? '#FF7A64'
+                          : 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                  >
+                    {isRevealed
+                      ? t('actions.hide', 'Hide')
+                      : t('actions.reveal', 'Reveal')}
+                  </ActionButton>
+                </ActionRow>
+              </Box>
+            );
+          })
+        )}
+      </PageContent>
+    </SettingsPageLayout>
+  );
+}

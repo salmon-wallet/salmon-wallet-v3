@@ -445,6 +445,7 @@ export function HomePage(): React.ReactElement {
     setSettingsVisible(false);
     const pageMap: Partial<Record<SettingsScreen, string>> = {
       accounts: '/settings/accounts',
+      avatar: `/settings/account/${accountId}/avatar`,
       security: '/settings/security',
       backup: '/settings/backup',
       language: '/settings/language',
@@ -458,7 +459,7 @@ export function HomePage(): React.ReactElement {
     };
     const targetPath = pageMap[screen];
     if (targetPath) navigate(targetPath);
-  }, [navigate]);
+  }, [navigate, accountId]);
 
   // Wallet switcher
   const handleSelectAccount = useCallback((targetAccountId: string) => {

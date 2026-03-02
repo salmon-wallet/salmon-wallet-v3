@@ -340,8 +340,8 @@ export function createTypedStorage(adapter: StorageAdapter): TypedStorage {
       }
       try {
         return JSON.parse(raw) as T;
-      } catch (error) {
-        throw new StorageError(`Failed to parse stored value for key "${key}"`, error);
+      } catch {
+        return raw as T;
       }
     },
 

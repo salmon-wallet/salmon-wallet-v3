@@ -5,7 +5,6 @@ import {
   i18nResources,
   DEFAULT_LANGUAGE,
   AVAILABLE_LANGUAGES,
-  STORAGE_KEYS,
   type LanguageCode,
 } from '@salmon/shared';
 
@@ -21,14 +20,8 @@ i18n
     fallbackLng: DEFAULT_LANGUAGE,
     supportedLngs: AVAILABLE_LANGUAGES,
 
-    // Language detection options
     detection: {
-      // Order of detection methods
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      // Cache user language in localStorage
-      caches: ['localStorage'],
-      // Key used in localStorage
-      lookupLocalStorage: STORAGE_KEYS.LANGUAGE,
+      order: ['navigator', 'htmlTag'],
     },
 
     interpolation: {

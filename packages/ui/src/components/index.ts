@@ -253,3 +253,48 @@ export type {
 
 // TransactionSuccessScreen - Success screen after transaction
 export { TransactionSuccessScreen } from './TransactionSuccessScreen';
+
+// AccountsPage - Account list management
+export { AccountsPage } from './AccountsPage';
+export type { AccountsPageProps } from './AccountsPage';
+
+// AccountEditPage - Account edit menu
+export { AccountEditPage } from './AccountEditPage';
+export type { AccountEditPageProps } from './AccountEditPage';
+
+// AccountNamePage - Account name editing
+export { AccountNamePage } from './AccountNamePage';
+export type { AccountNamePageProps } from './AccountNamePage';
+
+// AccountAvatarPage - Account avatar/profile picture selection
+export { AccountAvatarPage } from './AccountAvatarPage';
+export type { AccountAvatarPageProps } from './AccountAvatarPage';
+
+// AccountAddPage - Multi-step account creation flow
+export { AccountAddPage } from './AccountAddPage';
+export type { AccountAddPageProps } from './AccountAddPage';
+
+// SecurityPage - Change password with strength indicator
+export { SecurityPage } from './SecurityPage';
+export type { SecurityPageProps } from './SecurityPage';
+
+// BackupPage - Seed phrase reveal and copy
+export { BackupPage } from './BackupPage';
+export type { BackupPageProps } from './BackupPage';
+
+// PrivateKeyPage - Private key reveal per network
+export { PrivateKeyPage } from './PrivateKeyPage';
+export type { PrivateKeyPageProps } from './PrivateKeyPage';
+
+// AddressBookPage - Contact list management
+export { AddressBookPage } from './AddressBookPage';
+
+// AddressAddPage - Add new contact
+export { AddressAddPage } from './AddressAddPage';
+
+// AddressEditPage - Edit existing contact
+export { AddressEditPage } from './AddressEditPage';
+
+// AboutPage - App info and external links
+export { AboutPage } from './AboutPage';
+export type { AboutPageProps } from './AboutPage';
