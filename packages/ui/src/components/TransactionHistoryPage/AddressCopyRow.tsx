@@ -18,7 +18,8 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, borderRadius, getShortAddress, copyToClipboard } from '@salmon/shared';
+import { colors, borderRadius, getShortAddress, copyToClipboard, spacing } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import type { AddressCopyRowProps } from './types';
 
 // ============================================================================
@@ -42,10 +43,6 @@ const Container = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '12px 16px',
-  backgroundColor: `${colors.background.card}60`,
-  borderRadius: borderRadius.md,
-  border: `1px solid ${colors.border.default}`,
 });
 
 const Label = styled(Typography)({
@@ -113,24 +110,26 @@ export const AddressCopyRow: React.FC<AddressCopyRowProps> = ({
   }, [address]);
 
   return (
-    <Container className={className}>
-      <Label>{label}</Label>
-      <RightSection>
-        <AddressText>{displayAddress}</AddressText>
-        <CopyButton
-          onClick={handleCopy}
-          size="small"
-          aria-label={`Copy ${label} address`}
-          sx={copied ? { backgroundColor: `${colors.status.success}20` } : undefined}
-        >
-          {copied ? (
-            <CheckIcon sx={{ fontSize: 14, color: colors.status.success }} />
-          ) : (
-            <ContentCopyIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
-          )}
-        </CopyButton>
-      </RightSection>
-    </Container>
+    <BlurContainer style={{ borderRadius: borderRadius.md, padding: `${spacing.sm}px ${spacing.md}px` }}>
+      <Container className={className}>
+        <Label>{label}</Label>
+        <RightSection>
+          <AddressText>{displayAddress}</AddressText>
+          <CopyButton
+            onClick={handleCopy}
+            size="small"
+            aria-label={`Copy ${label} address`}
+            sx={copied ? { backgroundColor: `${colors.status.success}20` } : undefined}
+          >
+            {copied ? (
+              <CheckIcon sx={{ fontSize: 14, color: colors.status.success }} />
+            ) : (
+              <ContentCopyIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
+            )}
+          </CopyButton>
+        </RightSection>
+      </Container>
+    </BlurContainer>
   );
 };
 

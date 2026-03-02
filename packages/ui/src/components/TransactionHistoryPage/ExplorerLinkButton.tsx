@@ -39,21 +39,21 @@ const StyledButton = styled(ButtonBase)({
   alignItems: 'center',
   justifyContent: 'center',
   padding: '12px 16px',
-  backgroundColor: `${colors.accent.primary}15`,
+  backgroundColor: `${colors.palette.amber}15`,
   borderRadius: borderRadius.md,
-  border: `1px solid ${colors.accent.primary}30`,
+  border: `1px solid ${colors.palette.amber}30`,
   width: '100%',
   gap: 8,
   transition: 'background-color 0.2s ease',
   '&:hover': {
-    backgroundColor: `${colors.accent.primary}25`,
+    backgroundColor: `${colors.palette.amber}25`,
   },
 });
 
 const ButtonText = styled(Typography)({
   fontSize: 13,
   fontWeight: 500,
-  color: colors.accent.primary,
+  color: colors.palette.amber,
 });
 
 const StyledMenu = styled(Menu)({
@@ -63,7 +63,6 @@ const StyledMenu = styled(Menu)({
     WebkitBackdropFilter: 'blur(12px)',
     border: `1px solid ${colors.border.default}`,
     borderRadius: borderRadius.lg,
-    minWidth: 200,
   },
 });
 
@@ -145,10 +144,10 @@ export function ExplorerLinkButton({
         className={className}
         aria-label={buttonText}
       >
-        <OpenInNewIcon sx={{ fontSize: 16, color: colors.accent.primary }} />
+        <OpenInNewIcon sx={{ fontSize: 16, color: colors.palette.amber }} />
         <ButtonText>{buttonText}</ButtonText>
         {showMenu && availableExplorers.length > 1 && (
-          <ExpandMoreIcon sx={{ fontSize: 14, color: colors.accent.primary }} />
+          <ExpandMoreIcon sx={{ fontSize: 14, color: colors.palette.amber }} />
         )}
       </StyledButton>
 
@@ -157,8 +156,13 @@ export function ExplorerLinkButton({
           anchorEl={anchorEl}
           open={menuOpen}
           onClose={handleClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+          slotProps={{
+            paper: {
+              sx: { width: anchorEl?.offsetWidth },
+            },
+          }}
         >
           {availableExplorers.map((explorer) => (
             <StyledMenuItem

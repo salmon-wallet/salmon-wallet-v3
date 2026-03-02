@@ -165,7 +165,7 @@ export function ExplorerLinkButton({
         <Ionicons
           name="open-outline"
           size={16}
-          color={colors.accent.primary}
+          color={colors.palette.amber}
           style={styles.icon}
         />
         <Text style={styles.buttonText}>{buttonText}</Text>
@@ -173,7 +173,7 @@ export function ExplorerLinkButton({
           <Ionicons
             name="chevron-down"
             size={14}
-            color={colors.accent.primary}
+            color={colors.palette.amber}
             style={styles.chevron}
           />
         )}
@@ -232,10 +232,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: vs(12),
     paddingHorizontal: s(16),
-    backgroundColor: `${colors.accent.primary}15`,
+    backgroundColor: `${colors.palette.amber}15`,
     borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: `${colors.accent.primary}30`,
+    borderColor: `${colors.palette.amber}30`,
   },
   icon: {
     marginRight: s(8),
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
-    color: colors.accent.primary,
+    color: colors.palette.amber,
   },
   chevron: {
     marginLeft: s(4),
