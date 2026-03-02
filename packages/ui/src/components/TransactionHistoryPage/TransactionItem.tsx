@@ -307,7 +307,7 @@ const PendingText = styled(Typography)({
   color: colors.status.warning,
 });
 
-const ExpandBadge = styled(ButtonBase)({
+const ExpandBadge = styled(Box)({
   display: 'inline-flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -315,6 +315,7 @@ const ExpandBadge = styled(ButtonBase)({
   marginTop: 4,
   padding: '2px 4px',
   borderRadius: 4,
+  cursor: 'pointer',
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
@@ -323,7 +324,7 @@ const ExpandBadge = styled(ButtonBase)({
 const ExpandText = styled(Typography)({
   fontSize: 11,
   fontWeight: 500,
-  color: colors.accent.primary,
+  color: colors.palette.amber,
 });
 
 // ============================================================================
@@ -478,11 +479,10 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       );
     }
 
-    // Complex swap with expand toggle
+    // Complex swap — show first two amounts only
     if (isComplex) {
       const firstOutput = outputs[0];
       const firstInput = inputs[0];
-      const hiddenCount = totalAmounts - 2;
 
       return (
         <AmountsContainer>
@@ -492,21 +492,6 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
           {firstInput && (
             <AmountDisplay token={firstInput} sign="+" hidden={hiddenBalance} />
           )}
-          <ExpandBadge
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded((prev) => !prev);
-            }}
-          >
-            <ExpandText>
-              {expanded ? 'Show less' : `+${hiddenCount} more`}
-            </ExpandText>
-            {expanded ? (
-              <ExpandLessIcon sx={{ fontSize: 12, color: colors.accent.primary }} />
-            ) : (
-              <ExpandMoreIcon sx={{ fontSize: 12, color: colors.accent.primary }} />
-            )}
-          </ExpandBadge>
         </AmountsContainer>
       );
     }
@@ -551,14 +536,26 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
             {renderAmounts()}
             <TimeRow>
               <TimeText>{formatRelativeTimeCompact(timestamp)}</TimeText>
-              {isSwap && (
-                expanded ? (
-                  <ExpandLessIcon sx={{ fontSize: 14, color: colors.text.tertiary, ml: '4px' }} />
-                ) : (
-                  <ExpandMoreIcon sx={{ fontSize: 14, color: colors.text.tertiary, ml: '4px' }} />
-                )
-              )}
             </TimeRow>
+            {isComplex && (
+              <ExpandBadge
+                role="button"
+                tabIndex={0}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  setExpanded((prev) => !prev);
+                }}
+              >
+                <ExpandText>
+                  {expanded ? 'show less' : 'show more'}
+                </ExpandText>
+                {expanded ? (
+                  <ExpandLessIcon sx={{ fontSize: 12, color: colors.palette.amber }} />
+                ) : (
+                  <ExpandMoreIcon sx={{ fontSize: 12, color: colors.palette.amber }} />
+                )}
+              </ExpandBadge>
+            )}
           </RightSection>
         </ItemButton>
 
