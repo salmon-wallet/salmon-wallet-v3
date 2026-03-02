@@ -174,12 +174,12 @@ export function CreatePage(): React.ReactElement {
               {positions.map((pos) => (
                 <Box key={pos} sx={{ width: '100%', mb: 2 }}>
                   <SeedWordInput
-                    position={pos + 1}
+                    position={pos}
                     value={validationInputs[pos] || ''}
                     onChangeText={(val: string) => handleValidationChange(pos, val)}
                     validationState={
                       validationInputs[pos]
-                        ? validationInputs[pos].trim().toLowerCase() === words[pos]
+                        ? validationInputs[pos].trim().toLowerCase() === words[pos - 1]
                           ? 'correct'
                           : 'incorrect'
                         : 'idle'
