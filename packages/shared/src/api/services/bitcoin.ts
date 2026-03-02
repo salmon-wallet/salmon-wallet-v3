@@ -10,43 +10,37 @@
  * - POST /v1/{networkId}/account/{address}/transactions - Broadcast transaction
  */
 
-import { apiClient, get, ApiError } from '../client';
-import { getPricesByPlatform } from './price';
-import { removeDecimals } from '../../utils/decimals';
 import type { BitcoinNetworkId } from '../../types/blockchain';
 import type {
-  BitcoinBalance,
-  BitcoinUtxo,
-  BitcoinPagingParams,
-  BitcoinTransactionsResponse,
-  BitcoinTransaction,
-  BroadcastTransactionRequest,
-  BroadcastTransactionResponse,
-  UTXO,
-  FetchUtxosFn,
-  BroadcastTransactionFn,
-  BitcoinBalanceItem,
   AccountTransaction,
   AccountTransactionListResponse,
-  TransactionPaging,
   BitcoinAccountApiFunctions,
+  BitcoinBalance,
+  BitcoinBalanceItem,
+  BitcoinPagingParams,
+  BitcoinTransaction,
+  BitcoinTransactionsResponse,
+  BitcoinUtxo,
+  BroadcastTransactionFn,
+  BroadcastTransactionRequest,
+  BroadcastTransactionResponse,
   FetchBitcoinBalanceFn,
   FetchBitcoinPricesFn,
-  FetchBitcoinTransactionFn,
   FetchBitcoinRecentTransactionsFn,
+  FetchBitcoinTransactionFn,
+  FetchUtxosFn,
+  TransactionPaging,
+  UTXO,
 } from '../../types/transfer';
+import { removeDecimals } from '../../utils/decimals';
+import { apiClient, ApiError, get } from '../client';
+import { getPricesByPlatform } from './price';
 
 // Re-export types for backwards compatibility
 export type {
-  BitcoinBalance,
-  BitcoinUtxo,
-  BitcoinTransactionInput,
-  BitcoinTransactionOutput,
-  BitcoinTransaction,
-  BitcoinPagingParams,
-  BitcoinTransactionsResponse,
-  BroadcastTransactionRequest,
-  BroadcastTransactionResponse,
+  BitcoinBalance, BitcoinPagingParams, BitcoinTransaction, BitcoinTransactionInput,
+  BitcoinTransactionOutput, BitcoinTransactionsResponse, BitcoinUtxo, BroadcastTransactionRequest,
+  BroadcastTransactionResponse
 } from '../../types/transfer';
 
 // ============================================================================
@@ -290,10 +284,15 @@ export const fetchBitcoinAccountRecentTransactions: FetchBitcoinRecentTransactio
     params.pageSize = pageSize;
   }
 
-  return get<AccountTransactionListResponse>(
+  const raw = await get<{ data: AccountTransaction[]; meta: { nextPageToken?: string } }>(
     `/v1/${networkId}/account/${address}/transactions`,
     { params },
   );
+
+  return {
+    items: raw.data ?? [],
+    nextPageToken: raw.meta?.nextPageToken ?? undefined,
+  };
 };
 
 /**
