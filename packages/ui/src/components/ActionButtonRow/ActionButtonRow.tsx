@@ -5,6 +5,7 @@
  * Uses responsive scaling (s, vs, ms) from shared to match mobile proportions.
  */
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -108,6 +109,8 @@ export function ActionButtonRow({
   style,
   className,
 }: ActionButtonRowProps) {
+  const { t } = useTranslation();
+
   const handleSendPress = useCallback(() => {
     if (!sendDisabled) {
       onSendPress?.();
@@ -138,7 +141,7 @@ export function ActionButtonRow({
           aria-label="Send tokens"
         >
           <SendIcon sx={{ fontSize: iconSize, color: '#e0e0e0' }} />
-          <ButtonText>Send</ButtonText>
+          <ButtonText>{t('actions.send', 'Send')}</ButtonText>
         </PrimaryButton>
       </ButtonWrapper>
 
@@ -155,7 +158,7 @@ export function ActionButtonRow({
             aria-label="Receive tokens"
           >
             <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : '#e0e0e0' }} />
-            <ButtonText $disabled={receiveDisabled}>Receive</ButtonText>
+            <ButtonText $disabled={receiveDisabled}>{t('actions.receive', 'Receive')}</ButtonText>
           </SecondaryButton>
         </BlurContainer>
       </ButtonWrapper>
@@ -173,7 +176,7 @@ export function ActionButtonRow({
             aria-label="View activity"
           >
             <ActivityIcon sx={{ fontSize: iconSize, color: activityDisabled ? colors.button.disabledText : '#e0e0e0' }} />
-            <ButtonText $disabled={activityDisabled}>Activity</ButtonText>
+            <ButtonText $disabled={activityDisabled}>{t('actions.activity', 'Activity')}</ButtonText>
           </SecondaryButton>
         </BlurContainer>
       </ButtonWrapper>

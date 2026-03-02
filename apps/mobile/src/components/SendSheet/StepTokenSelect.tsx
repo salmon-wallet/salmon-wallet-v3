@@ -10,6 +10,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -147,6 +148,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
   showUnverifiedTokens,
   loading,
 }) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
 
@@ -207,7 +209,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
         />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search..."
+          placeholder={t('actions.search_placeholder', 'Search...')}
           placeholderTextColor={colors.text.secondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -218,7 +220,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
       </BlurContainer>
 
       {/* Section Header */}
-      <Text style={styles.sectionHeader}>Select Token</Text>
+      <Text style={styles.sectionHeader}>{t('wallet.select_token', 'Select Token')}</Text>
 
       {/* Token List */}
       <View style={styles.listWrapper}>

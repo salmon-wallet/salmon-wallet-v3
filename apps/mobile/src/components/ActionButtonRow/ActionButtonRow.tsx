@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { BlurContainer } from '../BlurContainer';
 import {
   CallMadeSvgIcon,
@@ -50,6 +51,8 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
   activityDisabled = false,
   style,
 }) => {
+  const { t } = useTranslation();
+
   const handleSendPress = useCallback(() => {
     if (!sendDisabled) {
       onSendPress?.();
@@ -86,7 +89,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           style={styles.primaryButton}
         >
           <CallMadeSvgIcon size={ms(componentSizes.actionButtonIcon)} color="#e0e0e0" />
-          <Text style={styles.primaryButtonText}>Send</Text>
+          <Text style={styles.primaryButtonText}>{t('actions.send', 'Send')}</Text>
         </LinearGradient>
       </TouchableOpacity>
 
@@ -110,7 +113,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
               color={receiveDisabled ? colors.button.disabledText : '#e0e0e0'}
             />
             <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
-              Receive
+              {t('actions.receive', 'Receive')}
             </Text>
           </TouchableOpacity>
         </BlurContainer>
@@ -136,7 +139,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
               color={activityDisabled ? colors.button.disabledText : '#e0e0e0'}
             />
             <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
-              Activity
+              {t('actions.activity', 'Activity')}
             </Text>
           </TouchableOpacity>
         </BlurContainer>

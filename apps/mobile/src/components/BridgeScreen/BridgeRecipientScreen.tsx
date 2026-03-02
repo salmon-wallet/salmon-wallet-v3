@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
 import { RecipientAddressInput } from './RecipientAddressInput';
@@ -20,16 +21,17 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
   addressError,
   style,
 }) => {
+  const { t } = useTranslation();
   const canContinue = isValidAddress && recipientAddress.length > 0;
 
   return (
     <View style={[styles.container, style]}>
       {/* Title */}
-      <Text style={styles.title}>Recipient Address</Text>
+      <Text style={styles.title}>{t('bridge.recipient.title', 'Recipient Address')}</Text>
 
       {/* Description */}
       <Text style={styles.description}>
-        Enter the address where you want to receive your swapped tokens
+        {t('bridge.recipient.description', 'Enter the address where you want to receive your swapped tokens')}
         {targetChain ? ` on ${targetChain.name}` : ''}.
       </Text>
 
@@ -39,17 +41,17 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
           value={recipientAddress}
           onChangeValue={onAddressChange}
           targetChain={targetChain}
-          label="Destination Address"
-          placeholder="Enter recipient address"
+          label={t('bridge.recipient.destinationAddress', 'Destination Address')}
+          placeholder={t('bridge.recipient.enterRecipientAddress', 'Enter recipient address')}
           error={addressError}
         />
       </View>
 
       {/* Info Box */}
       <View style={styles.infoBox}>
-        <Text style={styles.infoTitle}>Important</Text>
+        <Text style={styles.infoTitle}>{t('bridge.recipient.important', 'Important')}</Text>
         <Text style={styles.infoText}>
-          Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.
+          {t('bridge.recipient.importantText', 'Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.')}
         </Text>
       </View>
 
@@ -59,7 +61,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
           onPress={onBack}
           style={styles.backButton}
         >
-          Back
+          {t('actions.back', 'Back')}
         </SecondaryButton>
         <LinearGradient
           colors={canContinue ? gradients.primaryButton.colors : gradients.disabled.colors}
@@ -75,7 +77,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
             disabled={!canContinue}
             style={styles.continueButton}
           >
-            Review
+            {t('bridge.recipient.review', 'Review')}
           </PrimaryButton>
         </LinearGradient>
       </View>

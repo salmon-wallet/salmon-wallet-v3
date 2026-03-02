@@ -119,15 +119,15 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   const addressPlaceholder = useMemo(() => {
     switch (blockchain) {
       case 'solana':
-        return 'Solana Address';
+        return t('token.send.blockchainAddress', { blockchain: 'Solana', defaultValue: 'Solana Address' });
       case 'ethereum':
-        return 'Ethereum Address';
+        return t('token.send.blockchainAddress', { blockchain: 'Ethereum', defaultValue: 'Ethereum Address' });
       case 'bitcoin':
-        return 'Bitcoin Address';
+        return t('token.send.blockchainAddress', { blockchain: 'Bitcoin', defaultValue: 'Bitcoin Address' });
       default:
-        return 'Recipient Address';
+        return t('token.send.recipient', 'Recipient Address');
     }
-  }, [blockchain]);
+  }, [blockchain, t]);
 
   return (
     <KeyboardAvoidingView
@@ -162,7 +162,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
 
         {/* Recipient */}
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Recipient</Text>
+          <Text style={styles.fieldLabel}>{t('token.send.recipient', 'Recipient')}</Text>
           <BlurContainer style={[
             styles.inputContainer,
             validationState === 'invalid' && styles.inputContainerError,
@@ -255,7 +255,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
 
         {/* Amount */}
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Amount</Text>
+          <Text style={styles.fieldLabel}>{t('token.send.amountLabel', 'Amount')}</Text>
           <BlurContainer style={styles.amountInputContainer}>
             <TextInput
               style={styles.amountInput}
@@ -292,7 +292,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
           onPress={onCancel}
           activeOpacity={0.7}
         >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
+          <Text style={styles.cancelButtonText}>{t('actions.cancel', 'Cancel')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -307,7 +307,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.4 }}
           >
-            <Text style={styles.reviewButtonText}>Review & Send</Text>
+            <Text style={styles.reviewButtonText}>{t('token.send.reviewAndSend', 'Review & Send')}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>

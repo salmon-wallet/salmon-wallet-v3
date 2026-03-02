@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, type TextStyle } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, borderRadius, gradients, componentSizes, fontFamily, fontWeight, vs, s } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
@@ -25,13 +26,15 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
   onReview,
   style,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={[styles.container, style]}>
       {/* Input Fields */}
       <View style={styles.inputsContainer}>
         {/* You Send */}
         <SwapAmountInput
-          label="You Send"
+          label={t('swap.you_send', 'You Send')}
           value={inAmount}
           onChangeValue={onInAmountChange}
           token={inToken}
@@ -39,14 +42,14 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
           usdValue={inUsdValue}
           availableBalance={inToken?.balance}
           editable={true}
-          placeholder="Enter an amount"
+          placeholder={t('swap.enter_amount', 'Enter an amount')}
         />
 
         {reviewWarning ? <Text style={styles.warningText}>{reviewWarning}</Text> : null}
 
         {/* You Receive */}
         <SwapAmountInput
-          label="You Receive"
+          label={t('swap.you_receive', 'You Receive')}
           value={outAmount}
           onChangeValue={() => {}}
           token={outToken}
@@ -56,7 +59,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
           isLoading={isLoadingQuote}
         />
 
-        <Text style={styles.disclaimerText}>Includes 0.5% platform fee</Text>
+        <Text style={styles.disclaimerText}>{t('swap.platform_fee_disclaimer', 'Includes 0.5% platform fee')}</Text>
       </View>
 
       {/* Review Button */}
@@ -73,7 +76,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
               disabled={false}
               style={styles.button}
             >
-              Review & Swap
+              {t('swap.review.reviewAndSwap', 'Review & Swap')}
             </PrimaryButton>
           </LinearGradient>
         ) : (
@@ -83,7 +86,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
               disabled={true}
               style={styles.button}
             >
-              Review & Swap
+              {t('swap.review.reviewAndSwap', 'Review & Swap')}
             </PrimaryButton>
           </View>
         )}

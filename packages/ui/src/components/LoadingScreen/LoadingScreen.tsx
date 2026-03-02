@@ -9,8 +9,9 @@
  * - Cycling tips/advice at the bottom
  * - Smooth fade in/out transitions
  */
-import { useState, useEffect, CSSProperties } from 'react';
-import { colors, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIPS } from '@salmon/shared';
+import { useState, useEffect, useMemo, CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
+import { colors, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIP_KEYS } from '@salmon/shared';
 import type { LoadingScreenProps } from './types';
 
 // ============================================================================
@@ -87,12 +88,20 @@ export function LoadingScreen({
   visible,
   title,
   subtitle,
-  tips = DEFAULT_WALLET_TIPS as unknown as string[],
+  tips = DEFAULT_WALLET_TIP_KEYS as unknown as string[],
   tipInterval = 4000,
   showTips = true,
   logoSize = 100,
   spinnerSize = 140,
 }: LoadingScreenProps) {
+  const { t } = useTranslation();
+
+  // Resolve tip keys through t() for i18n
+  const resolvedTips = useMemo(
+    () => tips.map((tipKey) => t(tipKey, tipKey)),
+    [tips, t],
+  );
+
   // State
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [tipFading, setTipFading] = useState(false);
@@ -121,18 +130,18 @@ export function LoadingScreen({
 
   // Cycle through tips
   useEffect(() => {
-    if (!visible || !showTips || tips.length <= 1) return;
+    if (!visible || !showTips || resolvedTips.length <= 1) return;
 
     const interval = setInterval(() => {
       setTipFading(true);
       setTimeout(() => {
-        setCurrentTipIndex((prev) => (prev + 1) % tips.length);
+        setCurrentTipIndex((prev) => (prev + 1) % resolvedTips.length);
         setTipFading(false);
       }, 400);
     }, tipInterval);
 
     return () => clearInterval(interval);
-  }, [visible, showTips, tips.length, tipInterval]);
+  }, [visible, showTips, resolvedTips.length, tipInterval]);
 
   // Don't render if not visible
   if (!isVisible) return null;
@@ -264,10 +273,10 @@ export function LoadingScreen({
         </div>
       </div>
 
-      {showTips && tips.length > 0 && (
+      {showTips && resolvedTips.length > 0 && (
         <div style={tipsContainerStyle}>
-          <div style={tipLabelStyle}>Tip</div>
-          <div style={tipTextStyle}>{tips[currentTipIndex]}</div>
+          <div style={tipLabelStyle}>{t('general.tip', 'Tip')}</div>
+          <div style={tipTextStyle}>{resolvedTips[currentTipIndex]}</div>
         </div>
       )}
     </div>

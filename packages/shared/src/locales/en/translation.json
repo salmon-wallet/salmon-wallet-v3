@@ -30,7 +30,20 @@
       "EMPTY_ACCOUNT": "This address has no funds. Please check if this address is correct.",
       "NO_FUNDS": "Address has no funds"
     },
-    "open_explorer": "Open in explorer"
+    "open_explorer": "Open in explorer",
+    "tip": "Tip",
+    "tips": {
+      "0": "Never share your seed phrase with anyone",
+      "1": "Always verify transaction details before signing",
+      "2": "Keep your recovery phrase in a safe place offline",
+      "3": "Enable biometric authentication for extra security",
+      "4": "Double-check wallet addresses before sending",
+      "5": "Your keys, your crypto - stay in control",
+      "6": "Bookmark official sites to avoid phishing",
+      "7": "Start with small test transactions",
+      "8": "Keep your app updated for security patches",
+      "9": "Use a hardware wallet for large holdings"
+    }
   },
   "actions": {
     "approve": "Approve",
@@ -59,7 +72,8 @@
     "follow_us": "Follow us",
     "bridge": "Bridge",
     "retry": "Retry",
-    "searching": "Searching..."
+    "searching": "Searching...",
+    "activity": "Activity"
   },
   "dapp": {
     "connect_title": "Connect to dApp",
@@ -154,6 +168,7 @@
       "no_avatars_found": "No Avatars found",
       "upload_photo": "Upload Photo",
       "select_nft_to_profile": "Select Collectible to Profile",
+      "select_avatar_to_profile": "Select Avatar as Profile Picture",
       "full_nft_description": "Full Collectible Description",
       "edit_name_empty": "Account name cannot be empty"
     },
@@ -261,7 +276,46 @@
       "transaction_fail": "Transaction failed.\nPlease try again later.",
       "goto_explorer": "Go to Explorer",
       "view_transaction": "View Transaction",
-      "empty_account_fee": "It is not possible to estimate the fee because the destination account is empty"
+      "empty_account_fee": "It is not possible to estimate the fee because the destination account is empty",
+      "recipient": "Recipient",
+      "amountLabel": "Amount",
+      "reviewAndSend": "Review & Send",
+      "blockchainAddress": "{{blockchain}} Address",
+      "networkFee": "Network Fee",
+      "sending": "Sending...",
+      "retry": "Retry"
+    },
+    "marketData": {
+      "marketCap": "Market Cap",
+      "rank": "Rank",
+      "volume24h": "24h Volume",
+      "high24h": "24h High",
+      "low24h": "24h Low",
+      "circulatingSupply": "Circulating Supply",
+      "totalSupply": "Total Supply",
+      "maxSupply": "Max Supply",
+      "allTimeHigh": "All-Time High",
+      "fromATH": "From ATH",
+      "athDate": "ATH Date",
+      "allTimeLow": "All-Time Low",
+      "fromATL": "From ATL",
+      "atlDate": "ATL Date"
+    },
+    "info": {
+      "about": "About",
+      "marketStats": "Market Stats",
+      "marketCap": "Market Cap",
+      "volume24h": "24h Volume",
+      "circulating": "Circulating",
+      "totalSupply": "Total Supply",
+      "maxSupply": "Max Supply",
+      "contractAddress": "Contract Address",
+      "visitWebsite": "Visit Website",
+      "contractAddressCopied": "Contract address copied"
+    },
+    "about": {
+      "readMore": "Read more",
+      "readLess": "Read less"
     },
     "balance": {
       "percentage_info": "Variation of your position in the last 24 hours."
@@ -437,7 +491,48 @@
     "from": "From",
     "to": "To",
     "fee": "Fee",
-    "memo": "Memo"
+    "memo": "Memo",
+    "detail": {
+      "sent": "Sent",
+      "received": "Received",
+      "swapped": "Swapped",
+      "minted": "Minted",
+      "burned": "Burned",
+      "staked": "Staked",
+      "loan": "Loan",
+      "interaction": "Interaction",
+      "unknown": "Unknown",
+      "completed": "Completed",
+      "failed": "Failed",
+      "pending": "Pending",
+      "processed": "Processed",
+      "confirmed": "Confirmed",
+      "finalized": "Finalized",
+      "nftDetails": "NFT Details",
+      "collection": "Collection",
+      "attributes": "Attributes",
+      "dateTime": "Date & Time",
+      "confirmation": "Confirmation",
+      "block": "Block",
+      "conversion": "Conversion",
+      "swapRoute": "Swap Route",
+      "addresses": "Addresses",
+      "networkFee": "Network Fee",
+      "swapFee": "Swap Fee",
+      "transactionHash": "Transaction Hash",
+      "developerInfo": "Developer Info",
+      "heliusType": "Helius Type",
+      "accountsInvolved": "Accounts Involved",
+      "programs": "Programs",
+      "innerSwaps": "Inner Swaps",
+      "swapFees": "Swap Fees",
+      "sentLabel": "Sent",
+      "receivedLabel": "Received",
+      "priceImpact": "Price Impact",
+      "rate": "Rate",
+      "feePayer": "Fee Payer",
+      "share": "Share"
+    }
   },
   "nft": {
     "description": "Description",
@@ -482,7 +577,30 @@
     "trending_collections": "Trending collections",
     "new_collections": "New collections",
     "update": "UPDATE",
-    "status_pending": "Waiting confirmation"
+    "status_pending": "Waiting confirmation",
+    "detail": {
+      "description": "Description",
+      "attributes": "Attributes",
+      "details": "Details",
+      "tokenStandard": "Token Standard",
+      "compressed": "Compressed",
+      "collectionVerified": "Collection Verified",
+      "royalties": "Royalties",
+      "tokenType": "Token Type",
+      "contract": "Contract",
+      "tokenId": "Token ID",
+      "balance": "Balance",
+      "inscriptionNumber": "Inscription #",
+      "rarity": "Rarity",
+      "contentType": "Content Type",
+      "genesisBlock": "Genesis Block"
+    },
+    "send": {
+      "title": "Send NFT",
+      "sending": "Sending NFT...",
+      "enterRecipientAddress": "Enter recipient address",
+      "ordinalsNotSupported": "Ordinal transfers are not yet supported."
+    }
   },
   "swap": {
     "swap": "Swap",
@@ -512,7 +630,17 @@
     "minimum_amount": "The amount must be greater than $1 USD",
     "not_available_on_network": "Swap is not available on this network",
     "select_solana_network": "Select a Solana network to continue",
-    "showing_verified_tokens": "Showing verified tokens. Search to find other tokens."
+    "showing_verified_tokens": "Showing verified tokens. Search to find other tokens.",
+    "review": {
+      "title": "Swap Review",
+      "salmonFee": "Salmon fee",
+      "route": "Route",
+      "totalPriceImpact": "Total Price Impact",
+      "pleaseNote": "Please Note",
+      "pleaseNoteText": "Swap rates are estimates. The actual amount you receive may differ due to slippage and market conditions. Transactions are irreversible once confirmed.",
+      "confirmSwap": "Confirm",
+      "reviewAndSwap": "Review & Swap"
+    }
   },
   "bridge": {
     "preview": "Bridge Preview",
@@ -523,7 +651,29 @@
     "recipient_type": "Recipient wallet:",
     "you_pay": "You Pay",
     "own_wallet_alert": "Keep in mind that to see the tokens you will receive, you will have to switch from this {{from}} Wallet to the {{to}} one from the menu.",
-    "other_wallet_alert": "Keep in mind that the tokens you will receive are being sent to a {{to}} Wallet that it’s not configured in Salmon. You will not see the tokens unless you open that wallet."
+    "other_wallet_alert": "Keep in mind that the tokens you will receive are being sent to a {{to}} Wallet that it’s not configured in Salmon. You will not see the tokens unless you open that wallet.",
+    "recipient": {
+      "title": "Recipient Address",
+      "description": "Enter the address where you want to receive your swapped tokens",
+      "destinationAddress": "Destination Address",
+      "enterRecipientAddress": "Enter recipient address",
+      "important": "Important",
+      "importantText": "Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.",
+      "review": "Review"
+    },
+    "review": {
+      "title": "Swap Review",
+      "youReceiveEstimated": "You Receive (estimated)",
+      "recipient": "Recipient",
+      "fromNetwork": "From Network",
+      "toNetwork": "To Network",
+      "minimumAmount": "Minimum Amount",
+      "estimatedOutput": "Estimated Output",
+      "provider": "Provider",
+      "pleaseNote": "Please Note",
+      "pleaseNoteText": "Cross-chain swaps typically take 10-30 minutes to complete. You will receive a deposit address after confirmation.",
+      "confirmSwap": "Confirm Swap"
+    }
   },
   "header": {
     "connected": "Connected to {{hostname}}",

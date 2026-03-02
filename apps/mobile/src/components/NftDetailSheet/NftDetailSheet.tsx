@@ -10,6 +10,7 @@ import {
   NativeScrollEvent,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -69,6 +70,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   onBurnPress,
   style,
 }) => {
+  const { t } = useTranslation();
   // Image loading/error state
   const [imageLoading, setImageLoading] = React.useState(true);
   const [imageError, setImageError] = React.useState(false);
@@ -141,25 +143,25 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
         <>
           {nft.tokenStandard && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Token Standard</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.tokenStandard', 'Token Standard')}</Text>
               <Text style={styles.detailValue}>{nft.tokenStandard}</Text>
             </View>
           )}
           {nft.compressed !== undefined && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Compressed</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.compressed', 'Compressed')}</Text>
               <Text style={styles.detailValue}>{nft.compressed ? 'Yes' : 'No'}</Text>
             </View>
           )}
           {nft.collectionVerified !== undefined && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Collection Verified</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.collectionVerified', 'Collection Verified')}</Text>
               <Text style={styles.detailValue}>{nft.collectionVerified ? '✓' : '✗'}</Text>
             </View>
           )}
           {nft.royaltyBps !== undefined && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Royalties</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.royalties', 'Royalties')}</Text>
               <Text style={styles.detailValue}>{(nft.royaltyBps / 100).toFixed(2)}%</Text>
             </View>
           )}
@@ -172,11 +174,11 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       return (
         <>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Token Type</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.tokenType', 'Token Type')}</Text>
             <Text style={styles.detailValue}>{nft.tokenType}</Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Contract</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.contract', 'Contract')}</Text>
             <View style={styles.detailValueWithCopy}>
               <Text style={styles.detailValue}>{getShortAddress(nft.contractAddress, 6)}</Text>
               <TouchableOpacity
@@ -190,12 +192,12 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             </View>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Token ID</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.tokenId', 'Token ID')}</Text>
             <Text style={styles.detailValue}>{getShortAddress(nft.tokenId, 6)}</Text>
           </View>
           {nft.balance !== undefined && nft.balance > 1 && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Balance</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.balance', 'Balance')}</Text>
               <Text style={styles.detailValue}>{nft.balance}</Text>
             </View>
           )}
@@ -208,24 +210,24 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       return (
         <>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Inscription #</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.inscriptionNumber', 'Inscription #')}</Text>
             <Text style={styles.detailValue}>{nft.inscriptionNumber}</Text>
           </View>
           {nft.satRarity && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Rarity</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.rarity', 'Rarity')}</Text>
               <View style={[styles.rarityBadge, { backgroundColor: getSatRarityColor(nft.satRarity) }]}>
                 <Text style={styles.rarityText}>{nft.satRarity}</Text>
               </View>
             </View>
           )}
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Content Type</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.contentType', 'Content Type')}</Text>
             <Text style={styles.detailValue}>{nft.contentType}</Text>
           </View>
           {nft.genesisHeight && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Genesis Block</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.genesisBlock', 'Genesis Block')}</Text>
               <Text style={styles.detailValue}>{nft.genesisHeight}</Text>
             </View>
           )}
@@ -330,7 +332,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             style={styles.sectionContainer}
           >
             <View style={styles.sectionContent}>
-              <Text style={styles.sectionTitle}>Description</Text>
+              <Text style={styles.sectionTitle}>{t('nft.detail.description', 'Description')}</Text>
               <Text style={styles.descriptionText}>{nft.description}</Text>
             </View>
           </BlurView>
@@ -344,7 +346,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             style={styles.sectionContainer}
           >
             <View style={styles.sectionContent}>
-              <Text style={styles.sectionTitle}>Attributes</Text>
+              <Text style={styles.sectionTitle}>{t('nft.detail.attributes', 'Attributes')}</Text>
               <View style={styles.attributesGrid}>
                 {nft.attributes.map(renderAttribute)}
               </View>
@@ -359,7 +361,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
           style={styles.sectionContainer}
         >
           <View style={styles.sectionContent}>
-            <Text style={styles.sectionTitle}>Details</Text>
+            <Text style={styles.sectionTitle}>{t('nft.detail.details', 'Details')}</Text>
             {renderBlockchainDetails()}
           </View>
         </BlurView>
@@ -381,7 +383,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               style={styles.primaryButton}
             >
               <CallMadeSvgIcon size={ms(15)} color="#e0e0e0" />
-              <Text style={styles.buttonText}>Send</Text>
+              <Text style={styles.buttonText}>{t('actions.send', 'Send')}</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -401,7 +403,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               accessibilityLabel="Burn NFT"
             >
               <BurnIcon size={ms(15)} color="#e0e0e0" />
-              <Text style={styles.buttonText}>Burn</Text>
+              <Text style={styles.buttonText}>{t('nft.burn_nft', 'Burn')}</Text>
             </TouchableOpacity>
           </BlurContainer>
         </View>

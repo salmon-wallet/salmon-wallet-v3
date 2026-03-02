@@ -24,6 +24,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedAnimated, {
@@ -87,6 +88,7 @@ export function NftSendSheet({
   account,
   onSuccess,
 }: NftSendSheetProps): React.ReactElement | null {
+  const { t } = useTranslation();
   const [address, setAddress] = useState('');
   const [addressValid, setAddressValid] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -215,7 +217,7 @@ export function NftSendSheet({
             </View>
 
             {/* Title */}
-            <Text style={styles.title}>Send NFT</Text>
+            <Text style={styles.title}>{t('nft.send.title', 'Send NFT')}</Text>
 
             {/* NFT Preview */}
             <View style={styles.nftPreview}>
@@ -243,13 +245,13 @@ export function NftSendSheet({
             {isBitcoin ? (
               <View style={styles.messageContainer}>
                 <Text style={styles.messageText}>
-                  Ordinal transfers are not yet supported.
+                  {t('nft.send.ordinalsNotSupported', 'Ordinal transfers are not yet supported.')}
                 </Text>
               </View>
             ) : loading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#FF6B35" />
-                <Text style={styles.loadingText}>Sending NFT...</Text>
+                <Text style={styles.loadingText}>{t('nft.send.sending', 'Sending NFT...')}</Text>
               </View>
             ) : (
               <View style={styles.inputContainer}>
@@ -257,8 +259,8 @@ export function NftSendSheet({
                   address={address}
                   onChange={setAddress}
                   onValidation={handleValidation}
-                  placeholder="Enter recipient address"
-                  label="Recipient"
+                  placeholder={t('nft.send.enterRecipientAddress', 'Enter recipient address')}
+                  label={t('token.send.recipient', 'Recipient')}
                 />
 
                 {error && (
@@ -274,7 +276,7 @@ export function NftSendSheet({
                 onPress={dismiss}
                 activeOpacity={0.7}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t('actions.cancel', 'Cancel')}</Text>
               </TouchableOpacity>
 
               {!isBitcoin && (
@@ -291,7 +293,7 @@ export function NftSendSheet({
                     styles.confirmButtonText,
                     !canConfirm && styles.confirmButtonTextDisabled,
                   ]}>
-                    {loading ? 'Sending...' : 'Send'}
+                    {loading ? t('nft.send.sending', 'Sending NFT...') : t('actions.send', 'Send')}
                   </Text>
                 </TouchableOpacity>
               )}

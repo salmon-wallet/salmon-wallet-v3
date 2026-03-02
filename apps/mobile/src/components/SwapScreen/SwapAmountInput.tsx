@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import { BlurContainer } from '../BlurContainer';
@@ -28,6 +29,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
   style,
   isLoading = false,
 }) => {
+  const { t } = useTranslation();
   const [{ currency }, { formatPrecise }] = useCurrencyContext();
   const handleChangeText = useCallback(
     (text: string) => {
@@ -74,7 +76,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
           activeOpacity={0.7}
         >
           <TokenLogo uri={token?.logo || undefined} symbol={token?.symbol} size={ms(22)} />
-          <Text style={styles.tokenSymbol}>{token?.symbol || 'Select'}</Text>
+          <Text style={styles.tokenSymbol}>{token?.symbol || t('actions.select', 'Select')}</Text>
         </TouchableOpacity>
       </BlurContainer>
 

@@ -4,6 +4,7 @@
  * Web version using MUI and @emotion/styled for browser extension
  */
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -206,6 +207,7 @@ export function TokenInfo({
   style,
   className,
 }: TokenInfoProps) {
+  const { t } = useTranslation();
   const [, { formatLarge }] = useCurrencyContext();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -306,7 +308,7 @@ export function TokenInfo({
       {/* About section */}
       {description && (
         <Section>
-          <SectionTitle>About</SectionTitle>
+          <SectionTitle>{t('token.info.about', 'About')}</SectionTitle>
           <Description>{description}</Description>
         </Section>
       )}
@@ -314,35 +316,35 @@ export function TokenInfo({
       {/* Stats grid */}
       {hasStats && (
         <Section>
-          <SectionTitle>Market Stats</SectionTitle>
+          <SectionTitle>{t('token.info.marketStats', 'Market Stats')}</SectionTitle>
           <StatsGrid>
             {marketCap !== undefined && (
               <StatItem>
-                <StatLabel>Market Cap</StatLabel>
+                <StatLabel>{t('token.info.marketCap', 'Market Cap')}</StatLabel>
                 <StatValue>{formatLarge(marketCap)}</StatValue>
               </StatItem>
             )}
             {volume24h !== undefined && (
               <StatItem>
-                <StatLabel>24h Volume</StatLabel>
+                <StatLabel>{t('token.info.volume24h', '24h Volume')}</StatLabel>
                 <StatValue>{formatLarge(volume24h)}</StatValue>
               </StatItem>
             )}
             {circulatingSupply !== undefined && (
               <StatItem>
-                <StatLabel>Circulating</StatLabel>
+                <StatLabel>{t('token.info.circulating', 'Circulating')}</StatLabel>
                 <StatValue>{formatLargeNumber(circulatingSupply)}</StatValue>
               </StatItem>
             )}
             {totalSupply !== undefined && (
               <StatItem>
-                <StatLabel>Total Supply</StatLabel>
+                <StatLabel>{t('token.info.totalSupply', 'Total Supply')}</StatLabel>
                 <StatValue>{formatLargeNumber(totalSupply)}</StatValue>
               </StatItem>
             )}
             {maxSupply !== undefined && (
               <StatItem>
-                <StatLabel>Max Supply</StatLabel>
+                <StatLabel>{t('token.info.maxSupply', 'Max Supply')}</StatLabel>
                 <StatValue>{formatLargeNumber(maxSupply)}</StatValue>
               </StatItem>
             )}
@@ -353,7 +355,7 @@ export function TokenInfo({
       {/* Contract address */}
       {contractAddress && (
         <Section>
-          <SectionTitle>Contract Address</SectionTitle>
+          <SectionTitle>{t('token.info.contractAddress', 'Contract Address')}</SectionTitle>
           <ContractRow
             onClick={handleCopyAddress}
             role="button"
@@ -379,7 +381,7 @@ export function TokenInfo({
           aria-label={`Open website: ${website}`}
         >
           <GlobeIcon />
-          <WebsiteText>Visit Website</WebsiteText>
+          <WebsiteText>{t('token.info.visitWebsite', 'Visit Website')}</WebsiteText>
           <ExternalLinkIcon />
         </WebsiteRow>
       )}
@@ -389,7 +391,7 @@ export function TokenInfo({
         open={snackbarOpen}
         autoHideDuration={2000}
         onClose={handleSnackbarClose}
-        message="Contract address copied"
+        message={t('token.info.contractAddressCopied', 'Contract address copied')}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Container>

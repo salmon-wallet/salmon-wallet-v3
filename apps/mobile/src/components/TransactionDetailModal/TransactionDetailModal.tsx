@@ -12,6 +12,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -140,6 +141,31 @@ const CONFIRMATION_STATUS_CONFIG: Record<string, { label: string; color: string 
   finalized: { label: 'Finalized', color: colors.status.success },
 };
 
+/** Translation key maps — resolved via t() inside the component */
+const TYPE_LABEL_KEYS: Record<TransactionType, string> = {
+  send: 'transactions.detail.sent',
+  receive: 'transactions.detail.received',
+  swap: 'transactions.detail.swapped',
+  mint: 'transactions.detail.minted',
+  burn: 'transactions.detail.burned',
+  stake: 'transactions.detail.staked',
+  loan: 'transactions.detail.loan',
+  interaction: 'transactions.detail.interaction',
+  unknown: 'transactions.detail.unknown',
+};
+
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  completed: 'transactions.detail.completed',
+  failed: 'transactions.detail.failed',
+  pending: 'transactions.detail.pending',
+};
+
+const CONFIRMATION_LABEL_KEYS: Record<string, string> = {
+  processed: 'transactions.detail.processed',
+  confirmed: 'transactions.detail.confirmed',
+  finalized: 'transactions.detail.finalized',
+};
+
 // ============================================================================
 // Sub-components
 // ============================================================================
@@ -230,11 +256,12 @@ const NftAttributeChip: React.FC<{ attribute: NftAttribute }> = ({ attribute }) 
 const NftMetadataSection: React.FC<{
   token: TransactionTokenAmount;
 }> = ({ token }) => {
+  const { t } = useTranslation();
   if (!token.isNft) return null;
 
   return (
     <BlurContainer style={styles.section}>
-      <Text style={styles.sectionTitle}>NFT Details</Text>
+      <Text style={styles.sectionTitle}>{t('transactions.detail.nftDetails', 'NFT Details')}</Text>
 
       {/* NFT Media Preview */}
       {token.nftMedia && (
@@ -250,7 +277,7 @@ const NftMetadataSection: React.FC<{
       {/* Collection Info */}
       {token.nftCollection && (
         <View style={styles.nftCollectionRow}>
-          <Text style={styles.sectionLabel}>Collection</Text>
+          <Text style={styles.sectionLabel}>{t('transactions.detail.collection', 'Collection')}</Text>
           <View style={styles.nftCollectionInfo}>
             <Text style={styles.sectionValue}>{token.nftCollection}</Text>
             {token.nftCollectionVerified && (
@@ -268,7 +295,7 @@ const NftMetadataSection: React.FC<{
       {/* NFT Attributes Grid */}
       {token.nftAttributes && token.nftAttributes.length > 0 && (
         <View style={styles.nftAttributesContainer}>
-          <Text style={styles.nftAttributesLabel}>Attributes</Text>
+          <Text style={styles.nftAttributesLabel}>{t('transactions.detail.attributes', 'Attributes')}</Text>
           <View style={styles.nftAttributesGrid}>
             {token.nftAttributes.map((attr, index) => (
               <NftAttributeChip key={`${attr.trait_type}-${index}`} attribute={attr} />
@@ -310,6 +337,8 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   developerMode,
   style,
 }) => {
+  const { t } = useTranslation();
+
   // Animation shared values
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const backdropOpacity = useSharedValue(0);
@@ -488,7 +517,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   {/* Title and source */}
                   <View style={styles.headerInfo}>
                     <View style={styles.titleRow}>
-                      <Text style={styles.title}>{typeConfig.label}</Text>
+                      <Text style={styles.title}>{t(TYPE_LABEL_KEYS[transaction.type] ?? TYPE_LABEL_KEYS.unknown, typeConfig.label)}</Text>
                       {transaction.source && (
                         <View style={styles.sourceBadge}>
                           <Text style={styles.sourceText}>{transaction.source}</Text>
@@ -504,7 +533,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                         color={statusConfig.color}
                       />
                       <Text style={[styles.statusText, { color: statusConfig.color }]}>
-                        {statusConfig.label}
+                        {t(STATUS_LABEL_KEYS[transaction.status] ?? '', statusConfig.label)}
                       </Text>
                     </View>
                   </View>
@@ -521,7 +550,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               {/* Card 1 — Details: Date/Time + Confirmation + Block */}
               <BlurContainer style={styles.section}>
                 <View style={styles.sectionRow}>
-                  <Text style={styles.sectionLabel}>Date & Time</Text>
+                  <Text style={styles.sectionLabel}>{t('transactions.detail.dateTime', 'Date & Time')}</Text>
                   <Text style={styles.sectionValue}>
                     {formatDateTime(transaction.timestamp)}
                   </Text>
@@ -531,7 +560,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   <>
                     <InternalDivider />
                     <View style={styles.sectionRow}>
-                      <Text style={styles.sectionLabel}>Confirmation</Text>
+                      <Text style={styles.sectionLabel}>{t('transactions.detail.confirmation', 'Confirmation')}</Text>
                       <View style={[
                         styles.confirmationBadge,
                         { backgroundColor: `${CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary}20` },
@@ -540,7 +569,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                           styles.confirmationText,
                           { color: CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.color ?? colors.text.secondary },
                         ]}>
-                          {CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.label ?? transaction.confirmationStatus}
+                          {t(CONFIRMATION_LABEL_KEYS[transaction.confirmationStatus] ?? '', CONFIRMATION_STATUS_CONFIG[transaction.confirmationStatus]?.label ?? transaction.confirmationStatus)}
                         </Text>
                       </View>
                     </View>
@@ -551,7 +580,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   <>
                     <InternalDivider />
                     <View style={styles.sectionRow}>
-                      <Text style={styles.sectionLabel}>Block</Text>
+                      <Text style={styles.sectionLabel}>{t('transactions.detail.block', 'Block')}</Text>
                       <Text style={styles.sectionValue}>
                         #{formatBlockNumber(transaction.slot)}
                       </Text>
@@ -564,7 +593,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               {transaction.type === 'swap' && (
                 <BlurContainer style={styles.section}>
                   <View style={styles.swapHeaderRow}>
-                    <Text style={styles.sectionTitle}>Conversion</Text>
+                    <Text style={styles.sectionTitle}>{t('transactions.detail.conversion', 'Conversion')}</Text>
                     {transaction.swapRoute?.priceImpact && (
                       <PriceImpactBadge
                         value={transaction.swapRoute.priceImpact}
@@ -593,7 +622,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               {/* Swap Route Hops (for multi-hop swaps) */}
               {transaction.type === 'swap' && transaction.swapRoute?.hops && transaction.swapRoute.hops.length > 0 && (
                 <BlurContainer style={styles.section}>
-                  <Text style={styles.sectionTitle}>Swap Route</Text>
+                  <Text style={styles.sectionTitle}>{t('transactions.detail.swapRoute', 'Swap Route')}</Text>
                   {transaction.swapRoute.hops.map((hop, index) => (
                     <View key={`hop-${index}`} style={styles.hopRow}>
                       <View style={styles.hopBadge}>
@@ -621,7 +650,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 <BlurContainer style={styles.section}>
                   {transaction.outputs.length > 0 && (
                     <>
-                      <Text style={styles.sectionTitle}>Sent</Text>
+                      <Text style={styles.sectionTitle}>{t('transactions.detail.sentLabel', 'Sent')}</Text>
                       {transaction.outputs.map((token, index) => (
                         <TokenAmountRow key={`out-${index}`} token={token} sign="-" />
                       ))}
@@ -632,7 +661,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   )}
                   {transaction.inputs.length > 0 && (
                     <>
-                      <Text style={styles.sectionTitle}>Received</Text>
+                      <Text style={styles.sectionTitle}>{t('transactions.detail.receivedLabel', 'Received')}</Text>
                       {transaction.inputs.map((token, index) => (
                         <TokenAmountRow key={`in-${index}`} token={token} sign="+" />
                       ))}
@@ -644,7 +673,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               {/* Address Section */}
               {(transaction.outputs.some(t => t.destination) || transaction.inputs.some(t => t.source) || transaction.feePayer) && (
                 <BlurContainer style={styles.section}>
-                  <Text style={styles.sectionTitle}>Addresses</Text>
+                  <Text style={styles.sectionTitle}>{t('transactions.detail.addresses', 'Addresses')}</Text>
                   <View style={styles.addressesContainer}>
                     {transaction.outputs.map((token, index) =>
                       token.destination ? (
@@ -696,7 +725,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               <BlurContainer style={styles.section}>
                 {transaction.fee && (
                   <View style={styles.sectionRow}>
-                    <Text style={styles.sectionLabel}>Network Fee</Text>
+                    <Text style={styles.sectionLabel}>{t('transactions.detail.networkFee', 'Network Fee')}</Text>
                     <Text style={styles.sectionValue}>
                       {formatRawAmount(transaction.fee.amount, transaction.fee.decimals)} {transaction.fee.symbol}
                     </Text>
@@ -707,7 +736,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   <>
                     {transaction.fee && <InternalDivider />}
                     <View style={styles.sectionRow}>
-                      <Text style={styles.sectionLabel}>Swap Fee</Text>
+                      <Text style={styles.sectionLabel}>{t('transactions.detail.swapFee', 'Swap Fee')}</Text>
                       <Text style={styles.sectionValue}>
                         {transaction.swapRoute.totalFee.amount} {transaction.swapRoute.totalFee.symbol}
                       </Text>
@@ -718,7 +747,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 {(transaction.fee || transaction.swapRoute?.totalFee) && <InternalDivider />}
 
                 <View style={styles.sectionRow}>
-                  <Text style={styles.sectionLabel}>Transaction Hash</Text>
+                  <Text style={styles.sectionLabel}>{t('transactions.detail.transactionHash', 'Transaction Hash')}</Text>
                   <View style={styles.hashRow}>
                     <Text style={styles.hashValue}>{truncateHash(transaction.id, 8)}</Text>
                     <TouchableOpacity
@@ -743,12 +772,12 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 <BlurContainer style={styles.section}>
                   <View style={styles.devSectionHeader}>
                     <Ionicons name="code-slash-outline" size={16} color={colors.text.secondary} />
-                    <Text style={styles.sectionTitle}>Developer Info</Text>
+                    <Text style={styles.sectionTitle}>{t('transactions.detail.developerInfo', 'Developer Info')}</Text>
                   </View>
 
                   {transaction.heliusType && (
                     <View style={styles.sectionRow}>
-                      <Text style={styles.sectionLabel}>Helius Type</Text>
+                      <Text style={styles.sectionLabel}>{t('transactions.detail.heliusType', 'Helius Type')}</Text>
                       <View style={styles.devBadge}>
                         <Text style={styles.devBadgeText}>{transaction.heliusType}</Text>
                       </View>
@@ -757,14 +786,14 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
                   {transaction.accountsInvolved != null && (
                     <View style={[styles.sectionRow, { marginTop: vs(spacing.sm) }]}>
-                      <Text style={styles.sectionLabel}>Accounts Involved</Text>
+                      <Text style={styles.sectionLabel}>{t('transactions.detail.accountsInvolved', 'Accounts Involved')}</Text>
                       <Text style={styles.sectionValue}>{transaction.accountsInvolved}</Text>
                     </View>
                   )}
 
                   {transaction.instructions && transaction.instructions.length > 0 && (
                     <View style={styles.devSubSection}>
-                      <Text style={styles.devSubTitle}>Programs</Text>
+                      <Text style={styles.devSubTitle}>{t('transactions.detail.programs', 'Programs')}</Text>
                       {transaction.instructions.map((ix, index) => (
                         <View key={`ix-${index}`} style={styles.devRow}>
                           <Text style={styles.devMonoText}>
@@ -782,7 +811,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
                   {transaction.innerSwaps && transaction.innerSwaps.length > 0 && (
                     <View style={styles.devSubSection}>
-                      <Text style={styles.devSubTitle}>Inner Swaps</Text>
+                      <Text style={styles.devSubTitle}>{t('transactions.detail.innerSwaps', 'Inner Swaps')}</Text>
                       {transaction.innerSwaps.map((swap, index) => (
                         <View key={`inner-${index}`} style={styles.devRow}>
                           <Text style={styles.devMonoText}>
@@ -798,7 +827,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
                   {transaction.swapFees && (
                     <View style={styles.devSubSection}>
-                      <Text style={styles.devSubTitle}>Swap Fees</Text>
+                      <Text style={styles.devSubTitle}>{t('transactions.detail.swapFees', 'Swap Fees')}</Text>
                       {transaction.swapFees.nativeFees.map((fee, index) => (
                         <View key={`nfee-${index}`} style={styles.devRow}>
                           <Text style={styles.devMonoText}>

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import {
   colors,
   fontFamilyNative,
@@ -47,6 +48,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
   onCancel,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   const [estimatedFee, setEstimatedFee] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -155,7 +157,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
         {/* Fee Display */}
         {estimatedFee && (
           <Text style={styles.feeText}>
-            Network Fee: ~{estimatedFee}
+            {t('token.send.networkFee', 'Network Fee')}: ~{estimatedFee}
           </Text>
         )}
 
@@ -174,7 +176,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
           disabled={isSending}
         >
           <Text style={styles.cancelButtonText}>
-            {isFailed ? 'CANCEL' : 'CANCEL'}
+            {t('actions.cancel', 'CANCEL').toUpperCase()}
           </Text>
         </TouchableOpacity>
 
@@ -193,11 +195,11 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
             {isSending ? (
               <View style={styles.sendingRow}>
                 <ActivityIndicator size="small" color={colors.text.primary} />
-                <Text style={styles.confirmButtonText}>Sending...</Text>
+                <Text style={styles.confirmButtonText}>{t('token.send.sending', 'Sending...')}</Text>
               </View>
             ) : (
               <Text style={styles.confirmButtonText}>
-                {isFailed ? 'RETRY' : 'CONFIRM'}
+                {isFailed ? t('actions.retry', 'RETRY').toUpperCase() : t('actions.confirm', 'CONFIRM').toUpperCase()}
               </Text>
             )}
           </LinearGradient>

@@ -5,6 +5,7 @@
  * Provides a glassmorphism container with expandable description text.
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -85,12 +86,14 @@ const ReadMoreButton = styled('button')({
  */
 export function TokenAbout({
   description,
-  title = 'About',
+  title,
   loading = false,
   maxLines = 0, // 0 = no limit, container adapts to content
   style,
   className,
 }: TokenAboutProps) {
+  const { t } = useTranslation();
+  const displayTitle = title ?? t('token.info.about', 'About');
   const [expanded, setExpanded] = useState(false);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const descriptionRef = useRef<HTMLElement>(null);
@@ -159,7 +162,7 @@ export function TokenAbout({
       className={className}
     >
       <ContentContainer>
-        <Title>{title}</Title>
+        <Title>{displayTitle}</Title>
         <Description
           ref={descriptionRef}
           $maxLines={maxLines}
@@ -172,7 +175,7 @@ export function TokenAbout({
             onClick={toggleExpanded}
             aria-label={expanded ? 'Read less' : 'Read more'}
           >
-            {expanded ? 'Read less' : 'Read more'}
+            {expanded ? t('token.about.readLess', 'Read less') : t('token.about.readMore', 'Read more')}
           </ReadMoreButton>
         )}
       </ContentContainer>
