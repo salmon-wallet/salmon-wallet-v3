@@ -49,6 +49,7 @@ const Container = styled(Box)({
 });
 
 const ChartContainer = styled(Box)<{ $height: number }>(({ $height }) => ({
+  width: '100%',
   height: $height,
   marginBottom: spacing.lg,
   borderRadius: borderRadius.md,
@@ -247,7 +248,7 @@ export function PriceChart({
         {loading ? (
           <ChartSkeleton height={height} />
         ) : data.length > 0 ? (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={height}>
             <AreaChart
               data={data}
               margin={{ top: 0, right: 0, left: 0, bottom: 0 }}

@@ -80,22 +80,20 @@ import {
   TrustedAppsSelector,
   SupportSelector,
   CurrencySelector,
+  AccountsPage,
+  AccountEditPage,
+  AccountNamePage,
+  AccountAvatarPage,
+  AccountAddPage,
+  SecurityPage,
+  BackupPage,
+  PrivateKeyPage,
+  AddressBookPage,
+  AddressAddPage,
+  AddressEditPage,
+  AboutPage,
 } from '../../components';
 import IconButton from '@mui/material/IconButton';
-
-// Settings pages for navigation
-import { BackupPage } from '../settings/BackupPage';
-import { PrivateKeyPage } from '../settings/PrivateKeyPage';
-import { AboutPage } from '../settings/AboutPage';
-import { AccountAvatarPage } from '../settings/AccountAvatarPage';
-import { AddressBookPage } from '../settings/AddressBookPage';
-import { AddressAddPage } from '../settings/AddressAddPage';
-import { AddressEditPage } from '../settings/AddressEditPage';
-import { AccountsPage } from '../settings/AccountsPage';
-import { AccountEditPage } from '../settings/AccountEditPage';
-import { AccountNamePage } from '../settings/AccountNamePage';
-import { AccountAddPage } from '../settings/AccountAddPage';
-import { SecurityPage } from '../settings/SecurityPage';
 
 // i18n
 import { useLanguage } from '../../i18n';
@@ -1366,7 +1364,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
                       onPeriodChange={handleChartPeriodChange}
                       loading={bitcoinDataLoading && bitcoinChartData.length === 0}
                       height={180}
-                      style={{ marginTop: spacing.md }}
+                      style={{ marginTop: spacing.md, marginLeft: -spacing.lg, marginRight: -spacing.lg }}
                     />
                     <TokenMarketData
                       data={bitcoinMarketData}

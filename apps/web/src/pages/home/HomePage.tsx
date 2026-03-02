@@ -565,7 +565,7 @@ export function HomePage(): React.ReactElement {
                       onPeriodChange={setBitcoinChartPeriod}
                       loading={bitcoinDataLoading && bitcoinChartData.length === 0}
                       height={180}
-                      style={{ marginTop: spacing.md }}
+                      style={{ marginTop: spacing.md, marginLeft: -spacing.lg, marginRight: -spacing.lg }}
                     />
                     <TokenMarketData
                       data={bitcoinMarketData}
