@@ -27,6 +27,7 @@ import {
   getAvailableExplorers,
   getDefaultExplorer,
 } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import type { ExplorerLinkButtonProps } from './types';
 
 // ============================================================================
@@ -39,14 +40,11 @@ const StyledButton = styled(ButtonBase)({
   alignItems: 'center',
   justifyContent: 'center',
   padding: '12px 16px',
-  backgroundColor: `${colors.palette.amber}15`,
-  borderRadius: borderRadius.md,
-  border: `1px solid ${colors.palette.amber}30`,
   width: '100%',
   gap: 8,
-  transition: 'background-color 0.2s ease',
+  transition: 'opacity 0.2s ease',
   '&:hover': {
-    backgroundColor: `${colors.palette.amber}25`,
+    opacity: 0.85,
   },
 });
 
@@ -139,17 +137,22 @@ export function ExplorerLinkButton({
 
   return (
     <>
-      <StyledButton
-        onClick={handleClick}
+      <BlurContainer
+        borderColor={colors.palette.amber}
+        style={{ borderRadius: borderRadius.md }}
         className={className}
-        aria-label={buttonText}
       >
-        <OpenInNewIcon sx={{ fontSize: 16, color: colors.palette.amber }} />
-        <ButtonText>{buttonText}</ButtonText>
-        {showMenu && availableExplorers.length > 1 && (
-          <ExpandMoreIcon sx={{ fontSize: 14, color: colors.palette.amber }} />
-        )}
-      </StyledButton>
+        <StyledButton
+          onClick={handleClick}
+          aria-label={buttonText}
+        >
+          <OpenInNewIcon sx={{ fontSize: 16, color: colors.palette.amber }} />
+          <ButtonText>{buttonText}</ButtonText>
+          {showMenu && availableExplorers.length > 1 && (
+            <ExpandMoreIcon sx={{ fontSize: 14, color: colors.palette.amber }} />
+          )}
+        </StyledButton>
+      </BlurContainer>
 
       {showMenu && availableExplorers.length > 1 && (
         <StyledMenu

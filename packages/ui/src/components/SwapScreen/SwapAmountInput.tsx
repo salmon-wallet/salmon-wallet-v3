@@ -19,6 +19,7 @@ import {
 } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { styled } from '../../utils/styled';
+import { BlurContainer } from '../BlurContainer';
 import type { SwapAmountInputProps } from './types';
 
 // ============================================================================
@@ -45,8 +46,6 @@ const InputContainer = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
-  border: `1px solid ${colors.border.default}`,
-  borderRadius: borderRadius.md,
   height: 58,
   padding: `0 ${spacing.md}px`,
 });
@@ -188,6 +187,10 @@ export function SwapAmountInput({
       <Label>{label}</Label>
 
       {/* Input Row */}
+      <BlurContainer
+        borderColor={value ? colors.accent.primary : undefined}
+        style={{ borderRadius: borderRadius.md }}
+      >
       <InputContainer>
         {isLoading ? (
           <LoadingContainer>
@@ -222,6 +225,7 @@ export function SwapAmountInput({
           <TokenSymbol>{token?.symbol || 'Select'}</TokenSymbol>
         </TokenDropdown>
       </InputContainer>
+      </BlurContainer>
 
       {/* USD Value and Balance Row */}
       {(usdValue !== undefined || availableBalance !== undefined) && (

@@ -63,8 +63,6 @@ export function SwapDetailRow({
 }: SwapDetailRowProps): React.ReactElement {
   return (
     <BlurContainer
-      blurIntensity={5}
-      blurTint="dark"
       style={{
         borderRadius: borderRadius.md,
         overflow: 'hidden',

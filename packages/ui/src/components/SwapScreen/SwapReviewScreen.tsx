@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 import {
   colors,
   spacing,
+  borderRadius,
   fontFamily,
   fontWeight,
   useCurrencyContext,
@@ -19,6 +20,7 @@ import {
   formatSolFee,
   formatPercent,
 } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapDetailRow } from './SwapDetailRow';
 import { SwapReviewButtons } from './SwapReviewButtons';
@@ -90,12 +92,8 @@ const PriceImpactContainer = styled(Box)({
   marginBottom: spacing.lg,
 });
 
-const WarningBox = styled(Box)({
-  backgroundColor: 'rgba(255, 179, 0, 0.1)',
-  borderRadius: spacing.md,
-  border: '1px solid rgba(255, 179, 0, 0.3)',
+const WarningContent = styled(Box)({
   padding: spacing.base,
-  marginBottom: spacing.lg,
 });
 
 const WarningTitle = styled(Typography)({
@@ -250,12 +248,18 @@ export function SwapReviewScreen({
           )}
 
           {/* Warning Box */}
-          <WarningBox>
-            <WarningTitle>Please Note</WarningTitle>
-            <WarningBodyText>
-              Swap rates are estimates. The actual amount you receive may differ due to slippage and market conditions. Transactions are irreversible once confirmed.
-            </WarningBodyText>
-          </WarningBox>
+          <BlurContainer
+            borderColor={colors.palette.amber}
+            backgroundColor="rgba(255, 179, 0, 0.1)"
+            style={{ borderRadius: borderRadius.md, marginBottom: spacing.lg }}
+          >
+            <WarningContent>
+              <WarningTitle>Please Note</WarningTitle>
+              <WarningBodyText>
+                Swap rates are estimates. The actual amount you receive may differ due to slippage and market conditions. Transactions are irreversible once confirmed.
+              </WarningBodyText>
+            </WarningContent>
+          </BlurContainer>
         </ScrollContent>
       </ScrollContainer>
 

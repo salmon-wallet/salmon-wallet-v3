@@ -154,30 +154,35 @@ export function ExplorerLinkButton({
 
   return (
     <>
-      <TouchableOpacity
-        style={[styles.button, style]}
-        onPress={handlePress}
-        activeOpacity={0.7}
-        accessibilityRole="link"
-        accessibilityLabel={buttonText}
-        accessibilityHint="Opens transaction in blockchain explorer"
+      <BlurContainer
+        borderColor={colors.palette.amber}
+        style={[styles.blurWrapper, style]}
       >
-        <Ionicons
-          name="open-outline"
-          size={16}
-          color={colors.palette.amber}
-          style={styles.icon}
-        />
-        <Text style={styles.buttonText}>{buttonText}</Text>
-        {showMenu && availableExplorers.length > 1 && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handlePress}
+          activeOpacity={0.7}
+          accessibilityRole="link"
+          accessibilityLabel={buttonText}
+          accessibilityHint="Opens transaction in blockchain explorer"
+        >
           <Ionicons
-            name="chevron-down"
-            size={14}
+            name="open-outline"
+            size={16}
             color={colors.palette.amber}
-            style={styles.chevron}
+            style={styles.icon}
           />
-        )}
-      </TouchableOpacity>
+          <Text style={styles.buttonText}>{buttonText}</Text>
+          {showMenu && availableExplorers.length > 1 && (
+            <Ionicons
+              name="chevron-down"
+              size={14}
+              color={colors.palette.amber}
+              style={styles.chevron}
+            />
+          )}
+        </TouchableOpacity>
+      </BlurContainer>
 
       {/* Explorer menu modal */}
       {showMenu && availableExplorers.length > 1 && (
@@ -226,16 +231,15 @@ export function ExplorerLinkButton({
 // ============================================================================
 
 const styles = StyleSheet.create({
+  blurWrapper: {
+    borderRadius: borderRadius.md,
+  },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: vs(12),
     paddingHorizontal: s(16),
-    backgroundColor: `${colors.palette.amber}15`,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: `${colors.palette.amber}30`,
   },
   icon: {
     marginRight: s(8),

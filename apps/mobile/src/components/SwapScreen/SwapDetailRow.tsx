@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { Text, StyleSheet } from 'react-native';
+import { colors, spacing, borderRadius, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import type { SwapDetailRowProps } from './types';
 
 /**
@@ -14,24 +14,18 @@ export const SwapDetailRow: React.FC<SwapDetailRowProps> = ({
   style,
 }) => {
   return (
-    <View style={[styles.container, style]}>
-      <BlurView intensity={5} tint="dark" style={styles.blurContent}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.value}>{value}</Text>
-      </BlurView>
-    </View>
+    <BlurContainer
+      style={[styles.container, style]}
+    >
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.value}>{value}</Text>
+    </BlurContainer>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: borderWidth.tokenListItem,
-    borderColor: colors.border.default,
     borderRadius: borderRadius.md,
-    overflow: 'hidden',
-    backgroundColor: colors.background.tokenItem,
-  },
-  blurContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

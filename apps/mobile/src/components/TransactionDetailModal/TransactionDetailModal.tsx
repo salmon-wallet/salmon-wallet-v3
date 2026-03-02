@@ -1005,7 +1005,7 @@ const styles = StyleSheet.create({
   },
   hashValue: {
     fontSize: ms(fontSize.sm),
-    fontFamily: fontFamilyNative.medium,
+    fontFamily: fontFamilyNative.mono,
     color: colors.text.primary,
   },
   copyIconButton: {

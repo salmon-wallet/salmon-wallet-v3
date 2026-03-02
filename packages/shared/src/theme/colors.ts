@@ -328,6 +328,21 @@ export const gradients = {
     'linear-gradient(180deg, #627EEA 0%, #3A4A8C 50%, #1A1F33 100%)',
   balanceCardEthereumSepoliaCSS:
     'linear-gradient(180deg, #4CAF50 0%, #2E7D32 50%, #1B5E20 100%)',
+  /**
+   * Glassy border radial gradient (Figma "Glassy_BORDER" style)
+   * Circular radial centered at top-left corner (0,0), radiating to bottom-right.
+   * Border visible at top-left & bottom-right corners, transparent in between.
+   * Uses userSpaceOnUse — radius must be computed from element diagonal.
+   */
+  glassyBorder: {
+    stops: [
+      { offset: 0.2, color: '#404962', opacity: 1 },
+      { offset: 0.4, color: '#404962', opacity: 0 },
+      { offset: 0.6, color: '#404962', opacity: 0 },
+      { offset: 0.8, color: '#404962', opacity: 1 },
+    ] as const,
+    width: 0.75,
+  },
 } as const;
 
 export type Colors = typeof colors;

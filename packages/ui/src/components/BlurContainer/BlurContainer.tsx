@@ -1,113 +1,161 @@
 /**
  * BlurContainer - A reusable blur effect component
  *
- * Web version using CSS backdrop-filter for browser extension
+ * Web version using CSS backdrop-filter for browser extension and web app.
+ * Renders a radial gradient border (Figma "Glassy_BORDER") by default
+ * via an inline SVG overlay with <radialGradient> stroke.
+ * When a custom borderColor is provided, the gradient uses that color.
  */
+import { useEffect, useId, useRef, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { colors } from '@salmon/shared';
-import type { BlurContainerProps, BlurTint } from './types';
+import { colors, gradients } from '@salmon/shared';
+import type { BlurContainerProps } from './types';
 
-/**
- * Get background overlay color based on tint.
- *
- * Kept subtle — the background color already provides the main tint,
- * this overlay just adds a light directional bias to match the native
- * BlurView look on iOS/Android.
- */
-function getTintColor(tint: BlurTint): string {
-  switch (tint) {
-    case 'light':
-      return 'rgba(255, 255, 255, 0.08)';
-    case 'dark':
-      return 'rgba(0, 0, 0, 0.10)';
-    case 'default':
-    default:
-      return 'rgba(0, 0, 0, 0.08)';
-  }
+const WEB_DEFAULT_BG = 'rgba(56, 63, 82, 0.10)';
+
+const { glassyBorder } = gradients;
+
+// sqrt(2) / 0.8 — so the 80% stop lands at the far corner (distance √2 in OBB space)
+const OBB_RADIUS = Math.sqrt(2) / 0.8;
+
+function GradientBorderOverlay({
+  width,
+  height,
+  borderRadius,
+  color,
+  strokeWidth,
+}: {
+  width: number;
+  height: number;
+  borderRadius: number;
+  color: string;
+  strokeWidth: number;
+}) {
+  const gradientId = useId();
+  const inset = strokeWidth / 2;
+
+  if (width <= 0 || height <= 0) return null;
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        pointerEvents: 'none',
+      }}
+    >
+      <defs>
+        <radialGradient
+          id={gradientId}
+          cx="0"
+          cy="0"
+          r={OBB_RADIUS}
+          gradientUnits="objectBoundingBox"
+        >
+          {glassyBorder.stops.map((stop, i) => (
+            <stop
+              key={i}
+              offset={stop.offset}
+              stopColor={color}
+              stopOpacity={stop.opacity}
+            />
+          ))}
+        </radialGradient>
+      </defs>
+      <rect
+        x={inset}
+        y={inset}
+        width={width - strokeWidth}
+        height={height - strokeWidth}
+        rx={borderRadius}
+        ry={borderRadius}
+        fill="none"
+        stroke={`url(#${gradientId})`}
+        strokeWidth={strokeWidth}
+      />
+    </svg>
+  );
 }
 
 const BlurBox = styled(Box)<{
   $blurIntensity: number;
-  $tintColor: string;
   $backgroundColor: string;
   $borderColor: string;
   $borderWidth: number;
-}>(({ $blurIntensity, $tintColor, $backgroundColor, $borderColor, $borderWidth }) => ({
+  $useGradientBorder: boolean;
+}>(({ $blurIntensity, $backgroundColor, $borderColor, $borderWidth, $useGradientBorder }) => ({
   backdropFilter: `blur(${$blurIntensity}px)`,
-  WebkitBackdropFilter: `blur(${$blurIntensity}px)`, // Safari support
+  WebkitBackdropFilter: `blur(${$blurIntensity}px)`,
   backgroundColor: $backgroundColor,
-  borderColor: $borderColor,
-  borderWidth: $borderWidth,
-  borderStyle: 'solid',
   overflow: 'hidden',
-  // Add subtle overlay based on tint
   position: 'relative',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: $tintColor,
-    pointerEvents: 'none',
-  },
+  ...(!$useGradientBorder && {
+    borderColor: $borderColor,
+    borderWidth: $borderWidth,
+    borderStyle: 'solid',
+  }),
 }));
-
-/**
- * BlurContainer - A reusable blur effect component
- *
- * Provides a consistent blur effect across the app using CSS backdrop-filter.
- * Uses colors.background.tokenItem as default background with blur intensity 8.
- *
- * @example
- * ```tsx
- * // Basic usage (uses defaults)
- * <BlurContainer style={{ borderRadius: 8, padding: 16 }}>
- *   <div>Content with blur effect</div>
- * </BlurContainer>
- *
- * // With custom settings
- * <BlurContainer
- *   blurIntensity={20}
- *   blurTint="light"
- *   borderColor={colors.accent.primary}
- * >
- *   <div>Custom blur content</div>
- * </BlurContainer>
- * ```
- */
-/**
- * Default background for web — slightly more opaque than the mobile token
- * (`rgba(56, 63, 82, 0.1)`) to compensate for CSS backdrop-filter being
- * visually lighter than expo-blur's native BlurView.
- */
-const WEB_DEFAULT_BG = 'rgba(56, 63, 82, 0.20)';
 
 export function BlurContainer({
   children,
   style,
-  blurIntensity = 12,
-  blurTint = 'dark',
+  blurIntensity = 2,
+  blurTint: _blurTint = 'dark',
   backgroundColor = WEB_DEFAULT_BG,
   borderColor = colors.border.default,
   borderWidth = 1,
+  useGradientBorder = true,
   className,
 }: BlurContainerProps) {
-  const tintColor = getTintColor(blurTint);
+  const ref = useRef<HTMLDivElement>(null);
+  const [layout, setLayout] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!useGradientBorder || !ref.current) return;
+
+    const el = ref.current;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setLayout((prev) =>
+        prev.width === width && prev.height === height
+          ? prev
+          : { width, height },
+      );
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [useGradientBorder]);
+
+  const borderRadius = typeof style?.borderRadius === 'number'
+    ? style.borderRadius
+    : 0;
 
   return (
     <BlurBox
+      ref={ref}
       $blurIntensity={blurIntensity}
-      $tintColor={tintColor}
       $backgroundColor={backgroundColor}
       $borderColor={borderColor}
       $borderWidth={borderWidth}
+      $useGradientBorder={useGradientBorder}
       style={style}
       className={className}
     >
       {children}
+      {useGradientBorder && (
+        <GradientBorderOverlay
+          width={layout.width}
+          height={layout.height}
+          borderRadius={borderRadius}
+          color={borderColor}
+          strokeWidth={glassyBorder.width}
+        />
+      )}
     </BlurBox>
   );
 }

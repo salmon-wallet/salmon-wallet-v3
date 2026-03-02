@@ -7,8 +7,9 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
+import { colors, spacing, borderRadius, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
+import { BlurContainer } from '../BlurContainer';
 import type { SwapAmountInputProps } from './types';
 
 /**
@@ -46,7 +47,10 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
       <Text style={styles.label}>{label}</Text>
 
       {/* Input Row */}
-      <View style={styles.inputContainer}>
+      <BlurContainer
+        borderColor={value ? colors.accent.primary : undefined}
+        style={styles.inputContainer}
+      >
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="small" color={colors.text.secondary} />
@@ -72,7 +76,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
           <TokenLogo uri={token?.logo || undefined} symbol={token?.symbol} size={ms(22)} />
           <Text style={styles.tokenSymbol}>{token?.symbol || 'Select'}</Text>
         </TouchableOpacity>
-      </View>
+      </BlurContainer>
 
       {/* USD Value and Balance Row */}
       {(usdValue !== undefined || availableBalance !== undefined) && (
@@ -104,8 +108,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: borderWidth.tokenListItem,
-    borderColor: colors.border.default,
     borderRadius: borderRadius.md,
     height: vs(58),
     paddingHorizontal: s(spacing.md),

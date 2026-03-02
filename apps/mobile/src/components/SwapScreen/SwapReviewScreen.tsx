@@ -1,6 +1,7 @@
 import { borderRadius, colors, componentSizes, fontFamilyNative, formatAmountWithSymbol, formatSolFee, formatPercent, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BlurContainer } from '../BlurContainer';
 import { SwapDetailRow } from './SwapDetailRow';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapReviewButtons } from './SwapReviewButtons';
@@ -137,12 +138,16 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
         </View>
 
         {/* Warning Box */}
-        <View style={styles.warningBox}>
+        <BlurContainer
+          borderColor={colors.palette.amber}
+          backgroundColor="rgba(255, 179, 0, 0.1)"
+          style={styles.warningBox}
+        >
           <Text style={styles.warningTitle}>Please Note</Text>
           <Text style={styles.warningText}>
             Swap rates are estimates. The actual amount you receive may differ due to slippage and market conditions. Transactions are irreversible once confirmed.
           </Text>
-        </View>
+        </BlurContainer>
       </ScrollView>
 
       {/* Buttons */}
@@ -195,10 +200,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['3xl']),
   },
   warningBox: {
-    backgroundColor: 'rgba(255, 179, 0, 0.1)',
     borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 179, 0, 0.3)',
     padding: s(spacing.base),
     marginBottom: vs(spacing.lg),
   },

@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { Text, StyleSheet } from 'react-native';
+import { colors, spacing, borderRadius, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import type { SwapReviewCardProps } from './types';
 
 /**
@@ -15,25 +15,19 @@ export const SwapReviewCard: React.FC<SwapReviewCardProps> = ({
   style,
 }) => {
   return (
-    <View style={[styles.container, style]}>
-      <BlurView intensity={5} tint="dark" style={styles.blurContent}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.amount}>{amount}</Text>
-        {usdValue != null && <Text style={styles.usdValue}>{usdValue}</Text>}
-      </BlurView>
-    </View>
+    <BlurContainer
+      style={[styles.container, style]}
+    >
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.amount}>{amount}</Text>
+      {usdValue != null && <Text style={styles.usdValue}>{usdValue}</Text>}
+    </BlurContainer>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: borderWidth.tokenListItem,
-    borderColor: colors.border.default,
     borderRadius: borderRadius.md,
-    overflow: 'hidden',
-    backgroundColor: colors.background.tokenItem,
-  },
-  blurContent: {
     paddingHorizontal: s(spacing.base),
     paddingVertical: vs(spacing.sm),
     minHeight: vs(75),

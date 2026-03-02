@@ -57,6 +57,7 @@ import { borderRadius, colors, copyToClipboard, fontFamily, fontSize, fontWeight
 import React, { useCallback, useMemo, useState } from 'react';
 import { styled } from '../../utils/styled';
 
+import { BlurContainer } from '../BlurContainer';
 import { ScalesBackground } from '../ScalesBackground';
 import { AddressCopyRow } from '../TransactionHistoryPage/AddressCopyRow';
 import { ConversionRateDisplay } from '../TransactionHistoryPage/ConversionRateDisplay';
@@ -338,28 +339,11 @@ const CopyIconButton = styled(IconButton)({
   },
 });
 
-const CardContainer = styled(Box)({
-  padding: `${spacing.md}px`,
-  backgroundColor: `${colors.background.card}60`,
-  borderRadius: borderRadius.md,
-  border: `1px solid ${colors.border.default}`,
-});
-
 const InternalDivider = styled(Box)({
   height: 1,
   backgroundColor: colors.border.subtle,
   marginTop: spacing.sm,
   marginBottom: spacing.sm,
-});
-
-// Token row styles
-const TokenRow = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  padding: `${spacing.md}px`,
-  backgroundColor: `${colors.background.card}60`,
-  borderRadius: borderRadius.md,
-  border: `1px solid ${colors.border.default}`,
 });
 
 const TokenLogoImg = styled('img')({
@@ -734,7 +718,7 @@ const TokenAmountRow: React.FC<{
   const formattedAmount = formatRawAmount(token.amount, token.decimals);
 
   return (
-    <TokenRow>
+    <BlurContainer style={{ borderRadius: borderRadius.md, padding: spacing.md, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
       <TokenLogo uri={token.logo} size={32} />
       <TokenInfoBox>
         <TokenSymbol>{token.symbol}</TokenSymbol>
@@ -743,7 +727,7 @@ const TokenAmountRow: React.FC<{
       <TokenAmount sx={{ color }}>
         {sign} {formattedAmount}
       </TokenAmount>
-    </TokenRow>
+    </BlurContainer>
   );
 };
 
@@ -985,7 +969,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
       <StyledDialogContent>
         {/* Card 1 — Details: Date/Time + Confirmation + Block */}
         <Section>
-          <CardContainer>
+          <BlurContainer style={{ borderRadius: borderRadius.md, padding: spacing.md }}>
             <SectionRow>
               <SectionLabel>Date & Time</SectionLabel>
               <SectionValue>{formatDateTime(transaction.timestamp)}</SectionValue>
@@ -1022,7 +1006,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 </SectionRow>
               </>
             )}
-          </CardContainer>
+          </BlurContainer>
         </Section>
 
         {/* Swap Visualization (for swaps) */}
@@ -1154,7 +1138,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
         {/* Card 3 — Transaction Info: Fee + Swap Fee + Hash merged */}
         <Section>
-          <CardContainer>
+          <BlurContainer style={{ borderRadius: borderRadius.md, padding: spacing.md }}>
             {transaction.fee && (
               <SectionRow>
                 <SectionLabel>Network Fee</SectionLabel>
@@ -1197,7 +1181,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 </CopyIconButton>
               </Box>
             </SectionRow>
-          </CardContainer>
+          </BlurContainer>
         </Section>
 
         {/* Developer Info (dev mode only) */}
