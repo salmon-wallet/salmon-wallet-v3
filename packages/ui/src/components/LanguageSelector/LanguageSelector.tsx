@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type LanguageSelectorBaseProps, type LanguageSelectorItem } from '@salmon/shared';
-import { SettingsPageLayout } from '../SettingsPageLayout';
+import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
 
 export function LanguageSelector({
@@ -18,7 +18,7 @@ export function LanguageSelector({
   );
 
   return (
-    <SettingsPageLayout
+    <SettingsPanelContent
       title={t('settings.languages.title', 'Language')}
       onBack={onBack}
     >
@@ -30,7 +30,7 @@ export function LanguageSelector({
         getPrimaryText={(item) => item.nativeName}
         getSecondaryText={(item) => item.code.toUpperCase()}
       />
-    </SettingsPageLayout>
+    </SettingsPanelContent>
   );
 }
 

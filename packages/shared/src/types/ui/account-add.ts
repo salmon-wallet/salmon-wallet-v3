@@ -9,9 +9,9 @@ export type AccountAddStep =
   | 'complete';
 
 /**
- * Props for the AccountAddPage component (platform-agnostic)
+ * Props for the AccountAddPanel component (platform-agnostic)
  */
-export interface AccountAddPagePropsBase {
+export interface AccountAddPanelPropsBase {
   /** Callback when the flow completes successfully */
   onComplete: () => void;
   /** Callback to navigate back / cancel */

@@ -25,7 +25,7 @@ import {
   type TrustedAppsSelectorBaseProps,
   type TrustedAppItem,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../SettingsPageLayout';
+import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
 // Styled Components
@@ -101,7 +101,7 @@ export function TrustedAppsSelector({
   );
 
   return (
-    <SettingsPageLayout
+    <SettingsPanelContent
       title={t('settings.trusted_apps', 'Trusted Apps')}
       onBack={onBack}
     >
@@ -172,7 +172,7 @@ export function TrustedAppsSelector({
           </EmptySubtext>
         </EmptyContainer>
       )}
-    </SettingsPageLayout>
+    </SettingsPanelContent>
   );
 }
 

@@ -4,7 +4,7 @@
  * Eliminates the duplicated Container / Header / BackButton / HeaderTitle /
  * ScrollContent pattern that appears identically in:
  *   TokenDetailPage, TransactionHistoryPage, NftDetailPage,
- *   NftSeeAllPage, SendPage, and SettingsPageLayout.
+ *   NftSeeAllPage, SendPage, and SettingsPanelContent.
  *
  * Usage:
  *   <PageShell title="Token Information" onBack={onBack} showScalesBackground>
@@ -36,12 +36,12 @@ export interface PageShellProps {
   /**
    * Background colour variant.
    * - 'secondary' (default) — used by TokenDetailPage, NftDetailPage, etc.
-   * - 'primary' — used by SettingsPageLayout
+   * - 'primary' — used by SettingsPanelContent
    */
   backgroundColor?: 'primary' | 'secondary';
   /**
    * Whether the header height mode uses `height: 100vh` (default) or
-   * `minHeight: 100vh` (used by SettingsPageLayout whose content can exceed
+   * `minHeight: 100vh` (used by SettingsPanelContent whose content can exceed
    * the viewport).
    */
   fullHeight?: boolean;

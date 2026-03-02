@@ -136,6 +136,15 @@ export type {
   SettingsSection,
 } from './SettingsSheet';
 
+// SettingsPanelStack - Stacking panel navigation for settings
+export { SettingsPanelStack } from './SettingsPanelStack';
+export type {
+  MobilePanelContentProps,
+  MobilePanelRenderer,
+  MobilePanelRegistry,
+  MobileSettingsPanelStackProps,
+} from './SettingsPanelStack';
+
 // WalletSwitcherSheet - Account selection sheet
 export { WalletSwitcherSheet } from './WalletSwitcherSheet';
 export type {
@@ -327,22 +336,28 @@ export type { AvatarPickerProps } from './AvatarPicker';
 
 export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';
 
-// AccountsPage - Account management list
-export { AccountsPage } from './AccountsPage';
-export type { AccountsPageProps } from './AccountsPage';
+// AccountsPanel - Account management list
+export { AccountsPanel } from './AccountsPanel';
+export type { AccountsPanelProps } from './AccountsPanel';
 
-// AccountEditPage - Account editing options
-export { AccountEditPage } from './AccountEditPage';
-export type { AccountEditPageProps } from './AccountEditPage';
+// AccountEditPanel - Account editing options
+export { AccountEditPanel } from './AccountEditPanel';
+export type { AccountEditPanelProps } from './AccountEditPanel';
 
-// AccountNamePage - Edit account name
-export { AccountNamePage } from './AccountNamePage';
-export type { AccountNamePageProps } from './AccountNamePage';
+// AccountNamePanel - Edit account name
+export { AccountNamePanel } from './AccountNamePanel';
+export type { AccountNamePanelProps } from './AccountNamePanel';
 
-// AccountAddPage - Multi-step account creation
-export { AccountAddPage } from './AccountAddPage';
-export type { AccountAddPageProps } from './AccountAddPage';
+// AccountAddPanel - Multi-step account creation
+export { AccountAddPanel } from './AccountAddPanel';
+export type { AccountAddPanelProps } from './AccountAddPanel';
 
-// SecurityPage - Security settings with password change and biometrics
-export { SecurityPage } from './SecurityPage';
-export type { SecurityPageProps } from './SecurityPage';
+// SecurityPanel - Security settings with password change and biometrics
+export { SecurityPanel } from './SecurityPanel';
+export type { SecurityPanelProps } from './SecurityPanel';
+
+// BackupPanel - Seed phrase backup/export
+export { BackupPanel } from './BackupPanel';
+
+// AboutPanel - App info and links
+export { AboutPanel } from './AboutPanel';

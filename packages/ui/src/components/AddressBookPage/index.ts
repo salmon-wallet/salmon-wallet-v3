@@ -1,1 +1,0 @@
-export { AddressBookPage } from './AddressBookPage';

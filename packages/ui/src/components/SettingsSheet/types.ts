@@ -9,12 +9,17 @@ import type {
   SettingsSheetBaseProps,
   SettingsOptionBase,
   SettingsSectionBase,
+  SettingsScreen,
 } from '@salmon/shared';
 
 /**
- * Props for the SettingsSheet component (browser extension specific)
+ * Props for the SettingsSheet component.
+ * @deprecated Use SettingsPanelStack instead.
  */
-export interface SettingsSheetProps extends SettingsSheetBaseProps {}
+export interface SettingsSheetProps extends SettingsSheetBaseProps {
+  /** @deprecated Navigation is now handled internally by SettingsPanelStack */
+  onNavigate?: (screen: SettingsScreen) => void;
+}
 
 /**
  * Settings item configuration (browser extension specific)

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { styled } from '@salmon/ui';
 import Box from '@mui/material/Box';
@@ -11,6 +11,8 @@ import {
   useRefreshOnFocus,
   useUserConfig,
   useCurrencyContext,
+  useLanguage,
+  useAddressbook,
   colors,
   spacing,
   fontFamily,
@@ -20,6 +22,9 @@ import {
   getMarketChart,
   getCoinInfo,
   coinInfoToMarketData,
+  SUPPORTED_CURRENCIES,
+  CURRENCY_MAP,
+  SUPPORT_OPTIONS,
   type BlockchainBalance,
   type BlockchainId,
   type NetworkId,
@@ -30,6 +35,16 @@ import {
   type Token,
   type NftData,
   type SettingsScreen,
+  type SettingsPanelEntry,
+  type CurrencySelectorItem,
+  type LanguageSelectorItem,
+  type ExplorerSelectorItem,
+  type TrustedAppItem,
+  type AddressBookItem,
+  type AddressInput,
+  type NetworkSelectorItem,
+  type NetworkAdapter,
+  type BlockchainType,
 } from '@salmon/shared';
 import {
   WalletHeader,
@@ -43,9 +58,28 @@ import {
   TokenAbout,
   ScalesBackground,
   ReceiveSheet,
-  SettingsSheet,
+  SettingsPanelStack,
   WalletSwitcherSheet,
   ConfirmDialog,
+  CurrencySelector,
+  LanguageSelector,
+  ExplorerSelector,
+  SupportSelector,
+  TrustedAppsSelector,
+  NetworkSelector,
+  AccountsPanel,
+  AccountEditPanel,
+  AccountNamePanel,
+  AccountAvatarPanel,
+  AccountAddPanel,
+  SecurityPanel,
+  BackupPanel,
+  PrivateKeyPanel,
+  AddressBookPanel,
+  AddressAddPanel,
+  AddressEditPanel,
+  AboutPanel,
+  type PanelRegistry,
 } from '@salmon/ui';
 
 import { CollectiblesTab } from './CollectiblesTab';
@@ -201,8 +235,9 @@ const TabButton = styled('button', {
 export function HomePage(): React.ReactElement {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [state, actions] = useAccountsContext();
-  const [{ currency }] = useCurrencyContext();
+  const [{ currency }, { changeCurrency }] = useCurrencyContext();
   const {
     ready,
     activeAccount,
@@ -211,6 +246,7 @@ export function HomePage(): React.ReactElement {
     accounts,
     accountId,
     switchingNetwork,
+    activeTrustedApps,
   } = state;
 
   // User configuration
@@ -222,7 +258,10 @@ export function HomePage(): React.ReactElement {
       },
     },
   });
-  const { developerNetworks, toggleDeveloperNetworks } = userConfig;
+  const { developerNetworks, toggleDeveloperNetworks, explorer, explorers, changeExplorer, isLoading: explorerLoading } = userConfig;
+
+  // Language
+  const { language: currentLanguage, availableLanguages, languageNames, changeLanguage } = useLanguage();
 
   // Available networks
   const { allNetworks: availableNetworks, networksReady } = useAvailableNetworks({
@@ -235,14 +274,38 @@ export function HomePage(): React.ReactElement {
     developerNetworks,
   });
 
+  // Address book
+  const networkAdapter: NetworkAdapter = useMemo(() => ({
+    getNetwork: async (id: string) => {
+      const found = (availableNetworks || []).find((n) => n.id === id);
+      if (!found) return undefined;
+      return { id: found.id, name: found.name, blockchain: found.id.split('-')[0] as BlockchainType };
+    },
+    getNetworks: async () =>
+      (availableNetworks || []).map((n) => ({ id: n.id, name: n.name, blockchain: n.id.split('-')[0] as BlockchainType })),
+  }), [availableNetworks]);
+  const [{ contacts }, { addContact, editContact: editAddressBookContact, removeContact }] = useAddressbook({ networkAdapter });
+
   // Tab & UI state
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [activeBlockchainIndex, setActiveBlockchainIndex] = useState(0);
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [settingsInitialPanels, setSettingsInitialPanels] = useState<SettingsPanelEntry[] | undefined>(undefined);
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const [editingContact, setEditingContact] = useState<AddressBookItem | null>(null);
+
+  // Open settings if redirected from /settings route
+  useEffect(() => {
+    if ((location.state as { openSettings?: boolean })?.openSettings) {
+      setSettingsVisible(true);
+      // Clear the state to avoid re-opening on re-render
+      window.history.replaceState({}, '');
+    }
+  }, [location.state]);
 
   // Bitcoin chart state
   const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
@@ -440,26 +503,199 @@ export function HomePage(): React.ReactElement {
   const handleReceivePress = useCallback(() => setReceiveSheetVisible(true), []);
   const handleActivityPress = useCallback(() => navigate('/activity'), [navigate]);
 
-  // Settings sheet → router navigation
-  const handleSettingsNavigate = useCallback((screen: SettingsScreen) => {
+  // Address book items
+  const addressBookItems: AddressBookItem[] = useMemo(
+    () => contacts.map((c) => ({
+      name: c.name, address: c.address,
+      networkId: c.network.id, networkName: c.network.name,
+      domain: c.domain,
+    })),
+    [contacts],
+  );
+
+  // Build panel registry for SettingsPanelStack
+  const panelRegistry: PanelRegistry = useMemo(() => ({
+    avatar: ({ onBack }) => <AccountAvatarPanel onBack={onBack} />,
+    backup: ({ onBack }) => <BackupPanel onBack={onBack} />,
+    privateKey: ({ onBack }) => <PrivateKeyPanel onBack={onBack} />,
+    currency: ({ onBack }) => {
+      const currencyItems: CurrencySelectorItem[] = SUPPORTED_CURRENCIES.map(
+        (code) => ({
+          code,
+          name: CURRENCY_MAP[code].name,
+          symbol: CURRENCY_MAP[code].symbol,
+        })
+      );
+      return (
+        <CurrencySelector
+          currencies={currencyItems}
+          activeCurrencyCode={currency}
+          onSelectCurrency={(code) => { changeCurrency(code as typeof currency); }}
+          onBack={onBack}
+        />
+      );
+    },
+    about: ({ onBack }) => <AboutPanel onBack={onBack} />,
+    support: ({ onBack }) => (
+      <SupportSelector
+        options={SUPPORT_OPTIONS}
+        onOpenLink={(url) => window.open(url, '_blank', 'noopener,noreferrer')}
+        onBack={onBack}
+      />
+    ),
+    language: ({ onBack }) => {
+      const languageItems: LanguageSelectorItem[] = availableLanguages.map(
+        (code) => ({
+          code,
+          nativeName: languageNames[code],
+        })
+      );
+      return (
+        <LanguageSelector
+          languages={languageItems}
+          activeLanguageCode={currentLanguage}
+          onSelectLanguage={(code) => { changeLanguage(code as typeof currentLanguage); }}
+          onBack={onBack}
+        />
+      );
+    },
+    explorer: ({ onBack }) => {
+      const explorerItems: ExplorerSelectorItem[] = explorers.map((e) => ({
+        key: e.key,
+        name: e.name,
+      }));
+      return (
+        <ExplorerSelector
+          explorers={explorerItems}
+          activeExplorerName={explorer?.name || ''}
+          onSelectExplorer={(key) => { changeExplorer(key); }}
+          onBack={onBack}
+          loading={explorerLoading}
+        />
+      );
+    },
+    network: ({ onBack }) => {
+      const userNetworks = activeAccount?.networksAccounts
+        ? allNetworks.filter((n) => Object.keys(activeAccount.networksAccounts!).includes(n.id))
+        : allNetworks;
+      const networkItems: NetworkSelectorItem[] = userNetworks.map((n) => ({
+        id: n.id, name: n.name, blockchain: n.id.split('-')[0],
+      }));
+      return (
+        <NetworkSelector
+          networks={networkItems}
+          activeNetworkId={networkId || 'solana-mainnet'}
+          onSelectNetwork={(id) => { actions.changeNetwork(id); }}
+          onBack={onBack}
+        />
+      );
+    },
+    addressBook: ({ onBack, onNavigate }) => (
+      <AddressBookPanel
+        contacts={addressBookItems}
+        activeNetworkId={networkId || 'solana-mainnet'}
+        onAddContact={() => onNavigate('address-book-add')}
+        onEditContact={(contact) => {
+          setEditingContact(contact);
+          onNavigate('address-book-edit');
+        }}
+        onRemoveContact={async (address) => { await removeContact(address); }}
+        onBack={onBack}
+      />
+    ),
+    'address-book-add': ({ onBack }) => {
+      const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
+      const blockchain = (networkId || 'solana-mainnet').split('-')[0];
+      return (
+        <AddressAddPanel
+          activeNetworkId={activeNet?.id || 'solana-mainnet'}
+          activeNetworkName={activeNet?.name || 'Solana Mainnet'}
+          activeBlockchain={blockchain}
+          onSave={async (input: AddressInput) => { await addContact(input); }}
+          onBack={onBack}
+        />
+      );
+    },
+    'address-book-edit': ({ onBack }) => {
+      if (!editingContact) return null;
+      const blockchain = (editingContact.networkId || 'solana-mainnet').split('-')[0];
+      return (
+        <AddressEditPanel
+          contact={editingContact}
+          activeBlockchain={blockchain}
+          onSave={async (originalAddress: string, input: AddressInput) => {
+            await editAddressBookContact(originalAddress, input);
+            setEditingContact(null);
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    trustedApps: ({ onBack }) => {
+      const trustedAppItems: TrustedAppItem[] = Object.entries(
+        activeTrustedApps || {}
+      ).map(([domain, app]) => ({
+        domain,
+        name: app.name,
+        icon: app.icon,
+      }));
+      return (
+        <TrustedAppsSelector
+          apps={trustedAppItems}
+          onRevokeApp={(domain) => { actions.removeTrustedApp(domain); }}
+          onBack={onBack}
+        />
+      );
+    },
+    security: ({ onBack }) => <SecurityPanel onBack={onBack} />,
+    accounts: ({ onBack, onNavigate }) => (
+      <AccountsPanel
+        onBack={onBack}
+        onEditAccount={(id) => {
+          setEditingAccountId(id);
+          onNavigate('account-edit', { accountId: id });
+        }}
+        onAddAccount={() => onNavigate('account-add')}
+      />
+    ),
+    'account-edit': ({ onBack, onNavigate, ...props }) => (
+      <AccountEditPanel
+        accountId={(props.accountId as string) || editingAccountId || accountId || ''}
+        onEditName={(id) => {
+          setEditingAccountId(id);
+          onNavigate('account-name', { accountId: id });
+        }}
+        onEditAvatar={() => onNavigate('avatar')}
+        onBackupSeed={() => onNavigate('backup')}
+        onExportPrivateKey={() => onNavigate('privateKey')}
+        onBack={onBack}
+      />
+    ),
+    'account-name': ({ onBack, ...props }) => (
+      <AccountNamePanel
+        accountId={(props.accountId as string) || editingAccountId || accountId || ''}
+        onBack={onBack}
+      />
+    ),
+    'account-add': ({ onBack }) => (
+      <AccountAddPanel
+        onComplete={onBack}
+        onBack={onBack}
+      />
+    ),
+  }), [
+    currency, changeCurrency, availableLanguages, currentLanguage, languageNames, changeLanguage,
+    explorers, explorer, changeExplorer, explorerLoading, addressBookItems,
+    networkId, allNetworks, addContact, editAddressBookContact, removeContact,
+    editingContact, activeTrustedApps, actions, editingAccountId, accountId,
+    activeAccount,
+  ]);
+
+  // Reset initialPanels after settings closes
+  const handleSettingsClose = useCallback(() => {
     setSettingsVisible(false);
-    const pageMap: Partial<Record<SettingsScreen, string>> = {
-      accounts: '/settings/accounts',
-      avatar: `/settings/account/${accountId}/avatar`,
-      security: '/settings/security',
-      backup: '/settings/backup',
-      language: '/settings/language',
-      currency: '/settings/currency',
-      explorer: '/settings/explorer',
-      addressBook: '/settings/address-book',
-      trustedApps: '/settings/trusted-apps',
-      about: '/settings/about',
-      support: '/settings/support',
-      privateKey: '/settings/private-key',
-    };
-    const targetPath = pageMap[screen];
-    if (targetPath) navigate(targetPath);
-  }, [navigate, accountId]);
+    setSettingsInitialPanels(undefined);
+  }, []);
 
   // Wallet switcher
   const handleSelectAccount = useCallback((targetAccountId: string) => {
@@ -620,10 +856,11 @@ export function HomePage(): React.ReactElement {
       </Main>
 
       {/* Overlays */}
-      <SettingsSheet
+      <SettingsPanelStack
         visible={settingsVisible}
-        onClose={() => setSettingsVisible(false)}
-        onNavigate={handleSettingsNavigate}
+        onClose={handleSettingsClose}
+        panelRegistry={panelRegistry}
+        initialPanels={settingsInitialPanels}
         developerNetworksEnabled={developerNetworks}
         onDeveloperNetworksToggle={toggleDeveloperNetworks}
         onRemoveWallet={() => { setSettingsVisible(false); setRemoveWalletDialogVisible(true); }}
@@ -637,7 +874,12 @@ export function HomePage(): React.ReactElement {
         activeAccountId={accountId || ''}
         onSelectAccount={handleSelectAccount}
         onAddAccount={handleAddAccount}
-        onEditAccount={(_id) => { setWalletSwitcherVisible(false); navigate(`/settings/accounts`); }}
+        onEditAccount={(id) => {
+          setWalletSwitcherVisible(false);
+          setEditingAccountId(id);
+          setSettingsInitialPanels([{ screen: 'accounts' }, { screen: 'account-edit', props: { accountId: id } }]);
+          setSettingsVisible(true);
+        }}
         onDeleteAccount={handleDeleteAccount}
       />
 

@@ -83,26 +83,8 @@ export const router = createBrowserRouter([
           // Send
           { path: '/send', lazy: () => import('./pages/home/SendRoute').then((m) => ({ Component: m.SendRoute })) },
 
-          // Settings
+          // Settings (redirects to /home and opens SettingsPanelStack drawer)
           { path: '/settings', lazy: () => import('./pages/settings/SettingsPage').then((m) => ({ Component: m.SettingsPage })) },
-          { path: '/settings/language', lazy: () => import('./pages/settings').then((m) => ({ Component: m.LanguagePage })) },
-          { path: '/settings/currency', lazy: () => import('./pages/settings').then((m) => ({ Component: m.CurrencyPage })) },
-          { path: '/settings/explorer', lazy: () => import('./pages/settings').then((m) => ({ Component: m.ExplorerPage })) },
-          { path: '/settings/trusted-apps', lazy: () => import('./pages/settings').then((m) => ({ Component: m.TrustedAppsPage })) },
-          { path: '/settings/support', lazy: () => import('./pages/settings').then((m) => ({ Component: m.SupportPage })) },
-          { path: '/settings/network', lazy: () => import('./pages/settings').then((m) => ({ Component: m.NetworkPage })) },
-          { path: '/settings/accounts', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AccountsRoute })) },
-          { path: '/settings/account/:id', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AccountEditRoute })) },
-          { path: '/settings/account/:id/name', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AccountNameRoute })) },
-          { path: '/settings/account/:id/avatar', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AccountAvatarRoute })) },
-          { path: '/settings/account-add', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AccountAddRoute })) },
-          { path: '/settings/security', lazy: () => import('./pages/settings').then((m) => ({ Component: m.SecurityRoute })) },
-          { path: '/settings/backup', lazy: () => import('./pages/settings').then((m) => ({ Component: m.BackupRoute })) },
-          { path: '/settings/private-key', lazy: () => import('./pages/settings').then((m) => ({ Component: m.PrivateKeyRoute })) },
-          { path: '/settings/address-book', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AddressBookRoute })) },
-          { path: '/settings/address-book/add', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AddressAddRoute })) },
-          { path: '/settings/address-book/edit', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AddressEditRoute })) },
-          { path: '/settings/about', lazy: () => import('./pages/settings').then((m) => ({ Component: m.AboutRoute })) },
           { path: '/settings/*', element: <Navigate to="/settings" replace /> },
         ],
       },

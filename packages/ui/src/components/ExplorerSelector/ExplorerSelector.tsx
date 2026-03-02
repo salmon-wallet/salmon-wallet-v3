@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type ExplorerSelectorBaseProps, type ExplorerSelectorItem } from '@salmon/shared';
-import { SettingsPageLayout } from '../SettingsPageLayout';
+import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
 
 export function ExplorerSelector({
@@ -19,7 +19,7 @@ export function ExplorerSelector({
   );
 
   return (
-    <SettingsPageLayout
+    <SettingsPanelContent
       title={t('settings.explorer', 'Block Explorer')}
       onBack={onBack}
     >
@@ -32,7 +32,7 @@ export function ExplorerSelector({
         loading={loading}
         emptyMessage={t('common.no_explorers', 'No explorers available for this network')}
       />
-    </SettingsPageLayout>
+    </SettingsPanelContent>
   );
 }
 

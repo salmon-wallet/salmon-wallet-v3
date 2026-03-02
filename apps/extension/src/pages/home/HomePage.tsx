@@ -17,6 +17,7 @@ import {
   spacing,
   fontFamily,
   type SettingsScreen,
+  type SettingsPanelEntry,
   type BlockchainBalance,
   type BlockchainId,
   type NetworkId,
@@ -69,7 +70,7 @@ import {
   TransactionHistoryPage,
   TransactionDetailModal,
   ReceiveSheet,
-  SettingsSheet,
+  SettingsPanelStack,
   WalletSwitcherSheet,
   ConfirmDialog,
   ScalesBackground,
@@ -80,18 +81,19 @@ import {
   TrustedAppsSelector,
   SupportSelector,
   CurrencySelector,
-  AccountsPage,
-  AccountEditPage,
-  AccountNamePage,
-  AccountAvatarPage,
-  AccountAddPage,
-  SecurityPage,
-  BackupPage,
-  PrivateKeyPage,
-  AddressBookPage,
-  AddressAddPage,
-  AddressEditPage,
-  AboutPage,
+  AccountsPanel,
+  AccountEditPanel,
+  AccountNamePanel,
+  AccountAvatarPanel,
+  AccountAddPanel,
+  SecurityPanel,
+  BackupPanel,
+  PrivateKeyPanel,
+  AddressBookPanel,
+  AddressAddPanel,
+  AddressEditPanel,
+  AboutPanel,
+  type PanelRegistry,
 } from '../../components';
 import IconButton from '@mui/material/IconButton';
 
@@ -116,24 +118,7 @@ type PageView =
   | 'nftDetail'
   | 'nftSeeAll'
   | 'activity'
-  | 'send'
-  | 'backup'
-  | 'currency'
-  | 'about'
-  | 'language'
-  | 'explorer'
-  | 'addressBook'
-  | 'addressBookAdd'
-  | 'addressBookEdit'
-  | 'trustedApps'
-  | 'security'
-  | 'support'
-  | 'privateKey'
-  | 'avatar'
-  | 'accounts'
-  | 'accountEdit'
-  | 'accountName'
-  | 'accountAdd';
+  | 'send';
 
 // Network ID → BlockchainId mapping for carousel theming
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
@@ -385,6 +370,9 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
+  // Settings panel stack state (for deep-linking from WalletSwitcher)
+  const [settingsInitialPanels, setSettingsInitialPanels] = useState<SettingsPanelEntry[] | undefined>(undefined);
+
   // Edit account navigation state
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
 
@@ -538,40 +526,12 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
   }, [activeBlockchainAccount]);
 
   const handleSettingsPress = useCallback(() => {
+    setSettingsInitialPanels(undefined);
     setSettingsVisible(true);
   }, []);
 
   const handleWalletPress = useCallback(() => {
     setWalletSwitcherVisible(true);
-  }, []);
-
-  /**
-   * Handle navigation from SettingsSheet to specific settings pages
-   */
-  const handleSettingsNavigate = useCallback((screen: SettingsScreen) => {
-    setSettingsVisible(false);
-
-    // Map SettingsScreen to PageView
-    // Note: 'removeWallet' and 'removeAll' are handled separately via callbacks
-    const pageMap: Partial<Record<SettingsScreen, PageView>> = {
-      accounts: 'accounts',
-      avatar: 'avatar',
-      security: 'security',
-      backup: 'backup',
-      language: 'language',
-      currency: 'currency',
-      explorer: 'explorer',
-      addressBook: 'addressBook',
-      trustedApps: 'trustedApps',
-      about: 'about',
-      support: 'support',
-      privateKey: 'privateKey',
-    };
-
-    const targetPage = pageMap[screen];
-    if (targetPage) {
-      setCurrentPage(targetPage);
-    }
   }, []);
 
   /**
@@ -623,13 +583,15 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
 
   const handleAddAccount = useCallback(() => {
     setWalletSwitcherVisible(false);
-    setCurrentPage('accountAdd');
+    setSettingsInitialPanels([{ screen: 'account-add' }]);
+    setSettingsVisible(true);
   }, []);
 
   const handleEditAccount = useCallback((targetAccountId: string) => {
     setEditingAccountId(targetAccountId);
     setWalletSwitcherVisible(false);
-    setCurrentPage('accountEdit');
+    setSettingsInitialPanels([{ screen: 'accounts' }, { screen: 'account-edit', props: { accountId: targetAccountId } }]);
+    setSettingsVisible(true);
   }, []);
 
   const handleDeleteAccount = useCallback(async (targetAccountId: string) => {
@@ -988,6 +950,185 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
 
   const accountName = activeAccount?.name || t('home.unnamed_account', 'Account');
 
+  // Build panel registry for SettingsPanelStack
+  const panelRegistry: PanelRegistry = useMemo(() => ({
+    avatar: ({ onBack }) => <AccountAvatarPanel onBack={onBack} />,
+    backup: ({ onBack }) => <BackupPanel onBack={onBack} />,
+    privateKey: ({ onBack }) => <PrivateKeyPanel onBack={onBack} />,
+    currency: ({ onBack }) => {
+      const currencyItems: CurrencySelectorItem[] = SUPPORTED_CURRENCIES.map(
+        (code) => ({
+          code,
+          name: CURRENCY_MAP[code].name,
+          symbol: CURRENCY_MAP[code].symbol,
+        })
+      );
+      return (
+        <CurrencySelector
+          currencies={currencyItems}
+          activeCurrencyCode={currency}
+          onSelectCurrency={(code) => {
+            changeCurrency(code as CurrencyCode);
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    about: ({ onBack }) => <AboutPanel onBack={onBack} />,
+    support: ({ onBack }) => (
+      <SupportSelector
+        options={SUPPORT_OPTIONS}
+        onOpenLink={(url) => window.open(url, '_blank', 'noopener,noreferrer')}
+        onBack={onBack}
+      />
+    ),
+    language: ({ onBack }) => {
+      const languageItems: LanguageSelectorItem[] = supportedLanguages.map(
+        (lang) => ({
+          code: lang,
+          nativeName: LANGUAGE_NAMES[lang as LanguageCode] || lang,
+        })
+      );
+      return (
+        <LanguageSelector
+          languages={languageItems}
+          activeLanguageCode={currentLanguage}
+          onSelectLanguage={(code) => {
+            setLanguage(code as LanguageCode);
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    explorer: ({ onBack }) => {
+      const explorerItems: ExplorerSelectorItem[] = explorers.map((e) => ({
+        key: e.key,
+        name: e.name,
+      }));
+      return (
+        <ExplorerSelector
+          explorers={explorerItems}
+          activeExplorerName={explorer?.name || ''}
+          onSelectExplorer={(key) => {
+            changeExplorer(key);
+          }}
+          onBack={onBack}
+          loading={explorerLoading}
+        />
+      );
+    },
+    addressBook: ({ onBack, onNavigate }) => (
+      <AddressBookPanel
+        contacts={addressBookItems}
+        activeNetworkId={networkId || 'solana-mainnet'}
+        onAddContact={() => onNavigate('address-book-add')}
+        onEditContact={(contact) => {
+          setEditingContact(contact);
+          onNavigate('address-book-edit');
+        }}
+        onRemoveContact={async (address) => {
+          await removeContact(address);
+        }}
+        onBack={onBack}
+      />
+    ),
+    'address-book-add': ({ onBack }) => {
+      const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
+      const blockchain = (networkId || 'solana-mainnet').split('-')[0];
+      return (
+        <AddressAddPanel
+          activeNetworkId={activeNet?.id || 'solana-mainnet'}
+          activeNetworkName={activeNet?.name || 'Solana Mainnet'}
+          activeBlockchain={blockchain}
+          onSave={async (input: AddressInput) => {
+            await addContact(input);
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    'address-book-edit': ({ onBack }) => {
+      if (!editingContact) return null;
+      const blockchain = (editingContact.networkId || 'solana-mainnet').split('-')[0];
+      return (
+        <AddressEditPanel
+          contact={editingContact}
+          activeBlockchain={blockchain}
+          onSave={async (originalAddress: string, input: AddressInput) => {
+            await editAddressBookContact(originalAddress, input);
+            setEditingContact(null);
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    trustedApps: ({ onBack }) => {
+      const trustedAppItems: TrustedAppItem[] = Object.entries(
+        activeTrustedApps || {}
+      ).map(([domain, app]) => ({
+        domain,
+        name: app.name,
+        icon: app.icon,
+      }));
+      return (
+        <TrustedAppsSelector
+          apps={trustedAppItems}
+          onRevokeApp={(domain) => {
+            actions.removeTrustedApp(domain);
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    security: ({ onBack }) => <SecurityPanel onBack={onBack} />,
+    accounts: ({ onBack, onNavigate }) => (
+      <AccountsPanel
+        onBack={onBack}
+        onEditAccount={(id) => {
+          setEditingAccountId(id);
+          onNavigate('account-edit', { accountId: id });
+        }}
+        onAddAccount={() => onNavigate('account-add')}
+      />
+    ),
+    'account-edit': ({ onBack, onNavigate, ...props }) => (
+      <AccountEditPanel
+        accountId={(props.accountId as string) || editingAccountId || accountId || ''}
+        onEditName={(id) => {
+          setEditingAccountId(id);
+          onNavigate('account-name', { accountId: id });
+        }}
+        onEditAvatar={() => onNavigate('avatar')}
+        onBackupSeed={() => onNavigate('backup')}
+        onExportPrivateKey={() => onNavigate('privateKey')}
+        onBack={onBack}
+      />
+    ),
+    'account-name': ({ onBack, ...props }) => (
+      <AccountNamePanel
+        accountId={(props.accountId as string) || editingAccountId || accountId || ''}
+        onBack={onBack}
+      />
+    ),
+    'account-add': ({ onBack }) => (
+      <AccountAddPanel
+        onComplete={onBack}
+        onBack={onBack}
+      />
+    ),
+  }), [
+    currency, changeCurrency, supportedLanguages, currentLanguage, setLanguage,
+    explorers, explorer, changeExplorer, explorerLoading, addressBookItems,
+    networkId, allNetworks, addContact, editAddressBookContact, removeContact,
+    editingContact, activeTrustedApps, actions, editingAccountId, accountId,
+  ]);
+
+  // Reset initialPanels after settings closes
+  const handleSettingsClose = useCallback(() => {
+    setSettingsVisible(false);
+    setSettingsInitialPanels(undefined);
+  }, []);
+
   // Render settings pages based on current page view
   if (currentPage !== 'home') {
     switch (currentPage) {
@@ -1100,192 +1241,8 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
             />
           </>
         );
-      case 'avatar':
-        return <AccountAvatarPage onBack={handleBack} />;
-      case 'backup':
-        return <BackupPage onBack={handleBack} />;
-      case 'privateKey':
-        return <PrivateKeyPage onBack={handleBack} />;
-      case 'currency': {
-        const currencyItems: CurrencySelectorItem[] = SUPPORTED_CURRENCIES.map(
-          (code) => ({
-            code,
-            name: CURRENCY_MAP[code].name,
-            symbol: CURRENCY_MAP[code].symbol,
-          })
-        );
-        return (
-          <CurrencySelector
-            currencies={currencyItems}
-            activeCurrencyCode={currency}
-            onSelectCurrency={(code) => {
-              changeCurrency(code as CurrencyCode);
-              setCurrentPage('home');
-            }}
-            onBack={handleBack}
-          />
-        );
-      }
-      case 'about':
-        return <AboutPage onBack={handleBack} />;
-      case 'support':
-        return (
-          <SupportSelector
-            options={SUPPORT_OPTIONS}
-            onOpenLink={(url) => window.open(url, '_blank', 'noopener,noreferrer')}
-            onBack={handleBack}
-          />
-        );
-      case 'language': {
-        const languageItems: LanguageSelectorItem[] = supportedLanguages.map(
-          (lang) => ({
-            code: lang,
-            nativeName: LANGUAGE_NAMES[lang as LanguageCode] || lang,
-          })
-        );
-        return (
-          <LanguageSelector
-            languages={languageItems}
-            activeLanguageCode={currentLanguage}
-            onSelectLanguage={(code) => {
-              setLanguage(code as LanguageCode);
-              setCurrentPage('home');
-            }}
-            onBack={handleBack}
-          />
-        );
-      }
-      case 'explorer': {
-        const explorerItems: ExplorerSelectorItem[] = explorers.map((e) => ({
-          key: e.key,
-          name: e.name,
-        }));
-        return (
-          <ExplorerSelector
-            explorers={explorerItems}
-            activeExplorerName={explorer?.name || ''}
-            onSelectExplorer={(key) => {
-              changeExplorer(key);
-              setCurrentPage('home');
-            }}
-            onBack={handleBack}
-            loading={explorerLoading}
-          />
-        );
-      }
-      case 'addressBook': {
-        return (
-          <AddressBookPage
-            contacts={addressBookItems}
-            activeNetworkId={networkId || 'solana-mainnet'}
-            onAddContact={() => setCurrentPage('addressBookAdd')}
-            onEditContact={(contact) => {
-              setEditingContact(contact);
-              setCurrentPage('addressBookEdit');
-            }}
-            onRemoveContact={async (address) => {
-              await removeContact(address);
-            }}
-            onBack={handleBack}
-          />
-        );
-      }
-      case 'addressBookAdd': {
-        const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
-        const blockchain = (networkId || 'solana-mainnet').split('-')[0];
-        return (
-          <AddressAddPage
-            activeNetworkId={activeNet?.id || 'solana-mainnet'}
-            activeNetworkName={activeNet?.name || 'Solana Mainnet'}
-            activeBlockchain={blockchain}
-            onSave={async (input: AddressInput) => {
-              await addContact(input);
-              setCurrentPage('addressBook');
-            }}
-            onBack={() => setCurrentPage('addressBook')}
-          />
-        );
-      }
-      case 'addressBookEdit': {
-        if (!editingContact) {
-          setCurrentPage('addressBook');
-          return null;
-        }
-        const blockchain = (editingContact.networkId || 'solana-mainnet').split('-')[0];
-        return (
-          <AddressEditPage
-            contact={editingContact}
-            activeBlockchain={blockchain}
-            onSave={async (originalAddress: string, input: AddressInput) => {
-              await editAddressBookContact(originalAddress, input);
-              setEditingContact(null);
-              setCurrentPage('addressBook');
-            }}
-            onBack={() => setCurrentPage('addressBook')}
-          />
-        );
-      }
-      case 'trustedApps': {
-        const trustedAppItems: TrustedAppItem[] = Object.entries(
-          activeTrustedApps || {}
-        ).map(([domain, app]) => ({
-          domain,
-          name: app.name,
-          icon: app.icon,
-        }));
-        return (
-          <TrustedAppsSelector
-            apps={trustedAppItems}
-            onRevokeApp={(domain) => {
-              actions.removeTrustedApp(domain);
-            }}
-            onBack={handleBack}
-          />
-        );
-      }
-      case 'security':
-        return <SecurityPage onBack={handleBack} />;
-      case 'accounts':
-        return (
-          <AccountsPage
-            onBack={handleBack}
-            onEditAccount={(id) => {
-              setEditingAccountId(id);
-              setCurrentPage('accountEdit');
-            }}
-            onAddAccount={() => setCurrentPage('accountAdd')}
-          />
-        );
-      case 'accountEdit':
-        return (
-          <AccountEditPage
-            accountId={editingAccountId || accountId || ''}
-            onEditName={(id) => {
-              setEditingAccountId(id);
-              setCurrentPage('accountName');
-            }}
-            onEditAvatar={() => setCurrentPage('avatar')}
-            onBackupSeed={() => setCurrentPage('backup')}
-            onExportPrivateKey={() => setCurrentPage('privateKey')}
-            onBack={handleBack}
-          />
-        );
-      case 'accountName':
-        return (
-          <AccountNamePage
-            accountId={editingAccountId || accountId || ''}
-            onBack={() => setCurrentPage('accountEdit')}
-          />
-        );
-      case 'accountAdd':
-        return (
-          <AccountAddPage
-            onComplete={() => setCurrentPage('home')}
-            onBack={handleBack}
-          />
-        );
       default:
-        return <PlaceholderPage title="Settings" onBack={handleBack} />;
+        return <PlaceholderPage title="Page" onBack={handleBack} />;
     }
   }
 
@@ -1420,11 +1377,12 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
         </TabContent>
       </Main>
 
-      {/* Settings Sheet */}
-      <SettingsSheet
+      {/* Settings Panel Stack */}
+      <SettingsPanelStack
         visible={settingsVisible}
-        onClose={() => setSettingsVisible(false)}
-        onNavigate={handleSettingsNavigate}
+        onClose={handleSettingsClose}
+        panelRegistry={panelRegistry}
+        initialPanels={settingsInitialPanels}
         developerNetworksEnabled={developerNetworks}
         onDeveloperNetworksToggle={toggleDeveloperNetworks}
         onRemoveWallet={handleRemoveWallet}

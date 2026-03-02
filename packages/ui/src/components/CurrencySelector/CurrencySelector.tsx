@@ -10,7 +10,7 @@ import {
   type CurrencySelectorBaseProps,
   type CurrencySelectorItem,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../SettingsPageLayout';
+import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
 
 // ============================================================================
@@ -52,7 +52,7 @@ export function CurrencySelector({
   );
 
   return (
-    <SettingsPageLayout
+    <SettingsPanelContent
       title={t('settings.currency', 'Display Currency')}
       onBack={onBack}
     >
@@ -69,7 +69,7 @@ export function CurrencySelector({
           </CurrencySymbol>
         )}
       />
-    </SettingsPageLayout>
+    </SettingsPanelContent>
   );
 }
 

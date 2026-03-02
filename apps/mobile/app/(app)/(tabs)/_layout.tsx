@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
-import { Tabs, useRouter, type Href } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,10 +10,31 @@ import { useTranslation } from 'react-i18next';
 import {
   useAccountsContext,
   useUserConfig,
+  useAvailableNetworks,
+  useCurrencyContext,
+  useAddressbook,
+  useOpenLink,
+  buildNetworkListFromAccount,
+  SUPPORTED_CURRENCIES,
+  CURRENCY_MAP,
+  SUPPORT_OPTIONS,
+  LANGUAGE_NAMES,
   colors,
   componentSizes,
   getStashItem,
   STASH_KEYS,
+  type SettingsPanelEntry,
+  type AddressBookItem,
+  type AddressInput,
+  type CurrencyCode,
+  type LanguageCode,
+  type ExplorerSelectorItem,
+  type NetworkSelectorItem,
+  type TrustedAppItem,
+  type LanguageSelectorItem,
+  type CurrencySelectorItem,
+  type NetworkAdapter,
+  type BlockchainType,
 } from '@salmon/shared';
 import {
   GlassTabBar,
@@ -21,29 +42,46 @@ import {
   SettingsSheet,
   WalletSwitcherSheet,
   ScalesBackground,
+  LanguageSelector,
+  ExplorerSelector,
+  NetworkSelector,
+  TrustedAppsSelector,
+  SupportSelector,
+  AddressBookSelector,
+  AddressBookAdd,
+  AddressBookEdit,
+  AvatarPicker,
+  AccountsPanel,
+  AccountEditPanel,
+  AccountNamePanel,
+  AccountAddPanel,
+  SecurityPanel,
+  PrivateKeyReveal,
+  BackupPanel,
+  AboutPanel,
+  type MobilePanelRegistry,
 } from '../../../src/components';
+import { useLanguage } from '../../../src/i18n';
+import { useBiometricAuth } from '../../../hooks/useBiometricAuth';
 
 /**
  * Tab Layout for Salmon Wallet
  *
  * Renders shared chrome (header, background, gradient, sheets) once for all tabs.
  * Individual tab screens only render their own content.
- *
- * Shared chrome:
- * - WalletHeader (absolutely positioned, top)
- * - ScalesBackground (decorative pattern)
- * - Bottom fade gradient (smooth transition before tab bar)
- * - GlassTabBar (pill-shaped tab bar, bottom)
- * - SettingsSheet / WalletSwitcherSheet (modals)
  */
 export default function TabLayout() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const openLink = useOpenLink();
 
   // Shared UI state
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [settingsInitialPanels, setSettingsInitialPanels] = useState<SettingsPanelEntry[] | undefined>(undefined);
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const [editingContact, setEditingContact] = useState<AddressBookItem | null>(null);
 
   // Account context
   const [accountState, accountActions] = useAccountsContext();
@@ -53,9 +91,10 @@ export default function TabLayout() {
     activeAccount,
     activeBlockchainAccount,
     networkId,
+    activeTrustedApps,
   } = accountState;
 
-  // User configuration (developer networks toggle)
+  // User configuration
   const userConfigAccount = activeBlockchainAccount
     ? {
         network: {
@@ -69,13 +108,306 @@ export default function TabLayout() {
           blockchain: 'solana',
         },
       };
-  const { developerNetworks, toggleDeveloperNetworks } = useUserConfig({
+  const { developerNetworks, toggleDeveloperNetworks, explorer, explorers, changeExplorer, isLoading: explorerLoading } = useUserConfig({
     activeBlockchainAccount: userConfigAccount,
   });
+
+  // Language
+  const { currentLanguage, availableLanguages, changeLanguage } = useLanguage();
+
+  // Currency
+  const [{ currency }, { changeCurrency }] = useCurrencyContext();
+
+  // Available networks
+  const { allNetworks } = useAvailableNetworks({
+    activeBlockchainAccount: userConfigAccount,
+    developerNetworks,
+  });
+
+  // Address book
+  const networkAdapter: NetworkAdapter = useMemo(() => ({
+    getNetwork: async (id: string) => {
+      const found = allNetworks.find((n) => n.id === id);
+      if (!found) return undefined;
+      return { id: found.id, name: found.name, blockchain: found.id.split('-')[0] as BlockchainType };
+    },
+    getNetworks: async () =>
+      allNetworks.map((n) => ({ id: n.id, name: n.name, blockchain: n.id.split('-')[0] as BlockchainType })),
+  }), [allNetworks]);
+  const [{ contacts, isLoading: addressBookLoading }, { addContact, editContact: editAddressBookContact, removeContact }] = useAddressbook({ networkAdapter });
+
+  // Biometric auth (for security and private key screens)
+  const {
+    state: biometricState,
+    enableBiometric,
+    setEnableBiometric,
+    authenticateWithBiometric,
+  } = useBiometricAuth();
 
   // Derived values
   const accountName = activeAccount?.name || 'Account';
   const address = activeBlockchainAccount?.getReceiveAddress() || '';
+
+  // Address book items
+  const addressBookItems: AddressBookItem[] = useMemo(
+    () => contacts.map((c) => ({
+      name: c.name, address: c.address,
+      networkId: c.network.id, networkName: c.network.name,
+      domain: c.domain,
+    })),
+    [contacts],
+  );
+
+  // -- Panel Registry for SettingsPanelStack --
+
+  const panelRegistry: MobilePanelRegistry = useMemo(() => ({
+    avatar: ({ onBack }) => {
+      if (!activeAccount) return null;
+      return (
+        <AvatarPicker
+          currentAvatarUrl={activeAccount.avatar}
+          account={activeAccount}
+          onSave={async (avatarUrl: string) => {
+            await accountActions.editAccount(activeAccount.id, { avatar: avatarUrl });
+            onBack();
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    security: ({ onBack }) => (
+      <SecurityPanel
+        onBack={onBack}
+        isBiometricAvailable={biometricState.isAvailable && biometricState.isEnrolled}
+        isBiometricEnabled={enableBiometric}
+        onToggleBiometric={async (enabled: boolean) => { await setEnableBiometric(enabled); }}
+      />
+    ),
+    privateKey: ({ onBack }) => {
+      if (!activeAccount) return null;
+      const networks = buildNetworkListFromAccount(activeAccount);
+      return (
+        <PrivateKeyReveal
+          networks={networks}
+          activeAccount={activeAccount}
+          onBack={onBack}
+          biometricAvailable={biometricState.isAvailable && biometricState.hasStoredKey}
+          authenticateWithBiometric={authenticateWithBiometric}
+        />
+      );
+    },
+    language: ({ onBack }) => {
+      const languageItems: LanguageSelectorItem[] = availableLanguages.map(
+        (item) => ({
+          code: item.code,
+          nativeName: LANGUAGE_NAMES[item.code as LanguageCode] || item.code,
+        })
+      );
+      return (
+        <LanguageSelector
+          languages={languageItems}
+          activeLanguageCode={currentLanguage}
+          onSelectLanguage={async (code: string) => {
+            await changeLanguage(code as LanguageCode);
+            onBack();
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    currency: ({ onBack }) => {
+      const currencyItems: CurrencySelectorItem[] = SUPPORTED_CURRENCIES.map(
+        (code) => ({
+          code,
+          name: CURRENCY_MAP[code].name,
+          symbol: CURRENCY_MAP[code].symbol,
+        })
+      );
+      // Use a simple LanguageSelector-like pattern; mobile CurrencySelector
+      // is handled by the shared CurrencySelector UI
+      return (
+        <LanguageSelector
+          languages={currencyItems.map((c) => ({ code: c.code, nativeName: `${c.symbol} ${c.name}` }))}
+          activeLanguageCode={currency}
+          onSelectLanguage={async (code: string) => {
+            await changeCurrency(code as CurrencyCode);
+            onBack();
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    explorer: ({ onBack }) => {
+      const explorerItems: ExplorerSelectorItem[] = explorers.map((e) => ({
+        key: e.key,
+        name: e.name,
+      }));
+      return (
+        <ExplorerSelector
+          explorers={explorerItems}
+          activeExplorerName={explorer?.name || ''}
+          onSelectExplorer={async (key: string) => {
+            await changeExplorer(key);
+            onBack();
+          }}
+          onBack={onBack}
+          loading={explorerLoading}
+        />
+      );
+    },
+    network: ({ onBack }) => {
+      const userNetworks = activeAccount?.networksAccounts
+        ? allNetworks.filter((n) => Object.keys(activeAccount.networksAccounts!).includes(n.id))
+        : allNetworks;
+      const networkItems: NetworkSelectorItem[] = userNetworks.map((n) => ({
+        id: n.id, name: n.name, blockchain: n.id.split('-')[0],
+      }));
+      return (
+        <NetworkSelector
+          networks={networkItems}
+          activeNetworkId={networkId || 'solana-mainnet'}
+          onSelectNetwork={(id: string) => {
+            accountActions.changeNetwork(id);
+            onBack();
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    addressBook: ({ onBack, onNavigate }) => (
+      <AddressBookSelector
+        contacts={addressBookItems}
+        activeNetworkId={networkId || 'solana-mainnet'}
+        onAddContact={() => onNavigate('address-book-add')}
+        onEditContact={(contact: AddressBookItem) => {
+          setEditingContact(contact);
+          onNavigate('address-book-edit');
+        }}
+        onRemoveContact={async (addr: string) => { await removeContact(addr); }}
+        onBack={onBack}
+        loading={addressBookLoading}
+      />
+    ),
+    'address-book-add': ({ onBack }) => {
+      const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
+      const blockchain = (networkId || 'solana-mainnet').split('-')[0];
+      return (
+        <AddressBookAdd
+          activeNetworkId={activeNet?.id || 'solana-mainnet'}
+          activeNetworkName={activeNet?.name || 'Solana Mainnet'}
+          activeBlockchain={blockchain}
+          onSave={async (input: AddressInput) => {
+            await addContact(input);
+            onBack();
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    'address-book-edit': ({ onBack }) => {
+      if (!editingContact) return null;
+      const blockchain = (editingContact.networkId || 'solana-mainnet').split('-')[0];
+      return (
+        <AddressBookEdit
+          contact={editingContact}
+          activeBlockchain={blockchain}
+          onSave={async (originalAddress: string, input: AddressInput) => {
+            await editAddressBookContact(originalAddress, input);
+            setEditingContact(null);
+            onBack();
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    trustedApps: ({ onBack }) => {
+      const trustedAppItems: TrustedAppItem[] = Object.entries(
+        activeTrustedApps || {}
+      ).map(([domain, app]) => ({
+        domain,
+        name: app.name,
+        icon: app.icon,
+      }));
+      return (
+        <TrustedAppsSelector
+          apps={trustedAppItems}
+          onRevokeApp={async (domain: string) => { await accountActions.removeTrustedApp(domain); }}
+          onBack={onBack}
+        />
+      );
+    },
+    support: ({ onBack }) => (
+      <SupportSelector
+        options={SUPPORT_OPTIONS}
+        onOpenLink={openLink}
+        onBack={onBack}
+      />
+    ),
+    accounts: ({ onBack, onNavigate }) => (
+      <AccountsPanel
+        accounts={accounts}
+        activeAccountId={activeAccount?.id || ''}
+        onSelectAccount={(id: string) => accountActions.changeAccount(id)}
+        onEditAccount={(id: string) => {
+          setEditingAccountId(id);
+          onNavigate('account-edit', { accountId: id });
+        }}
+        onDeleteAccount={(id: string) => accountActions.removeAccount(id)}
+        onAddAccount={() => onNavigate('account-add')}
+        onBack={onBack}
+      />
+    ),
+    'account-edit': ({ onBack, onNavigate, ...props }) => {
+      const targetId = (props.accountId as string) || editingAccountId || accountId || '';
+      const account = accounts.find((a) => a.id === targetId) || activeAccount;
+      if (!account) return null;
+      return (
+        <AccountEditPanel
+          account={account}
+          onEditName={() => {
+            setEditingAccountId(account.id);
+            onNavigate('account-name', { accountId: account.id });
+          }}
+          onEditAvatar={() => onNavigate('avatar')}
+          onBackupSeed={() => onNavigate('backup')}
+          onExportPrivateKey={() => onNavigate('privateKey')}
+          onBack={onBack}
+        />
+      );
+    },
+    'account-name': ({ onBack, ...props }) => {
+      const targetId = (props.accountId as string) || editingAccountId || accountId || '';
+      const account = accounts.find((a) => a.id === targetId) || activeAccount;
+      if (!account) return null;
+      return (
+        <AccountNamePanel
+          currentName={account.name}
+          onSave={async (name: string) => {
+            await accountActions.editAccount(account.id, { name });
+            onBack();
+          }}
+          onBack={onBack}
+        />
+      );
+    },
+    'account-add': ({ onBack }) => (
+      <AccountAddPanel onComplete={onBack} onBack={onBack} />
+    ),
+    backup: ({ onBack }) => (
+      <BackupPanel onBack={onBack} />
+    ),
+    about: ({ onBack }) => (
+      <AboutPanel onBack={onBack} />
+    ),
+  }), [
+    activeAccount, accountActions, accounts, accountId, networkId, allNetworks,
+    biometricState, enableBiometric, setEnableBiometric, authenticateWithBiometric,
+    currentLanguage, availableLanguages, changeLanguage,
+    currency, changeCurrency,
+    explorers, explorer, changeExplorer, explorerLoading,
+    addressBookItems, addressBookLoading, addContact, editAddressBookContact, removeContact,
+    editingContact, editingAccountId, activeTrustedApps, openLink,
+  ]);
 
   // -- Header handlers --
 
@@ -88,12 +420,8 @@ export default function TabLayout() {
 
   const handleSettingsClose = useCallback(() => {
     setSettingsVisible(false);
+    setSettingsInitialPanels(undefined);
   }, []);
-
-  const handleSettingsNavigate = useCallback((screen: string) => {
-    setSettingsVisible(false);
-    router.push(`/(app)/settings/${screen}` as Href);
-  }, [router]);
 
   // -- Wallet Switcher handlers --
 
@@ -108,16 +436,17 @@ export default function TabLayout() {
 
   const handleAddAccount = useCallback(() => {
     setWalletSwitcherVisible(false);
-    router.push('/(app)/settings/account-add' as Href);
-  }, [router]);
+    setEditingAccountId(null);
+    setSettingsInitialPanels([{ screen: 'account-add' }]);
+    setSettingsVisible(true);
+  }, []);
 
   const handleEditAccount = useCallback((id: string) => {
     setWalletSwitcherVisible(false);
-    router.push({
-      pathname: '/(app)/settings/account-edit',
-      params: { accountId: id },
-    } as unknown as Href);
-  }, [router]);
+    setEditingAccountId(id);
+    setSettingsInitialPanels([{ screen: 'accounts' }, { screen: 'account-edit', props: { accountId: id } }]);
+    setSettingsVisible(true);
+  }, []);
 
   const handleDeleteAccount = useCallback(async (id: string) => {
     await accountActions.removeAccount(id);
@@ -140,10 +469,7 @@ export default function TabLayout() {
               router.replace('/(auth)');
             } catch (error) {
               console.error('Failed to remove all wallets:', error);
-              Alert.alert(
-                t('general.error'),
-                t('settings.remove_wallets_error')
-              );
+              Alert.alert(t('general.error'), t('settings.remove_wallets_error'));
             }
           },
         },
@@ -152,12 +478,12 @@ export default function TabLayout() {
   }, [accountActions, router, t]);
 
   const handleRemoveWallet = useCallback(async () => {
-    const { requiredLock, accounts } = accountState;
+    const { requiredLock, accounts: accts } = accountState;
     const currentAccount = activeAccount;
 
     if (!currentAccount) return;
 
-    if (accounts.length <= 1) {
+    if (accts.length <= 1) {
       handleRemoveAllWallets();
       return;
     }
@@ -179,10 +505,7 @@ export default function TabLayout() {
               await accountActions.removeAccount(currentAccount.id, password);
             } catch (error) {
               console.error('Failed to remove wallet:', error);
-              Alert.alert(
-                t('general.error'),
-                t('settings.remove_wallet_error')
-              );
+              Alert.alert(t('general.error'), t('settings.remove_wallet_error'));
             }
           },
         },
@@ -236,11 +559,12 @@ export default function TabLayout() {
         accountId={activeAccount?.id}
       />
 
-      {/* Settings Sheet */}
+      {/* Settings Sheet with integrated panel stack */}
       <SettingsSheet
         visible={settingsVisible}
         onClose={handleSettingsClose}
-        onNavigate={handleSettingsNavigate}
+        panelRegistry={panelRegistry}
+        initialPanels={settingsInitialPanels}
         developerNetworksEnabled={developerNetworks}
         onDeveloperNetworksToggle={toggleDeveloperNetworks}
         onRemoveWallet={handleRemoveWallet}

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type NetworkSelectorBaseProps, type NetworkSelectorItem } from '@salmon/shared';
-import { SettingsPageLayout } from '../SettingsPageLayout';
+import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
 
 export function NetworkSelector({
@@ -19,7 +19,7 @@ export function NetworkSelector({
   );
 
   return (
-    <SettingsPageLayout
+    <SettingsPanelContent
       title={t('settings.change_network', 'Network')}
       onBack={onBack}
     >
@@ -33,7 +33,7 @@ export function NetworkSelector({
         secondaryTypographyProps={{ textTransform: 'capitalize' }}
         loading={loading}
       />
-    </SettingsPageLayout>
+    </SettingsPanelContent>
   );
 }
 

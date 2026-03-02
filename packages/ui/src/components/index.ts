@@ -67,11 +67,17 @@ export type { MarketData, TokenMarketDataProps } from './TokenMarketData';
 export { TokenFeatures } from './TokenFeatures';
 export type { TokenFeaturesProps } from './TokenFeatures';
 
-// SettingsSheet - Slide-out settings panel
+// SettingsSheet - Slide-out settings panel (legacy, used internally by SettingsPanelStack)
 export { SettingsSheet } from './SettingsSheet';
 export type {
   SettingsItem, SettingsSection, SettingsSheetProps
 } from './SettingsSheet';
+
+// SettingsPanelStack - Stacking panel system for settings navigation
+export { SettingsPanelStack } from './SettingsPanelStack';
+export type {
+  SettingsPanelStackProps, PanelContentProps, PanelRenderer, PanelRegistry
+} from './SettingsPanelStack';
 
 // WalletSwitcherSheet - Account selection dialog
 export { WalletSwitcherSheet } from './WalletSwitcherSheet';
@@ -241,8 +247,9 @@ export { CurrencySelector } from './CurrencySelector';
 // SettingsSelectorList - Generic settings selection list
 export { SettingsSelectorList } from './SettingsSelectorList';
 
-// SettingsPageLayout - Settings page layout wrapper
-export { SettingsPageLayout } from './SettingsPageLayout';
+// SettingsPanelContent - Settings panel content layout wrapper
+export { SettingsPanelContent } from './SettingsPanelContent';
+export type { SettingsPanelContentProps } from './SettingsPanelContent';
 
 // DerivedAccountCard - Selectable account card for derived account discovery
 export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
@@ -254,47 +261,47 @@ export type {
 // TransactionSuccessScreen - Success screen after transaction
 export { TransactionSuccessScreen } from './TransactionSuccessScreen';
 
-// AccountsPage - Account list management
-export { AccountsPage } from './AccountsPage';
-export type { AccountsPageProps } from './AccountsPage';
+// AccountsPanel - Account list management
+export { AccountsPanel } from './AccountsPanel';
+export type { AccountsPanelProps } from './AccountsPanel';
 
-// AccountEditPage - Account edit menu
-export { AccountEditPage } from './AccountEditPage';
-export type { AccountEditPageProps } from './AccountEditPage';
+// AccountEditPanel - Account edit menu
+export { AccountEditPanel } from './AccountEditPanel';
+export type { AccountEditPanelProps } from './AccountEditPanel';
 
-// AccountNamePage - Account name editing
-export { AccountNamePage } from './AccountNamePage';
-export type { AccountNamePageProps } from './AccountNamePage';
+// AccountNamePanel - Account name editing
+export { AccountNamePanel } from './AccountNamePanel';
+export type { AccountNamePanelProps } from './AccountNamePanel';
 
-// AccountAvatarPage - Account avatar/profile picture selection
-export { AccountAvatarPage } from './AccountAvatarPage';
-export type { AccountAvatarPageProps } from './AccountAvatarPage';
+// AccountAvatarPanel - Account avatar/profile picture selection
+export { AccountAvatarPanel } from './AccountAvatarPanel';
+export type { AccountAvatarPanelProps } from './AccountAvatarPanel';
 
-// AccountAddPage - Multi-step account creation flow
-export { AccountAddPage } from './AccountAddPage';
-export type { AccountAddPageProps } from './AccountAddPage';
+// AccountAddPanel - Multi-step account creation flow
+export { AccountAddPanel } from './AccountAddPanel';
+export type { AccountAddPanelProps } from './AccountAddPanel';
 
-// SecurityPage - Change password with strength indicator
-export { SecurityPage } from './SecurityPage';
-export type { SecurityPageProps } from './SecurityPage';
+// SecurityPanel - Change password with strength indicator
+export { SecurityPanel } from './SecurityPanel';
+export type { SecurityPanelProps } from './SecurityPanel';
 
-// BackupPage - Seed phrase reveal and copy
-export { BackupPage } from './BackupPage';
-export type { BackupPageProps } from './BackupPage';
+// BackupPanel - Seed phrase reveal and copy
+export { BackupPanel } from './BackupPanel';
+export type { BackupPanelProps } from './BackupPanel';
 
-// PrivateKeyPage - Private key reveal per network
-export { PrivateKeyPage } from './PrivateKeyPage';
-export type { PrivateKeyPageProps } from './PrivateKeyPage';
+// PrivateKeyPanel - Private key reveal per network
+export { PrivateKeyPanel } from './PrivateKeyPanel';
+export type { PrivateKeyPanelProps } from './PrivateKeyPanel';
 
-// AddressBookPage - Contact list management
-export { AddressBookPage } from './AddressBookPage';
+// AddressBookPanel - Contact list management
+export { AddressBookPanel } from './AddressBookPanel';
 
-// AddressAddPage - Add new contact
-export { AddressAddPage } from './AddressAddPage';
+// AddressAddPanel - Add new contact
+export { AddressAddPanel } from './AddressAddPanel';
 
-// AddressEditPage - Edit existing contact
-export { AddressEditPage } from './AddressEditPage';
+// AddressEditPanel - Edit existing contact
+export { AddressEditPanel } from './AddressEditPanel';
 
-// AboutPage - App info and external links
-export { AboutPage } from './AboutPage';
-export type { AboutPageProps } from './AboutPage';
+// AboutPanel - App info and external links
+export { AboutPanel } from './AboutPanel';
+export type { AboutPanelProps } from './AboutPanel';

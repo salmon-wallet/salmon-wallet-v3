@@ -1,34 +1,11 @@
 /**
- * SettingsSheet - Slide-down settings panel
+ * SettingsSheet - Slide-down settings panel with stacking sub-panels.
  *
- * This component provides a settings menu that slides down from the top
- * of the screen using the TopSheet component. It displays a list of
- * settings options that the user can navigate to.
- *
- * Features:
- * - Uses TopSheet for smooth slide-down animation
- * - Displays settings options with icons and labels
- * - Supports i18n translations via useTranslation
- * - Calls onNavigate when a settings option is pressed
- * - Grouped sections with headers
- * - Toggle switch for Developer Networks
- * - Danger zone for destructive actions
- *
- * Usage:
- * ```tsx
- * <SettingsSheet
- *   visible={isSettingsOpen}
- *   onClose={() => setIsSettingsOpen(false)}
- *   onNavigate={(screen) => router.push(`/settings/${screen}`)}
- *   developerNetworksEnabled={showTestnets}
- *   onDeveloperNetworksToggle={setShowTestnets}
- *   onRemoveWallet={handleRemoveWallet}
- *   onRemoveAllWallets={handleRemoveAllWallets}
- * />
- * ```
+ * Uses TopSheet for the slide-down animation and SettingsPanelStack
+ * for horizontal panel transitions when navigating to sub-screens.
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -44,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TopSheet } from '../TopSheet';
+import { SettingsPanelStack } from '../SettingsPanelStack';
 import {
   colors,
   spacing,
@@ -51,136 +29,76 @@ import {
   fontSize,
   componentSizes,
   fontFamilyNative,
+  useSettingsPanelStack,
+  type SettingsScreen,
+  type SettingsPanelEntry,
 } from '@salmon/shared';
-import type { SettingsScreen } from '@salmon/shared';
 
 import type { SettingsSheetProps, SettingsOption, SettingsSection } from './types';
+import type { MobilePanelRegistry } from '../SettingsPanelStack';
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-/**
- * Danger zone colors
- */
 const DANGER_COLORS = {
   text: '#FF4444',
   background: 'rgba(255, 68, 68, 0.1)',
   iconBackground: 'rgba(255, 68, 68, 0.15)',
 } as const;
 
-/**
- * Settings sections configuration
- * Each section has a title key and list of options
- */
 const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     titleKey: 'settings.sections.account',
     options: [
-      {
-        id: 'accounts',
-        icon: 'people-outline',
-        labelKey: 'settings.accounts.title',
-      },
-      {
-        id: 'avatar',
-        icon: 'person-circle-outline',
-        labelKey: 'settings.profile_picture',
-      },
-      {
-        id: 'security',
-        icon: 'shield-checkmark-outline',
-        labelKey: 'settings.security.title',
-      },
-      {
-        id: 'backup',
-        icon: 'key-outline',
-        labelKey: 'settings.backup',
-      },
-      {
-        id: 'privateKey',
-        icon: 'lock-closed-outline',
-        labelKey: 'settings.private_key',
-      },
+      { id: 'accounts', icon: 'people-outline', labelKey: 'settings.accounts.title' },
+      { id: 'avatar', icon: 'person-circle-outline', labelKey: 'settings.profile_picture' },
+      { id: 'security', icon: 'shield-checkmark-outline', labelKey: 'settings.security.title' },
+      { id: 'backup', icon: 'key-outline', labelKey: 'settings.backup' },
+      { id: 'privateKey', icon: 'lock-closed-outline', labelKey: 'settings.private_key' },
     ],
   },
   {
     titleKey: 'settings.sections.preferences',
     options: [
-      {
-        id: 'language',
-        icon: 'language-outline',
-        labelKey: 'settings.display_language',
-      },
-      {
-        id: 'currency',
-        icon: 'cash-outline',
-        labelKey: 'settings.currency',
-      },
-      {
-        id: 'explorer',
-        icon: 'open-outline',
-        labelKey: 'settings.select_explorer',
-      },
+      { id: 'language', icon: 'language-outline', labelKey: 'settings.display_language' },
+      { id: 'currency', icon: 'cash-outline', labelKey: 'settings.currency' },
+      { id: 'explorer', icon: 'open-outline', labelKey: 'settings.select_explorer' },
     ],
   },
   {
     titleKey: 'settings.sections.advanced',
     options: [
-      {
-        id: 'addressBook',
-        icon: 'book-outline',
-        labelKey: 'settings.address_book',
-      },
-      {
-        id: 'trustedApps',
-        icon: 'apps-outline',
-        labelKey: 'settings.trusted_apps',
-      },
-      {
-        id: 'network', // This is a special toggle item, id is used for identification
-        icon: 'code-slash-outline',
-        labelKey: 'settings.developer_networks',
-        isToggle: true,
-      },
+      { id: 'addressBook', icon: 'book-outline', labelKey: 'settings.address_book' },
+      { id: 'trustedApps', icon: 'apps-outline', labelKey: 'settings.trusted_apps' },
+      { id: 'network', icon: 'code-slash-outline', labelKey: 'settings.developer_networks', isToggle: true },
     ],
   },
   {
     titleKey: 'settings.sections.support',
     options: [
-      {
-        id: 'support',
-        icon: 'help-circle-outline',
-        labelKey: 'settings.help_support',
-      },
-      {
-        id: 'about',
-        icon: 'information-circle-outline',
-        labelKey: 'settings.about',
-      },
+      { id: 'support', icon: 'help-circle-outline', labelKey: 'settings.help_support' },
+      { id: 'about', icon: 'information-circle-outline', labelKey: 'settings.about' },
     ],
   },
   {
     titleKey: 'settings.sections.danger_zone',
     isDanger: true,
     options: [
-      {
-        id: 'removeWallet',
-        icon: 'trash-outline',
-        labelKey: 'settings.wallets.remove_wallet',
-        isDanger: true,
-        isAction: true,
-      },
-      {
-        id: 'removeAll',
-        icon: 'log-out-outline',
-        labelKey: 'settings.wallets.remove_all_wallets',
-        isDanger: true,
-        isAction: true,
-      },
+      { id: 'removeWallet', icon: 'trash-outline', labelKey: 'settings.wallets.remove_wallet', isDanger: true, isAction: true },
+      { id: 'removeAll', icon: 'log-out-outline', labelKey: 'settings.wallets.remove_all_wallets', isDanger: true, isAction: true },
     ],
   },
 ];
+
+// ============================================================================
+// Extended props (adds panelRegistry)
+// ============================================================================
+
+interface SettingsSheetWithPanelsProps extends SettingsSheetProps {
+  panelRegistry?: MobilePanelRegistry;
+  initialPanels?: SettingsPanelEntry[];
+}
 
 // ============================================================================
 // Component
@@ -189,23 +107,43 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
 export function SettingsSheet({
   visible,
   onClose,
-  onNavigate,
+  panelRegistry,
+  initialPanels,
   developerNetworksEnabled = false,
   onDeveloperNetworksToggle,
   onRemoveWallet,
   onRemoveAllWallets,
-}: SettingsSheetProps): React.ReactElement {
+}: SettingsSheetWithPanelsProps): React.ReactElement {
   const { t } = useTranslation();
+  const { stack, push, reset, canGoBack } = useSettingsPanelStack();
 
   // Top fade gradient opacity
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
 
-  /**
-   * Handle settings option press
-   */
+  // Reset stack when sheet closes
+  useEffect(() => {
+    if (!visible) {
+      const timer = setTimeout(() => reset(), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [visible, reset]);
+
+  // Push initial panels when drawer opens
+  const initialPanelsPushedRef = React.useRef(false);
+  useEffect(() => {
+    if (visible && initialPanels && initialPanels.length > 0 && !initialPanelsPushedRef.current) {
+      initialPanelsPushedRef.current = true;
+      for (const entry of initialPanels) {
+        push(entry.screen, entry.props);
+      }
+    }
+    if (!visible) {
+      initialPanelsPushedRef.current = false;
+    }
+  }, [visible, initialPanels, push]);
+
   const handleOptionPress = useCallback(
     (option: SettingsOption) => {
-      // Handle action options (direct callbacks)
       if (option.isAction) {
         if (option.id === 'removeWallet' && onRemoveWallet) {
           onRemoveWallet();
@@ -216,18 +154,14 @@ export function SettingsSheet({
         return;
       }
 
-      // Handle navigation options
-      if (onNavigate && !option.isToggle && option.id !== 'developerNetworks') {
-        onNavigate(option.id as SettingsScreen);
-        onClose();
+      // Push panel instead of navigating
+      if (!option.isToggle && option.id !== 'developerNetworks' && panelRegistry) {
+        push(option.id as SettingsScreen);
       }
     },
-    [onNavigate, onClose, onRemoveWallet, onRemoveAllWallets]
+    [onClose, onRemoveWallet, onRemoveAllWallets, push, panelRegistry]
   );
 
-  /**
-   * Handle developer networks toggle
-   */
   const handleDeveloperNetworksToggle = useCallback(
     (value: boolean) => {
       if (onDeveloperNetworksToggle) {
@@ -237,36 +171,21 @@ export function SettingsSheet({
     [onDeveloperNetworksToggle]
   );
 
-  /**
-   * Handle scroll to show/hide top fade gradient dynamically
-   */
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const opacity = Math.min(offsetY / 30, 1);
     topFadeOpacity.setValue(opacity);
   }, [topFadeOpacity]);
 
-  /**
-   * Render a section header
-   */
   const renderSectionHeader = useCallback(
     (section: SettingsSection) => {
       const title = t(section.titleKey) || section.titleKey;
-
       return (
         <View
           key={`header-${section.titleKey}`}
-          style={[
-            styles.sectionHeader,
-            section.isDanger && styles.sectionHeaderDanger,
-          ]}
+          style={[styles.sectionHeader, section.isDanger && styles.sectionHeaderDanger]}
         >
-          <Text
-            style={[
-              styles.sectionHeaderText,
-              section.isDanger && styles.sectionHeaderTextDanger,
-            ]}
-          >
+          <Text style={[styles.sectionHeaderText, section.isDanger && styles.sectionHeaderTextDanger]}>
             {title}
           </Text>
         </View>
@@ -275,16 +194,11 @@ export function SettingsSheet({
     [t]
   );
 
-  /**
-   * Render a single settings option row
-   */
   const renderOption = useCallback(
     (option: SettingsOption, sectionIsDanger?: boolean) => {
-      // Get the translated label, with fallback to the key itself
       const label = t(option.labelKey) || option.labelKey;
       const isDanger = option.isDanger || sectionIsDanger;
 
-      // Render toggle option
       if (option.isToggle) {
         return (
           <View
@@ -294,24 +208,15 @@ export function SettingsSheet({
             accessibilityLabel={label}
             accessibilityState={{ checked: developerNetworksEnabled }}
           >
-            {/* Icon */}
             <View style={styles.iconContainer}>
-              <Ionicons
-                name={option.icon}
-                size={24}
-                color={colors.text.primary}
-              />
+              <Ionicons name={option.icon} size={24} color={colors.text.primary} />
             </View>
-
-            {/* Label and Description */}
             <View style={styles.toggleLabelContainer}>
               <Text style={styles.optionLabel}>{label}</Text>
               <Text style={styles.toggleDescription}>
                 {t('settings.developer_networks_description')}
               </Text>
             </View>
-
-            {/* Switch */}
             <Switch
               value={developerNetworksEnabled}
               onValueChange={handleDeveloperNetworksToggle}
@@ -322,50 +227,21 @@ export function SettingsSheet({
         );
       }
 
-      // Render regular option or danger option
       return (
         <TouchableOpacity
           key={option.id}
-          style={[
-            styles.optionRow,
-            isDanger && styles.optionRowDanger,
-          ]}
+          style={[styles.optionRow, isDanger && styles.optionRowDanger]}
           onPress={() => handleOptionPress(option)}
           activeOpacity={0.7}
           accessibilityRole="button"
           accessibilityLabel={label}
         >
-          {/* Icon */}
-          <View
-            style={[
-              styles.iconContainer,
-              isDanger && styles.iconContainerDanger,
-            ]}
-          >
-            <Ionicons
-              name={option.icon}
-              size={24}
-              color={isDanger ? DANGER_COLORS.text : colors.text.primary}
-            />
+          <View style={[styles.iconContainer, isDanger && styles.iconContainerDanger]}>
+            <Ionicons name={option.icon} size={24} color={isDanger ? DANGER_COLORS.text : colors.text.primary} />
           </View>
-
-          {/* Label */}
-          <Text
-            style={[
-              styles.optionLabel,
-              isDanger && styles.optionLabelDanger,
-            ]}
-          >
-            {label}
-          </Text>
-
-          {/* Chevron (not for danger actions) */}
+          <Text style={[styles.optionLabel, isDanger && styles.optionLabelDanger]}>{label}</Text>
           {!option.isAction && (
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={isDanger ? DANGER_COLORS.text : colors.text.secondary}
-            />
+            <Ionicons name="chevron-forward" size={20} color={isDanger ? DANGER_COLORS.text : colors.text.secondary} />
           )}
         </TouchableOpacity>
       );
@@ -373,20 +249,17 @@ export function SettingsSheet({
     [t, handleOptionPress, developerNetworksEnabled, handleDeveloperNetworksToggle]
   );
 
-  /**
-   * Render a complete section
-   */
   const renderSection = useCallback(
-    (section: SettingsSection, index: number) => {
-      return (
-        <View key={`section-${index}`} style={styles.section}>
-          {renderSectionHeader(section)}
-          {section.options.map((option) => renderOption(option, section.isDanger))}
-        </View>
-      );
-    },
+    (section: SettingsSection, index: number) => (
+      <View key={`section-${index}`} style={styles.section}>
+        {renderSectionHeader(section)}
+        {section.options.map((option) => renderOption(option, section.isDanger))}
+      </View>
+    ),
     [renderSectionHeader, renderOption]
   );
+
+  const hasPanels = panelRegistry && stack.length > 0;
 
   return (
     <TopSheet
@@ -396,6 +269,7 @@ export function SettingsSheet({
       testID="settings-sheet"
     >
       <View style={styles.container}>
+        {/* Base: Settings Menu (panel 0) */}
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -416,6 +290,13 @@ export function SettingsSheet({
             style={StyleSheet.absoluteFill}
           />
         </Animated.View>
+
+        {/* Stacked panels overlay */}
+        {hasPanels && panelRegistry && (
+          <View style={styles.panelOverlay}>
+            <SettingsPanelStack panelRegistry={panelRegistry} />
+          </View>
+        )}
       </View>
     </TopSheet>
   );
@@ -509,6 +390,10 @@ const styles = StyleSheet.create({
     top: 0,
     height: componentSizes.sheetFadeGradientHeight,
     zIndex: 1,
+  },
+  panelOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 10,
   },
 });
 

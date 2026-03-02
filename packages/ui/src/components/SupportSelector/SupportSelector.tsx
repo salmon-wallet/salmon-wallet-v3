@@ -29,7 +29,7 @@ import {
   type SupportSelectorBaseProps,
   type SupportOptionItem,
 } from '@salmon/shared';
-import { SettingsPageLayout } from '../SettingsPageLayout';
+import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
 // Icon mapping
@@ -134,7 +134,7 @@ export function SupportSelector({
   );
 
   return (
-    <SettingsPageLayout
+    <SettingsPanelContent
       title={t('settings.help_support', 'Help & Support')}
       onBack={onBack}
     >
@@ -147,7 +147,7 @@ export function SupportSelector({
           Never share this information with anyone.
         </SecurityText>
       </SecurityNotice>
-    </SettingsPageLayout>
+    </SettingsPanelContent>
   );
 }
 

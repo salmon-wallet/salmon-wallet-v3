@@ -212,6 +212,13 @@ export type {
 export { default as useRefreshOnFocus } from './useRefreshOnFocus';
 export type { UseRefreshOnFocusOptions } from './useRefreshOnFocus';
 
+// Settings panel stack hook
+export {
+  useSettingsPanelStack,
+  default as useSettingsPanelStackDefault,
+} from './useSettingsPanelStack';
+export type { UseSettingsPanelStackResult } from './useSettingsPanelStack';
+
 // Currency context (re-export for discoverability)
 export { useCurrencyContext } from '../contexts/CurrencyContext';
 export type { CurrencyState, CurrencyActions } from '../contexts/CurrencyContext';
