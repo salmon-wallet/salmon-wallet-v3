@@ -14,7 +14,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import mapValues from 'lodash-es/mapValues';
 import merge from 'lodash-es/merge';
 import omit from 'lodash-es/omit';
-import axios from 'axios';
 
 import {
   getStorageItem,
@@ -41,7 +40,6 @@ import { SOLANA_NETWORKS } from '../blockchain/solana';
 import { BITCOIN_NETWORKS } from '../blockchain/bitcoin';
 import { ETHEREUM_NETWORKS } from '../blockchain/ethereum';
 import type { SolanaNetwork, BitcoinNetwork, EthereumNetwork } from '../types/blockchain';
-import { getApiUrl } from '../api/config';
 import {
   getPathIndex,
   getBlockchainFromNetworkId,

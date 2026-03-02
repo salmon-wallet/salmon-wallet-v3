@@ -150,11 +150,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
 
-  if (loading) {
-    return <TokenSelectSkeleton />;
-  }
-
-  // Filter out unverified tokens unless developer mode is enabled
+  // All hooks must be called before any early return (Rules of Hooks)
   const verifiedTokens = useMemo(() => {
     return tokens.filter((token) => {
       const hasMeaningfulTags =
@@ -166,7 +162,6 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
     });
   }, [tokens, showUnverifiedTokens]);
 
-  // Filter tokens by search query
   const filteredTokens = useMemo(() => {
     if (!searchQuery.trim()) return verifiedTokens;
     const query = searchQuery.toLowerCase().trim();
@@ -178,7 +173,6 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
     );
   }, [verifiedTokens, searchQuery]);
 
-  // Handle scroll for top fade gradient
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetY = event.nativeEvent.contentOffset.y;
@@ -196,6 +190,10 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
   );
 
   const keyExtractor = useCallback((item: SendToken) => item.address, []);
+
+  if (loading) {
+    return <TokenSelectSkeleton />;
+  }
 
   return (
     <View style={styles.container}>

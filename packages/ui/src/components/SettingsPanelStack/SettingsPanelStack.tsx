@@ -447,6 +447,8 @@ export function SettingsPanelStack({
           // Only render top 2 panels for performance
           if (idx < stack.length - 2) return null;
           const isExiting = isTop && animating && slideDirection === 'out';
+          const Panel = panelRegistry[entry.screen];
+          if (!Panel) return null;
           return (
             <PanelWrapper
               key={`${entry.screen}-${idx}`}
@@ -454,11 +456,11 @@ export function SettingsPanelStack({
               $animating={animating && isTop}
               $direction={isTop && animating ? slideDirection : 'idle'}
             >
-              {panelRegistry[entry.screen]?.({
-                onBack: isExiting ? () => {} : handlePop,
-                onNavigate: isExiting ? () => {} : handlePush,
-                ...(entry.props || {}),
-              })}
+              <Panel
+                onBack={isExiting ? () => {} : handlePop}
+                onNavigate={isExiting ? () => {} : handlePush}
+                {...(entry.props || {})}
+              />
             </PanelWrapper>
           );
         })}

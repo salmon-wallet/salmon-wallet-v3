@@ -332,7 +332,7 @@ export function HomePage(): React.ReactElement {
   useEffect(() => {
     if (!networkId || allNetworks.length === 0) return;
     const idx = allNetworks.findIndex((n) => n.id === networkId);
-    if (idx >= 0 && idx !== activeBlockchainIndex) {
+    if (idx >= 0) {
       setActiveBlockchainIndex(idx);
     }
   }, [networkId, allNetworks]);

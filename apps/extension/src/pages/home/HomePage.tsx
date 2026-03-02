@@ -16,7 +16,6 @@ import {
   colors,
   spacing,
   fontFamily,
-  type SettingsScreen,
   type SettingsPanelEntry,
   type BlockchainBalance,
   type BlockchainId,
@@ -451,7 +450,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
   useEffect(() => {
     if (!networkId || allNetworks.length === 0) return;
     const idx = allNetworks.findIndex((n) => n.id === networkId);
-    if (idx >= 0 && idx !== activeBlockchainIndex) {
+    if (idx >= 0) {
       setActiveBlockchainIndex(idx);
     }
   }, [networkId, allNetworks]);

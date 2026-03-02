@@ -5,7 +5,7 @@
  * transitions (300ms push, 200ms pop). Includes swipe-right gesture to pop.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -38,7 +38,7 @@ export function SettingsPanelStack({
   panelRegistry,
   initialPanels,
 }: MobileSettingsPanelStackProps): React.ReactElement {
-  const { stack, push, pop, reset, canGoBack } = useSettingsPanelStack();
+  const { stack, push, pop, canGoBack } = useSettingsPanelStack();
 
   const [animating, setAnimating] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'in' | 'out'>('in');
@@ -145,19 +145,21 @@ function PanelSlide({
     }
   }, [animating, isTop, direction, translateX]);
 
-  // Swipe-right gesture to pop
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        return canSwipe && gestureState.dx > 10 && Math.abs(gestureState.dy) < 30;
-      },
-      onPanResponderRelease: (_e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        if (gestureState.dx > SWIPE_THRESHOLD && onSwipeRight) {
-          onSwipeRight();
-        }
-      },
-    }),
-  ).current;
+  // Swipe-right gesture to pop — useMemo so the responder updates when deps change
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+          return canSwipe && gestureState.dx > 10 && Math.abs(gestureState.dy) < 30;
+        },
+        onPanResponderRelease: (_e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+          if (gestureState.dx > SWIPE_THRESHOLD && onSwipeRight) {
+            onSwipeRight();
+          }
+        },
+      }),
+    [canSwipe, onSwipeRight],
+  );
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],

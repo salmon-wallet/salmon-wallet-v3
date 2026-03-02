@@ -115,7 +115,7 @@ export function SettingsSheet({
   onRemoveAllWallets,
 }: SettingsSheetWithPanelsProps): React.ReactElement {
   const { t } = useTranslation();
-  const { stack, push, reset, canGoBack } = useSettingsPanelStack();
+  const { stack, push, reset } = useSettingsPanelStack();
 
   // Top fade gradient opacity
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);

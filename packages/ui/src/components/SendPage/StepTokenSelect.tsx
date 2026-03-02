@@ -282,6 +282,44 @@ export function StepTokenSelect({
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
 
+  // All hooks must be called before any early return (Rules of Hooks)
+  const verifiedTokens = useMemo(() => {
+    return tokens.filter((token) => {
+      const hasMeaningfulTags =
+        token.tags &&
+        token.tags.length > 0 &&
+        token.tags.some((tag) => tag !== 'unknown');
+      if (hasMeaningfulTags) return true;
+      return !!showUnverifiedTokens;
+    });
+  }, [tokens, showUnverifiedTokens]);
+
+  const filteredTokens = useMemo(() => {
+    if (!searchQuery.trim()) return verifiedTokens;
+    const query = searchQuery.toLowerCase().trim();
+    return verifiedTokens.filter(
+      (token) =>
+        token.name.toLowerCase().includes(query) ||
+        token.symbol.toLowerCase().includes(query) ||
+        token.address.toLowerCase().includes(query)
+    );
+  }, [verifiedTokens, searchQuery]);
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    []
+  );
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const scrollTop = (e.target as HTMLDivElement).scrollTop;
+      setScrolled(scrollTop > 5);
+    },
+    []
+  );
+
   if (loading) {
     return (
       <Container>
@@ -315,45 +353,6 @@ export function StepTokenSelect({
       </Container>
     );
   }
-
-  // Filter out unverified tokens unless developer mode is enabled
-  const verifiedTokens = useMemo(() => {
-    return tokens.filter((token) => {
-      const hasMeaningfulTags =
-        token.tags &&
-        token.tags.length > 0 &&
-        token.tags.some((tag) => tag !== 'unknown');
-      if (hasMeaningfulTags) return true;
-      return !!showUnverifiedTokens;
-    });
-  }, [tokens, showUnverifiedTokens]);
-
-  // Filter tokens by search query
-  const filteredTokens = useMemo(() => {
-    if (!searchQuery.trim()) return verifiedTokens;
-    const query = searchQuery.toLowerCase().trim();
-    return verifiedTokens.filter(
-      (token) =>
-        token.name.toLowerCase().includes(query) ||
-        token.symbol.toLowerCase().includes(query) ||
-        token.address.toLowerCase().includes(query)
-    );
-  }, [verifiedTokens, searchQuery]);
-
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(e.target.value);
-    },
-    []
-  );
-
-  const handleScroll = useCallback(
-    (e: React.UIEvent<HTMLDivElement>) => {
-      const scrollTop = (e.target as HTMLDivElement).scrollTop;
-      setScrolled(scrollTop > 5);
-    },
-    []
-  );
 
   return (
     <Container>
