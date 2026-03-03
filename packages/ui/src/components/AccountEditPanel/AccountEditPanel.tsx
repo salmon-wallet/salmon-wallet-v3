@@ -4,10 +4,11 @@
  * Settings-style list with sections for name, avatar, backup seed, and export key.
  */
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import PersonIcon from '@mui/icons-material/Person';
@@ -22,6 +23,8 @@ import {
   fontSize,
   fontWeight,
   useAccountsContext,
+  getAvatarColor,
+  getInitials,
   type Account,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
@@ -89,6 +92,9 @@ export function AccountEditPanel({
   const { t } = useTranslation();
   const [accountState] = useAccountsContext();
   const account = accountState.accounts.find((a: Account) => a.id === accountId) || accountState.activeAccount;
+  const [imgError, setImgError] = useState(false);
+  const avatarColor = useMemo(() => getAvatarColor(account?.id || ''), [account?.id]);
+  const initials = useMemo(() => getInitials(account?.name || ''), [account?.name]);
 
   const sections = [
     {
@@ -119,16 +125,38 @@ export function AccountEditPanel({
       onBack={onBack}
     >
       {account && (
-        <Typography
-          sx={{
-            color: colors.text.secondary,
-            fontSize: fontSize.base,
-            textAlign: 'center',
-            marginBottom: spacing.lg,
-          }}
-        >
-          {account.name}
-        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: spacing.md, gap: `${spacing.md}px` }}>
+          {account.avatar && !imgError ? (
+            <Avatar
+              src={account.avatar}
+              sx={{ width: 'min(45vw, 180px)', height: 'min(45vw, 180px)' }}
+              imgProps={{ onError: () => setImgError(true) }}
+            />
+          ) : (
+            <Avatar
+              sx={{
+                width: 'min(45vw, 180px)',
+                height: 'min(45vw, 180px)',
+                backgroundColor: avatarColor,
+                fontSize: 'clamp(2rem, 8vw, 3.5rem)',
+                fontWeight: fontWeight.semibold,
+                color: colors.text.primary,
+              }}
+            >
+              {initials}
+            </Avatar>
+          )}
+          <Typography
+            sx={{
+              color: colors.text.secondary,
+              fontSize: fontSize.lg,
+              fontWeight: fontWeight.semibold,
+              textAlign: 'center',
+            }}
+          >
+            {account.name}
+          </Typography>
+        </Box>
       )}
 
       <SectionContainer>
