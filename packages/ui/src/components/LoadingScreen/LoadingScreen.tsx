@@ -9,7 +9,7 @@
  * - Cycling tips/advice at the bottom
  * - Smooth fade in/out transitions
  */
-import { useState, useEffect, useMemo, CSSProperties } from 'react';
+import { memo, useState, useEffect, useMemo, CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { colors, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIP_KEYS } from '@salmon/shared';
 import type { LoadingScreenProps } from './types';
@@ -84,7 +84,7 @@ function injectKeyframes() {
  * />
  * ```
  */
-export function LoadingScreen({
+export const LoadingScreen = memo(function LoadingScreen({
   visible,
   title,
   subtitle,
@@ -281,6 +281,6 @@ export function LoadingScreen({
       )}
     </div>
   );
-}
+});
 
 export default LoadingScreen;

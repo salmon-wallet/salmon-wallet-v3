@@ -770,6 +770,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         // populate the actual blockchain account instances in networksAccounts.
         await load(mnemonics);
         setLocked(false);
+        await updateLastActivity();
 
         await setStashItem(STASH_KEYS.PASSWORD, password);
 
@@ -820,6 +821,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         // populate the actual blockchain account instances in networksAccounts.
         await load(mnemonics);
         setLocked(false);
+        await updateLastActivity();
 
         return true;
       } catch (error) {

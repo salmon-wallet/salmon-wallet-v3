@@ -3,13 +3,17 @@ import { RouterProvider } from 'react-router-dom';
 import { WalletLayout } from '@salmon/ui';
 import { useAccountsContext, useInactivityTimeout } from '@salmon/shared';
 import { router } from './router';
+import { clearSessionKey } from './utils/sessionKeyCache';
 
 function InactivityGuard({ children }: { children: React.ReactNode }) {
   const [state, actions] = useAccountsContext();
 
   useInactivityTimeout({
     timeoutMs: 5 * 60 * 1000,
-    onTimeout: () => actions.lockAccounts(),
+    onTimeout: () => {
+      void clearSessionKey();
+      actions.lockAccounts();
+    },
     enabled: state.ready && !state.locked && state.accounts.length > 0,
   });
 
