@@ -167,7 +167,7 @@ export function useAddressValidation(
 
         const errorResult: ValidationResult = {
           type: 'ERROR',
-          code: 'invalid',
+          code: 'network_error',
         };
         setValidationResult(errorResult);
         setResolvedAddress(null);

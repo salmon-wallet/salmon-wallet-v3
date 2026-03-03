@@ -31,7 +31,7 @@ export type { ValidationResult, ValidationResultType, ValidationResultCode, Addr
 // ============================================================================
 
 // Shared constants from types/validation
-const { VALID_DOMAIN, NO_INFO, INVALID_ADDRESS, INVALID_DOMAIN } = VALIDATION_RESULTS;
+const { VALID_DOMAIN, NO_INFO, INVALID_ADDRESS, INVALID_DOMAIN, NETWORK_ERROR } = VALIDATION_RESULTS;
 
 // Chain-specific constants
 const VALID_ACCOUNT: ValidationResult = {
@@ -109,7 +109,12 @@ async function validatePublicKey(
   const isOnCurve = PublicKey.isOnCurve(publicKey);
 
   // Get account info to check existence and balance
-  const accountInfo = await connection.getAccountInfo(publicKey);
+  let accountInfo;
+  try {
+    accountInfo = await connection.getAccountInfo(publicKey);
+  } catch {
+    return NETWORK_ERROR;
+  }
 
   if (isOnCurve) {
     // Regular on-curve address
@@ -144,20 +149,21 @@ async function validateDomain(
   connection: Connection,
   domain: string
 ): Promise<ValidationResult> {
+  let resolvedAddress;
   try {
-    const resolvedAddress = await getPublicKeyFromDomain(connection, domain);
-
-    if (resolvedAddress) {
-      return {
-        ...VALID_DOMAIN,
-        resolvedAddress,
-      };
-    }
-
-    return INVALID_DOMAIN;
+    resolvedAddress = await getPublicKeyFromDomain(connection, domain);
   } catch {
-    return INVALID_DOMAIN;
+    return NETWORK_ERROR;
   }
+
+  if (resolvedAddress) {
+    return {
+      ...VALID_DOMAIN,
+      resolvedAddress,
+    };
+  }
+
+  return INVALID_DOMAIN;
 }
 
 // ============================================================================
