@@ -68,19 +68,21 @@ const AccountAvatar = styled(Avatar)<{ $bgColor: string }>(({ $bgColor }) => ({
   color: colors.text.primary,
 }));
 
-const AccountName = styled(Typography)({
+const AccountName = styled('span')({
   fontSize: fontSizeTokens.base,
   fontWeight: fontWeightTokens.semibold,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
+  display: 'block',
 });
 
-const AccountAddress = styled(Typography)({
+const AccountAddress = styled('span')({
   fontSize: fontSizeTokens.sm,
   color: colors.text.secondary,
   fontFamily: 'monospace',
+  display: 'block',
 });
 
 const ActionButtonsContainer = styled(Box)({
