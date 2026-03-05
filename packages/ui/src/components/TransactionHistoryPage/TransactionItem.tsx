@@ -27,7 +27,7 @@ import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize } from '@salmon/shared';
+import { borderRadius, colors, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, spacing } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -128,7 +128,7 @@ function getTypeConfig(type: TransactionType): TypeConfig & { icon: React.ReactN
 // ============================================================================
 
 const ItemWrapper = styled(Box)({
-  marginBottom: 12,
+  marginBottom: spacing.md,
   transition: 'opacity 0.2s ease',
   '&:hover': {
     opacity: 0.85,
@@ -140,13 +140,13 @@ const ItemButton = styled(ButtonBase)({
   flexDirection: 'row',
   alignItems: 'center',
   width: '100%',
-  padding: '14px 16px',
+  padding: `${spacing.lg}px ${spacing.lg}px`,
   textAlign: 'left',
   justifyContent: 'flex-start',
 });
 
 const LogoSection = styled(Box)({
-  marginRight: 12,
+  marginRight: spacing.md,
   flexShrink: 0,
 });
 
@@ -173,7 +173,7 @@ const SwapLogosContainer = styled(Box)({
 });
 
 const SwapLogoOverlap = styled(Box)({
-  marginLeft: -14,
+  marginLeft: -spacing.lg,
   border: `2px solid ${colors.background.secondary}`,
   borderRadius: 18,
   display: 'flex',
@@ -187,8 +187,8 @@ const LogoWithBadgeContainer = styled(Box)({
 
 const TypeBadge = styled(Box)({
   position: 'absolute',
-  top: -4,
-  right: -4,
+  top: -spacing.xs,
+  right: -spacing.xs,
   width: 18,
   height: 18,
   borderRadius: 9,
@@ -199,8 +199,8 @@ const TypeBadge = styled(Box)({
 });
 
 const TypeBadgeSingle = styled(TypeBadge)({
-  top: -2,
-  right: -2,
+  top: -spacing['2xs'],
+  right: -spacing['2xs'],
 });
 
 const IconContainer = styled(Box)({
@@ -224,8 +224,8 @@ const TypeRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 6,
-  marginBottom: 4,
+  gap: spacing.sm,
+  marginBottom: spacing.xs,
 });
 
 const TypeText = styled(Typography)({
@@ -246,7 +246,7 @@ const SourceBadge = styled(Chip)({
   textTransform: 'uppercase',
   letterSpacing: 0.3,
   '& .MuiChip-label': {
-    padding: '0 6px',
+    padding: `0 ${spacing.sm}px`
   },
 });
 
@@ -262,7 +262,7 @@ const RightSection = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
-  marginLeft: 8,
+  marginLeft: spacing.sm,
   flexShrink: 0,
 });
 
@@ -275,7 +275,7 @@ const AmountsContainer = styled(Box)({
 const AmountText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: 500,
-  marginBottom: 2,
+  marginBottom: spacing['2xs'],
   whiteSpace: 'nowrap',
 });
 
@@ -283,7 +283,7 @@ const TimeRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  marginTop: 4,
+  marginTop: spacing.xs,
 });
 
 const TimeText = styled(Typography)({
@@ -295,7 +295,7 @@ const FailedBadge = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 4,
+  gap: spacing.xs,
 });
 
 const FailedText = styled(Typography)({
@@ -308,7 +308,7 @@ const PendingBadge = styled(Box)({
   display: 'inline-flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 4,
+  gap: spacing.xs,
   padding: `4px 8px`,
   backgroundColor: `${colors.status.warning}15`,
   borderRadius: borderRadius.sm,
@@ -324,9 +324,9 @@ const ExpandBadge = styled(Box)({
   display: 'inline-flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 2,
-  marginTop: 4,
-  padding: '2px 4px',
+  gap: spacing['2xs'],
+  marginTop: spacing.xs,
+  padding: `${spacing['2xs']}px ${spacing.xs}px`,
   borderRadius: 4,
   cursor: 'pointer',
   '&:hover': {

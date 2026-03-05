@@ -14,6 +14,7 @@ import {
   fontSize,
   fontWeight,
   letterSpacing,
+  spacing,
 } from '@salmon/shared';
 import type { TextButtonProps } from './types';
 
@@ -21,8 +22,8 @@ const StyledButton = styled(Button)<{ $customColor?: string }>(
   ({ $customColor }) => ({
     minWidth: 'auto',
     height: componentSizes.buttonHeightSmall,
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingLeft: spacing.lg,
+    paddingRight: spacing.lg,
     background: 'transparent',
     borderRadius: 0,
     fontFamily: `${fontFamily.sans}, sans-serif`,

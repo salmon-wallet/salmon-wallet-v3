@@ -60,8 +60,8 @@ const RightArrow = styled(ArrowButton)({
 const CardContainer = styled(Box)({
   flex: 1,
   overflow: 'hidden',
-  paddingBottom: 30,
-  marginBottom: -30,
+  paddingBottom: spacing['3.5xl'],
+  marginBottom: -spacing['3.5xl'],
 });
 
 const SlideContent = styled(Box)({

@@ -29,6 +29,8 @@ export const spacing = {
   xl: 20,
   /** 24px */
   '2xl': 24,
+  /** 30px - Shadow overflow hack */
+  '3.5xl': 30,
   /** 32px */
   '3xl': 32,
   /** 40px */

@@ -11,7 +11,7 @@
  */
 import { memo, useState, useEffect, useMemo, CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { colors, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIP_KEYS } from '@salmon/shared';
+import { colors, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIP_KEYS, spacing } from '@salmon/shared';
 import type { LoadingScreenProps } from './types';
 
 // ============================================================================
@@ -169,7 +169,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '24px',
+    padding: `${spacing['2xl']}px`,
     textAlign: 'center',
   };
 
@@ -179,7 +179,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     fontWeight: fontWeight.bold,
     fontSize: fontSize['2xl'],
     lineHeight: '32px',
-    marginBottom: '8px',
+    marginBottom: `${spacing.sm}px`
   };
 
   const subtitleStyle: CSSProperties = {
@@ -188,7 +188,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     fontWeight: fontWeight.regular,
     fontSize: fontSize.md,
     lineHeight: '24px',
-    marginBottom: '32px',
+    marginBottom: `${spacing['3xl']}px`
   };
 
   const logoSpinnerContainerStyle: CSSProperties = {
@@ -198,7 +198,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: '48px',
+    marginBottom: `${spacing['5xl']}px`
   };
 
   const spinnerStyle: CSSProperties = {
@@ -227,8 +227,8 @@ export const LoadingScreen = memo(function LoadingScreen({
   const tipsContainerStyle: CSSProperties = {
     position: 'absolute',
     bottom: '80px',
-    left: '24px',
-    right: '24px',
+    left: `${spacing['2xl']}px`,
+    right: `${spacing['2xl']}px`,
     textAlign: 'center',
   };
 
@@ -241,7 +241,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     textTransform: 'uppercase',
     letterSpacing: '1px',
     textAlign: 'center',
-    marginBottom: '8px',
+    marginBottom: `${spacing.sm}px`
   };
 
   const tipTextStyle: CSSProperties = {
@@ -253,7 +253,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     textAlign: 'center',
     opacity: tipFading ? 0 : 1,
     transition: 'opacity 0.4s ease-in-out',
-    padding: '0 16px',
+    padding: `0 ${spacing.lg}px`
   };
 
   return (

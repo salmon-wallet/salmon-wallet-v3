@@ -48,7 +48,7 @@ const AccountName = styled(Typography)({
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  marginBottom: 2,
+  marginBottom: spacing['2xs'],
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',

@@ -58,14 +58,14 @@ const RightSection = styled(Box)({
   alignItems: 'center',
   flex: 1,
   justifyContent: 'flex-end',
-  marginLeft: 12,
+  marginLeft: spacing.md,
   minWidth: 0,
 });
 
 const AddressText = styled(Typography)({
   fontSize: fontSize.sm,
   color: colors.text.primary,
-  marginRight: 8,
+  marginRight: spacing.sm,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -75,7 +75,7 @@ const AddressText = styled(Typography)({
 const CopyButton = styled(IconButton)({
   width: 28,
   height: 28,
-  padding: 4,
+  padding: spacing.xs,
   backgroundColor: `${colors.background.card}80`,
   '&:hover': {
     backgroundColor: `${colors.background.card}`,

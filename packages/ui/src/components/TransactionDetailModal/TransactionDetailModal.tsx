@@ -254,8 +254,8 @@ const HeaderInfoBox = styled(Box)({
 const TitleRow = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: 8,
-  marginBottom: 4,
+  gap: spacing.sm,
+  marginBottom: spacing.xs,
 });
 
 const TitleText = styled(Typography)({
@@ -266,7 +266,7 @@ const TitleText = styled(Typography)({
 });
 
 const SourceBadge = styled(Box)({
-  padding: '3px 8px',
+  padding: `${spacing.xs}px ${spacing.sm}px`,
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.sm,
 });
@@ -282,7 +282,7 @@ const SourceText = styled(Typography)({
 const StatusRow = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: 4,
+  gap: spacing.xs,
 });
 
 const CloseButton = styled(IconButton)({
@@ -357,7 +357,7 @@ const HashValue = styled(Typography)({
 const CopyIconButton = styled(IconButton)({
   width: 28,
   height: 28,
-  padding: 4,
+  padding: spacing.xs,
   backgroundColor: `${colors.background.card}80`,
   '&:hover': {
     backgroundColor: colors.background.card,
@@ -391,7 +391,7 @@ const TokenLogoPlaceholder = styled(Box)({
 
 const TokenInfoBox = styled(Box)({
   flex: 1,
-  marginLeft: 12,
+  marginLeft: spacing.md,
   minWidth: 0,
 });
 
@@ -405,7 +405,7 @@ const TokenName = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: 400,
   color: colors.text.secondary,
-  marginTop: 2,
+  marginTop: spacing['2xs'],
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -422,7 +422,7 @@ const SwapContainer = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-around',
-  padding: '8px 0',
+  padding: `${spacing.sm}px 0`
 });
 
 const SwapTokenSection = styled(Box)({
@@ -454,26 +454,26 @@ const SwapAmount = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: 700,
   color: colors.text.primary,
-  marginTop: 8,
+  marginTop: spacing.sm,
 });
 
 const SwapSymbol = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.text.secondary,
-  marginTop: 2,
+  marginTop: spacing['2xs'],
 });
 
 const SwapHeaderRow = styled(Box)({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: 12,
+  marginBottom: spacing.md,
 });
 
 const ConversionRateContainer = styled(Box)({
-  marginTop: 12,
-  paddingTop: 12,
+  marginTop: spacing.md,
+  paddingTop: spacing.md,
   borderTop: `1px solid ${colors.border.default}`,
   display: 'flex',
   justifyContent: 'center',
@@ -490,7 +490,7 @@ const AddressesContainer = styled(Box)({
 const NftMediaContainer = styled(Box)({
   display: 'flex',
   justifyContent: 'center',
-  marginBottom: 16,
+  marginBottom: spacing.lg,
 });
 
 const NftMediaPreview = styled('img')({
@@ -505,7 +505,7 @@ const NftCollectionRow = styled(Box)({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: 12,
+  marginBottom: spacing.md,
 });
 
 const NftCollectionInfo = styled(Box)({
@@ -516,13 +516,13 @@ const NftCollectionInfo = styled(Box)({
 const NftAttributesGrid = styled(Box)({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: 8,
+  gap: spacing.sm,
 });
 
 const NftAttributeChip = styled(Box)({
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.sm,
-  padding: '6px 10px',
+  padding: `${spacing.sm}px ${spacing.base}px`,
   border: `1px solid ${colors.border.default}`,
   minWidth: '45%',
   flex: '0 0 auto',
@@ -535,7 +535,7 @@ const NftAttributeType = styled(Typography)({
   color: colors.text.tertiary,
   textTransform: 'uppercase',
   letterSpacing: 0.3,
-  marginBottom: 2,
+  marginBottom: spacing['2xs'],
 });
 
 const NftAttributeValue = styled(Typography)({

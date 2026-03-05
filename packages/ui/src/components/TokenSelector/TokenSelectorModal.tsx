@@ -199,7 +199,7 @@ const TokenBalance = styled(Typography)({
   fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  marginTop: 2,
+  marginTop: spacing['2xs'],
 });
 
 const FeaturedContainer = styled(Box)({

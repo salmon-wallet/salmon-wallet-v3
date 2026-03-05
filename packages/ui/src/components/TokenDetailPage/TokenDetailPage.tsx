@@ -49,14 +49,14 @@ const SkeletonTextColumn = styled(Box)({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  gap: 4,
+  gap: spacing.xs,
 });
 
 const SkeletonValueColumn = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
-  gap: 4,
+  gap: spacing.xs,
 });
 
 // ============================================================================

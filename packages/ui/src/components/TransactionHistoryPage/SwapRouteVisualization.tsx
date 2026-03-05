@@ -100,7 +100,7 @@ const RouteTokenRow = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   gap: spacing.xs,
-  marginBottom: 2,
+  marginBottom: spacing['2xs'],
 });
 
 const RouteTokenText = styled(Typography)({
@@ -121,13 +121,13 @@ const RouteArrowColumn = styled(Box)({
 const MoreText = styled(Typography)({
   fontSize: fontSize.xs,
   color: colors.text.tertiary,
-  marginTop: 2,
+  marginTop: spacing['2xs'],
 });
 
 const RouteSummary = styled(Box)({
   borderTop: `1px solid ${colors.border.subtle}`,
   paddingTop: spacing.xs,
-  marginTop: 2,
+  marginTop: spacing['2xs'],
 });
 
 const SummaryRow = styled(Box)({
@@ -135,7 +135,7 @@ const SummaryRow = styled(Box)({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: 6,
+  marginBottom: spacing.sm,
 });
 
 const SummaryLabel = styled(Typography)({

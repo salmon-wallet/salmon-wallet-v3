@@ -28,6 +28,7 @@ import {
   getAvailableExplorers,
   getDefaultExplorer,
   fontSize,
+  spacing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { ExplorerLinkButtonProps } from './types';
@@ -41,9 +42,9 @@ const StyledButton = styled(ButtonBase)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '12px 16px',
+  padding: `${spacing.md}px ${spacing.lg}px`,
   width: '100%',
-  gap: 8,
+  gap: spacing.sm,
   transition: 'opacity 0.2s ease',
   '&:hover': {
     opacity: 0.85,
@@ -67,7 +68,7 @@ const StyledMenu = styled(Menu)({
 });
 
 const StyledMenuItem = styled(MenuItem)({
-  padding: '12px 16px',
+  padding: `${spacing.md}px ${spacing.lg}px`,
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },

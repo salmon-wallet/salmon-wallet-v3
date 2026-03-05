@@ -171,7 +171,7 @@ const StyledInput = styled(InputBase)({
   fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   '& .MuiInputBase-input': {
-    padding: '12px 0',
+    padding: `${spacing.md}px 0`,
     '&::placeholder': {
       color: colors.text.secondary,
       opacity: 1,
@@ -189,7 +189,7 @@ const AddressInputRow = styled(Box)({
 });
 
 const ValidationIndicatorBox = styled(Box)({
-  marginLeft: 8,
+  marginLeft: spacing.sm,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

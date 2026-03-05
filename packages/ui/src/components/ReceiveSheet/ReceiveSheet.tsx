@@ -81,7 +81,7 @@ const CopyButton = styled(ButtonBase)({
   borderRadius: 11,
   width: 180,
   height: 42,
-  gap: 4,
+  gap: spacing.xs,
   transition: 'opacity 0.2s ease',
   '&:hover': {
     opacity: 0.85,

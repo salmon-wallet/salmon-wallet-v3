@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import { colors, fontFamily, fontWeight, borderRadius, fontSize } from '@salmon/shared';
+import { colors, fontFamily, fontWeight, borderRadius, fontSize, spacing } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps } from './types';
 
@@ -74,9 +74,9 @@ const LoadingOverlay = styled(Box)({
 
 const NameBadgeContainer = styled(Box)({
   position: 'absolute',
-  bottom: 8,
-  left: 8,
-  right: 8,
+  bottom: spacing.sm,
+  left: spacing.sm,
+  right: spacing.sm,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -180,10 +180,10 @@ export function NftCard({ nft, onPress, style, className, testID }: NftCardProps
           borderWidth={0.5}
           style={{
             borderRadius: borderRadius.md,
-            paddingTop: 6,
-            paddingBottom: 6,
-            paddingLeft: 16,
-            paddingRight: 16,
+            paddingTop: spacing.sm,
+            paddingBottom: spacing.sm,
+            paddingLeft: spacing.lg,
+            paddingRight: spacing.lg,
             width: '100%',
             overflow: 'hidden',
           }}

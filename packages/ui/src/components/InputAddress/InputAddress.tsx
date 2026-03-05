@@ -40,7 +40,7 @@ const Container = styled(Box)({
 const Label = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: 500,
-  marginBottom: 8,
+  marginBottom: spacing.sm,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
 });
@@ -70,7 +70,7 @@ const StyledInput = styled(InputBase)<{
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontSize: fontSize.md,
   '& .MuiInputBase-input': {
-    padding: '12px 0',
+    padding: `${spacing.md}px 0`,
     '&::placeholder': {
       color: colors.text.placeholder,
       opacity: 1,
@@ -79,7 +79,7 @@ const StyledInput = styled(InputBase)<{
 }));
 
 const ValidationIcon = styled(Box)({
-  marginLeft: 12,
+  marginLeft: spacing.md,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -104,7 +104,7 @@ const WarningText = styled('span')({
 });
 
 const MessageContainer = styled(Box)({
-  marginTop: 8,
+  marginTop: spacing.sm,
 });
 
 const MessageText = styled(Typography)<{
@@ -122,8 +122,8 @@ const MessageText = styled(Typography)<{
 }));
 
 const DomainInfo = styled(Box)({
-  marginTop: 8,
-  padding: 12,
+  marginTop: spacing.sm,
+  padding: spacing.md,
   backgroundColor: colors.input.background,
   borderRadius: 8,
 });
@@ -132,7 +132,7 @@ const DomainLabel = styled(Typography)({
   fontSize: fontSize.sm,
   color: colors.text.secondary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  marginBottom: 4,
+  marginBottom: spacing.xs,
 });
 
 const DomainValue = styled(Typography)({

@@ -46,7 +46,7 @@ const Amount = styled(Typography)({
   color: colors.text.primary,
   letterSpacing: -0.12,
   lineHeight: '25px',
-  marginTop: 2,
+  marginTop: spacing['2xs'],
 });
 
 const UsdValue = styled(Typography)({
@@ -56,7 +56,7 @@ const UsdValue = styled(Typography)({
   color: colors.text.secondary,
   letterSpacing: -0.065,
   lineHeight: `${13 * 1.4}px`,
-  marginTop: 2,
+  marginTop: spacing['2xs'],
 });
 
 // ============================================================================

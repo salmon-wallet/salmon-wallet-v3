@@ -71,8 +71,8 @@ const NetworkRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 4,
-  marginTop: 2,
+  gap: spacing.xs,
+  marginTop: spacing['2xs'],
 });
 
 const PathText = styled(Typography)({

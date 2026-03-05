@@ -70,7 +70,7 @@ const NftImage = styled('img')({
 });
 
 const SectionContent = styled(Box)({
-  padding: 7,
+  padding: spacing.sm,
   position: 'relative',
   zIndex: 1,
 });
@@ -94,14 +94,14 @@ const DescriptionText = styled(Typography)({
 const AttributesGrid = styled(Box)({
   display: 'flex',
   flexWrap: 'wrap',
-  marginLeft: -6,
-  marginRight: -6,
+  marginLeft: -spacing.sm,
+  marginRight: -spacing.sm,
 });
 
 const AttributeItem = styled(Box)({
   width: '50%',
-  paddingLeft: 6,
-  paddingRight: 6,
+  paddingLeft: spacing.sm,
+  paddingRight: spacing.sm,
   paddingTop: spacing.sm,
   paddingBottom: spacing.sm,
   boxSizing: 'border-box',
@@ -133,11 +133,11 @@ const BlockchainBadgeContent = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  paddingLeft: 12,
-  paddingRight: 12,
-  paddingTop: 6,
-  paddingBottom: 6,
-  gap: 6,
+  paddingLeft: spacing.md,
+  paddingRight: spacing.md,
+  paddingTop: spacing.sm,
+  paddingBottom: spacing.sm,
+  gap: spacing.sm,
 });
 
 const BlockchainLabel = styled(Typography)({
@@ -152,8 +152,8 @@ const DetailRow = styled(Box)({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  paddingTop: 8,
-  paddingBottom: 8,
+  paddingTop: spacing.sm,
+  paddingBottom: spacing.sm,
   borderBottom: `0.5px solid ${colors.border.default}`,
   '&:last-child': {
     borderBottom: 'none',
@@ -178,14 +178,14 @@ const DetailValueWithCopy = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 4,
+  gap: spacing.xs,
 });
 
 const RarityBadge = styled(Box)({
-  paddingLeft: 8,
-  paddingRight: 8,
-  paddingTop: 4,
-  paddingBottom: 4,
+  paddingLeft: spacing.sm,
+  paddingRight: spacing.sm,
+  paddingTop: spacing.xs,
+  paddingBottom: spacing.xs,
   borderRadius: 6,
 });
 
@@ -215,7 +215,7 @@ const PrimaryButtonBase = styled(ButtonBase)({
   alignItems: 'center',
   justifyContent: 'center',
   height: 52,
-  gap: 10,
+  gap: spacing.base,
   transition: 'opacity 0.2s ease',
   '&:hover': { opacity: 0.85 },
   '&:active': { opacity: 0.8 },
@@ -227,7 +227,7 @@ const SecondaryButtonInner = styled(ButtonBase)({
   justifyContent: 'center',
   width: '100%',
   height: 52,
-  gap: 10,
+  gap: spacing.base,
   position: 'relative',
   zIndex: 1,
   transition: 'opacity 0.2s ease',
@@ -325,7 +325,7 @@ export function NftDetailPage({
               <IconButton
                 size="small"
                 onClick={() => handleCopy(nft.contractAddress)}
-                sx={{ padding: '2px' }}
+                sx={{ padding: `${spacing['2xs']}px` }}
               >
                 {copiedField === nft.contractAddress ? (
                   <CheckIcon sx={{ fontSize: fontSize.base, color: colors.status.success }} />

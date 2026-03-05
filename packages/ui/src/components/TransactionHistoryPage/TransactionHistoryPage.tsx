@@ -34,25 +34,25 @@ import type { TransactionHistoryPageProps, Transaction } from './types';
 
 // Skeleton styles
 const SkeletonItem = styled(Box)({
-  padding: '14px 16px',
+  padding: `${spacing.lg}px ${spacing.lg}px`,
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 12,
+  gap: spacing.md,
 });
 
 const SkeletonInfoSection = styled(Box)({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  gap: 6,
+  gap: spacing.sm,
 });
 
 const SkeletonRightSection = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
-  gap: 4,
+  gap: spacing.xs,
 });
 
 // Empty state styles
@@ -68,8 +68,8 @@ const EmptyTitle = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: 500,
   color: colors.text.primary,
-  marginTop: 16,
-  marginBottom: 10,
+  marginTop: spacing.lg,
+  marginBottom: spacing.base,
 });
 
 const EmptySubtitle = styled(Typography)({
@@ -91,14 +91,14 @@ const ErrorTitle = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: 500,
   color: colors.text.primary,
-  marginBottom: 10,
+  marginBottom: spacing.base,
 });
 
 const ErrorMessage = styled(Typography)({
   fontSize: fontSize.base,
   color: colors.text.secondary,
   textAlign: 'center',
-  marginBottom: 18,
+  marginBottom: spacing.headerPadding,
 });
 
 const RetryButton = styled(Button)({
@@ -128,7 +128,7 @@ const LoadingMoreContainer = styled(Box)({
 const TransactionItemSkeleton: React.FC = () => (
   <BlurContainer
     borderColor={colors.border.subtle}
-    style={{ borderRadius: borderRadius.lg, marginBottom: 12, overflow: 'hidden' }}
+    style={{ borderRadius: borderRadius.lg, marginBottom: spacing.md, overflow: 'hidden' }}
   >
     <SkeletonItem>
       <Skeleton
