@@ -29,6 +29,8 @@ import {
   type SupportSelectorBaseProps,
   type SupportOptionItem,
   fontSize,
+  fontWeight,
+  lineHeight,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -88,7 +90,7 @@ const SecurityIcon = styled(ShieldIcon)({
 const SecurityText = styled(Typography)({
   fontSize: fontSize.sm,
   color: colors.text.secondary,
-  lineHeight: 1.4,
+  lineHeight: lineHeight.tokenListItem,
   flex: 1,
 });
 
@@ -117,7 +119,7 @@ export function SupportSelector({
               sx: {
                 color: colors.text.primary,
                 fontSize: fontSize.base,
-                fontWeight: 500,
+                fontWeight: fontWeight.medium,
               },
             }}
             secondaryTypographyProps={{

@@ -21,7 +21,7 @@ import Typography from '@mui/material/Typography';
 import type { TypographyProps } from '@mui/material/Typography';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { SvgIconProps } from '@mui/material/SvgIcon';
-import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, lineHeight } from '@salmon/shared';
 
 // ============================================================================
 // Dialog Root
@@ -57,7 +57,7 @@ export const TitleContainer: React.ComponentType<React.HTMLAttributes<HTMLDivEle
 
 export const TitleText: React.ComponentType<TypographyProps> = styled(Typography)({
   fontSize: fontSize.lg,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
 });
 
@@ -85,7 +85,7 @@ export const StyledDialogContent: React.ComponentType<DialogContentProps> = styl
 export const MessageText: React.ComponentType<TypographyProps> = styled(Typography)({
   fontSize: fontSize.base,
   color: colors.text.secondary,
-  lineHeight: 1.6,
+  lineHeight: lineHeight.relaxed,
   textAlign: 'center',
 });
 
@@ -142,7 +142,7 @@ export const StyledCancelButton: React.ComponentType<ButtonProps> = styled(Butto
   backgroundColor: colors.button.secondaryBackground,
   color: colors.button.secondaryText,
   textTransform: 'none',
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   padding: `${spacing.sm}px ${spacing.lg}px`,
   borderRadius: borderRadius.md,
   '&:hover': {
@@ -156,7 +156,7 @@ export const StyledActionButton: React.ComponentType<ButtonProps & { $isDanger?:
     backgroundColor: $isDanger ? colors.status.error : colors.accent.primary,
     color: colors.text.primary,
     textTransform: 'none',
-    fontWeight: 600,
+    fontWeight: fontWeight.semibold,
     padding: `${spacing.sm}px ${spacing.lg}px`,
     borderRadius: borderRadius.md,
     '&:hover': {

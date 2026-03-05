@@ -6,7 +6,7 @@
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { colors, spacing, fontFamily, type NftBlockchain, fontSize } from '@salmon/shared';
+import { colors, spacing, fontFamily, type NftBlockchain, fontSize, fontWeight } from '@salmon/shared';
 import { NftCard } from '../NftCard';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import { NftCarouselSectionSkeleton } from './NftCarouselSectionSkeleton';
@@ -38,7 +38,7 @@ const HeaderRow = styled(Box)({
 
 const Title = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   flex: 1,
@@ -47,7 +47,7 @@ const Title = styled(Typography)({
 
 const Count = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
 });

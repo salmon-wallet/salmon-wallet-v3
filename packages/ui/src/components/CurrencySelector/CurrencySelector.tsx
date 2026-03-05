@@ -10,6 +10,7 @@ import {
   type CurrencySelectorBaseProps,
   type CurrencySelectorItem,
   fontSize,
+  fontWeight,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
@@ -31,7 +32,7 @@ const CurrencySymbol = styled(Box)({
 
 const SymbolText = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
 });
 

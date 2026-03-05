@@ -25,6 +25,7 @@ import {
   type TrustedAppsSelectorBaseProps,
   type TrustedAppItem,
   fontSize,
+  fontWeight,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -139,7 +140,7 @@ export function TrustedAppsSelector({
                   primaryTypographyProps={{
                     sx: {
                       color: colors.text.primary,
-                      fontWeight: 500,
+                      fontWeight: fontWeight.medium,
                       fontSize: fontSize.base,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',

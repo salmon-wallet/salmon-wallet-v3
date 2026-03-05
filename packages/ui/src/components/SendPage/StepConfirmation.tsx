@@ -87,7 +87,7 @@ const TokenIconFallback = styled(Box)({
 
 const TokenIconFallbackText = styled(Typography)({
   fontSize: fontSize['3xl'],
-  fontWeight: 800,
+  fontWeight: fontWeight.extraBold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
 });

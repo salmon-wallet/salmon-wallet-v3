@@ -23,6 +23,7 @@ import {
   spacing,
   borderRadius,
   fontFamily,
+  fontWeight,
   useAddressValidation,
   useAccountsContext,
   fontSize,
@@ -40,7 +41,7 @@ const Container = styled(Box)({
 
 const Label = styled(Typography)({
   fontSize: fontSize.base,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   marginBottom: spacing.sm,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,

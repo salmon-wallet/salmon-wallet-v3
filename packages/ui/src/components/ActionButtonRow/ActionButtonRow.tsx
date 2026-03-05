@@ -21,6 +21,7 @@ import {
   s,
   vs,
   ms,
+  fontWeight,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SendIcon, ReceiveIcon, ActivityIcon } from '../Icon';
@@ -94,7 +95,7 @@ const SecondaryButton = styled(Button)({
 
 const ButtonText = styled(Typography)<{ $disabled?: boolean }>(({ $disabled }) => ({
   fontSize: ms(fontSize.actionButton),
-  fontWeight: '400',
+  fontWeight: fontWeight.regular,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: $disabled ? colors.button.disabledText : colors.text.balance,
 }));

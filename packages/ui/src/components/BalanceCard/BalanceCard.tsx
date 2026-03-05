@@ -24,6 +24,7 @@ import {
   fontFamily,
   fontWeight,
   letterSpacing,
+  lineHeight,
   componentSizes,
   shadowsCSS,
   s,
@@ -129,7 +130,7 @@ const NetworkLabel = styled(Box)({
 
 const NetworkLabelText = styled(Typography)({
   fontSize: ms(fontSize.xs),
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
   textTransform: 'uppercase',
@@ -172,7 +173,7 @@ const EyeButton = styled('button')({
   alignItems: 'center',
   justifyContent: 'center',
   textAlign: 'center',
-  lineHeight: 1,
+  lineHeight: lineHeight.none,
   color: colors.text.muted,
   '&::-moz-focus-inner': {
     border: 0,

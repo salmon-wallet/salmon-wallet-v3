@@ -28,6 +28,7 @@ import {
   getAvailableExplorers,
   getDefaultExplorer,
   fontSize,
+  fontWeight,
   spacing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
@@ -53,7 +54,7 @@ const StyledButton = styled(ButtonBase)({
 
 const ButtonText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.palette.amber,
 });
 
@@ -182,7 +183,7 @@ export function ExplorerLinkButton({
               <ListItemText
                 primary={explorer.name}
                 primaryTypographyProps={{
-                  sx: { fontSize: fontSize.sm, fontWeight: 500, color: colors.text.primary },
+                  sx: { fontSize: fontSize.sm, fontWeight: fontWeight.medium, color: colors.text.primary },
                 }}
               />
               <OpenInNewIcon sx={{ fontSize: fontSize.md, color: colors.text.tertiary }} />

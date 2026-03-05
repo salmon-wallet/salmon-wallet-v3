@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, spacing, borderRadius, componentSizes, fontFamily, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, componentSizes, fontFamily, fontWeight, fontSize } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import type { DerivedAccountCardProps } from './types';
 
@@ -78,7 +78,7 @@ const NetworkRow = styled(Box)({
 const PathText = styled(Typography)({
   color: colors.text.placeholder,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   fontSize: fontSize.sm,
 });
 

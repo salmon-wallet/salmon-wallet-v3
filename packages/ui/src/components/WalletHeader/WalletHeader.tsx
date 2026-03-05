@@ -181,7 +181,7 @@ export function WalletHeader({
               marginRight: `${spacing.md}px`,
               backgroundColor: avatarColor,
               fontSize: fontSize.sm,
-              fontWeight: 700,
+              fontWeight: fontWeight.bold,
               cursor: 'pointer',
             }}
             onClick={(e) => {

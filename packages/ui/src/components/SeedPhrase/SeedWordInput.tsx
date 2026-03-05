@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import Typography from '@mui/material/Typography';
-import { colors, spacing, componentSizes, fontFamily, fontSize } from '@salmon/shared';
+import { colors, spacing, componentSizes, fontFamily, fontSize, fontWeight } from '@salmon/shared';
 import type { SeedWordInputProps, ValidationState } from './types';
 
 const Container = styled(Box)({
@@ -18,7 +18,7 @@ const Container = styled(Box)({
 const Label = styled(Typography)({
   color: colors.text.secondary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   fontSize: fontSize.sm,
   marginBottom: spacing.xs,
 });

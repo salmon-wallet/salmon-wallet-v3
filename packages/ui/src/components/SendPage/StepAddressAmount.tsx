@@ -317,7 +317,7 @@ const ReviewButtonGradient = styled(Box)<{ $isDisabled?: boolean }>(({ $isDisabl
 
 const ReviewButtonText = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 800,
+  fontWeight: fontWeight.extraBold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
 });

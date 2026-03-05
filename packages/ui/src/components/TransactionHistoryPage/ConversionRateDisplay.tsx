@@ -11,7 +11,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import { colors, formatConversionRate, fontSize } from '@salmon/shared';
+import { colors, formatConversionRate, fontSize, fontWeight, lineHeight } from '@salmon/shared';
 import type { ConversionRateDisplayProps } from './types';
 
 // ============================================================================
@@ -27,17 +27,17 @@ const Container = styled(Box)({
 const RateText = styled(Typography)({
   fontSize: fontSize.sm,
   color: colors.text.secondary,
-  lineHeight: 1.3,
+  lineHeight: lineHeight.condensed,
 });
 
 const SymbolText = styled('span')({
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
 });
 
 const CompactText = styled(Typography)({
   fontSize: fontSize.xs,
   color: colors.text.secondary,
-  lineHeight: 1.3,
+  lineHeight: lineHeight.condensed,
 });
 
 // ============================================================================

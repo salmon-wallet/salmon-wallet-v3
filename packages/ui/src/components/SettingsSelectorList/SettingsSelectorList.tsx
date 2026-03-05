@@ -8,7 +8,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, spacing, fontSize } from '@salmon/shared';
+import { colors, spacing, fontSize, fontWeight } from '@salmon/shared';
 
 // ============================================================================
 // Styled Components (shared across all settings selectors)
@@ -113,7 +113,7 @@ export function SettingsSelectorList<T>({
                 primaryTypographyProps={{
                   sx: {
                     color: colors.text.primary,
-                    fontWeight: selected ? 600 : 500,
+                    fontWeight: selected ? fontWeight.semibold : fontWeight.medium,
                     fontSize: fontSize.base,
                   },
                 }}

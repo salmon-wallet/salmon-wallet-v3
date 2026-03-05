@@ -6,7 +6,7 @@ import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
-import { colors, gradients, spacing, borderRadius, fontFamily, fontSize } from '@salmon/shared';
+import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 
 // ============================================================================
@@ -53,14 +53,14 @@ const Circle = styled(Box)({
 const Checkmark = styled(Typography)({
   fontSize: fontSize['4xl'],
   color: colors.text.primary,
-  fontWeight: 700,
+  fontWeight: fontWeight.bold,
   lineHeight: 1,
 });
 
 const Title = styled(Typography)({
   fontSize: fontSize.title,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
   textAlign: 'center',
   marginBottom: spacing.sm,
@@ -122,7 +122,7 @@ const ContinueButton = styled(Button)({
   border: `0.8px solid ${colors.accent.border}`,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   fontSize: fontSize.md,
   textTransform: 'none',
   opacity: 0,

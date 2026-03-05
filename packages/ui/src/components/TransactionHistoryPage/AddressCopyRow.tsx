@@ -18,7 +18,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, borderRadius, getShortAddress, copyToClipboard, spacing, fontSize } from '@salmon/shared';
+import { colors, borderRadius, getShortAddress, copyToClipboard, spacing, fontSize, fontWeight } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { AddressCopyRowProps } from './types';
 
@@ -47,7 +47,7 @@ const Container = styled(Box)({
 
 const Label = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
   flexShrink: 0,
 });

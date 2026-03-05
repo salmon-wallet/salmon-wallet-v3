@@ -22,7 +22,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Skeleton from '@mui/material/Skeleton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { PageShell } from '../PageShell';
 import { TransactionItem } from './TransactionItem';
@@ -66,7 +66,7 @@ const EmptyContainer = styled(Box)({
 
 const EmptyTitle = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.primary,
   marginTop: spacing.lg,
   marginBottom: spacing.base,
@@ -89,7 +89,7 @@ const ErrorContainer = styled(Box)({
 
 const ErrorTitle = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.primary,
   marginBottom: spacing.base,
 });
@@ -105,7 +105,7 @@ const RetryButton = styled(Button)({
   backgroundColor: colors.accent.primary,
   color: colors.text.primary,
   textTransform: 'none',
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   padding: `8px 24px`,
   borderRadius: borderRadius.md,
   '&:hover': {

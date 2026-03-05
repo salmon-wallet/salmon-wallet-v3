@@ -21,6 +21,7 @@ import {
   colors,
   spacing,
   fontFamily,
+  fontWeight,
   borderRadius,
   useNftTransfer,
   type NftData,
@@ -65,7 +66,7 @@ const NftImage = styled('img')({
 
 const NftName = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
   overflow: 'hidden',

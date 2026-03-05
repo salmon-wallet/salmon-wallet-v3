@@ -26,6 +26,7 @@ import {
   type AddressBookSelectorBaseProps,
   type AddressBookItem,
   fontSize,
+  fontWeight,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { ConfirmDialog } from '../ConfirmDialog';
@@ -70,7 +71,7 @@ const EmptyText = styled(Typography)({
 const AddButton = styled(Button)({
   color: colors.accent.primary,
   textTransform: 'none',
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   fontSize: fontSize.base,
   marginTop: spacing.sm,
 });
@@ -147,7 +148,7 @@ export function AddressBookPanel({
                     primaryTypographyProps={{
                       sx: {
                         color: colors.text.primary,
-                        fontWeight: 500,
+                        fontWeight: fontWeight.medium,
                         fontSize: fontSize.base,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',

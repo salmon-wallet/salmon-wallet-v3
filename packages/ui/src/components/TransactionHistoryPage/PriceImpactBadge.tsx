@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
-import { colors, spacing, borderRadius, getPriceImpactSeverity, type PriceImpactSeverity, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, getPriceImpactSeverity, type PriceImpactSeverity, fontSize, fontWeight, lineHeight } from '@salmon/shared';
 import type { PriceImpactBadgeProps } from './types';
 
 // ============================================================================
@@ -92,9 +92,9 @@ export const PriceImpactBadge: React.FC<PriceImpactBadgeProps> = ({
         component="span"
         sx={{
           fontSize: sizeConfig.fontSize,
-          fontWeight: 500,
+          fontWeight: fontWeight.medium,
           color: 'inherit',
-          lineHeight: 1.2,
+          lineHeight: lineHeight.compact,
         }}
       >
         {value}%
