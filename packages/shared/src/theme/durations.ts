@@ -6,11 +6,8 @@
 
 /**
  * Transition duration tokens (CSS string format)
- * Used in styled component `transition` properties
  */
 export const duration = {
-  /** 50ms - Measurement/layout settle delays */
-  instant: '50ms',
   /** 100ms - Micro-interactions (transform on press) */
   fastest: '100ms',
   /** 150ms - Quick feedback (opacity on press) */
@@ -36,12 +33,6 @@ export const duration = {
  * Used in setTimeout, setInterval, and JS animation APIs
  */
 export const durationMs = {
-  /** 50ms */
-  instant: 50,
-  /** 100ms */
-  fastest: 100,
-  /** 150ms */
-  fast: 150,
   /** 200ms */
   normal: 200,
   /** 250ms */
@@ -50,6 +41,8 @@ export const durationMs = {
   slow: 300,
   /** 400ms */
   slower: 400,
+  /** 500ms - Debounce delay */
+  debounce: 500,
   /** 1000ms - Continuous spin animation cycle */
   spin: 1000,
   /** 1200ms - Pulse animation cycle */
@@ -58,9 +51,7 @@ export const durationMs = {
   feedbackShort: 1500,
   /** 1500ms - Shimmer/skeleton animation cycle */
   shimmer: 1500,
-  /** 500ms - Debounce delay */
-  debounce: 500,
-  /** 2000ms - Long feedback display (copy confirmation) */
+  /** 2000ms - Long feedback display */
   feedbackLong: 2000,
   /** 2000ms - Slow spin animation cycle */
   spinSlow: 2000,
