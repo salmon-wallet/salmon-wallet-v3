@@ -28,7 +28,6 @@ import {
   lineHeight,
   fontWeight,
   letterSpacing,
-  textStyles,
 } from './typography';
 import { shadows, shadowsCSS } from './shadows';
 import { duration, durationMs, easing } from './durations';
@@ -65,7 +64,6 @@ export {
   lineHeight,
   fontWeight,
   letterSpacing,
-  textStyles,
 } from './typography';
 export type {
   FontFamily,
@@ -74,7 +72,6 @@ export type {
   LineHeight,
   FontWeight,
   LetterSpacing,
-  TextStyles,
 } from './typography';
 
 // Re-export all tokens from shadows
@@ -103,7 +100,6 @@ export const theme = {
   fontWeight,
   lineHeight,
   letterSpacing,
-  textStyles,
   opacity,
   blur,
   shadows,

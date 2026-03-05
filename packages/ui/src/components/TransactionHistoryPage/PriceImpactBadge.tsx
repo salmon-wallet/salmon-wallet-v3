@@ -94,7 +94,7 @@ export const PriceImpactBadge: React.FC<PriceImpactBadgeProps> = ({
           fontSize: sizeConfig.fontSize,
           fontWeight: fontWeight.medium,
           color: 'inherit',
-          lineHeight: lineHeight.compact,
+          lineHeight: lineHeight.tight,
         }}
       >
         {value}%

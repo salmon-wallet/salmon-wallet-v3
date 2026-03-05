@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT="/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SPACING_FILE="packages/shared/src/theme/spacing.ts"
 
 count_usage() {

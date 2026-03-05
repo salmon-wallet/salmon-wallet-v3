@@ -3,7 +3,7 @@
 # Searches for colors.X.Y and gradients.X patterns in .ts/.tsx files
 # Excludes the token definition file itself and node_modules
 
-ROOT="/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 COLORS_FILE="packages/shared/src/theme/colors.ts"
 
 echo "============================================"
