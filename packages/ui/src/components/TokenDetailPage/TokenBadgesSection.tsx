@@ -41,7 +41,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import LockIcon from '@mui/icons-material/Lock';
 
-import { colors, spacing, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenBadgesSectionProps } from './types';
 
@@ -233,7 +233,7 @@ const BadgeItemContainer = styled(Box)({
 const BadgeIconWrapper = styled(Box)<{ $badgeColor: string }>(({ $badgeColor }) => ({
   width: 40,
   height: 40,
-  borderRadius: 20,
+  borderRadius: borderRadius.iconLg,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -306,7 +306,7 @@ export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
   if (loading) {
     return (
       <BlurContainer
-        style={{ borderRadius: 18, overflow: 'hidden', ...style }}
+        style={{ borderRadius: borderRadius.iconContainer, overflow: 'hidden', ...style }}
         className={className}
       >
         <Container>
@@ -351,7 +351,7 @@ export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
 
   return (
     <BlurContainer
-      style={{ borderRadius: 18, overflow: 'hidden', ...style }}
+      style={{ borderRadius: borderRadius.iconContainer, overflow: 'hidden', ...style }}
       className={className}
     >
       <Container>

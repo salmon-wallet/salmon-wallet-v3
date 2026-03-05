@@ -238,7 +238,7 @@ const HeaderRow = styled(Box)({
 const TypeIconContainer = styled(Box)({
   width: 40,
   height: 40,
-  borderRadius: 20,
+  borderRadius: borderRadius.iconLg,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -311,7 +311,7 @@ const StyledDialogContent = styled(DialogContent)({
   },
   '&::-webkit-scrollbar-thumb': {
     backgroundColor: colors.card.border,
-    borderRadius: 3,
+    borderRadius: borderRadius.scrollbar,
   },
   '&::-webkit-scrollbar-thumb:hover': {
     backgroundColor: colors.interactive.highlight,
@@ -374,7 +374,7 @@ const InternalDivider = styled(Box)({
 const TokenLogoImg = styled('img')({
   width: 32,
   height: 32,
-  borderRadius: 16,
+  borderRadius: borderRadius.xl,
   objectFit: 'cover',
   backgroundColor: colors.background.card,
 });
@@ -382,7 +382,7 @@ const TokenLogoImg = styled('img')({
 const TokenLogoPlaceholder = styled(Box)({
   width: 32,
   height: 32,
-  borderRadius: 16,
+  borderRadius: borderRadius.xl,
   backgroundColor: colors.background.card,
   display: 'flex',
   alignItems: 'center',
@@ -435,7 +435,7 @@ const SwapTokenSection = styled(Box)({
 const SwapLogoImg = styled('img')({
   width: 40,
   height: 40,
-  borderRadius: 20,
+  borderRadius: borderRadius.iconLg,
   objectFit: 'cover',
   backgroundColor: colors.background.card,
 });
@@ -443,7 +443,7 @@ const SwapLogoImg = styled('img')({
 const SwapLogoPlaceholder = styled(Box)({
   width: 40,
   height: 40,
-  borderRadius: 20,
+  borderRadius: borderRadius.iconLg,
   backgroundColor: colors.background.card,
   display: 'flex',
   alignItems: 'center',

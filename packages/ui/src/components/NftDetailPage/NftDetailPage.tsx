@@ -26,6 +26,7 @@ import {
   gradients,
   fontFamily,
   fontWeight,
+  borderRadius,
   fontSize,
   isSolanaNft,
   isEthereumNft,
@@ -65,7 +66,7 @@ const NftImage = styled('img')({
   width: '100%',
   maxWidth: 406,
   aspectRatio: '1 / 1',
-  borderRadius: 18,
+  borderRadius: borderRadius.iconContainer,
   objectFit: 'cover',
   boxShadow: shadowsCSS.header,
 });
@@ -187,7 +188,7 @@ const RarityBadge = styled(Box)({
   paddingRight: spacing.sm,
   paddingTop: spacing.xs,
   paddingBottom: spacing.xs,
-  borderRadius: 6,
+  borderRadius: borderRadius.sm,
 });
 
 const RarityText = styled(Typography)({
@@ -208,7 +209,7 @@ const ActionButtonsContainer = styled(Box)({
 const PrimaryButtonBase = styled(ButtonBase)({
   flex: 1,
   maxWidth: 160,
-  borderRadius: 14,
+  borderRadius: borderRadius.button,
   overflow: 'hidden',
   background: gradients.primaryButtonCSS,
   border: `0.5px solid ${colors.accent.border}`,
@@ -392,7 +393,7 @@ export function NftDetailPage({
   }, []);
 
   const blurStyle = {
-    borderRadius: 9,
+    borderRadius: borderRadius.md,
     overflow: 'hidden' as const,
   };
 
@@ -413,7 +414,7 @@ export function NftDetailPage({
             backgroundColor={colors.background.tokenItem}
             borderColor={colors.border.default}
             borderWidth={1}
-            style={{ borderRadius: 12, overflow: 'hidden' }}
+            style={{ borderRadius: borderRadius.lg, overflow: 'hidden' }}
           >
             <BlockchainBadgeContent>
               {getBlockchainIcon()}
@@ -494,7 +495,7 @@ export function NftDetailPage({
             backgroundColor={colors.interactive.surface}
             borderColor={colors.accent.border}
             borderWidth={0.5}
-            style={{ borderRadius: 14, overflow: 'hidden', flex: 1, maxWidth: 160 }}
+            style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: 160 }}
           >
             <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
               <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />

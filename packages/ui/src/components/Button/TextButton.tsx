@@ -15,6 +15,7 @@ import {
   fontWeight,
   letterSpacing,
   spacing,
+  borderRadius,
   shadowsCSS,
 } from '@salmon/shared';
 import type { TextButtonProps } from './types';
@@ -26,7 +27,7 @@ const StyledButton = styled(Button)<{ $customColor?: string }>(
     paddingLeft: spacing.lg,
     paddingRight: spacing.lg,
     background: 'transparent',
-    borderRadius: 0,
+    borderRadius: borderRadius.none,
     fontFamily: `${fontFamily.sans}, sans-serif`,
     fontSize: fontSize.sm,
     fontWeight: fontWeight.medium,

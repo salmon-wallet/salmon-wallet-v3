@@ -39,7 +39,7 @@ const ListContent = styled(Box)<{ $maxHeight?: number | string }>(({ $maxHeight 
   },
   '&::-webkit-scrollbar-thumb': {
     background: colors.border.default,
-    borderRadius: 3,
+    borderRadius: borderRadius.scrollbar,
   },
   '&::-webkit-scrollbar-thumb:hover': {
     background: colors.text.secondary,

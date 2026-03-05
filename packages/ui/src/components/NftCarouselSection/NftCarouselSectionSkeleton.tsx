@@ -5,7 +5,7 @@ import { memo } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
-import { colors, spacing } from '@salmon/shared';
+import { colors, spacing, borderRadius } from '@salmon/shared';
 import { NftCardSkeleton } from '../NftCard';
 import type { NftCarouselSectionSkeletonProps } from './types';
 
@@ -46,8 +46,8 @@ export const NftCarouselSectionSkeleton = memo<NftCarouselSectionSkeletonProps>(
       <Container style={style} className={className}>
         <HeaderRow>
           <StyledSkeleton variant="circular" width={24} height={24} animation="wave" />
-          <StyledSkeleton variant="rounded" width={80} height={18} animation="wave" sx={{ borderRadius: '6px' }} />
-          <StyledSkeleton variant="rounded" width={28} height={14} animation="wave" sx={{ borderRadius: '4px' }} />
+          <StyledSkeleton variant="rounded" width={80} height={18} animation="wave" sx={{ borderRadius: `${borderRadius.sm}px` }} />
+          <StyledSkeleton variant="rounded" width={28} height={14} animation="wave" sx={{ borderRadius: `${borderRadius.sm}px` }} />
         </HeaderRow>
         <CardRow>
           {Array.from({ length: count }).map((_, i) => (

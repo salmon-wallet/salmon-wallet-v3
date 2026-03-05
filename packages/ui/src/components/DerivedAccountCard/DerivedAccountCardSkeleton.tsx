@@ -26,7 +26,7 @@ const Card = styled(Box)({
 });
 
 const SkeletonRect = styled(Box)({
-  borderRadius: 4,
+  borderRadius: borderRadius.sm,
   background: `linear-gradient(90deg, ${colors.skeleton?.base ?? 'rgba(255,255,255,0.05)'} 25%, ${colors.skeleton?.highlight ?? 'rgba(255,255,255,0.1)'} 50%, ${colors.skeleton?.base ?? 'rgba(255,255,255,0.05)'} 75%)`,
   backgroundSize: '400px 100%',
   animation: `${shimmer} 1.5s ease-in-out infinite`,
@@ -39,13 +39,13 @@ const DerivedAccountCardSkeletonComponent: React.FC<DerivedAccountCardSkeletonPr
   return (
     <Card style={style} className={className}>
       {/* Checkbox skeleton */}
-      <SkeletonRect sx={{ width: 24, height: 24, borderRadius: '6px', mr: `${spacing.lg}px`, flexShrink: 0 }} />
+      <SkeletonRect sx={{ width: 24, height: 24, borderRadius: `${borderRadius.sm}px`, mr: `${spacing.lg}px`, flexShrink: 0 }} />
 
       {/* Info skeleton */}
       <Box sx={{ flex: 1 }}>
         <SkeletonRect sx={{ width: '55%', height: 16, mb: '2px' }} />
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: `${spacing.xs}px` }}>
-          <SkeletonRect sx={{ width: 16, height: 16, borderRadius: '8px', flexShrink: 0 }} />
+          <SkeletonRect sx={{ width: 16, height: 16, borderRadius: `${borderRadius.md}px`, flexShrink: 0 }} />
           <SkeletonRect sx={{ width: '35%', height: 12 }} />
         </Box>
       </Box>

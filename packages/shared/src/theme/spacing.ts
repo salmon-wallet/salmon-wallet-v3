@@ -53,14 +53,22 @@ export const spacing = {
 export const borderRadius = {
   /** 0px */
   none: 0,
+  /** 2px - Scrollbar thumb corners */
+  scrollbar: 2,
   /** 4px */
   sm: 4,
   /** 8px */
   md: 8,
   /** 12px */
   lg: 12,
+  /** 14px - Medium button corners */
+  button: 14,
   /** 16px */
   xl: 16,
+  /** 18px - Icon container corners */
+  iconContainer: 18,
+  /** 20px - Large icon/avatar corners */
+  iconLg: 20,
   /** 22px - Token icon rounded corners */
   tokenIcon: 22,
   /** 24px */

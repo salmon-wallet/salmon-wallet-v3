@@ -79,7 +79,7 @@ const SelectorButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled })
 const TokenIconImage = styled('img')({
   width: 32,
   height: 32,
-  borderRadius: 16,
+  borderRadius: borderRadius.xl,
   backgroundColor: colors.card.border,
   objectFit: 'cover',
   marginRight: spacing.sm,
@@ -88,7 +88,7 @@ const TokenIconImage = styled('img')({
 const TokenIconPlaceholder = styled(Box)({
   width: 32,
   height: 32,
-  borderRadius: 16,
+  borderRadius: borderRadius.xl,
   backgroundColor: colors.card.border,
   marginRight: spacing.sm,
 });

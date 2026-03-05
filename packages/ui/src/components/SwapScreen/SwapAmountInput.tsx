@@ -102,14 +102,14 @@ const TokenDropdown = styled(ButtonBase)({
 const TokenIcon = styled('img')({
   width: 22,
   height: 22,
-  borderRadius: 11,
+  borderRadius: borderRadius.lg,
   objectFit: 'cover',
 });
 
 const TokenIconPlaceholder = styled(Box)({
   width: 22,
   height: 22,
-  borderRadius: 11,
+  borderRadius: borderRadius.lg,
   backgroundColor: colors.skeleton.base,
 });
 

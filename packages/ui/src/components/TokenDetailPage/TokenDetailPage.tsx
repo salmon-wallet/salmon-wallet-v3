@@ -13,7 +13,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 
-import { colors, spacing } from '@salmon/shared';
+import { colors, spacing, borderRadius } from '@salmon/shared';
 
 import { PriceChart } from '../PriceChart';
 import { TokenListItem } from '../TokenList';
@@ -37,7 +37,7 @@ const ContentContainer = styled(Box)({
 
 const TokenItemSkeletonContainer = styled(Box)({
   backgroundColor: colors.background.tokenItem,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   overflow: 'hidden',
   padding: `${spacing.md}px`,
   display: 'flex',

@@ -15,6 +15,7 @@ import {
   fontFamily,
   useAddressBookForm,
   type AddressBookEditBaseProps,
+  borderRadius,
   fontSize,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
@@ -36,7 +37,7 @@ const FieldLabel = styled(Typography)({
 const StyledInput = styled(InputBase)({
   width: '100%',
   backgroundColor: colors.input.background,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   border: `1px solid ${colors.input.border}`,
   padding: `${spacing.sm}px ${spacing.lg}px`,
   color: colors.text.primary,
@@ -53,7 +54,7 @@ const StyledInput = styled(InputBase)({
 
 const NetworkBox = styled(Box)({
   backgroundColor: colors.input.background,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   padding: `${spacing.md}px ${spacing.lg}px`,
 });
 
@@ -67,7 +68,7 @@ const SaveButton = styled(Button)({
   width: '100%',
   marginTop: spacing['2xl'],
   padding: `${spacing.md}px`,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   textTransform: 'none',
   fontSize: fontSize.md,
   fontWeight: 500,

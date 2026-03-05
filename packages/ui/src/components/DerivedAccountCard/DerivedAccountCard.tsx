@@ -47,7 +47,7 @@ const Card = styled(Box)<{ $selected: boolean }>(({ $selected }) => ({
 const Checkbox = styled(Box)<{ $selected: boolean }>(({ $selected }) => ({
   width: componentSizes.checkboxSize,
   height: componentSizes.checkboxSize,
-  borderRadius: 6,
+  borderRadius: borderRadius.sm,
   backgroundColor: $selected ? colors.accent.primary : colors.interactive.highlight,
   display: 'flex',
   alignItems: 'center',

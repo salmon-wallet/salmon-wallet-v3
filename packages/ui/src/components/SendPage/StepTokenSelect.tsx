@@ -22,6 +22,7 @@ import {
   spacing,
   fontFamily,
   fontWeight,
+  borderRadius,
   fontSize,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
@@ -95,7 +96,7 @@ const ListContent = styled(Box)({
   },
   '&::-webkit-scrollbar-thumb': {
     background: colors.interactive.hoverMedium,
-    borderRadius: 2,
+    borderRadius: borderRadius.scrollbar,
   },
 });
 
@@ -116,7 +117,7 @@ const TokenRowButton = styled(ButtonBase)({
   width: '100%',
   display: 'block',
   textAlign: 'left',
-  borderRadius: 10,
+  borderRadius: borderRadius.md,
   transition: 'opacity 0.15s ease',
   '&:hover': {
     opacity: 0.85,
@@ -127,14 +128,14 @@ const TokenRowContent = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  borderRadius: 10,
+  borderRadius: borderRadius.md,
   padding: `${spacing.md}px ${spacing.md}px`,
 });
 
 const TokenLogoImage = styled('img')({
   width: 32,
   height: 32,
-  borderRadius: 16,
+  borderRadius: borderRadius.xl,
   objectFit: 'cover',
   marginRight: spacing.md,
   flexShrink: 0,
@@ -143,7 +144,7 @@ const TokenLogoImage = styled('img')({
 const TokenLogoFallback = styled(Box)({
   width: 32,
   height: 32,
-  borderRadius: 16,
+  borderRadius: borderRadius.xl,
   backgroundColor: colors.background.card,
   border: `1px solid ${colors.border.default}`,
   display: 'flex',
@@ -193,7 +194,7 @@ const SkeletonRowContent = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  borderRadius: 10,
+  borderRadius: borderRadius.md,
   padding: `${spacing.md}px ${spacing.md}px`,
   gap: spacing.md,
 });
@@ -240,7 +241,7 @@ const TokenRow = React.memo(function TokenRow({ token, onPress }: TokenRowProps)
       onClick={handlePress}
       aria-label={`${token.name}, ${balanceDisplay}`}
     >
-      <BlurContainer style={{ borderRadius: 10 }}>
+      <BlurContainer style={{ borderRadius: borderRadius.md }}>
         <TokenRowContent>
           {/* Token Logo */}
           {token.logo ? (
@@ -326,7 +327,7 @@ export function StepTokenSelect({
       <Container>
         {/* Search bar skeleton */}
         <SearchWrapper>
-          <BlurContainer style={{ borderRadius: 8 }}>
+          <BlurContainer style={{ borderRadius: borderRadius.md }}>
             <Box sx={{ padding: `${spacing.sm}px ${spacing.md}px`, display: 'flex', alignItems: 'center', gap: spacing.sm }}>
               <SkeletonLogo variant="circular" width={18} height={18} />
               <SkeletonText variant="text" width="60%" height={20} />
@@ -340,7 +341,7 @@ export function StepTokenSelect({
         {/* Token row skeletons */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: `${spacing.sm}px` }}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <BlurContainer key={i} style={{ borderRadius: 10 }}>
+            <BlurContainer key={i} style={{ borderRadius: borderRadius.md }}>
               <SkeletonRowContent>
                 <SkeletonLogo variant="circular" width={32} height={32} />
                 <SkeletonTextGroup>
@@ -359,7 +360,7 @@ export function StepTokenSelect({
     <Container>
       {/* Search Input */}
       <SearchWrapper>
-        <BlurContainer style={{ borderRadius: 8 }}>
+        <BlurContainer style={{ borderRadius: borderRadius.md }}>
           <SearchInputStyled
             placeholder="Search..."
             value={searchQuery}

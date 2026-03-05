@@ -28,6 +28,7 @@ import {
   useCurrencyContext,
   useSendContacts,
   getShortAddress,
+  borderRadius,
   fontSize,
   shadowsCSS,
 } from '@salmon/shared';
@@ -71,7 +72,7 @@ const ScrollContent = styled(Box)({
   },
   '&::-webkit-scrollbar-thumb': {
     background: colors.interactive.hoverMedium,
-    borderRadius: 2,
+    borderRadius: borderRadius.scrollbar,
   },
 });
 
@@ -80,7 +81,7 @@ const TokenCardButton = styled(ButtonBase)({
   width: '100%',
   display: 'block',
   textAlign: 'left',
-  borderRadius: 14,
+  borderRadius: borderRadius.button,
   marginBottom: spacing.xl,
   transition: 'opacity 0.15s ease',
   '&:hover': {
@@ -93,7 +94,7 @@ const TokenCardContent = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
-  borderRadius: 14,
+  borderRadius: borderRadius.button,
   padding: `${spacing.lg}px ${spacing.lg}px`,
 });
 
@@ -108,7 +109,7 @@ const TokenCardLeft = styled(Box)({
 const TokenCardLogo = styled('img')({
   width: 36,
   height: 36,
-  borderRadius: 18,
+  borderRadius: borderRadius.iconContainer,
   objectFit: 'cover',
   marginRight: spacing.md,
   flexShrink: 0,
@@ -117,7 +118,7 @@ const TokenCardLogo = styled('img')({
 const TokenCardLogoFallback = styled(Box)({
   width: 36,
   height: 36,
-  borderRadius: 18,
+  borderRadius: borderRadius.iconContainer,
   backgroundColor: colors.background.card,
   border: `1px solid ${colors.border.default}`,
   display: 'flex',
@@ -184,7 +185,7 @@ const AddressInputRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
 });
@@ -215,7 +216,7 @@ const AmountInputRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
 });
@@ -228,7 +229,7 @@ const QuickFillButtons = styled(Box)({
 
 const QuickFillButton = styled(ButtonBase)({
   backgroundColor: colors.button.secondaryBackground,
-  borderRadius: 6,
+  borderRadius: borderRadius.sm,
   padding: `${spacing.xs}px ${spacing.md}px`,
   transition: 'opacity 0.15s ease',
   '&:hover': {
@@ -268,7 +269,7 @@ const BottomButtons = styled(Box)({
 const CancelButton = styled(ButtonBase)({
   flex: 1,
   height: 48,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   border: `1px solid ${colors.accent.border}`,
   backgroundColor: colors.button.cancelBackground,
   display: 'flex',
@@ -291,7 +292,7 @@ const CancelButtonText = styled(Typography)({
 const ReviewButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) => ({
   flex: 1,
   height: 48,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   overflow: 'hidden',
   border: disabled
     ? `1px solid ${colors.border.default}`
@@ -341,7 +342,7 @@ const ContactRow = styled(ButtonBase)({
   alignItems: 'center',
   justifyContent: 'space-between',
   backgroundColor: colors.background.card,
-  borderRadius: 10,
+  borderRadius: borderRadius.md,
   padding: `${spacing.md}px ${spacing.lg}px`,
   marginBottom: spacing.xs,
   transition: 'opacity 0.15s ease',
@@ -377,7 +378,7 @@ const ContactAddress = styled(Typography)({
 
 const BlockchainBadge = styled(Box)({
   backgroundColor: colors.background.tertiary,
-  borderRadius: 6,
+  borderRadius: borderRadius.sm,
   padding: `${spacing.xs}px ${spacing.sm}px`,
   flexShrink: 0,
 });
@@ -503,7 +504,7 @@ export function StepAddressAmount({
           onClick={onBack}
           aria-label={`Selected token: ${token.name}`}
         >
-          <BlurContainer style={{ borderRadius: 14 }}>
+          <BlurContainer style={{ borderRadius: borderRadius.button }}>
             <TokenCardContent>
               <TokenCardLeft>
                 {token.logo ? (
@@ -532,7 +533,7 @@ export function StepAddressAmount({
         <FieldGroup>
           <FieldLabel>Recipient</FieldLabel>
           <BlurContainer style={{
-            borderRadius: 12,
+            borderRadius: borderRadius.lg,
             border: validationState === 'invalid'
               ? `1px solid ${colors.status.error}`
               : validationState === 'warning'
@@ -630,7 +631,7 @@ export function StepAddressAmount({
         {/* Amount */}
         <FieldGroup>
           <FieldLabel>Amount</FieldLabel>
-          <BlurContainer style={{ borderRadius: 12 }}>
+          <BlurContainer style={{ borderRadius: borderRadius.lg }}>
             <AmountInputRow>
               <StyledInput
                 placeholder="0"

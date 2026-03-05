@@ -175,7 +175,7 @@ const SwapLogosContainer = styled(Box)({
 const SwapLogoOverlap = styled(Box)({
   marginLeft: -spacing.lg,
   border: `2px solid ${colors.background.secondary}`,
-  borderRadius: 18,
+  borderRadius: borderRadius.iconContainer,
   display: 'flex',
 });
 
@@ -191,7 +191,7 @@ const TypeBadge = styled(Box)({
   right: -spacing.xs,
   width: 18,
   height: 18,
-  borderRadius: 9,
+  borderRadius: borderRadius.md,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -206,7 +206,7 @@ const TypeBadgeSingle = styled(TypeBadge)({
 const IconContainer = styled(Box)({
   width: 40,
   height: 40,
-  borderRadius: 20,
+  borderRadius: borderRadius.iconLg,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -327,7 +327,7 @@ const ExpandBadge = styled(Box)({
   gap: spacing['2xs'],
   marginTop: spacing.xs,
   padding: `${spacing['2xs']}px ${spacing.xs}px`,
-  borderRadius: 4,
+  borderRadius: borderRadius.sm,
   cursor: 'pointer',
   '&:hover': {
     backgroundColor: colors.background.card,

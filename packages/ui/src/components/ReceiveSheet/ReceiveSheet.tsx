@@ -20,6 +20,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import {
   colors,
   spacing,
+  borderRadius,
   componentSizes,
   copyToClipboard,
   fontSize,
@@ -50,7 +51,7 @@ const ContentWrapper = styled(Box)({
 });
 
 const QRContainer = styled(Box)({
-  borderRadius: 16,
+  borderRadius: borderRadius.xl,
   border: `${componentSizes.qrBorderWidth}px solid ${colors.button.primaryBackground}`,
   overflow: 'hidden',
   display: 'inline-flex',
@@ -78,7 +79,7 @@ const CopyButton = styled(ButtonBase)({
   alignItems: 'center',
   justifyContent: 'center',
   backgroundColor: colors.button.primaryBackground,
-  borderRadius: 11,
+  borderRadius: borderRadius.lg,
   width: 180,
   height: 42,
   gap: spacing.xs,

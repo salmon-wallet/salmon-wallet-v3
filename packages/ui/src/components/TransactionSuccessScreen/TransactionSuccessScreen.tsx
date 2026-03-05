@@ -41,7 +41,7 @@ const Container = styled(Box)({
 const Circle = styled(Box)({
   width: 80,
   height: 80,
-  borderRadius: 40,
+  borderRadius: borderRadius.full,
   backgroundColor: colors.status.success,
   display: 'flex',
   alignItems: 'center',

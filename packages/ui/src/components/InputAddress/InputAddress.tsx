@@ -21,6 +21,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import {
   colors,
   spacing,
+  borderRadius,
   fontFamily,
   useAddressValidation,
   useAccountsContext,
@@ -53,7 +54,7 @@ const InputWrapper = styled(Box)<{
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: colors.input.background,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   border: `1px solid ${$borderColor}`,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
@@ -125,7 +126,7 @@ const DomainInfo = styled(Box)({
   marginTop: spacing.sm,
   padding: spacing.md,
   backgroundColor: colors.input.background,
-  borderRadius: 8,
+  borderRadius: borderRadius.md,
 });
 
 const DomainLabel = styled(Typography)({

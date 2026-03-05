@@ -107,7 +107,7 @@ const RetryButton = styled(Button)({
   textTransform: 'none',
   fontWeight: 500,
   padding: `8px 24px`,
-  borderRadius: 10,
+  borderRadius: borderRadius.md,
   '&:hover': {
     backgroundColor: colors.accent.primary,
     opacity: 0.9,

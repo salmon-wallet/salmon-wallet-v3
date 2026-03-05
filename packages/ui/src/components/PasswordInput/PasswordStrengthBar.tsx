@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import {
   colors,
   spacing,
+  borderRadius,
   fontFamily,
   fontWeight,
   getPasswordStrengthLabel,
@@ -34,7 +35,7 @@ const Bar = styled(Box)<{ $active: boolean; $barColor: string }>(
   ({ $active, $barColor }) => ({
     width: 32,
     height: 4,
-    borderRadius: 2,
+    borderRadius: borderRadius.scrollbar,
     backgroundColor: $active ? $barColor : colors.step.inactive,
     transition: 'background-color 0.2s ease',
   }),

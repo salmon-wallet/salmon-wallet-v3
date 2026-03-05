@@ -85,7 +85,7 @@ const ActionButtons = styled(Box)({
 const HeaderButton = styled(IconButton)({
   width: 44,
   height: 44,
-  borderRadius: 22,
+  borderRadius: borderRadius.tokenIcon,
   backgroundColor: colors.card.border,
   '&:hover': {
     backgroundColor: colors.interactive.hoverMedium,

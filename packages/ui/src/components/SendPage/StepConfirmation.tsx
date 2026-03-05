@@ -27,6 +27,7 @@ import {
   fontWeight,
   useSendTransaction,
   copyToClipboard,
+  borderRadius,
   fontSize,
   shadowsCSS,
 } from '@salmon/shared';
@@ -69,14 +70,14 @@ const TokenIconWrapper = styled(Box)({
 const TokenIconImage = styled('img')({
   width: 100,
   height: 100,
-  borderRadius: 50,
+  borderRadius: borderRadius.full,
   objectFit: 'cover',
 });
 
 const TokenIconFallback = styled(Box)({
   width: 100,
   height: 100,
-  borderRadius: 50,
+  borderRadius: borderRadius.full,
   backgroundColor: colors.background.card,
   border: `2px solid ${colors.border.default}`,
   display: 'flex',
@@ -104,7 +105,7 @@ const AmountText = styled(Typography)({
 // Address
 const AddressButton = styled(ButtonBase)({
   maxWidth: '100%',
-  borderRadius: 8,
+  borderRadius: borderRadius.md,
   transition: 'opacity 0.15s ease',
   '&:hover': {
     opacity: 0.85,
@@ -115,7 +116,7 @@ const AddressContent = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  borderRadius: 8,
+  borderRadius: borderRadius.md,
   padding: `${spacing.lg}px ${spacing.lg}px`,
   gap: spacing.md,
   maxWidth: '100%',
@@ -165,7 +166,7 @@ const BottomButtons = styled(Box)({
 const CancelButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) => ({
   flex: 1,
   height: 48,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   border: `1px solid ${colors.accent.border}`,
   backgroundColor: colors.button.cancelBackground,
   display: 'flex',
@@ -190,7 +191,7 @@ const CancelButtonText = styled(Typography)({
 const ConfirmButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) => ({
   flex: 1,
   height: 48,
-  borderRadius: 12,
+  borderRadius: borderRadius.lg,
   overflow: 'hidden',
   border: `1px solid ${colors.accent.border}`,
   opacity: disabled ? 0.7 : 1,
@@ -336,7 +337,7 @@ export function StepConfirmation({
           onClick={handleCopy}
           aria-label="Copy recipient address"
         >
-          <BlurContainer style={{ borderRadius: 8 }}>
+          <BlurContainer style={{ borderRadius: borderRadius.md }}>
             <AddressContent>
               <AddressText title={recipientAddress}>
                 {recipientAddress}

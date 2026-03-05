@@ -140,7 +140,7 @@ const TokenItemContainer = styled(Box)({
 const TokenIconImage = styled('img')({
   width: 40,
   height: 40,
-  borderRadius: 20,
+  borderRadius: borderRadius.iconLg,
   backgroundColor: colors.card.border,
   objectFit: 'cover',
 });
@@ -148,7 +148,7 @@ const TokenIconImage = styled('img')({
 const TokenIconPlaceholder = styled(Box)({
   width: 40,
   height: 40,
-  borderRadius: 20,
+  borderRadius: borderRadius.iconLg,
   backgroundColor: colors.card.border,
   display: 'flex',
   alignItems: 'center',
@@ -226,7 +226,7 @@ const FeaturedTokenButton = styled(Box)({
 const FeaturedTokenIcon = styled('img')({
   width: 48,
   height: 48,
-  borderRadius: 24,
+  borderRadius: borderRadius['2xl'],
   backgroundColor: colors.card.border,
   objectFit: 'cover',
 });
@@ -234,7 +234,7 @@ const FeaturedTokenIcon = styled('img')({
 const FeaturedTokenIconPlaceholder = styled(Box)({
   width: 48,
   height: 48,
-  borderRadius: 24,
+  borderRadius: borderRadius['2xl'],
   backgroundColor: colors.card.border,
   display: 'flex',
   alignItems: 'center',

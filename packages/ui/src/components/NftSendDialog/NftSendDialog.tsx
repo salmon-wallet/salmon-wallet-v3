@@ -21,6 +21,7 @@ import {
   colors,
   spacing,
   fontFamily,
+  borderRadius,
   useNftTransfer,
   type NftData,
   type BlockchainAccount,
@@ -57,7 +58,7 @@ const NftPreview = styled(Box)({
 const NftImage = styled('img')({
   width: 56,
   height: 56,
-  borderRadius: 8,
+  borderRadius: borderRadius.md,
   objectFit: 'cover',
   backgroundColor: colors.background.card,
 });
