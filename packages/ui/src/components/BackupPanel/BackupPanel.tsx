@@ -24,7 +24,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, useAccounts, fontSize, fontWeight, letterSpacing, opacity, componentSizes, duration, durationMs } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, useAccounts, fontSize, fontWeight, letterSpacing, opacity, componentSizes, duration, durationMs } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -49,7 +49,7 @@ const PageContent = styled(Box)({
 
 const WarningAlert = styled(Alert)({
   backgroundColor: colors.status.warningBackground,
-  border: `1px solid ${colors.status.warningBorder}`,
+  border: `${borderWidth.thin}px solid ${colors.status.warningBorder}`,
   '& .MuiAlert-icon': {
     color: colors.status.warning,
   },
@@ -62,7 +62,7 @@ const SeedPhraseCard = styled(Paper)({
   backgroundColor: colors.background.card,
   padding: spacing.lg,
   borderRadius: borderRadius.lg,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   position: 'relative',
 });
 
@@ -79,7 +79,7 @@ const WordChip = styled(Box)({
   padding: `${spacing.sm}px ${spacing.md}px`,
   backgroundColor: colors.background.primary,
   borderRadius: borderRadius.md,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
 });
 
 const WordNumber = styled(Typography)({
@@ -138,7 +138,7 @@ const ActionButton = styled(Button)({
 const CopyButton = styled(ActionButton)({
   backgroundColor: colors.background.card,
   color: colors.text.primary,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   '&:hover': {
     backgroundColor: colors.card.border,
     borderColor: colors.border.light,
@@ -277,7 +277,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
                     color: seedPhraseVisible
                       ? colors.text.primary
                       : colors.text.primary,
-                    border: `1px solid ${
+                    border: `${borderWidth.thin}px solid ${
                       seedPhraseVisible ? colors.accent.primary : colors.border.default
                     }`,
                     '&:hover': {

@@ -75,6 +75,8 @@ export const borderRadius = {
   tokenIcon: 22,
   /** 24px */
   '2xl': 24,
+  /** 9px - NFT card badge corners */
+  badge: 9,
   /** 32px */
   '3xl': 32,
   /** 24px - Header rounded corners */
@@ -128,6 +130,10 @@ export const componentSizes = {
   checkboxSize: 24,
 
   // Icon scale
+  /** 12px - Extra extra small icons (price impact badge) */
+  iconSizeXxs: 12,
+  /** 14px - Extra extra small-medium icons (price impact badge) */
+  iconSizeXxsm: 14,
   /** 16px */
   iconSizeXs: 16,
   /** 18px - Type badges, source badge chips */
@@ -227,9 +233,19 @@ export const componentSizes = {
   /** 200px - Background gradient/pattern height */
   backgroundPatternHeight: 200,
 
-  // Skeleton badge
+  // NFT
+  /** 25px - NFT card badge height */
+  nftBadgeHeight: 25,
+  /** 9px - NFT carousel card gap */
+  nftCardGap: 9,
+
+  // Skeleton
   /** 100px - Skeleton badge width */
   skeletonBadgeWidth: 100,
+  /** 200px - Shimmer animation offset */
+  shimmerOffset: 200,
+  /** 400px - Shimmer animation width */
+  shimmerWidth: 400,
 
   // Skeleton placeholders
   /** 70px - Skeleton balance placeholder width */
@@ -267,9 +283,35 @@ export const componentSizes = {
   /** 406px - NFT image max width */
   nftImageMaxWidth: 406,
 
+  // QR
+  /** 220px - QR code default size */
+  qrCodeSize: 220,
+
+  // Drawer / Panel
+  /** 320px - Settings drawer width */
+  drawerWidth: 320,
+
+  // Dialog / Sheet widths
+  /** 340px - Small dialog width */
+  dialogWidthSm: 340,
+  /** 360px - Small sheet width */
+  sheetWidthSm: 360,
+  /** 380px - Medium sheet width */
+  sheetWidthMd: 380,
+  /** 400px - Base dialog/sheet width */
+  sheetWidthBase: 400,
+  /** 420px - Large sheet width */
+  sheetWidthLg: 420,
+  /** 440px - Extra large sheet width */
+  sheetWidthXl: 440,
+
   // Sheet
   /** 700px - Sheet dialog max height */
   sheetMaxHeight: 700,
+
+  // Breakpoints
+  /** 768px - Desktop breakpoint */
+  breakpointDesktop: 768,
 } as const;
 
 /**
@@ -295,8 +337,14 @@ export const borderWidth = {
   thin: 1,
   /** 1.38px - Figma header border (1.38px rgba(255,255,255,0.8)) */
   header: 1.38,
+  /** 0.8px - Accent/decorative borders */
+  accent: 0.8,
   /** 2px */
   medium: 2,
+  /** 3px - Heavy borders (loading spinner) */
+  heavy: 3,
+  /** 1.5px - Thick input borders */
+  thick: 1.5,
   /** 0.75px - Sheet top border */
   sheet: 0.75,
 } as const;
@@ -323,6 +371,21 @@ export const opacity = {
   full: 1,
 } as const;
 
+/**
+ * Blur intensity tokens for backdrop filters and blur effects
+ */
+export const blur = {
+  /** 2.5px - Extra subtle blur */
+  xs: 2.5,
+  /** 6px - Light blur (card badges) */
+  sm: 6,
+  /** 10px - Medium blur (sheet overlays) */
+  md: 10,
+  /** 12px - Strong blur (interactive elements) */
+  lg: 12,
+} as const;
+
+export type Blur = typeof blur;
 export type Spacing = typeof spacing;
 export type BorderRadius = typeof borderRadius;
 export type ComponentSizes = typeof componentSizes;

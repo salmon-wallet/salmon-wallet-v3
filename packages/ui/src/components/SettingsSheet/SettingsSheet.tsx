@@ -72,7 +72,7 @@ import type {
 // Constants
 // ============================================================================
 
-const DRAWER_WIDTH = 320;
+const DRAWER_WIDTH = componentSizes.drawerWidth;
 
 /**
  * Icon mapping for settings items

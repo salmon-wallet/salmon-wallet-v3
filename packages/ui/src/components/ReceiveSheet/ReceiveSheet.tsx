@@ -41,7 +41,7 @@ import type { ReceiveSheetProps } from './types';
 // Constants
 // ============================================================================
 
-const QR_SIZE_DEFAULT = 220;
+const QR_SIZE_DEFAULT = componentSizes.qrCodeSize;
 const COPY_FEEDBACK_DURATION = durationMs.feedbackLong;
 
 // ============================================================================
@@ -133,7 +133,7 @@ export function ReceiveSheet({
   style,
 }: ReceiveSheetProps) {
   const [copied, setCopied] = useState(false);
-  const [qrSize, setQrSize] = useState(QR_SIZE_DEFAULT);
+  const [qrSize, setQrSize] = useState<number>(QR_SIZE_DEFAULT);
   const contentRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 

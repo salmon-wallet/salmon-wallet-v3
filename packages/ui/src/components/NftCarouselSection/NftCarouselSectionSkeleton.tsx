@@ -5,11 +5,11 @@ import { memo } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, spacing, borderRadius, componentSizes } from '@salmon/shared';
 import { NftCardSkeleton } from '../NftCard';
 import type { NftCarouselSectionSkeletonProps } from './types';
 
-const CARD_GAP = 9;
+const CARD_GAP = componentSizes.nftCardGap;
 
 const Container = styled(Box)({
   display: 'flex',

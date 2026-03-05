@@ -17,6 +17,7 @@ import {
   fontFamily,
   fontSize as fontSizeTokens,
   opacity,
+  borderWidth,
   duration,
   easing,
 } from '@salmon/shared';
@@ -35,7 +36,7 @@ const InputWrapper = styled(Box)<{
   alignItems: 'center',
   height: componentSizes.inputHeight,
   backgroundColor: colors.input.background,
-  border: `1px solid ${$borderColor}`,
+  border: `${borderWidth.thin}px solid ${$borderColor}`,
   borderRadius: componentSizes.inputRadius,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,

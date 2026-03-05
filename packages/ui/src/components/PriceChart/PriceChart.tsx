@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
-import { borderRadius, colors, componentSizes, fontFamily, fontWeight, formatFiatIntl, isPositivePerformance, PRICE_CHART_PERIODS, spacing, useCurrencyContext, fontSize, shadowsCSS } from '@salmon/shared';
+import { borderRadius, borderWidth, colors, componentSizes, fontFamily, fontWeight, formatFiatIntl, isPositivePerformance, PRICE_CHART_PERIODS, spacing, useCurrencyContext, fontSize, shadowsCSS, durationMs } from '@salmon/shared';
 import { useCallback, useId, useMemo } from 'react';
 import {
   Area,
@@ -106,7 +106,7 @@ const TooltipContainer = styled(Box)({
   backgroundColor: colors.dialog.background,
   borderRadius: borderRadius.md,
   padding: spacing.sm,
-  border: `1px solid ${colors.dialog.border}`,
+  border: `${borderWidth.thin}px solid ${colors.dialog.border}`,
   boxShadow: shadowsCSS.lg,
 });
 
@@ -275,7 +275,7 @@ export function PriceChart({
                 stroke={chartColor}
                 strokeWidth={2}
                 fill={`url(#${gradientId})`}
-                animationDuration={500}
+                animationDuration={durationMs.debounce}
               />
             </AreaChart>
           </ResponsiveContainer>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { colors, spacing, borderRadius, gradients, shadowsCSS, componentSizes } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, shadowsCSS, componentSizes, borderWidth } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 
 export interface SwapReviewButtonsProps {
@@ -30,7 +30,7 @@ const BackButtonWrapper = styled('div')({
 const ConfirmButtonGradient = styled('div')({
   flex: 1,
   borderRadius: borderRadius.lg,
-  border: `0.8px solid ${colors.accent.border}`,
+  border: `${borderWidth.accent}px solid ${colors.accent.border}`,
   boxShadow: shadowsCSS.button,
   background: gradients.primaryCSS,
 });
@@ -58,7 +58,7 @@ export const SwapReviewButtons: React.FC<SwapReviewButtonsProps> = ({
           disabled={isConfirming}
           style={{
             height: componentSizes.buttonHeightCompact,
-            border: `0.8px solid ${colors.accent.border}`,
+            border: `${borderWidth.accent}px solid ${colors.accent.border}`,
             borderRadius: borderRadius.lg,
             backgroundColor: colors.button.cancelBackground,
           }}

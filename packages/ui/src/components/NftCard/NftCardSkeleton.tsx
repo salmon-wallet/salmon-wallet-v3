@@ -7,17 +7,17 @@ import { memo } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
-import { colors } from '@salmon/shared';
+import { colors, borderRadius, componentSizes, spacing } from '@salmon/shared';
 import type { NftCardSkeletonProps } from './types';
 
 /** Card dimensions matching NftCard */
-const CARD_BORDER_RADIUS = 18;
+const CARD_BORDER_RADIUS = borderRadius.iconContainer;
 
 /** Badge dimensions */
-const BADGE_HEIGHT = 25; // 6px padding * 2 + 13px text
-const BADGE_BOTTOM = 8;
-const BADGE_HORIZONTAL = 8;
-const BADGE_BORDER_RADIUS = 9;
+const BADGE_HEIGHT = componentSizes.nftBadgeHeight;
+const BADGE_BOTTOM = spacing.sm;
+const BADGE_HORIZONTAL = spacing.sm;
+const BADGE_BORDER_RADIUS = borderRadius.badge;
 
 const Container = styled(Box)({
   width: '100%',

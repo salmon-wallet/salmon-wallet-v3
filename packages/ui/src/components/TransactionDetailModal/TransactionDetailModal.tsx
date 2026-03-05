@@ -53,7 +53,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, componentSizes, copyToClipboard, fontFamily, fontSize, fontWeight, formatBlockNumber, formatDateTime, formatRawAmount, getShortAddress, letterSpacing, spacing, truncateHash, duration, durationMs, easing } from '@salmon/shared';
+import { borderRadius, borderWidth, colors, componentSizes, copyToClipboard, fontFamily, fontSize, fontWeight, formatBlockNumber, formatDateTime, formatRawAmount, getShortAddress, letterSpacing, spacing, truncateHash, duration, durationMs, easing } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -198,9 +198,9 @@ const StyledDialog = styled(Dialog)({
   '& .MuiDialog-paper': {
     backgroundColor: colors.dialog.background,
     borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.dialog.border}`,
-    minWidth: 'min(380px, 95vw)',
-    maxWidth: 'min(440px, 95vw)',
+    border: `${borderWidth.thin}px solid ${colors.dialog.border}`,
+    minWidth: `min(${componentSizes.sheetWidthMd}px, 95vw)`,
+    maxWidth: `min(${componentSizes.sheetWidthXl}px, 95vw)`,
     maxHeight: '85vh',
     overflow: 'hidden',
     position: 'relative',
@@ -224,7 +224,7 @@ const HeaderContainer = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   padding: `${spacing.md}px ${spacing.xl}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
+  borderBottom: `${borderWidth.thin}px solid ${colors.border.default}`,
   position: 'relative',
   zIndex: 1,
 });
@@ -474,7 +474,7 @@ const SwapHeaderRow = styled(Box)({
 const ConversionRateContainer = styled(Box)({
   marginTop: spacing.md,
   paddingTop: spacing.md,
-  borderTop: `1px solid ${colors.border.default}`,
+  borderTop: `${borderWidth.thin}px solid ${colors.border.default}`,
   display: 'flex',
   justifyContent: 'center',
 });
@@ -523,7 +523,7 @@ const NftAttributeChip = styled(Box)({
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.sm,
   padding: `${spacing.sm}px ${spacing.base}px`,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   minWidth: '45%',
   flex: '0 0 auto',
   boxSizing: 'border-box',
@@ -550,7 +550,7 @@ const NftAttributeValue = styled(Typography)({
 // Fixed bottom bar
 const FixedBottomBar = styled(Box)({
   padding: `${spacing.md}px ${spacing.lg}px ${spacing.lg}px`,
-  borderTop: `1px solid ${colors.border.subtle}`,
+  borderTop: `${borderWidth.thin}px solid ${colors.border.subtle}`,
   flexShrink: 0,
   display: 'flex',
   flexDirection: 'column',
@@ -575,7 +575,7 @@ const ActionButton = styled(ButtonBase)({
   borderRadius: borderRadius.md,
   padding: `${spacing.md}px`,
   gap: spacing.xs,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   transition: `background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor: `${colors.background.card}cc`,
@@ -614,7 +614,7 @@ const HopBadge = styled(Box)({
   padding: `${spacing['2xs']}px ${spacing.sm}px`,
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.sm,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
 });
 
 const HopBadgeText = styled(Typography)({
@@ -655,7 +655,7 @@ const DevBadge = styled(Box)({
   padding: `${spacing['2xs']}px ${spacing.sm}px`,
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.sm,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   display: 'inline-flex',
 });
 
@@ -670,7 +670,7 @@ const DevBadgeText = styled(Typography)({
 const DevSubSection = styled(Box)({
   marginTop: spacing.md,
   paddingTop: spacing.sm,
-  borderTop: `1px solid ${colors.border.default}`,
+  borderTop: `${borderWidth.thin}px solid ${colors.border.default}`,
 });
 
 const DevSubTitle = styled(Typography)({

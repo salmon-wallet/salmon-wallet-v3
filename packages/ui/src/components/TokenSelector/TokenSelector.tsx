@@ -19,6 +19,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   fontFamily,
   fontWeight,
   getShortAddress,
@@ -43,7 +44,7 @@ const Container = styled(Box)({
   backgroundColor: colors.dialog.background,
   borderRadius: borderRadius.xl,
   padding: spacing.sm,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
 });
 
 const InputContainer = styled(Box)({

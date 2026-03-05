@@ -16,7 +16,7 @@ import type { NftCarouselSectionProps } from './types';
 // Constants
 // ============================================================================
 
-const CARD_GAP = 9;
+const CARD_GAP = componentSizes.nftCardGap;
 
 // ============================================================================
 // Styled Components

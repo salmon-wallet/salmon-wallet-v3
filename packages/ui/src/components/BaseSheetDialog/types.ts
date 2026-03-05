@@ -76,18 +76,18 @@ export interface ContentProps {
  */
 export const SIZE_PRESETS = {
   small: {
-    minWidth: 'min(360px, 95vw)',
-    maxWidth: 'min(400px, 95vw)',
+    minWidth: `min(${componentSizes.sheetWidthSm}px, 95vw)`,
+    maxWidth: `min(${componentSizes.sheetWidthBase}px, 95vw)`,
     maxHeight: '80vh',
   },
   medium: {
-    minWidth: 'min(380px, 95vw)',
-    maxWidth: 'min(440px, 95vw)',
+    minWidth: `min(${componentSizes.sheetWidthMd}px, 95vw)`,
+    maxWidth: `min(${componentSizes.sheetWidthXl}px, 95vw)`,
     maxHeight: '85vh',
   },
   large: {
-    minWidth: 'min(380px, 95vw)',
-    maxWidth: 'min(440px, 95vw)',
+    minWidth: `min(${componentSizes.sheetWidthMd}px, 95vw)`,
+    maxWidth: `min(${componentSizes.sheetWidthXl}px, 95vw)`,
     height: '85vh',
     maxHeight: componentSizes.sheetMaxHeight,
   },

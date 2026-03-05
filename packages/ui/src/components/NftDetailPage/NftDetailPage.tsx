@@ -42,6 +42,8 @@ import {
   duration,
   durationMs,
   easing,
+  blur,
+  borderWidth,
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
@@ -163,7 +165,7 @@ const DetailRow = styled(Box)({
   alignItems: 'center',
   paddingTop: spacing.sm,
   paddingBottom: spacing.sm,
-  borderBottom: `0.5px solid ${colors.border.default}`,
+  borderBottom: `${borderWidth.actionButton}px solid ${colors.border.default}`,
   '&:last-child': {
     borderBottom: 'none',
   },
@@ -219,7 +221,7 @@ const PrimaryButtonBase = styled(ButtonBase)({
   borderRadius: borderRadius.button,
   overflow: 'hidden',
   background: gradients.primaryButtonCSS,
-  border: `0.5px solid ${colors.accent.border}`,
+  border: `${borderWidth.actionButton}px solid ${colors.accent.border}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -416,11 +418,11 @@ export function NftDetailPage({
         {/* Blockchain Badge */}
         <BlockchainBadgeContainer>
           <BlurContainer
-            blurIntensity={10}
+            blurIntensity={blur.md}
             blurTint="dark"
             backgroundColor={colors.background.tokenItem}
             borderColor={colors.border.default}
-            borderWidth={1}
+            borderWidth={borderWidth.thin}
             style={{ borderRadius: borderRadius.lg, overflow: 'hidden' }}
           >
             <BlockchainBadgeContent>
@@ -440,11 +442,11 @@ export function NftDetailPage({
         {/* Description Section */}
         {nft.description && (
           <BlurContainer
-            blurIntensity={10}
+            blurIntensity={blur.md}
             blurTint="dark"
             backgroundColor={colors.background.tokenItem}
             borderColor={colors.border.default}
-            borderWidth={1}
+            borderWidth={borderWidth.thin}
             style={blurStyle}
           >
             <SectionContent>
@@ -457,11 +459,11 @@ export function NftDetailPage({
         {/* Attributes Section */}
         {nft.attributes && nft.attributes.length > 0 && (
           <BlurContainer
-            blurIntensity={10}
+            blurIntensity={blur.md}
             blurTint="dark"
             backgroundColor={colors.background.tokenItem}
             borderColor={colors.border.default}
-            borderWidth={1}
+            borderWidth={borderWidth.thin}
             style={blurStyle}
           >
             <SectionContent>
@@ -476,11 +478,11 @@ export function NftDetailPage({
         {/* Blockchain Details Section */}
         {renderBlockchainDetails() && (
           <BlurContainer
-            blurIntensity={10}
+            blurIntensity={blur.md}
             blurTint="dark"
             backgroundColor={colors.background.tokenItem}
             borderColor={colors.border.default}
-            borderWidth={1}
+            borderWidth={borderWidth.thin}
             style={blurStyle}
           >
             <SectionContent>
@@ -498,10 +500,10 @@ export function NftDetailPage({
           </PrimaryButtonBase>
 
           <BlurContainer
-            blurIntensity={2.5}
+            blurIntensity={blur.xs}
             backgroundColor={colors.interactive.surface}
             borderColor={colors.accent.border}
-            borderWidth={0.5}
+            borderWidth={borderWidth.actionButton}
             style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: componentSizes.buttonMinWidthLg }}
           >
             <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">

@@ -230,14 +230,14 @@ const PaginationDot = styled(Box)<{ $active?: boolean }>(({ $active }) => ({
 }));
 
 const shimmer = keyframes`
-  0% { background-position: -200px 0; }
-  100% { background-position: 200px 0; }
+  0% { background-position: -${componentSizes.shimmerOffset}px 0; }
+  100% { background-position: ${componentSizes.shimmerOffset}px 0; }
 `;
 
 const SkeletonRect = styled(Box)({
   borderRadius: ms(borderRadius.sm),
   background: `linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.08) 75%)`,
-  backgroundSize: '400px 100%',
+  backgroundSize: `${componentSizes.shimmerWidth}px 100%`,
   animation: `${shimmer} ${durationMs.shimmer}ms ${easing.easeInOut} infinite`,
 });
 

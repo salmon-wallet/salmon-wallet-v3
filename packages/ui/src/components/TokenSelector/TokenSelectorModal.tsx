@@ -26,6 +26,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   componentSizes,
   fontFamily,
   fontWeight,
@@ -53,9 +54,9 @@ const StyledDialog = styled(Dialog)({
   '& .MuiDialog-paper': {
     backgroundColor: colors.dialog.background,
     borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.dialog.border}`,
-    minWidth: 'min(360px, 95vw)',
-    maxWidth: 'min(420px, 95vw)',
+    border: `${borderWidth.thin}px solid ${colors.dialog.border}`,
+    minWidth: `min(${componentSizes.sheetWidthSm}px, 95vw)`,
+    maxWidth: `min(${componentSizes.sheetWidthLg}px, 95vw)`,
     maxHeight: '85vh',
     display: 'flex',
     flexDirection: 'column',
@@ -67,7 +68,7 @@ const StyledDialogTitle = styled(DialogTitle)({
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: `${spacing.lg}px ${spacing.xl}px`,
-  borderBottom: `1px solid ${colors.border.default}`,
+  borderBottom: `${borderWidth.thin}px solid ${colors.border.default}`,
 });
 
 const TitleText = styled(Typography)({
@@ -99,7 +100,7 @@ const SearchInput = styled(InputBase)({
   color: colors.text.primary,
   fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  border: `1px solid ${colors.input.border}`,
+  border: `${borderWidth.thin}px solid ${colors.input.border}`,
   transition: `border-color ${duration.normal} ${easing.ease}`,
   '&.Mui-focused': {
     borderColor: colors.input.borderFocus,
@@ -307,7 +308,7 @@ const EmptyText = styled(Typography)({
 
 const FooterContainer = styled(Box)({
   padding: `${spacing.md}px ${spacing.xl}px`,
-  borderTop: `1px solid ${colors.border.default}`,
+  borderTop: `${borderWidth.thin}px solid ${colors.border.default}`,
 });
 
 const CloseActionButton = styled(Button)({
@@ -442,7 +443,7 @@ export function TokenSelectorModal({
         {/* Searching Indicator */}
         {isSearching && (
           <SearchingContainer>
-            <CircularProgress size={16} sx={{ color: colors.text.secondary }} />
+            <CircularProgress size={componentSizes.iconSizeXs} sx={{ color: colors.text.secondary }} />
             <SearchingText>
               {t('actions.searching', 'Searching...')}
             </SearchingText>

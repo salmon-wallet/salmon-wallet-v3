@@ -22,6 +22,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   fontFamily,
   fontWeight,
   useAddressValidation,
@@ -31,6 +32,7 @@ import {
   opacity,
   componentSizes,
   duration,
+  durationMs,
   easing,
 } from '@salmon/shared';
 import type { InputAddressProps } from './types';
@@ -61,7 +63,7 @@ const InputWrapper = styled(Box)<{
   alignItems: 'center',
   backgroundColor: colors.input.background,
   borderRadius: borderRadius.lg,
-  border: `1px solid ${$borderColor}`,
+  border: `${borderWidth.thin}px solid ${$borderColor}`,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
   minHeight: componentSizes.inputHeight,
@@ -247,7 +249,7 @@ export function InputAddress({
     resolvedAddress,
     isDomain,
   } = useAddressValidation(address, activeBlockchainAccount, {
-    debounceMs: 500,
+    debounceMs: durationMs.debounce,
     onValidation,
   });
 

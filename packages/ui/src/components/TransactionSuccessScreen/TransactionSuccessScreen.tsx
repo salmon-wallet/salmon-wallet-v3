@@ -6,7 +6,7 @@ import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
-import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight, lineHeight, componentSizes, duration, easing } from '@salmon/shared';
+import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight, lineHeight, componentSizes, borderWidth, duration, easing } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 
 // ============================================================================
@@ -75,7 +75,7 @@ const Summary = styled(Typography)({
   textAlign: 'center',
   marginBottom: spacing.lg,
   opacity: 0,
-  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} 0.5s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} ${duration.stagger1} forwards`,
 });
 
 const ExplorerLink = styled(Link)({
@@ -86,7 +86,7 @@ const ExplorerLink = styled(Link)({
   cursor: 'pointer',
   marginBottom: spacing['4xl'],
   opacity: 0,
-  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} 0.55s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} ${duration.stagger2} forwards`,
 });
 
 const BridgeInfoBox = styled(Box)({
@@ -96,7 +96,7 @@ const BridgeInfoBox = styled(Box)({
   padding: spacing.lg,
   marginBottom: spacing.xl,
   opacity: 0,
-  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} 0.5s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} ${duration.stagger1} forwards`,
 });
 
 const BridgeLabel = styled(Typography)({
@@ -119,14 +119,14 @@ const ContinueButton = styled(Button)({
   height: componentSizes.buttonHeightCompact,
   borderRadius: borderRadius.lg,
   background: gradients.primaryCSS,
-  border: `0.8px solid ${colors.accent.border}`,
+  border: `${borderWidth.accent}px solid ${colors.accent.border}`,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: fontWeight.semibold,
   fontSize: fontSize.md,
   textTransform: 'none',
   opacity: 0,
-  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} 0.6s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} ${duration.stagger3} forwards`,
   '&:hover': {
     background: gradients.primaryCSS,
   },

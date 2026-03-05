@@ -6,7 +6,7 @@
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { colors, spacing, borderRadius, fontFamily, fontSize, fontWeight, componentSizes } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, fontFamily, fontSize, fontWeight, componentSizes } from '@salmon/shared';
 import type { SeedWordGridProps } from './types';
 
 const Container = styled(Box)({
@@ -21,7 +21,7 @@ const WordCard = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: colors.card.background,
-  border: `1px solid ${colors.card.border}`,
+  border: `${borderWidth.thin}px solid ${colors.card.border}`,
   borderRadius: borderRadius.md,
   paddingTop: spacing.sm,
   paddingBottom: spacing.sm,

@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import Typography from '@mui/material/Typography';
-import { colors, spacing, componentSizes, fontFamily, fontSize, fontWeight, opacity, duration, easing } from '@salmon/shared';
+import { colors, spacing, borderWidth, componentSizes, fontFamily, fontSize, fontWeight, opacity, duration, easing } from '@salmon/shared';
 import type { SeedWordInputProps, ValidationState } from './types';
 
 const Container = styled(Box)({
@@ -27,7 +27,7 @@ const StyledInput = styled(InputBase)<{ $borderColor: string }>(({ $borderColor 
   width: '100%',
   height: componentSizes.inputHeight,
   backgroundColor: colors.input.background,
-  border: `1px solid ${$borderColor}`,
+  border: `${borderWidth.thin}px solid ${$borderColor}`,
   borderRadius: componentSizes.inputRadius,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,

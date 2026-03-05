@@ -13,6 +13,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   fontFamily,
   fontWeight,
   formatAmountWithSymbol,
@@ -81,7 +82,7 @@ const DetailsContainer = styled(Box)({
 const WarningBox = styled(Box)({
   backgroundColor: colors.status.warningBackground,
   borderRadius: borderRadius.md,
-  border: `1px solid ${colors.status.warningBorder}`,
+  border: `${borderWidth.thin}px solid ${colors.status.warningBorder}`,
   padding: spacing.base,
   marginBottom: spacing.lg,
 });

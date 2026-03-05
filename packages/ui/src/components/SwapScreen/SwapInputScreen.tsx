@@ -17,6 +17,7 @@ import {
   fontSize,
   shadowsCSS,
   componentSizes,
+  borderWidth,
   duration,
   easing,
 } from '@salmon/shared';
@@ -70,7 +71,7 @@ const DisclaimerText = styled(Typography)({
 
 const ReviewButtonWrapper = styled('div')<{ $canReview: boolean }>(({ $canReview }) => ({
   borderRadius: borderRadius.lg,
-  border: `1.5px solid ${$canReview ? 'transparent' : 'transparent'}`,
+  border: `${borderWidth.thick}px solid ${$canReview ? 'transparent' : 'transparent'}`,
   boxShadow: shadowsCSS.button,
   background: $canReview ? colors.button.primaryBackground : colors.button.inactiveBackground,
   minWidth: componentSizes.copyButtonWidth,

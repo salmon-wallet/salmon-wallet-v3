@@ -19,6 +19,7 @@ import {
   componentSizes,
   contentPadding,
   opacity,
+  blur,
 } from './spacing';
 import {
   fontFamily,
@@ -44,6 +45,7 @@ export {
   componentSizes,
   contentPadding,
   opacity,
+  blur,
 } from './spacing';
 export type {
   Spacing,
@@ -52,6 +54,7 @@ export type {
   ComponentSizes,
   ContentPadding,
   Opacity,
+  Blur,
 } from './spacing';
 
 // Re-export all tokens from typography
@@ -102,6 +105,7 @@ export const theme = {
   letterSpacing,
   textStyles,
   opacity,
+  blur,
   shadows,
   shadowsCSS,
   duration,

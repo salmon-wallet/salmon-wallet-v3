@@ -8,11 +8,11 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, spacing, borderRadius, componentSizes, fontFamily, fontWeight, fontSize, duration, easing } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, componentSizes, fontFamily, fontWeight, fontSize, duration, easing } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import type { DerivedAccountCardProps } from './types';
 
-const ICON_SIZE = 16;
+const ICON_SIZE = componentSizes.iconSizeXs;
 
 const BlockchainIcon: React.FC<{ blockchain?: string }> = ({ blockchain }) => {
   const iconStyle = { fontSize: ICON_SIZE, width: ICON_SIZE, height: ICON_SIZE, color: colors.text.placeholder };
@@ -34,7 +34,7 @@ const Card = styled(Box)<{ $selected: boolean }>(({ $selected }) => ({
   alignItems: 'center',
   backgroundColor: colors.card.background,
   borderRadius: borderRadius.xl,
-  border: `1px solid ${$selected ? colors.card.borderActive : colors.card.border}`,
+  border: `${borderWidth.thin}px solid ${$selected ? colors.card.borderActive : colors.card.border}`,
   padding: spacing.lg,
   marginBottom: spacing.md,
   cursor: 'pointer',

@@ -26,7 +26,7 @@ const Outer = styled(Box)({
   backgroundColor: colors.background.primary,
 });
 
-const DESKTOP_BREAKPOINT = 768;
+const DESKTOP_BREAKPOINT = componentSizes.breakpointDesktop;
 
 const Inner = styled(Box)<{ $maxWidth: number }>(({ $maxWidth }) => ({
   width: '100%',

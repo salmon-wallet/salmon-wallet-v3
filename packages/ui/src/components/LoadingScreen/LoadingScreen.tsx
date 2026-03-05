@@ -11,7 +11,7 @@
  */
 import { memo, useState, useEffect, useMemo, CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { colors, fontFamily, fontWeight, fontSize, lineHeight, DEFAULT_WALLET_TIP_KEYS, spacing, duration, durationMs, easing } from '@salmon/shared';
+import { colors, fontFamily, fontWeight, fontSize, lineHeight, DEFAULT_WALLET_TIP_KEYS, spacing, borderWidth, duration, durationMs, easing } from '@salmon/shared';
 import type { LoadingScreenProps } from './types';
 
 // ============================================================================
@@ -206,11 +206,11 @@ export const LoadingScreen = memo(function LoadingScreen({
     width: `${spinnerSize}px`,
     height: `${spinnerSize}px`,
     borderRadius: '50%',
-    border: `3px solid transparent`,
+    border: `${borderWidth.heavy}px solid transparent`,
     borderTopColor: colors.accent.primary,
     borderRightColor: colors.accent.primary,
     borderBottomColor: colors.accent.primary,
-    animation: 'salmonSpin 2s linear infinite',
+    animation: `salmonSpin ${durationMs.spinSlow}ms linear infinite`,
     boxSizing: 'border-box',
   };
 

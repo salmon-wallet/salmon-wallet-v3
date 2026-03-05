@@ -17,6 +17,7 @@ import {
   useAddressBookForm,
   type AddressBookAddBaseProps,
   borderRadius,
+  borderWidth,
   fontSize,
   opacity,
 } from '@salmon/shared';
@@ -40,7 +41,7 @@ const StyledInput = styled(InputBase)({
   width: '100%',
   backgroundColor: colors.input.background,
   borderRadius: borderRadius.lg,
-  border: `1px solid ${colors.input.border}`,
+  border: `${borderWidth.thin}px solid ${colors.input.border}`,
   padding: `${spacing.sm}px ${spacing.lg}px`,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,

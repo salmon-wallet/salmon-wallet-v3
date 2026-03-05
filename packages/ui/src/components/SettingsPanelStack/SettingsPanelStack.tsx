@@ -65,7 +65,7 @@ interface SettingsSection {
 // Constants
 // ============================================================================
 
-const DRAWER_WIDTH = 320;
+const DRAWER_WIDTH = componentSizes.drawerWidth;
 const PUSH_DURATION = durationMs.medium;
 const POP_DURATION = durationMs.normal;
 

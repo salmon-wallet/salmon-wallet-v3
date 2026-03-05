@@ -30,11 +30,13 @@ import {
   useSendContacts,
   getShortAddress,
   borderRadius,
+  borderWidth,
   fontSize,
   shadowsCSS,
   lineHeight,
   opacity,
   duration,
+  durationMs,
   easing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
@@ -125,7 +127,7 @@ const TokenCardLogoFallback = styled(Box)({
   height: componentSizes.iconSizeXL,
   borderRadius: borderRadius.iconContainer,
   backgroundColor: colors.background.card,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -275,7 +277,7 @@ const CancelButton = styled(ButtonBase)({
   flex: 1,
   height: componentSizes.buttonHeightMedium,
   borderRadius: borderRadius.lg,
-  border: `1px solid ${colors.accent.border}`,
+  border: `${borderWidth.thin}px solid ${colors.accent.border}`,
   backgroundColor: colors.button.cancelBackground,
   display: 'flex',
   alignItems: 'center',
@@ -300,8 +302,8 @@ const ReviewButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
   borderRadius: borderRadius.lg,
   overflow: 'hidden',
   border: disabled
-    ? `1px solid ${colors.border.default}`
-    : `1px solid ${colors.accent.border}`,
+    ? `${borderWidth.thin}px solid ${colors.border.default}`
+    : `${borderWidth.thin}px solid ${colors.accent.border}`,
   opacity: disabled ? 0.5 : 1,
   boxShadow: shadowsCSS.button,
   transition: `opacity ${duration.fast} ${easing.ease}`,
@@ -424,7 +426,7 @@ export function StepAddressAmount({
     message: addressMessage,
     messageType: addressMessageType,
   } = useAddressValidation(address, account, {
-    debounceMs: 500,
+    debounceMs: durationMs.debounce,
   });
 
   // Parse balance
@@ -540,11 +542,11 @@ export function StepAddressAmount({
           <BlurContainer style={{
             borderRadius: borderRadius.lg,
             border: validationState === 'invalid'
-              ? `1px solid ${colors.status.error}`
+              ? `${borderWidth.thin}px solid ${colors.status.error}`
               : validationState === 'warning'
-              ? `1px solid ${colors.status.warning}`
+              ? `${borderWidth.thin}px solid ${colors.status.warning}`
               : validationState === 'valid'
-              ? `1px solid ${colors.status.success}`
+              ? `${borderWidth.thin}px solid ${colors.status.success}`
               : undefined,
           }}>
             <AddressInputRow>

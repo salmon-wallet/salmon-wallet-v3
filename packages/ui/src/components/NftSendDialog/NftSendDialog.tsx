@@ -171,7 +171,7 @@ export function NftSendDialog({
           </MessageText>
         ) : loading ? (
           <StatusContainer>
-            <CircularProgress size={32} sx={{ color: colors.accent.primary }} />
+            <CircularProgress size={componentSizes.iconSizeLarge} sx={{ color: colors.accent.primary }} />
             <MessageText>
               {t('nft.sending', 'Sending NFT...')}
             </MessageText>

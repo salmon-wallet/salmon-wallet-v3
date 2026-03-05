@@ -34,6 +34,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   useAccounts,
   getShortAddress,
   buildNetworkListFromAccount,
@@ -70,7 +71,7 @@ const PageContent = styled(Box)({
 
 const WarningAlert = styled(Alert)({
   backgroundColor: colors.status.warningBackground,
-  border: `1px solid ${colors.status.warningBorder}`,
+  border: `${borderWidth.thin}px solid ${colors.status.warningBorder}`,
   '& .MuiAlert-icon': {
     color: colors.status.warning,
   },
@@ -83,7 +84,7 @@ const PrivateKeyCard = styled(Paper)({
   backgroundColor: colors.background.card,
   padding: spacing.lg,
   borderRadius: borderRadius.lg,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   position: 'relative',
 });
 
@@ -161,7 +162,7 @@ const ActionButton = styled(Button)({
 const CopyButton = styled(ActionButton)({
   backgroundColor: colors.background.card,
   color: colors.text.primary,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   '&:hover': {
     backgroundColor: colors.card.border,
     borderColor: colors.border.light,
@@ -376,7 +377,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
                         ? colors.accent.primary
                         : colors.background.card,
                       color: isRevealed ? colors.text.primary : colors.text.primary,
-                      border: `1px solid ${
+                      border: `${borderWidth.thin}px solid ${
                         isRevealed ? colors.accent.primary : colors.border.default
                       }`,
                       '&:hover': {

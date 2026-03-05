@@ -29,6 +29,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   getShortAddress,
   getAvatarColor,
   getInitials,
@@ -132,7 +133,7 @@ const AddAccountButton = styled(Button)({
 const ConfirmDialogPaper = styled(Box)({
   backgroundColor: colors.dialog.background,
   borderRadius: borderRadius.lg,
-  border: `1px solid ${colors.dialog.border}`,
+  border: `${borderWidth.thin}px solid ${colors.dialog.border}`,
   padding: spacing.xl,
   textAlign: 'center',
 });

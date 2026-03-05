@@ -24,6 +24,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import {
   colors,
   borderRadius,
+  borderWidth,
   getTransactionUrl,
   getAvailableExplorers,
   getDefaultExplorer,
@@ -33,6 +34,7 @@ import {
   spacing,
   duration,
   easing,
+  blur,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { ExplorerLinkButtonProps } from './types';
@@ -64,9 +66,9 @@ const ButtonText = styled(Typography)({
 const StyledMenu = styled(Menu)({
   '& .MuiPaper-root': {
     backgroundColor: 'rgba(56, 63, 82, 0.20)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: `1px solid ${colors.border.default}`,
+    backdropFilter: `blur(${blur.lg}px)`,
+    WebkitBackdropFilter: `blur(${blur.lg}px)`,
+    border: `${borderWidth.thin}px solid ${colors.border.default}`,
     borderRadius: borderRadius.lg,
   },
 });

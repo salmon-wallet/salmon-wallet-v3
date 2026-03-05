@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import { colors, gradients, fontFamily, fontWeight, borderRadius, fontSize, spacing, shadowsCSS, opacity, duration, easing } from '@salmon/shared';
+import { colors, gradients, fontFamily, fontWeight, borderRadius, fontSize, spacing, shadowsCSS, opacity, duration, easing, componentSizes, blur, borderWidth } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps } from './types';
 
@@ -19,7 +19,7 @@ import type { NftCardProps } from './types';
 const FALLBACK_GRADIENT = gradients.primaryCSS;
 
 /** Card dimensions */
-const CARD_BORDER_RADIUS = 18;
+const CARD_BORDER_RADIUS = borderRadius.iconContainer;
 
 const Container = styled(Box)<{ $clickable: boolean }>(({ $clickable }) => ({
   width: '100%',
@@ -159,7 +159,7 @@ export function NftCard({ nft, onPress, style, className, testID }: NftCardProps
             <LoadingOverlay>
               <FallbackGradient />
               <CircularProgress
-                size={20}
+                size={componentSizes.iconSizeSmall}
                 sx={{
                   color: colors.text.primary,
                   position: 'absolute',
@@ -173,10 +173,10 @@ export function NftCard({ nft, onPress, style, className, testID }: NftCardProps
       {/* Name badge at bottom */}
       <NameBadgeContainer>
         <BlurContainer
-          blurIntensity={6}
+          blurIntensity={blur.sm}
           backgroundColor={colors.dialog.overlay}
           borderColor={colors.accent.border}
-          borderWidth={0.5}
+          borderWidth={borderWidth.actionButton}
           style={{
             borderRadius: borderRadius.md,
             paddingTop: spacing.sm,

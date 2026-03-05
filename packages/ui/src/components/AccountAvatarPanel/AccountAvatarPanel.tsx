@@ -20,6 +20,7 @@ import {
   fontFamily,
   fontSize,
   fontWeight,
+  componentSizes,
   duration,
   easing,
   PRESET_AVATAR_URLS,
@@ -234,7 +235,7 @@ export function AccountAvatarPanel({ onBack }: AccountAvatarPanelProps): React.R
           </PresetGrid>
         ) : nftsLoading ? (
           <LoadingState>
-            <CircularProgress size={32} sx={{ color: colors.accent.primary }} />
+            <CircularProgress size={componentSizes.iconSizeLarge} sx={{ color: colors.accent.primary }} />
           </LoadingState>
         ) : nfts.length === 0 ? (
           <EmptyState>

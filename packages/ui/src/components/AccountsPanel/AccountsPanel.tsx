@@ -21,6 +21,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   componentSizes,
   fontSize,
   fontWeight,
@@ -104,7 +105,7 @@ const AddAccountIcon = styled(Box)({
   alignItems: 'center',
   justifyContent: 'center',
   backgroundColor: colors.interactive.hoverSubtle,
-  border: `1px dashed ${colors.border.default}`,
+  border: `${borderWidth.thin}px dashed ${colors.border.default}`,
 });
 
 // ============================================================================

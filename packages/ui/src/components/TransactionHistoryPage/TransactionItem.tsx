@@ -27,7 +27,7 @@ import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, componentSizes, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, opacity, spacing, duration, easing } from '@salmon/shared';
+import { borderRadius, borderWidth, colors, componentSizes, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, opacity, spacing, duration, easing } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -174,7 +174,7 @@ const SwapLogosContainer = styled(Box)({
 
 const SwapLogoOverlap = styled(Box)({
   marginLeft: -spacing.lg,
-  border: `2px solid ${colors.background.secondary}`,
+  border: `${borderWidth.medium}px solid ${colors.background.secondary}`,
   borderRadius: borderRadius.iconContainer,
   display: 'flex',
 });
@@ -195,7 +195,7 @@ const TypeBadge = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  border: `2px solid ${colors.background.secondary}`,
+  border: `${borderWidth.medium}px solid ${colors.background.secondary}`,
 });
 
 const TypeBadgeSingle = styled(TypeBadge)({

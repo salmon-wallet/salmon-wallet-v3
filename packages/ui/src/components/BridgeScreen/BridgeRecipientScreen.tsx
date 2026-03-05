@@ -20,6 +20,7 @@ import {
   letterSpacing,
   lineHeight,
   componentSizes,
+  borderWidth,
   duration,
   easing,
 } from '@salmon/shared';
@@ -69,7 +70,7 @@ const AddressInput = styled('input')({
   padding: `${spacing.sm}px ${spacing.base}px`,
   minHeight: componentSizes.iconSize3XL,
   backgroundColor: colors.background.tokenItem,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   borderRadius: borderRadius.md,
   color: colors.text.primary,
   fontSize: fontSize.base,
@@ -99,7 +100,7 @@ const ErrorText = styled(Typography)({
 const InfoBox = styled(Box)({
   backgroundColor: colors.background.tokenItem,
   borderRadius: borderRadius.md,
-  border: `1px solid ${colors.border.default}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   padding: spacing.base,
   marginBottom: spacing['2xl'],
 });
@@ -137,7 +138,7 @@ const BackButtonWrapper = styled('div')({
 const ContinueButtonGradient = styled('div')({
   flex: 1,
   borderRadius: borderRadius.lg,
-  border: `0.8px solid ${colors.accent.border}`,
+  border: `${borderWidth.accent}px solid ${colors.accent.border}`,
   boxShadow: shadowsCSS.button,
   background: gradients.primaryCSS,
 });
@@ -199,7 +200,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
             onClick={onBack}
             style={{
               height: componentSizes.buttonHeightCompact,
-              border: `0.8px solid ${colors.accent.border}`,
+              border: `${borderWidth.accent}px solid ${colors.accent.border}`,
               borderRadius: borderRadius.lg,
               backgroundColor: colors.button.cancelBackground,
             }}

@@ -23,6 +23,12 @@ export const duration = {
   slow: '300ms',
   /** 400ms - Entrance animations (scale-in, fade-in-out) */
   slower: '400ms',
+  /** 500ms - Debounce / stagger delay base */
+  stagger1: '500ms',
+  /** 550ms - Stagger delay 2 */
+  stagger2: '550ms',
+  /** 600ms - Stagger delay 3 */
+  stagger3: '600ms',
 } as const;
 
 /**
@@ -52,8 +58,12 @@ export const durationMs = {
   feedbackShort: 1500,
   /** 1500ms - Shimmer/skeleton animation cycle */
   shimmer: 1500,
+  /** 500ms - Debounce delay */
+  debounce: 500,
   /** 2000ms - Long feedback display (copy confirmation) */
   feedbackLong: 2000,
+  /** 2000ms - Slow spin animation cycle */
+  spinSlow: 2000,
 } as const;
 
 /**

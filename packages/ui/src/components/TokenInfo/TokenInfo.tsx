@@ -393,7 +393,7 @@ export function TokenInfo({
       {/* Copy confirmation snackbar */}
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={2000}
+        autoHideDuration={durationMs.feedbackLong}
         onClose={handleSnackbarClose}
         message={t('token.info.contractAddressCopied', 'Contract address copied')}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}

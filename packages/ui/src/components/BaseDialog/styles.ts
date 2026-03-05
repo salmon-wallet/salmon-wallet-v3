@@ -21,7 +21,7 @@ import Typography from '@mui/material/Typography';
 import type { TypographyProps } from '@mui/material/Typography';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { SvgIconProps } from '@mui/material/SvgIcon';
-import { colors, spacing, borderRadius, fontSize, fontWeight, lineHeight } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, lineHeight, componentSizes } from '@salmon/shared';
 
 // ============================================================================
 // Dialog Root
@@ -32,8 +32,8 @@ export const StyledDialog: React.ComponentType<DialogProps> = styled(Dialog)({
     backgroundColor: colors.dialog.background,
     borderRadius: borderRadius.xl,
     border: `1px solid ${colors.dialog.border}`,
-    minWidth: 'min(340px, 95vw)',
-    maxWidth: 'min(400px, 95vw)',
+    minWidth: `min(${componentSizes.dialogWidthSm}px, 95vw)`,
+    maxWidth: `min(${componentSizes.sheetWidthBase}px, 95vw)`,
   },
 });
 
