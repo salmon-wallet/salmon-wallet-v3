@@ -16,6 +16,7 @@ import {
   fontSize,
   letterSpacing,
   lineHeight,
+  opacity,
 } from '@salmon/shared';
 import type { SwapTabSelectorProps, SwapTab } from './types';
 
@@ -42,7 +43,7 @@ const Tab = styled(ButtonBase)({
   cursor: 'pointer',
   background: 'none',
   '&:hover': {
-    opacity: 0.8,
+    opacity: opacity.medium,
   },
 });
 

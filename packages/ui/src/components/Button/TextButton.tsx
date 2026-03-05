@@ -17,6 +17,7 @@ import {
   spacing,
   borderRadius,
   shadowsCSS,
+  opacity,
 } from '@salmon/shared';
 import type { TextButtonProps } from './types';
 
@@ -38,7 +39,7 @@ const StyledButton = styled(Button)<{ $customColor?: string }>(
     transition: 'opacity 0.2s ease',
     '&:hover': {
       background: 'transparent',
-      opacity: 0.6,
+      opacity: opacity.low,
       boxShadow: shadowsCSS.none,
     },
     '&:active': {

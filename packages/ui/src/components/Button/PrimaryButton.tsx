@@ -14,6 +14,7 @@ import {
   fontWeight,
   letterSpacing,
   shadowsCSS,
+  opacity,
 } from '@salmon/shared';
 import type { PrimaryButtonProps } from './types';
 
@@ -33,7 +34,7 @@ const StyledButton = styled(Button)<{ fullWidth?: boolean }>(({ fullWidth }) => 
   transition: 'opacity 0.2s ease, transform 0.1s ease',
   '&:hover': {
     backgroundColor: colors.button.primaryBackground,
-    opacity: 0.9,
+    opacity: opacity.soft,
     boxShadow: shadowsCSS.none,
   },
   '&:active': {

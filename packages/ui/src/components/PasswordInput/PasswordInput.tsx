@@ -16,6 +16,7 @@ import {
   spacing,
   fontFamily,
   fontSize as fontSizeTokens,
+  opacity,
 } from '@salmon/shared';
 import { EyeIcon, EyeOffIcon } from '../Icon';
 import type { PasswordInputProps } from './types';
@@ -48,7 +49,7 @@ const StyledInput = styled(InputBase)({
     padding: 0,
     '&::placeholder': {
       color: colors.text.placeholder,
-      opacity: 1,
+      opacity: opacity.full,
     },
   },
 });

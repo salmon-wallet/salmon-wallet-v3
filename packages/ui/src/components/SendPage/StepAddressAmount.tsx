@@ -31,6 +31,8 @@ import {
   borderRadius,
   fontSize,
   shadowsCSS,
+  lineHeight,
+  opacity,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepAddressAmountProps } from './types';
@@ -85,7 +87,7 @@ const TokenCardButton = styled(ButtonBase)({
   marginBottom: spacing.xl,
   transition: 'opacity 0.15s ease',
   '&:hover': {
-    opacity: 0.85,
+    opacity: opacity.high,
   },
 });
 
@@ -176,7 +178,7 @@ const StyledInput = styled(InputBase)({
     padding: `${spacing.md}px 0`,
     '&::placeholder': {
       color: colors.text.secondary,
-      opacity: 1,
+      opacity: opacity.full,
     },
   },
 });
@@ -201,7 +203,7 @@ const ValidationMessage = styled(Typography)<{
   $messageType?: 'error' | 'warning' | null;
 }>(({ $messageType }) => ({
   fontSize: fontSize.sm,
-  lineHeight: '16px',
+  lineHeight: `${fontSize.sm * lineHeight.condensed}px`,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   marginTop: spacing.xs,
   color:
@@ -233,7 +235,7 @@ const QuickFillButton = styled(ButtonBase)({
   padding: `${spacing.xs}px ${spacing.md}px`,
   transition: 'opacity 0.15s ease',
   '&:hover': {
-    opacity: 0.8,
+    opacity: opacity.medium,
   },
 });
 
@@ -278,7 +280,7 @@ const CancelButton = styled(ButtonBase)({
   boxShadow: shadowsCSS.button,
   transition: 'opacity 0.15s ease',
   '&:hover': {
-    opacity: 0.85,
+    opacity: opacity.high,
   },
 });
 
@@ -347,7 +349,7 @@ const ContactRow = styled(ButtonBase)({
   marginBottom: spacing.xs,
   transition: 'opacity 0.15s ease',
   '&:hover': {
-    opacity: 0.8,
+    opacity: opacity.medium,
   },
 });
 

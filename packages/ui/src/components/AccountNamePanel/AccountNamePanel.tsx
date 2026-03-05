@@ -20,6 +20,7 @@ import {
   fontWeight,
   useAccountsContext,
   type Account,
+  opacity,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -66,7 +67,7 @@ const SaveButton = styled(Button)({
   padding: `${spacing.md}px`,
   '&:hover': {
     backgroundColor: colors.accent.primary,
-    opacity: 0.9,
+    opacity: opacity.soft,
   },
   '&.Mui-disabled': {
     backgroundColor: colors.interactive.hoverStrong,

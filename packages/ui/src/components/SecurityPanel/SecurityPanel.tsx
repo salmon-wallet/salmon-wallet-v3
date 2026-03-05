@@ -23,6 +23,7 @@ import {
   letterSpacing,
   useAccountsContext,
   validatePassword,
+  opacity,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { PasswordInput } from '../PasswordInput';
@@ -67,7 +68,7 @@ const SubmitButton = styled(Button)({
   marginTop: spacing.md,
   '&:hover': {
     backgroundColor: colors.accent.primary,
-    opacity: 0.9,
+    opacity: opacity.soft,
   },
   '&.Mui-disabled': {
     backgroundColor: colors.interactive.hoverStrong,

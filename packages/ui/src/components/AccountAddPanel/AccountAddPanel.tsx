@@ -35,6 +35,7 @@ import {
   SCAN_NETWORKS,
   type AccountAddStep,
   type DerivedAccountInfo,
+  opacity,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { DerivedAccountCard } from '../DerivedAccountCard';
@@ -89,7 +90,7 @@ const ConfirmButton = styled(Button)({
   marginTop: spacing.xl,
   '&:hover': {
     backgroundColor: colors.accent.primary,
-    opacity: 0.9,
+    opacity: opacity.soft,
   },
   '&.Mui-disabled': {
     backgroundColor: colors.interactive.hoverStrong,

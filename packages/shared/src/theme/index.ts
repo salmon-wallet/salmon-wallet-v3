@@ -18,6 +18,7 @@ import {
   borderWidth,
   componentSizes,
   contentPadding,
+  opacity,
 } from './spacing';
 import {
   fontFamily,
@@ -41,6 +42,7 @@ export {
   borderWidth,
   componentSizes,
   contentPadding,
+  opacity,
 } from './spacing';
 export type {
   Spacing,
@@ -48,6 +50,7 @@ export type {
   BorderWidth,
   ComponentSizes,
   ContentPadding,
+  Opacity,
 } from './spacing';
 
 // Re-export all tokens from typography
@@ -93,6 +96,7 @@ export const theme = {
   lineHeight,
   letterSpacing,
   textStyles,
+  opacity,
   shadows,
   shadowsCSS,
 } as const;

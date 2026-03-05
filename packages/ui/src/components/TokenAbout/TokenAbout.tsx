@@ -17,6 +17,8 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  lineHeight,
+  opacity,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenAboutProps } from './types';
@@ -41,7 +43,7 @@ const Description = styled(Typography)<{
   fontWeight: fontWeight.regular,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  lineHeight: 1.4,
+  lineHeight: lineHeight.tokenListItem,
   ...($maxLines > 0 && !$expanded
     ? {
         display: '-webkit-box',
@@ -63,7 +65,7 @@ const ReadMoreButton = styled('button')({
   color: colors.accent.primary,
   marginTop: spacing.sm,
   '&:hover': {
-    opacity: 0.8,
+    opacity: opacity.medium,
   },
 });
 

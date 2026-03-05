@@ -24,6 +24,7 @@ import {
   fontWeight,
   borderRadius,
   fontSize,
+  opacity,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepTokenSelectProps, SendToken } from './types';
@@ -55,7 +56,7 @@ const SearchInputStyled = styled(InputBase)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   '& .MuiInputBase-input::placeholder': {
     color: colors.text.secondary,
-    opacity: 1,
+    opacity: opacity.full,
   },
 });
 
@@ -120,7 +121,7 @@ const TokenRowButton = styled(ButtonBase)({
   borderRadius: borderRadius.md,
   transition: 'opacity 0.15s ease',
   '&:hover': {
-    opacity: 0.85,
+    opacity: opacity.high,
   },
 });
 

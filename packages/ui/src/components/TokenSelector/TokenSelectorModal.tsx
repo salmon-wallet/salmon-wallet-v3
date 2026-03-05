@@ -34,6 +34,7 @@ import {
   Rect,
   Circle,
   fontSize,
+  opacity,
 } from '@salmon/shared';
 
 import { useTokenSearch } from '@salmon/shared';
@@ -102,7 +103,7 @@ const SearchInput = styled(InputBase)({
   },
   '& .MuiInputBase-input::placeholder': {
     color: colors.text.placeholder,
-    opacity: 1,
+    opacity: opacity.full,
   },
 });
 

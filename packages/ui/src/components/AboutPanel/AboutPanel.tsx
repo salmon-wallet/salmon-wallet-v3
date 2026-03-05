@@ -26,7 +26,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing, opacity } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -177,7 +177,7 @@ const FooterText = styled(Typography)({
   color: colors.text.secondary,
   textAlign: 'center',
   padding: `${spacing.lg}px`,
-  opacity: 0.6,
+  opacity: opacity.low,
 });
 
 // ============================================================================

@@ -30,6 +30,7 @@ import {
   borderRadius,
   fontSize,
   shadowsCSS,
+  opacity,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepConfirmationProps } from './types';
@@ -108,7 +109,7 @@ const AddressButton = styled(ButtonBase)({
   borderRadius: borderRadius.md,
   transition: 'opacity 0.15s ease',
   '&:hover': {
-    opacity: 0.85,
+    opacity: opacity.high,
   },
 });
 

@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { colors, componentSizes, contentPadding } from '@salmon/shared';
+import { colors, componentSizes, contentPadding, opacity } from '@salmon/shared';
 import { StepIndicator } from '../StepIndicator';
 import type { ScreenHeaderProps } from './types';
 
@@ -33,7 +33,7 @@ const BackButton = styled(IconButton)({
     backgroundColor: 'transparent',
   },
   '&.Mui-disabled': {
-    opacity: 1,
+    opacity: opacity.full,
   },
 });
 

@@ -20,6 +20,7 @@ import {
   shadowsCSS,
   letterSpacing,
   lineHeight,
+  opacity,
 } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { styled } from '../../utils/styled';
@@ -74,7 +75,7 @@ const StyledInput = styled(InputBase)({
   },
   '& .MuiInputBase-input::placeholder': {
     color: colors.text.placeholder,
-    opacity: 1,
+    opacity: opacity.full,
   },
   '&.Mui-disabled .MuiInputBase-input': {
     color: colors.text.primary,
@@ -97,7 +98,7 @@ const TokenDropdown = styled(ButtonBase)({
   cursor: 'pointer',
   transition: 'opacity 0.2s ease',
   '&:hover': {
-    opacity: 0.85,
+    opacity: opacity.high,
   },
 });
 
@@ -120,7 +121,7 @@ const TokenSymbol = styled(Typography)({
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  opacity: 0.9,
+  opacity: opacity.soft,
   letterSpacing: letterSpacing.normal,
   lineHeight: `${fontSize.base * lineHeight.condensed}px`,
 });

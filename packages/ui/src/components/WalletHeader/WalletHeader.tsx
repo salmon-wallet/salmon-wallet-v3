@@ -11,7 +11,7 @@ import MuiAvatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials, opacity } from '@salmon/shared';
 import { CopyIcon, RefreshIcon, SettingsIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
@@ -35,7 +35,7 @@ const AccountInfo = styled(Box)({
   marginRight: spacing.lg,
   cursor: 'pointer',
   '&:hover': {
-    opacity: 0.8,
+    opacity: opacity.medium,
   },
 });
 

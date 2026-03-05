@@ -27,6 +27,7 @@ import {
   fontSize,
   fontWeight,
   letterSpacing,
+  opacity,
 } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -226,7 +227,7 @@ const HashCopyContainer = styled(Box)({
   gap: spacing.xs,
   cursor: 'pointer',
   '&:hover': {
-    opacity: 0.8,
+    opacity: opacity.medium,
   },
 });
 

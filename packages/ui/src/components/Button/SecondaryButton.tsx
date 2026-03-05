@@ -14,6 +14,7 @@ import {
   fontWeight,
   letterSpacing,
   shadowsCSS,
+  opacity,
 } from '@salmon/shared';
 import type { SecondaryButtonProps } from './types';
 
@@ -41,7 +42,7 @@ const StyledButton = styled(Button)<{
       $buttonVariant === 'outline'
         ? colors.background.card
         : colors.button.secondaryBackground,
-    opacity: 0.9,
+    opacity: opacity.soft,
     boxShadow: shadowsCSS.none,
   },
   '&:active': {

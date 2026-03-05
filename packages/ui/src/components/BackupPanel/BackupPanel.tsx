@@ -24,7 +24,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, useAccounts, fontSize, fontWeight, letterSpacing } from '@salmon/shared';
+import { colors, spacing, borderRadius, useAccounts, fontSize, fontWeight, letterSpacing, opacity } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -210,7 +210,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
               'Never share your recovery phrase'
             )}
           </Typography>
-          <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
+          <Typography variant="body2" sx={{ mt: 0.5, opacity: opacity.soft }}>
             {t(
               'settings.backup_warning_description',
               'Anyone with your recovery phrase can access your funds. Keep it stored securely and never enter it on websites.'

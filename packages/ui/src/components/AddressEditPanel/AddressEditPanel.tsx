@@ -18,6 +18,7 @@ import {
   type AddressBookEditBaseProps,
   borderRadius,
   fontSize,
+  opacity,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { InputAddress } from '../InputAddress';
@@ -48,7 +49,7 @@ const StyledInput = styled(InputBase)({
     padding: `${spacing.md}px 0`,
     '&::placeholder': {
       color: colors.text.placeholder,
-      opacity: 1,
+      opacity: opacity.full,
     },
   },
 });
@@ -78,12 +79,12 @@ const SaveButton = styled(Button)({
   color: colors.text.primary,
   '&:hover': {
     backgroundColor: colors.accent.primary,
-    opacity: 0.9,
+    opacity: opacity.soft,
   },
   '&:disabled': {
     backgroundColor: colors.accent.primary,
     color: colors.text.primary,
-    opacity: 0.4,
+    opacity: opacity.faint,
   },
 });
 

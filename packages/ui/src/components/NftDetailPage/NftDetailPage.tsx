@@ -36,6 +36,8 @@ import {
   getShortAddress,
   shadowsCSS,
   letterSpacing,
+  lineHeight,
+  opacity,
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
@@ -91,7 +93,7 @@ const DescriptionText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.regular,
   color: colors.text.secondary,
-  lineHeight: 1.5,
+  lineHeight: lineHeight.normal,
 });
 
 const AttributesGrid = styled(Box)({
@@ -220,8 +222,8 @@ const PrimaryButtonBase = styled(ButtonBase)({
   height: 52,
   gap: spacing.base,
   transition: 'opacity 0.2s ease',
-  '&:hover': { opacity: 0.85 },
-  '&:active': { opacity: 0.8 },
+  '&:hover': { opacity: opacity.high },
+  '&:active': { opacity: opacity.medium },
 });
 
 const SecondaryButtonInner = styled(ButtonBase)({
@@ -234,8 +236,8 @@ const SecondaryButtonInner = styled(ButtonBase)({
   position: 'relative',
   zIndex: 1,
   transition: 'opacity 0.2s ease',
-  '&:hover': { opacity: 0.85 },
-  '&:active': { opacity: 0.8 },
+  '&:hover': { opacity: opacity.high },
+  '&:active': { opacity: opacity.medium },
 });
 
 const ButtonText = styled(Typography)({
@@ -243,7 +245,7 @@ const ButtonText = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
   color: colors.text.balance,
-  lineHeight: 1.5,
+  lineHeight: lineHeight.normal,
 });
 
 // ============================================================================

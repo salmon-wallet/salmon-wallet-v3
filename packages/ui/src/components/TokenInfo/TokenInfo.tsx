@@ -20,6 +20,7 @@ import {
   formatLargeNumber,
   useCurrencyContext,
   getShortAddress,
+  lineHeight,
 } from '@salmon/shared';
 import CheckIcon from '@mui/icons-material/Check';
 import { CopyIcon } from '../Icon';
@@ -49,7 +50,7 @@ const Description = styled(Typography)({
   fontWeight: fontWeight.regular,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.muted,
-  lineHeight: 1.5,
+  lineHeight: lineHeight.normal,
 });
 
 const StatsGrid = styled(Box)({

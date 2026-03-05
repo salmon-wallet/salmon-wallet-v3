@@ -22,6 +22,7 @@ import {
   fontSize,
   letterSpacing,
   lineHeight,
+  opacity,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SwapReviewCard } from './SwapReviewCard';
@@ -48,7 +49,7 @@ const BackgroundPattern = styled(Box)({
   left: 0,
   right: 0,
   height: 200,
-  opacity: 0.4,
+  opacity: opacity.faint,
   pointerEvents: 'none',
 });
 

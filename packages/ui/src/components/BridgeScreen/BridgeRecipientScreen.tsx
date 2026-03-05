@@ -18,6 +18,7 @@ import {
   fontSize,
   shadowsCSS,
   letterSpacing,
+  lineHeight,
 } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -41,7 +42,7 @@ const Title = styled(Typography)({
   color: colors.text.primary,
   textAlign: 'center',
   letterSpacing: letterSpacing.wide,
-  lineHeight: `${24 * 1.3}px`,
+  lineHeight: `${fontSize['2xl'] * lineHeight.condensed}px`,
   marginBottom: spacing.md,
 });
 
@@ -52,7 +53,7 @@ const Description = styled(Typography)({
   color: colors.text.secondary,
   textAlign: 'center',
   letterSpacing: letterSpacing.normal,
-  lineHeight: '20px',
+  lineHeight: `${fontSize.base * lineHeight.tokenListItem}px`,
   marginBottom: spacing['2xl'],
 });
 
@@ -115,7 +116,7 @@ const InfoText = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   letterSpacing: letterSpacing.normal,
-  lineHeight: '18px',
+  lineHeight: `${fontSize.sm * lineHeight.normal}px`,
 });
 
 const ButtonsContainer = styled(Box)({

@@ -6,7 +6,7 @@ import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
-import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight } from '@salmon/shared';
+import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight, lineHeight } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 
 // ============================================================================
@@ -54,7 +54,7 @@ const Checkmark = styled(Typography)({
   fontSize: fontSize['4xl'],
   color: colors.text.primary,
   fontWeight: fontWeight.bold,
-  lineHeight: 1,
+  lineHeight: lineHeight.none,
 });
 
 const Title = styled(Typography)({

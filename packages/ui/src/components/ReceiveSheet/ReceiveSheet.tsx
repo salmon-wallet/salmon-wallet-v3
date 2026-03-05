@@ -27,6 +27,7 @@ import {
   fontWeight,
   letterSpacing,
   lineHeight,
+  opacity,
 } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
 import { QRCode } from '../QRCode';
@@ -88,10 +89,10 @@ const CopyButton = styled(ButtonBase)({
   gap: spacing.xs,
   transition: 'opacity 0.2s ease',
   '&:hover': {
-    opacity: 0.85,
+    opacity: opacity.high,
   },
   '&:active': {
-    opacity: 0.7,
+    opacity: opacity.medium,
   },
 });
 

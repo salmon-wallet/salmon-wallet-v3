@@ -29,6 +29,7 @@ import {
   getDefaultExplorer,
   fontSize,
   fontWeight,
+  opacity,
   spacing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
@@ -48,7 +49,7 @@ const StyledButton = styled(ButtonBase)({
   gap: spacing.sm,
   transition: 'opacity 0.2s ease',
   '&:hover': {
-    opacity: 0.85,
+    opacity: opacity.high,
   },
 });
 

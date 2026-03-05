@@ -38,6 +38,7 @@ import {
   fontWeight,
   letterSpacing,
   shadowsCSS,
+  opacity,
 } from '@salmon/shared';
 import { styled } from '../../utils/styled';
 
@@ -218,7 +219,7 @@ const StyledSwitch = styled(Switch)({
       color: colors.accent.primary,
       '& + .MuiSwitch-track': {
         backgroundColor: colors.accent.primary,
-        opacity: 0.5,
+        opacity: opacity.disabled,
       },
     },
   },

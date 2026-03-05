@@ -166,8 +166,8 @@ export const componentSizes = {
   sheetHandleWidth: 70,
   /** Sheet drag handle height: 6px */
   sheetHandleHeight: 6,
-  /** Sheet drag handle opacity: 0.4 */
-  sheetHandleOpacity: 0.4,
+  /** Sheet drag handle opacity - uses opacity.faint */
+  sheetHandleOpacity: 0.4 as const,
   /** Sheet top fade gradient height: 30px */
   sheetFadeGradientHeight: 30,
 
@@ -207,8 +207,31 @@ export const borderWidth = {
   sheet: 0.75,
 } as const;
 
+/**
+ * Opacity tokens for consistent transparency values
+ */
+export const opacity = {
+  /** 0 - Fully transparent (animations) */
+  none: 0,
+  /** 0.4 - Placeholder / very muted */
+  faint: 0.4,
+  /** 0.5 - Disabled / inactive */
+  disabled: 0.5,
+  /** 0.6 - Low emphasis text */
+  low: 0.6,
+  /** 0.8 - Medium emphasis / active press */
+  medium: 0.8,
+  /** 0.85 - Hover / secondary content */
+  high: 0.85,
+  /** 0.9 - Subtle mute / soft emphasis */
+  soft: 0.9,
+  /** 1 - Fully opaque */
+  full: 1,
+} as const;
+
 export type Spacing = typeof spacing;
 export type BorderRadius = typeof borderRadius;
 export type ComponentSizes = typeof componentSizes;
 export type ContentPadding = typeof contentPadding;
 export type BorderWidth = typeof borderWidth;
+export type Opacity = typeof opacity;

@@ -22,7 +22,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Skeleton from '@mui/material/Skeleton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { colors, spacing, borderRadius, fontSize, fontWeight } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, opacity } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { PageShell } from '../PageShell';
 import { TransactionItem } from './TransactionItem';
@@ -110,7 +110,7 @@ const RetryButton = styled(Button)({
   borderRadius: borderRadius.md,
   '&:hover': {
     backgroundColor: colors.accent.primary,
-    opacity: 0.9,
+    opacity: opacity.soft,
   },
 });
 

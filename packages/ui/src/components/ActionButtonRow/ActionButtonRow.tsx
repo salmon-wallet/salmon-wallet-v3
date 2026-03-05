@@ -22,6 +22,7 @@ import {
   vs,
   ms,
   fontWeight,
+  opacity,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SendIcon, ReceiveIcon, ActivityIcon } from '../Icon';
@@ -62,7 +63,7 @@ const PrimaryButton = styled(Button)({
   padding: 0,
   '&:hover': {
     background: gradients.primaryCSS,
-    opacity: 0.9,
+    opacity: opacity.soft,
   },
   '&.Mui-disabled': {
     background: gradients.disabledCSS,
@@ -86,7 +87,7 @@ const SecondaryButton = styled(Button)({
   padding: 0,
   '&:hover': {
     backgroundColor: 'transparent',
-    opacity: 0.85,
+    opacity: opacity.high,
   },
   '&.Mui-disabled': {
     backgroundColor: 'transparent',

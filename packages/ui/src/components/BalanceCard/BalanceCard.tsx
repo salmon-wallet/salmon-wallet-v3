@@ -36,6 +36,7 @@ import {
   useCurrencyContext,
   getNetworkLabel,
   getScalesColorForBlockchain,
+  opacity,
 } from '@salmon/shared';
 import type { BlockchainId } from '@salmon/shared';
 import { EyeIcon, EyeOffIcon, Icon, SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
@@ -161,7 +162,7 @@ const BalanceDecimals = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
   letterSpacing: letterSpacing.balance,
-  opacity: 0.4,
+  opacity: opacity.faint,
 });
 
 const EyeButton = styled('button')({
@@ -180,7 +181,7 @@ const EyeButton = styled('button')({
     padding: 0,
   },
   '&:hover': {
-    opacity: 0.8,
+    opacity: opacity.medium,
   },
 });
 

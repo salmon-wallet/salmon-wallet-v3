@@ -27,6 +27,8 @@ import {
   useAddressValidation,
   useAccountsContext,
   fontSize,
+  lineHeight,
+  opacity,
 } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 import type { ValidationState } from '@salmon/shared';
@@ -75,7 +77,7 @@ const StyledInput = styled(InputBase)<{
     padding: `${spacing.md}px 0`,
     '&::placeholder': {
       color: colors.text.placeholder,
-      opacity: 1,
+      opacity: opacity.full,
     },
   },
 }));
@@ -90,19 +92,19 @@ const ValidationIcon = styled(Box)({
 const ValidText = styled('span')({
   color: colors.status.success,
   fontSize: fontSize.lg,
-  lineHeight: 1,
+  lineHeight: lineHeight.none,
 });
 
 const InvalidText = styled('span')({
   color: colors.status.error,
   fontSize: fontSize.lg,
-  lineHeight: 1,
+  lineHeight: lineHeight.none,
 });
 
 const WarningText = styled('span')({
   color: colors.status.warning,
   fontSize: fontSize.lg,
-  lineHeight: 1,
+  lineHeight: lineHeight.none,
 });
 
 const MessageContainer = styled(Box)({
@@ -113,7 +115,7 @@ const MessageText = styled(Typography)<{
   $messageType?: 'error' | 'warning' | null;
 }>(({ $messageType }) => ({
   fontSize: fontSize.sm,
-  lineHeight: '18px',
+  lineHeight: `${fontSize.sm * lineHeight.normal}px`,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color:
     $messageType === 'error'

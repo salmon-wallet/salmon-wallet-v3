@@ -23,6 +23,7 @@ import {
   fontWeight,
   getShortAddress,
   fontSize,
+  opacity,
 } from '@salmon/shared';
 
 import { TokenSelectorModal } from './TokenSelectorModal';
@@ -56,7 +57,7 @@ const AmountInput = styled(InputBase)({
   padding: `${spacing.sm}px ${spacing.md}px`,
   '& .MuiInputBase-input::placeholder': {
     color: colors.text.placeholder,
-    opacity: 1,
+    opacity: opacity.full,
   },
 });
 

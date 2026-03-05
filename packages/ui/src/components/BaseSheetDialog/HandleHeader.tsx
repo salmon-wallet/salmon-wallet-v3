@@ -19,7 +19,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { colors, spacing, borderRadius, fontFamily, fontSize, fontWeight, letterSpacing } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontSize, fontWeight, letterSpacing, opacity } from '@salmon/shared';
 import type { HandleHeaderProps } from './types';
 
 // ============================================================================
@@ -44,7 +44,7 @@ const Handle = styled(Box)({
   height: 4,
   borderRadius: borderRadius.full,
   backgroundColor: colors.sheet.handle,
-  opacity: 0.6,
+  opacity: opacity.low,
 });
 
 const TitleRow = styled(Box)({

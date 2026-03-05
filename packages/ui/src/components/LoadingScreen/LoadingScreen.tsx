@@ -11,7 +11,7 @@
  */
 import { memo, useState, useEffect, useMemo, CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { colors, fontFamily, fontWeight, fontSize, DEFAULT_WALLET_TIP_KEYS, spacing } from '@salmon/shared';
+import { colors, fontFamily, fontWeight, fontSize, lineHeight, DEFAULT_WALLET_TIP_KEYS, spacing } from '@salmon/shared';
 import type { LoadingScreenProps } from './types';
 
 // ============================================================================
@@ -178,7 +178,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     fontFamily: `${fontFamily.sans}, sans-serif`,
     fontWeight: fontWeight.bold,
     fontSize: fontSize['2xl'],
-    lineHeight: '32px',
+    lineHeight: `${fontSize['2xl'] * lineHeight.condensed}px`,
     marginBottom: `${spacing.sm}px`
   };
 
@@ -187,7 +187,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     fontFamily: `${fontFamily.sans}, sans-serif`,
     fontWeight: fontWeight.regular,
     fontSize: fontSize.md,
-    lineHeight: '24px',
+    lineHeight: `${fontSize.md * lineHeight.normal}px`,
     marginBottom: `${spacing['3xl']}px`
   };
 
@@ -237,7 +237,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     fontFamily: `${fontFamily.sans}, sans-serif`,
     fontWeight: fontWeight.bold,
     fontSize: fontSize.sm,
-    lineHeight: '16px',
+    lineHeight: `${fontSize.sm * lineHeight.condensed}px`,
     textTransform: 'uppercase',
     letterSpacing: '1px',
     textAlign: 'center',
@@ -249,7 +249,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     fontFamily: `${fontFamily.sans}, sans-serif`,
     fontWeight: fontWeight.regular,
     fontSize: fontSize.base,
-    lineHeight: '20px',
+    lineHeight: `${fontSize.base * lineHeight.tokenListItem}px`,
     textAlign: 'center',
     opacity: tipFading ? 0 : 1,
     transition: 'opacity 0.4s ease-in-out',

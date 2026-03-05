@@ -27,7 +27,7 @@ import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, spacing } from '@salmon/shared';
+import { borderRadius, colors, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, opacity, spacing } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -131,7 +131,7 @@ const ItemWrapper = styled(Box)({
   marginBottom: spacing.md,
   transition: 'opacity 0.2s ease',
   '&:hover': {
-    opacity: 0.85,
+    opacity: opacity.high,
   },
 });
 
