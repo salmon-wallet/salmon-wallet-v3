@@ -71,7 +71,7 @@ const renderBlockchainLogo = (blockchain: BlockchainId) => {
   const iconStyle = {
     width: iconSize,
     height: iconSize,
-    color: '#FFFFFF',
+    color: colors.text.primary,
   };
   switch (blockchain) {
     case 'solana':

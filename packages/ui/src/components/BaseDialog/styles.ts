@@ -70,7 +70,7 @@ export const CloseButton: React.ComponentType<IconButtonProps> = styled(IconButt
   color: colors.text.secondary,
   padding: spacing.xs,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
@@ -146,7 +146,7 @@ export const StyledCancelButton: React.ComponentType<ButtonProps> = styled(Butto
   padding: `${spacing.sm}px ${spacing.lg}px`,
   borderRadius: borderRadius.md,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.card.border,
   },
 });
 
@@ -154,13 +154,13 @@ export const StyledActionButton: React.ComponentType<ButtonProps & { $isDanger?:
   ({ $isDanger }) => ({
     flex: 1,
     backgroundColor: $isDanger ? colors.status.error : colors.accent.primary,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     textTransform: 'none',
     fontWeight: 600,
     padding: `${spacing.sm}px ${spacing.lg}px`,
     borderRadius: borderRadius.md,
     '&:hover': {
-      backgroundColor: $isDanger ? '#DC2626' : '#FF7A64',
+      backgroundColor: $isDanger ? colors.button.destructiveHover : colors.button.dangerHover,
     },
     '&:disabled': {
       backgroundColor: $isDanger

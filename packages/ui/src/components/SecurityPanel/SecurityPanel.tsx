@@ -69,7 +69,7 @@ const SubmitButton = styled(Button)({
     opacity: 0.9,
   },
   '&.Mui-disabled': {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: colors.interactive.hoverStrong,
     color: colors.text.disabled,
   },
 });
@@ -169,13 +169,13 @@ export function SecurityPanel({
           </InputGroup>
 
           {error && (
-            <Alert severity="error" sx={{ marginBottom: spacing.md, backgroundColor: 'rgba(244, 67, 54, 0.1)', color: colors.status.error }}>
+            <Alert severity="error" sx={{ marginBottom: spacing.md, backgroundColor: colors.status.errorBackground, color: colors.status.error }}>
               {error}
             </Alert>
           )}
 
           {success && (
-            <Alert severity="success" sx={{ marginBottom: spacing.md, backgroundColor: 'rgba(76, 175, 80, 0.1)', color: colors.status.success }}>
+            <Alert severity="success" sx={{ marginBottom: spacing.md, backgroundColor: colors.status.successBackground, color: colors.status.success }}>
               {success}
             </Alert>
           )}

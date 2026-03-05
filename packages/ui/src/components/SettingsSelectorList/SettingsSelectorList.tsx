@@ -21,11 +21,11 @@ const StyledList = styled(List)({
 const StyledListItemButton = styled(ListItemButton)<{ $selected?: boolean }>(
   ({ $selected }) => ({
     padding: `${spacing.md}px ${spacing.lg}px`,
-    backgroundColor: $selected ? 'rgba(255, 107, 74, 0.1)' : 'transparent',
+    backgroundColor: $selected ? colors.accent.tint : 'transparent',
     '&:hover': {
       backgroundColor: $selected
-        ? 'rgba(255, 107, 74, 0.15)'
-        : 'rgba(255, 255, 255, 0.05)',
+        ? colors.accent.tintHover
+        : colors.background.card,
     },
   })
 );

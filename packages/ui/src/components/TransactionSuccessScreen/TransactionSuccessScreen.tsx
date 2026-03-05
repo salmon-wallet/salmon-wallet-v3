@@ -6,7 +6,7 @@ import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
-import { colors, spacing, borderRadius, fontFamily, fontSize } from '@salmon/shared';
+import { colors, gradients, spacing, borderRadius, fontFamily, fontSize } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 
 // ============================================================================
@@ -42,7 +42,7 @@ const Circle = styled(Box)({
   width: 80,
   height: 80,
   borderRadius: 40,
-  backgroundColor: '#10B981',
+  backgroundColor: colors.status.success,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -52,7 +52,7 @@ const Circle = styled(Box)({
 
 const Checkmark = styled(Typography)({
   fontSize: fontSize['4xl'],
-  color: '#FFFFFF',
+  color: colors.text.primary,
   fontWeight: 700,
   lineHeight: 1,
 });
@@ -118,9 +118,9 @@ const ContinueButton = styled(Button)({
   minWidth: 160,
   height: 42,
   borderRadius: borderRadius.lg,
-  background: `linear-gradient(135deg, #FF5C45, rgba(161, 42, 42, 0.9))`,
-  border: '0.8px solid rgba(255, 92, 69, 0.8)',
-  color: '#FFFFFF',
+  background: gradients.primaryCSS,
+  border: `0.8px solid ${colors.accent.border}`,
+  color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: 600,
   fontSize: fontSize.md,
@@ -128,7 +128,7 @@ const ContinueButton = styled(Button)({
   opacity: 0,
   animation: `${fadeIn} 0.3s ease-out 0.6s forwards`,
   '&:hover': {
-    background: `linear-gradient(135deg, #FF5C45, rgba(161, 42, 42, 1))`,
+    background: gradients.primaryCSS,
   },
 });
 

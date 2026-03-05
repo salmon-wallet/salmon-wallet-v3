@@ -66,7 +66,7 @@ const BackButton = styled(IconButton)({
   color: colors.text.primary,
   padding: spacing.xs,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 

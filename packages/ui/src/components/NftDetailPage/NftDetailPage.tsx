@@ -211,7 +211,7 @@ const PrimaryButtonBase = styled(ButtonBase)({
   borderRadius: 14,
   overflow: 'hidden',
   background: gradients.primaryButtonCSS,
-  border: '0.5px solid rgba(255, 92, 69, 0.8)',
+  border: `0.5px solid ${colors.accent.border}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -240,7 +240,7 @@ const ButtonText = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  color: '#e0e0e0',
+  color: colors.text.balance,
   lineHeight: 1.5,
 });
 
@@ -485,19 +485,19 @@ export function NftDetailPage({
         {/* Action Buttons */}
         <ActionButtonsContainer>
           <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT">
-            <CallMadeIcon sx={{ fontSize: fontSize.md, color: '#e0e0e0' }} />
+            <CallMadeIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
             <ButtonText>Send</ButtonText>
           </PrimaryButtonBase>
 
           <BlurContainer
             blurIntensity={2.5}
-            backgroundColor="rgba(255, 255, 255, 0.04)"
-            borderColor="rgba(255, 92, 69, 0.8)"
+            backgroundColor={colors.interactive.surface}
+            borderColor={colors.accent.border}
             borderWidth={0.5}
             style={{ borderRadius: 14, overflow: 'hidden', flex: 1, maxWidth: 160 }}
           >
             <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
-              <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: '#e0e0e0' }} />
+              <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
               <ButtonText>Burn</ButtonText>
             </SecondaryButtonInner>
           </BlurContainer>

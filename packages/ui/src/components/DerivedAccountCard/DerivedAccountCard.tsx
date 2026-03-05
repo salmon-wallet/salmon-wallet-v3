@@ -48,7 +48,7 @@ const Checkbox = styled(Box)<{ $selected: boolean }>(({ $selected }) => ({
   width: componentSizes.checkboxSize,
   height: componentSizes.checkboxSize,
   borderRadius: 6,
-  backgroundColor: $selected ? colors.accent.primary : 'rgba(255, 255, 255, 0.2)',
+  backgroundColor: $selected ? colors.accent.primary : colors.interactive.highlight,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

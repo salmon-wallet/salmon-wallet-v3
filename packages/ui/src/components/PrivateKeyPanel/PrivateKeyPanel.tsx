@@ -63,10 +63,10 @@ const PageContent = styled(Box)({
 });
 
 const WarningAlert = styled(Alert)({
-  backgroundColor: 'rgba(255, 171, 0, 0.1)',
-  border: '1px solid rgba(255, 171, 0, 0.3)',
+  backgroundColor: colors.status.warningBackground,
+  border: `1px solid ${colors.status.warningBorder}`,
   '& .MuiAlert-icon': {
-    color: '#FFAB00',
+    color: colors.status.warning,
   },
   '& .MuiAlert-message': {
     color: colors.text.primary,
@@ -123,13 +123,13 @@ const BlurOverlay = styled(Box)({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: 'rgba(15, 15, 15, 0.95)',
+  backgroundColor: colors.overlay.dark,
   borderRadius: borderRadius.lg,
   gap: spacing.xxs,
   cursor: 'pointer',
   transition: 'background-color 0.2s',
   '&:hover': {
-    backgroundColor: 'rgba(15, 15, 15, 0.9)',
+    backgroundColor: colors.overlay.darkHover,
   },
 });
 
@@ -157,7 +157,7 @@ const CopyButton = styled(ActionButton)({
   color: colors.text.primary,
   border: `1px solid ${colors.border.default}`,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.card.border,
     borderColor: colors.border.light,
   },
 });
@@ -165,7 +165,7 @@ const CopyButton = styled(ActionButton)({
 const NetworkListItemButton = styled(ListItemButton)({
   padding: `${spacing.md}px ${spacing.lg}px`,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
@@ -369,14 +369,14 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
                       backgroundColor: isRevealed
                         ? colors.accent.primary
                         : colors.background.card,
-                      color: isRevealed ? '#FFFFFF' : colors.text.primary,
+                      color: isRevealed ? colors.text.primary : colors.text.primary,
                       border: `1px solid ${
                         isRevealed ? colors.accent.primary : colors.border.default
                       }`,
                       '&:hover': {
                         backgroundColor: isRevealed
-                          ? '#FF7A64'
-                          : 'rgba(255, 255, 255, 0.1)',
+                          ? colors.button.dangerHover
+                          : colors.card.border,
                       },
                     }}
                   >

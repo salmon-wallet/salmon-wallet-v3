@@ -132,7 +132,7 @@ const BackButtonWrapper = styled('div')({
 const ContinueButtonGradient = styled('div')({
   flex: 1,
   borderRadius: borderRadius.lg,
-  border: '0.8px solid rgba(255, 92, 69, 0.8)',
+  border: `0.8px solid ${colors.accent.border}`,
   boxShadow: shadowsCSS.button,
   background: gradients.primaryCSS,
 });
@@ -194,9 +194,9 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
             onClick={onBack}
             style={{
               height: 42,
-              border: '0.8px solid rgba(255, 92, 69, 0.8)',
+              border: `0.8px solid ${colors.accent.border}`,
               borderRadius: borderRadius.lg,
-              backgroundColor: '#1f232f',
+              backgroundColor: colors.button.cancelBackground,
             }}
           >
             Back

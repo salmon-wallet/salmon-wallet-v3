@@ -59,7 +59,7 @@ const NftImage = styled('img')({
   height: 56,
   borderRadius: 8,
   objectFit: 'cover',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backgroundColor: colors.background.card,
 });
 
 const NftName = styled(Typography)({

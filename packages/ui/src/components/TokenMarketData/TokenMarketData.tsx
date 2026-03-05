@@ -54,7 +54,7 @@ const RowLabel = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: '#bdc3d1',
+  color: colors.text.secondary,
 });
 
 const RowValue = styled(Typography)({

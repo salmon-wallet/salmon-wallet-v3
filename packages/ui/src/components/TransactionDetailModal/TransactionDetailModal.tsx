@@ -291,7 +291,7 @@ const CloseButton = styled(IconButton)({
   marginLeft: 'auto',
   flexShrink: 0,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
@@ -310,11 +310,11 @@ const StyledDialogContent = styled(DialogContent)({
     backgroundColor: 'transparent',
   },
   '&::-webkit-scrollbar-thumb': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.card.border,
     borderRadius: 3,
   },
   '&::-webkit-scrollbar-thumb:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: colors.interactive.highlight,
   },
 });
 

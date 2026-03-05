@@ -86,9 +86,9 @@ const HeaderButton = styled(IconButton)({
   width: 44,
   height: 44,
   borderRadius: 22,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: colors.interactive.hoverMedium,
   },
 });
 

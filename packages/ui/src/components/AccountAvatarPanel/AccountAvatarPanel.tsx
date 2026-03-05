@@ -42,7 +42,7 @@ const ToggleContainer = styled(Box)({
   display: 'flex',
   margin: `0 ${spacing.lg}px`,
   marginBottom: spacing.lg,
-  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  backgroundColor: colors.background.tertiary,
   borderRadius: borderRadius.md,
   position: 'relative',
   padding: spacing.xxs,
@@ -139,10 +139,10 @@ const SaveButton = styled(Button)<{ $isDisabled?: boolean }>(({ $isDisabled }) =
   fontWeight: fontWeight.bold,
   fontSize: fontSize.md,
   borderRadius: borderRadius.lg,
-  backgroundColor: $isDisabled ? 'rgba(255, 255, 255, 0.1)' : colors.accent.primary,
+  backgroundColor: $isDisabled ? colors.card.border : colors.accent.primary,
   color: $isDisabled ? colors.text.secondary : colors.text.primary,
   '&:hover': {
-    backgroundColor: $isDisabled ? 'rgba(255, 255, 255, 0.1)' : colors.accent.primary,
+    backgroundColor: $isDisabled ? colors.card.border : colors.accent.primary,
   },
   '&.Mui-disabled': {
     color: colors.text.secondary,

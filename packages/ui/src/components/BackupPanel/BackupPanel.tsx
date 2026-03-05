@@ -48,10 +48,10 @@ const PageContent = styled(Box)({
 });
 
 const WarningAlert = styled(Alert)({
-  backgroundColor: 'rgba(255, 171, 0, 0.1)',
-  border: `1px solid rgba(255, 171, 0, 0.3)`,
+  backgroundColor: colors.status.warningBackground,
+  border: `1px solid ${colors.status.warningBorder}`,
   '& .MuiAlert-icon': {
-    color: '#FFAB00',
+    color: colors.status.warning,
   },
   '& .MuiAlert-message': {
     color: colors.text.primary,
@@ -106,13 +106,13 @@ const BlurOverlay = styled(Box)({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: 'rgba(15, 15, 15, 0.95)',
+  backgroundColor: colors.overlay.dark,
   borderRadius: borderRadius.lg,
   gap: spacing.md,
   cursor: 'pointer',
   transition: 'background-color 0.2s',
   '&:hover': {
-    backgroundColor: 'rgba(15, 15, 15, 0.9)',
+    backgroundColor: colors.overlay.darkHover,
   },
 });
 
@@ -140,7 +140,7 @@ const CopyButton = styled(ActionButton)({
   color: colors.text.primary,
   border: `1px solid ${colors.border.default}`,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.card.border,
     borderColor: colors.border.light,
   },
 });
@@ -275,15 +275,15 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
                       ? colors.accent.primary
                       : colors.background.card,
                     color: seedPhraseVisible
-                      ? '#FFFFFF'
+                      ? colors.text.primary
                       : colors.text.primary,
                     border: `1px solid ${
                       seedPhraseVisible ? colors.accent.primary : colors.border.default
                     }`,
                     '&:hover': {
                       backgroundColor: seedPhraseVisible
-                        ? '#FF7A64' // lighter shade of accent primary
-                        : 'rgba(255, 255, 255, 0.1)',
+                        ? colors.button.dangerHover
+                        : colors.card.border,
                     },
                   }}
                 >

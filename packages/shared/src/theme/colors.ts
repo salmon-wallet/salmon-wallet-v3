@@ -34,11 +34,18 @@ export const colors = {
   accent: {
     primary: '#FF5C45', // orange/red - color de acento principal
     primaryEnd: 'rgba(161, 42, 42, 0.9)', // gradient end
+    border: 'rgba(255, 92, 69, 0.8)', // accent-colored borders
+    tint: 'rgba(255, 92, 69, 0.1)', // subtle accent background
+    tintHover: 'rgba(255, 92, 69, 0.15)', // accent hover background
   },
   status: {
     success: '#10B981',
     error: '#EF4444',
     warning: '#F59E0B',
+    successBackground: 'rgba(76, 175, 80, 0.1)',
+    errorBackground: 'rgba(239, 68, 68, 0.1)',
+    warningBackground: 'rgba(255, 171, 0, 0.1)',
+    warningBorder: 'rgba(255, 171, 0, 0.3)',
   },
   /**
    * Price change colors for token lists and charts
@@ -60,6 +67,9 @@ export const colors = {
     primaryText: '#000000',
     secondaryBackground: '#2a3441',
     secondaryText: '#FFFFFF',
+    cancelBackground: '#1f232f',
+    dangerHover: '#FF7A64',
+    destructiveHover: '#DC2626',
     disabledBackground: '#666666',
     disabledBackgroundEnd: '#444444',
     disabledText: '#666666',
@@ -81,6 +91,17 @@ export const colors = {
   tabBar: {
     active: '#FF5C45',
     inactive: 'rgba(255, 255, 255, 0.6)',
+  },
+  interactive: {
+    surface: 'rgba(255, 255, 255, 0.04)',
+    hoverSubtle: 'rgba(255, 255, 255, 0.06)',
+    hoverStrong: 'rgba(255, 255, 255, 0.12)',
+    hoverMedium: 'rgba(255, 255, 255, 0.15)',
+    highlight: 'rgba(255, 255, 255, 0.2)',
+  },
+  overlay: {
+    dark: 'rgba(15, 15, 15, 0.95)',
+    darkHover: 'rgba(15, 15, 15, 0.9)',
   },
   skeleton: {
     base: 'rgba(64, 73, 98, 0.3)',

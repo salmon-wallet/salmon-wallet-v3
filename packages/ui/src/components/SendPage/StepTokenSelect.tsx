@@ -94,7 +94,7 @@ const ListContent = styled(Box)({
     background: 'transparent',
   },
   '&::-webkit-scrollbar-thumb': {
-    background: 'rgba(255, 255, 255, 0.15)',
+    background: colors.interactive.hoverMedium,
     borderRadius: 2,
   },
 });
@@ -165,7 +165,7 @@ const TokenName = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: '#d6d6d6',
+  color: colors.text.token,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -175,7 +175,7 @@ const TokenBalance = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: '#d6d6d6',
+  color: colors.text.token,
   marginLeft: spacing.sm,
   flexShrink: 0,
 });

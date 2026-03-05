@@ -77,9 +77,9 @@ const DetailsContainer = styled(Box)({
 });
 
 const WarningBox = styled(Box)({
-  backgroundColor: 'rgba(255, 179, 0, 0.1)',
+  backgroundColor: colors.status.warningBackground,
   borderRadius: borderRadius.md,
-  border: '1px solid rgba(255, 179, 0, 0.3)',
+  border: `1px solid ${colors.status.warningBorder}`,
   padding: spacing.base,
   marginBottom: spacing.lg,
 });

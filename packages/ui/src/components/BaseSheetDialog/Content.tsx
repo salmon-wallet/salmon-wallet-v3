@@ -12,6 +12,7 @@
 import React from 'react';
 import { styled } from '../../utils/styled';
 import DialogContent from '@mui/material/DialogContent';
+import { colors } from '@salmon/shared';
 import { PADDING_PRESETS } from './types';
 import type { ContentProps } from './types';
 
@@ -38,7 +39,7 @@ const StyledDialogContent = styled(DialogContent)<{
       background: 'transparent',
     },
     '&::-webkit-scrollbar-thumb': {
-      background: 'rgba(255, 255, 255, 0.2)',
+      background: colors.interactive.highlight,
       borderRadius: 3,
       '&:hover': {
         background: 'rgba(255, 255, 255, 0.3)',

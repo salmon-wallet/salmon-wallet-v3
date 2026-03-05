@@ -39,7 +39,7 @@ const StyledButton = styled(Button)<{
   '&:hover': {
     backgroundColor:
       $buttonVariant === 'outline'
-        ? 'rgba(255, 255, 255, 0.05)'
+        ? colors.background.card
         : colors.button.secondaryBackground,
     opacity: 0.9,
     boxShadow: shadowsCSS.none,

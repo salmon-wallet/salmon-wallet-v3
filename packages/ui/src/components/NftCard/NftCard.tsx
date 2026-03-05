@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import { colors, fontFamily, fontWeight, borderRadius, fontSize, spacing, shadowsCSS } from '@salmon/shared';
+import { colors, gradients, fontFamily, fontWeight, borderRadius, fontSize, spacing, shadowsCSS } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps } from './types';
 
@@ -16,8 +16,7 @@ import type { NftCardProps } from './types';
  * Orange gradient colors for fallback background
  * Gradient: linear-gradient(91.6deg, rgb(255, 92, 69) 12%, rgba(161, 42, 42, 0.9) 83%)
  */
-const FALLBACK_GRADIENT =
-  'linear-gradient(91.6deg, rgb(255, 92, 69) 12%, rgba(161, 42, 42, 0.9) 83%)';
+const FALLBACK_GRADIENT = gradients.primaryCSS;
 
 /** Card dimensions */
 const CARD_BORDER_RADIUS = 18;
@@ -86,7 +85,7 @@ const NameText = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
-  color: '#e0e0e0',
+  color: colors.text.balance,
   textAlign: 'center',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -175,8 +174,8 @@ export function NftCard({ nft, onPress, style, className, testID }: NftCardProps
       <NameBadgeContainer>
         <BlurContainer
           blurIntensity={6}
-          backgroundColor="rgba(0, 0, 0, 0.6)"
-          borderColor="rgba(255, 92, 69, 0.8)"
+          backgroundColor={colors.dialog.overlay}
+          borderColor={colors.accent.border}
           borderWidth={0.5}
           style={{
             borderRadius: borderRadius.md,

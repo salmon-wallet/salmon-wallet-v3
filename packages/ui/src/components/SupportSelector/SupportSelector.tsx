@@ -55,7 +55,7 @@ const StyledList = styled(List)({
 const StyledListItemButton = styled(ListItemButton)({
   padding: `${spacing.md}px ${spacing.lg}px`,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
@@ -73,7 +73,7 @@ const SecurityNotice = styled(Box)({
   display: 'flex',
   alignItems: 'flex-start',
   gap: spacing.sm,
-  backgroundColor: 'rgba(255, 179, 0, 0.1)',
+  backgroundColor: colors.status.warningBackground,
   borderRadius: borderRadius.md,
   padding: spacing.md,
   margin: `${spacing.lg}px ${spacing.lg}px`,

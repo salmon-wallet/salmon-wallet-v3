@@ -153,7 +153,7 @@ const StyledList = styled(List)({
 const StyledListItemButton = styled(ListItemButton)({
   padding: `${spacing.md}px ${spacing.lg}px`,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 

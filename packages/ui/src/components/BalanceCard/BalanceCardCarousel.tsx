@@ -31,7 +31,7 @@ const ArrowButton = styled('button')<{ $visible: boolean }>(({ $visible }) => ({
   borderRadius: borderRadius.full,
   border: 'none',
   padding: 0,
-  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  backgroundColor: colors.interactive.hoverMedium,
   color: colors.text.primary,
   cursor: 'pointer',
   display: 'flex',

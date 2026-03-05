@@ -153,7 +153,7 @@ const HeaderTitle = styled(Typography)({
 const CloseButton = styled(IconButton)({
   color: colors.text.secondary,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
@@ -182,8 +182,8 @@ const StyledListItemButton = styled(ListItemButton)<{ $isDanger?: boolean }>(
     padding: `${spacing.md}px ${spacing.lg}px`,
     '&:hover': {
       backgroundColor: $isDanger
-        ? 'rgba(239, 68, 68, 0.1)'
-        : 'rgba(255, 255, 255, 0.05)',
+        ? colors.status.errorBackground
+        : colors.background.card,
     },
   })
 );

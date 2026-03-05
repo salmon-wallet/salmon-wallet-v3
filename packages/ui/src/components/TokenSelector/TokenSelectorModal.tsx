@@ -79,7 +79,7 @@ const CloseButton = styled(IconButton)({
   color: colors.text.secondary,
   padding: spacing.xs,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
@@ -126,14 +126,14 @@ const TokenItemContainer = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backgroundColor: colors.background.card,
   borderRadius: borderRadius.lg,
   padding: `${spacing.md}px`,
   marginBottom: spacing.sm,
   cursor: 'pointer',
   transition: 'background-color 0.2s ease',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: colors.background.tertiary,
   },
 });
 
@@ -141,7 +141,7 @@ const TokenIconImage = styled('img')({
   width: 40,
   height: 40,
   borderRadius: 20,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
   objectFit: 'cover',
 });
 
@@ -149,7 +149,7 @@ const TokenIconPlaceholder = styled(Box)({
   width: 40,
   height: 40,
   borderRadius: 20,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -181,7 +181,7 @@ const TokenName = styled(Typography)({
 });
 
 const NetworkChip = styled(Box)({
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
   borderRadius: borderRadius.sm,
   padding: `2px ${spacing.xs}px`,
   marginLeft: spacing.sm,
@@ -219,7 +219,7 @@ const FeaturedTokenButton = styled(Box)({
   borderRadius: borderRadius.md,
   transition: 'background-color 0.2s ease',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
@@ -227,7 +227,7 @@ const FeaturedTokenIcon = styled('img')({
   width: 48,
   height: 48,
   borderRadius: 24,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
   objectFit: 'cover',
 });
 
@@ -235,7 +235,7 @@ const FeaturedTokenIconPlaceholder = styled(Box)({
   width: 48,
   height: 48,
   borderRadius: 24,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -274,7 +274,7 @@ const SearchingText = styled(Typography)({
 
 const LoadMoreButton = styled(Button)({
   width: '100%',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backgroundColor: colors.background.card,
   borderRadius: borderRadius.lg,
   padding: `${spacing.md}px`,
   textTransform: 'none',
@@ -284,7 +284,7 @@ const LoadMoreButton = styled(Button)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   marginTop: spacing.sm,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: colors.background.tertiary,
   },
 });
 
@@ -312,12 +312,12 @@ const CloseActionButton = styled(Button)({
   borderRadius: borderRadius.lg,
   padding: `${spacing.md}px`,
   textTransform: 'none',
-  color: '#FFFFFF',
+  color: colors.text.primary,
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   '&:hover': {
-    backgroundColor: '#E04E3A',
+    backgroundColor: colors.button.dangerHover,
   },
 });
 
@@ -477,7 +477,7 @@ export function TokenSelectorModal({
         <TokenListContainer>
           {loading ? (
             Array.from({ length: 5 }, (_, i) => (
-              <TokenItemContainer key={i} sx={{ cursor: 'default', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' } }}>
+              <TokenItemContainer key={i} sx={{ cursor: 'default', '&:hover': { backgroundColor: colors.background.card } }}>
                 <ContentLoader
                   speed={1.5}
                   width={320}

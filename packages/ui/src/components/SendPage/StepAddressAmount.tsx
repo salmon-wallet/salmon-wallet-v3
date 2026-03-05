@@ -70,7 +70,7 @@ const ScrollContent = styled(Box)({
     background: 'transparent',
   },
   '&::-webkit-scrollbar-thumb': {
-    background: 'rgba(255, 255, 255, 0.15)',
+    background: colors.interactive.hoverMedium,
     borderRadius: 2,
   },
 });
@@ -227,7 +227,7 @@ const QuickFillButtons = styled(Box)({
 });
 
 const QuickFillButton = styled(ButtonBase)({
-  backgroundColor: '#2A384E',
+  backgroundColor: colors.button.secondaryBackground,
   borderRadius: 6,
   padding: `${spacing.xs}px ${spacing.md}px`,
   transition: 'opacity 0.15s ease',
@@ -269,8 +269,8 @@ const CancelButton = styled(ButtonBase)({
   flex: 1,
   height: 48,
   borderRadius: 12,
-  border: '1px solid rgba(255, 92, 69, 0.8)',
-  backgroundColor: '#1f232f',
+  border: `1px solid ${colors.accent.border}`,
+  backgroundColor: colors.button.cancelBackground,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -295,7 +295,7 @@ const ReviewButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
   overflow: 'hidden',
   border: disabled
     ? `1px solid ${colors.border.default}`
-    : '1px solid rgba(255, 92, 69, 0.8)',
+    : `1px solid ${colors.accent.border}`,
   opacity: disabled ? 0.5 : 1,
   boxShadow: shadowsCSS.button,
   transition: 'opacity 0.15s ease',
@@ -340,7 +340,7 @@ const ContactRow = styled(ButtonBase)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backgroundColor: colors.background.card,
   borderRadius: 10,
   padding: `${spacing.md}px ${spacing.lg}px`,
   marginBottom: spacing.xs,
@@ -376,7 +376,7 @@ const ContactAddress = styled(Typography)({
 });
 
 const BlockchainBadge = styled(Box)({
-  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  backgroundColor: colors.background.tertiary,
   borderRadius: 6,
   padding: `${spacing.xs}px ${spacing.sm}px`,
   flexShrink: 0,

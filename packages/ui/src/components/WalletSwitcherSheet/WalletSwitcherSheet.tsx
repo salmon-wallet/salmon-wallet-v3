@@ -50,12 +50,12 @@ const StyledList = styled(List)({
 const StyledListItem = styled(ListItem)<{ $isActive?: boolean }>(({ $isActive }) => ({
   padding: `${spacing.md}px ${spacing.xl}px`,
   cursor: 'pointer',
-  backgroundColor: $isActive ? 'rgba(255, 92, 69, 0.1)' : 'transparent',
+  backgroundColor: $isActive ? colors.accent.tint : 'transparent',
   transition: 'background-color 0.2s ease',
   '&:hover': {
     backgroundColor: $isActive
-      ? 'rgba(255, 92, 69, 0.15)'
-      : 'rgba(255, 255, 255, 0.05)',
+      ? colors.accent.tintHover
+      : colors.background.card,
   },
 }));
 
@@ -95,7 +95,7 @@ const ActionIconButton = styled(IconButton)({
   padding: spacing.xs,
   color: colors.text.secondary,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.card.border,
   },
 });
 
@@ -103,7 +103,7 @@ const DeleteIconButton = styled(IconButton)({
   padding: spacing.xs,
   color: colors.status.error,
   '&:hover': {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: colors.status.errorBackground,
   },
 });
 
@@ -121,7 +121,7 @@ const AddAccountButton = styled(Button)({
   fontSize: fontSizeTokens.base,
   fontWeight: fontWeightTokens.semibold,
   '&:hover': {
-    backgroundColor: 'rgba(255, 92, 69, 0.1)',
+    backgroundColor: colors.accent.tint,
   },
 });
 
@@ -162,7 +162,7 @@ const CancelButton = styled(Button)({
   padding: `${spacing.sm}px ${spacing.lg}px`,
   borderRadius: borderRadius.md,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.card.border,
   },
 });
 
@@ -175,7 +175,7 @@ const DeleteButton = styled(Button)({
   padding: `${spacing.sm}px ${spacing.lg}px`,
   borderRadius: borderRadius.md,
   '&:hover': {
-    backgroundColor: '#DC2626',
+    backgroundColor: colors.button.destructiveHover,
   },
 });
 

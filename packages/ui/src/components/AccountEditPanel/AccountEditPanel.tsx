@@ -47,7 +47,7 @@ export interface AccountEditPanelProps {
 // ============================================================================
 
 const SectionContainer = styled(Box)({
-  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+  backgroundColor: colors.interactive.surface,
   borderRadius: borderRadius.lg,
   overflow: 'hidden',
 });
@@ -63,7 +63,7 @@ const IconContainer = styled(Box)({
   width: 40,
   height: 40,
   borderRadius: borderRadius.md,
-  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+  backgroundColor: colors.interactive.hoverSubtle,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

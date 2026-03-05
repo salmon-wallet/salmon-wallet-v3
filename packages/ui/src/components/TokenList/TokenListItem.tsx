@@ -170,7 +170,7 @@ const PriceRow = styled(Box)({
 const Price = styled(Typography)({
   fontSize: ms(fontSize.tokenNamePrice),
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: 'rgba(255, 255, 255, 0.7)',
+  color: colors.text.muted,
 });
 
 const BulletSeparator = styled(Typography)({
@@ -204,7 +204,7 @@ const UsdValue = styled(Typography)({
 const TokenAmount = styled(Typography)({
   fontSize: ms(fontSize.sm),
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: 'rgba(255, 255, 255, 0.7)',
+  color: colors.text.muted,
 });
 
 export function TokenListItem({

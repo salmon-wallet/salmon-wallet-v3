@@ -77,7 +77,7 @@ const PeriodButton = styled(Button)<{ $selected?: boolean }>(({ $selected }) => 
   '&:hover': {
     backgroundColor: $selected
       ? colors.text.primary
-      : 'rgba(255, 255, 255, 0.1)',
+      : colors.card.border,
   },
 }));
 

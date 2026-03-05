@@ -119,7 +119,7 @@ function getTypeConfig(type: TransactionType): TypeConfig & { icon: React.ReactN
   return {
     ...config,
     icon: <IconComponent sx={{ fontSize: fontSize.title }} />,
-    badgeIcon: <IconComponent sx={{ fontSize: fontSize.xs, color: '#FFFFFF' }} />,
+    badgeIcon: <IconComponent sx={{ fontSize: fontSize.xs, color: colors.text.primary }} />,
   };
 }
 
@@ -330,7 +330,7 @@ const ExpandBadge = styled(Box)({
   borderRadius: 4,
   cursor: 'pointer',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 

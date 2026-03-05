@@ -251,7 +251,7 @@ export function SwapReviewScreen({
           {/* Warning Box */}
           <BlurContainer
             borderColor={colors.palette.amber}
-            backgroundColor="rgba(255, 179, 0, 0.1)"
+            backgroundColor={colors.status.warningBackground}
             style={{ borderRadius: borderRadius.md, marginBottom: spacing.lg }}
           >
             <WarningContent>

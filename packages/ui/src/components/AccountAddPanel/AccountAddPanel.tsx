@@ -58,7 +58,7 @@ const MethodCard = styled(ListItemButton)({
   alignItems: 'center',
   gap: spacing.md,
   padding: spacing.lg,
-  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+  backgroundColor: colors.interactive.surface,
   borderRadius: borderRadius.lg,
   marginBottom: spacing.md,
 });
@@ -67,7 +67,7 @@ const MethodIcon = styled(Box)({
   width: 48,
   height: 48,
   borderRadius: borderRadius.md,
-  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+  backgroundColor: colors.interactive.hoverSubtle,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -92,14 +92,14 @@ const ConfirmButton = styled(Button)({
     opacity: 0.9,
   },
   '&.Mui-disabled': {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: colors.interactive.hoverStrong,
     color: colors.text.disabled,
   },
 });
 
 const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: colors.interactive.surface,
     borderRadius: borderRadius.md,
     color: colors.text.primary,
     fontSize: fontSize.base,

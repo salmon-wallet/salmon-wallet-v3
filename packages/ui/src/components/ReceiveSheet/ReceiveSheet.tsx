@@ -51,7 +51,7 @@ const ContentWrapper = styled(Box)({
 
 const QRContainer = styled(Box)({
   borderRadius: 16,
-  border: `${componentSizes.qrBorderWidth}px solid #FFFFFF`,
+  border: `${componentSizes.qrBorderWidth}px solid ${colors.button.primaryBackground}`,
   overflow: 'hidden',
   display: 'inline-flex',
   alignItems: 'center',
@@ -77,7 +77,7 @@ const CopyButton = styled(ButtonBase)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: '#fcfcfc',
+  backgroundColor: colors.button.primaryBackground,
   borderRadius: 11,
   width: 180,
   height: 42,
@@ -94,7 +94,7 @@ const CopyButton = styled(ButtonBase)({
 const CopyButtonText = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: 800,
-  color: '#000000',
+  color: colors.button.primaryText,
   textAlign: 'center',
   textTransform: 'capitalize',
 });
@@ -189,8 +189,8 @@ export function ReceiveSheet({
             <QRCode
               value={address}
               size={qrSize}
-              backgroundColor="#FFFFFF"
-              color="#000000"
+              backgroundColor={colors.button.primaryBackground}
+              color={colors.button.primaryText}
             />
           </QRContainer>
 
@@ -203,9 +203,9 @@ export function ReceiveSheet({
             aria-label={t('token.receive.copyAddress')}
           >
             {copied ? (
-              <CheckIcon sx={{ fontSize: fontSize.xl, color: '#000000' }} />
+              <CheckIcon sx={{ fontSize: fontSize.xl, color: colors.button.primaryText }} />
             ) : (
-              <ContentCopyIcon sx={{ fontSize: fontSize.xl, color: '#000000' }} />
+              <ContentCopyIcon sx={{ fontSize: fontSize.xl, color: colors.button.primaryText }} />
             )}
             <CopyButtonText>
               {copied ? t('token.receive.copied') : t('token.receive.copyAddress')}

@@ -64,7 +64,7 @@ const SelectorButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled })
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backgroundColor: colors.background.card,
   borderRadius: borderRadius.lg,
   padding: `${spacing.sm}px ${spacing.md}px`,
   minWidth: 120,
@@ -72,7 +72,7 @@ const SelectorButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled })
   opacity: disabled ? 0.5 : 1,
   cursor: disabled ? 'default' : 'pointer',
   '&:hover': {
-    backgroundColor: disabled ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: disabled ? colors.background.card : colors.background.tertiary,
   },
 }));
 
@@ -80,7 +80,7 @@ const TokenIconImage = styled('img')({
   width: 32,
   height: 32,
   borderRadius: 16,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
   objectFit: 'cover',
   marginRight: spacing.sm,
 });
@@ -89,7 +89,7 @@ const TokenIconPlaceholder = styled(Box)({
   width: 32,
   height: 32,
   borderRadius: 16,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
   marginRight: spacing.sm,
 });
 

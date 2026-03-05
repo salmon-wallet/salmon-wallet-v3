@@ -39,21 +39,21 @@ const StyledList = styled(List)({
 const StyledListItemButton = styled(ListItemButton)({
   padding: `${spacing.sm}px ${spacing.lg}px`,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
 const RevokeButton = styled(IconButton)({
   color: colors.status.error,
   '&:hover': {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: colors.status.errorBackground,
   },
 });
 
 const AppAvatar = styled(Avatar)({
   width: 36,
   height: 36,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
 });
 
 const EmptyContainer = styled(Box)({
@@ -72,7 +72,7 @@ const EmptyText = styled(Typography)({
 });
 
 const EmptySubtext = styled(Typography)({
-  color: 'rgba(255, 255, 255, 0.4)',
+  color: colors.text.disabled,
   fontSize: fontSize.sm,
   textAlign: 'center',
 });

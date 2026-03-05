@@ -53,9 +53,9 @@ const AccountItem = styled(ListItemButton)<{ $isActive?: boolean }>(({ $isActive
   gap: spacing.md,
   padding: `${spacing.md}px ${spacing.lg}px`,
   borderRadius: borderRadius.md,
-  backgroundColor: $isActive ? 'rgba(255, 255, 255, 0.06)' : 'transparent',
+  backgroundColor: $isActive ? colors.interactive.hoverSubtle : 'transparent',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: colors.background.tertiary,
   },
 }));
 
@@ -102,7 +102,7 @@ const AddAccountIcon = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+  backgroundColor: colors.interactive.hoverSubtle,
   border: `1px dashed ${colors.border.default}`,
 });
 

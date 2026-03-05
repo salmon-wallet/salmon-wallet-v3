@@ -41,14 +41,14 @@ const StyledList = styled(List)({
 const StyledListItemButton = styled(ListItemButton)({
   padding: `${spacing.sm}px ${spacing.lg}px`,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
 });
 
 const ContactAvatar = styled(Avatar)({
   width: 36,
   height: 36,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backgroundColor: colors.card.border,
 });
 
 const EmptyContainer = styled(Box)({
@@ -114,7 +114,7 @@ export function AddressBookPanel({
                       edge="end"
                       onClick={() => onEditContact(contact)}
                       size="small"
-                      sx={{ color: colors.text.secondary, '&:hover': { backgroundColor: 'rgba(255,255,255,0.05)' } }}
+                      sx={{ color: colors.text.secondary, '&:hover': { backgroundColor: colors.background.card } }}
                     >
                       <EditOutlinedIcon fontSize="small" />
                     </IconButton>
@@ -122,7 +122,7 @@ export function AddressBookPanel({
                       edge="end"
                       onClick={() => setDeleteTarget(contact)}
                       size="small"
-                      sx={{ color: colors.status.error, '&:hover': { backgroundColor: 'rgba(239,68,68,0.1)' } }}
+                      sx={{ color: colors.status.error, '&:hover': { backgroundColor: colors.status.errorBackground } }}
                     >
                       <DeleteOutlineIcon fontSize="small" />
                     </IconButton>

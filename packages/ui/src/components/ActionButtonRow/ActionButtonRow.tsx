@@ -96,7 +96,7 @@ const ButtonText = styled(Typography)<{ $disabled?: boolean }>(({ $disabled }) =
   fontSize: ms(fontSize.actionButton),
   fontWeight: '400',
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: $disabled ? colors.button.disabledText : '#e0e0e0',
+  color: $disabled ? colors.button.disabledText : colors.text.balance,
 }));
 
 export function ActionButtonRow({
@@ -140,7 +140,7 @@ export function ActionButtonRow({
           disabled={sendDisabled}
           aria-label="Send tokens"
         >
-          <SendIcon sx={{ fontSize: iconSize, color: '#e0e0e0' }} />
+          <SendIcon sx={{ fontSize: iconSize, color: colors.text.balance }} />
           <ButtonText>{t('actions.send', 'Send')}</ButtonText>
         </PrimaryButton>
       </ButtonWrapper>
@@ -157,7 +157,7 @@ export function ActionButtonRow({
             disabled={receiveDisabled}
             aria-label="Receive tokens"
           >
-            <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : '#e0e0e0' }} />
+            <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : colors.text.balance }} />
             <ButtonText $disabled={receiveDisabled}>{t('actions.receive', 'Receive')}</ButtonText>
           </SecondaryButton>
         </BlurContainer>
@@ -175,7 +175,7 @@ export function ActionButtonRow({
             disabled={activityDisabled}
             aria-label="View activity"
           >
-            <ActivityIcon sx={{ fontSize: iconSize, color: activityDisabled ? colors.button.disabledText : '#e0e0e0' }} />
+            <ActivityIcon sx={{ fontSize: iconSize, color: activityDisabled ? colors.button.disabledText : colors.text.balance }} />
             <ButtonText $disabled={activityDisabled}>{t('actions.activity', 'Activity')}</ButtonText>
           </SecondaryButton>
         </BlurContainer>
