@@ -5,12 +5,11 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Platform,
   ActivityIndicator,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, ms, s, vs } from '@salmon/shared';
+import { colors, gradients, shadows, ms, s, vs } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCarouselSectionProps, NftBlockchain } from './types';
@@ -25,10 +24,10 @@ const CARD_GAP = s(9);
 
 // Fallback gradient for NFTs without images
 const FALLBACK_GRADIENT = {
-  colors: ['rgb(255, 92, 69)', 'rgba(161, 42, 42, 0.9)'] as const,
+  colors: [...gradients.primaryButton.colors],
   start: { x: 0.12, y: 0.5 },
   end: { x: 0.83, y: 0.5 },
-};
+} as const;
 
 /**
  * Get blockchain icon component based on blockchain type
@@ -123,8 +122,8 @@ const MiniNftCard: React.FC<MiniNftCardProps> = ({ nft, onPress }) => {
         <BlurContainer
           style={styles.nameBadge}
           blurIntensity={6}
-          backgroundColor="rgba(0, 0, 0, 0.6)"
-          borderColor="rgba(255, 92, 69, 0.8)"
+          backgroundColor={colors.overlay.darkHover}
+          borderColor={colors.accent.border}
           borderWidth={0.5}
         >
           <Text style={styles.nameText} numberOfLines={1} ellipsizeMode="tail">
@@ -269,17 +268,7 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
     borderRadius: CARD_BORDER_RADIUS,
     overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.4,
-        shadowRadius: 9,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
+    ...shadows.nftCard,
   },
   cardBackground: {
     width: '100%',
@@ -318,7 +307,7 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans-SemiBold',
     fontSize: ms(13),
     fontWeight: '600',
-    color: '#e0e0e0',
+    color: colors.text.balance,
     textAlign: 'center',
   },
 });

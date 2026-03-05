@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: borderRadius.md,
-    backgroundColor: 'rgba(255, 92, 69, 0.1)',
+    backgroundColor: colors.accent.tint,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   securityNotice: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: 'rgba(255, 179, 0, 0.1)',
+    backgroundColor: colors.status.warningBackground,
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginTop: spacing.lg,

@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   warningContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: 'rgba(255, 179, 0, 0.1)',
+    backgroundColor: colors.status.warningBackground,
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginBottom: spacing.xl,
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: colors.overlay.dark,
     borderRadius: borderRadius.lg,
     alignItems: 'center',
     justifyContent: 'center',

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, type TextStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, componentSizes, fontFamily, fontWeight, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, shadows, componentSizes, fontFamily, fontWeight, vs, s } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
 import type { SwapInputScreenProps } from './types';
@@ -130,14 +130,10 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     borderWidth: 0.8,
     borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 8,
+    ...shadows.button,
   },
   buttonGradientActive: {
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
   },
   buttonGradientInactive: {
     backgroundColor: colors.button.inactiveBackground,

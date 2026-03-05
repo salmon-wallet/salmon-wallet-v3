@@ -24,6 +24,7 @@ import {
   fontFamilyNative,
   fontSize,
   gradients,
+  shadows,
   lineHeight,
   ms,
   s,
@@ -377,7 +378,7 @@ export function LockScreenOverlay({
                           { borderColor: getInputBorderColor() },
                         ]}
                         placeholder={t('lock.enter_password')}
-                        placeholderTextColor="#667294"
+                        placeholderTextColor={colors.text.secondary}
                         secureTextEntry
                         value={password}
                         onChangeText={(text) => {
@@ -562,15 +563,11 @@ const styles = StyleSheet.create({
     height: vs(53),
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
     alignItems: 'center',
     justifyContent: 'center',
     // Shadow for button
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 15,
-    elevation: 8,
+    ...shadows.button,
   },
   buttonDisabled: {
     opacity: colors.button.disabledOpacity,

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
 import { RecipientAddressInput } from './RecipientAddressInput';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -146,23 +146,19 @@ const styles = StyleSheet.create({
     flex: 1,
     height: vs(42),
     borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
     borderRadius: borderRadius.lg,
-    backgroundColor: '#1f232f',
+    backgroundColor: colors.button.cancelBackground,
   },
   continueButtonGradient: {
     flex: 1,
     borderRadius: borderRadius.lg,
     borderWidth: 0.8,
     borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 8,
+    ...shadows.button,
   },
   continueButtonGradientActive: {
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
   },
   continueButton: {
     height: vs(42),

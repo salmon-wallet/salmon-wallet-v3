@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     width: componentSizes.checkboxSize,
     height: componentSizes.checkboxSize,
     borderRadius: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: colors.interactive.highlight,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.lg,

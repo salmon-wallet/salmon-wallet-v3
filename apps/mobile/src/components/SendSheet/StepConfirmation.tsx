@@ -11,6 +11,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import {
   colors,
+  gradients,
+  shadows,
   fontFamilyNative,
   ms,
   vs,
@@ -26,13 +28,7 @@ import type { StepConfirmationProps } from './types';
 // Constants
 // ============================================================================
 
-const BUTTON_SHADOW = {
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.64,
-  shadowRadius: 12,
-  elevation: 8,
-} as const;
+const BUTTON_SHADOW = shadows.button;
 
 // ============================================================================
 // Component
@@ -187,7 +183,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
           disabled={isSending}
         >
           <LinearGradient
-            colors={['#FF5C45', '#A12A2AE6']}
+            colors={[...gradients.primary.colors]}
             style={styles.confirmButtonGradient}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.4 }}
@@ -281,8 +277,8 @@ const styles = StyleSheet.create({
     height: vs(48),
     borderRadius: ms(12),
     borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    backgroundColor: '#1f232f',
+    borderColor: colors.accent.border,
+    backgroundColor: colors.button.cancelBackground,
     alignItems: 'center',
     justifyContent: 'center',
     ...BUTTON_SHADOW,
@@ -297,7 +293,7 @@ const styles = StyleSheet.create({
     height: vs(48),
     borderRadius: ms(12),
     borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
     overflow: 'hidden',
     ...BUTTON_SHADOW,
   },

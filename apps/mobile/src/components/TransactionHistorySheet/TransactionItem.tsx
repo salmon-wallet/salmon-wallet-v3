@@ -103,7 +103,7 @@ const SwapTokenLogos: React.FC<{
       </View>
       {/* Type badge */}
       <View style={[styles.typeBadge, { backgroundColor: typeColor }]}>
-        <Ionicons name={typeIcon} size={10} color="#FFFFFF" />
+        <Ionicons name={typeIcon} size={10} color={colors.text.primary} />
       </View>
     </View>
   );
@@ -122,7 +122,7 @@ const TokenLogoWithBadge: React.FC<{
     <View style={styles.logoWithBadgeContainer}>
       <TokenLogo uri={uri || undefined} symbol={symbol} size={40} />
       <View style={[styles.typeBadge, styles.typeBadgeSingle, { backgroundColor: typeColor }]}>
-        <Ionicons name={typeIcon} size={10} color="#FFFFFF" />
+        <Ionicons name={typeIcon} size={10} color={colors.text.primary} />
       </View>
     </View>
   );

@@ -250,7 +250,7 @@ export function NftSendSheet({
               </View>
             ) : loading ? (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#FF6B35" />
+                <ActivityIndicator size="large" color={colors.accent.primary} />
                 <Text style={styles.loadingText}>{t('nft.send.sending', 'Sending NFT...')}</Text>
               </View>
             ) : (
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     borderTopWidth: borderWidth.sheet,
     borderLeftWidth: borderWidth.sheet,
     borderRightWidth: borderWidth.sheet,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.background.tertiary,
     overflow: 'hidden',
     paddingBottom: vs(34),
   },
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     width: ms(56),
     height: ms(56),
     borderRadius: ms(8),
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
   },
   nftInfo: {
     flex: 1,
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: vs(48),
     borderRadius: ms(12),
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: colors.background.tertiary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -432,18 +432,18 @@ const styles = StyleSheet.create({
     flex: 1,
     height: vs(48),
     borderRadius: ms(12),
-    backgroundColor: '#FF6B35',
+    backgroundColor: colors.accent.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   confirmButtonDisabled: {
-    backgroundColor: 'rgba(255, 107, 53, 0.3)',
+    backgroundColor: colors.accent.tintHover,
   },
   confirmButtonText: {
     fontFamily: fontFamilyNative.medium,
     fontSize: ms(15),
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   confirmButtonTextDisabled: {
     opacity: 0.5,

@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: ms(13),
     fontFamily: 'DMSansMedium',
-    color: '#bdc3d1',
+    color: colors.text.secondary,
     letterSpacing: ms(-0.065, 0.3),
   },
   rowValue: {

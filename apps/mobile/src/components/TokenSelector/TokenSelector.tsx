@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { getShortAddress } from '@salmon/shared';
+import { colors, getShortAddress } from '@salmon/shared';
 import { TokenSelectorModal } from './TokenSelectorModal';
 import type { TokenSelectorToken, TokenSelectorProps } from './types';
 
@@ -92,7 +92,7 @@ export function TokenSelector({
           value={value}
           onChangeText={handleChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.text.tertiary}
           keyboardType="decimal-pad"
           editable={!disabled}
         />
@@ -149,11 +149,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.scanner.background,
     borderRadius: 16,
     padding: 8,
     borderWidth: 1,
-    borderColor: '#2a2a4e',
+    borderColor: colors.scanner.surface,
   },
   inputContainer: {
     flex: 1,
@@ -162,14 +162,14 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#fff',
+    color: colors.text.primary,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   selectorButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a2a4e',
+    backgroundColor: colors.scanner.surface,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -185,19 +185,19 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   tokenIconPlaceholder: {
-    backgroundColor: '#3a3a5e',
+    backgroundColor: colors.scanner.button,
   },
   tokenTextContainer: {
     flex: 1,
   },
   tokenName: {
-    color: '#fff',
+    color: colors.text.primary,
     fontSize: 14,
     fontWeight: '500',
     padding: 0,
   },
   tokenAddress: {
-    color: '#999',
+    color: colors.text.secondary,
     fontSize: 11,
     marginTop: 1,
     padding: 0,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   chevronIcon: {
-    color: '#999',
+    color: colors.text.secondary,
     fontSize: 14,
     padding: 0,
   },

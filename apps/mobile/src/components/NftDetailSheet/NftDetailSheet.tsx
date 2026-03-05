@@ -18,6 +18,7 @@ import {
   colors,
   fontFamilyNative,
   gradients,
+  shadows,
   componentSizes,
   ms,
   vs,
@@ -46,7 +47,7 @@ import type { NftDetailSheetProps, NftAttribute } from './types';
  */
 const BurnIcon: React.FC<{ size?: number; color?: string }> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
@@ -57,10 +58,10 @@ const BurnIcon: React.FC<{ size?: number; color?: string }> = ({
 
 // Fallback gradient for NFTs without images (matches NftCard)
 const FALLBACK_GRADIENT = {
-  colors: ['rgb(255, 92, 69)', 'rgba(161, 42, 42, 0.9)'] as const,
+  colors: [...gradients.primaryButton.colors],
   start: { x: 0.12, y: 0.5 },
   end: { x: 0.83, y: 0.5 },
-};
+} as const;
 
 export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   visible,
@@ -377,12 +378,12 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             accessibilityLabel="Send NFT"
           >
             <LinearGradient
-              colors={gradients.primaryButton.colors}
+              colors={[...gradients.primaryButton.colors]}
               start={gradients.primaryButton.start}
               end={gradients.primaryButton.end}
               style={styles.primaryButton}
             >
-              <CallMadeSvgIcon size={ms(15)} color="#e0e0e0" />
+              <CallMadeSvgIcon size={ms(15)} color={colors.text.balance} />
               <Text style={styles.buttonText}>{t('actions.send', 'Send')}</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -391,8 +392,8 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
           <BlurContainer
             style={styles.secondaryButtonWrapper}
             blurIntensity={2.5}
-            backgroundColor="rgba(255, 255, 255, 0.04)"
-            borderColor="rgba(255, 92, 69, 0.8)"
+            backgroundColor={colors.interactive.surface}
+            borderColor={colors.accent.border}
             borderWidth={0.5}
           >
             <TouchableOpacity
@@ -402,7 +403,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               accessibilityRole="button"
               accessibilityLabel="Burn NFT"
             >
-              <BurnIcon size={ms(15)} color="#e0e0e0" />
+              <BurnIcon size={ms(15)} color={colors.text.balance} />
               <Text style={styles.buttonText}>{t('nft.burn_nft', 'Burn')}</Text>
             </TouchableOpacity>
           </BlurContainer>
@@ -466,13 +467,7 @@ const styles = StyleSheet.create({
     width: s(406),
     height: s(406),
     borderRadius: ms(18),
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.9,
-    shadowRadius: 20,
+    ...shadows.imageHero,
   },
   imageLoadingOverlay: {
     position: 'absolute',
@@ -580,7 +575,7 @@ const styles = StyleSheet.create({
     gap: s(10),
     borderRadius: ms(14),
     borderWidth: 0.5,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
   },
   secondaryButtonWrapper: {
     borderRadius: ms(14),
@@ -599,7 +594,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: ms(16),
     fontWeight: '500',
-    color: '#e0e0e0',
+    color: colors.text.balance,
     lineHeight: ms(16 * 1.5),
   },
 });

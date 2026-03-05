@@ -62,15 +62,15 @@ const renderBlockchainLogo = (blockchain: BlockchainId) => {
   switch (blockchain) {
     case 'solana':
     case 'solana-devnet':
-      return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <SolanaSvgIcon size={iconSize} color={colors.text.primary} />;
     case 'bitcoin':
     case 'bitcoin-testnet':
-      return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <BitcoinSvgIcon size={iconSize} color={colors.text.primary} />;
     case 'ethereum':
     case 'ethereum-sepolia':
-      return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <EthereumSvgIcon size={iconSize} color={colors.text.primary} />;
     default:
-      return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <SolanaSvgIcon size={iconSize} color={colors.text.primary} />;
   }
 };
 
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     }),
   },
   networkLabelContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: colors.background.glass,
     paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(spacing.xxs),
     borderRadius: ms(borderRadius.sm),

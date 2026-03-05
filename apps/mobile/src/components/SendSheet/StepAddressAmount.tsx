@@ -14,6 +14,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import {
   colors,
+  gradients,
+  shadows,
   fontFamilyNative,
   ms,
   vs,
@@ -302,7 +304,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
           disabled={!isValid}
         >
           <LinearGradient
-            colors={isValid ? ['#FF5C45', 'rgba(161, 42, 42, 0.9)'] : ['#555555', '#444444']}
+            colors={isValid ? [...gradients.primary.colors] : [...gradients.disabled.colors]}
             style={styles.reviewButtonGradient}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.4 }}
@@ -432,7 +434,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.background.card,
     borderRadius: ms(10),
     paddingVertical: vs(12),
     paddingHorizontal: s(14),
@@ -454,7 +456,7 @@ const styles = StyleSheet.create({
     marginTop: vs(2),
   },
   blockchainBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: colors.background.tertiary,
     borderRadius: ms(6),
     paddingHorizontal: s(8),
     paddingVertical: vs(3),
@@ -485,7 +487,7 @@ const styles = StyleSheet.create({
     gap: s(6),
   },
   quickFillButton: {
-    backgroundColor: '#2A384E',
+    backgroundColor: colors.button.secondaryBackground,
     borderRadius: ms(6),
     paddingHorizontal: s(10),
     paddingVertical: vs(5),
@@ -517,15 +519,11 @@ const styles = StyleSheet.create({
     height: vs(48),
     borderRadius: ms(12),
     borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    backgroundColor: '#1f232f',
+    borderColor: colors.accent.border,
+    backgroundColor: colors.button.cancelBackground,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 12,
+    ...shadows.button,
   },
   cancelButtonText: {
     fontSize: ms(13),
@@ -538,12 +536,8 @@ const styles = StyleSheet.create({
     borderRadius: ms(12),
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 12,
+    borderColor: colors.accent.border,
+    ...shadows.button,
   },
   reviewButtonDisabled: {
     opacity: 0.5,

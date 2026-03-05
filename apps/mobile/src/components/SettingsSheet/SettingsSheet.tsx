@@ -42,9 +42,9 @@ import type { MobilePanelRegistry } from '../SettingsPanelStack';
 // ============================================================================
 
 const DANGER_COLORS = {
-  text: '#FF4444',
-  background: 'rgba(255, 68, 68, 0.1)',
-  iconBackground: 'rgba(255, 68, 68, 0.15)',
+  text: colors.status.error,
+  background: colors.status.errorBackground,
+  iconBackground: colors.status.errorBackground,
 } as const;
 
 const SETTINGS_SECTIONS: SettingsSection[] = [
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   sectionHeaderDanger: {
     marginTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 68, 68, 0.2)',
+    borderTopColor: colors.status.errorBackground,
     paddingTop: spacing.md,
   },
   sectionHeaderText: {

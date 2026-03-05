@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
+import { colors, spacing, borderRadius, shadows, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapAmountInputProps } from './types';
@@ -138,11 +138,7 @@ const styles = StyleSheet.create({
     gap: s(spacing.sm - 1),
     height: vs(36),
     minWidth: s(100),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 3,
+    ...shadows.sm,
   },
   tokenSymbol: {
     fontSize: ms(14),

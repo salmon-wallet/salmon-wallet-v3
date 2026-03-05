@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   bitcoinPrice: {
     fontSize: ms(fontSize.lg),
     fontFamily: 'DMSansBold',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     letterSpacing: ms(-0.09, 0.3),
   },
   bitcoinChangeRow: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   bitcoinAmount: {
     fontSize: ms(19),
     fontFamily: 'DMSansSemiBold',
-    color: 'rgba(255, 255, 255, 0.79)',
+    color: colors.text.muted,
     letterSpacing: ms(-0.095, 0.3),
   },
 });

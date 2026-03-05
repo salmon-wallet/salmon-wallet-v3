@@ -312,12 +312,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: ms(14),
     fontFamily: fontFamilyNative.medium,
-    color: '#d6d6d6',
+    color: colors.text.balance,
   },
   tokenBalance: {
     fontSize: ms(14),
     fontFamily: fontFamilyNative.medium,
-    color: '#d6d6d6',
+    color: colors.text.balance,
     marginLeft: s(8),
   },
   skeletonHeaderPlaceholder: {

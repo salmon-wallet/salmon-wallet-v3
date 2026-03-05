@@ -132,10 +132,10 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['2xl']),
   },
   warningBox: {
-    backgroundColor: 'rgba(255, 179, 0, 0.1)',
+    backgroundColor: colors.status.warningBackground,
     borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 179, 0, 0.3)',
+    borderColor: colors.status.warningBorder,
     padding: s(spacing.base),
     marginBottom: vs(spacing.lg),
   },

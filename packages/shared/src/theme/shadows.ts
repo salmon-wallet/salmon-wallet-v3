@@ -39,6 +39,46 @@ export const shadows = {
     shadowRadius: 18,
     elevation: 8,
   },
+  /** Floating button / CTA glow — matches shadowsCSS.button */
+  button: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.64,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  /** Subtle shadow for inputs and small elevated elements */
+  sm: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  /** Medium shadow for NFT cards and image thumbnails */
+  nftCard: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 9,
+    elevation: 6,
+  },
+  /** Hero image heavy drop shadow — matches shadowsCSS.header */
+  imageHero: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.9,
+    shadowRadius: 20,
+    elevation: 16,
+  },
+  /** TopSheet subtle depth shadow */
+  topSheet: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
   /** Bottom sheet upward shadow */
   sheet: {
     shadowColor: '#000000',

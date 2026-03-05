@@ -93,8 +93,8 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
           <QRCode
             value={address}
             size={qrSize}
-            backgroundColor="#FFFFFF"
-            color="#000000"
+            backgroundColor={colors.button.primaryBackground}
+            color={colors.button.primaryText}
           />
         </View>
 
@@ -112,9 +112,9 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
           accessibilityLabel={t('wallet.receive.copyAddress')}
         >
           {copied ? (
-            <Ionicons name="checkmark" size={ms(23)} color="#000000" />
+            <Ionicons name="checkmark" size={ms(23)} color={colors.button.primaryText} />
           ) : (
-            <ContentCopySvgIcon size={ms(23)} color="#000000" />
+            <ContentCopySvgIcon size={ms(23)} color={colors.button.primaryText} />
           )}
           <Text style={styles.copyButtonText}>
             {copied ? t('wallet.receive.copied') : t('wallet.receive.copyAddress')}
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   qrContainer: {
     borderRadius: ms(16),
     borderWidth: componentSizes.qrBorderWidth,
-    borderColor: '#FFFFFF',
+    borderColor: colors.text.primary,
     overflow: 'hidden',
     marginTop: vs(18),
   },
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fcfcfc',
+    backgroundColor: colors.button.primaryBackground,
     borderRadius: ms(11),
     width: s(180),
     height: vs(42),
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   copyButtonText: {
     fontSize: ms(15),
     fontFamily: fontFamilyNative.bold,
-    color: '#000000',
+    color: colors.button.primaryText,
     textAlign: 'center',
     textTransform: 'capitalize',
   },

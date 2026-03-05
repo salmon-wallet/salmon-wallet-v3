@@ -54,6 +54,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   colors,
   fontFamilyNative,
+  shadows,
   spacing,
   borderRadius,
   fontSize,
@@ -297,15 +298,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: borderRadius['2xl'],
     borderBottomRightRadius: borderRadius['2xl'],
     overflow: 'hidden',
-    // Add subtle shadow for depth
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
+    ...shadows.topSheet,
   },
   header: {
     flexDirection: 'row',

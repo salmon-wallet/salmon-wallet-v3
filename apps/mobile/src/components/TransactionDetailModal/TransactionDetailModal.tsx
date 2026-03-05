@@ -26,7 +26,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
+import { colors, shadows, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
@@ -902,25 +902,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#000000',
+    backgroundColor: colors.sheet.backdrop,
   },
   sheetContainer: {
-    backgroundColor: '#161c2d',
+    backgroundColor: colors.background.secondary,
     borderTopLeftRadius: ms(26),
     borderTopRightRadius: ms(26),
     borderTopWidth: 0.75,
-    borderTopColor: '#404962',
+    borderTopColor: colors.border.default,
     height: '70%',
     overflow: 'hidden',
     // Shadow
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 20,
+    ...shadows.sheet,
   },
   dragArea: {
     // This area is draggable
@@ -934,7 +927,7 @@ const styles = StyleSheet.create({
     width: s(70),
     height: vs(6),
     borderRadius: 75,
-    backgroundColor: '#b9b9b9',
+    backgroundColor: colors.sheet.handle,
     opacity: 0.4,
   },
   header: {
@@ -1291,7 +1284,7 @@ const styles = StyleSheet.create({
     paddingBottom: vs(spacing.xl),
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
-    backgroundColor: '#161c2d',
+    backgroundColor: colors.background.secondary,
   },
   actionsRow: {
     flexDirection: 'row',

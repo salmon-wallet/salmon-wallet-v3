@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.card.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   contactNetwork: {
-    color: 'rgba(255, 255, 255, 0.4)',
+    color: colors.text.disabled,
     fontFamily: fontFamilyNative.regular,
     fontSize: 11,
   },

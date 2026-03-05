@@ -142,7 +142,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
         {/* Warning Box */}
         <BlurContainer
           borderColor={colors.palette.amber}
-          backgroundColor="rgba(255, 179, 0, 0.1)"
+          backgroundColor={colors.status.warningBackground}
           style={styles.warningBox}
         >
           <Text style={styles.warningTitle}>{t('swap.review.pleaseNote', 'Please Note')}</Text>

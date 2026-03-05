@@ -11,7 +11,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 import { PrimaryButton } from '../Button';
 
@@ -159,14 +159,14 @@ const styles = StyleSheet.create({
     width: vs(96),
     height: vs(96),
     borderRadius: vs(48),
-    backgroundColor: '#10B981',
+    backgroundColor: colors.status.success,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: vs(spacing['3xl']),
   },
   checkmark: {
     fontSize: ms(44),
-    color: '#FFFFFF',
+    color: colors.text.primary,
     fontWeight: '700',
   },
   textContainer: {
@@ -222,12 +222,8 @@ const styles = StyleSheet.create({
   buttonGradient: {
     borderRadius: borderRadius.lg,
     borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 8,
+    borderColor: colors.accent.border,
+    ...shadows.button,
   },
   button: {
     minWidth: s(180),

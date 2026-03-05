@@ -1,9 +1,8 @@
-import { colors, ms, s, vs } from '@salmon/shared';
+import { colors, gradients, shadows, ms, s, vs } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -19,10 +18,10 @@ import type { NftCardProps, NftCardSkeletonProps } from './types';
  * Gradient: linear-gradient(91.6deg, rgb(255, 92, 69) 12%, rgba(161, 42, 42, 0.9) 83%)
  */
 const FALLBACK_GRADIENT = {
-  colors: ['rgb(255, 92, 69)', 'rgba(161, 42, 42, 0.9)'] as const,
+  colors: [...gradients.primaryButton.colors],
   start: { x: 0.12, y: 0.5 },
   end: { x: 0.83, y: 0.5 },
-};
+} as const;
 
 /**
  * NftCard component for displaying NFTs in a grid layout
@@ -129,8 +128,8 @@ export const NftCard: React.FC<NftCardProps> = ({
         <BlurContainer
           style={styles.nameBadge}
           blurIntensity={6}
-          backgroundColor="rgba(0, 0, 0, 0.6)"
-          borderColor="rgba(255, 92, 69, 0.8)"
+          backgroundColor={colors.overlay.darkHover}
+          borderColor={colors.accent.border}
           borderWidth={0.5}
         >
           <Text
@@ -170,17 +169,7 @@ const styles = StyleSheet.create({
     borderRadius: ms(18),
     overflow: 'hidden',
     // Shadow: 0px 3px 9px rgba(0,0,0,0.4)
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.4,
-        shadowRadius: 9,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
+    ...shadows.nftCard,
   },
   image: {
     width: '100%',
@@ -225,7 +214,7 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans-SemiBold',
     fontSize: ms(13),
     fontWeight: '600',
-    color: '#e0e0e0',
+    color: colors.text.balance,
     textAlign: 'center',
   },
 });
