@@ -35,6 +35,7 @@ import {
   getSatRarityColor,
   getShortAddress,
   shadowsCSS,
+  letterSpacing,
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
@@ -112,11 +113,11 @@ const AttributeItem = styled(Box)({
 const AttributeName = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontSize: fontSize.sm,
-  fontWeight: 900,
+  fontWeight: fontWeight.black,
   color: colors.text.primary,
   marginBottom: spacing.xs,
   textTransform: 'uppercase',
-  letterSpacing: 0.5,
+  letterSpacing: letterSpacing.wider,
 });
 
 const AttributeValue = styled(Typography)({

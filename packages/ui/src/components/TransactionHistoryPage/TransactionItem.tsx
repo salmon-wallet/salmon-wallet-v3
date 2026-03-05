@@ -27,7 +27,7 @@ import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, spacing } from '@salmon/shared';
+import { borderRadius, colors, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, spacing } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -230,7 +230,7 @@ const TypeRow = styled(Box)({
 
 const TypeText = styled(Typography)({
   fontSize: fontSize.base,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -240,11 +240,11 @@ const TypeText = styled(Typography)({
 const SourceBadge = styled(Chip)({
   height: 18,
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.tertiary,
   backgroundColor: colors.background.card,
   textTransform: 'uppercase',
-  letterSpacing: 0.3,
+  letterSpacing: letterSpacing.semiWide,
   '& .MuiChip-label': {
     padding: `0 ${spacing.sm}px`
   },
@@ -274,7 +274,7 @@ const AmountsContainer = styled(Box)({
 
 const AmountText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   marginBottom: spacing['2xs'],
   whiteSpace: 'nowrap',
 });
@@ -300,7 +300,7 @@ const FailedBadge = styled(Box)({
 
 const FailedText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.status.error,
 });
 
@@ -316,7 +316,7 @@ const PendingBadge = styled(Box)({
 
 const PendingText = styled(Typography)({
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.status.warning,
 });
 
@@ -336,7 +336,7 @@ const ExpandBadge = styled(Box)({
 
 const ExpandText = styled(Typography)({
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.palette.amber,
 });
 

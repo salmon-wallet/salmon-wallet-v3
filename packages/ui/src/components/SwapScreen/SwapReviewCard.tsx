@@ -14,6 +14,8 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  letterSpacing,
+  lineHeight,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapReviewCardProps } from './types';
@@ -35,8 +37,8 @@ const Label = styled(Typography)({
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  letterSpacing: -0.075,
-  lineHeight: `${15 * 1.5}px`,
+  letterSpacing: letterSpacing.slight,
+  lineHeight: `${fontSize.md * lineHeight.normal}px`,
 });
 
 const Amount = styled(Typography)({
@@ -44,8 +46,8 @@ const Amount = styled(Typography)({
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  letterSpacing: -0.12,
-  lineHeight: '25px',
+  letterSpacing: letterSpacing.snug,
+  lineHeight: `${fontSize['2xl'] * lineHeight.tight}px`,
   marginTop: spacing['2xs'],
 });
 
@@ -54,8 +56,8 @@ const UsdValue = styled(Typography)({
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  letterSpacing: -0.065,
-  lineHeight: `${13 * 1.4}px`,
+  letterSpacing: letterSpacing.slight,
+  lineHeight: `${fontSize.sm * lineHeight.tokenListItem}px`,
   marginTop: spacing['2xs'],
 });
 

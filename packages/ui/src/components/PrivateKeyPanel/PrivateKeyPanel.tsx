@@ -40,6 +40,9 @@ import {
   getAccountKeysForNetwork,
   type AccountKeyInfo,
   fontSize,
+  fontWeight,
+  lineHeight,
+  letterSpacing,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -83,26 +86,26 @@ const PrivateKeyCard = styled(Paper)({
 
 const KeyText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.primary,
   fontFamily: 'monospace',
   wordBreak: 'break-all',
-  lineHeight: 1.6,
+  lineHeight: lineHeight.relaxed,
   minHeight: 40,
 });
 
 const PathLabel = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.secondary,
   textTransform: 'uppercase',
-  letterSpacing: 0.5,
+  letterSpacing: letterSpacing.wider,
   marginBottom: spacing.sm,
 });
 
 const PathValue = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.primary,
   fontFamily: 'monospace',
 });
@@ -135,7 +138,7 @@ const BlurOverlay = styled(Box)({
 
 const RevealText = styled(Typography)({
   fontSize: fontSize.base,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
 });
 
@@ -148,7 +151,7 @@ const ActionRow = styled(Box)({
 const ActionButton = styled(Button)({
   flex: 1,
   textTransform: 'none',
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   borderRadius: borderRadius.md,
 });
 
@@ -177,7 +180,7 @@ const NetworkListItemIcon = styled(ListItemIcon)({
 const NetworkListItemText = styled(ListItemText)({
   '& .MuiListItemText-primary': {
     fontSize: fontSize.base,
-    fontWeight: 500,
+    fontWeight: fontWeight.medium,
     color: colors.text.primary,
   },
   '& .MuiListItemText-secondary': {
@@ -307,7 +310,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
     >
       <PageContent>
         <WarningAlert severity="warning" icon={<WarningAmberIcon />}>
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ fontWeight: fontWeight.medium }}>
             {t('settings.private_key_warning')}
           </Typography>
         </WarningAlert>

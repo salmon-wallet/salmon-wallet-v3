@@ -17,6 +17,7 @@ import {
   fontWeight,
   fontSize,
   shadowsCSS,
+  letterSpacing,
 } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -39,7 +40,7 @@ const Title = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
   textAlign: 'center',
-  letterSpacing: 0.24,
+  letterSpacing: letterSpacing.wide,
   lineHeight: `${24 * 1.3}px`,
   marginBottom: spacing.md,
 });
@@ -50,7 +51,7 @@ const Description = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   textAlign: 'center',
-  letterSpacing: 0.02,
+  letterSpacing: letterSpacing.normal,
   lineHeight: '20px',
   marginBottom: spacing['2xl'],
 });
@@ -70,7 +71,7 @@ const AddressInput = styled('input')({
   fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: fontWeight.medium,
-  letterSpacing: 0.02,
+  letterSpacing: letterSpacing.normal,
   outline: 'none',
   boxSizing: 'border-box',
   transition: 'border-color 0.2s ease',
@@ -88,7 +89,7 @@ const ErrorText = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.error,
   marginTop: spacing.xs,
-  letterSpacing: 0.02,
+  letterSpacing: letterSpacing.normal,
 });
 
 const InfoBox = styled(Box)({
@@ -105,7 +106,7 @@ const InfoTitle = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.warning,
   marginBottom: spacing.xs,
-  letterSpacing: 0.02,
+  letterSpacing: letterSpacing.normal,
 });
 
 const InfoText = styled(Typography)({
@@ -113,7 +114,7 @@ const InfoText = styled(Typography)({
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  letterSpacing: 0.018,
+  letterSpacing: letterSpacing.normal,
   lineHeight: '18px',
 });
 

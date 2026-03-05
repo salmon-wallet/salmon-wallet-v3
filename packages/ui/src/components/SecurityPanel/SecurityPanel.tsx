@@ -20,6 +20,7 @@ import {
   borderRadius,
   fontSize,
   fontWeight,
+  letterSpacing,
   useAccountsContext,
   validatePassword,
 } from '@salmon/shared';
@@ -48,7 +49,7 @@ const SectionTitle = styled(Typography)({
   fontWeight: fontWeight.semibold,
   fontSize: fontSize.sm,
   textTransform: 'uppercase',
-  letterSpacing: 0.5,
+  letterSpacing: letterSpacing.wider,
   marginBottom: spacing.md,
 });
 

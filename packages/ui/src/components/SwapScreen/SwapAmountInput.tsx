@@ -18,6 +18,8 @@ import {
   useCurrencyContext,
   fontSize,
   shadowsCSS,
+  letterSpacing,
+  lineHeight,
 } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { styled } from '../../utils/styled';
@@ -39,8 +41,8 @@ const Label = styled(Typography)({
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  letterSpacing: 0.02,
-  lineHeight: '18px',
+  letterSpacing: letterSpacing.normal,
+  lineHeight: `${fontSize.base * lineHeight.condensed}px`,
 });
 
 const InputContainer = styled(Box)({
@@ -119,8 +121,8 @@ const TokenSymbol = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
   opacity: 0.9,
-  letterSpacing: 0.018,
-  lineHeight: '18px',
+  letterSpacing: letterSpacing.normal,
+  lineHeight: `${fontSize.base * lineHeight.condensed}px`,
 });
 
 const InfoRow = styled(Box)({
@@ -135,8 +137,8 @@ const UsdValue = styled(Typography)({
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  letterSpacing: 0.018,
-  lineHeight: '21px',
+  letterSpacing: letterSpacing.normal,
+  lineHeight: `${fontSize.sm * lineHeight.normal}px`,
 });
 
 const AvailableBalance = styled(Typography)({
@@ -144,8 +146,8 @@ const AvailableBalance = styled(Typography)({
   fontWeight: fontWeight.light,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  letterSpacing: 0.018,
-  lineHeight: '21px',
+  letterSpacing: letterSpacing.normal,
+  lineHeight: `${fontSize.sm * lineHeight.normal}px`,
 });
 
 // ============================================================================

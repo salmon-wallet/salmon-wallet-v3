@@ -14,6 +14,8 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  letterSpacing,
+  lineHeight,
 } from '@salmon/shared';
 import type { SwapTabSelectorProps, SwapTab } from './types';
 
@@ -48,8 +50,8 @@ const TabText = styled(Typography)<{ $active: boolean }>(({ $active }) => ({
   fontSize: fontSize.lg,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  letterSpacing: 0.18,
-  lineHeight: `${18 * 1.3}px`,
+  letterSpacing: letterSpacing.wide,
+  lineHeight: `${fontSize.lg * lineHeight.condensed}px`,
   color: $active ? colors.text.primary : colors.text.disabled,
   transition: 'color 0.2s ease',
 }));

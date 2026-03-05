@@ -35,6 +35,8 @@ import {
   useSettingsPanelStack,
   type SettingsScreen,
   fontSize,
+  fontWeight,
+  letterSpacing,
   shadowsCSS,
 } from '@salmon/shared';
 import { styled } from '../../utils/styled';
@@ -146,7 +148,7 @@ const Header = styled(Box)({
 
 const HeaderTitle = styled(Typography)({
   fontSize: fontSize.lg,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
 });
 
@@ -165,9 +167,9 @@ const MenuContent = styled(Box)({
 
 const SectionTitle = styled(Typography)<{ $isDanger?: boolean }>(({ $isDanger }) => ({
   fontSize: fontSize.sm,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   textTransform: 'uppercase',
-  letterSpacing: 0.5,
+  letterSpacing: letterSpacing.wider,
   color: $isDanger ? colors.status.error : colors.text.secondary,
   padding: `${spacing.md}px ${spacing.lg}px ${spacing.sm}px`,
   marginTop: spacing.sm,
@@ -199,7 +201,7 @@ const StyledListItemText = styled(ListItemText)<{ $isDanger?: boolean }>(
   ({ $isDanger }) => ({
     '& .MuiListItemText-primary': {
       fontSize: fontSize.base,
-      fontWeight: 500,
+      fontWeight: fontWeight.medium,
       color: $isDanger ? colors.status.error : colors.text.primary,
     },
     '& .MuiListItemText-secondary': {

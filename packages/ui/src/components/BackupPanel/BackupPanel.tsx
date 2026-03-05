@@ -24,7 +24,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, useAccounts, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, useAccounts, fontSize, fontWeight, letterSpacing } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -84,14 +84,14 @@ const WordChip = styled(Box)({
 
 const WordNumber = styled(Typography)({
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
   minWidth: 16,
 });
 
 const WordText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.primary,
   fontFamily: 'monospace',
 });
@@ -118,7 +118,7 @@ const BlurOverlay = styled(Box)({
 
 const RevealText = styled(Typography)({
   fontSize: fontSize.base,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
 });
 
@@ -131,7 +131,7 @@ const ActionRow = styled(Box)({
 const ActionButton = styled(Button)({
   flex: 1,
   textTransform: 'none',
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   borderRadius: borderRadius.md,
 });
 
@@ -147,10 +147,10 @@ const CopyButton = styled(ActionButton)({
 
 const SectionLabel = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.secondary,
   textTransform: 'uppercase',
-  letterSpacing: 0.5,
+  letterSpacing: letterSpacing.wider,
   marginBottom: spacing.sm,
 });
 
@@ -204,7 +204,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
           severity="warning"
           icon={<WarningAmberIcon />}
         >
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ fontWeight: fontWeight.medium }}>
             {t(
               'settings.backup_warning_title',
               'Never share your recovery phrase'

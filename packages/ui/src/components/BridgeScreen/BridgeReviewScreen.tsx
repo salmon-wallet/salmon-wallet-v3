@@ -18,6 +18,7 @@ import {
   formatAmountWithSymbol,
   getShortAddress,
   fontSize,
+  letterSpacing,
 } from '@salmon/shared';
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
@@ -43,7 +44,7 @@ const Title = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
   textAlign: 'center',
-  letterSpacing: 0.24,
+  letterSpacing: letterSpacing.wide,
   lineHeight: `${24 * 1.3}px`,
   marginBottom: spacing['2xl'],
 });
@@ -90,7 +91,7 @@ const WarningTitle = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.warning,
   marginBottom: spacing.xs,
-  letterSpacing: 0.02,
+  letterSpacing: letterSpacing.normal,
 });
 
 const WarningText = styled(Typography)({
@@ -98,7 +99,7 @@ const WarningText = styled(Typography)({
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  letterSpacing: 0.018,
+  letterSpacing: letterSpacing.normal,
   lineHeight: '18px',
 });
 

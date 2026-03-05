@@ -26,7 +26,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -127,7 +127,7 @@ const LogoContainer = styled(Box)({
 
 const AppName = styled(Typography)({
   fontSize: fontSize.xl,
-  fontWeight: 700,
+  fontWeight: fontWeight.bold,
   color: colors.text.primary,
 });
 
@@ -138,9 +138,9 @@ const VersionText = styled(Typography)({
 
 const SectionTitle = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   textTransform: 'uppercase',
-  letterSpacing: 0.5,
+  letterSpacing: letterSpacing.wider,
   color: colors.text.secondary,
   padding: `${spacing.md}px ${spacing.lg}px ${spacing.sm}px`,
   marginTop: spacing.sm,
@@ -206,7 +206,7 @@ export function AboutPanel({ onBack }: AboutPanelProps): React.ReactElement {
               sx: {
                 color: colors.text.primary,
                 fontSize: fontSize.base,
-                fontWeight: 500,
+                fontWeight: fontWeight.medium,
               },
             }}
           />

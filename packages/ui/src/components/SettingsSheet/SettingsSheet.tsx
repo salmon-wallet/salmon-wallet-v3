@@ -59,7 +59,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import { colors, spacing, fontSize, shadowsCSS } from '@salmon/shared';
+import { colors, spacing, fontSize, fontWeight, letterSpacing, shadowsCSS } from '@salmon/shared';
 import type { SettingsScreen } from '@salmon/shared';
 
 import type {
@@ -221,7 +221,7 @@ const Header = styled(Box)({
 
 const HeaderTitle = styled(Typography)({
   fontSize: fontSize.lg,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
 });
 
@@ -240,9 +240,9 @@ const Content = styled(Box)({
 
 const SectionTitle = styled(Typography)<{ $isDanger?: boolean }>(({ $isDanger }) => ({
   fontSize: fontSize.sm,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   textTransform: 'uppercase',
-  letterSpacing: 0.5,
+  letterSpacing: letterSpacing.wider,
   color: $isDanger ? colors.status.error : colors.text.secondary,
   padding: `${spacing.md}px ${spacing.lg}px ${spacing.sm}px`,
   marginTop: spacing.sm,
@@ -274,7 +274,7 @@ const StyledListItemText = styled(ListItemText)<{ $isDanger?: boolean }>(
   ({ $isDanger }) => ({
     '& .MuiListItemText-primary': {
       fontSize: fontSize.base,
-      fontWeight: 500,
+      fontWeight: fontWeight.medium,
       color: $isDanger ? colors.status.error : colors.text.primary,
     },
     '& .MuiListItemText-secondary': {

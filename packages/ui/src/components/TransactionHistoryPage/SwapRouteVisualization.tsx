@@ -25,6 +25,8 @@ import {
   spacing,
   truncateHash,
   fontSize,
+  fontWeight,
+  letterSpacing,
 } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -71,7 +73,7 @@ const RouteHeader = styled(Box)({
 
 const RouteHeaderText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
 });
 
@@ -88,11 +90,11 @@ const RouteColumn = styled(Box)({
 
 const RouteLabel = styled(Typography)({
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.tertiary,
   marginBottom: spacing.xs,
   textTransform: 'uppercase',
-  letterSpacing: 0.5,
+  letterSpacing: letterSpacing.wider,
 });
 
 const RouteTokenRow = styled(Box)({
@@ -145,7 +147,7 @@ const SummaryLabel = styled(Typography)({
 
 const SummaryValue = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
 });
 
@@ -208,7 +210,7 @@ const DexBadge = styled(Box)({
 
 const DexText = styled(Typography)({
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
 });
 

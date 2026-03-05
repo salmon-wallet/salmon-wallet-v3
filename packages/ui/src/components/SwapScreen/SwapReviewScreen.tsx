@@ -20,6 +20,8 @@ import {
   formatSolFee,
   formatPercent,
   fontSize,
+  letterSpacing,
+  lineHeight,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SwapReviewCard } from './SwapReviewCard';
@@ -56,8 +58,8 @@ const Title = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
   textAlign: 'center',
-  letterSpacing: 0.24,
-  lineHeight: `${24 * 1.3}px`,
+  letterSpacing: letterSpacing.wide,
+  lineHeight: `${fontSize['2xl'] * lineHeight.condensed}px`,
   marginBottom: spacing['2xl'],
 });
 
@@ -103,7 +105,7 @@ const WarningTitle = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.warning,
   marginBottom: spacing.xs,
-  letterSpacing: 0.02,
+  letterSpacing: letterSpacing.normal,
 });
 
 const WarningBodyText = styled(Typography)({
@@ -111,8 +113,8 @@ const WarningBodyText = styled(Typography)({
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  lineHeight: `${12 * 1.5}px`,
-  letterSpacing: 0.01,
+  lineHeight: `${fontSize.sm * lineHeight.normal}px`,
+  letterSpacing: letterSpacing.normal,
 });
 
 // ============================================================================

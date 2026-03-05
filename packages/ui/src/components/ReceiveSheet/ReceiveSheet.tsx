@@ -24,6 +24,9 @@ import {
   componentSizes,
   copyToClipboard,
   fontSize,
+  fontWeight,
+  letterSpacing,
+  lineHeight,
 } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
 import { QRCode } from '../QRCode';
@@ -62,11 +65,11 @@ const QRContainer = styled(Box)({
 
 const AddressText = styled(Typography)({
   fontSize: fontSize.base,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
   textAlign: 'center',
-  letterSpacing: 0.14,
-  lineHeight: 1.3,
+  letterSpacing: letterSpacing.change,
+  lineHeight: lineHeight.condensed,
   wordBreak: 'break-all',
   userSelect: 'text',
   cursor: 'text',
@@ -94,7 +97,7 @@ const CopyButton = styled(ButtonBase)({
 
 const CopyButtonText = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 800,
+  fontWeight: fontWeight.extraBold,
   color: colors.button.primaryText,
   textAlign: 'center',
   textTransform: 'capitalize',

@@ -41,7 +41,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import LockIcon from '@mui/icons-material/Lock';
 
-import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenBadgesSectionProps } from './types';
 
@@ -210,10 +210,10 @@ const Container = styled(Box)({
 
 const Title = styled(Typography)({
   fontSize: fontSize.base,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
   marginBottom: spacing.md,
-  letterSpacing: -0.07,
+  letterSpacing: letterSpacing.slight,
 });
 
 const BadgesGrid = styled(Box)({
@@ -243,9 +243,9 @@ const BadgeIconWrapper = styled(Box)<{ $badgeColor: string }>(({ $badgeColor }) 
 
 const BadgeLabel = styled(Typography)<{ $badgeColor: string }>(({ $badgeColor }) => ({
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   textAlign: 'center',
-  letterSpacing: -0.05,
+  letterSpacing: letterSpacing.slight,
   color: $badgeColor,
 }));
 

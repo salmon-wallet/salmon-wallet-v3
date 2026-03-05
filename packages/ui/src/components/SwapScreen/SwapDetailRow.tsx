@@ -14,6 +14,8 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  letterSpacing,
+  lineHeight,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapDetailRowProps } from './types';
@@ -36,8 +38,8 @@ const Label = styled(Typography)({
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  letterSpacing: -0.075,
-  lineHeight: `${15 * 1.5}px`,
+  letterSpacing: letterSpacing.slight,
+  lineHeight: `${fontSize.md * lineHeight.normal}px`,
 });
 
 const Value = styled(Typography)({
@@ -45,8 +47,8 @@ const Value = styled(Typography)({
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  letterSpacing: -0.075,
-  lineHeight: `${15 * 1.5}px`,
+  letterSpacing: letterSpacing.slight,
+  lineHeight: `${fontSize.md * lineHeight.normal}px`,
 });
 
 // ============================================================================

@@ -81,8 +81,12 @@ export const fontSize = {
 export const lineHeight = {
   /** Tight - 1.0 */
   none: 1,
+  /** Compact - 1.2 */
+  compact: 1.2,
   /** Tight - 1.25 */
   tight: 1.25,
+  /** Condensed - 1.3 */
+  condensed: 1.3,
   /** Snug - 1.375 */
   snug: 1.375,
   /** TokenListItem - 1.4 */
@@ -110,6 +114,10 @@ export const fontWeight = {
   semibold: '600',
   /** 700 - Bold */
   bold: '700',
+  /** 800 - Extra Bold */
+  extraBold: '800',
+  /** 900 - Black */
+  black: '900',
 } as const;
 
 /**
@@ -120,14 +128,20 @@ export const letterSpacing = {
   tighter: -0.5,
   /** Tight - -0.25px */
   tight: -0.25,
+  /** Snug - -0.12px (titles, headings in sheets) */
+  snug: -0.12,
+  /** Slight - -0.07px (subtle negative for labels, badges) */
+  slight: -0.07,
   /** Normal - 0px */
   normal: 0,
   /** Header text - 0.12px */
   header: 0.12,
-  /** Wide - 0.25px */
-  wide: 0.25,
   /** Change text - 0.13px */
   change: 0.13,
+  /** Wide - 0.25px */
+  wide: 0.25,
+  /** Semi-wide - 0.3px (source badges, uppercase labels) */
+  semiWide: 0.3,
   /** Balance amount - -0.245px */
   balance: -0.245,
   /** Wider - 0.5px */

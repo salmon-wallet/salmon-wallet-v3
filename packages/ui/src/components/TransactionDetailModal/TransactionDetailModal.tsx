@@ -260,9 +260,9 @@ const TitleRow = styled(Box)({
 
 const TitleText = styled(Typography)({
   fontSize: fontSize.xl,
-  fontWeight: 800,
+  fontWeight: fontWeight.extraBold,
   color: colors.text.primary,
-  letterSpacing: -0.12,
+  letterSpacing: letterSpacing.snug,
 });
 
 const SourceBadge = styled(Box)({
@@ -273,10 +273,10 @@ const SourceBadge = styled(Box)({
 
 const SourceText = styled(Typography)({
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.tertiary,
   textTransform: 'uppercase',
-  letterSpacing: 0.3,
+  letterSpacing: letterSpacing.semiWide,
 });
 
 const StatusRow = styled(Box)({
@@ -397,13 +397,13 @@ const TokenInfoBox = styled(Box)({
 
 const TokenSymbol = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
 });
 
 const TokenName = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 400,
+  fontWeight: fontWeight.regular,
   color: colors.text.secondary,
   marginTop: spacing['2xs'],
   whiteSpace: 'nowrap',
@@ -413,7 +413,7 @@ const TokenName = styled(Typography)({
 
 const TokenAmount = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 700,
+  fontWeight: fontWeight.bold,
   flexShrink: 0,
 });
 
@@ -452,14 +452,14 @@ const SwapLogoPlaceholder = styled(Box)({
 
 const SwapAmount = styled(Typography)({
   fontSize: fontSize.md,
-  fontWeight: 700,
+  fontWeight: fontWeight.bold,
   color: colors.text.primary,
   marginTop: spacing.sm,
 });
 
 const SwapSymbol = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.secondary,
   marginTop: spacing['2xs'],
 });
@@ -531,16 +531,16 @@ const NftAttributeChip = styled(Box)({
 
 const NftAttributeType = styled(Typography)({
   fontSize: fontSize.xs,
-  fontWeight: 500,
+  fontWeight: fontWeight.medium,
   color: colors.text.tertiary,
   textTransform: 'uppercase',
-  letterSpacing: 0.3,
+  letterSpacing: letterSpacing.semiWide,
   marginBottom: spacing['2xs'],
 });
 
 const NftAttributeValue = styled(Typography)({
   fontSize: fontSize.sm,
-  fontWeight: 600,
+  fontWeight: fontWeight.semibold,
   color: colors.text.primary,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -976,7 +976,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               <Typography
                 sx={{
                   fontSize: fontSize.base,
-                  fontWeight: 500,
+                  fontWeight: fontWeight.medium,
                   color: statusConfig.color,
                 }}
               >
