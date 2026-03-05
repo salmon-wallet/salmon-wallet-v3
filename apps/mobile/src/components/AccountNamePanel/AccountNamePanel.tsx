@@ -59,7 +59,7 @@ export function AccountNamePanel({
           value={name}
           onChangeText={handleChangeText}
           placeholder={t('settings.account_add.set_name_placeholder')}
-          placeholderTextColor={colors.text.placeholder}
+          placeholderTextColor={colors.text.tertiary}
           autoFocus
           maxLength={32}
           returnKeyType="done"

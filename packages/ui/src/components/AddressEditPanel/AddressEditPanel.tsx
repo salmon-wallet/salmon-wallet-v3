@@ -49,7 +49,7 @@ const StyledInput = styled(InputBase)({
   '& .MuiInputBase-input': {
     padding: `${spacing.md}px 0`,
     '&::placeholder': {
-      color: colors.text.placeholder,
+      color: colors.text.tertiary,
       opacity: opacity.full,
     },
   },

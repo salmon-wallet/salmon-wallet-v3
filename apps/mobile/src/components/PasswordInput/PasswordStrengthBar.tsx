@@ -13,9 +13,9 @@ interface PasswordStrengthBarProps {
 export function PasswordStrengthBar({ strength, t }: PasswordStrengthBarProps) {
   const getStrengthColor = () => {
     switch (strength) {
-      case 'strong': return colors.passwordStrength.strong;
-      case 'medium': return colors.passwordStrength.medium;
-      default: return colors.passwordStrength.weak;
+      case 'strong': return colors.status.success;
+      case 'medium': return colors.status.warning;
+      default: return colors.status.error;
     }
   };
 

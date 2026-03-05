@@ -52,9 +52,9 @@ const HIDDEN_VALUE = '******';
 
 const StyledDialog = styled(Dialog)({
   '& .MuiDialog-paper': {
-    backgroundColor: colors.dialog.background,
+    backgroundColor: colors.background.primary,
     borderRadius: borderRadius.xl,
-    border: `${borderWidth.thin}px solid ${colors.dialog.border}`,
+    border: `${borderWidth.thin}px solid ${colors.border.default}`,
     minWidth: `min(${componentSizes.sheetWidthSm}px, 95vw)`,
     maxWidth: `min(${componentSizes.sheetWidthLg}px, 95vw)`,
     maxHeight: '85vh',
@@ -103,10 +103,10 @@ const SearchInput = styled(InputBase)({
   border: `${borderWidth.thin}px solid ${colors.input.border}`,
   transition: `border-color ${duration.normal} ${easing.ease}`,
   '&.Mui-focused': {
-    borderColor: colors.input.borderFocus,
+    borderColor: colors.accent.primary,
   },
   '& .MuiInputBase-input::placeholder': {
-    color: colors.text.placeholder,
+    color: colors.text.tertiary,
     opacity: opacity.full,
   },
 });

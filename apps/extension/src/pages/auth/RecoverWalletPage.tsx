@@ -98,7 +98,7 @@ const TextArea = styled('textarea')<{ $borderColor: string }>(({ $borderColor })
   boxSizing: 'border-box',
   transition: 'border-color 0.2s ease',
   '&::placeholder': {
-    color: colors.text.placeholder,
+    color: colors.text.tertiary,
   },
 }));
 
@@ -143,7 +143,7 @@ export function RecoverWalletPage({ onComplete, onBack }: RecoverWalletPageProps
   }, [seedPhrase, isValidSeedPhrase, onComplete]);
 
   const getBorderColor = () => {
-    if (isFocused) return colors.input.borderFocus;
+    if (isFocused) return colors.accent.primary;
     return colors.input.border;
   };
 

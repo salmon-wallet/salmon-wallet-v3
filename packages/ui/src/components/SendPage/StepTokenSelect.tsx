@@ -171,7 +171,7 @@ const TokenName = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.token,
+  color: colors.text.balance,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -181,7 +181,7 @@ const TokenBalance = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  color: colors.text.token,
+  color: colors.text.balance,
   marginLeft: spacing.sm,
   flexShrink: 0,
 });

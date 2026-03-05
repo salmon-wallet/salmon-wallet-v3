@@ -131,9 +131,9 @@ const AddAccountButton = styled(Button)({
 
 // Confirmation Dialog Styles
 const ConfirmDialogPaper = styled(Box)({
-  backgroundColor: colors.dialog.background,
+  backgroundColor: colors.background.primary,
   borderRadius: borderRadius.lg,
-  border: `${borderWidth.thin}px solid ${colors.dialog.border}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   padding: spacing.xl,
   textAlign: 'center',
 });

@@ -31,8 +31,8 @@ export function SeedWordInput({
 }: SeedWordInputProps) {
   const getBorderColor = () => {
     switch (validationState) {
-      case 'correct': return colors.input.borderSuccess;
-      case 'incorrect': return colors.input.borderError;
+      case 'correct': return colors.status.success;
+      case 'incorrect': return colors.status.error;
       default: return colors.input.border;
     }
   };
@@ -45,7 +45,7 @@ export function SeedWordInput({
         value={value}
         onChangeText={onChangeText}
         placeholder={`Enter word #${position}`}
-        placeholderTextColor={colors.text.placeholder}
+        placeholderTextColor={colors.text.tertiary}
         autoCapitalize="none"
         autoCorrect={false}
         autoFocus={autoFocus}

@@ -77,7 +77,7 @@ const StyledInput = styled(InputBase)({
     height: '100%',
   },
   '& .MuiInputBase-input::placeholder': {
-    color: colors.text.placeholder,
+    color: colors.text.tertiary,
     opacity: opacity.full,
   },
   '&.Mui-disabled .MuiInputBase-input': {

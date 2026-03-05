@@ -51,7 +51,7 @@ const StyledInput = styled(InputBase)({
   '& .MuiInputBase-input': {
     padding: 0,
     '&::placeholder': {
-      color: colors.text.placeholder,
+      color: colors.text.tertiary,
       opacity: opacity.full,
     },
   },
@@ -108,8 +108,8 @@ export function PasswordInput({
   const [isFocused, setIsFocused] = useState(false);
 
   const getBorderColor = () => {
-    if (error) return colors.input.borderError;
-    if (isFocused) return colors.input.borderFocus;
+    if (error) return colors.status.error;
+    if (isFocused) return colors.accent.primary;
     return colors.input.border;
   };
 

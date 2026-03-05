@@ -9,14 +9,21 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { colors, gradients } from '@salmon/shared';
+import { colors } from '@salmon/shared';
 import type { BlurContainerProps } from './types';
 
 const WEB_DEFAULT_BG = 'rgba(56, 63, 82, 0.10)';
 
-const { glassyBorder } = gradients;
+/** Radial gradient stops for glassy border effect (Figma "Glassy_BORDER") */
+const GLASSY_BORDER_STOPS = [
+  { offset: 0.2, opacity: 1 },
+  { offset: 0.4, opacity: 0 },
+  { offset: 0.6, opacity: 0 },
+  { offset: 0.8, opacity: 1 },
+] as const;
+const GLASSY_BORDER_WIDTH = 0.75;
 
-// sqrt(2) / 0.8 — so the 80% stop lands at the far corner (distance √2 in OBB space)
+// sqrt(2) / 0.8 — so the 80% stop lands at the far corner (distance sqrt(2) in OBB space)
 const OBB_RADIUS = Math.sqrt(2) / 0.8;
 
 function GradientBorderOverlay({
@@ -57,7 +64,7 @@ function GradientBorderOverlay({
           r={OBB_RADIUS}
           gradientUnits="objectBoundingBox"
         >
-          {glassyBorder.stops.map((stop, i) => (
+          {GLASSY_BORDER_STOPS.map((stop, i) => (
             <stop
               key={i}
               offset={stop.offset}
@@ -154,7 +161,7 @@ export function BlurContainer({
           height={layout.height}
           borderRadius={borderRadius}
           color={borderColor}
-          strokeWidth={glassyBorder.width}
+          strokeWidth={GLASSY_BORDER_WIDTH}
         />
       )}
     </BlurBox>

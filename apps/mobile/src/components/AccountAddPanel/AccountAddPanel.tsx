@@ -241,7 +241,7 @@ export function AccountAddPanel({
           if (seedError) setSeedError('');
         }}
         placeholder={t('settings.account_add.seed_placeholder', 'Enter your seed phrase...')}
-        placeholderTextColor={colors.text.placeholder}
+        placeholderTextColor={colors.text.tertiary}
         multiline
         numberOfLines={4}
         autoCapitalize="none"
@@ -265,7 +265,7 @@ export function AccountAddPanel({
         value={accountName}
         onChangeText={setAccountName}
         placeholder={t('settings.account_add.set_name_placeholder')}
-        placeholderTextColor={colors.text.placeholder}
+        placeholderTextColor={colors.text.tertiary}
         autoFocus
         maxLength={32}
         returnKeyType="done"

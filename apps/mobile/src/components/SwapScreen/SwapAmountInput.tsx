@@ -63,7 +63,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
             value={value}
             onChangeText={handleChangeText}
             placeholder={placeholder}
-            placeholderTextColor={colors.text.placeholder}
+            placeholderTextColor={colors.text.tertiary}
             keyboardType="decimal-pad"
             editable={editable}
           />

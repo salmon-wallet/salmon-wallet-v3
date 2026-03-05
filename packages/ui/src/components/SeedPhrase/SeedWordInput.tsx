@@ -38,7 +38,7 @@ const StyledInput = styled(InputBase)<{ $borderColor: string }>(({ $borderColor 
   '& .MuiInputBase-input': {
     padding: 0,
     '&::placeholder': {
-      color: colors.text.placeholder,
+      color: colors.text.tertiary,
       opacity: opacity.full,
     },
   },
@@ -46,8 +46,8 @@ const StyledInput = styled(InputBase)<{ $borderColor: string }>(({ $borderColor 
 
 function getBorderColor(state: ValidationState): string {
   switch (state) {
-    case 'correct': return colors.input.borderSuccess;
-    case 'incorrect': return colors.input.borderError;
+    case 'correct': return colors.status.success;
+    case 'incorrect': return colors.status.error;
     default: return colors.input.border;
   }
 }

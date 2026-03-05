@@ -327,8 +327,8 @@ export function LockScreenOverlay({
    * Determine input border color based on state
    */
   const getInputBorderColor = () => {
-    if (error) return colors.input.borderError;
-    if (isFocused) return colors.input.borderFocus;
+    if (error) return colors.status.error;
+    if (isFocused) return colors.accent.primary;
     return colors.input.border;
   };
 

@@ -1,4 +1,4 @@
-import { colors, gradients } from '@salmon/shared';
+import { colors } from '@salmon/shared';
 import { BlurView } from 'expo-blur';
 import React, { useId, useState } from 'react';
 import {
@@ -12,9 +12,16 @@ import type { BlurContainerProps } from './types';
 
 const ANDROID_BG = 'rgba(56, 63, 82, 0.35)';
 
-const { glassyBorder } = gradients;
+/** Radial gradient stops for glassy border effect (Figma "Glassy_BORDER") */
+const GLASSY_BORDER_STOPS = [
+  { offset: 0.2, opacity: 1 },
+  { offset: 0.4, opacity: 0 },
+  { offset: 0.6, opacity: 0 },
+  { offset: 0.8, opacity: 1 },
+] as const;
+const GLASSY_BORDER_WIDTH = 0.75;
 
-// sqrt(2) / 0.8 — so the 80% stop lands at the far corner (distance √2 in OBB space)
+// sqrt(2) / 0.8 — so the 80% stop lands at the far corner (distance sqrt(2) in OBB space)
 const OBB_RADIUS = Math.sqrt(2) / 0.8;
 
 /**
@@ -60,7 +67,7 @@ function GradientBorderOverlay({
           ry={String(OBB_RADIUS)}
           gradientUnits="objectBoundingBox"
         >
-          {glassyBorder.stops.map((stop, i) => (
+          {GLASSY_BORDER_STOPS.map((stop, i) => (
             <Stop
               key={i}
               offset={stop.offset}
@@ -130,7 +137,7 @@ export function BlurContainer({
             height={layout.height}
             borderRadius={borderRadius}
             color={borderColor}
-            strokeWidth={glassyBorder.width}
+            strokeWidth={GLASSY_BORDER_WIDTH}
           />
         )}
       </View>
@@ -157,7 +164,7 @@ export function BlurContainer({
           height={layout.height}
           borderRadius={borderRadius}
           color={borderColor}
-          strokeWidth={glassyBorder.width}
+          strokeWidth={GLASSY_BORDER_WIDTH}
         />
       )}
     </BlurView>

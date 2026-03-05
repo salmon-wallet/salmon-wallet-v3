@@ -29,9 +29,9 @@ import { colors, spacing, borderRadius, fontSize, fontWeight, lineHeight, compon
 
 export const StyledDialog: React.ComponentType<DialogProps> = styled(Dialog)({
   '& .MuiDialog-paper': {
-    backgroundColor: colors.dialog.background,
+    backgroundColor: colors.background.primary,
     borderRadius: borderRadius.xl,
-    border: `1px solid ${colors.dialog.border}`,
+    border: `1px solid ${colors.border.default}`,
     minWidth: `min(${componentSizes.dialogWidthSm}px, 95vw)`,
     maxWidth: `min(${componentSizes.sheetWidthBase}px, 95vw)`,
   },

@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: ms(fontSize.tokenNamePrice),
     fontFamily: 'DMSansMedium',
-    color: colors.text.token,
+    color: colors.text.balance,
     flexShrink: 1,
     lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: ms(fontSize.tokenNamePrice),
     fontFamily: 'DMSansSemiBold',
-    color: colors.text.tokenPrice,
+    color: colors.text.muted,
     lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
   },
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   usdValue: {
     fontSize: ms(fontSize.lg),
     fontFamily: 'DMSansMedium',
-    color: colors.text.token,
+    color: colors.text.balance,
     letterSpacing: ms(-0.09, 0.3),
   },
   tokenAmount: {

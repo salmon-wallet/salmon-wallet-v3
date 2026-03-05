@@ -15,7 +15,7 @@ import type { DerivedAccountCardProps } from './types';
 const ICON_SIZE = componentSizes.iconSizeXs;
 
 const BlockchainIcon: React.FC<{ blockchain?: string }> = ({ blockchain }) => {
-  const iconStyle = { fontSize: ICON_SIZE, width: ICON_SIZE, height: ICON_SIZE, color: colors.text.placeholder };
+  const iconStyle = { fontSize: ICON_SIZE, width: ICON_SIZE, height: ICON_SIZE, color: colors.text.tertiary };
   switch (blockchain) {
     case 'solana':
       return <SolanaSvgIcon style={iconStyle} />;
@@ -76,7 +76,7 @@ const NetworkRow = styled(Box)({
 });
 
 const PathText = styled(Typography)({
-  color: colors.text.placeholder,
+  color: colors.text.tertiary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: fontWeight.medium,
   fontSize: fontSize.sm,

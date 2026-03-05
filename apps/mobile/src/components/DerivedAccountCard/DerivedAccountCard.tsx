@@ -15,11 +15,11 @@ const ICON_SIZE = 16;
 const BlockchainIcon: React.FC<{ blockchain?: string }> = ({ blockchain }) => {
   switch (blockchain) {
     case 'solana':
-      return <SolanaSvgIcon size={ICON_SIZE} color={colors.text.placeholder} />;
+      return <SolanaSvgIcon size={ICON_SIZE} color={colors.text.tertiary} />;
     case 'bitcoin':
-      return <BitcoinSvgIcon size={ICON_SIZE} color={colors.text.placeholder} />;
+      return <BitcoinSvgIcon size={ICON_SIZE} color={colors.text.tertiary} />;
     case 'ethereum':
-      return <EthereumSvgIcon size={ICON_SIZE} color={colors.text.placeholder} />;
+      return <EthereumSvgIcon size={ICON_SIZE} color={colors.text.tertiary} />;
     default:
       return null;
   }
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   path: {
-    color: colors.text.placeholder,
+    color: colors.text.tertiary,
     fontFamily: 'DMSansMedium',
     fontSize: 12,
   },

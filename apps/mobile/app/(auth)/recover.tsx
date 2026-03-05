@@ -102,7 +102,7 @@ export default function RecoverWalletScreen() {
    * Determine input border color based on state
    */
   const getInputBorderColor = () => {
-    if (isFocused) return colors.input.borderFocus;
+    if (isFocused) return colors.accent.primary;
     return colors.input.border;
   };
 
@@ -148,7 +148,7 @@ export default function RecoverWalletScreen() {
                   { borderColor: getInputBorderColor() },
                 ]}
                 placeholder="Enter your seed phrase..."
-                placeholderTextColor={colors.text.placeholder}
+                placeholderTextColor={colors.text.tertiary}
                 value={seedPhrase}
                 onChangeText={setSeedPhrase}
                 onFocus={() => setIsFocused(true)}

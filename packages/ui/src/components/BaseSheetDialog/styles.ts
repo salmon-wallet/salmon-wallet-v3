@@ -15,8 +15,8 @@ import type { ComponentType } from 'react';
 
 export const COLOR_SCHEMES = {
   dialog: {
-    background: colors.dialog.background,
-    border: colors.dialog.border,
+    background: colors.background.primary,
+    border: colors.border.default,
   },
   secondary: {
     background: colors.background.secondary,

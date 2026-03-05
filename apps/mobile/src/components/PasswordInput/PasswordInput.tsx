@@ -29,8 +29,8 @@ export function PasswordInput({
   const [isFocused, setIsFocused] = useState(false);
 
   const getBorderColor = () => {
-    if (error) return colors.input.borderError;
-    if (isFocused) return colors.input.borderFocus;
+    if (error) return colors.status.error;
+    if (isFocused) return colors.accent.primary;
     return colors.input.border;
   };
 
@@ -42,7 +42,7 @@ export function PasswordInput({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.text.placeholder}
+          placeholderTextColor={colors.text.tertiary}
           secureTextEntry={!showPassword}
           autoCapitalize="none"
           autoCorrect={false}

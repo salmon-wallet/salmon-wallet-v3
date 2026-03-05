@@ -61,7 +61,7 @@ export function AddressBookEdit({
         value={form.label}
         onChangeText={form.setLabel}
         placeholder={t('settings.addressbook.label', 'Label')}
-        placeholderTextColor={colors.text.placeholder}
+        placeholderTextColor={colors.text.tertiary}
         autoCapitalize="words"
         autoCorrect={false}
       />

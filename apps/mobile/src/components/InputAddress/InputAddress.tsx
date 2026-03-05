@@ -177,7 +177,7 @@ export function InputAddress({
           value={address}
           onChangeText={handleChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.text.placeholder}
+          placeholderTextColor={colors.text.tertiary}
           editable={!disabled && !isValidating}
           autoCapitalize="none"
           autoCorrect={false}
@@ -246,10 +246,10 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   inputContainerValid: {
-    borderColor: colors.input.borderSuccess,
+    borderColor: colors.status.success,
   },
   inputContainerInvalid: {
-    borderColor: colors.input.borderError,
+    borderColor: colors.status.error,
   },
   inputContainerWarning: {
     borderColor: colors.status.warning,

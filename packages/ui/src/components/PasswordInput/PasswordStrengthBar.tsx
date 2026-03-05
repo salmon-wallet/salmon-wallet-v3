@@ -77,11 +77,11 @@ export function PasswordStrengthBar({
   const getStrengthColor = () => {
     switch (strength) {
       case 'strong':
-        return colors.passwordStrength.strong;
+        return colors.status.success;
       case 'medium':
-        return colors.passwordStrength.medium;
+        return colors.status.warning;
       default:
-        return colors.passwordStrength.weak;
+        return colors.status.error;
     }
   };
 

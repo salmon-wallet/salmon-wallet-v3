@@ -196,9 +196,9 @@ const CONFIRMATION_LABEL_KEYS: Record<string, string> = {
 
 const StyledDialog = styled(Dialog)({
   '& .MuiDialog-paper': {
-    backgroundColor: colors.dialog.background,
+    backgroundColor: colors.background.primary,
     borderRadius: borderRadius.xl,
-    border: `${borderWidth.thin}px solid ${colors.dialog.border}`,
+    border: `${borderWidth.thin}px solid ${colors.border.default}`,
     minWidth: `min(${componentSizes.sheetWidthMd}px, 95vw)`,
     maxWidth: `min(${componentSizes.sheetWidthXl}px, 95vw)`,
     maxHeight: '85vh',

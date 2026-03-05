@@ -81,7 +81,7 @@ const StyledInput = styled(InputBase)<{
   '& .MuiInputBase-input': {
     padding: `${spacing.md}px 0`,
     '&::placeholder': {
-      color: colors.text.placeholder,
+      color: colors.text.tertiary,
       opacity: opacity.full,
     },
   },
@@ -263,14 +263,14 @@ export function InputAddress({
 
   // Determine border color based on validation state
   const getBorderColor = (): string => {
-    if (errorMessage) return colors.input.borderError;
-    if (isFocused) return colors.input.borderFocus;
+    if (errorMessage) return colors.status.error;
+    if (isFocused) return colors.accent.primary;
 
     switch (validationState) {
       case 'valid':
-        return colors.input.borderSuccess;
+        return colors.status.success;
       case 'invalid':
-        return colors.input.borderError;
+        return colors.status.error;
       case 'warning':
         return colors.status.warning;
       default:

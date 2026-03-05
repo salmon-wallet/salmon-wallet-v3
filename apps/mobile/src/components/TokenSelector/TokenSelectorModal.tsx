@@ -204,7 +204,7 @@ export function TokenSelectorModal({
           <TextInput
             style={styles.searchInput}
             placeholder={t('actions.search_placeholder', 'Search tokens...')}
-            placeholderTextColor={colors.text.placeholder}
+            placeholderTextColor={colors.text.tertiary}
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoCapitalize="none"

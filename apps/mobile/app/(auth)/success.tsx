@@ -208,10 +208,10 @@ const styles = StyleSheet.create({
   },
   dialogContent: {
     width: '100%',
-    backgroundColor: colors.dialog.background,
+    backgroundColor: colors.background.primary,
     borderRadius: borderRadius.xl,
     borderWidth: 1,
-    borderColor: colors.dialog.border,
+    borderColor: colors.border.default,
     padding: spacing['2xl'],
   },
   dialogTitle: {

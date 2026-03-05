@@ -41,7 +41,7 @@ const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  backgroundColor: colors.dialog.background,
+  backgroundColor: colors.background.primary,
   borderRadius: borderRadius.xl,
   padding: spacing.sm,
   border: `${borderWidth.thin}px solid ${colors.border.default}`,
@@ -60,7 +60,7 @@ const AmountInput = styled(InputBase)({
   color: colors.text.primary,
   padding: `${spacing.sm}px ${spacing.md}px`,
   '& .MuiInputBase-input::placeholder': {
-    color: colors.text.placeholder,
+    color: colors.text.tertiary,
     opacity: opacity.full,
   },
 });

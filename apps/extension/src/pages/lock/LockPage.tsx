@@ -95,12 +95,12 @@ const StyledInput = styled(InputBase)<{
   fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   backgroundColor: colors.input.background,
-  border: `1px solid ${$hasError ? colors.input.borderError : colors.input.border}`,
+  border: `1px solid ${$hasError ? colors.status.error : colors.input.border}`,
   borderRadius: componentSizes.inputRadius,
   color: colors.text.primary,
   transition: 'border-color 0.15s ease',
   '&.Mui-focused': {
-    borderColor: $hasError ? colors.input.borderError : colors.input.borderFocus,
+    borderColor: $hasError ? colors.status.error : colors.accent.primary,
   },
 }));
 

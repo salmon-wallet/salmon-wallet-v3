@@ -103,10 +103,10 @@ const EmptyStateText = styled(Typography)({
 });
 
 const TooltipContainer = styled(Box)({
-  backgroundColor: colors.dialog.background,
+  backgroundColor: colors.background.primary,
   borderRadius: borderRadius.md,
   padding: spacing.sm,
-  border: `${borderWidth.thin}px solid ${colors.dialog.border}`,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
   boxShadow: shadowsCSS.lg,
 });
 

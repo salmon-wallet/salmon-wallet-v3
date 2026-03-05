@@ -56,7 +56,7 @@ const SeedTextArea = styled('textarea')({
   resize: 'none',
   outline: 'none',
   '&:focus': {
-    borderColor: colors.input.borderFocus,
+    borderColor: colors.accent.primary,
   },
 });
 
