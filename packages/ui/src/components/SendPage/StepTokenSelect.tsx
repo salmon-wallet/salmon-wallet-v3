@@ -26,6 +26,8 @@ import {
   borderRadius,
   fontSize,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepTokenSelectProps, SendToken } from './types';
@@ -112,7 +114,7 @@ const TopFadeGradient = styled(Box)({
   pointerEvents: 'none',
   background: `linear-gradient(to bottom, ${colors.background.secondary}, transparent)`,
   opacity: 0,
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
 });
 
 const TokenRowButton = styled(ButtonBase)({
@@ -120,7 +122,7 @@ const TokenRowButton = styled(ButtonBase)({
   display: 'block',
   textAlign: 'left',
   borderRadius: borderRadius.md,
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },

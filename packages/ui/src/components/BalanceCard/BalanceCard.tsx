@@ -37,6 +37,8 @@ import {
   getNetworkLabel,
   getScalesColorForBlockchain,
   opacity,
+  durationMs,
+  easing,
 } from '@salmon/shared';
 import type { BlockchainId } from '@salmon/shared';
 import { EyeIcon, EyeOffIcon, Icon, SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
@@ -236,7 +238,7 @@ const SkeletonRect = styled(Box)({
   borderRadius: ms(borderRadius.sm),
   background: `linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.08) 75%)`,
   backgroundSize: '400px 100%',
-  animation: `${shimmer} 1.5s ease-in-out infinite`,
+  animation: `${shimmer} ${durationMs.shimmer}ms ${easing.easeInOut} infinite`,
 });
 
 export function BalanceCard({

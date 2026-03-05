@@ -7,12 +7,12 @@
 import { useState, useCallback, useRef } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { colors, spacing, borderRadius, fontSize, fontWeight, lineHeight, componentSizes } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, lineHeight, componentSizes, durationMs, duration, easing } from '@salmon/shared';
 import { BalanceCard } from './BalanceCard';
 import type { BalanceCardCarouselProps } from './types';
 
 const SLIDE_OUT_MS = 150;
-const SLIDE_IN_MS = 250;
+const SLIDE_IN_MS = durationMs.medium;
 const CARD_SLIDE_PX = 60;
 
 const CarouselWrapper = styled(Box)({
@@ -43,7 +43,7 @@ const ArrowButton = styled('button')<{ $visible: boolean }>(({ $visible }) => ({
   fontWeight: fontWeight.semibold,
   opacity: $visible ? 1 : 0,
   pointerEvents: $visible ? 'auto' : 'none',
-  transition: 'opacity 200ms ease, background-color 200ms ease',
+  transition: `opacity ${duration.normal} ${easing.ease}, background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
@@ -65,7 +65,7 @@ const CardContainer = styled(Box)({
 });
 
 const SlideContent = styled(Box)({
-  transition: `transform ${SLIDE_IN_MS}ms cubic-bezier(0.25, 0.1, 0.25, 1), opacity ${SLIDE_IN_MS}ms ease`,
+  transition: `transform ${SLIDE_IN_MS}ms ${easing.slide}, opacity ${SLIDE_IN_MS}ms ${easing.ease}`,
 });
 
 export function BalanceCardCarousel({

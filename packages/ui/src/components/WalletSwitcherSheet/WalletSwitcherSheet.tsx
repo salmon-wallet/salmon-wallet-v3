@@ -35,6 +35,8 @@ import {
   fontSize as fontSizeTokens,
   fontWeight as fontWeightTokens,
   componentSizes,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { BaseSheetDialog } from '../BaseSheetDialog';
 
@@ -52,7 +54,7 @@ const StyledListItem = styled(ListItem)<{ $isActive?: boolean }>(({ $isActive })
   padding: `${spacing.md}px ${spacing.xl}px`,
   cursor: 'pointer',
   backgroundColor: $isActive ? colors.accent.tint : 'transparent',
-  transition: 'background-color 0.2s ease',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor: $isActive
       ? colors.accent.tintHover

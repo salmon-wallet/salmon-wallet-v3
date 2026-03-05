@@ -31,6 +31,8 @@ import {
   fontWeight,
   opacity,
   spacing,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { ExplorerLinkButtonProps } from './types';
@@ -47,7 +49,7 @@ const StyledButton = styled(ButtonBase)({
   padding: `${spacing.md}px ${spacing.lg}px`,
   width: '100%',
   gap: spacing.sm,
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },

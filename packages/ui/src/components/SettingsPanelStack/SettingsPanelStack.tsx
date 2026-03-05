@@ -40,6 +40,7 @@ import {
   shadowsCSS,
   opacity,
   componentSizes,
+  durationMs,
 } from '@salmon/shared';
 import { styled } from '../../utils/styled';
 
@@ -65,8 +66,8 @@ interface SettingsSection {
 // ============================================================================
 
 const DRAWER_WIDTH = 320;
-const PUSH_DURATION = 250;
-const POP_DURATION = 200;
+const PUSH_DURATION = durationMs.medium;
+const POP_DURATION = durationMs.normal;
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   avatar: <AccountCircleIcon />,
@@ -282,7 +283,7 @@ export function SettingsPanelStack({
       const timer = setTimeout(() => {
         reset();
         setAnimating(false);
-      }, 300);
+      }, durationMs.slow);
       return () => clearTimeout(timer);
     }
   }, [visible, reset]);

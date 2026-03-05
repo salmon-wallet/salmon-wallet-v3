@@ -27,7 +27,7 @@ import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, componentSizes, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, opacity, spacing } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, opacity, spacing, duration, easing } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -129,7 +129,7 @@ function getTypeConfig(type: TransactionType): TypeConfig & { icon: React.ReactN
 
 const ItemWrapper = styled(Box)({
   marginBottom: spacing.md,
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },

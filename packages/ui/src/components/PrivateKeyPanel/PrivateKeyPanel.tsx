@@ -44,6 +44,8 @@ import {
   lineHeight,
   letterSpacing,
   componentSizes,
+  duration,
+  durationMs,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -131,7 +133,7 @@ const BlurOverlay = styled(Box)({
   borderRadius: borderRadius.lg,
   gap: spacing.xxs,
   cursor: 'pointer',
-  transition: 'background-color 0.2s',
+  transition: `background-color ${duration.normal}`,
   '&:hover': {
     backgroundColor: colors.overlay.darkHover,
   },
@@ -251,7 +253,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
 
       await navigator.clipboard.writeText(privateKey);
       setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
+      setTimeout(() => setCopiedIndex(null), durationMs.feedbackLong);
     },
     [revealedIndexes],
   );

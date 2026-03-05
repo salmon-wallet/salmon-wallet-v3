@@ -18,6 +18,8 @@ import {
   borderRadius,
   shadowsCSS,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 import type { TextButtonProps } from './types';
 
@@ -36,7 +38,7 @@ const StyledButton = styled(Button)<{ $customColor?: string }>(
     color: $customColor || colors.text.primary,
     textTransform: 'none',
     boxShadow: shadowsCSS.none,
-    transition: 'opacity 0.2s ease',
+    transition: `opacity ${duration.normal} ${easing.ease}`,
     '&:hover': {
       background: 'transparent',
       opacity: opacity.low,

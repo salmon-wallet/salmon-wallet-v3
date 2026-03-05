@@ -22,6 +22,8 @@ import {
   letterSpacing,
   lineHeight,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { styled } from '../../utils/styled';
@@ -97,7 +99,7 @@ const TokenDropdown = styled(ButtonBase)({
   minWidth: componentSizes.swapSelectorMinWidth,
   boxShadow: shadowsCSS.sm,
   cursor: 'pointer',
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },

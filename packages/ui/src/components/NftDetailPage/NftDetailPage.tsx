@@ -39,6 +39,9 @@ import {
   lineHeight,
   opacity,
   componentSizes,
+  duration,
+  durationMs,
+  easing,
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
@@ -222,7 +225,7 @@ const PrimaryButtonBase = styled(ButtonBase)({
   justifyContent: 'center',
   height: componentSizes.iconSize4XL,
   gap: spacing.base,
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
   '&:hover': { opacity: opacity.high },
   '&:active': { opacity: opacity.medium },
 });
@@ -236,7 +239,7 @@ const SecondaryButtonInner = styled(ButtonBase)({
   gap: spacing.base,
   position: 'relative',
   zIndex: 1,
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
   '&:hover': { opacity: opacity.high },
   '&:active': { opacity: opacity.medium },
 });
@@ -282,7 +285,7 @@ export function NftDetailPage({
   const handleCopy = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedField(text);
-    setTimeout(() => setCopiedField(null), 1500);
+    setTimeout(() => setCopiedField(null), durationMs.feedbackShort);
   }, []);
 
   const renderBlockchainDetails = useCallback(() => {

@@ -11,7 +11,7 @@
  */
 import { memo, useState, useEffect, useMemo, CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { colors, fontFamily, fontWeight, fontSize, lineHeight, DEFAULT_WALLET_TIP_KEYS, spacing } from '@salmon/shared';
+import { colors, fontFamily, fontWeight, fontSize, lineHeight, DEFAULT_WALLET_TIP_KEYS, spacing, duration, durationMs, easing } from '@salmon/shared';
 import type { LoadingScreenProps } from './types';
 
 // ============================================================================
@@ -123,7 +123,7 @@ export const LoadingScreen = memo(function LoadingScreen({
       const timer = setTimeout(() => {
         setIsVisible(false);
         setIsFadingOut(false);
-      }, 300);
+      }, durationMs.slow);
       return () => clearTimeout(timer);
     }
   }, [visible, isVisible]);
@@ -137,7 +137,7 @@ export const LoadingScreen = memo(function LoadingScreen({
       setTimeout(() => {
         setCurrentTipIndex((prev) => (prev + 1) % resolvedTips.length);
         setTipFading(false);
-      }, 400);
+      }, durationMs.slower);
     }, tipInterval);
 
     return () => clearInterval(interval);
@@ -215,7 +215,7 @@ export const LoadingScreen = memo(function LoadingScreen({
   };
 
   const logoContainerStyle: CSSProperties = {
-    animation: 'salmonPulse 1.2s ease-in-out infinite',
+    animation: `salmonPulse ${durationMs.pulse}ms ${easing.easeInOut} infinite`,
   };
 
   const logoStyle: CSSProperties = {
@@ -252,7 +252,7 @@ export const LoadingScreen = memo(function LoadingScreen({
     lineHeight: `${fontSize.base * lineHeight.tokenListItem}px`,
     textAlign: 'center',
     opacity: tipFading ? 0 : 1,
-    transition: 'opacity 0.4s ease-in-out',
+    transition: `opacity ${duration.slower} ${easing.easeInOut}`,
     padding: `0 ${spacing.lg}px`
   };
 

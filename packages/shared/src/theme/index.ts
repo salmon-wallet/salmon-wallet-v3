@@ -30,6 +30,7 @@ import {
   textStyles,
 } from './typography';
 import { shadows, shadowsCSS } from './shadows';
+import { duration, durationMs, easing } from './durations';
 
 // Re-export all tokens from colors
 export { colors, gradients, getScalesColorForBlockchain } from './colors';
@@ -77,6 +78,10 @@ export type {
 export { shadows, shadowsCSS } from './shadows';
 export type { Shadows, ShadowsCSS } from './shadows';
 
+// Re-export all tokens from durations
+export { duration, durationMs, easing } from './durations';
+export type { Duration, DurationMs, Easing } from './durations';
+
 /**
  * Complete theme object combining all tokens
  * Useful for theme providers
@@ -99,6 +104,9 @@ export const theme = {
   opacity,
   shadows,
   shadowsCSS,
+  duration,
+  durationMs,
+  easing,
 } as const;
 
 export type Theme = typeof theme;

@@ -34,6 +34,8 @@ import {
   shadowsCSS,
   lineHeight,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepAddressAmountProps } from './types';
@@ -86,7 +88,7 @@ const TokenCardButton = styled(ButtonBase)({
   textAlign: 'left',
   borderRadius: borderRadius.button,
   marginBottom: spacing.xl,
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },
@@ -234,7 +236,7 @@ const QuickFillButton = styled(ButtonBase)({
   backgroundColor: colors.button.secondaryBackground,
   borderRadius: borderRadius.sm,
   padding: `${spacing.xs}px ${spacing.md}px`,
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.medium,
   },
@@ -279,7 +281,7 @@ const CancelButton = styled(ButtonBase)({
   alignItems: 'center',
   justifyContent: 'center',
   boxShadow: shadowsCSS.button,
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },
@@ -302,7 +304,7 @@ const ReviewButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
     : `1px solid ${colors.accent.border}`,
   opacity: disabled ? 0.5 : 1,
   boxShadow: shadowsCSS.button,
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   cursor: disabled ? 'not-allowed' : 'pointer',
   '&:hover': {
     opacity: disabled ? 0.5 : 0.85,
@@ -348,7 +350,7 @@ const ContactRow = styled(ButtonBase)({
   borderRadius: borderRadius.md,
   padding: `${spacing.md}px ${spacing.lg}px`,
   marginBottom: spacing.xs,
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.medium,
   },

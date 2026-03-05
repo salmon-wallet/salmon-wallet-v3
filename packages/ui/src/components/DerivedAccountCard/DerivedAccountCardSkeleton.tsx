@@ -6,7 +6,7 @@
 import React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import { colors, spacing, borderRadius, componentSizes } from '@salmon/shared';
+import { colors, spacing, borderRadius, componentSizes, durationMs, easing } from '@salmon/shared';
 import type { DerivedAccountCardSkeletonProps } from './types';
 
 const shimmer = keyframes`
@@ -29,7 +29,7 @@ const SkeletonRect = styled(Box)({
   borderRadius: borderRadius.sm,
   background: `linear-gradient(90deg, ${colors.skeleton?.base ?? 'rgba(255,255,255,0.05)'} 25%, ${colors.skeleton?.highlight ?? 'rgba(255,255,255,0.1)'} 50%, ${colors.skeleton?.base ?? 'rgba(255,255,255,0.05)'} 75%)`,
   backgroundSize: '400px 100%',
-  animation: `${shimmer} 1.5s ease-in-out infinite`,
+  animation: `${shimmer} ${durationMs.shimmer}ms ${easing.easeInOut} infinite`,
 });
 
 const DerivedAccountCardSkeletonComponent: React.FC<DerivedAccountCardSkeletonProps> = ({

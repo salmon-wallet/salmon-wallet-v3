@@ -21,6 +21,9 @@ import {
   useCurrencyContext,
   getShortAddress,
   lineHeight,
+  duration,
+  durationMs,
+  easing,
 } from '@salmon/shared';
 import CheckIcon from '@mui/icons-material/Check';
 import { CopyIcon } from '../Icon';
@@ -89,7 +92,7 @@ const ContractRow = styled(Box)({
   borderRadius: borderRadius.md,
   padding: spacing.md,
   cursor: 'pointer',
-  transition: 'background-color 0.2s ease',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor: `${colors.input.background}cc`,
   },
@@ -117,7 +120,7 @@ const WebsiteRow = styled(Box)({
   padding: spacing.md,
   marginTop: spacing.sm,
   cursor: 'pointer',
-  transition: 'background-color 0.2s ease',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor: `${colors.input.background}cc`,
   },
@@ -219,7 +222,7 @@ export function TokenInfo({
         await navigator.clipboard.writeText(contractAddress);
         setSnackbarOpen(true);
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => setCopied(false), durationMs.feedbackLong);
       } catch (err) {
         console.error('Failed to copy address:', err);
       }

@@ -53,7 +53,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, componentSizes, copyToClipboard, fontFamily, fontSize, fontWeight, formatBlockNumber, formatDateTime, formatRawAmount, getShortAddress, letterSpacing, spacing, truncateHash } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, copyToClipboard, fontFamily, fontSize, fontWeight, formatBlockNumber, formatDateTime, formatRawAmount, getShortAddress, letterSpacing, spacing, truncateHash, duration, durationMs, easing } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -576,7 +576,7 @@ const ActionButton = styled(ButtonBase)({
   padding: `${spacing.md}px`,
   gap: spacing.xs,
   border: `1px solid ${colors.border.default}`,
-  transition: 'background-color 0.2s ease',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor: `${colors.background.card}cc`,
   },
@@ -904,7 +904,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
       await copyToClipboard(transaction.id);
       if (onCopyHash) onCopyHash(transaction.id);
       setHashCopied(true);
-      setTimeout(() => setHashCopied(false), 1500);
+      setTimeout(() => setHashCopied(false), durationMs.feedbackShort);
     } catch (error) {
       console.warn('Failed to copy hash:', error);
     }

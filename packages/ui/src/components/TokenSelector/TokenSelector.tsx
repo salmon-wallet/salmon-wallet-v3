@@ -25,6 +25,8 @@ import {
   fontSize,
   opacity,
   componentSizes,
+  duration,
+  easing,
 } from '@salmon/shared';
 
 import { TokenSelectorModal } from './TokenSelectorModal';
@@ -70,7 +72,7 @@ const SelectorButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled })
   borderRadius: borderRadius.lg,
   padding: `${spacing.sm}px ${spacing.md}px`,
   minWidth: componentSizes.buttonMinWidth,
-  transition: 'background-color 0.2s ease',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
   opacity: disabled ? 0.5 : 1,
   cursor: disabled ? 'default' : 'pointer',
   '&:hover': {

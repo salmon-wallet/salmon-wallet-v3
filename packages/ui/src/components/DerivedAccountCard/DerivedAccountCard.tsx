@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, spacing, borderRadius, componentSizes, fontFamily, fontWeight, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, componentSizes, fontFamily, fontWeight, fontSize, duration, easing } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import type { DerivedAccountCardProps } from './types';
 
@@ -38,7 +38,7 @@ const Card = styled(Box)<{ $selected: boolean }>(({ $selected }) => ({
   padding: spacing.lg,
   marginBottom: spacing.md,
   cursor: 'pointer',
-  transition: 'border-color 0.2s ease',
+  transition: `border-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     borderColor: $selected ? colors.card.borderActive : colors.accent.primary,
   },

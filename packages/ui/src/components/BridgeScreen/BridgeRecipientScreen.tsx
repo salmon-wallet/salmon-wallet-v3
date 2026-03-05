@@ -20,6 +20,8 @@ import {
   letterSpacing,
   lineHeight,
   componentSizes,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -76,7 +78,7 @@ const AddressInput = styled('input')({
   letterSpacing: letterSpacing.normal,
   outline: 'none',
   boxSizing: 'border-box',
-  transition: 'border-color 0.2s ease',
+  transition: `border-color ${duration.normal} ${easing.ease}`,
   '&::placeholder': {
     color: colors.text.tertiary,
   },

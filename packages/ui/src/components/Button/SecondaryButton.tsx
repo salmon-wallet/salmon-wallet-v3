@@ -15,6 +15,8 @@ import {
   letterSpacing,
   shadowsCSS,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 import type { SecondaryButtonProps } from './types';
 
@@ -36,7 +38,7 @@ const StyledButton = styled(Button)<{
   color: colors.button.secondaryText,
   textTransform: 'none',
   boxShadow: shadowsCSS.none,
-  transition: 'opacity 0.2s ease, transform 0.1s ease, background-color 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}, transform ${duration.fastest} ${easing.ease}, background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor:
       $buttonVariant === 'outline'

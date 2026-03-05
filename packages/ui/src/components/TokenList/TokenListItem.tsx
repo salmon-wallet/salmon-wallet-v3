@@ -25,6 +25,8 @@ import {
   hiddenValue,
   useCurrencyContext,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenBadges } from './TokenBadges';
@@ -45,7 +47,7 @@ const BitcoinContainer = styled(Box)({
   padding: `${vs(spacing.md)}px ${s(spacing.lg)}px`,
   cursor: 'pointer',
   gap: s(spacing.md),
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },
@@ -108,7 +110,7 @@ const Container = styled(Box)({
   padding: `${vs(spacing.md)}px ${s(spacing.lg)}px`,
   cursor: 'pointer',
   gap: s(spacing.md),
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },

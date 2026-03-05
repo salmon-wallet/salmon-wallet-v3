@@ -17,6 +17,8 @@ import {
   fontSize,
   shadowsCSS,
   componentSizes,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
@@ -72,7 +74,7 @@ const ReviewButtonWrapper = styled('div')<{ $canReview: boolean }>(({ $canReview
   boxShadow: shadowsCSS.button,
   background: $canReview ? colors.button.primaryBackground : colors.button.inactiveBackground,
   minWidth: componentSizes.copyButtonWidth,
-  transition: 'border-color 0.2s ease',
+  transition: `border-color ${duration.normal} ${easing.ease}`,
   ...($canReview && {
     '&:hover': {
       borderColor: colors.accent.primary,

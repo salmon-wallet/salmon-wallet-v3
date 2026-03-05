@@ -5,7 +5,7 @@
  * Web version using @emotion/styled for browser extension.
  */
 import { styled } from '../../utils/styled';
-import { colors, componentSizes } from '@salmon/shared';
+import { colors, componentSizes, duration, easing } from '@salmon/shared';
 import type { StepIndicatorProps } from './types';
 
 const Container = styled('div')({
@@ -21,7 +21,7 @@ const Dot = styled('div')<{ $isActive: boolean }>(({ $isActive }) => ({
   height: componentSizes.stepDotSize,
   borderRadius: componentSizes.stepDotSize / 2,
   backgroundColor: $isActive ? colors.step.active : colors.step.inactive,
-  transition: 'background-color 0.2s ease',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
 }));
 
 export function StepIndicator({ totalSteps, currentStep }: StepIndicatorProps) {

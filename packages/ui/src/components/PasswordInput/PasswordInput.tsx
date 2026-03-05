@@ -17,6 +17,8 @@ import {
   fontFamily,
   fontSize as fontSizeTokens,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { EyeIcon, EyeOffIcon } from '../Icon';
 import type { PasswordInputProps } from './types';
@@ -37,7 +39,7 @@ const InputWrapper = styled(Box)<{
   borderRadius: componentSizes.inputRadius,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
-  transition: 'border-color 0.2s ease',
+  transition: `border-color ${duration.normal} ${easing.ease}`,
 }));
 
 const StyledInput = styled(InputBase)({

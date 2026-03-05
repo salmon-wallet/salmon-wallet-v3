@@ -29,6 +29,9 @@ import {
   letterSpacing,
   opacity,
   componentSizes,
+  duration,
+  durationMs,
+  easing,
 } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -41,7 +44,7 @@ import type { SwapRouteHop, SwapRouteVisualizationProps, Transaction } from './t
 // Constants
 // ============================================================================
 
-const COPIED_FEEDBACK_DURATION = 1500;
+const COPIED_FEEDBACK_DURATION = durationMs.feedbackShort;
 
 // ============================================================================
 // Styled Components
@@ -49,7 +52,7 @@ const COPIED_FEEDBACK_DURATION = 1500;
 
 const Container = styled(Box)({
   overflow: 'hidden',
-  transition: 'max-height 300ms cubic-bezier(0.4, 0, 0.2, 1), opacity 300ms ease',
+  transition: `max-height ${duration.slow} ${easing.standard}, opacity ${duration.slow} ${easing.ease}`,
 });
 
 const Content = styled(Box)({

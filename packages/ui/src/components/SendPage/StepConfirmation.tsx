@@ -32,6 +32,9 @@ import {
   fontSize,
   shadowsCSS,
   opacity,
+  duration,
+  durationMs,
+  easing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepConfirmationProps } from './types';
@@ -40,7 +43,7 @@ import type { StepConfirmationProps } from './types';
 // Constants
 // ============================================================================
 
-const COPY_FEEDBACK_DURATION = 2000;
+const COPY_FEEDBACK_DURATION = durationMs.feedbackLong;
 
 // ============================================================================
 // Styled Components
@@ -108,7 +111,7 @@ const AmountText = styled(Typography)({
 const AddressButton = styled(ButtonBase)({
   maxWidth: '100%',
   borderRadius: borderRadius.md,
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },
@@ -177,7 +180,7 @@ const CancelButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
   boxShadow: shadowsCSS.button,
   opacity: disabled ? 0.5 : 1,
   cursor: disabled ? 'not-allowed' : 'pointer',
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   '&:hover': {
     opacity: disabled ? 0.5 : 0.85,
   },
@@ -199,7 +202,7 @@ const ConfirmButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) 
   opacity: disabled ? 0.7 : 1,
   boxShadow: shadowsCSS.button,
   cursor: disabled ? 'not-allowed' : 'pointer',
-  transition: 'opacity 0.15s ease',
+  transition: `opacity ${duration.fast} ${easing.ease}`,
   '&:hover': {
     opacity: disabled ? 0.7 : 0.85,
   },

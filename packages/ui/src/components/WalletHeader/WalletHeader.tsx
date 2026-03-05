@@ -11,7 +11,7 @@ import MuiAvatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials, opacity, componentSizes } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials, opacity, componentSizes, durationMs } from '@salmon/shared';
 import { CopyIcon, RefreshIcon, SettingsIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
@@ -133,7 +133,7 @@ export function WalletHeader({
   const handleCopyPress = useCallback(() => {
     onCopyAddress?.();
     setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setTimeout(() => setCopied(false), durationMs.feedbackShort);
   }, [onCopyAddress]);
 
   const handleSettingsPress = useCallback(() => {
@@ -214,7 +214,7 @@ export function WalletHeader({
                 color: colors.text.primary,
                 fontSize: fontSize['2xl'],
                 ...(refreshing && {
-                  animation: 'spin 1s linear infinite',
+                  animation: `spin ${durationMs.spin}ms linear infinite`,
                   '@keyframes spin': {
                     from: { transform: 'rotate(0deg)' },
                     to: { transform: 'rotate(360deg)' },

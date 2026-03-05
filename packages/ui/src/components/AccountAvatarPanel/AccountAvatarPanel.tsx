@@ -20,6 +20,8 @@ import {
   fontFamily,
   fontSize,
   fontWeight,
+  duration,
+  easing,
   PRESET_AVATAR_URLS,
   useAccountsContext,
   useAvatarNfts,
@@ -56,7 +58,7 @@ const ToggleHighlight = styled(Box)<{ $isRight?: boolean }>(({ $isRight }) => ({
   height: `calc(100% - ${spacing.xxs * 2}px)`,
   backgroundColor: colors.accent.primary,
   borderRadius: borderRadius.md - spacing.xxs,
-  transition: 'left 0.25s ease',
+  transition: `left ${duration.medium} ${easing.ease}`,
 }));
 
 const ToggleButton = styled('button')<{ $isActive?: boolean }>(({ $isActive }) => ({
@@ -71,7 +73,7 @@ const ToggleButton = styled('button')<{ $isActive?: boolean }>(({ $isActive }) =
   fontSize: fontSize.base,
   color: $isActive ? colors.text.primary : colors.text.secondary,
   textAlign: 'center',
-  transition: 'color 0.25s ease',
+  transition: `color ${duration.medium} ${easing.ease}`,
   fontFamily: `${fontFamily.sans}, sans-serif`,
 }));
 
@@ -98,7 +100,7 @@ const AvatarCircle = styled('button')<{ $isSelected?: boolean }>(({ $isSelected 
   padding: 0,
   cursor: 'pointer',
   background: 'none',
-  transition: 'border-color 0.2s ease',
+  transition: `border-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     borderColor: $isSelected ? colors.accent.primary : 'rgba(255, 255, 255, 0.3)',
   },
@@ -119,7 +121,7 @@ const NftCardButton = styled('button')<{ $isSelected?: boolean }>(({ $isSelected
   padding: 0,
   cursor: 'pointer',
   background: 'none',
-  transition: 'border-color 0.2s ease',
+  transition: `border-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     borderColor: $isSelected ? colors.accent.primary : 'rgba(255, 255, 255, 0.3)',
   },

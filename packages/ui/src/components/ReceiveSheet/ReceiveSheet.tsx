@@ -28,6 +28,9 @@ import {
   letterSpacing,
   lineHeight,
   opacity,
+  duration,
+  durationMs,
+  easing,
 } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
 import { QRCode } from '../QRCode';
@@ -39,7 +42,7 @@ import type { ReceiveSheetProps } from './types';
 // ============================================================================
 
 const QR_SIZE_DEFAULT = 220;
-const COPY_FEEDBACK_DURATION = 2000;
+const COPY_FEEDBACK_DURATION = durationMs.feedbackLong;
 
 // ============================================================================
 // Styled Components
@@ -87,7 +90,7 @@ const CopyButton = styled(ButtonBase)({
   width: componentSizes.copyButtonWidth,
   height: componentSizes.buttonHeightCompact,
   gap: spacing.xs,
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
   '&:hover': {
     opacity: opacity.high,
   },

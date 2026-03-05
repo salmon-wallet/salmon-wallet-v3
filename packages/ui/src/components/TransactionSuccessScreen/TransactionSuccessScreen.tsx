@@ -6,7 +6,7 @@ import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
-import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight, lineHeight, componentSizes } from '@salmon/shared';
+import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight, lineHeight, componentSizes, duration, easing } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 
 // ============================================================================
@@ -47,7 +47,7 @@ const Circle = styled(Box)({
   alignItems: 'center',
   justifyContent: 'center',
   marginBottom: spacing['3xl'],
-  animation: `${scaleIn} 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
+  animation: `${scaleIn} ${duration.slower} ${easing.bounce} forwards`,
 });
 
 const Checkmark = styled(Typography)({
@@ -65,7 +65,7 @@ const Title = styled(Typography)({
   textAlign: 'center',
   marginBottom: spacing.sm,
   opacity: 0,
-  animation: `${fadeIn} 0.3s ease-out 0.3s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} ${duration.slow} forwards`,
 });
 
 const Summary = styled(Typography)({
@@ -75,7 +75,7 @@ const Summary = styled(Typography)({
   textAlign: 'center',
   marginBottom: spacing.lg,
   opacity: 0,
-  animation: `${fadeIn} 0.3s ease-out 0.5s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} 0.5s forwards`,
 });
 
 const ExplorerLink = styled(Link)({
@@ -86,7 +86,7 @@ const ExplorerLink = styled(Link)({
   cursor: 'pointer',
   marginBottom: spacing['4xl'],
   opacity: 0,
-  animation: `${fadeIn} 0.3s ease-out 0.55s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} 0.55s forwards`,
 });
 
 const BridgeInfoBox = styled(Box)({
@@ -96,7 +96,7 @@ const BridgeInfoBox = styled(Box)({
   padding: spacing.lg,
   marginBottom: spacing.xl,
   opacity: 0,
-  animation: `${fadeIn} 0.3s ease-out 0.5s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} 0.5s forwards`,
 });
 
 const BridgeLabel = styled(Typography)({
@@ -126,7 +126,7 @@ const ContinueButton = styled(Button)({
   fontSize: fontSize.md,
   textTransform: 'none',
   opacity: 0,
-  animation: `${fadeIn} 0.3s ease-out 0.6s forwards`,
+  animation: `${fadeIn} ${duration.slow} ${easing.easeOut} 0.6s forwards`,
   '&:hover': {
     background: gradients.primaryCSS,
   },

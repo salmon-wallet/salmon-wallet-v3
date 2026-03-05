@@ -18,7 +18,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, borderRadius, componentSizes, getShortAddress, copyToClipboard, spacing, fontSize, fontWeight } from '@salmon/shared';
+import { colors, borderRadius, componentSizes, getShortAddress, copyToClipboard, spacing, fontSize, fontWeight, durationMs } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { AddressCopyRowProps } from './types';
 
@@ -32,7 +32,7 @@ const TRUNCATE_CHARS: Record<'short' | 'medium' | 'long', number> = {
   long: 8,
 };
 
-const COPIED_FEEDBACK_DURATION = 1500;
+const COPIED_FEEDBACK_DURATION = durationMs.feedbackShort;
 
 // ============================================================================
 // Styled Components

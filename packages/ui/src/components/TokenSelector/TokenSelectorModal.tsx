@@ -36,6 +36,8 @@ import {
   Circle,
   fontSize,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 
 import { useTokenSearch } from '@salmon/shared';
@@ -98,7 +100,7 @@ const SearchInput = styled(InputBase)({
   fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   border: `1px solid ${colors.input.border}`,
-  transition: 'border-color 0.2s ease',
+  transition: `border-color ${duration.normal} ${easing.ease}`,
   '&.Mui-focused': {
     borderColor: colors.input.borderFocus,
   },
@@ -133,7 +135,7 @@ const TokenItemContainer = styled(Box)({
   padding: `${spacing.md}px`,
   marginBottom: spacing.sm,
   cursor: 'pointer',
-  transition: 'background-color 0.2s ease',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor: colors.background.tertiary,
   },
@@ -219,7 +221,7 @@ const FeaturedTokenButton = styled(Box)({
   padding: spacing.sm,
   cursor: 'pointer',
   borderRadius: borderRadius.md,
-  transition: 'background-color 0.2s ease',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
   '&:hover': {
     backgroundColor: colors.background.card,
   },

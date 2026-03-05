@@ -24,7 +24,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, useAccounts, fontSize, fontWeight, letterSpacing, opacity, componentSizes } from '@salmon/shared';
+import { colors, spacing, borderRadius, useAccounts, fontSize, fontWeight, letterSpacing, opacity, componentSizes, duration, durationMs } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -110,7 +110,7 @@ const BlurOverlay = styled(Box)({
   borderRadius: borderRadius.lg,
   gap: spacing.md,
   cursor: 'pointer',
-  transition: 'background-color 0.2s',
+  transition: `background-color ${duration.normal}`,
   '&:hover': {
     backgroundColor: colors.overlay.darkHover,
   },
@@ -187,7 +187,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
     if (mnemonic) {
       await navigator.clipboard.writeText(mnemonic);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), durationMs.feedbackLong);
     }
   }, [mnemonic]);
 

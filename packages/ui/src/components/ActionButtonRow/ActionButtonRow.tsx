@@ -23,6 +23,8 @@ import {
   ms,
   fontWeight,
   opacity,
+  duration,
+  easing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SendIcon, ReceiveIcon, ActivityIcon } from '../Icon';
@@ -45,7 +47,7 @@ const ButtonWrapper = styled(Box)<{ $disabled?: boolean }>(({ $disabled }) => ({
   borderRadius: ms(componentSizes.actionButtonRadius),
   overflow: 'hidden',
   opacity: $disabled ? colors.button.disabledOpacity : 1,
-  transition: 'opacity 0.2s ease',
+  transition: `opacity ${duration.normal} ${easing.ease}`,
 }));
 
 const PrimaryButton = styled(Button)({
