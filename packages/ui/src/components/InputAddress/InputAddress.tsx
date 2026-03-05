@@ -24,6 +24,7 @@ import {
   fontFamily,
   useAddressValidation,
   useAccountsContext,
+  fontSize,
 } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 import type { ValidationState } from '@salmon/shared';
@@ -37,7 +38,7 @@ const Container = styled(Box)({
 });
 
 const Label = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 500,
   marginBottom: 8,
   color: colors.text.primary,
@@ -67,7 +68,7 @@ const StyledInput = styled(InputBase)<{
   flex: 1,
   color: $inputDisabled ? colors.text.tertiary : colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 16,
+  fontSize: fontSize.md,
   '& .MuiInputBase-input': {
     padding: '12px 0',
     '&::placeholder': {
@@ -86,19 +87,19 @@ const ValidationIcon = styled(Box)({
 
 const ValidText = styled('span')({
   color: colors.status.success,
-  fontSize: 18,
+  fontSize: fontSize.lg,
   lineHeight: 1,
 });
 
 const InvalidText = styled('span')({
   color: colors.status.error,
-  fontSize: 18,
+  fontSize: fontSize.lg,
   lineHeight: 1,
 });
 
 const WarningText = styled('span')({
   color: colors.status.warning,
-  fontSize: 18,
+  fontSize: fontSize.lg,
   lineHeight: 1,
 });
 
@@ -109,7 +110,7 @@ const MessageContainer = styled(Box)({
 const MessageText = styled(Typography)<{
   $messageType?: 'error' | 'warning' | null;
 }>(({ $messageType }) => ({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   lineHeight: '18px',
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color:
@@ -128,14 +129,14 @@ const DomainInfo = styled(Box)({
 });
 
 const DomainLabel = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   color: colors.text.secondary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   marginBottom: 4,
 });
 
 const DomainValue = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   color: colors.text.primary,
   fontFamily: 'monospace',
   overflow: 'hidden',

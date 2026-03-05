@@ -8,7 +8,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, spacing } from '@salmon/shared';
+import { colors, spacing, fontSize } from '@salmon/shared';
 
 // ============================================================================
 // Styled Components (shared across all settings selectors)
@@ -32,7 +32,7 @@ const StyledListItemButton = styled(ListItemButton)<{ $selected?: boolean }>(
 
 const CheckIconStyled = styled(CheckIcon)({
   color: colors.accent.primary,
-  fontSize: 20,
+  fontSize: fontSize.xl,
 });
 
 const LoadingContainer = styled(Box)({
@@ -44,7 +44,7 @@ const LoadingContainer = styled(Box)({
 
 const EmptyState = styled(Typography)({
   color: colors.text.secondary,
-  fontSize: 14,
+  fontSize: fontSize.base,
   textAlign: 'center',
   padding: spacing.xl,
 });
@@ -114,7 +114,7 @@ export function SettingsSelectorList<T>({
                   sx: {
                     color: colors.text.primary,
                     fontWeight: selected ? 600 : 500,
-                    fontSize: 14,
+                    fontSize: fontSize.base,
                   },
                 }}
                 secondaryTypographyProps={
@@ -122,7 +122,7 @@ export function SettingsSelectorList<T>({
                     ? {
                         sx: {
                           color: colors.text.secondary,
-                          fontSize: 12,
+                          fontSize: fontSize.sm,
                           ...(secondaryTypographyProps || {}),
                         },
                       }

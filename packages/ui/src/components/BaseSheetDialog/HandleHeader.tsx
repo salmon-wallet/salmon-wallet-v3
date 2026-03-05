@@ -19,7 +19,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { colors, spacing, fontFamily } from '@salmon/shared';
+import { colors, spacing, fontFamily, fontSize } from '@salmon/shared';
 import type { HandleHeaderProps } from './types';
 
 // ============================================================================
@@ -71,7 +71,7 @@ const BackButton = styled(IconButton)({
 });
 
 const TitleText = styled(Typography)({
-  fontSize: 24,
+  fontSize: fontSize['2xl'],
   fontWeight: 800,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,

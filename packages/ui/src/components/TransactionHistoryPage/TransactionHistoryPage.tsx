@@ -22,7 +22,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Skeleton from '@mui/material/Skeleton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { PageShell } from '../PageShell';
 import { TransactionItem } from './TransactionItem';
@@ -65,7 +65,7 @@ const EmptyContainer = styled(Box)({
 });
 
 const EmptyTitle = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: 500,
   color: colors.text.primary,
   marginTop: 16,
@@ -73,7 +73,7 @@ const EmptyTitle = styled(Typography)({
 });
 
 const EmptySubtitle = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   color: colors.text.secondary,
   textAlign: 'center',
 });
@@ -88,14 +88,14 @@ const ErrorContainer = styled(Box)({
 });
 
 const ErrorTitle = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: 500,
   color: colors.text.primary,
   marginBottom: 10,
 });
 
 const ErrorMessage = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   color: colors.text.secondary,
   textAlign: 'center',
   marginBottom: 18,
@@ -199,7 +199,7 @@ const EmptyState: React.FC = () => {
   const { t } = useTranslation();
   return (
     <EmptyContainer>
-      <ReceiptLongIcon sx={{ fontSize: 48, color: colors.text.tertiary }} />
+      <ReceiptLongIcon sx={{ fontSize: fontSize['5xl'], color: colors.text.tertiary }} />
       <EmptyTitle>{t('transactions.noTransactions')}</EmptyTitle>
       <EmptySubtitle>{t('transactions.emptySubtitle')}</EmptySubtitle>
     </EmptyContainer>

@@ -19,6 +19,7 @@ import {
   formatAmountWithSymbol,
   formatSolFee,
   formatPercent,
+  fontSize,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { SwapReviewCard } from './SwapReviewCard';
@@ -50,7 +51,7 @@ const BackgroundPattern = styled(Box)({
 });
 
 const Title = styled(Typography)({
-  fontSize: 24,
+  fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -97,7 +98,7 @@ const WarningContent = styled(Box)({
 });
 
 const WarningTitle = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.warning,
@@ -106,7 +107,7 @@ const WarningTitle = styled(Typography)({
 });
 
 const WarningBodyText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,

@@ -43,7 +43,7 @@ const StyledInput = styled(InputBase)({
   flex: 1,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 16,
+  fontSize: fontSizeTokens.md,
   '& .MuiInputBase-input': {
     padding: 0,
     '&::placeholder': {

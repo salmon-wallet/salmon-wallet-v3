@@ -25,6 +25,7 @@ import {
   type NftData,
   type BlockchainAccount,
   type BlockchainType,
+  fontSize,
 } from '@salmon/shared';
 import { BaseDialog, MessageText } from '../BaseDialog';
 import { InputAddress } from '../InputAddress';
@@ -62,7 +63,7 @@ const NftImage = styled('img')({
 });
 
 const NftName = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: 600,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -73,7 +74,7 @@ const NftName = styled(Typography)({
 });
 
 const NftCollection = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   color: colors.text.secondary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',

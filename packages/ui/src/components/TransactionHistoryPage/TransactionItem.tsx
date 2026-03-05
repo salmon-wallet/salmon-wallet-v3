@@ -27,7 +27,7 @@ import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription } from '@salmon/shared';
+import { borderRadius, colors, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -118,8 +118,8 @@ function getTypeConfig(type: TransactionType): TypeConfig & { icon: React.ReactN
 
   return {
     ...config,
-    icon: <IconComponent sx={{ fontSize: 22 }} />,
-    badgeIcon: <IconComponent sx={{ fontSize: 10, color: '#FFFFFF' }} />,
+    icon: <IconComponent sx={{ fontSize: fontSize.title }} />,
+    badgeIcon: <IconComponent sx={{ fontSize: fontSize.xs, color: '#FFFFFF' }} />,
   };
 }
 
@@ -229,7 +229,7 @@ const TypeRow = styled(Box)({
 });
 
 const TypeText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 500,
   color: colors.text.primary,
   overflow: 'hidden',
@@ -239,7 +239,7 @@ const TypeText = styled(Typography)({
 
 const SourceBadge = styled(Chip)({
   height: 18,
-  fontSize: 10,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   color: colors.text.tertiary,
   backgroundColor: colors.background.card,
@@ -251,7 +251,7 @@ const SourceBadge = styled(Chip)({
 });
 
 const DescriptionText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   color: colors.text.secondary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -273,7 +273,7 @@ const AmountsContainer = styled(Box)({
 });
 
 const AmountText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   marginBottom: 2,
   whiteSpace: 'nowrap',
@@ -287,7 +287,7 @@ const TimeRow = styled(Box)({
 });
 
 const TimeText = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   color: colors.text.tertiary,
 });
 
@@ -299,7 +299,7 @@ const FailedBadge = styled(Box)({
 });
 
 const FailedText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.status.error,
 });
@@ -315,7 +315,7 @@ const PendingBadge = styled(Box)({
 });
 
 const PendingText = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   color: colors.status.warning,
 });
@@ -335,7 +335,7 @@ const ExpandBadge = styled(Box)({
 });
 
 const ExpandText = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   color: colors.palette.amber,
 });
@@ -478,7 +478,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
     if (status === 'failed') {
       return (
         <FailedBadge>
-          <CancelIcon sx={{ fontSize: 16, color: colors.status.error }} />
+          <CancelIcon sx={{ fontSize: fontSize.md, color: colors.status.error }} />
           <FailedText>{t('transactions.detail.failed', 'Failed')}</FailedText>
         </FailedBadge>
       );
@@ -487,7 +487,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
     if (status === 'pending') {
       return (
         <PendingBadge>
-          <AccessTimeIcon sx={{ fontSize: 14, color: colors.status.warning }} />
+          <AccessTimeIcon sx={{ fontSize: fontSize.base, color: colors.status.warning }} />
           <PendingText>{t('transactions.detail.pending', 'Pending')}</PendingText>
         </PendingBadge>
       );
@@ -564,9 +564,9 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
                   {expanded ? t('transactions.showLess', 'show less') : t('transactions.showMore', 'show more')}
                 </ExpandText>
                 {expanded ? (
-                  <ExpandLessIcon sx={{ fontSize: 12, color: colors.palette.amber }} />
+                  <ExpandLessIcon sx={{ fontSize: fontSize.sm, color: colors.palette.amber }} />
                 ) : (
-                  <ExpandMoreIcon sx={{ fontSize: 12, color: colors.palette.amber }} />
+                  <ExpandMoreIcon sx={{ fontSize: fontSize.sm, color: colors.palette.amber }} />
                 )}
               </ExpandBadge>
             )}

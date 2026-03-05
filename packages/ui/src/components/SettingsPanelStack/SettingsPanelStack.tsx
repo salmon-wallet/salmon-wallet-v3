@@ -34,6 +34,7 @@ import {
   spacing,
   useSettingsPanelStack,
   type SettingsScreen,
+  fontSize,
 } from '@salmon/shared';
 import { styled } from '../../utils/styled';
 
@@ -143,7 +144,7 @@ const Header = styled(Box)({
 });
 
 const HeaderTitle = styled(Typography)({
-  fontSize: 18,
+  fontSize: fontSize.lg,
   fontWeight: 600,
   color: colors.text.primary,
 });
@@ -162,7 +163,7 @@ const MenuContent = styled(Box)({
 });
 
 const SectionTitle = styled(Typography)<{ $isDanger?: boolean }>(({ $isDanger }) => ({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: 0.5,
@@ -196,12 +197,12 @@ const StyledListItemIcon = styled(ListItemIcon)<{ $isDanger?: boolean }>(
 const StyledListItemText = styled(ListItemText)<{ $isDanger?: boolean }>(
   ({ $isDanger }) => ({
     '& .MuiListItemText-primary': {
-      fontSize: 14,
+      fontSize: fontSize.base,
       fontWeight: 500,
       color: $isDanger ? colors.status.error : colors.text.primary,
     },
     '& .MuiListItemText-secondary': {
-      fontSize: 12,
+      fontSize: fontSize.sm,
       color: colors.text.secondary,
       marginTop: 2,
     },
@@ -230,7 +231,7 @@ const StyledDivider = styled(Divider)({
 
 const ChevronIcon = styled(ChevronRightIcon)({
   color: colors.text.secondary,
-  fontSize: 20,
+  fontSize: fontSize.xl,
 });
 
 // ============================================================================

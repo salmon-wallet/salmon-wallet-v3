@@ -6,7 +6,7 @@ import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
-import { colors, spacing, borderRadius, fontFamily } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontSize } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 
 // ============================================================================
@@ -51,14 +51,14 @@ const Circle = styled(Box)({
 });
 
 const Checkmark = styled(Typography)({
-  fontSize: 36,
+  fontSize: fontSize['4xl'],
   color: '#FFFFFF',
   fontWeight: 700,
   lineHeight: 1,
 });
 
 const Title = styled(Typography)({
-  fontSize: 22,
+  fontSize: fontSize.title,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: 600,
   color: colors.text.primary,
@@ -69,7 +69,7 @@ const Title = styled(Typography)({
 });
 
 const Summary = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   textAlign: 'center',
@@ -79,7 +79,7 @@ const Summary = styled(Typography)({
 });
 
 const ExplorerLink = styled(Link)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.accent.primary,
   textAlign: 'center',
@@ -100,14 +100,14 @@ const BridgeInfoBox = styled(Box)({
 });
 
 const BridgeLabel = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.tertiary,
   marginBottom: spacing.xs,
 });
 
 const BridgeValue = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
   wordBreak: 'break-all' as const,
@@ -123,7 +123,7 @@ const ContinueButton = styled(Button)({
   color: '#FFFFFF',
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: 600,
-  fontSize: 15,
+  fontSize: fontSize.md,
   textTransform: 'none',
   opacity: 0,
   animation: `${fadeIn} 0.3s ease-out 0.6s forwards`,

@@ -16,6 +16,7 @@ import {
   formatTokenBalance,
   spacing,
   useCurrencyContext,
+  fontSize,
 } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { styled } from '../../utils/styled';
@@ -33,7 +34,7 @@ const Container = styled(Box)({
 });
 
 const Label = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -59,7 +60,7 @@ const LoadingContainer = styled(Box)({
 
 const StyledInput = styled(InputBase)({
   flex: 1,
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -112,7 +113,7 @@ const TokenIconPlaceholder = styled(Box)({
 });
 
 const TokenSymbol = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -129,7 +130,7 @@ const InfoRow = styled(Box)({
 });
 
 const UsdValue = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -138,7 +139,7 @@ const UsdValue = styled(Typography)({
 });
 
 const AvailableBalance = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.light,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,

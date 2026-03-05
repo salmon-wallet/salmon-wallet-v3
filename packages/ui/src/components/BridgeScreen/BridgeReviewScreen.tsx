@@ -17,6 +17,7 @@ import {
   fontWeight,
   formatAmountWithSymbol,
   getShortAddress,
+  fontSize,
 } from '@salmon/shared';
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
@@ -37,7 +38,7 @@ const Container = styled(Box)({
 });
 
 const Title = styled(Typography)({
-  fontSize: 24,
+  fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -84,7 +85,7 @@ const WarningBox = styled(Box)({
 });
 
 const WarningTitle = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.warning,
@@ -93,7 +94,7 @@ const WarningTitle = styled(Typography)({
 });
 
 const WarningText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,

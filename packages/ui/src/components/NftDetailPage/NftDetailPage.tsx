@@ -142,7 +142,7 @@ const BlockchainBadgeContent = styled(Box)({
 
 const BlockchainLabel = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.primary,
 });
@@ -162,14 +162,14 @@ const DetailRow = styled(Box)({
 
 const DetailLabel = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.secondary,
 });
 
 const DetailValue = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.primary,
 });
@@ -191,7 +191,7 @@ const RarityBadge = styled(Box)({
 
 const RarityText = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontWeight: fontWeight.bold,
   color: colors.text.primary,
   textTransform: 'capitalize',
@@ -264,7 +264,7 @@ export function NftDetailPage({
   }, [onBurnPress]);
 
   const getBlockchainIcon = useCallback(() => {
-    const iconStyle = { fontSize: 16, width: 16, height: 16, color: colors.text.primary };
+    const iconStyle = { fontSize: fontSize.md, width: 16, height: 16, color: colors.text.primary };
     if (isSolanaNft(nft)) return <SolanaSvgIcon style={iconStyle} />;
     if (isEthereumNft(nft)) return <EthereumSvgIcon style={iconStyle} />;
     if (isBitcoinNft(nft)) return <BitcoinSvgIcon style={iconStyle} />;
@@ -328,9 +328,9 @@ export function NftDetailPage({
                 sx={{ padding: '2px' }}
               >
                 {copiedField === nft.contractAddress ? (
-                  <CheckIcon sx={{ fontSize: 14, color: colors.status.success }} />
+                  <CheckIcon sx={{ fontSize: fontSize.base, color: colors.status.success }} />
                 ) : (
-                  <ContentCopyIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
+                  <ContentCopyIcon sx={{ fontSize: fontSize.base, color: colors.text.secondary }} />
                 )}
               </IconButton>
             </DetailValueWithCopy>
@@ -484,7 +484,7 @@ export function NftDetailPage({
         {/* Action Buttons */}
         <ActionButtonsContainer>
           <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT">
-            <CallMadeIcon sx={{ fontSize: 15, color: '#e0e0e0' }} />
+            <CallMadeIcon sx={{ fontSize: fontSize.md, color: '#e0e0e0' }} />
             <ButtonText>Send</ButtonText>
           </PrimaryButtonBase>
 
@@ -496,7 +496,7 @@ export function NftDetailPage({
             style={{ borderRadius: 14, overflow: 'hidden', flex: 1, maxWidth: 160 }}
           >
             <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
-              <LocalFireDepartmentIcon sx={{ fontSize: 15, color: '#e0e0e0' }} />
+              <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: '#e0e0e0' }} />
               <ButtonText>Burn</ButtonText>
             </SecondaryButtonInner>
           </BlurContainer>

@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
-import { colors, spacing, borderRadius, getPriceImpactSeverity, type PriceImpactSeverity } from '@salmon/shared';
+import { colors, spacing, borderRadius, getPriceImpactSeverity, type PriceImpactSeverity, fontSize } from '@salmon/shared';
 import type { PriceImpactBadgeProps } from './types';
 
 // ============================================================================
@@ -30,9 +30,9 @@ const SEVERITY_COLORS: Record<PriceImpactSeverity, string> = {
 };
 
 const SIZE_CONFIG = {
-  small: { iconSize: 12, fontSize: 11, paddingH: spacing.xs, paddingV: 2 },
-  medium: { iconSize: 14, fontSize: 12, paddingH: spacing.sm, paddingV: 4 },
-  large: { iconSize: 16, fontSize: 14, paddingH: spacing.md, paddingV: 6 },
+  small: { iconSize: 12, fontSize: fontSize.xs, paddingH: spacing.xs, paddingV: 2 },
+  medium: { iconSize: 14, fontSize: fontSize.sm, paddingH: spacing.sm, paddingV: 4 },
+  large: { iconSize: 16, fontSize: fontSize.base, paddingH: spacing.md, paddingV: 6 },
 } as const;
 
 // ============================================================================

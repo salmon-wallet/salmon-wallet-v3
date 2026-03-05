@@ -143,17 +143,17 @@ const STATUS_CONFIG: Record<
   completed: {
     label: 'Completed',
     color: colors.status.success,
-    icon: <CheckCircleIcon sx={{ fontSize: 16 }} />,
+    icon: <CheckCircleIcon sx={{ fontSize: fontSize.md }} />,
   },
   failed: {
     label: 'Failed',
     color: colors.status.error,
-    icon: <CancelIcon sx={{ fontSize: 16 }} />,
+    icon: <CancelIcon sx={{ fontSize: fontSize.md }} />,
   },
   pending: {
     label: 'Pending',
     color: colors.status.warning,
-    icon: <AccessTimeIcon sx={{ fontSize: 16 }} />,
+    icon: <AccessTimeIcon sx={{ fontSize: fontSize.md }} />,
   },
 };
 
@@ -259,7 +259,7 @@ const TitleRow = styled(Box)({
 });
 
 const TitleText = styled(Typography)({
-  fontSize: 20,
+  fontSize: fontSize.xl,
   fontWeight: 800,
   color: colors.text.primary,
   letterSpacing: -0.12,
@@ -272,7 +272,7 @@ const SourceBadge = styled(Box)({
 });
 
 const SourceText = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   color: colors.text.tertiary,
   textTransform: 'uppercase',
@@ -396,13 +396,13 @@ const TokenInfoBox = styled(Box)({
 });
 
 const TokenSymbol = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontWeight: 600,
   color: colors.text.primary,
 });
 
 const TokenName = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 400,
   color: colors.text.secondary,
   marginTop: 2,
@@ -412,7 +412,7 @@ const TokenName = styled(Typography)({
 });
 
 const TokenAmount = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontWeight: 700,
   flexShrink: 0,
 });
@@ -451,14 +451,14 @@ const SwapLogoPlaceholder = styled(Box)({
 });
 
 const SwapAmount = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontWeight: 700,
   color: colors.text.primary,
   marginTop: 8,
 });
 
 const SwapSymbol = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.text.secondary,
   marginTop: 2,
@@ -530,7 +530,7 @@ const NftAttributeChip = styled(Box)({
 });
 
 const NftAttributeType = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   color: colors.text.tertiary,
   textTransform: 'uppercase',
@@ -539,7 +539,7 @@ const NftAttributeType = styled(Typography)({
 });
 
 const NftAttributeValue = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 600,
   color: colors.text.primary,
   whiteSpace: 'nowrap',
@@ -775,7 +775,7 @@ const SwapVisualization: React.FC<{
           <SwapLogoImg src={fromToken.logo} alt={fromToken.symbol} />
         ) : (
           <SwapLogoPlaceholder>
-            <HelpOutlineIcon sx={{ fontSize: 24, color: colors.text.secondary }} />
+            <HelpOutlineIcon sx={{ fontSize: fontSize['2xl'], color: colors.text.secondary }} />
           </SwapLogoPlaceholder>
         )}
         <SwapAmount>
@@ -784,14 +784,14 @@ const SwapVisualization: React.FC<{
         <SwapSymbol>{fromToken.symbol}</SwapSymbol>
       </SwapTokenSection>
       <Box sx={{ px: '12px' }}>
-        <ArrowForwardIcon sx={{ fontSize: 24, color: colors.text.secondary }} />
+        <ArrowForwardIcon sx={{ fontSize: fontSize['2xl'], color: colors.text.secondary }} />
       </Box>
       <SwapTokenSection>
         {toToken.logo ? (
           <SwapLogoImg src={toToken.logo} alt={toToken.symbol} />
         ) : (
           <SwapLogoPlaceholder>
-            <HelpOutlineIcon sx={{ fontSize: 24, color: colors.text.secondary }} />
+            <HelpOutlineIcon sx={{ fontSize: fontSize['2xl'], color: colors.text.secondary }} />
           </SwapLogoPlaceholder>
         )}
         <SwapAmount>
@@ -845,7 +845,7 @@ const NftMetadataSection: React.FC<{
             <SectionValue>{token.nftCollection}</SectionValue>
             {token.nftCollectionVerified && (
               <VerifiedIcon
-                sx={{ fontSize: 16, color: colors.status.success, ml: '4px' }}
+                sx={{ fontSize: fontSize.md, color: colors.status.success, ml: '4px' }}
               />
             )}
           </NftCollectionInfo>
@@ -952,7 +952,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <TypeIconContainer
             sx={{ backgroundColor: `${typeConfig.color}20` }}
           >
-            <Box sx={{ display: 'flex', color: typeConfig.color, '& > svg': { fontSize: 20 } }}>
+            <Box sx={{ display: 'flex', color: typeConfig.color, '& > svg': { fontSize: fontSize.xl } }}>
               {typeConfig.icon}
             </Box>
           </TypeIconContainer>
@@ -975,7 +975,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               {statusConfig.icon}
               <Typography
                 sx={{
-                  fontSize: 14,
+                  fontSize: fontSize.base,
                   fontWeight: 500,
                   color: statusConfig.color,
                 }}
@@ -1077,7 +1077,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 </HopBadge>
                 <HopTokens>
                   <HopTokenText>{hop.inputToken.symbol}</HopTokenText>
-                  <ArrowForwardIcon sx={{ fontSize: 12, color: colors.text.tertiary }} />
+                  <ArrowForwardIcon sx={{ fontSize: fontSize.sm, color: colors.text.tertiary }} />
                   <HopTokenText>{hop.outputToken.symbol}</HopTokenText>
                 </HopTokens>
                 {hop.percent < 100 && (
@@ -1201,9 +1201,9 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   sx={hashCopied ? { backgroundColor: `${colors.status.success}20` } : undefined}
                 >
                   {hashCopied ? (
-                    <CheckIcon sx={{ fontSize: 14, color: colors.status.success }} />
+                    <CheckIcon sx={{ fontSize: fontSize.base, color: colors.status.success }} />
                   ) : (
-                    <ContentCopyIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
+                    <ContentCopyIcon sx={{ fontSize: fontSize.base, color: colors.text.secondary }} />
                   )}
                 </CopyIconButton>
               </Box>
@@ -1215,7 +1215,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         {developerMode && (
           <Section>
             <DevSectionHeader>
-              <CodeIcon sx={{ fontSize: 16, color: colors.text.secondary }} />
+              <CodeIcon sx={{ fontSize: fontSize.md, color: colors.text.secondary }} />
               <SectionTitle sx={{ mb: 0 }}>{t('transactions.detail.developerInfo', 'Developer Info')}</SectionTitle>
             </DevSectionHeader>
 
@@ -1314,7 +1314,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         {onShare && (
           <ActionsContainer>
             <ActionButton onClick={handleShare}>
-              <ShareIcon sx={{ fontSize: 18, color: colors.text.primary }} />
+              <ShareIcon sx={{ fontSize: fontSize.lg, color: colors.text.primary }} />
               <ActionButtonText>{t('transactions.detail.share', 'Share')}</ActionButtonText>
             </ActionButton>
           </ActionsContainer>

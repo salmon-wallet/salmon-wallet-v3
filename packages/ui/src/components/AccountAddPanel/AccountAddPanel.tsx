@@ -236,7 +236,7 @@ export function AccountAddPanel({
           <>
             <MethodCard onClick={handleSelectDerive}>
               <MethodIcon>
-                <AccountTreeIcon sx={{ color: colors.accent.primary, fontSize: 28 }} />
+                <AccountTreeIcon sx={{ color: colors.accent.primary, fontSize: fontSize.iconMd }} />
               </MethodIcon>
               <MethodInfo>
                 <Typography sx={{ color: colors.text.primary, fontWeight: fontWeight.semibold, fontSize: fontSize.base, marginBottom: spacing['2xs'] }}>
@@ -251,7 +251,7 @@ export function AccountAddPanel({
 
             <MethodCard onClick={handleSelectImport}>
               <MethodIcon>
-                <DescriptionIcon sx={{ color: colors.accent.primary, fontSize: 28 }} />
+                <DescriptionIcon sx={{ color: colors.accent.primary, fontSize: fontSize.iconMd }} />
               </MethodIcon>
               <MethodInfo>
                 <Typography sx={{ color: colors.text.primary, fontWeight: fontWeight.semibold, fontSize: fontSize.base, marginBottom: spacing['2xs'] }}>

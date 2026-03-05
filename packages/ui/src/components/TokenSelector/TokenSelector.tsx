@@ -22,6 +22,7 @@ import {
   fontFamily,
   fontWeight,
   getShortAddress,
+  fontSize,
 } from '@salmon/shared';
 
 import { TokenSelectorModal } from './TokenSelectorModal';
@@ -48,7 +49,7 @@ const InputContainer = styled(Box)({
 
 const AmountInput = styled(InputBase)({
   width: '100%',
-  fontSize: 24,
+  fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -98,7 +99,7 @@ const TokenTextContainer = styled(Box)({
 });
 
 const TokenName = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -108,7 +109,7 @@ const TokenName = styled(Typography)({
 });
 
 const TokenAddress = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   marginTop: 1,
@@ -122,7 +123,7 @@ const ChevronContainer = styled(Box)({
 
 const StyledChevron = styled(ChevronRightIcon)({
   color: colors.text.secondary,
-  fontSize: 18,
+  fontSize: fontSize.lg,
 });
 
 // ============================================================================

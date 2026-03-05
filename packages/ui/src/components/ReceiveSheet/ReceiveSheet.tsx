@@ -22,6 +22,7 @@ import {
   spacing,
   componentSizes,
   copyToClipboard,
+  fontSize,
 } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
 import { QRCode } from '../QRCode';
@@ -59,7 +60,7 @@ const QRContainer = styled(Box)({
 });
 
 const AddressText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 600,
   color: colors.text.primary,
   textAlign: 'center',
@@ -91,7 +92,7 @@ const CopyButton = styled(ButtonBase)({
 });
 
 const CopyButtonText = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontWeight: 800,
   color: '#000000',
   textAlign: 'center',
@@ -202,9 +203,9 @@ export function ReceiveSheet({
             aria-label={t('token.receive.copyAddress')}
           >
             {copied ? (
-              <CheckIcon sx={{ fontSize: 20, color: '#000000' }} />
+              <CheckIcon sx={{ fontSize: fontSize.xl, color: '#000000' }} />
             ) : (
-              <ContentCopyIcon sx={{ fontSize: 20, color: '#000000' }} />
+              <ContentCopyIcon sx={{ fontSize: fontSize.xl, color: '#000000' }} />
             )}
             <CopyButtonText>
               {copied ? t('token.receive.copied') : t('token.receive.copyAddress')}

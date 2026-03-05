@@ -13,6 +13,7 @@ import {
   borderRadius,
   fontFamily,
   fontWeight,
+  fontSize,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapDetailRowProps } from './types';
@@ -31,7 +32,7 @@ const BlurContent = styled('div')({
 });
 
 const Label = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -40,7 +41,7 @@ const Label = styled(Typography)({
 });
 
 const Value = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,

@@ -14,6 +14,7 @@ import {
   borderRadius,
   fontFamily,
   fontWeight,
+  fontSize,
 } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
@@ -48,7 +49,7 @@ const ButtonContainer = styled(Box)({
 });
 
 const WarningText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: fontWeight.medium,
   color: colors.status.warning,
@@ -57,7 +58,7 @@ const WarningText = styled(Typography)({
 });
 
 const DisclaimerText = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   color: colors.text.tertiary,
   textAlign: 'center',
   marginTop: spacing.xs,

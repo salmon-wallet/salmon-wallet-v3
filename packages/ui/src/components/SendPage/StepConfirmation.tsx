@@ -27,6 +27,7 @@ import {
   fontWeight,
   useSendTransaction,
   copyToClipboard,
+  fontSize,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepConfirmationProps } from './types';
@@ -83,7 +84,7 @@ const TokenIconFallback = styled(Box)({
 });
 
 const TokenIconFallbackText = styled(Typography)({
-  fontSize: 32,
+  fontSize: fontSize['3xl'],
   fontWeight: 800,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -91,7 +92,7 @@ const TokenIconFallbackText = styled(Typography)({
 
 // Amount
 const AmountText = styled(Typography)({
-  fontSize: 22,
+  fontSize: fontSize.title,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -121,7 +122,7 @@ const AddressContent = styled(Box)({
 
 const AddressText = styled(Typography)({
   flex: 1,
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -132,7 +133,7 @@ const AddressText = styled(Typography)({
 
 // Fee
 const FeeText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   marginTop: spacing.lg,
@@ -141,7 +142,7 @@ const FeeText = styled(Typography)({
 
 // Error
 const ErrorText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.error,
@@ -179,7 +180,7 @@ const CancelButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
 }));
 
 const CancelButtonText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -210,7 +211,7 @@ const ConfirmButtonGradient = styled(Box)({
 });
 
 const ConfirmButtonText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -341,11 +342,11 @@ export function StepConfirmation({
               </AddressText>
               {copied ? (
                 <CheckIcon
-                  sx={{ fontSize: 20, color: colors.status.success, flexShrink: 0 }}
+                  sx={{ fontSize: fontSize.xl, color: colors.status.success, flexShrink: 0 }}
                 />
               ) : (
                 <ContentCopyIcon
-                  sx={{ fontSize: 20, color: colors.text.secondary, flexShrink: 0 }}
+                  sx={{ fontSize: fontSize.xl, color: colors.text.secondary, flexShrink: 0 }}
                 />
               )}
             </AddressContent>

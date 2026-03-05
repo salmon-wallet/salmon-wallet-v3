@@ -33,6 +33,7 @@ import {
   ContentLoader,
   Rect,
   Circle,
+  fontSize,
 } from '@salmon/shared';
 
 import { useTokenSearch } from '@salmon/shared';
@@ -66,7 +67,7 @@ const StyledDialogTitle = styled(DialogTitle)({
 });
 
 const TitleText = styled(Typography)({
-  fontSize: 18,
+  fontSize: fontSize.lg,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -92,7 +93,7 @@ const SearchInput = styled(InputBase)({
   borderRadius: borderRadius.lg,
   padding: `${spacing.sm}px ${spacing.md}px`,
   color: colors.text.primary,
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   border: `1px solid ${colors.input.border}`,
   transition: 'border-color 0.2s ease',
@@ -108,7 +109,7 @@ const SearchInput = styled(InputBase)({
 const SearchIconStyled = styled(SearchIcon)({
   color: colors.text.secondary,
   marginRight: spacing.sm,
-  fontSize: 20,
+  fontSize: fontSize.xl,
 });
 
 const StyledDialogContent = styled(DialogContent)({
@@ -152,7 +153,7 @@ const TokenIconPlaceholder = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: 16,
+  fontSize: fontSize.md,
   color: colors.text.secondary,
 });
 
@@ -169,7 +170,7 @@ const TokenNameRow = styled(Box)({
 });
 
 const TokenName = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -187,7 +188,7 @@ const NetworkChip = styled(Box)({
 });
 
 const NetworkChipText = styled(Typography)({
-  fontSize: 10,
+  fontSize: fontSize.xs,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
@@ -195,7 +196,7 @@ const NetworkChipText = styled(Typography)({
 });
 
 const TokenBalance = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   marginTop: 2,
@@ -238,7 +239,7 @@ const FeaturedTokenIconPlaceholder = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: 20,
+  fontSize: fontSize.xl,
   color: colors.text.secondary,
 });
 
@@ -250,7 +251,7 @@ const DisclaimerContainer = styled(Box)({
 });
 
 const DisclaimerText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   textAlign: 'center',
@@ -265,7 +266,7 @@ const SearchingContainer = styled(Box)({
 });
 
 const SearchingText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   marginLeft: spacing.sm,
@@ -278,7 +279,7 @@ const LoadMoreButton = styled(Button)({
   padding: `${spacing.md}px`,
   textTransform: 'none',
   color: colors.text.primary,
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   marginTop: spacing.sm,
@@ -295,7 +296,7 @@ const EmptyContainer = styled(Box)({
 });
 
 const EmptyText = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
 });
@@ -312,7 +313,7 @@ const CloseActionButton = styled(Button)({
   padding: `${spacing.md}px`,
   textTransform: 'none',
   color: '#FFFFFF',
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   '&:hover': {

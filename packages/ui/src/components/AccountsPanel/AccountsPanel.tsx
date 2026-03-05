@@ -233,7 +233,7 @@ export function AccountsPanel({
 
                 {isActive && (
                   <CheckCircleIcon
-                    sx={{ color: colors.status.success, fontSize: 24 }}
+                    sx={{ color: colors.status.success, fontSize: fontSize['2xl'] }}
                   />
                 )}
               </ActionButtons>

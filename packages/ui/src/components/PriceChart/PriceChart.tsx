@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
-import { borderRadius, colors, fontFamily, fontWeight, formatFiatIntl, isPositivePerformance, PRICE_CHART_PERIODS, spacing, useCurrencyContext } from '@salmon/shared';
+import { borderRadius, colors, fontFamily, fontWeight, formatFiatIntl, isPositivePerformance, PRICE_CHART_PERIODS, spacing, useCurrencyContext, fontSize } from '@salmon/shared';
 import { useCallback, useId, useMemo } from 'react';
 import {
   Area,
@@ -70,7 +70,7 @@ const PeriodButton = styled(Button)<{ $selected?: boolean }>(({ $selected }) => 
   borderRadius: borderRadius.full,
   backgroundColor: $selected ? colors.text.primary : 'transparent',
   color: $selected ? colors.background.primary : colors.text.secondary,
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   textTransform: 'none',
@@ -97,7 +97,7 @@ const EmptyState = styled(Box)<{ $height: number }>(({ $height }) => ({
 }));
 
 const EmptyStateText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   color: colors.text.secondary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
 });
@@ -111,7 +111,7 @@ const TooltipContainer = styled(Box)({
 });
 
 const TooltipPrice = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -119,7 +119,7 @@ const TooltipPrice = styled(Typography)({
 });
 
 const TooltipDate = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
 });

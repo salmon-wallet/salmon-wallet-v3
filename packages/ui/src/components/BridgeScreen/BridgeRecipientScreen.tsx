@@ -15,6 +15,7 @@ import {
   gradients,
   fontFamily,
   fontWeight,
+  fontSize,
 } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -32,7 +33,7 @@ const Container = styled(Box)({
 });
 
 const Title = styled(Typography)({
-  fontSize: 24,
+  fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -43,7 +44,7 @@ const Title = styled(Typography)({
 });
 
 const Description = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
@@ -65,7 +66,7 @@ const AddressInput = styled('input')({
   border: `1px solid ${colors.border.default}`,
   borderRadius: borderRadius.md,
   color: colors.text.primary,
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: fontWeight.medium,
   letterSpacing: 0.02,
@@ -81,7 +82,7 @@ const AddressInput = styled('input')({
 });
 
 const ErrorText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.error,
@@ -98,7 +99,7 @@ const InfoBox = styled(Box)({
 });
 
 const InfoTitle = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.status.warning,
@@ -107,7 +108,7 @@ const InfoTitle = styled(Typography)({
 });
 
 const InfoText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,

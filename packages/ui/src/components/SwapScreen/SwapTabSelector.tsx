@@ -13,6 +13,7 @@ import {
   spacing,
   fontFamily,
   fontWeight,
+  fontSize,
 } from '@salmon/shared';
 import type { SwapTabSelectorProps, SwapTab } from './types';
 
@@ -44,7 +45,7 @@ const Tab = styled(ButtonBase)({
 });
 
 const TabText = styled(Typography)<{ $active: boolean }>(({ $active }) => ({
-  fontSize: 18,
+  fontSize: fontSize.lg,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   letterSpacing: 0.18,

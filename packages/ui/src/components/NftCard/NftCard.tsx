@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import { colors, fontFamily, fontWeight, borderRadius } from '@salmon/shared';
+import { colors, fontFamily, fontWeight, borderRadius, fontSize } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps } from './types';
 
@@ -84,7 +84,7 @@ const NameBadgeContainer = styled(Box)({
 
 const NameText = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
   color: '#e0e0e0',
   textAlign: 'center',

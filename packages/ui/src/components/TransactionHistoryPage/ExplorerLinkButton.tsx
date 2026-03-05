@@ -27,6 +27,7 @@ import {
   getTransactionUrl,
   getAvailableExplorers,
   getDefaultExplorer,
+  fontSize,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { ExplorerLinkButtonProps } from './types';
@@ -50,7 +51,7 @@ const StyledButton = styled(ButtonBase)({
 });
 
 const ButtonText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.palette.amber,
 });
@@ -148,10 +149,10 @@ export function ExplorerLinkButton({
           onClick={handleClick}
           aria-label={buttonText}
         >
-          <OpenInNewIcon sx={{ fontSize: 16, color: colors.palette.amber }} />
+          <OpenInNewIcon sx={{ fontSize: fontSize.md, color: colors.palette.amber }} />
           <ButtonText>{buttonText}</ButtonText>
           {showMenu && availableExplorers.length > 1 && (
-            <ExpandMoreIcon sx={{ fontSize: 14, color: colors.palette.amber }} />
+            <ExpandMoreIcon sx={{ fontSize: fontSize.base, color: colors.palette.amber }} />
           )}
         </StyledButton>
       </BlurContainer>
@@ -175,15 +176,15 @@ export function ExplorerLinkButton({
               onClick={() => openExplorer(explorer)}
             >
               <ListItemIcon>
-                <LanguageIcon sx={{ fontSize: 18, color: colors.text.primary }} />
+                <LanguageIcon sx={{ fontSize: fontSize.lg, color: colors.text.primary }} />
               </ListItemIcon>
               <ListItemText
                 primary={explorer.name}
                 primaryTypographyProps={{
-                  sx: { fontSize: 13, fontWeight: 500, color: colors.text.primary },
+                  sx: { fontSize: fontSize.sm, fontWeight: 500, color: colors.text.primary },
                 }}
               />
-              <OpenInNewIcon sx={{ fontSize: 16, color: colors.text.tertiary }} />
+              <OpenInNewIcon sx={{ fontSize: fontSize.md, color: colors.text.tertiary }} />
             </StyledMenuItem>
           ))}
         </StyledMenu>

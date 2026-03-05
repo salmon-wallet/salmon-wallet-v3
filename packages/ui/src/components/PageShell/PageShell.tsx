@@ -19,7 +19,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-import { colors, spacing, fontFamily } from '@salmon/shared';
+import { colors, spacing, fontFamily, fontSize } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
 
 // ============================================================================
@@ -120,7 +120,7 @@ export const BackButton = styled(IconButton)({
 });
 
 export const HeaderTitle = styled(Typography)({
-  fontSize: 18,
+  fontSize: fontSize.lg,
   fontWeight: 600,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,

@@ -13,6 +13,7 @@ import {
   fontFamily,
   fontWeight,
   getPasswordStrengthLabel,
+  fontSize,
 } from '@salmon/shared';
 import type { PasswordStrengthBarProps } from './types';
 
@@ -42,7 +43,7 @@ const Bar = styled(Box)<{ $active: boolean; $barColor: string }>(
 const Label = styled(Typography)<{ $labelColor: string }>(
   ({ $labelColor }) => ({
     fontFamily: `${fontFamily.sans}, sans-serif`,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     fontWeight: fontWeight.medium,
     textTransform: 'capitalize',
     color: $labelColor,

@@ -56,12 +56,18 @@ export const fontSize = {
   lg: 18,
   /** 20px - Extra large */
   xl: 20,
+  /** 22px - Title text, confirmation amounts */
+  title: 22,
   /** 24px - 2XL, subheadings */
   '2xl': 24,
   /** 30px - 3XL, headings */
   '3xl': 30,
+  /** 28px - Medium icon size */
+  iconMd: 28,
   /** 36px - 4XL, large headings */
   '4xl': 36,
+  /** 40px - Large icon size */
+  iconLg: 40,
   /** 48px - 5XL, hero text */
   '5xl': 48,
   /** 60px - Balance card amount */

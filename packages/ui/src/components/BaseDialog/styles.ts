@@ -21,7 +21,7 @@ import Typography from '@mui/material/Typography';
 import type { TypographyProps } from '@mui/material/Typography';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { SvgIconProps } from '@mui/material/SvgIcon';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
 
 // ============================================================================
 // Dialog Root
@@ -56,14 +56,14 @@ export const TitleContainer: React.ComponentType<React.HTMLAttributes<HTMLDivEle
 });
 
 export const TitleText: React.ComponentType<TypographyProps> = styled(Typography)({
-  fontSize: 18,
+  fontSize: fontSize.lg,
   fontWeight: 600,
   color: colors.text.primary,
 });
 
 export const WarningIcon: React.ComponentType<SvgIconProps> = styled(WarningAmberIcon)({
   color: colors.status.error,
-  fontSize: 24,
+  fontSize: fontSize['2xl'],
 });
 
 export const CloseButton: React.ComponentType<IconButtonProps> = styled(IconButton)({
@@ -83,7 +83,7 @@ export const StyledDialogContent: React.ComponentType<DialogContentProps> = styl
 });
 
 export const MessageText: React.ComponentType<TypographyProps> = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   color: colors.text.secondary,
   lineHeight: 1.6,
   textAlign: 'center',

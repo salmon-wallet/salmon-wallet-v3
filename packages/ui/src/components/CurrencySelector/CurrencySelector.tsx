@@ -9,6 +9,7 @@ import {
   borderRadius,
   type CurrencySelectorBaseProps,
   type CurrencySelectorItem,
+  fontSize,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
@@ -29,7 +30,7 @@ const CurrencySymbol = styled(Box)({
 });
 
 const SymbolText = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: 600,
   color: colors.text.primary,
 });

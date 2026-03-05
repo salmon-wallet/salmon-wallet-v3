@@ -24,7 +24,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, useAccounts } from '@salmon/shared';
+import { colors, spacing, borderRadius, useAccounts, fontSize } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -83,14 +83,14 @@ const WordChip = styled(Box)({
 });
 
 const WordNumber = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   color: colors.text.secondary,
   minWidth: 16,
 });
 
 const WordText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.text.primary,
   fontFamily: 'monospace',
@@ -117,7 +117,7 @@ const BlurOverlay = styled(Box)({
 });
 
 const RevealText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 500,
   color: colors.text.secondary,
 });
@@ -146,7 +146,7 @@ const CopyButton = styled(ActionButton)({
 });
 
 const SectionLabel = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: 600,
   color: colors.text.secondary,
   textTransform: 'uppercase',
@@ -247,7 +247,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
 
                 {!seedPhraseVisible && (
                   <BlurOverlay onClick={handleReveal}>
-                    <KeyIcon sx={{ fontSize: 40, color: colors.text.secondary }} />
+                    <KeyIcon sx={{ fontSize: fontSize.iconLg, color: colors.text.secondary }} />
                     <RevealText>
                       {t('settings.tap_to_reveal', 'Tap to reveal')}
                     </RevealText>

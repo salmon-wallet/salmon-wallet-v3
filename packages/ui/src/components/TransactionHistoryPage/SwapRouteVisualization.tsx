@@ -24,6 +24,7 @@ import {
   getShortAddress,
   spacing,
   truncateHash,
+  fontSize,
 } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -69,7 +70,7 @@ const RouteHeader = styled(Box)({
 });
 
 const RouteHeaderText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.text.secondary,
 });
@@ -86,7 +87,7 @@ const RouteColumn = styled(Box)({
 });
 
 const RouteLabel = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   color: colors.text.tertiary,
   marginBottom: spacing.xs,
@@ -103,7 +104,7 @@ const RouteTokenRow = styled(Box)({
 });
 
 const RouteTokenText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   color: colors.text.primary,
   flex: 1,
   overflow: 'hidden',
@@ -118,7 +119,7 @@ const RouteArrowColumn = styled(Box)({
 });
 
 const MoreText = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   color: colors.text.tertiary,
   marginTop: 2,
 });
@@ -138,12 +139,12 @@ const SummaryRow = styled(Box)({
 });
 
 const SummaryLabel = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   color: colors.text.tertiary,
 });
 
 const SummaryValue = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.text.secondary,
 });
@@ -179,7 +180,7 @@ const HopToken = styled(Box)({
 });
 
 const HopAmount = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   color: colors.text.primary,
   flex: 1,
   overflow: 'hidden',
@@ -206,13 +207,13 @@ const DexBadge = styled(Box)({
 });
 
 const DexText = styled(Typography)({
-  fontSize: 10,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   color: colors.text.secondary,
 });
 
 const PercentText = styled(Typography)({
-  fontSize: 10,
+  fontSize: fontSize.xs,
   color: colors.text.tertiary,
 });
 
@@ -275,9 +276,9 @@ const HashCopyRow: React.FC<{
       <HashCopyContainer onClick={handleCopy}>
         <SummaryValue>{displayValue ?? value}</SummaryValue>
         {copied ? (
-          <CheckIcon sx={{ fontSize: 12, color: colors.status.success }} />
+          <CheckIcon sx={{ fontSize: fontSize.sm, color: colors.status.success }} />
         ) : (
-          <ContentCopyIcon sx={{ fontSize: 12, color: colors.text.tertiary }} />
+          <ContentCopyIcon sx={{ fontSize: fontSize.sm, color: colors.text.tertiary }} />
         )}
       </HashCopyContainer>
     </SummaryRow>
@@ -299,7 +300,7 @@ const RouteHop: React.FC<{ hop: SwapRouteHop; isLast: boolean }> = ({ hop, isLas
           <DexText>{hop.dex}</DexText>
           {hop.percent < 100 && <PercentText>{hop.percent}%</PercentText>}
         </DexBadge>
-        <ArrowForwardIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
+        <ArrowForwardIcon sx={{ fontSize: fontSize.base, color: colors.text.secondary }} />
       </HopArrow>
 
       {isLast && (
@@ -444,7 +445,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
   return (
     <RouteContainer>
       <RouteHeader>
-        <AccountTreeIcon sx={{ fontSize: 16, color: colors.text.secondary }} />
+        <AccountTreeIcon sx={{ fontSize: fontSize.md, color: colors.text.secondary }} />
         <RouteHeaderText>
           {t('transactions.detail.route')}{source ? ` ${t('transactions.detail.viaSource', { source })}` : ''}
         </RouteHeaderText>
@@ -467,7 +468,7 @@ const SimpleRouteView: React.FC<{ transaction: Transaction }> = ({ transaction }
         </RouteColumn>
 
         <RouteArrowColumn>
-          <ArrowForwardIcon sx={{ fontSize: 20, color: colors.accent.primary }} />
+          <ArrowForwardIcon sx={{ fontSize: fontSize.xl, color: colors.accent.primary }} />
         </RouteArrowColumn>
 
         <RouteColumn>
@@ -502,7 +503,7 @@ const DetailedRouteView: React.FC<{ transaction: Transaction }> = ({ transaction
   return (
     <RouteContainer>
       <RouteHeader>
-        <AccountTreeIcon sx={{ fontSize: 16, color: colors.text.secondary }} />
+        <AccountTreeIcon sx={{ fontSize: fontSize.md, color: colors.text.secondary }} />
         <RouteHeaderText>
           {t('transactions.detail.route')}{source ? ` ${t('transactions.detail.viaSource', { source })}` : ''}{' '}
           ({t('transactions.detail.hopCount', { count: swapRoute.hops.length })})

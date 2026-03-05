@@ -24,6 +24,7 @@ import {
   spacing,
   type TrustedAppsSelectorBaseProps,
   type TrustedAppItem,
+  fontSize,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -66,13 +67,13 @@ const EmptyContainer = styled(Box)({
 
 const EmptyText = styled(Typography)({
   color: colors.text.secondary,
-  fontSize: 14,
+  fontSize: fontSize.base,
   textAlign: 'center',
 });
 
 const EmptySubtext = styled(Typography)({
   color: 'rgba(255, 255, 255, 0.4)',
-  fontSize: 12,
+  fontSize: fontSize.sm,
   textAlign: 'center',
 });
 
@@ -128,7 +129,7 @@ export function TrustedAppsSelector({
                     <AppAvatar src={app.icon} alt={app.name || app.domain} />
                   ) : (
                     <AppAvatar>
-                      <LanguageIcon sx={{ fontSize: 20, color: colors.text.secondary }} />
+                      <LanguageIcon sx={{ fontSize: fontSize.xl, color: colors.text.secondary }} />
                     </AppAvatar>
                   )}
                 </ListItemAvatar>
@@ -139,7 +140,7 @@ export function TrustedAppsSelector({
                     sx: {
                       color: colors.text.primary,
                       fontWeight: 500,
-                      fontSize: 14,
+                      fontSize: fontSize.base,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -148,7 +149,7 @@ export function TrustedAppsSelector({
                   secondaryTypographyProps={{
                     sx: {
                       color: colors.text.secondary,
-                      fontSize: 12,
+                      fontSize: fontSize.sm,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',

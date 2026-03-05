@@ -41,7 +41,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import LockIcon from '@mui/icons-material/Lock';
 
-import { colors, spacing } from '@salmon/shared';
+import { colors, spacing, fontSize } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenBadgesSectionProps } from './types';
 
@@ -209,7 +209,7 @@ const Container = styled(Box)({
 });
 
 const Title = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 600,
   color: colors.text.primary,
   marginBottom: spacing.md,
@@ -242,7 +242,7 @@ const BadgeIconWrapper = styled(Box)<{ $badgeColor: string }>(({ $badgeColor }) 
 }));
 
 const BadgeLabel = styled(Typography)<{ $badgeColor: string }>(({ $badgeColor }) => ({
-  fontSize: 10,
+  fontSize: fontSize.xs,
   fontWeight: 500,
   textAlign: 'center',
   letterSpacing: -0.05,
@@ -279,7 +279,7 @@ const BadgeItem: React.FC<{ tag: string }> = ({ tag }) => {
   return (
     <BadgeItemContainer>
       <BadgeIconWrapper $badgeColor={config.color}>
-        <IconComponent sx={{ fontSize: 18, color: config.color }} />
+        <IconComponent sx={{ fontSize: fontSize.lg, color: config.color }} />
       </BadgeIconWrapper>
       <BadgeLabel $badgeColor={config.color} noWrap>
         {config.label}

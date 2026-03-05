@@ -7,7 +7,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
 import { BalanceCard } from './BalanceCard';
 import type { BalanceCardCarouselProps } from './types';
 
@@ -39,7 +39,7 @@ const ArrowButton = styled('button')<{ $visible: boolean }>(({ $visible }) => ({
   justifyContent: 'center',
   textAlign: 'center',
   lineHeight: 1,
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: 600,
   opacity: $visible ? 1 : 0,
   pointerEvents: $visible ? 'auto' : 'none',

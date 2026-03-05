@@ -15,6 +15,7 @@ import {
   fontFamily,
   useAddressBookForm,
   type AddressBookEditBaseProps,
+  fontSize,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { InputAddress } from '../InputAddress';
@@ -25,7 +26,7 @@ import { InputAddress } from '../InputAddress';
 
 const FieldLabel = styled(Typography)({
   color: colors.text.secondary,
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 500,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   marginBottom: spacing.sm,
@@ -40,7 +41,7 @@ const StyledInput = styled(InputBase)({
   padding: `${spacing.sm}px ${spacing.lg}px`,
   color: colors.text.primary,
   fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 16,
+  fontSize: fontSize.md,
   '& .MuiInputBase-input': {
     padding: '12px 0',
     '&::placeholder': {
@@ -58,7 +59,7 @@ const NetworkBox = styled(Box)({
 
 const NetworkText = styled(Typography)({
   color: colors.text.secondary,
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
 });
 
@@ -68,7 +69,7 @@ const SaveButton = styled(Button)({
   padding: `${spacing.md}px`,
   borderRadius: 12,
   textTransform: 'none',
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: 500,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   backgroundColor: colors.accent.primary,

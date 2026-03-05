@@ -26,7 +26,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -126,18 +126,18 @@ const LogoContainer = styled(Box)({
 });
 
 const AppName = styled(Typography)({
-  fontSize: 20,
+  fontSize: fontSize.xl,
   fontWeight: 700,
   color: colors.text.primary,
 });
 
 const VersionText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   color: colors.text.secondary,
 });
 
 const SectionTitle = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: 0.5,
@@ -164,7 +164,7 @@ const StyledListItemIcon = styled(ListItemIcon)({
 
 const ExternalIcon = styled(OpenInNewIcon)({
   color: colors.text.secondary,
-  fontSize: 16,
+  fontSize: fontSize.md,
 });
 
 const StyledDivider = styled(Divider)({
@@ -173,7 +173,7 @@ const StyledDivider = styled(Divider)({
 });
 
 const FooterText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   color: colors.text.secondary,
   textAlign: 'center',
   padding: `${spacing.lg}px`,
@@ -205,7 +205,7 @@ export function AboutPanel({ onBack }: AboutPanelProps): React.ReactElement {
             primaryTypographyProps={{
               sx: {
                 color: colors.text.primary,
-                fontSize: 14,
+                fontSize: fontSize.base,
                 fontWeight: 500,
               },
             }}

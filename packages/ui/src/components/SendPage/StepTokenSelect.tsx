@@ -22,6 +22,7 @@ import {
   spacing,
   fontFamily,
   fontWeight,
+  fontSize,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepTokenSelectProps, SendToken } from './types';
@@ -48,7 +49,7 @@ const SearchInputStyled = styled(InputBase)({
   width: '100%',
   padding: `${spacing.sm}px ${spacing.md}px`,
   color: colors.text.primary,
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   '& .MuiInputBase-input::placeholder': {
@@ -60,11 +61,11 @@ const SearchInputStyled = styled(InputBase)({
 const SearchIconStyled = styled(SearchIcon)({
   color: colors.text.secondary,
   marginRight: spacing.sm,
-  fontSize: 18,
+  fontSize: fontSize.lg,
 });
 
 const SectionHeader = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -153,7 +154,7 @@ const TokenLogoFallback = styled(Box)({
 });
 
 const TokenLogoFallbackText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -161,7 +162,7 @@ const TokenLogoFallbackText = styled(Typography)({
 
 const TokenName = styled(Typography)({
   flex: 1,
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: '#d6d6d6',
@@ -171,7 +172,7 @@ const TokenName = styled(Typography)({
 });
 
 const TokenBalance = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: '#d6d6d6',
@@ -180,7 +181,7 @@ const TokenBalance = styled(Typography)({
 });
 
 const EmptyMessage = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   textAlign: 'center',

@@ -13,6 +13,7 @@ import {
   borderRadius,
   fontFamily,
   fontWeight,
+  fontSize,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapReviewCardProps } from './types';
@@ -30,7 +31,7 @@ const BlurContent = styled('div')({
 });
 
 const Label = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -39,7 +40,7 @@ const Label = styled(Typography)({
 });
 
 const Amount = styled(Typography)({
-  fontSize: 25,
+  fontSize: fontSize['2xl'],
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -49,7 +50,7 @@ const Amount = styled(Typography)({
 });
 
 const UsdValue = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,

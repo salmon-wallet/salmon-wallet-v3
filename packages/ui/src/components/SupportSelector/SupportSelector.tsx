@@ -28,6 +28,7 @@ import {
   borderRadius,
   type SupportSelectorBaseProps,
   type SupportOptionItem,
+  fontSize,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -65,7 +66,7 @@ const StyledListItemIcon = styled(ListItemIcon)({
 
 const ExternalIcon = styled(OpenInNewIcon)({
   color: colors.text.secondary,
-  fontSize: 16,
+  fontSize: fontSize.md,
 });
 
 const SecurityNotice = styled(Box)({
@@ -80,12 +81,12 @@ const SecurityNotice = styled(Box)({
 
 const SecurityIcon = styled(ShieldIcon)({
   color: colors.status.warning,
-  fontSize: 20,
+  fontSize: fontSize.xl,
   marginTop: 2,
 });
 
 const SecurityText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   color: colors.text.secondary,
   lineHeight: 1.4,
   flex: 1,
@@ -115,14 +116,14 @@ export function SupportSelector({
             primaryTypographyProps={{
               sx: {
                 color: colors.text.primary,
-                fontSize: 14,
+                fontSize: fontSize.base,
                 fontWeight: 500,
               },
             }}
             secondaryTypographyProps={{
               sx: {
                 color: colors.text.secondary,
-                fontSize: 12,
+                fontSize: fontSize.sm,
               },
             }}
           />

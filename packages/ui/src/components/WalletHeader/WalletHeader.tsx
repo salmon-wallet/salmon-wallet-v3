@@ -180,7 +180,7 @@ export function WalletHeader({
               height: 32,
               marginRight: `${spacing.md}px`,
               backgroundColor: avatarColor,
-              fontSize: 12,
+              fontSize: fontSize.sm,
               fontWeight: 700,
               cursor: 'pointer',
             }}
@@ -212,7 +212,7 @@ export function WalletHeader({
             <RefreshIcon
               sx={{
                 color: colors.text.primary,
-                fontSize: 24,
+                fontSize: fontSize['2xl'],
                 ...(refreshing && {
                   animation: 'spin 1s linear infinite',
                   '@keyframes spin': {
@@ -225,7 +225,7 @@ export function WalletHeader({
           </HeaderButton>
         )}
         <HeaderButton onClick={handleSettingsPress} aria-label={t('accessibility.open_settings')}>
-          <SettingsIcon sx={{ color: colors.text.primary, fontSize: 24 }} />
+          <SettingsIcon sx={{ color: colors.text.primary, fontSize: fontSize['2xl'] }} />
         </HeaderButton>
       </ActionButtons>
     </Container>

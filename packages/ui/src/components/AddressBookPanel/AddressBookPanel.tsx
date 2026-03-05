@@ -25,6 +25,7 @@ import {
   getShortAddress,
   type AddressBookSelectorBaseProps,
   type AddressBookItem,
+  fontSize,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { ConfirmDialog } from '../ConfirmDialog';
@@ -61,7 +62,7 @@ const EmptyContainer = styled(Box)({
 
 const EmptyText = styled(Typography)({
   color: colors.text.secondary,
-  fontSize: 14,
+  fontSize: fontSize.base,
   textAlign: 'center',
   whiteSpace: 'pre-line',
 });
@@ -70,7 +71,7 @@ const AddButton = styled(Button)({
   color: colors.accent.primary,
   textTransform: 'none',
   fontWeight: 500,
-  fontSize: 14,
+  fontSize: fontSize.base,
   marginTop: spacing.sm,
 });
 
@@ -131,7 +132,7 @@ export function AddressBookPanel({
                 <StyledListItemButton disableRipple>
                   <ListItemAvatar>
                     <ContactAvatar>
-                      <PersonOutlineIcon sx={{ fontSize: 20, color: colors.text.secondary }} />
+                      <PersonOutlineIcon sx={{ fontSize: fontSize.xl, color: colors.text.secondary }} />
                     </ContactAvatar>
                   </ListItemAvatar>
                   <ListItemText
@@ -147,7 +148,7 @@ export function AddressBookPanel({
                       sx: {
                         color: colors.text.primary,
                         fontWeight: 500,
-                        fontSize: 14,
+                        fontSize: fontSize.base,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -156,7 +157,7 @@ export function AddressBookPanel({
                     secondaryTypographyProps={{
                       sx: {
                         color: colors.text.secondary,
-                        fontSize: 12,
+                        fontSize: fontSize.sm,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',

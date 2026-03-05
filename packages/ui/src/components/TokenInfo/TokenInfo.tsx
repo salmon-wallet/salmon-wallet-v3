@@ -364,9 +364,9 @@ export function TokenInfo({
             <ContractAddress>{getShortAddress(contractAddress, 6)}</ContractAddress>
             <CopyButton>
               {copied ? (
-                <CheckIcon sx={{ color: colors.status.success, fontSize: 18 }} />
+                <CheckIcon sx={{ color: colors.status.success, fontSize: fontSize.lg }} />
               ) : (
-                <CopyIcon sx={{ color: colors.text.muted, fontSize: 18 }} />
+                <CopyIcon sx={{ color: colors.text.muted, fontSize: fontSize.lg }} />
               )}
             </CopyButton>
           </ContractRow>

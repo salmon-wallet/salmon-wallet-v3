@@ -39,6 +39,7 @@ import {
   buildNetworkListFromAccount,
   getAccountKeysForNetwork,
   type AccountKeyInfo,
+  fontSize,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -81,7 +82,7 @@ const PrivateKeyCard = styled(Paper)({
 });
 
 const KeyText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.text.primary,
   fontFamily: 'monospace',
@@ -91,7 +92,7 @@ const KeyText = styled(Typography)({
 });
 
 const PathLabel = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: 600,
   color: colors.text.secondary,
   textTransform: 'uppercase',
@@ -100,14 +101,14 @@ const PathLabel = styled(Typography)({
 });
 
 const PathValue = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.text.primary,
   fontFamily: 'monospace',
 });
 
 const AddressValue = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   color: colors.text.secondary,
   marginTop: 2,
 });
@@ -133,7 +134,7 @@ const BlurOverlay = styled(Box)({
 });
 
 const RevealText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 500,
   color: colors.text.secondary,
 });
@@ -175,19 +176,19 @@ const NetworkListItemIcon = styled(ListItemIcon)({
 
 const NetworkListItemText = styled(ListItemText)({
   '& .MuiListItemText-primary': {
-    fontSize: 14,
+    fontSize: fontSize.base,
     fontWeight: 500,
     color: colors.text.primary,
   },
   '& .MuiListItemText-secondary': {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: colors.text.secondary,
   },
 });
 
 const ChevronIcon = styled(ChevronRightIcon)({
   color: colors.text.secondary,
-  fontSize: 20,
+  fontSize: fontSize.xl,
 });
 
 // ============================================================================
@@ -338,7 +339,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
 
                   {!isRevealed && (
                     <BlurOverlay onClick={() => handleReveal(index)}>
-                      <KeyIcon sx={{ fontSize: 40, color: colors.text.secondary }} />
+                      <KeyIcon sx={{ fontSize: fontSize.iconLg, color: colors.text.secondary }} />
                       <RevealText>
                         {t('settings.tap_to_reveal', 'Tap to reveal')}
                       </RevealText>

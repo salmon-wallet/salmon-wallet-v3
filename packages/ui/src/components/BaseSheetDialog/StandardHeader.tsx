@@ -15,7 +15,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { colors, spacing } from '@salmon/shared';
+import { colors, spacing, fontSize } from '@salmon/shared';
 import { useBaseSheetDialog } from './BaseSheetDialog';
 import type { StandardHeaderProps } from './types';
 
@@ -34,7 +34,7 @@ const StyledDialogTitle = styled(DialogTitle)({
 });
 
 const TitleText = styled(Typography)({
-  fontSize: 20,
+  fontSize: fontSize.xl,
   fontWeight: 800,
   color: colors.text.primary,
   letterSpacing: 0.24,

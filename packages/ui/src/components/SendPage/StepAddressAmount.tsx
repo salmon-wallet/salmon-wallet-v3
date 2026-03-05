@@ -28,6 +28,7 @@ import {
   useCurrencyContext,
   useSendContacts,
   getShortAddress,
+  fontSize,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepAddressAmountProps } from './types';
@@ -126,14 +127,14 @@ const TokenCardLogoFallback = styled(Box)({
 });
 
 const TokenCardLogoFallbackText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
 });
 
 const TokenCardName = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -143,7 +144,7 @@ const TokenCardName = styled(Typography)({
 });
 
 const TokenCardBalance = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -157,7 +158,7 @@ const FieldGroup = styled(Box)({
 });
 
 const FieldLabel = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -167,7 +168,7 @@ const FieldLabel = styled(Typography)({
 const StyledInput = styled(InputBase)({
   width: '100%',
   color: colors.text.primary,
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   '& .MuiInputBase-input': {
     padding: '12px 0',
@@ -197,7 +198,7 @@ const ValidationIndicatorBox = styled(Box)({
 const ValidationMessage = styled(Typography)<{
   $messageType?: 'error' | 'warning' | null;
 }>(({ $messageType }) => ({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   lineHeight: '16px',
   fontFamily: `${fontFamily.sans}, sans-serif`,
   marginTop: spacing.xs,
@@ -235,7 +236,7 @@ const QuickFillButton = styled(ButtonBase)({
 });
 
 const QuickFillText = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -244,7 +245,7 @@ const QuickFillText = styled(Typography)({
 
 // USD Conversion
 const UsdConversion = styled(Typography)({
-  fontSize: 20,
+  fontSize: fontSize.xl,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -280,7 +281,7 @@ const CancelButton = styled(ButtonBase)({
 });
 
 const CancelButtonText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -313,7 +314,7 @@ const ReviewButtonGradient = styled(Box)<{ $isDisabled?: boolean }>(({ $isDisabl
 }));
 
 const ReviewButtonText = styled(Typography)({
-  fontSize: 15,
+  fontSize: fontSize.md,
   fontWeight: 800,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -325,7 +326,7 @@ const ContactSection = styled(Box)({
 });
 
 const ContactSectionHeader = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
@@ -356,7 +357,7 @@ const ContactInfo = styled(Box)({
 });
 
 const ContactName = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
@@ -367,7 +368,7 @@ const ContactName = styled(Typography)({
 });
 
 const ContactAddress = styled(Typography)({
-  fontSize: 12,
+  fontSize: fontSize.sm,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
   textAlign: 'left',
@@ -381,7 +382,7 @@ const BlockchainBadge = styled(Box)({
 });
 
 const BlockchainBadgeText = styled(Typography)({
-  fontSize: 11,
+  fontSize: fontSize.xs,
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
@@ -563,17 +564,17 @@ export function StepAddressAmount({
               )}
               {address.length > 0 && !isValidating && validationState === 'valid' && (
                 <ValidationIndicatorBox>
-                  <span style={{ color: colors.status.success, fontSize: 16 }}>{'\u2713'}</span>
+                  <span style={{ color: colors.status.success, fontSize: fontSize.md }}>{'\u2713'}</span>
                 </ValidationIndicatorBox>
               )}
               {address.length > 0 && !isValidating && validationState === 'invalid' && (
                 <ValidationIndicatorBox>
-                  <span style={{ color: colors.status.error, fontSize: 16 }}>{'\u2715'}</span>
+                  <span style={{ color: colors.status.error, fontSize: fontSize.md }}>{'\u2715'}</span>
                 </ValidationIndicatorBox>
               )}
               {address.length > 0 && !isValidating && validationState === 'warning' && (
                 <ValidationIndicatorBox>
-                  <span style={{ color: colors.status.warning, fontSize: 16 }}>{'\u26A0'}</span>
+                  <span style={{ color: colors.status.warning, fontSize: fontSize.md }}>{'\u26A0'}</span>
                 </ValidationIndicatorBox>
               )}
             </AddressInputRow>

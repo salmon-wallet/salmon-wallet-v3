@@ -18,7 +18,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, borderRadius, getShortAddress, copyToClipboard, spacing } from '@salmon/shared';
+import { colors, borderRadius, getShortAddress, copyToClipboard, spacing, fontSize } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { AddressCopyRowProps } from './types';
 
@@ -46,7 +46,7 @@ const Container = styled(Box)({
 });
 
 const Label = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   fontWeight: 500,
   color: colors.text.secondary,
   flexShrink: 0,
@@ -63,7 +63,7 @@ const RightSection = styled(Box)({
 });
 
 const AddressText = styled(Typography)({
-  fontSize: 13,
+  fontSize: fontSize.sm,
   color: colors.text.primary,
   marginRight: 8,
   overflow: 'hidden',
@@ -122,9 +122,9 @@ export const AddressCopyRow: React.FC<AddressCopyRowProps> = ({
             sx={copied ? { backgroundColor: `${colors.status.success}20` } : undefined}
           >
             {copied ? (
-              <CheckIcon sx={{ fontSize: 14, color: colors.status.success }} />
+              <CheckIcon sx={{ fontSize: fontSize.base, color: colors.status.success }} />
             ) : (
-              <ContentCopyIcon sx={{ fontSize: 14, color: colors.text.secondary }} />
+              <ContentCopyIcon sx={{ fontSize: fontSize.base, color: colors.text.secondary }} />
             )}
           </CopyButton>
         </RightSection>
