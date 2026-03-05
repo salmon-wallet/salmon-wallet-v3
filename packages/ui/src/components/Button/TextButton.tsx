@@ -15,6 +15,7 @@ import {
   fontWeight,
   letterSpacing,
   spacing,
+  shadowsCSS,
 } from '@salmon/shared';
 import type { TextButtonProps } from './types';
 
@@ -32,12 +33,12 @@ const StyledButton = styled(Button)<{ $customColor?: string }>(
     letterSpacing: letterSpacing.wide,
     color: $customColor || colors.text.primary,
     textTransform: 'none',
-    boxShadow: 'none',
+    boxShadow: shadowsCSS.none,
     transition: 'opacity 0.2s ease',
     '&:hover': {
       background: 'transparent',
       opacity: 0.6,
-      boxShadow: 'none',
+      boxShadow: shadowsCSS.none,
     },
     '&:active': {
       background: 'transparent',

@@ -8,7 +8,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import { colors, fontFamily, fontWeight, borderRadius, fontSize, spacing } from '@salmon/shared';
+import { colors, fontFamily, fontWeight, borderRadius, fontSize, spacing, shadowsCSS } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCardProps } from './types';
 
@@ -29,7 +29,7 @@ const Container = styled(Box)<{ $clickable: boolean }>(({ $clickable }) => ({
   overflow: 'hidden',
   position: 'relative',
   cursor: $clickable ? 'pointer' : 'default',
-  boxShadow: '0px 3px 9px rgba(0, 0, 0, 0.4)',
+  boxShadow: shadowsCSS.md,
   transition: 'opacity 0.2s ease',
   '&:hover': $clickable
     ? {

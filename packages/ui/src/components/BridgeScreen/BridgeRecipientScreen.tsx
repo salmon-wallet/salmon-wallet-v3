@@ -16,6 +16,7 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  shadowsCSS,
 } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -132,7 +133,7 @@ const ContinueButtonGradient = styled('div')({
   flex: 1,
   borderRadius: borderRadius.lg,
   border: '0.8px solid rgba(255, 92, 69, 0.8)',
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  boxShadow: shadowsCSS.button,
   background: gradients.primaryCSS,
 });
 

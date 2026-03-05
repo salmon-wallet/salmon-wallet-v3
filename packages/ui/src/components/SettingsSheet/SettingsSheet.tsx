@@ -59,7 +59,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import { colors, spacing, fontSize } from '@salmon/shared';
+import { colors, spacing, fontSize, shadowsCSS } from '@salmon/shared';
 import type { SettingsScreen } from '@salmon/shared';
 
 import type {
@@ -459,7 +459,7 @@ export function SettingsSheet({
       PaperProps={{
         sx: {
           backgroundColor: 'transparent',
-          boxShadow: 'none',
+          boxShadow: shadowsCSS.none,
         },
       }}
       slotProps={{

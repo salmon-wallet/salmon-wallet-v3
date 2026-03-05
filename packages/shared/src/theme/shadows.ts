@@ -132,6 +132,8 @@ export const shadowsCSS = {
   balanceText: '0 3px 18px rgba(0, 0, 0, 1)',
   /** Colored glow for accent elements */
   glow: '0 0 24px rgba(255, 92, 69, 0.5)',
+  /** Button / floating CTA shadow */
+  button: '0 0 12px rgba(0, 0, 0, 0.64)',
 } as const;
 
 export type Shadows = typeof shadows;

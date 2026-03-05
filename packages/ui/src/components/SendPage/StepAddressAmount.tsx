@@ -29,6 +29,7 @@ import {
   useSendContacts,
   getShortAddress,
   fontSize,
+  shadowsCSS,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepAddressAmountProps } from './types';
@@ -273,7 +274,7 @@ const CancelButton = styled(ButtonBase)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  boxShadow: shadowsCSS.button,
   transition: 'opacity 0.15s ease',
   '&:hover': {
     opacity: 0.85,
@@ -296,7 +297,7 @@ const ReviewButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
     ? `1px solid ${colors.border.default}`
     : '1px solid rgba(255, 92, 69, 0.8)',
   opacity: disabled ? 0.5 : 1,
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  boxShadow: shadowsCSS.button,
   transition: 'opacity 0.15s ease',
   cursor: disabled ? 'not-allowed' : 'pointer',
   '&:hover': {

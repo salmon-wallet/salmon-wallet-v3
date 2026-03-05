@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { spacing, borderRadius, gradients } from '@salmon/shared';
+import { spacing, borderRadius, gradients, shadowsCSS } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 
 export interface SwapReviewButtonsProps {
@@ -31,7 +31,7 @@ const ConfirmButtonGradient = styled('div')({
   flex: 1,
   borderRadius: borderRadius.lg,
   border: '0.8px solid rgba(255, 92, 69, 0.8)',
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  boxShadow: shadowsCSS.button,
   background: gradients.primaryCSS,
 });
 

@@ -28,6 +28,7 @@ import {
   useSendTransaction,
   copyToClipboard,
   fontSize,
+  shadowsCSS,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { StepConfirmationProps } from './types';
@@ -170,7 +171,7 @@ const CancelButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  boxShadow: shadowsCSS.button,
   opacity: disabled ? 0.5 : 1,
   cursor: disabled ? 'not-allowed' : 'pointer',
   transition: 'opacity 0.15s ease',
@@ -193,7 +194,7 @@ const ConfirmButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) 
   overflow: 'hidden',
   border: '1px solid rgba(255, 92, 69, 0.8)',
   opacity: disabled ? 0.7 : 1,
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  boxShadow: shadowsCSS.button,
   cursor: disabled ? 'not-allowed' : 'pointer',
   transition: 'opacity 0.15s ease',
   '&:hover': {

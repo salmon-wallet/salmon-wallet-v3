@@ -15,6 +15,7 @@ import {
   fontFamily,
   fontWeight,
   fontSize,
+  shadowsCSS,
 } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
@@ -67,7 +68,7 @@ const DisclaimerText = styled(Typography)({
 const ReviewButtonWrapper = styled('div')<{ $canReview: boolean }>(({ $canReview }) => ({
   borderRadius: borderRadius.lg,
   border: `1.5px solid ${$canReview ? 'transparent' : 'transparent'}`,
-  boxShadow: '0 0 12px rgba(0, 0, 0, 0.64)',
+  boxShadow: shadowsCSS.button,
   background: $canReview ? colors.button.primaryBackground : colors.button.inactiveBackground,
   minWidth: 180,
   transition: 'border-color 0.2s ease',

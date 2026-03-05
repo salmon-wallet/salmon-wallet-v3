@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
-import { borderRadius, colors, fontFamily, fontWeight, formatFiatIntl, isPositivePerformance, PRICE_CHART_PERIODS, spacing, useCurrencyContext, fontSize } from '@salmon/shared';
+import { borderRadius, colors, fontFamily, fontWeight, formatFiatIntl, isPositivePerformance, PRICE_CHART_PERIODS, spacing, useCurrencyContext, fontSize, shadowsCSS } from '@salmon/shared';
 import { useCallback, useId, useMemo } from 'react';
 import {
   Area,
@@ -107,7 +107,7 @@ const TooltipContainer = styled(Box)({
   borderRadius: borderRadius.md,
   padding: spacing.sm,
   border: `1px solid ${colors.dialog.border}`,
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+  boxShadow: shadowsCSS.lg,
 });
 
 const TooltipPrice = styled(Typography)({

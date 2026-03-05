@@ -35,6 +35,7 @@ import {
   useSettingsPanelStack,
   type SettingsScreen,
   fontSize,
+  shadowsCSS,
 } from '@salmon/shared';
 import { styled } from '../../utils/styled';
 
@@ -419,7 +420,7 @@ export function SettingsPanelStack({
       PaperProps={{
         sx: {
           backgroundColor: 'transparent',
-          boxShadow: 'none',
+          boxShadow: shadowsCSS.none,
         },
       }}
       slotProps={{

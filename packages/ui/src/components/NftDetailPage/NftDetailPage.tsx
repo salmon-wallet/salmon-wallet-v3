@@ -33,6 +33,7 @@ import {
   getNftBlockchainLabel,
   getSatRarityColor,
   getShortAddress,
+  shadowsCSS,
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
@@ -66,7 +67,7 @@ const NftImage = styled('img')({
   aspectRatio: '1 / 1',
   borderRadius: 18,
   objectFit: 'cover',
-  boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.9)',
+  boxShadow: shadowsCSS.header,
 });
 
 const SectionContent = styled(Box)({

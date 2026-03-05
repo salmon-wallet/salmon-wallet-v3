@@ -13,6 +13,7 @@ import {
   fontSize,
   fontWeight,
   letterSpacing,
+  shadowsCSS,
 } from '@salmon/shared';
 import type { SecondaryButtonProps } from './types';
 
@@ -33,7 +34,7 @@ const StyledButton = styled(Button)<{
   letterSpacing: letterSpacing.widest,
   color: colors.button.secondaryText,
   textTransform: 'none',
-  boxShadow: 'none',
+  boxShadow: shadowsCSS.none,
   transition: 'opacity 0.2s ease, transform 0.1s ease, background-color 0.2s ease',
   '&:hover': {
     backgroundColor:
@@ -41,7 +42,7 @@ const StyledButton = styled(Button)<{
         ? 'rgba(255, 255, 255, 0.05)'
         : colors.button.secondaryBackground,
     opacity: 0.9,
-    boxShadow: 'none',
+    boxShadow: shadowsCSS.none,
   },
   '&:active': {
     transform: 'scale(0.98)',

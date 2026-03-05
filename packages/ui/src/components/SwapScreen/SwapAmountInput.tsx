@@ -17,6 +17,7 @@ import {
   spacing,
   useCurrencyContext,
   fontSize,
+  shadowsCSS,
 } from '@salmon/shared';
 import React, { useCallback } from 'react';
 import { styled } from '../../utils/styled';
@@ -90,7 +91,7 @@ const TokenDropdown = styled(ButtonBase)({
   gap: spacing.sm - 1,
   height: 36,
   minWidth: 100,
-  boxShadow: '0 3px 3px rgba(0, 0, 0, 0.25)',
+  boxShadow: shadowsCSS.sm,
   cursor: 'pointer',
   transition: 'opacity 0.2s ease',
   '&:hover': {
