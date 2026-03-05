@@ -241,7 +241,7 @@ export function AccountAddPanel({
                 <AccountTreeIcon sx={{ color: colors.accent.primary, fontSize: fontSize.iconMd }} />
               </MethodIcon>
               <MethodInfo>
-                <Typography sx={{ color: colors.text.primary, fontWeight: fontWeight.semibold, fontSize: fontSize.base, marginBottom: spacing['2xs'] }}>
+                <Typography sx={{ color: colors.text.primary, fontWeight: fontWeight.semibold, fontSize: fontSize.base, marginBottom: spacing.xxs }}>
                   {t('settings.account_add.create_new')}
                 </Typography>
                 <Typography sx={{ color: colors.text.secondary, fontSize: fontSize.sm }}>
@@ -256,7 +256,7 @@ export function AccountAddPanel({
                 <DescriptionIcon sx={{ color: colors.accent.primary, fontSize: fontSize.iconMd }} />
               </MethodIcon>
               <MethodInfo>
-                <Typography sx={{ color: colors.text.primary, fontWeight: fontWeight.semibold, fontSize: fontSize.base, marginBottom: spacing['2xs'] }}>
+                <Typography sx={{ color: colors.text.primary, fontWeight: fontWeight.semibold, fontSize: fontSize.base, marginBottom: spacing.xxs }}>
                   {t('settings.account_add.import_seed')}
                 </Typography>
                 <Typography sx={{ color: colors.text.secondary, fontSize: fontSize.sm }}>

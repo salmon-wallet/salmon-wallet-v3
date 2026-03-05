@@ -207,8 +207,8 @@ const ChangeText = styled(Typography)<{ $color?: string }>(({ $color }) => ({
 const TrendingIconWrapper = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  marginLeft: s(spacing['2xs']),
-  marginRight: s(spacing['2xs']),
+  marginLeft: s(spacing.xxs),
+  marginRight: s(spacing.xxs),
 });
 
 const Pagination = styled(Box)({
@@ -224,7 +224,7 @@ const Pagination = styled(Box)({
 const PaginationDot = styled(Box)<{ $active?: boolean }>(({ $active }) => ({
   width: s(spacing.xs),
   height: s(spacing.xs),
-  borderRadius: s(spacing['2xs']),
+  borderRadius: s(spacing.xxs),
   backgroundColor: $active ? colors.text.primary : colors.step.inactive,
   margin: `0 ${s(spacing.xxs + 1)}px`,
 }));

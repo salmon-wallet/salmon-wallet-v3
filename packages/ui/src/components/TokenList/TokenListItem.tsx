@@ -72,14 +72,14 @@ const BitcoinPrice = styled(Typography)({
   fontWeight: fontWeight.bold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  marginBottom: vs(spacing['2xs']),
+  marginBottom: vs(spacing.xxs),
 });
 
 const BitcoinChangeRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: s(spacing['2xs']),
+  gap: s(spacing.xxs),
 });
 
 const BitcoinChangeText = styled(Typography)<{ $changeColor?: string }>(({ $changeColor }) => ({
@@ -147,7 +147,7 @@ const NameRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  marginBottom: vs(spacing['2xs']),
+  marginBottom: vs(spacing.xxs),
   minWidth: 0,
 });
 
@@ -167,7 +167,7 @@ const PriceRow = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: s(spacing['2xs']),
+  gap: s(spacing.xxs),
 });
 
 const Price = styled(Typography)({
@@ -193,7 +193,7 @@ const ValueContainer = styled(Box)({
   flexDirection: 'column',
   alignItems: 'flex-end',
   textAlign: 'right',
-  gap: vs(spacing.tokenAmountGap),
+  gap: vs(spacing.xs),
 });
 
 const UsdValue = styled(Typography)({
@@ -201,7 +201,7 @@ const UsdValue = styled(Typography)({
   fontWeight: fontWeight.medium,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  marginBottom: vs(spacing['2xs']),
+  marginBottom: vs(spacing.xxs),
 });
 
 const TokenAmount = styled(Typography)({

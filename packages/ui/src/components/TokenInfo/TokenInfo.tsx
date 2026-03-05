@@ -74,7 +74,7 @@ const StatLabel = styled(Typography)({
   fontWeight: fontWeight.regular,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  marginBottom: spacing['2xs'],
+  marginBottom: spacing.xxs,
 });
 
 const StatValue = styled(Typography)({

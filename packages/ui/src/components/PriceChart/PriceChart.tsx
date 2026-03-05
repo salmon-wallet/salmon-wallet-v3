@@ -115,7 +115,7 @@ const TooltipPrice = styled(Typography)({
   fontWeight: fontWeight.semibold,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.primary,
-  marginBottom: spacing['2xs'],
+  marginBottom: spacing.xxs,
 });
 
 const TooltipDate = styled(Typography)({

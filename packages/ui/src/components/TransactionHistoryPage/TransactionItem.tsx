@@ -199,8 +199,8 @@ const TypeBadge = styled(Box)({
 });
 
 const TypeBadgeSingle = styled(TypeBadge)({
-  top: -spacing['2xs'],
-  right: -spacing['2xs'],
+  top: -spacing.xxs,
+  right: -spacing.xxs,
 });
 
 const IconContainer = styled(Box)({
@@ -275,7 +275,7 @@ const AmountsContainer = styled(Box)({
 const AmountText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  marginBottom: spacing['2xs'],
+  marginBottom: spacing.xxs,
   whiteSpace: 'nowrap',
 });
 
@@ -324,9 +324,9 @@ const ExpandBadge = styled(Box)({
   display: 'inline-flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: spacing['2xs'],
+  gap: spacing.xxs,
   marginTop: spacing.xs,
-  padding: `${spacing['2xs']}px ${spacing.xs}px`,
+  padding: `${spacing.xxs}px ${spacing.xs}px`,
   borderRadius: borderRadius.sm,
   cursor: 'pointer',
   '&:hover': {

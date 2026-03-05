@@ -49,7 +49,7 @@ const Amount = styled(Typography)({
   color: colors.text.primary,
   letterSpacing: letterSpacing.snug,
   lineHeight: `${fontSize['2xl'] * lineHeight.tight}px`,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 const UsdValue = styled(Typography)({
@@ -59,7 +59,7 @@ const UsdValue = styled(Typography)({
   color: colors.text.secondary,
   letterSpacing: letterSpacing.slight,
   lineHeight: `${fontSize.sm * lineHeight.tokenListItem}px`,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 // ============================================================================

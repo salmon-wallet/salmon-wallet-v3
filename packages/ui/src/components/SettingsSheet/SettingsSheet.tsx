@@ -280,7 +280,7 @@ const StyledListItemText = styled(ListItemText)<{ $isDanger?: boolean }>(
     '& .MuiListItemText-secondary': {
       fontSize: fontSize.sm,
       color: colors.text.secondary,
-      marginTop: spacing['2xs'],
+      marginTop: spacing.xxs,
     },
   })
 );

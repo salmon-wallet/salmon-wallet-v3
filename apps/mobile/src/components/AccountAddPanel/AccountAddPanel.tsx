@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
     fontSize: fontSize.md,
-    marginBottom: spacing['2xs'],
+    marginBottom: spacing.xxs,
   },
   methodDescription: {
     color: colors.text.secondary,

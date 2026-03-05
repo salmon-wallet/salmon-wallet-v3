@@ -405,7 +405,7 @@ const TokenName = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.regular,
   color: colors.text.secondary,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -461,7 +461,7 @@ const SwapSymbol = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.secondary,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 const SwapHeaderRow = styled(Box)({
@@ -535,7 +535,7 @@ const NftAttributeType = styled(Typography)({
   color: colors.text.tertiary,
   textTransform: 'uppercase',
   letterSpacing: letterSpacing.semiWide,
-  marginBottom: spacing['2xs'],
+  marginBottom: spacing.xxs,
 });
 
 const NftAttributeValue = styled(Typography)({
@@ -590,7 +590,7 @@ const ActionButtonText = styled(Typography)({
 
 // Confirmation badge
 const ConfirmationBadge = styled(Box)({
-  padding: `${spacing['2xs']}px ${spacing.sm}px`,
+  padding: `${spacing.xxs}px ${spacing.sm}px`,
   borderRadius: borderRadius.sm,
   display: 'inline-flex',
 });
@@ -611,7 +611,7 @@ const HopRow = styled(Box)({
 });
 
 const HopBadge = styled(Box)({
-  padding: `${spacing['2xs']}px ${spacing.sm}px`,
+  padding: `${spacing.xxs}px ${spacing.sm}px`,
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.sm,
   border: `${borderWidth.thin}px solid ${colors.border.default}`,
@@ -652,7 +652,7 @@ const DevSectionHeader = styled(Box)({
 });
 
 const DevBadge = styled(Box)({
-  padding: `${spacing['2xs']}px ${spacing.sm}px`,
+  padding: `${spacing.xxs}px ${spacing.sm}px`,
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.sm,
   border: `${borderWidth.thin}px solid ${colors.border.default}`,

@@ -117,7 +117,7 @@ const PathValue = styled(Typography)({
 const AddressValue = styled(Typography)({
   fontSize: fontSize.sm,
   color: colors.text.secondary,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 const BlurOverlay = styled(Box)({

@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.sm,
     lineHeight: fontSize.sm * lineHeight.normal,
-    marginTop: spacing['2xs'],
+    marginTop: spacing.xxs,
   },
   actionButtons: {
     flexDirection: 'row',

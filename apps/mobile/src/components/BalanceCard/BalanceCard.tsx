@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     lineHeight: ms(fontSize.sm * 1.3),
   },
   trendingIcon: {
-    marginHorizontal: s(spacing['2xs']),
+    marginHorizontal: s(spacing.xxs),
   },
   changeHidden: {
     fontSize: ms(fontSize.sm),
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   paginationDot: {
     width: s(spacing.xs),
     height: s(spacing.xs),
-    borderRadius: s(spacing['2xs']),
+    borderRadius: s(spacing.xxs),
     backgroundColor: colors.step.inactive,
     marginHorizontal: s(spacing.xxs + 1),
   },

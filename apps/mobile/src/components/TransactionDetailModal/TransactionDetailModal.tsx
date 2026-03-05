@@ -1067,7 +1067,7 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    marginTop: vs(spacing['2xs']),
+    marginTop: vs(spacing.xxs),
   },
   tokenAmount: {
     fontSize: ms(fontSize.lg),
@@ -1094,7 +1094,7 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
-    marginTop: vs(spacing['2xs']),
+    marginTop: vs(spacing.xxs),
   },
   swapArrow: {
     paddingHorizontal: s(spacing.md),
@@ -1177,7 +1177,7 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
-    marginBottom: vs(spacing['2xs']),
+    marginBottom: vs(spacing.xxs),
   },
   nftAttributeValue: {
     fontSize: ms(fontSize.sm),
@@ -1187,7 +1187,7 @@ const styles = StyleSheet.create({
   // Confirmation status badge
   confirmationBadge: {
     paddingHorizontal: s(spacing.sm),
-    paddingVertical: vs(spacing['2xs']),
+    paddingVertical: vs(spacing.xxs),
     borderRadius: borderRadius.sm,
   },
   confirmationText: {
@@ -1205,7 +1205,7 @@ const styles = StyleSheet.create({
   },
   hopBadge: {
     paddingHorizontal: s(spacing.sm),
-    paddingVertical: vs(spacing['2xs']),
+    paddingVertical: vs(spacing.xxs),
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
     borderWidth: 1,
@@ -1241,7 +1241,7 @@ const styles = StyleSheet.create({
   },
   devBadge: {
     paddingHorizontal: s(spacing.sm),
-    paddingVertical: vs(spacing['2xs']),
+    paddingVertical: vs(spacing.xxs),
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
     borderWidth: 1,

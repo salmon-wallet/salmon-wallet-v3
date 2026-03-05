@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(spacing['2xs']),
+    gap: s(spacing.xxs),
   },
   price: {
     fontSize: ms(fontSize.tokenNamePrice),
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   },
   valueContainer: {
     alignItems: 'flex-end',
-    gap: vs(spacing.tokenAmountGap),
+    gap: vs(spacing.xs),
   },
   usdValue: {
     fontSize: ms(fontSize.lg),
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   bitcoinInfoContainer: {
     flex: 1,
-    gap: vs(spacing['2xs']),
+    gap: vs(spacing.xxs),
   },
   bitcoinPrice: {
     fontSize: ms(fontSize.lg),
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   bitcoinChangeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(spacing['2xs']),
+    gap: s(spacing.xxs),
   },
   bitcoinChangeText: {
     fontSize: ms(fontSize.tokenChange),

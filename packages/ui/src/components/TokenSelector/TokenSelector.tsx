@@ -117,7 +117,7 @@ const TokenAddress = styled(Typography)({
   fontSize: fontSize.xs,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 const ChevronContainer = styled(Box)({

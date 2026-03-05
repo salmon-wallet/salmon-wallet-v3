@@ -93,7 +93,7 @@ const TokenDropdown = styled(ButtonBase)({
   justifyContent: 'center',
   backgroundColor: colors.button.secondaryBackground,
   borderRadius: borderRadius.sm + 2,
-  padding: `${spacing['2xs']}px ${spacing.sm}px`,
+  padding: `${spacing.xxs}px ${spacing.sm}px`,
   gap: spacing.sm - 1,
   height: componentSizes.iconSizeXL,
   minWidth: componentSizes.swapSelectorMinWidth,

@@ -336,7 +336,7 @@ export function NftDetailPage({
               <IconButton
                 size="small"
                 onClick={() => handleCopy(nft.contractAddress)}
-                sx={{ padding: `${spacing['2xs']}px` }}
+                sx={{ padding: `${spacing.xxs}px` }}
               >
                 {copiedField === nft.contractAddress ? (
                   <CheckIcon sx={{ fontSize: fontSize.base, color: colors.status.success }} />

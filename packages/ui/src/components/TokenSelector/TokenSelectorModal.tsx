@@ -188,7 +188,7 @@ const TokenName = styled(Typography)({
 const NetworkChip = styled(Box)({
   backgroundColor: colors.card.border,
   borderRadius: borderRadius.sm,
-  padding: `${spacing['2xs']}px ${spacing.xs}px`,
+  padding: `${spacing.xxs}px ${spacing.xs}px`,
   marginLeft: spacing.sm,
 });
 
@@ -204,7 +204,7 @@ const TokenBalance = styled(Typography)({
   fontSize: fontSize.base,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 const FeaturedContainer = styled(Box)({

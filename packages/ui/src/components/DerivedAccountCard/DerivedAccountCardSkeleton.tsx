@@ -43,7 +43,7 @@ const DerivedAccountCardSkeletonComponent: React.FC<DerivedAccountCardSkeletonPr
 
       {/* Info skeleton */}
       <Box sx={{ flex: 1 }}>
-        <SkeletonRect sx={{ width: '55%', height: componentSizes.iconSizeXs, mb: `${spacing['2xs']}px` }} />
+        <SkeletonRect sx={{ width: '55%', height: componentSizes.iconSizeXs, mb: `${spacing.xxs}px` }} />
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: `${spacing.xs}px` }}>
           <SkeletonRect sx={{ width: componentSizes.iconSizeXs, height: componentSizes.iconSizeXs, borderRadius: `${borderRadius.md}px`, flexShrink: 0 }} />
           <SkeletonRect sx={{ width: '35%', height: spacing.md }} />

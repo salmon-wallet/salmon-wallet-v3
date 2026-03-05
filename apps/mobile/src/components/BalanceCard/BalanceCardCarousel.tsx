@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     lineHeight: ms(fontSize.sm * 1.3),
   },
   changeArrow: {
-    marginHorizontal: s(spacing['2xs']),
+    marginHorizontal: s(spacing.xxs),
   },
   pagination: {
     flexDirection: 'row',
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   dot: {
     width: s(spacing.xs),
     height: s(spacing.xs),
-    borderRadius: s(spacing['2xs']),
+    borderRadius: s(spacing.xxs),
     backgroundColor: colors.step.inactive,
     marginHorizontal: s(spacing.xxs + 1),
   },

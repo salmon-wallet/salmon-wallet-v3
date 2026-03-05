@@ -85,7 +85,7 @@ const SecurityNotice = styled(Box)({
 const SecurityIcon = styled(ShieldIcon)({
   color: colors.status.warning,
   fontSize: fontSize.xl,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 const SecurityText = styled(Typography)({

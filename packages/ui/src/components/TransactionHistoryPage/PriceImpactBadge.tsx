@@ -30,7 +30,7 @@ const SEVERITY_COLORS: Record<PriceImpactSeverity, string> = {
 };
 
 const SIZE_CONFIG = {
-  small: { iconSize: componentSizes.iconSizeXxs, fontSize: fontSize.xs, paddingH: spacing.xs, paddingV: spacing['2xs'] },
+  small: { iconSize: componentSizes.iconSizeXxs, fontSize: fontSize.xs, paddingH: spacing.xs, paddingV: spacing.xxs },
   medium: { iconSize: componentSizes.iconSizeXxsm, fontSize: fontSize.sm, paddingH: spacing.sm, paddingV: spacing.xs },
   large: { iconSize: componentSizes.iconSizeXs, fontSize: fontSize.base, paddingH: spacing.md, paddingV: spacing.sm },
 } as const;

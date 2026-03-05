@@ -110,7 +110,7 @@ export const TokenInfo: React.FC<TokenInfoProps> = ({
                 foregroundColor={colors.skeleton.highlight}
               >
                 <Rect x="0" y="0" rx="4" ry="4" width="60" height="14" />
-                <Rect x="0" y={14 + spacing['2xs']} rx="4" ry="4" width="80" height="18" />
+                <Rect x="0" y={14 + spacing.xxs} rx="4" ry="4" width="80" height="18" />
               </ContentLoader>
             </View>
           ))}
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: fontWeight.regular as '400',
     color: colors.text.secondary,
-    marginBottom: spacing['2xs'],
+    marginBottom: spacing.xxs,
   },
   statValue: {
     fontSize: fontSize.md,

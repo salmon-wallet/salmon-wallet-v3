@@ -107,7 +107,7 @@ const RouteTokenRow = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   gap: spacing.xs,
-  marginBottom: spacing['2xs'],
+  marginBottom: spacing.xxs,
 });
 
 const RouteTokenText = styled(Typography)({
@@ -128,13 +128,13 @@ const RouteArrowColumn = styled(Box)({
 const MoreText = styled(Typography)({
   fontSize: fontSize.xs,
   color: colors.text.tertiary,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 const RouteSummary = styled(Box)({
   borderTop: `1px solid ${colors.border.subtle}`,
   paddingTop: spacing.xs,
-  marginTop: spacing['2xs'],
+  marginTop: spacing.xxs,
 });
 
 const SummaryRow = styled(Box)({
@@ -209,7 +209,7 @@ const DexBadge = styled(Box)({
   alignItems: 'center',
   gap: spacing.xs,
   backgroundColor: colors.background.tokenItem,
-  padding: `${spacing['2xs']}px ${spacing.xs}px`,
+  padding: `${spacing.xxs}px ${spacing.xs}px`,
   borderRadius: borderRadius.sm,
 });
 
