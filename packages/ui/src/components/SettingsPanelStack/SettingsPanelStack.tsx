@@ -39,6 +39,7 @@ import {
   letterSpacing,
   shadowsCSS,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 import { styled } from '../../utils/styled';
 
@@ -193,7 +194,7 @@ const StyledListItemButton = styled(ListItemButton)<{ $isDanger?: boolean }>(
 
 const StyledListItemIcon = styled(ListItemIcon)<{ $isDanger?: boolean }>(
   ({ $isDanger }) => ({
-    minWidth: 40,
+    minWidth: componentSizes.backButtonSize,
     color: $isDanger ? colors.status.error : colors.text.secondary,
   })
 );

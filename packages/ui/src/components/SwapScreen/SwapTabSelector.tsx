@@ -17,6 +17,7 @@ import {
   letterSpacing,
   lineHeight,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 import type { SwapTabSelectorProps, SwapTab } from './types';
 
@@ -59,7 +60,7 @@ const TabText = styled(Typography)<{ $active: boolean }>(({ $active }) => ({
 
 const TabIndicator = styled(Box)<{ $active: boolean }>(({ $active }) => ({
   width: '100%',
-  height: 1,
+  height: componentSizes.dividerHeight,
   backgroundColor: $active ? colors.text.primary : colors.border.default,
   transition: 'background-color 0.2s ease',
 }));

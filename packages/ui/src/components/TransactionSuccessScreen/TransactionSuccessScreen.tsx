@@ -6,7 +6,7 @@ import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
-import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight, lineHeight } from '@salmon/shared';
+import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight, lineHeight, componentSizes } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 
 // ============================================================================
@@ -39,8 +39,8 @@ const Container = styled(Box)({
 });
 
 const Circle = styled(Box)({
-  width: 80,
-  height: 80,
+  width: componentSizes.logoSizeSmall,
+  height: componentSizes.logoSizeSmall,
   borderRadius: borderRadius.full,
   backgroundColor: colors.status.success,
   display: 'flex',
@@ -115,8 +115,8 @@ const BridgeValue = styled(Typography)({
 });
 
 const ContinueButton = styled(Button)({
-  minWidth: 160,
-  height: 42,
+  minWidth: componentSizes.buttonMinWidthLg,
+  height: componentSizes.buttonHeightCompact,
   borderRadius: borderRadius.lg,
   background: gradients.primaryCSS,
   border: `0.8px solid ${colors.accent.border}`,

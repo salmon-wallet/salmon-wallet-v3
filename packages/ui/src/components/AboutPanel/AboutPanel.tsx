@@ -26,7 +26,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing, opacity } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing, opacity, componentSizes } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -115,8 +115,8 @@ const LogoSection = styled(Box)({
 });
 
 const LogoContainer = styled(Box)({
-  width: 80,
-  height: 80,
+  width: componentSizes.logoSizeSmall,
+  height: componentSizes.logoSizeSmall,
   borderRadius: borderRadius.xl,
   backgroundColor: colors.background.card,
   display: 'flex',
@@ -158,7 +158,7 @@ const StyledListItemButton = styled(ListItemButton)({
 });
 
 const StyledListItemIcon = styled(ListItemIcon)({
-  minWidth: 40,
+  minWidth: componentSizes.backButtonSize,
   color: colors.text.secondary,
 });
 
@@ -227,7 +227,7 @@ export function AboutPanel({ onBack }: AboutPanelProps): React.ReactElement {
             <img
               src="/images/Logo.png"
               alt="Salmon Wallet"
-              style={{ width: 48, height: 48 }}
+              style={{ width: componentSizes.iconSize3XL, height: componentSizes.iconSize3XL }}
             />
           </LogoContainer>
           <AppName>Salmon Wallet</AppName>

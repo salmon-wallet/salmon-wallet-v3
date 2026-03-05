@@ -31,7 +31,7 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import WarningIcon from '@mui/icons-material/Warning';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import Box from '@mui/material/Box';
-import { colors, spacing, borderRadius, s, vs, ms, fontSize } from '@salmon/shared';
+import { colors, spacing, borderRadius, componentSizes, s, vs, ms, fontSize } from '@salmon/shared';
 import { styled } from '../../utils/styled';
 import type { TokenBadgesProps } from './types';
 
@@ -133,8 +133,8 @@ const BadgesContainer = styled(Box)({
 });
 
 const BadgeBox = styled(Box)<{ $bgColor: string }>(({ $bgColor }) => ({
-  width: s(18),
-  height: vs(18),
+  width: s(componentSizes.iconSizeXSmall),
+  height: vs(componentSizes.iconSizeXSmall),
   borderRadius: borderRadius.sm,
   display: 'flex',
   alignItems: 'center',

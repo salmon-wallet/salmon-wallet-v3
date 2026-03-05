@@ -27,7 +27,7 @@ import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, opacity, spacing } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, fontWeight, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontSize, letterSpacing, opacity, spacing } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -168,7 +168,7 @@ const SwapLogosContainer = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  width: 54,
+  width: componentSizes.iconSize5XL,
   position: 'relative',
 });
 
@@ -181,16 +181,16 @@ const SwapLogoOverlap = styled(Box)({
 
 const LogoWithBadgeContainer = styled(Box)({
   position: 'relative',
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
 });
 
 const TypeBadge = styled(Box)({
   position: 'absolute',
   top: -spacing.xs,
   right: -spacing.xs,
-  width: 18,
-  height: 18,
+  width: componentSizes.iconSizeXSmall,
+  height: componentSizes.iconSizeXSmall,
   borderRadius: borderRadius.md,
   display: 'flex',
   alignItems: 'center',
@@ -204,8 +204,8 @@ const TypeBadgeSingle = styled(TypeBadge)({
 });
 
 const IconContainer = styled(Box)({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.iconLg,
   display: 'flex',
   alignItems: 'center',
@@ -238,7 +238,7 @@ const TypeText = styled(Typography)({
 });
 
 const SourceBadge = styled(Chip)({
-  height: 18,
+  height: componentSizes.iconSizeXSmall,
   fontSize: fontSize.xs,
   fontWeight: fontWeight.medium,
   color: colors.text.tertiary,
@@ -309,7 +309,7 @@ const PendingBadge = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   gap: spacing.xs,
-  padding: `4px 8px`,
+  padding: `${spacing.xs}px ${spacing.sm}px`,
   backgroundColor: `${colors.status.warning}15`,
   borderRadius: borderRadius.sm,
 });
@@ -346,7 +346,7 @@ const ExpandText = styled(Typography)({
 
 const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
   uri,
-  size = 40,
+  size = componentSizes.iconSize2XL,
 }) => {
   const [failed, setFailed] = useState(false);
 

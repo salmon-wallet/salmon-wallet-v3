@@ -3,6 +3,7 @@
  */
 
 import type { CSSProperties, ReactNode } from 'react';
+import { componentSizes, spacing } from '@salmon/shared';
 
 // ============================================================================
 // Root Dialog Props
@@ -88,7 +89,7 @@ export const SIZE_PRESETS = {
     minWidth: 'min(380px, 95vw)',
     maxWidth: 'min(440px, 95vw)',
     height: '85vh',
-    maxHeight: 700,
+    maxHeight: componentSizes.sheetMaxHeight,
   },
 } as const;
 
@@ -96,9 +97,9 @@ export const SIZE_PRESETS = {
  * Padding presets for content area
  */
 export const PADDING_PRESETS = {
-  none: 0,
-  sm: 8,
-  md: 12,
-  lg: 20,
-  xl: 24,
+  none: spacing.none,
+  sm: spacing.sm,
+  md: spacing.md,
+  lg: spacing.xl,
+  xl: spacing['2xl'],
 } as const;

@@ -7,7 +7,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { colors, spacing, borderRadius, fontSize, fontWeight, lineHeight } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, lineHeight, componentSizes } from '@salmon/shared';
 import { BalanceCard } from './BalanceCard';
 import type { BalanceCardCarouselProps } from './types';
 
@@ -26,8 +26,8 @@ const ArrowButton = styled('button')<{ $visible: boolean }>(({ $visible }) => ({
   top: '50%',
   transform: 'translateY(-50%)',
   zIndex: 2,
-  width: 28,
-  height: 28,
+  width: componentSizes.iconSizeMButton,
+  height: componentSizes.iconSizeMButton,
   borderRadius: borderRadius.full,
   border: 'none',
   padding: 0,

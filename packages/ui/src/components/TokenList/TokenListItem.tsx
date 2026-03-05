@@ -52,8 +52,8 @@ const BitcoinContainer = styled(Box)({
 });
 
 const BitcoinLogo = styled('img')({
-  width: s(33),
-  height: s(33),
+  width: s(componentSizes.tokenIconSm),
+  height: s(componentSizes.tokenIconSm),
   borderRadius: '50%',
   backgroundColor: colors.background.tertiary,
   objectFit: 'cover',

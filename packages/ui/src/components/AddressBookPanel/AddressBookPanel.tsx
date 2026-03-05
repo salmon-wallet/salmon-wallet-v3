@@ -27,6 +27,7 @@ import {
   type AddressBookItem,
   fontSize,
   fontWeight,
+  componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { ConfirmDialog } from '../ConfirmDialog';
@@ -47,8 +48,8 @@ const StyledListItemButton = styled(ListItemButton)({
 });
 
 const ContactAvatar = styled(Avatar)({
-  width: 36,
-  height: 36,
+  width: componentSizes.iconSizeXL,
+  height: componentSizes.iconSizeXL,
   backgroundColor: colors.card.border,
 });
 
@@ -110,7 +111,7 @@ export function AddressBookPanel({
                 key={contact.address}
                 disablePadding
                 secondaryAction={
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <Box sx={{ display: 'flex', gap: `${spacing.xs}px` }}>
                     <IconButton
                       edge="end"
                       onClick={() => onEditContact(contact)}

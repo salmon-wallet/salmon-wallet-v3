@@ -43,6 +43,7 @@ import {
   fontWeight,
   lineHeight,
   letterSpacing,
+  componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -91,7 +92,7 @@ const KeyText = styled(Typography)({
   fontFamily: 'monospace',
   wordBreak: 'break-all',
   lineHeight: lineHeight.relaxed,
-  minHeight: 40,
+  minHeight: componentSizes.backButtonSize,
 });
 
 const PathLabel = styled(Typography)({
@@ -173,7 +174,7 @@ const NetworkListItemButton = styled(ListItemButton)({
 });
 
 const NetworkListItemIcon = styled(ListItemIcon)({
-  minWidth: 40,
+  minWidth: componentSizes.backButtonSize,
   color: colors.text.secondary,
 });
 
@@ -274,7 +275,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
         <PageContent>
           <Typography
             variant="body2"
-            sx={{ color: colors.text.secondary, mb: 1 }}
+            sx={{ color: colors.text.secondary, mb: `${spacing.sm}px` }}
           >
             {t('settings.select_network_description')}
           </Typography>
@@ -318,7 +319,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
         {accountKeys.length === 0 ? (
           <Typography
             variant="body2"
-            sx={{ color: colors.text.secondary, textAlign: 'center', py: 4 }}
+            sx={{ color: colors.text.secondary, textAlign: 'center', py: `${spacing['3xl']}px` }}
           >
             {t('settings.no_accounts_for_network')}
           </Typography>
@@ -333,7 +334,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
                 <PathValue>{accountKey.path}</PathValue>
                 <AddressValue>{getShortAddress(accountKey.address, 8)}</AddressValue>
 
-                <PrivateKeyCard sx={{ mt: 1 }}>
+                <PrivateKeyCard sx={{ mt: `${spacing.sm}px` }}>
                   <KeyText>
                     {isRevealed
                       ? accountKey.privateKey

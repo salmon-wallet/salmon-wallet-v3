@@ -26,6 +26,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  componentSizes,
   fontFamily,
   fontWeight,
   getShortAddress,
@@ -139,16 +140,16 @@ const TokenItemContainer = styled(Box)({
 });
 
 const TokenIconImage = styled('img')({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.iconLg,
   backgroundColor: colors.card.border,
   objectFit: 'cover',
 });
 
 const TokenIconPlaceholder = styled(Box)({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.iconLg,
   backgroundColor: colors.card.border,
   display: 'flex',
@@ -184,7 +185,7 @@ const TokenName = styled(Typography)({
 const NetworkChip = styled(Box)({
   backgroundColor: colors.card.border,
   borderRadius: borderRadius.sm,
-  padding: `2px ${spacing.xs}px`,
+  padding: `${spacing['2xs']}px ${spacing.xs}px`,
   marginLeft: spacing.sm,
 });
 
@@ -225,16 +226,16 @@ const FeaturedTokenButton = styled(Box)({
 });
 
 const FeaturedTokenIcon = styled('img')({
-  width: 48,
-  height: 48,
+  width: componentSizes.iconSize3XL,
+  height: componentSizes.iconSize3XL,
   borderRadius: borderRadius['2xl'],
   backgroundColor: colors.card.border,
   objectFit: 'cover',
 });
 
 const FeaturedTokenIconPlaceholder = styled(Box)({
-  width: 48,
-  height: 48,
+  width: componentSizes.iconSize3XL,
+  height: componentSizes.iconSize3XL,
   borderRadius: borderRadius['2xl'],
   backgroundColor: colors.card.border,
   display: 'flex',

@@ -12,7 +12,7 @@
 import React from 'react';
 import { styled } from '../../utils/styled';
 import DialogContent from '@mui/material/DialogContent';
-import { colors, borderRadius } from '@salmon/shared';
+import { colors, borderRadius, componentSizes } from '@salmon/shared';
 import { PADDING_PRESETS } from './types';
 import type { ContentProps } from './types';
 
@@ -33,7 +33,7 @@ const StyledDialogContent = styled(DialogContent)<{
     overflowY: 'auto',
     /* Custom scrollbar styling */
     '&::-webkit-scrollbar': {
-      width: 6,
+      width: componentSizes.scrollbarWidth,
     },
     '&::-webkit-scrollbar-track': {
       background: 'transparent',

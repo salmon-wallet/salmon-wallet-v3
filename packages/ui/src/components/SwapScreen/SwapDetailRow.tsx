@@ -16,6 +16,7 @@ import {
   fontSize,
   letterSpacing,
   lineHeight,
+  componentSizes,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapDetailRowProps } from './types';
@@ -30,7 +31,7 @@ const BlurContent = styled('div')({
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: `${spacing.sm}px ${spacing.base}px`,
-  minHeight: 40,
+  minHeight: componentSizes.backButtonSize,
 });
 
 const Label = styled(Typography)({

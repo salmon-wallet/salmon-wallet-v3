@@ -26,6 +26,7 @@ import {
   type TrustedAppItem,
   fontSize,
   fontWeight,
+  componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -52,8 +53,8 @@ const RevokeButton = styled(IconButton)({
 });
 
 const AppAvatar = styled(Avatar)({
-  width: 36,
-  height: 36,
+  width: componentSizes.iconSizeXL,
+  height: componentSizes.iconSizeXL,
   backgroundColor: colors.card.border,
 });
 

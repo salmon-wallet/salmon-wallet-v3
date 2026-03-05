@@ -26,6 +26,7 @@ import {
   getAvatarColor,
   getInitials,
   type Account,
+  componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -60,8 +61,8 @@ const Row = styled(ListItemButton)({
 });
 
 const IconContainer = styled(Box)({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.md,
   backgroundColor: colors.interactive.hoverSubtle,
   display: 'flex',
@@ -71,7 +72,7 @@ const IconContainer = styled(Box)({
 });
 
 const Divider = styled(Box)({
-  height: 1,
+  height: componentSizes.dividerHeight,
   backgroundColor: colors.border.default,
   marginLeft: spacing.lg,
   marginRight: spacing.lg,

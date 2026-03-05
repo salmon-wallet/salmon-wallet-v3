@@ -20,7 +20,7 @@ import type { PrimaryButtonProps } from './types';
 
 const StyledButton = styled(Button)<{ fullWidth?: boolean }>(({ fullWidth }) => ({
   width: fullWidth ? '100%' : 'auto',
-  minWidth: 120,
+  minWidth: componentSizes.buttonMinWidth,
   height: componentSizes.buttonHeight,
   backgroundColor: colors.button.primaryBackground,
   borderRadius: componentSizes.buttonRadius,

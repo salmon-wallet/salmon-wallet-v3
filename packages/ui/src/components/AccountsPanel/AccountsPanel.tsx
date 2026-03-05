@@ -21,6 +21,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  componentSizes,
   fontSize,
   fontWeight,
   getAvatarColor,
@@ -60,8 +61,8 @@ const AccountItem = styled(ListItemButton)<{ $isActive?: boolean }>(({ $isActive
 }));
 
 const Avatar = styled(Box)({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: '50%',
   display: 'flex',
   alignItems: 'center',
@@ -70,8 +71,8 @@ const Avatar = styled(Box)({
 });
 
 const AvatarImage = styled('img')({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: '50%',
   objectFit: 'cover',
 });
@@ -96,8 +97,8 @@ const AddAccountButton = styled(ListItemButton)({
 });
 
 const AddAccountIcon = styled(Box)({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: '50%',
   display: 'flex',
   alignItems: 'center',

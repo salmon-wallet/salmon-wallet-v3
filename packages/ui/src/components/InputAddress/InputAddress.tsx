@@ -29,6 +29,7 @@ import {
   fontSize,
   lineHeight,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 import type { ValidationState } from '@salmon/shared';
@@ -61,7 +62,7 @@ const InputWrapper = styled(Box)<{
   border: `1px solid ${$borderColor}`,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
-  minHeight: 56,
+  minHeight: componentSizes.inputHeight,
   transition: 'border-color 0.2s ease',
   opacity: $isDisabled ? colors.button.disabledOpacity : 1,
 }));

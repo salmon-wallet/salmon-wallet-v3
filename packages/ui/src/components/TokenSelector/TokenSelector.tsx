@@ -24,6 +24,7 @@ import {
   getShortAddress,
   fontSize,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 
 import { TokenSelectorModal } from './TokenSelectorModal';
@@ -68,7 +69,7 @@ const SelectorButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled })
   backgroundColor: colors.background.card,
   borderRadius: borderRadius.lg,
   padding: `${spacing.sm}px ${spacing.md}px`,
-  minWidth: 120,
+  minWidth: componentSizes.buttonMinWidth,
   transition: 'background-color 0.2s ease',
   opacity: disabled ? 0.5 : 1,
   cursor: disabled ? 'default' : 'pointer',
@@ -78,8 +79,8 @@ const SelectorButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled })
 }));
 
 const TokenIconImage = styled('img')({
-  width: 32,
-  height: 32,
+  width: componentSizes.iconSizeLarge,
+  height: componentSizes.iconSizeLarge,
   borderRadius: borderRadius.xl,
   backgroundColor: colors.card.border,
   objectFit: 'cover',
@@ -87,8 +88,8 @@ const TokenIconImage = styled('img')({
 });
 
 const TokenIconPlaceholder = styled(Box)({
-  width: 32,
-  height: 32,
+  width: componentSizes.iconSizeLarge,
+  height: componentSizes.iconSizeLarge,
   borderRadius: borderRadius.xl,
   backgroundColor: colors.card.border,
   marginRight: spacing.sm,
@@ -113,7 +114,7 @@ const TokenAddress = styled(Typography)({
   fontSize: fontSize.xs,
   fontFamily: `${fontFamily.sans}, sans-serif`,
   color: colors.text.secondary,
-  marginTop: 1,
+  marginTop: spacing['2xs'],
 });
 
 const ChevronContainer = styled(Box)({

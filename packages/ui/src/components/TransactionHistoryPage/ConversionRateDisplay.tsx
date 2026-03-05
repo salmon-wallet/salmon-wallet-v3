@@ -11,7 +11,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import { colors, formatConversionRate, fontSize, fontWeight, lineHeight } from '@salmon/shared';
+import { colors, formatConversionRate, fontSize, fontWeight, lineHeight, spacing } from '@salmon/shared';
 import type { ConversionRateDisplayProps } from './types';
 
 // ============================================================================
@@ -57,7 +57,7 @@ export const ConversionRateDisplay: React.FC<ConversionRateDisplayProps> = ({
   if (isSmall) {
     return (
       <Container className={className}>
-        <SwapHorizIcon sx={{ fontSize: fontSize.sm, color: colors.text.secondary, mr: '4px' }} />
+        <SwapHorizIcon sx={{ fontSize: fontSize.sm, color: colors.text.secondary, mr: `${spacing.xs}px` }} />
         <CompactText>1:{formattedRate}</CompactText>
       </Container>
     );
@@ -65,7 +65,7 @@ export const ConversionRateDisplay: React.FC<ConversionRateDisplayProps> = ({
 
   return (
     <Container className={className}>
-      <SwapHorizIcon sx={{ fontSize: fontSize.base, color: colors.text.secondary, mr: '6px' }} />
+      <SwapHorizIcon sx={{ fontSize: fontSize.base, color: colors.text.secondary, mr: `${spacing.sm}px` }} />
       <RateText>
         <SymbolText>1 {fromSymbol}</SymbolText>
         {' = '}

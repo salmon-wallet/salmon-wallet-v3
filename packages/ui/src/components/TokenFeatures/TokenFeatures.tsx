@@ -15,6 +15,7 @@ import {
   fontWeight,
   fontSize,
   getFeatureColor,
+  componentSizes,
 } from '@salmon/shared';
 import type { TokenFeature } from '@salmon/shared';
 import type { TokenFeaturesProps } from './types';
@@ -129,8 +130,8 @@ const BadgeLabel = styled(Typography)<{ $labelColor: string }>(({ $labelColor })
 }));
 
 const SkeletonBadge = styled(Skeleton)({
-  width: 100,
-  height: 32,
+  width: componentSizes.skeletonBadgeWidth,
+  height: componentSizes.iconSizeLarge,
   borderRadius: borderRadius.full,
   flexShrink: 0,
 });

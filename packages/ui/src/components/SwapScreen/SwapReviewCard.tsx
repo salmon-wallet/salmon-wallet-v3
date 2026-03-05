@@ -16,6 +16,7 @@ import {
   fontSize,
   letterSpacing,
   lineHeight,
+  componentSizes,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapReviewCardProps } from './types';
@@ -26,7 +27,7 @@ import type { SwapReviewCardProps } from './types';
 
 const BlurContent = styled('div')({
   padding: `${spacing.sm}px ${spacing.base}px`,
-  minHeight: 75,
+  minHeight: componentSizes.swapReviewCardMinHeight,
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',

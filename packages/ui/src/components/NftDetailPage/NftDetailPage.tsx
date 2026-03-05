@@ -38,6 +38,7 @@ import {
   letterSpacing,
   lineHeight,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 
 import { BlurContainer } from '../BlurContainer';
@@ -67,7 +68,7 @@ const ImageContainer = styled(Box)({
 
 const NftImage = styled('img')({
   width: '100%',
-  maxWidth: 406,
+  maxWidth: componentSizes.nftImageMaxWidth,
   aspectRatio: '1 / 1',
   borderRadius: borderRadius.iconContainer,
   objectFit: 'cover',
@@ -211,7 +212,7 @@ const ActionButtonsContainer = styled(Box)({
 
 const PrimaryButtonBase = styled(ButtonBase)({
   flex: 1,
-  maxWidth: 160,
+  maxWidth: componentSizes.buttonMinWidthLg,
   borderRadius: borderRadius.button,
   overflow: 'hidden',
   background: gradients.primaryButtonCSS,
@@ -219,7 +220,7 @@ const PrimaryButtonBase = styled(ButtonBase)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  height: 52,
+  height: componentSizes.iconSize4XL,
   gap: spacing.base,
   transition: 'opacity 0.2s ease',
   '&:hover': { opacity: opacity.high },
@@ -231,7 +232,7 @@ const SecondaryButtonInner = styled(ButtonBase)({
   alignItems: 'center',
   justifyContent: 'center',
   width: '100%',
-  height: 52,
+  height: componentSizes.iconSize4XL,
   gap: spacing.base,
   position: 'relative',
   zIndex: 1,
@@ -269,7 +270,7 @@ export function NftDetailPage({
   }, [onBurnPress]);
 
   const getBlockchainIcon = useCallback(() => {
-    const iconStyle = { fontSize: fontSize.md, width: 16, height: 16, color: colors.text.primary };
+    const iconStyle = { fontSize: fontSize.md, width: componentSizes.iconSizeXs, height: componentSizes.iconSizeXs, color: colors.text.primary };
     if (isSolanaNft(nft)) return <SolanaSvgIcon style={iconStyle} />;
     if (isEthereumNft(nft)) return <EthereumSvgIcon style={iconStyle} />;
     if (isBitcoinNft(nft)) return <BitcoinSvgIcon style={iconStyle} />;
@@ -498,7 +499,7 @@ export function NftDetailPage({
             backgroundColor={colors.interactive.surface}
             borderColor={colors.accent.border}
             borderWidth={0.5}
-            style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: 160 }}
+            style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: componentSizes.buttonMinWidthLg }}
           >
             <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
               <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />

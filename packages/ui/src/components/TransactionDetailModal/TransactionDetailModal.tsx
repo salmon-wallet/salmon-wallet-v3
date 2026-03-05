@@ -53,7 +53,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { borderRadius, colors, copyToClipboard, fontFamily, fontSize, fontWeight, formatBlockNumber, formatDateTime, formatRawAmount, getShortAddress, letterSpacing, spacing, truncateHash } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, copyToClipboard, fontFamily, fontSize, fontWeight, formatBlockNumber, formatDateTime, formatRawAmount, getShortAddress, letterSpacing, spacing, truncateHash } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
@@ -236,8 +236,8 @@ const HeaderRow = styled(Box)({
 });
 
 const TypeIconContainer = styled(Box)({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.iconLg,
   display: 'flex',
   alignItems: 'center',
@@ -304,7 +304,7 @@ const StyledDialogContent = styled(DialogContent)({
   flexDirection: 'column',
   gap: spacing.md,
   '&::-webkit-scrollbar': {
-    width: 6,
+    width: componentSizes.scrollbarWidth,
   },
   '&::-webkit-scrollbar-track': {
     backgroundColor: 'transparent',
@@ -355,8 +355,8 @@ const HashValue = styled(Typography)({
 });
 
 const CopyIconButton = styled(IconButton)({
-  width: 28,
-  height: 28,
+  width: componentSizes.iconSizeMButton,
+  height: componentSizes.iconSizeMButton,
   padding: spacing.xs,
   backgroundColor: `${colors.background.card}80`,
   '&:hover': {
@@ -365,23 +365,23 @@ const CopyIconButton = styled(IconButton)({
 });
 
 const InternalDivider = styled(Box)({
-  height: 1,
+  height: componentSizes.dividerHeight,
   backgroundColor: colors.border.subtle,
   marginTop: spacing.sm,
   marginBottom: spacing.sm,
 });
 
 const TokenLogoImg = styled('img')({
-  width: 32,
-  height: 32,
+  width: componentSizes.iconSizeLarge,
+  height: componentSizes.iconSizeLarge,
   borderRadius: borderRadius.xl,
   objectFit: 'cover',
   backgroundColor: colors.background.card,
 });
 
 const TokenLogoPlaceholder = styled(Box)({
-  width: 32,
-  height: 32,
+  width: componentSizes.iconSizeLarge,
+  height: componentSizes.iconSizeLarge,
   borderRadius: borderRadius.xl,
   backgroundColor: colors.background.card,
   display: 'flex',
@@ -433,16 +433,16 @@ const SwapTokenSection = styled(Box)({
 });
 
 const SwapLogoImg = styled('img')({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.iconLg,
   objectFit: 'cover',
   backgroundColor: colors.background.card,
 });
 
 const SwapLogoPlaceholder = styled(Box)({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.iconLg,
   backgroundColor: colors.background.card,
   display: 'flex',
@@ -494,8 +494,8 @@ const NftMediaContainer = styled(Box)({
 });
 
 const NftMediaPreview = styled('img')({
-  width: 120,
-  height: 120,
+  width: componentSizes.logoSizeMedium,
+  height: componentSizes.logoSizeMedium,
   borderRadius: borderRadius.md,
   objectFit: 'cover',
   backgroundColor: colors.background.card,
@@ -711,7 +711,7 @@ const DevSecondaryText = styled(Typography)({
  */
 const TokenLogo: React.FC<{ uri?: string | null; size?: number }> = ({
   uri,
-  size = 32,
+  size = componentSizes.iconSizeLarge,
 }) => {
   if (uri) {
     return (
@@ -783,7 +783,7 @@ const SwapVisualization: React.FC<{
         </SwapAmount>
         <SwapSymbol>{fromToken.symbol}</SwapSymbol>
       </SwapTokenSection>
-      <Box sx={{ px: '12px' }}>
+      <Box sx={{ px: `${spacing.md}px` }}>
         <ArrowForwardIcon sx={{ fontSize: fontSize['2xl'], color: colors.text.secondary }} />
       </Box>
       <SwapTokenSection>
@@ -845,7 +845,7 @@ const NftMetadataSection: React.FC<{
             <SectionValue>{token.nftCollection}</SectionValue>
             {token.nftCollectionVerified && (
               <VerifiedIcon
-                sx={{ fontSize: fontSize.md, color: colors.status.success, ml: '4px' }}
+                sx={{ fontSize: fontSize.md, color: colors.status.success, ml: `${spacing.xs}px` }}
               />
             )}
           </NftCollectionInfo>

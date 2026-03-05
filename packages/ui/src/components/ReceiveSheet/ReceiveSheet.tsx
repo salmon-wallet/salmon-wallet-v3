@@ -84,8 +84,8 @@ const CopyButton = styled(ButtonBase)({
   justifyContent: 'center',
   backgroundColor: colors.button.primaryBackground,
   borderRadius: borderRadius.lg,
-  width: 180,
-  height: 42,
+  width: componentSizes.copyButtonWidth,
+  height: componentSizes.buttonHeightCompact,
   gap: spacing.xs,
   transition: 'opacity 0.2s ease',
   '&:hover': {

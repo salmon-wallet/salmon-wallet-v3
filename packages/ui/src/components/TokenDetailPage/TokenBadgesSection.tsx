@@ -41,7 +41,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import LockIcon from '@mui/icons-material/Lock';
 
-import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing, componentSizes } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenBadgesSectionProps } from './types';
 
@@ -227,12 +227,12 @@ const BadgeItemContainer = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  minWidth: 55,
+  minWidth: componentSizes.badgeMinWidth,
 });
 
 const BadgeIconWrapper = styled(Box)<{ $badgeColor: string }>(({ $badgeColor }) => ({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.iconLg,
   display: 'flex',
   alignItems: 'center',
@@ -319,7 +319,7 @@ export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
             />
             <SkeletonBadgesRow>
               {[1, 2, 3].map((i) => (
-                <Box key={i} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                <Box key={i} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: `${spacing.xs}px` }}>
                   <Skeleton
                     variant="circular"
                     width={40}

@@ -226,7 +226,7 @@ export const LoadingScreen = memo(function LoadingScreen({
 
   const tipsContainerStyle: CSSProperties = {
     position: 'absolute',
-    bottom: '80px',
+    bottom: `${spacing['7xl']}px`,
     left: `${spacing['2xl']}px`,
     right: `${spacing['2xl']}px`,
     textAlign: 'center',

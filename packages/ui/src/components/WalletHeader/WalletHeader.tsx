@@ -11,7 +11,7 @@ import MuiAvatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials, opacity } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontWeight, fontSize, getAvatarColor, getShortAddress, getInitials, opacity, componentSizes } from '@salmon/shared';
 import { CopyIcon, RefreshIcon, SettingsIcon } from '../Icon';
 import type { WalletHeaderProps } from './types';
 
@@ -83,8 +83,8 @@ const ActionButtons = styled(Box)({
 });
 
 const HeaderButton = styled(IconButton)({
-  width: 44,
-  height: 44,
+  width: componentSizes.headerButtonSize,
+  height: componentSizes.headerButtonSize,
   borderRadius: borderRadius.tokenIcon,
   backgroundColor: colors.card.border,
   '&:hover': {
@@ -166,7 +166,7 @@ export function WalletHeader({
         {avatarUrl && !imgError ? (
           <MuiAvatar
             src={avatarUrl}
-            sx={{ width: 32, height: 32, marginRight: `${spacing.md}px`, cursor: 'pointer' }}
+            sx={{ width: componentSizes.iconSizeLarge, height: componentSizes.iconSizeLarge, marginRight: `${spacing.md}px`, cursor: 'pointer' }}
             imgProps={{ onError: () => setImgError(true) }}
             onClick={(e) => {
               e.stopPropagation();
@@ -176,8 +176,8 @@ export function WalletHeader({
         ) : accountId ? (
           <MuiAvatar
             sx={{
-              width: 32,
-              height: 32,
+              width: componentSizes.iconSizeLarge,
+              height: componentSizes.iconSizeLarge,
               marginRight: `${spacing.md}px`,
               backgroundColor: avatarColor,
               fontSize: fontSize.sm,

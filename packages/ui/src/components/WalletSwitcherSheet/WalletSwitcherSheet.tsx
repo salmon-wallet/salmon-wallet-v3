@@ -34,6 +34,7 @@ import {
   getInitials,
   fontSize as fontSizeTokens,
   fontWeight as fontWeightTokens,
+  componentSizes,
 } from '@salmon/shared';
 import { BaseSheetDialog } from '../BaseSheetDialog';
 
@@ -61,8 +62,8 @@ const StyledListItem = styled(ListItem)<{ $isActive?: boolean }>(({ $isActive })
 
 const AccountAvatar = styled(Avatar)<{ $bgColor: string }>(({ $bgColor }) => ({
   backgroundColor: $bgColor,
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   fontSize: fontSizeTokens.base,
   fontWeight: fontWeightTokens.semibold,
   color: colors.text.primary,
@@ -240,7 +241,7 @@ function AccountListItem({
         {account.avatar && !imgError ? (
           <Avatar
             src={account.avatar}
-            sx={{ width: 40, height: 40 }}
+            sx={{ width: componentSizes.iconSize2XL, height: componentSizes.iconSize2XL }}
             imgProps={{ onError: () => setImgError(true) }}
           />
         ) : (

@@ -15,6 +15,7 @@ import {
   fontWeight,
   getPasswordStrengthLabel,
   fontSize,
+  componentSizes,
 } from '@salmon/shared';
 import type { PasswordStrengthBarProps } from './types';
 
@@ -33,8 +34,8 @@ const BarsContainer = styled(Box)({
 
 const Bar = styled(Box)<{ $active: boolean; $barColor: string }>(
   ({ $active, $barColor }) => ({
-    width: 32,
-    height: 4,
+    width: componentSizes.iconSizeLarge,
+    height: spacing.xs,
     borderRadius: borderRadius.scrollbar,
     backgroundColor: $active ? $barColor : colors.step.inactive,
     transition: 'background-color 0.2s ease',

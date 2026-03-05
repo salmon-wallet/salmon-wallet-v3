@@ -9,7 +9,7 @@
 import React from 'react';
 import { styled } from '../utils/styled';
 import Box from '@mui/material/Box';
-import { colors } from '@salmon/shared';
+import { colors, componentSizes } from '@salmon/shared';
 
 export interface WalletLayoutProps {
   children: React.ReactNode;
@@ -40,7 +40,7 @@ const Inner = styled(Box)<{ $maxWidth: number }>(({ $maxWidth }) => ({
 
 export function WalletLayout({
   children,
-  maxWidth = 430,
+  maxWidth = componentSizes.webContainerMaxWidth,
 }: WalletLayoutProps): React.ReactElement {
   return (
     <Outer>

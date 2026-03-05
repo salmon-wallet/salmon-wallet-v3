@@ -13,6 +13,7 @@ import {
   borderRadius,
   borderWidth,
   componentSizes,
+  fontSize,
   s,
   vs,
   ms,
@@ -32,7 +33,7 @@ const ListContent = styled(Box)<{ $maxHeight?: number | string }>(({ $maxHeight 
   overflowY: $maxHeight ? 'auto' : 'visible',
   maxHeight: $maxHeight || 'none',
   '&::-webkit-scrollbar': {
-    width: 6,
+    width: componentSizes.scrollbarWidth,
   },
   '&::-webkit-scrollbar-track': {
     background: 'transparent',
@@ -91,12 +92,12 @@ export function TokenListSkeleton({ count = 5 }: TokenListSkeletonProps) {
             <SkeletonContainer>
               <SkeletonLogo variant="circular" width={tokenIconSize} height={tokenIconSize} />
               <SkeletonTextContainer>
-                <SkeletonText variant="text" width="60%" height={ms(16)} sx={{ mb: 0.5 }} />
-                <SkeletonText variant="text" width="40%" height={ms(14)} />
+                <SkeletonText variant="text" width="60%" height={ms(fontSize.md)} sx={{ mb: `${spacing.xs}px` }} />
+                <SkeletonText variant="text" width="40%" height={ms(fontSize.base)} />
               </SkeletonTextContainer>
               <SkeletonValueContainer>
-                <SkeletonText variant="text" width={s(60)} height={ms(16)} sx={{ mb: 0.5 }} />
-                <SkeletonText variant="text" width={s(40)} height={ms(14)} />
+                <SkeletonText variant="text" width={s(spacing['5.5xl'])} height={ms(fontSize.md)} sx={{ mb: `${spacing.xs}px` }} />
+                <SkeletonText variant="text" width={s(spacing['4xl'])} height={ms(fontSize.base)} />
               </SkeletonValueContainer>
             </SkeletonContainer>
           </BlurContainer>

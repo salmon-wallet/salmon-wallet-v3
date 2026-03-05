@@ -28,6 +28,7 @@ import {
   fontWeight,
   letterSpacing,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -205,7 +206,7 @@ const DexBadge = styled(Box)({
   alignItems: 'center',
   gap: spacing.xs,
   backgroundColor: colors.background.tokenItem,
-  padding: `2px ${spacing.xs}px`,
+  padding: `${spacing['2xs']}px ${spacing.xs}px`,
   borderRadius: borderRadius.sm,
 });
 
@@ -237,7 +238,7 @@ const HashCopyContainer = styled(Box)({
 
 const TokenIcon: React.FC<{ uri?: string | null; size?: number }> = ({
   uri,
-  size = 24,
+  size = componentSizes.iconSizeMedium,
 }) => {
   if (uri) {
     return (

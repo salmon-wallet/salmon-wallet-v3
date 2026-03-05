@@ -36,6 +36,7 @@ import {
   type AccountAddStep,
   type DerivedAccountInfo,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { DerivedAccountCard } from '../DerivedAccountCard';
@@ -65,8 +66,8 @@ const MethodCard = styled(ListItemButton)({
 });
 
 const MethodIcon = styled(Box)({
-  width: 48,
-  height: 48,
+  width: componentSizes.iconSize3XL,
+  height: componentSizes.iconSize3XL,
   borderRadius: borderRadius.md,
   backgroundColor: colors.interactive.hoverSubtle,
   display: 'flex',

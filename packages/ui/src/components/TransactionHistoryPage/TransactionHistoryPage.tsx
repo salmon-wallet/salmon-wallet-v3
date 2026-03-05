@@ -61,7 +61,7 @@ const EmptyContainer = styled(Box)({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: `60px ${spacing.lg}px`,
+  padding: `${spacing['5.5xl']}px ${spacing.lg}px`,
 });
 
 const EmptyTitle = styled(Typography)({
@@ -84,7 +84,7 @@ const ErrorContainer = styled(Box)({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: `60px ${spacing.lg}px`,
+  padding: `${spacing['5.5xl']}px ${spacing.lg}px`,
 });
 
 const ErrorTitle = styled(Typography)({
@@ -106,7 +106,7 @@ const RetryButton = styled(Button)({
   color: colors.text.primary,
   textTransform: 'none',
   fontWeight: fontWeight.medium,
-  padding: `8px 24px`,
+  padding: `${spacing.sm}px ${spacing['2xl']}px`,
   borderRadius: borderRadius.md,
   '&:hover': {
     backgroundColor: colors.accent.primary,
@@ -118,7 +118,7 @@ const RetryButton = styled(Button)({
 const LoadingMoreContainer = styled(Box)({
   display: 'flex',
   justifyContent: 'center',
-  padding: `16px 0`,
+  padding: `${spacing.lg}px 0`,
 });
 
 // ============================================================================
@@ -138,7 +138,7 @@ const TransactionItemSkeleton: React.FC = () => (
         sx={{ bgcolor: colors.skeleton.base, flexShrink: 0 }}
       />
       <SkeletonInfoSection>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: `${spacing.sm}px`, alignItems: 'center' }}>
           <Skeleton
             variant="rounded"
             width={70}

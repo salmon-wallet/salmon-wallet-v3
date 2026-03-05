@@ -19,6 +19,7 @@ import {
   shadowsCSS,
   letterSpacing,
   lineHeight,
+  componentSizes,
 } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -64,7 +65,7 @@ const InputContainer = styled(Box)({
 const AddressInput = styled('input')({
   width: '100%',
   padding: `${spacing.sm}px ${spacing.base}px`,
-  minHeight: 48,
+  minHeight: componentSizes.iconSize3XL,
   backgroundColor: colors.background.tokenItem,
   border: `1px solid ${colors.border.default}`,
   borderRadius: borderRadius.md,
@@ -195,7 +196,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
           <SecondaryButton
             onClick={onBack}
             style={{
-              height: 42,
+              height: componentSizes.buttonHeightCompact,
               border: `0.8px solid ${colors.accent.border}`,
               borderRadius: borderRadius.lg,
               backgroundColor: colors.button.cancelBackground,
@@ -209,7 +210,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
             onClick={onContinue}
             disabled={!canContinue}
             style={{
-              height: 42,
+              height: componentSizes.buttonHeightCompact,
               background: 'transparent',
             }}
           >

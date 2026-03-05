@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography';
 import {
   borderRadius,
   colors,
+  componentSizes,
   fontFamily,
   fontWeight,
   formatTokenBalance,
@@ -51,7 +52,7 @@ const InputContainer = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
-  height: 58,
+  height: componentSizes.inputHeightLg,
   padding: `0 ${spacing.md}px`,
 });
 
@@ -90,10 +91,10 @@ const TokenDropdown = styled(ButtonBase)({
   justifyContent: 'center',
   backgroundColor: colors.button.secondaryBackground,
   borderRadius: borderRadius.sm + 2,
-  padding: `2px ${spacing.sm}px`,
+  padding: `${spacing['2xs']}px ${spacing.sm}px`,
   gap: spacing.sm - 1,
-  height: 36,
-  minWidth: 100,
+  height: componentSizes.iconSizeXL,
+  minWidth: componentSizes.swapSelectorMinWidth,
   boxShadow: shadowsCSS.sm,
   cursor: 'pointer',
   transition: 'opacity 0.2s ease',
@@ -103,15 +104,15 @@ const TokenDropdown = styled(ButtonBase)({
 });
 
 const TokenIcon = styled('img')({
-  width: 22,
-  height: 22,
+  width: componentSizes.iconSizeCompact,
+  height: componentSizes.iconSizeCompact,
   borderRadius: borderRadius.lg,
   objectFit: 'cover',
 });
 
 const TokenIconPlaceholder = styled(Box)({
-  width: 22,
-  height: 22,
+  width: componentSizes.iconSizeCompact,
+  height: componentSizes.iconSizeCompact,
   borderRadius: borderRadius.lg,
   backgroundColor: colors.skeleton.base,
 });

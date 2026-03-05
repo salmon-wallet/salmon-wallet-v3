@@ -22,6 +22,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import {
   colors,
   spacing,
+  componentSizes,
   gradients,
   fontFamily,
   fontWeight,
@@ -69,15 +70,15 @@ const TokenIconWrapper = styled(Box)({
 });
 
 const TokenIconImage = styled('img')({
-  width: 100,
-  height: 100,
+  width: componentSizes.tokenIconXL,
+  height: componentSizes.tokenIconXL,
   borderRadius: borderRadius.full,
   objectFit: 'cover',
 });
 
 const TokenIconFallback = styled(Box)({
-  width: 100,
-  height: 100,
+  width: componentSizes.tokenIconXL,
+  height: componentSizes.tokenIconXL,
   borderRadius: borderRadius.full,
   backgroundColor: colors.background.card,
   border: `2px solid ${colors.border.default}`,
@@ -166,7 +167,7 @@ const BottomButtons = styled(Box)({
 
 const CancelButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) => ({
   flex: 1,
-  height: 48,
+  height: componentSizes.buttonHeightMedium,
   borderRadius: borderRadius.lg,
   border: `1px solid ${colors.accent.border}`,
   backgroundColor: colors.button.cancelBackground,
@@ -191,7 +192,7 @@ const CancelButtonText = styled(Typography)({
 
 const ConfirmButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) => ({
   flex: 1,
-  height: 48,
+  height: componentSizes.buttonHeightMedium,
   borderRadius: borderRadius.lg,
   overflow: 'hidden',
   border: `1px solid ${colors.accent.border}`,

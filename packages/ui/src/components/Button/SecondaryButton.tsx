@@ -23,7 +23,7 @@ const StyledButton = styled(Button)<{
   $buttonVariant?: 'filled' | 'outline';
 }>(({ fullWidth, $buttonVariant = 'filled' }) => ({
   width: fullWidth ? '100%' : 'auto',
-  minWidth: 120,
+  minWidth: componentSizes.buttonMinWidth,
   height: componentSizes.buttonHeight,
   backgroundColor:
     $buttonVariant === 'outline' ? 'transparent' : colors.button.secondaryBackground,

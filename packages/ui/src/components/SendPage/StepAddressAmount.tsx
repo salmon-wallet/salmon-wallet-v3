@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import {
   colors,
   spacing,
+  componentSizes,
   gradients,
   fontFamily,
   fontWeight,
@@ -67,7 +68,7 @@ const ScrollContent = styled(Box)({
   paddingBottom: spacing.lg,
   // Scrollbar styling
   '&::-webkit-scrollbar': {
-    width: 4,
+    width: componentSizes.scrollbarWidthSm,
   },
   '&::-webkit-scrollbar-track': {
     background: 'transparent',
@@ -109,8 +110,8 @@ const TokenCardLeft = styled(Box)({
 });
 
 const TokenCardLogo = styled('img')({
-  width: 36,
-  height: 36,
+  width: componentSizes.iconSizeXL,
+  height: componentSizes.iconSizeXL,
   borderRadius: borderRadius.iconContainer,
   objectFit: 'cover',
   marginRight: spacing.md,
@@ -118,8 +119,8 @@ const TokenCardLogo = styled('img')({
 });
 
 const TokenCardLogoFallback = styled(Box)({
-  width: 36,
-  height: 36,
+  width: componentSizes.iconSizeXL,
+  height: componentSizes.iconSizeXL,
   borderRadius: borderRadius.iconContainer,
   backgroundColor: colors.background.card,
   border: `1px solid ${colors.border.default}`,
@@ -270,7 +271,7 @@ const BottomButtons = styled(Box)({
 
 const CancelButton = styled(ButtonBase)({
   flex: 1,
-  height: 48,
+  height: componentSizes.buttonHeightMedium,
   borderRadius: borderRadius.lg,
   border: `1px solid ${colors.accent.border}`,
   backgroundColor: colors.button.cancelBackground,
@@ -293,7 +294,7 @@ const CancelButtonText = styled(Typography)({
 
 const ReviewButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) => ({
   flex: 1,
-  height: 48,
+  height: componentSizes.buttonHeightMedium,
   borderRadius: borderRadius.lg,
   overflow: 'hidden',
   border: disabled

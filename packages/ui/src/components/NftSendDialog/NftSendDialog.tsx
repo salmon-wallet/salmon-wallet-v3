@@ -28,6 +28,7 @@ import {
   type BlockchainAccount,
   type BlockchainType,
   fontSize,
+  componentSizes,
 } from '@salmon/shared';
 import { BaseDialog, MessageText } from '../BaseDialog';
 import { InputAddress } from '../InputAddress';
@@ -57,8 +58,8 @@ const NftPreview = styled(Box)({
 });
 
 const NftImage = styled('img')({
-  width: 56,
-  height: 56,
+  width: componentSizes.buttonHeight,
+  height: componentSizes.buttonHeight,
   borderRadius: borderRadius.md,
   objectFit: 'cover',
   backgroundColor: colors.background.card,
@@ -186,7 +187,7 @@ export function NftSendDialog({
             />
 
             {error && (
-              <MessageText sx={{ color: colors.status.error, mt: 1 }}>
+              <MessageText sx={{ color: colors.status.error, mt: `${spacing.sm}px` }}>
                 {error}
               </MessageText>
             )}

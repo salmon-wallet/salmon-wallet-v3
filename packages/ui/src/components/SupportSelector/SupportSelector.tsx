@@ -31,6 +31,7 @@ import {
   fontSize,
   fontWeight,
   lineHeight,
+  componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
@@ -62,7 +63,7 @@ const StyledListItemButton = styled(ListItemButton)({
 });
 
 const StyledListItemIcon = styled(ListItemIcon)({
-  minWidth: 40,
+  minWidth: componentSizes.backButtonSize,
   color: colors.accent.primary,
 });
 

@@ -11,6 +11,7 @@ import {
   type CurrencySelectorItem,
   fontSize,
   fontWeight,
+  componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
@@ -20,8 +21,8 @@ import { SettingsSelectorList } from '../SettingsSelectorList';
 // ============================================================================
 
 const CurrencySymbol = styled(Box)({
-  width: 40,
-  height: 40,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
   borderRadius: borderRadius.md,
   backgroundColor: colors.background.card,
   display: 'flex',

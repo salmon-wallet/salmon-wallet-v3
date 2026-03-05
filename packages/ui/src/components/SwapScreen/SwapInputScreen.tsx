@@ -16,6 +16,7 @@ import {
   fontWeight,
   fontSize,
   shadowsCSS,
+  componentSizes,
 } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
@@ -70,7 +71,7 @@ const ReviewButtonWrapper = styled('div')<{ $canReview: boolean }>(({ $canReview
   border: `1.5px solid ${$canReview ? 'transparent' : 'transparent'}`,
   boxShadow: shadowsCSS.button,
   background: $canReview ? colors.button.primaryBackground : colors.button.inactiveBackground,
-  minWidth: 180,
+  minWidth: componentSizes.copyButtonWidth,
   transition: 'border-color 0.2s ease',
   ...($canReview && {
     '&:hover': {
@@ -143,8 +144,8 @@ export function SwapInputScreen({
             onClick={onReview}
             disabled={!canReview}
             style={{
-              minWidth: 180,
-              height: 42,
+              minWidth: componentSizes.copyButtonWidth,
+              height: componentSizes.buttonHeightCompact,
               background: 'transparent',
               color: canReview ? colors.button.primaryText : undefined,
             }}

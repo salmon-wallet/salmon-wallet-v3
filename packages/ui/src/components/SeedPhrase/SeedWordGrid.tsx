@@ -6,7 +6,7 @@
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { colors, spacing, borderRadius, fontFamily, fontSize, fontWeight } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamily, fontSize, fontWeight, componentSizes } from '@salmon/shared';
 import type { SeedWordGridProps } from './types';
 
 const Container = styled(Box)({
@@ -35,7 +35,7 @@ const WordIndex = styled(Typography)({
   fontFamily: `${fontFamily.sans}, sans-serif`,
   fontWeight: fontWeight.bold,
   fontSize: fontSize.sm,
-  minWidth: 20,
+  minWidth: componentSizes.iconSizeSmall,
 });
 
 const WordText = styled(Typography)({

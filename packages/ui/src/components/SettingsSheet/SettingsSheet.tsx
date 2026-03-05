@@ -59,7 +59,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import { colors, spacing, fontSize, fontWeight, letterSpacing, shadowsCSS, opacity } from '@salmon/shared';
+import { colors, spacing, fontSize, fontWeight, letterSpacing, shadowsCSS, opacity, componentSizes } from '@salmon/shared';
 import type { SettingsScreen } from '@salmon/shared';
 
 import type {
@@ -265,7 +265,7 @@ const StyledListItemButton = styled(ListItemButton)<{ $isDanger?: boolean }>(
 
 const StyledListItemIcon = styled(ListItemIcon)<{ $isDanger?: boolean }>(
   ({ $isDanger }) => ({
-    minWidth: 40,
+    minWidth: componentSizes.backButtonSize,
     color: $isDanger ? colors.status.error : colors.text.secondary,
   })
 );

@@ -39,6 +39,8 @@ export const spacing = {
   paginationGap: 42,
   /** 48px */
   '5xl': 48,
+  /** 60px */
+  '5.5xl': 60,
   /** 64px */
   '6xl': 64,
   /** 80px */
@@ -90,7 +92,10 @@ export const borderRadius = {
 export const componentSizes = {
   // Buttons
   buttonHeight: 56,
+  buttonHeightMedium: 48,
   buttonHeightSmall: 44,
+  /** 42px - Compact action buttons (swap, bridge, receive, success) */
+  buttonHeightCompact: 42,
   buttonRadius: 28,        // Para botones redondeados
   buttonRadiusSmall: 21,
 
@@ -106,6 +111,8 @@ export const componentSizes = {
 
   // Inputs
   inputHeight: 56,
+  /** 58px - Swap amount input height */
+  inputHeightLg: 58,
   inputRadius: 12,
 
   // Logo
@@ -120,13 +127,40 @@ export const componentSizes = {
   // Checkbox
   checkboxSize: 24,
 
-  // Icons
+  // Icon scale
+  /** 16px */
+  iconSizeXs: 16,
+  /** 18px - Type badges, source badge chips */
+  iconSizeXSmall: 18,
+  /** 20px */
   iconSizeSmall: 20,
+  /** 22px - Compact token icons (swap selector) */
+  iconSizeCompact: 22,
+  /** 24px */
   iconSizeMedium: 24,
+  /** 28px - Small copy/action icon buttons */
+  iconSizeMButton: 28,
+  /** 32px */
   iconSizeLarge: 32,
+  /** 36px - Token card logos, address book rows */
+  iconSizeXL: 36,
+  /** 40px - Avatars, type icon containers */
+  iconSize2XL: 40,
+  /** 48px - Featured tokens, add account icons */
+  iconSize3XL: 48,
+  /** 52px - NFT action buttons height */
+  iconSize4XL: 52,
+  /** 54px - Swap logo container width */
+  iconSize5XL: 54,
+  /** 56px - Large component icons (same as buttonHeight) */
+  iconSize6XL: 56,
+  /** 100px - Large token icons (confirmation step) */
+  tokenIconXL: 100,
 
   // Header
   headerHeight: 56,
+  /** 44px - Header action buttons */
+  headerButtonSize: 44,
   backButtonSize: 40,
 
   // Balance card elements
@@ -176,6 +210,66 @@ export const componentSizes = {
   qrBorderWidth: 22,
   /** Vertical gap between ReceiveSheet content elements: 32px */
   receiveContentGap: 32,
+  /** Copy button width: 180px */
+  copyButtonWidth: 180,
+
+  // Scrollbar widths
+  /** 4px - Thin scrollbar */
+  scrollbarWidthSm: 4,
+  /** 6px - Standard scrollbar */
+  scrollbarWidth: 6,
+
+  // Dividers
+  /** 1px - Divider/separator height */
+  dividerHeight: 1,
+
+  // Background decorative
+  /** 200px - Background gradient/pattern height */
+  backgroundPatternHeight: 200,
+
+  // Skeleton badge
+  /** 100px - Skeleton badge width */
+  skeletonBadgeWidth: 100,
+
+  // Skeleton placeholders
+  /** 70px - Skeleton balance placeholder width */
+  skeletonBalanceWidth: 70,
+
+  // Button min-widths
+  /** 120px - Default button minimum width */
+  buttonMinWidth: 120,
+  /** 160px - Large button minimum width */
+  buttonMinWidthLg: 160,
+
+  // Swap
+  /** 100px - Swap token selector minimum width */
+  swapSelectorMinWidth: 100,
+  /** 75px - Swap review card minimum height */
+  swapReviewCardMinHeight: 75,
+
+  // Badge
+  /** 55px - Badge item minimum width */
+  badgeMinWidth: 55,
+
+  // Token icon small (web)
+  /** 33px - Small token icon (web list items) */
+  tokenIconSm: 33,
+
+  // Chart
+  /** 200px - Price chart default height */
+  chartHeight: 200,
+
+  // Web layout
+  /** 430px - Web extension container max width */
+  webContainerMaxWidth: 430,
+
+  // NFT
+  /** 406px - NFT image max width */
+  nftImageMaxWidth: 406,
+
+  // Sheet
+  /** 700px - Sheet dialog max height */
+  sheetMaxHeight: 700,
 } as const;
 
 /**

@@ -351,7 +351,7 @@ export function BalanceCard({
       {/* Balance */}
       {loading ? (
         <BalanceRow>
-          <SkeletonRect sx={{ width: ms(160), height: ms(fontSize.balance), borderRadius: `${ms(borderRadius.sm)}px` }} />
+          <SkeletonRect sx={{ width: ms(componentSizes.buttonMinWidthLg), height: ms(fontSize.balance), borderRadius: `${ms(borderRadius.sm)}px` }} />
         </BalanceRow>
       ) : (
         renderBalance()
@@ -360,7 +360,7 @@ export function BalanceCard({
       {/* 24h change */}
       {loading ? (
         <ChangeRow>
-          <SkeletonRect sx={{ width: ms(120), height: ms(fontSize.sm), borderRadius: `${ms(borderRadius.sm)}px` }} />
+          <SkeletonRect sx={{ width: ms(componentSizes.buttonMinWidth), height: ms(fontSize.sm), borderRadius: `${ms(borderRadius.sm)}px` }} />
         </ChangeRow>
       ) : (
         renderChange()

@@ -20,6 +20,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import {
   colors,
   spacing,
+  componentSizes,
   fontFamily,
   fontWeight,
   borderRadius,
@@ -90,7 +91,7 @@ const ListContent = styled(Box)({
   paddingBottom: spacing.xl,
   // Scrollbar styling
   '&::-webkit-scrollbar': {
-    width: 4,
+    width: componentSizes.scrollbarWidthSm,
   },
   '&::-webkit-scrollbar-track': {
     background: 'transparent',
@@ -106,7 +107,7 @@ const TopFadeGradient = styled(Box)({
   left: 0,
   right: 0,
   top: 0,
-  height: 24,
+  height: spacing['2xl'],
   zIndex: 1,
   pointerEvents: 'none',
   background: `linear-gradient(to bottom, ${colors.background.secondary}, transparent)`,
@@ -134,8 +135,8 @@ const TokenRowContent = styled(Box)({
 });
 
 const TokenLogoImage = styled('img')({
-  width: 32,
-  height: 32,
+  width: componentSizes.iconSizeLarge,
+  height: componentSizes.iconSizeLarge,
   borderRadius: borderRadius.xl,
   objectFit: 'cover',
   marginRight: spacing.md,
@@ -143,8 +144,8 @@ const TokenLogoImage = styled('img')({
 });
 
 const TokenLogoFallback = styled(Box)({
-  width: 32,
-  height: 32,
+  width: componentSizes.iconSizeLarge,
+  height: componentSizes.iconSizeLarge,
   borderRadius: borderRadius.xl,
   backgroundColor: colors.background.card,
   border: `1px solid ${colors.border.default}`,
