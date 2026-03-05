@@ -36,27 +36,36 @@ const STATIC_API_URLS: Record<Environment, string> = {
 };
 
 /**
- * Get environment variable value, supporting both Expo (mobile) and Vite (extension) formats
+ * Get environment variable value, supporting both Expo (mobile) and Vite (extension/web) formats
  *
- * Note: This function uses process.env exclusively for React Native (Hermes) compatibility.
- * Hermes does not support import.meta at all - even typeof checks fail during parsing.
+ * IMPORTANT: babel-preset-expo only inlines STATIC dot-notation references to process.env.
+ * Dynamic access like process.env[key] is NOT replaced and returns undefined at runtime.
+ * The static map below ensures each EXPO_PUBLIC_* variable is referenced with dot notation
+ * so babel can inline the values. The resulting JS object supports dynamic key lookup.
  *
  * For Vite environments:
- * - Vite transforms import.meta.env.* to process.env.* at build time when using plugins
- * - Alternatively, use @vitejs/plugin-env or define in vite.config.ts
- *
- * For Expo/React Native:
- * - Uses EXPO_PUBLIC_* prefix which is automatically available via babel-preset-expo
+ * - process.env is defined as a real JSON object at build time (via vite.config.ts define)
+ * - Both static and dynamic access work, so the fallback path handles Vite correctly
  */
 function getEnvVar(name: string): string | undefined {
-  // Check for Expo format (EXPO_PUBLIC_*)
-  const expoKey = `EXPO_PUBLIC_${name}`;
-  // Check for Vite format (VITE_*)
-  const viteKey = `VITE_${name}`;
+  // Static dot-notation references required for babel-preset-expo inline replacement.
+  // Each value is inlined at compile time in Expo/Metro builds.
+  // In Vite builds these resolve to undefined (no EXPO_PUBLIC_ vars), falling through below.
+  // In tests (Node.js) these read from the real process.env object at call time.
+  const expoValue = ({
+    SALMON_ENV: process.env.EXPO_PUBLIC_SALMON_ENV,
+    API_HOST: process.env.EXPO_PUBLIC_API_HOST,
+    API_PORT: process.env.EXPO_PUBLIC_API_PORT,
+    API_URL: process.env.EXPO_PUBLIC_API_URL,
+    STATIC_API_URL: process.env.EXPO_PUBLIC_STATIC_API_URL,
+  } as Record<string, string | undefined>)[name];
 
-  // Access process.env safely for different environments
+  if (expoValue) return expoValue;
+
+  // Fallback: dynamic access for Vite (process.env is a real object) and Node.js
+  const viteKey = `VITE_${name}`;
   if (typeof process !== 'undefined' && process.env) {
-    return process.env[expoKey] || process.env[viteKey] || process.env[name];
+    return process.env[viteKey] || process.env[name];
   }
 
   return undefined;
