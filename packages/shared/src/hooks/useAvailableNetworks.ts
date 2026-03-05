@@ -11,9 +11,9 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { useUserConfig, type UseUserConfigParams } from './useUserConfig';
-import { SOLANA_NETWORKS } from '../blockchain/solana/factory';
-import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/factory';
-import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/factory';
+import { SOLANA_NETWORKS } from '../blockchain/solana/networks';
+import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/networks';
+import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/networks';
 import type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
 import { MAINNET_NETWORK_IDS, filterNetworks } from '../utils/network';
 import { isBlockchainEnabled } from '../config/blockchains';

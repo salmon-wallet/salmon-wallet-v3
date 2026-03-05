@@ -6,7 +6,7 @@ import {
   Message,
 } from '@solana/web3.js';
 import bs58 from 'bs58';
-import { SOLANA_NETWORKS } from './factory';
+import { SOLANA_NETWORKS } from './networks';
 import {
   requiresMemo as checkRequiresMemo,
   calculateTransferFee as calcTransferFee,

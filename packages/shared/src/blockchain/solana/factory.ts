@@ -2,6 +2,9 @@ import { Keypair } from '@solana/web3.js';
 import HDKey from 'micro-key-producer/slip10.js';
 import { SolanaAccount } from './SolanaAccount';
 import type { SolanaNetwork } from '../../types/blockchain';
+
+// Re-export for backward compatibility — canonical definition is in ./networks
+export { SOLANA_NETWORKS } from './networks';
 import type { SolanaAccountApiFunctions } from '../../types/transfer';
 import {
   mnemonicToSeed,
@@ -206,28 +209,3 @@ export function createSolanaAccountFromSecretKey(
   return createSolanaAccountFromKeyPair(network, keyPair, index, apiFunctions);
 }
 
-/**
- * Pre-defined network configurations for common Solana networks.
- * RPC URLs here are public fallbacks — useAvailableNetworks merges
- * the real URLs from the backend API at runtime.
- */
-export const SOLANA_NETWORKS: Record<string, SolanaNetwork> = {
-  'solana-mainnet': {
-    id: 'solana-mainnet',
-    networkId: 'solana-mainnet',
-    name: 'Mainnet Beta',
-    config: {
-      nodeUrl: 'https://api.mainnet-beta.solana.com',
-      commitment: 'confirmed',
-    },
-  },
-  'solana-devnet': {
-    id: 'solana-devnet',
-    networkId: 'solana-devnet',
-    name: 'Devnet',
-    config: {
-      nodeUrl: 'https://api.devnet.solana.com',
-      commitment: 'confirmed',
-    },
-  },
-};

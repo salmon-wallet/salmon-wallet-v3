@@ -23,7 +23,8 @@ import {
   type Account,
   type AccountKeyInfo,
 } from '@salmon/shared';
-import { PrimaryButton, SecondaryButton, SettingsScreenLayout } from '..';
+import { PrimaryButton, SecondaryButton } from '../Button';
+import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
 // Types
