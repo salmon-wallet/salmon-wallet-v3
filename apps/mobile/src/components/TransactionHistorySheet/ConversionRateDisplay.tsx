@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, s, fontSize, formatConversionRate, fontFamilyNative } from '@salmon/shared';
+import { colors, ms, s, spacing, fontSize, formatConversionRate, fontFamilyNative } from '@salmon/shared';
 
 // ============================================================================
 // Constants
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     marginRight: s(6),
   },
   iconSmall: {
-    marginRight: s(4),
+    marginRight: s(spacing.xs),
   },
   text: {
     fontSize: ms(fontSize.sm),

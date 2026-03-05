@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, s, spacing, vs } from '@salmon/shared';
+import { colors, fontSize, ms, s, spacing, vs, borderRadius } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
@@ -259,7 +259,7 @@ export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
 
 const styles = StyleSheet.create({
   glassWrapper: {
-    borderRadius: 18,
+    borderRadius: borderRadius.iconContainer,
     marginHorizontal: s(spacing['2xl']),
     overflow: 'hidden',
   },
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     padding: s(spacing.md),
   },
   title: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: 'DMSansSemiBold',
     color: colors.text.primary,
     marginBottom: vs(spacing.md),
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing.xs),
   },
   badgeLabel: {
-    fontSize: ms(10),
+    fontSize: ms(fontSize.xs),
     fontFamily: 'DMSansMedium',
     textAlign: 'center',
     letterSpacing: ms(-0.05, 0.3),

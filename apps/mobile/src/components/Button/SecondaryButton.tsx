@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   ViewStyle,
 } from 'react-native';
-import { colors, componentSizes } from '@salmon/shared';
+import { colors, componentSizes, fontSize, } from '@salmon/shared';
 
 interface SecondaryButtonProps {
   onPress: () => void;
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   text: {
     color: colors.button.secondaryText,
     fontFamily: 'DMSansBold',
-    fontSize: 16,
+    fontSize: fontSize.md,
     letterSpacing: 1,
   },
 });

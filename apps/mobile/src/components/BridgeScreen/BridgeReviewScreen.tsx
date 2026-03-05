@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
+import { colors, fontSize, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
 import { SwapReviewButtons } from '../SwapScreen/SwapReviewButtons';
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     paddingTop: vs(spacing['2xl']),
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
@@ -140,14 +140,14 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing.lg),
   },
   warningTitle: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
     letterSpacing: 0.02,
   },
   warningText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     letterSpacing: 0.018,

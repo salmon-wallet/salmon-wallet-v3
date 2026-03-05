@@ -22,7 +22,7 @@ import {
   getAccountKeysForNetwork,
   type Account,
   type AccountKeyInfo,
-} from '@salmon/shared';
+fontSize, letterSpacing, } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
@@ -296,13 +296,13 @@ const styles = StyleSheet.create({
   networkName: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   networkBlockchain: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
     fontSize: 13,
-    marginTop: 2,
+    marginTop: spacing.xxs,
   },
   // Warning
   warningContainer: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
     lineHeight: 20,
   },
   // Key card
@@ -327,25 +327,25 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   keyHeader: {
-    gap: 4,
+    gap: spacing.xs,
   },
   pathLabel: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: letterSpacing.wider,
   },
   pathValue: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
   },
   addressValue: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
     fontSize: 13,
-    marginTop: 2,
+    marginTop: spacing.xxs,
   },
   keyContainer: {
     position: 'relative',
@@ -358,9 +358,9 @@ const styles = StyleSheet.create({
   keyText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
     lineHeight: 22,
-    letterSpacing: 0.5,
+    letterSpacing: letterSpacing.wider,
   },
   revealOverlay: {
     position: 'absolute',
@@ -378,12 +378,12 @@ const styles = StyleSheet.create({
   revealText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   emptyText: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
     textAlign: 'center',
     marginVertical: spacing.xl,
   },

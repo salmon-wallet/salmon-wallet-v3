@@ -23,7 +23,7 @@ import {
   fontFamilyNative,
   type ExplorerSelectorBaseProps,
   type ExplorerSelectorItem,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   explorerName: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   loadingContainer: {
     padding: spacing.xl,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
     textAlign: 'center',
     padding: spacing.xl,
   },

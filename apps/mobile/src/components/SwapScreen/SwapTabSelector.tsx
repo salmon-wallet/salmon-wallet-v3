@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors, spacing, ms, s, fontFamilyNative } from '@salmon/shared';
+import { colors, fontSize, spacing, ms, s, fontFamilyNative } from '@salmon/shared';
 import type { SwapTabSelectorProps, SwapTab } from './types';
 
 /**
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   tabText: {
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     fontFamily: fontFamilyNative.bold,
     letterSpacing: 0.18,
     lineHeight: ms(18 * 1.3),

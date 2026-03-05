@@ -30,6 +30,7 @@ import {
   componentSizes,
   vs,
   s,
+  spacing,
 } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
 
@@ -344,8 +345,8 @@ const styles = StyleSheet.create({
   },
   handleContainer: {
     alignItems: 'center',
-    paddingTop: vs(12),
-    paddingBottom: vs(8),
+    paddingTop: vs(spacing.md),
+    paddingBottom: vs(spacing.sm),
   },
   handle: {
     width: s(componentSizes.sheetHandleWidth),
@@ -359,7 +360,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     // Positioned by caller via absolute placement; default sits just below handle
-    top: vs(12) + vs(8),
+    top: vs(spacing.md) + vs(8),
     height: componentSizes.sheetFadeGradientHeight,
     zIndex: 1,
   },

@@ -19,7 +19,7 @@ import {
   fontFamilyNative,
   useAccountsContext,
   validatePassword,
-} from '@salmon/shared';
+letterSpacing, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import { PasswordInput, PasswordStrengthBar } from '../PasswordInput';
 import { PrimaryButton } from '../Button';
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.medium,
     fontSize: fontSize.sm,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: letterSpacing.wider,
     marginBottom: spacing.md,
   },
   inputGroup: {

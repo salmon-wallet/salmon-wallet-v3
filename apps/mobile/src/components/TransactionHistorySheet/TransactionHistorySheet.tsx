@@ -19,7 +19,7 @@ import {
   spacing,
   fontSize,
   fontFamilyNative,
-} from '@salmon/shared';
+borderRadius, } from '@salmon/shared';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { TransactionItem } from './TransactionItem';
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(18),
+    marginBottom: vs(spacing.headerPadding),
     letterSpacing: ms(-0.12, 0.3),
   },
   content: {
@@ -281,16 +281,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.headerPadding),
   },
   listContent: {
-    paddingBottom: vs(30),
+    paddingBottom: vs(spacing['3.5xl']),
   },
   // Skeleton styles
   skeletonList: {
-    paddingTop: vs(8),
+    paddingTop: vs(spacing.sm),
   },
   skeletonContainer: {
     backgroundColor: colors.background.tokenItem,
-    borderRadius: 12,
-    marginBottom: vs(12),
+    borderRadius: borderRadius.lg,
+    marginBottom: vs(spacing.md),
     overflow: 'hidden',
   },
   // Empty state styles
@@ -298,13 +298,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: vs(60),
+    paddingVertical: vs(spacing['5.5xl']),
   },
   emptyTitle: {
     fontSize: ms(fontSize.xl),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
-    marginBottom: vs(10),
+    marginBottom: vs(spacing.base),
   },
   emptySubtitle: {
     fontSize: ms(fontSize.md),
@@ -317,24 +317,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: vs(60),
+    paddingVertical: vs(spacing['5.5xl']),
   },
   errorTitle: {
     fontSize: ms(fontSize.xl),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
-    marginBottom: vs(10),
+    marginBottom: vs(spacing.base),
   },
   errorMessage: {
     fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     textAlign: 'center',
-    marginBottom: vs(18),
+    marginBottom: vs(spacing.headerPadding),
   },
   retryButton: {
-    paddingVertical: vs(12),
-    paddingHorizontal: s(24),
+    paddingVertical: vs(spacing.md),
+    paddingHorizontal: s(spacing['2xl']),
     backgroundColor: colors.accent.primary,
     borderRadius: 10,
   },
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   },
   // Loading more
   loadingMoreContainer: {
-    paddingVertical: vs(16),
+    paddingVertical: vs(spacing.lg),
     alignItems: 'center',
   },
 });

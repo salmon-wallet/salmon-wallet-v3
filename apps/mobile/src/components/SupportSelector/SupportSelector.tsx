@@ -17,7 +17,7 @@ import {
   fontFamilyNative,
   type SupportSelectorBaseProps,
   type SupportOptionItem,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -126,8 +126,8 @@ const styles = StyleSheet.create({
   optionTitle: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
-    marginBottom: 2,
+    fontSize: fontSize.md,
+    marginBottom: spacing.xxs,
   },
   optionDescription: {
     color: colors.text.secondary,

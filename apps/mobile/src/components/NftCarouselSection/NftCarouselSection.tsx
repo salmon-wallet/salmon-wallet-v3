@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, gradients, shadows, ms, s, vs } from '@salmon/shared';
+import { colors, fontSize, borderRadius, gradients, shadows, ms, s, vs, spacing, } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCarouselSectionProps, NftBlockchain } from './types';
@@ -228,20 +228,20 @@ export const NftCarouselSection: React.FC<NftCarouselSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: vs(24),
+    marginBottom: vs(spacing['2xl']),
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: s(18),
-    marginBottom: vs(12),
+    paddingHorizontal: s(spacing.headerPadding),
+    marginBottom: vs(spacing.md),
     height: vs(32),
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(8),
+    gap: s(spacing.sm),
   },
   headerRight: {
     flexDirection: 'row',
@@ -249,17 +249,17 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     fontWeight: '600',
     color: colors.text.primary,
   },
   count: {
     fontFamily: 'DMSans-Regular',
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     color: colors.text.secondary,
   },
   scrollContent: {
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
     gap: CARD_GAP,
   },
   // Mini Card Styles
@@ -291,21 +291,21 @@ const styles = StyleSheet.create({
   },
   nameBadgeContainer: {
     position: 'absolute',
-    bottom: vs(8),
-    left: s(8),
-    right: s(8),
+    bottom: vs(spacing.sm),
+    left: s(spacing.sm),
+    right: s(spacing.sm),
     alignItems: 'center',
   },
   nameBadge: {
-    borderRadius: ms(9),
+    borderRadius: ms(borderRadius.badge),
     paddingVertical: vs(6),
-    paddingHorizontal: s(16),
+    paddingHorizontal: s(spacing.lg),
     width: '100%',
     overflow: 'hidden',
   },
   nameText: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontWeight: '600',
     color: colors.text.balance,
     textAlign: 'center',

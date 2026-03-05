@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
-import { colors, ms, vs, s, formatLargeNumber, formatPercentageCompact, formatDateString, useCurrencyContext } from '@salmon/shared';
+import { colors, fontSize, ms, vs, s, formatLargeNumber, formatPercentageCompact, formatDateString, useCurrencyContext, borderRadius, spacing, } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenMarketDataProps } from './types';
 
@@ -226,18 +226,18 @@ export const TokenMarketData: React.FC<TokenMarketDataProps> = ({
 
 const styles = StyleSheet.create({
   glassWrapper: {
-    borderRadius: 18,
-    marginHorizontal: s(24),
+    borderRadius: borderRadius.iconContainer,
+    marginHorizontal: s(spacing['2xl']),
     overflow: 'hidden',
   },
   container: {
-    padding: s(12),
+    padding: s(spacing.md),
   },
   title: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: 'DMSansSemiBold',
     color: colors.text.primary,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
     letterSpacing: ms(-0.07, 0.3),
   },
   rowsContainer: {
@@ -249,13 +249,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rowLabel: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: 'DMSansMedium',
     color: colors.text.secondary,
     letterSpacing: ms(-0.065, 0.3),
   },
   rowValue: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: 'DMSansSemiBold',
     color: colors.text.primary,
     letterSpacing: ms(-0.065, 0.3),

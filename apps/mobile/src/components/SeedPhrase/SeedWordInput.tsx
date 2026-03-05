@@ -2,7 +2,7 @@
  * SeedWordInput - Input for validating a specific mnemonic word
  */
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { colors, spacing, componentSizes } from '@salmon/shared';
+import { colors, spacing, componentSizes, fontSize, } from '@salmon/shared';
 
 type ValidationState = 'idle' | 'correct' | 'incorrect';
 
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.text.secondary,
     fontFamily: 'DMSansMedium',
-    fontSize: 12,
+    fontSize: fontSize.sm,
     marginBottom: spacing.xs,
   },
   input: {
@@ -75,6 +75,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     color: colors.text.primary,
     fontFamily: 'DMSansRegular',
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
 });

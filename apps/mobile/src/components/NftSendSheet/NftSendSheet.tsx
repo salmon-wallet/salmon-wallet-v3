@@ -37,6 +37,7 @@ import ReanimatedAnimated, {
 } from 'react-native-reanimated';
 import {
   colors,
+  fontSize,
   borderRadius,
   borderWidth,
   componentSizes,
@@ -49,6 +50,7 @@ import {
   fontFamilyNative,
   type BlockchainType,
   type ValidationCallbackResult,
+  spacing,
 } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
 import { InputAddress } from '../InputAddress';
@@ -334,7 +336,7 @@ const styles = StyleSheet.create({
   },
   handleContainer: {
     alignItems: 'center',
-    paddingVertical: vs(12),
+    paddingVertical: vs(spacing.md),
   },
   handle: {
     width: componentSizes.sheetHandleWidth,
@@ -344,23 +346,23 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fontFamilyNative.bold,
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     fontWeight: '700',
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   nftPreview: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: s(20),
-    marginBottom: vs(20),
-    gap: s(12),
+    paddingHorizontal: s(spacing.xl),
+    marginBottom: vs(spacing.xl),
+    gap: s(spacing.md),
   },
   nftImage: {
     width: ms(56),
     height: ms(56),
-    borderRadius: ms(8),
+    borderRadius: ms(borderRadius.md),
     backgroundColor: colors.background.card,
   },
   nftInfo: {
@@ -368,70 +370,70 @@ const styles = StyleSheet.create({
   },
   nftName: {
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontWeight: '600',
     color: colors.text.primary,
   },
   nftCollection: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     color: colors.text.secondary,
-    marginTop: vs(2),
+    marginTop: vs(spacing.xxs),
   },
   inputContainer: {
-    paddingHorizontal: s(20),
-    marginBottom: vs(20),
+    paddingHorizontal: s(spacing.xl),
+    marginBottom: vs(spacing.xl),
   },
   messageContainer: {
-    paddingHorizontal: s(20),
-    paddingVertical: vs(24),
+    paddingHorizontal: s(spacing.xl),
+    paddingVertical: vs(spacing['2xl']),
     alignItems: 'center',
   },
   messageText: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     color: colors.text.secondary,
     textAlign: 'center',
   },
   loadingContainer: {
-    paddingVertical: vs(24),
+    paddingVertical: vs(spacing['2xl']),
     alignItems: 'center',
-    gap: vs(12),
+    gap: vs(spacing.md),
   },
   loadingText: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     color: colors.text.secondary,
   },
   errorText: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     color: colors.status.error,
-    marginTop: vs(8),
+    marginTop: vs(spacing.sm),
   },
   actions: {
     flexDirection: 'row',
-    paddingHorizontal: s(20),
-    gap: s(12),
+    paddingHorizontal: s(spacing.xl),
+    gap: s(spacing.md),
   },
   cancelButton: {
     flex: 1,
     height: vs(48),
-    borderRadius: ms(12),
+    borderRadius: ms(borderRadius.lg),
     backgroundColor: colors.background.tertiary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cancelButtonText: {
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontWeight: '600',
     color: colors.text.primary,
   },
   confirmButton: {
     flex: 1,
     height: vs(48),
-    borderRadius: ms(12),
+    borderRadius: ms(borderRadius.lg),
     backgroundColor: colors.accent.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -441,7 +443,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontWeight: '600',
     color: colors.text.primary,
   },

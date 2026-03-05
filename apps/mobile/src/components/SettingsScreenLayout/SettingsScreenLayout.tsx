@@ -21,7 +21,7 @@ import {
   colors,
   spacing,
   contentPadding,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { ScreenHeader } from '../ScreenHeader';
 
 // ============================================================================
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text.primary,
     fontFamily: 'DMSansBold',
-    fontSize: 24,
+    fontSize: fontSize['2xl'],
     lineHeight: 32,
     marginBottom: spacing.lg,
     paddingHorizontal: contentPadding.screen,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   subtitle: {
     color: colors.text.secondary,
     fontFamily: 'DMSansRegular',
-    fontSize: 14,
+    fontSize: fontSize.base,
     lineHeight: 20,
     marginBottom: spacing.xl,
     paddingHorizontal: contentPadding.screen,

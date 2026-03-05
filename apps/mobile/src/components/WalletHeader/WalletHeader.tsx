@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   },
   headerAvatarText: {
     color: colors.text.primary,
-    fontSize: ms(11),
+    fontSize: ms(fontSize.xs),
     fontWeight: '700',
   },
 });

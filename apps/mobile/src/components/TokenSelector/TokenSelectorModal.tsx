@@ -13,7 +13,7 @@ import {
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 
-import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey } from '@salmon/shared';
+import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey, fontSize, } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import type { TokenSelectorToken, TokenSelectorModalProps } from './types';
 
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text.primary,
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text.primary,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   skeletonContainer: {
     paddingHorizontal: spacing.lg,
@@ -320,26 +320,26 @@ const styles = StyleSheet.create({
   },
   tokenName: {
     color: colors.text.primary,
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: '500',
     padding: 0,
   },
   tokenBalance: {
     color: colors.text.secondary,
-    fontSize: 14,
-    marginTop: 2,
+    fontSize: fontSize.base,
+    marginTop: spacing.xxs,
     padding: 0,
   },
   networkChip: {
     backgroundColor: colors.border.default,
-    borderRadius: 4,
+    borderRadius: borderRadius.sm,
     paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingVertical: spacing.xxs,
     marginLeft: spacing.sm,
   },
   networkChipText: {
     color: colors.text.secondary,
-    fontSize: 10,
+    fontSize: fontSize.xs,
     fontWeight: '600',
     padding: 0,
   },
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   },
   disclaimerText: {
     color: colors.text.secondary,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     textAlign: 'center',
     padding: 0,
   },
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
   searchingText: {
     color: colors.text.secondary,
-    fontSize: 14,
+    fontSize: fontSize.base,
     marginLeft: spacing.sm,
     padding: 0,
   },
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   },
   loadMoreText: {
     color: colors.text.primary,
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: '500',
     padding: 0,
   },
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: colors.text.secondary,
-    fontSize: 16,
+    fontSize: fontSize.md,
     padding: 0,
   },
   footer: {
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: colors.text.primary,
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: '600',
     padding: 0,
   },

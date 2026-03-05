@@ -1,4 +1,4 @@
-import { borderRadius, colors, componentSizes, fontFamilyNative, formatAmountWithSymbol, formatSolFee, formatPercent, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, fontSize, fontFamilyNative, formatAmountWithSymbol, formatSolFee, formatPercent, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     textAlign: 'center',
@@ -207,14 +207,14 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing.lg),
   },
   warningTitle: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.semiBold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
     letterSpacing: 0.02,
   },
   warningText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     lineHeight: ms(12 * 1.5),

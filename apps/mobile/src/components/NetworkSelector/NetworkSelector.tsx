@@ -24,7 +24,7 @@ import {
   fontFamilyNative,
   type NetworkSelectorBaseProps,
   type NetworkSelectorItem,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -109,17 +109,17 @@ const styles = StyleSheet.create({
     borderColor: colors.accent.primary,
   },
   networkInfo: {
-    gap: 2,
+    gap: spacing.xxs,
   },
   networkName: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   networkBlockchain: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
     textTransform: 'capitalize',
   },
   loadingContainer: {

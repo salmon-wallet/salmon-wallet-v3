@@ -20,7 +20,7 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from 'react-native';
-import { colors, useAddressValidation, useAccountsContext, type ValidationState } from '@salmon/shared';
+import { colors, useAddressValidation, useAccountsContext, type ValidationState, spacing, borderRadius, fontSize, } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 
 // ============================================================================
@@ -230,19 +230,19 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
-    fontSize: 14,
+    fontSize: fontSize.base,
     fontWeight: '500',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     color: colors.text.primary,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.scanner.background,
-    borderRadius: 12,
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
     borderColor: colors.input.border,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
     minHeight: 56,
   },
   inputContainerValid: {
@@ -259,18 +259,18 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.text.primary,
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
   },
   inputDisabled: {
     color: colors.text.tertiary,
   },
   validationIcon: {
-    marginLeft: 12,
+    marginLeft: spacing.md,
   },
   messageContainer: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   message: {
     fontSize: 13,
@@ -283,15 +283,15 @@ const styles = StyleSheet.create({
     color: colors.status.warning,
   },
   domainInfo: {
-    marginTop: 8,
-    padding: 12,
+    marginTop: spacing.sm,
+    padding: spacing.md,
     backgroundColor: colors.scanner.background,
-    borderRadius: 8,
+    borderRadius: borderRadius.md,
   },
   domainLabel: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: colors.text.secondary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   domainValue: {
     fontSize: 13,

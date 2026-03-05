@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, shadows, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, shadows, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapAmountInputProps } from './types';
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     gap: vs(spacing.sm),
   },
   label: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     letterSpacing: 0.02,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     paddingVertical: 0,
@@ -134,14 +134,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.button.secondaryBackground,
     borderRadius: borderRadius.sm + 2,
     paddingHorizontal: s(spacing.sm),
-    paddingVertical: vs(2),
+    paddingVertical: vs(spacing.xxs),
     gap: s(spacing.sm - 1),
     height: vs(36),
     minWidth: s(100),
     ...shadows.sm,
   },
   tokenSymbol: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     opacity: 0.9,
@@ -154,14 +154,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   usdValue: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     letterSpacing: 0.018,
     lineHeight: ms(21),
   },
   availableBalance: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     letterSpacing: 0.018,

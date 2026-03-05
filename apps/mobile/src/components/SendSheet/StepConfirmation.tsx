@@ -18,6 +18,9 @@ import {
   vs,
   s,
   useSendTransaction,
+  fontSize,
+  borderRadius,
+  spacing,
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
@@ -218,39 +221,39 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
   },
   // Token Icon
   tokenIconWrapper: {
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   // Amount
   amountText: {
-    fontSize: ms(22),
+    fontSize: ms(fontSize.title),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(24),
+    marginBottom: vs(spacing['2xl']),
   },
   // Address
   addressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'stretch',
-    borderRadius: ms(8),
+    borderRadius: ms(borderRadius.md),
     paddingVertical: vs(14),
-    paddingHorizontal: s(16),
-    gap: s(10),
+    paddingHorizontal: s(spacing.lg),
+    gap: s(spacing.base),
   },
   addressText: {
     flex: 1,
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   // Fee
   feeText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     marginTop: vs(14),
@@ -258,24 +261,24 @@ const styles = StyleSheet.create({
   },
   // Error
   errorText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.status.error,
-    marginTop: vs(12),
+    marginTop: vs(spacing.md),
     textAlign: 'center',
   },
   // Bottom Buttons
   bottomButtons: {
     flexDirection: 'row',
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
     paddingBottom: vs(34),
-    paddingTop: vs(12),
-    gap: s(12),
+    paddingTop: vs(spacing.md),
+    gap: s(spacing.md),
   },
   cancelButton: {
     flex: 1,
     height: vs(48),
-    borderRadius: ms(12),
+    borderRadius: ms(borderRadius.lg),
     borderWidth: 1,
     borderColor: colors.accent.border,
     backgroundColor: colors.button.cancelBackground,
@@ -284,14 +287,14 @@ const styles = StyleSheet.create({
     ...BUTTON_SHADOW,
   },
   cancelButtonText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   confirmButton: {
     flex: 1,
     height: vs(48),
-    borderRadius: ms(12),
+    borderRadius: ms(borderRadius.lg),
     borderWidth: 1,
     borderColor: colors.accent.border,
     overflow: 'hidden',
@@ -306,14 +309,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   confirmButtonText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   sendingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(8),
+    gap: s(spacing.sm),
   },
 });
 

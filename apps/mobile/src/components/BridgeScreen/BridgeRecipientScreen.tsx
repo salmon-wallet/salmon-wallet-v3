@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, fontSize, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
 import { RecipientAddressInput } from './RecipientAddressInput';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     paddingTop: vs(spacing['2xl']),
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing.md),
   },
   description: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     textAlign: 'center',
@@ -121,14 +121,14 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['2xl']),
   },
   infoTitle: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
     letterSpacing: 0.02,
   },
   infoText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     letterSpacing: 0.018,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   backButton: {
     flex: 1,
     height: vs(42),
-    borderWidth: 0.8,
+    borderWidth: borderWidth.accent,
     borderColor: colors.accent.border,
     borderRadius: borderRadius.lg,
     backgroundColor: colors.button.cancelBackground,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   continueButtonGradient: {
     flex: 1,
     borderRadius: borderRadius.lg,
-    borderWidth: 0.8,
+    borderWidth: borderWidth.accent,
     borderColor: 'transparent',
     ...shadows.button,
   },

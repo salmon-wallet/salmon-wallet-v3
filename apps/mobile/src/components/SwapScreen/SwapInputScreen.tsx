@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, type TextStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, shadows, componentSizes, fontFamily, fontWeight, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, shadows, componentSizes, fontFamily, fontWeight, vs, s, fontSize, borderWidth, } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
 import type { SwapInputScreenProps } from './types';
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   warningText: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     fontFamily: fontFamily.sans,
     fontWeight: fontWeight.medium as TextStyle['fontWeight'],
     color: colors.status.warning,
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   buttonGradient: {
     borderRadius: borderRadius.lg,
-    borderWidth: 0.8,
+    borderWidth: borderWidth.accent,
     borderColor: 'transparent',
     ...shadows.button,
   },

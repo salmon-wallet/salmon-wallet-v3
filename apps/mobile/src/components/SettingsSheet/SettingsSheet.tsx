@@ -32,7 +32,7 @@ import {
   useSettingsPanelStack,
   type SettingsScreen,
   type SettingsPanelEntry,
-} from '@salmon/shared';
+letterSpacing, } from '@salmon/shared';
 
 import type { SettingsSheetProps, SettingsOption, SettingsSection } from './types';
 import type { MobilePanelRegistry } from '../SettingsPanelStack';
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.medium,
     fontSize: fontSize.sm,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: letterSpacing.wider,
   },
   sectionHeaderTextDanger: {
     color: DANGER_COLORS.text,
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.sm,
-    marginTop: 2,
+    marginTop: spacing.xxs,
   },
   topFadeGradient: {
     position: 'absolute',

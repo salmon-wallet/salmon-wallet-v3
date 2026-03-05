@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, fontSize, spacing, borderRadius, ms, vs, s, fontFamilyNative } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapDetailRowProps } from './types';
 
@@ -34,14 +34,14 @@ const styles = StyleSheet.create({
     minHeight: vs(40),
   },
   label: {
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
     letterSpacing: -0.075,
     lineHeight: ms(15 * 1.5),
   },
   value: {
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.extraBold,
     color: colors.text.primary,
     letterSpacing: -0.075,

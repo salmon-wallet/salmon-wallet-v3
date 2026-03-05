@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import {
   colors,
+  fontSize,
   fontFamilyNative,
   ms,
   vs,
@@ -18,6 +19,7 @@ import {
   getTransactionUrl,
   getDefaultExplorer,
   getShortAddress,
+  spacing,
 } from '@salmon/shared';
 import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
@@ -249,19 +251,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
     marginBottom: vs(15),
   },
   backButton: {
     position: 'absolute',
-    left: s(18),
+    left: s(spacing.headerPadding),
     zIndex: 1,
   },
   backButtonSpacer: {
     width: ms(24),
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',

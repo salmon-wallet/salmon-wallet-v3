@@ -30,7 +30,7 @@ import {
   s,
   spacing,
   vs,
-} from '@salmon/shared';
+borderWidth, borderRadius, } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState, type ComponentProps } from 'react';
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: s(36),
-    gap: vs(40),
+    gap: vs(spacing['4xl']),
   },
   logoSection: {
     width: '100%',
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.bold,
-    fontSize: ms(27),
+    fontSize: ms(fontSize['2xl']),
     letterSpacing: -0.46,
     lineHeight: vs(38),
     textAlign: 'center',
@@ -536,12 +536,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: vs(54),
     backgroundColor: colors.input.background,
-    borderWidth: 0.75,
-    borderRadius: 9,
+    borderWidth: borderWidth.sheet,
+    borderRadius: borderRadius.badge,
     paddingHorizontal: s(spacing.lg),
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(17),
+    fontSize: ms(fontSize.lg),
   },
   errorText: {
     color: colors.status.error,
@@ -561,7 +561,7 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     height: vs(53),
-    borderRadius: 16,
+    borderRadius: borderRadius.xl,
     borderWidth: 1,
     borderColor: colors.accent.border,
     alignItems: 'center',
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.bold,
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     lineHeight: ms(16 * 1.5),
   },
   biometricContainer: {
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     height: s(64),
     borderRadius: 32,
     backgroundColor: colors.input.background,
-    borderWidth: 0.75,
+    borderWidth: borderWidth.sheet,
     borderColor: colors.input.border,
     alignItems: 'center',
     justifyContent: 'center',
@@ -605,7 +605,7 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.bold,
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     letterSpacing: -0.46,
     lineHeight: vs(38),
     textAlign: 'center',

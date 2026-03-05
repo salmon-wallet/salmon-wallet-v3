@@ -238,11 +238,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: vs(12),
-    paddingHorizontal: s(16),
+    paddingVertical: vs(spacing.md),
+    paddingHorizontal: s(spacing.lg),
   },
   icon: {
-    marginRight: s(8),
+    marginRight: s(spacing.sm),
   },
   buttonText: {
     fontSize: ms(fontSize.base),
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     color: colors.palette.amber,
   },
   chevron: {
-    marginLeft: s(4),
+    marginLeft: s(spacing.xs),
   },
   modalOverlay: {
     flex: 1,
@@ -272,19 +272,19 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: vs(14),
-    paddingHorizontal: s(12),
+    paddingHorizontal: s(spacing.md),
     borderRadius: borderRadius.md,
     backgroundColor: colors.background.card,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   menuItemIcon: {
-    marginRight: s(12),
+    marginRight: s(spacing.md),
   },
   menuItemText: {
     flex: 1,

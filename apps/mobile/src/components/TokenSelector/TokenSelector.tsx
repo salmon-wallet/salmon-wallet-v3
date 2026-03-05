@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { colors, getShortAddress } from '@salmon/shared';
+import { colors, getShortAddress, borderRadius, spacing, fontSize, } from '@salmon/shared';
 import { TokenSelectorModal } from './TokenSelectorModal';
 import type { TokenSelectorToken, TokenSelectorProps } from './types';
 
@@ -150,29 +150,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.scanner.background,
-    borderRadius: 16,
-    padding: 8,
+    borderRadius: borderRadius.xl,
+    padding: spacing.sm,
     borderWidth: 1,
     borderColor: colors.scanner.surface,
   },
   inputContainer: {
     flex: 1,
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   input: {
-    fontSize: 24,
+    fontSize: fontSize['2xl'],
     fontWeight: '600',
     color: colors.text.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   selectorButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.scanner.surface,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     minWidth: 120,
   },
   selectorButtonDisabled: {
@@ -181,8 +181,8 @@ const styles = StyleSheet.create({
   tokenIcon: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    marginRight: 8,
+    borderRadius: borderRadius.xl,
+    marginRight: spacing.sm,
   },
   tokenIconPlaceholder: {
     backgroundColor: colors.scanner.button,
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   tokenName: {
     color: colors.text.primary,
-    fontSize: 14,
+    fontSize: fontSize.base,
     fontWeight: '500',
     padding: 0,
   },
@@ -203,11 +203,11 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   chevron: {
-    marginLeft: 4,
+    marginLeft: spacing.xs,
   },
   chevronIcon: {
     color: colors.text.secondary,
-    fontSize: 14,
+    fontSize: fontSize.base,
     padding: 0,
   },
 });

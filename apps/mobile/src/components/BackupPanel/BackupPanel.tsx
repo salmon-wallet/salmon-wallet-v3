@@ -15,7 +15,7 @@ import {
   borderRadius,
   fontFamilyNative,
   useAccountsContext,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import { PrimaryButton, SecondaryButton } from '../Button';
 
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
     lineHeight: 20,
   },
   seedContainer: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   revealText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   wordsGrid: {
     flexDirection: 'row',
@@ -145,14 +145,14 @@ const styles = StyleSheet.create({
   wordIndex: {
     color: colors.text.tertiary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     marginRight: spacing.sm,
     minWidth: 20,
   },
   wordText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
   },
   buttonContainer: {
     gap: spacing.md,

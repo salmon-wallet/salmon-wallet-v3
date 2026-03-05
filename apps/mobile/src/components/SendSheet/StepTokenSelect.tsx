@@ -23,6 +23,9 @@ import {
   ms,
   vs,
   s,
+  fontSize,
+  borderRadius,
+  spacing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -257,38 +260,38 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: ms(8),
+    borderRadius: ms(borderRadius.md),
     paddingHorizontal: s(14),
     height: vs(38),
-    marginBottom: vs(18),
+    marginBottom: vs(spacing.headerPadding),
   },
   searchIcon: {
-    marginRight: s(8),
+    marginRight: s(spacing.sm),
   },
   searchInput: {
     flex: 1,
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     paddingVertical: 0,
   },
   sectionHeader: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    marginBottom: vs(12),
+    marginBottom: vs(spacing.md),
   },
   listWrapper: {
     flex: 1,
   },
   listContent: {
-    paddingBottom: vs(30),
-    gap: vs(10),
+    paddingBottom: vs(spacing['3.5xl']),
+    gap: vs(spacing.base),
   },
   topFadeGradient: {
     position: 'absolute',
@@ -301,30 +304,30 @@ const styles = StyleSheet.create({
   tokenRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: ms(10),
-    paddingVertical: vs(12),
-    paddingHorizontal: s(12),
+    borderRadius: ms(borderRadius.badge),
+    paddingVertical: vs(spacing.md),
+    paddingHorizontal: s(spacing.md),
   },
   tokenLogoContainer: {
-    marginRight: s(12),
+    marginRight: s(spacing.md),
   },
   tokenName: {
     flex: 1,
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.balance,
   },
   tokenBalance: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.balance,
-    marginLeft: s(8),
+    marginLeft: s(spacing.sm),
   },
   skeletonHeaderPlaceholder: {
-    marginBottom: vs(12),
+    marginBottom: vs(spacing.md),
   },
   skeletonList: {
-    gap: vs(10),
+    gap: vs(spacing.base),
   },
 });
 

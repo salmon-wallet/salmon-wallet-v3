@@ -16,7 +16,7 @@ import {
   componentSizes,
   fontFamilyNative,
   useOpenLink,
-} from '@salmon/shared';
+fontSize, letterSpacing, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import { Logo } from '@salmon/assets';
 
@@ -112,19 +112,19 @@ const styles = StyleSheet.create({
   appName: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.bold,
-    fontSize: 24,
+    fontSize: fontSize['2xl'],
     marginBottom: spacing.xs,
   },
   versionText: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 16,
+    fontSize: fontSize.md,
     marginBottom: spacing.xxs,
   },
   buildText: {
     color: colors.text.tertiary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
   },
   socialSection: {
     width: '100%',
@@ -133,11 +133,11 @@ const styles = StyleSheet.create({
   sectionLabel: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 14,
+    fontSize: fontSize.base,
     textAlign: 'center',
     marginBottom: spacing.md,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: letterSpacing.wider,
   },
   socialButtons: {
     flexDirection: 'row',
@@ -180,12 +180,12 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   copyright: {
     color: colors.text.tertiary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     textAlign: 'center',
     lineHeight: 18,
   },

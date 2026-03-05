@@ -15,6 +15,9 @@ import {
   vs,
   s,
   fontFamilyNative,
+  fontSize,
+  borderRadius,
+  spacing,
 } from '@salmon/shared';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
     minHeight: '85%',
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
@@ -197,14 +200,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollViewContent: {
-    paddingHorizontal: s(18),
-    paddingBottom: vs(30),
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing['3.5xl']),
     gap: vs(15),
   },
   tokenItemSkeletonContainer: {
     backgroundColor: colors.background.tokenItem,
-    borderRadius: 12,
-    marginBottom: vs(8),
+    borderRadius: borderRadius.lg,
+    marginBottom: vs(spacing.sm),
     overflow: 'hidden',
   },
 });

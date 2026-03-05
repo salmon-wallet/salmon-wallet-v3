@@ -17,7 +17,7 @@ import {
   fontFamilyNative,
   type LanguageSelectorBaseProps,
   type LanguageSelectorItem,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -95,16 +95,16 @@ const styles = StyleSheet.create({
     borderColor: colors.accent.primary,
   },
   languageInfo: {
-    gap: 2,
+    gap: spacing.xxs,
   },
   languageName: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   languageCode: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
   },
 });

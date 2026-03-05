@@ -24,7 +24,7 @@ import {
   getShortAddress,
   type AddressBookSelectorBaseProps,
   type AddressBookItem,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   contactIconPlaceholder: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: borderRadius.iconContainer,
     backgroundColor: colors.card.border,
     alignItems: 'center',
     justifyContent: 'center',
@@ -187,12 +187,12 @@ const styles = StyleSheet.create({
   contactText: {
     flex: 1,
     marginLeft: spacing.md,
-    gap: 2,
+    gap: spacing.xxs,
   },
   contactName: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   contactAddress: {
     color: colors.text.secondary,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: colors.accent.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 14,
+    fontSize: fontSize.base,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 14,
+    fontSize: fontSize.base,
     textAlign: 'center',
   },
 });

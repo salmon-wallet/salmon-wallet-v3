@@ -24,6 +24,9 @@ import {
   useCurrencyContext,
   useSendContacts,
   getShortAddress,
+  fontSize,
+  borderRadius,
+  spacing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -151,7 +154,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
         >
           <BlurContainer style={styles.tokenCard}>
           <View style={styles.tokenCardLeft}>
-            <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={ms(36)} style={{ marginRight: s(10) }} />
+            <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={ms(36)} style={{ marginRight: s(spacing.base) }} />
             <Text style={styles.tokenCardName} numberOfLines={1}>
               {token.symbol}
             </Text>
@@ -329,18 +332,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: s(18),
-    paddingBottom: vs(20),
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing.xl),
   },
   // Token Card
   tokenCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderRadius: ms(14),
+    borderRadius: ms(borderRadius.button),
     paddingVertical: vs(14),
     paddingHorizontal: s(14),
-    marginBottom: vs(24),
+    marginBottom: vs(spacing['2xl']),
   },
   tokenCardLeft: {
     flexDirection: 'row',
@@ -348,29 +351,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tokenCardName: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   tokenCardBalance: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   // Fields
   fieldGroup: {
-    marginBottom: vs(20),
+    marginBottom: vs(spacing.xl),
   },
   fieldLabel: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: ms(12),
+    borderRadius: ms(borderRadius.lg),
     paddingHorizontal: s(14),
     height: vs(48),
   },
@@ -388,31 +391,31 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     paddingVertical: 0,
   },
   validationIndicator: {
-    marginLeft: s(8),
+    marginLeft: s(spacing.sm),
   },
   validIcon: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     color: colors.status.success,
   },
   invalidIcon: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     color: colors.status.error,
   },
   warningIcon: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     color: colors.status.warning,
   },
   validationMessage: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    marginTop: vs(4),
+    marginTop: vs(spacing.xs),
   },
   validationMessageError: {
     color: colors.status.error,
@@ -422,48 +425,48 @@ const styles = StyleSheet.create({
   },
   // Contact / Wallet sections
   contactSection: {
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   contactSectionHeader: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.secondary,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: colors.background.card,
-    borderRadius: ms(10),
-    paddingVertical: vs(12),
+    borderRadius: ms(borderRadius.badge),
+    paddingVertical: vs(spacing.md),
     paddingHorizontal: s(14),
     marginBottom: vs(6),
   },
   contactInfo: {
     flex: 1,
-    marginRight: s(8),
+    marginRight: s(spacing.sm),
   },
   contactName: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   contactAddress: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    marginTop: vs(2),
+    marginTop: vs(spacing.xxs),
   },
   blockchainBadge: {
     backgroundColor: colors.background.tertiary,
-    borderRadius: ms(6),
-    paddingHorizontal: s(8),
+    borderRadius: ms(borderRadius.sm),
+    paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(3),
     flexShrink: 0,
   },
   blockchainBadgeText: {
-    fontSize: ms(11),
+    fontSize: ms(fontSize.xs),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
@@ -471,13 +474,13 @@ const styles = StyleSheet.create({
   amountInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: ms(12),
+    borderRadius: ms(borderRadius.lg),
     paddingHorizontal: s(14),
     height: vs(48),
   },
   amountInput: {
     flex: 1,
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     paddingVertical: 0,
@@ -488,36 +491,36 @@ const styles = StyleSheet.create({
   },
   quickFillButton: {
     backgroundColor: colors.button.secondaryBackground,
-    borderRadius: ms(6),
-    paddingHorizontal: s(10),
+    borderRadius: ms(borderRadius.sm),
+    paddingHorizontal: s(spacing.base),
     paddingVertical: vs(5),
   },
   quickFillText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textTransform: 'uppercase',
   },
   // USD
   usdConversion: {
-    fontSize: ms(20),
+    fontSize: ms(fontSize.xl),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginTop: vs(4),
+    marginTop: vs(spacing.xs),
   },
   // Bottom Buttons
   bottomButtons: {
     flexDirection: 'row',
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
     paddingBottom: vs(34),
-    paddingTop: vs(12),
-    gap: s(12),
+    paddingTop: vs(spacing.md),
+    gap: s(spacing.md),
   },
   cancelButton: {
     flex: 1,
     height: vs(48),
-    borderRadius: ms(12),
+    borderRadius: ms(borderRadius.lg),
     borderWidth: 1,
     borderColor: colors.accent.border,
     backgroundColor: colors.button.cancelBackground,
@@ -526,14 +529,14 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   cancelButtonText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   reviewButton: {
     flex: 1,
     height: vs(48),
-    borderRadius: ms(12),
+    borderRadius: ms(borderRadius.lg),
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.accent.border,
@@ -549,7 +552,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   reviewButtonText: {
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },

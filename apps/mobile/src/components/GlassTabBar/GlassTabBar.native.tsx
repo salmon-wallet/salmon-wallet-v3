@@ -1,5 +1,5 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { colors, componentSizes, gradients, ms, s, spacing, vs } from '@salmon/shared';
+import { colors, componentSizes, fontSize, gradients, ms, s, spacing, vs } from '@salmon/shared';
 import { BlurView } from 'expo-blur';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   // Tab label
   tabLabel: {
     fontFamily: 'DMSansSemiBold',
-    fontSize: ms(11),
+    fontSize: ms(fontSize.xs),
     letterSpacing: ms(0.2, 0.3),
     textAlign: 'center',
   },

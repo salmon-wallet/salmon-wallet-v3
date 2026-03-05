@@ -4,7 +4,7 @@ import {
   colors,
   componentSizes,
   spacing,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon/SvgIcons';
@@ -102,18 +102,18 @@ const styles = StyleSheet.create({
   address: {
     color: colors.text.primary,
     fontFamily: 'DMSansRegular',
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   networkRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 2,
+    gap: spacing.xs,
+    marginTop: spacing.xxs,
   },
   path: {
     color: colors.text.tertiary,
     fontFamily: 'DMSansMedium',
-    fontSize: 12,
+    fontSize: fontSize.sm,
   },
   balanceContainer: {
     alignItems: 'flex-end',
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   balance: {
     color: colors.text.primary,
     fontFamily: 'DMSansRegular',
-    fontSize: 14,
+    fontSize: fontSize.base,
   },
   dimmed: {
     opacity: 0.4,

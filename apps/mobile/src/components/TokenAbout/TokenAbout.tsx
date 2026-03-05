@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextLayoutEventData, NativeSyntheticEvent } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
-import { colors, ms, vs, s } from '@salmon/shared';
+import { colors, fontSize, ms, vs, s, borderRadius, spacing, } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenAboutProps } from './types';
 
@@ -101,32 +101,32 @@ export const TokenAbout: React.FC<TokenAboutProps> = ({
 
 const styles = StyleSheet.create({
   glassWrapper: {
-    borderRadius: 18,
-    marginHorizontal: s(24),
+    borderRadius: borderRadius.iconContainer,
+    marginHorizontal: s(spacing['2xl']),
     overflow: 'hidden',
   },
   container: {
-    padding: s(12),
+    padding: s(spacing.md),
   },
   title: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: 'DMSansSemiBold',
     color: colors.text.primary,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
     letterSpacing: ms(-0.07, 0.3),
   },
   description: {
-    fontSize: ms(9),
+    fontSize: ms(fontSize.xs),
     fontFamily: 'DMSansRegular',
     color: colors.text.primary,
     lineHeight: ms(9) * 1.4,
     letterSpacing: ms(-0.045, 0.3),
   },
   readMore: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: 'DMSansMedium',
     color: colors.accent.primary,
-    marginTop: vs(8),
+    marginTop: vs(spacing.sm),
   },
 });
 

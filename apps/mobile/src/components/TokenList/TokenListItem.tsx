@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bitcoinAmount: {
-    fontSize: ms(19),
+    fontSize: ms(fontSize.xl),
     fontFamily: 'DMSansSemiBold',
     color: colors.text.muted,
     letterSpacing: ms(-0.095, 0.3),

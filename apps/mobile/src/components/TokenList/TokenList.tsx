@@ -2,7 +2,7 @@ import React from 'react';
 import { View, FlatList, StyleSheet, ListRenderItem, RefreshControl } from 'react-native';
 import TokenListItem from './TokenListItem';
 import TokenListSkeleton from './TokenListSkeleton';
-import { colors } from '@salmon/shared';
+import { colors, spacing, } from '@salmon/shared';
 import type { Token } from '@salmon/shared';
 import type { TokenListProps } from './types';
 
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
 });
 

@@ -19,7 +19,7 @@ import {
   fontFamilyNative,
   useAddressBookForm,
   type AddressBookEditBaseProps,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import { InputAddress } from '../InputAddress';
 
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 14,
+    fontSize: fontSize.base,
     marginBottom: spacing.sm,
     marginTop: spacing.lg,
   },
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     color: colors.text.primary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   addressSection: {
     marginTop: spacing.lg,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   networkText: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   saveButton: {
     backgroundColor: colors.accent.primary,
@@ -145,6 +145,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
 });

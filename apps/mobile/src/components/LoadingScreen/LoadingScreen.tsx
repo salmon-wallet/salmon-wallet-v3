@@ -24,7 +24,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Logo } from '@salmon/assets';
-import { colors, DEFAULT_WALLET_TIP_KEYS } from '@salmon/shared';
+import { colors, DEFAULT_WALLET_TIP_KEYS, spacing, fontSize, } from '@salmon/shared';
 
 import { LoadingScreenProps } from './types';
 
@@ -258,28 +258,28 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing['2xl'],
   },
   title: {
     color: colors.text.primary,
     fontFamily: 'DMSansBold',
-    fontSize: 24,
+    fontSize: fontSize['2xl'],
     lineHeight: 32,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
     color: colors.text.secondary,
     fontFamily: 'DMSansRegular',
-    fontSize: 16,
+    fontSize: fontSize.md,
     lineHeight: 24,
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: spacing['3xl'],
   },
   logoSpinnerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 48,
+    marginBottom: spacing['5xl'],
   },
   spinnerContainer: {
     position: 'absolute',
@@ -306,19 +306,19 @@ const styles = StyleSheet.create({
   tipLabel: {
     color: colors.accent.primary,
     fontFamily: 'DMSansBold',
-    fontSize: 12,
+    fontSize: fontSize.sm,
     lineHeight: 16,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   tipText: {
     color: colors.text.secondary,
     fontFamily: 'DMSansRegular',
-    fontSize: 14,
+    fontSize: fontSize.base,
     lineHeight: 20,
     textAlign: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
 });
 

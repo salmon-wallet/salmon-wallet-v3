@@ -939,7 +939,7 @@ const styles = StyleSheet.create({
   typeIconContainer: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: borderRadius.tokenIcon,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: s(spacing.md),
@@ -1033,7 +1033,7 @@ const styles = StyleSheet.create({
   copyIconButton: {
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: borderRadius.button,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: `${colors.background.card}80`,

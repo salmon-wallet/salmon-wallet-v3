@@ -23,7 +23,7 @@ import {
   fontFamilyNative,
   type TrustedAppsSelectorBaseProps,
   type TrustedAppItem,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -147,13 +147,13 @@ const styles = StyleSheet.create({
   appIcon: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: borderRadius.iconContainer,
     backgroundColor: colors.card.border,
   },
   appIconPlaceholder: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: borderRadius.iconContainer,
     backgroundColor: colors.card.border,
     alignItems: 'center',
     justifyContent: 'center',
@@ -161,12 +161,12 @@ const styles = StyleSheet.create({
   appText: {
     flex: 1,
     marginLeft: spacing.md,
-    gap: 2,
+    gap: spacing.xxs,
   },
   appName: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   appDomain: {
     color: colors.text.secondary,
@@ -189,13 +189,13 @@ const styles = StyleSheet.create({
   emptyText: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 14,
+    fontSize: fontSize.base,
     textAlign: 'center',
   },
   emptySubtext: {
     color: colors.text.disabled,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     textAlign: 'center',
   },
 });

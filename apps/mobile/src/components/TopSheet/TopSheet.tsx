@@ -315,12 +315,12 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     fontSize: fontSize.lg,
     textAlign: 'center',
-    marginLeft: 40, // Offset for close button centering
+    marginLeft: spacing['4xl'], // Offset for close button centering
   },
   closeButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: borderRadius.iconLg,
     backgroundColor: colors.background.card,
     alignItems: 'center',
     justifyContent: 'center',
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    borderRadius: 2,
+    borderRadius: borderRadius.scrollbar,
     backgroundColor: colors.border.default,
   },
 });

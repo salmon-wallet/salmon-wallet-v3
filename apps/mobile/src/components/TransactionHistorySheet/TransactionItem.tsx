@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontFamilyNative } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontFamilyNative, spacing, letterSpacing, } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
@@ -408,16 +408,16 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 const styles = StyleSheet.create({
   blurWrapper: {
     borderRadius: borderRadius.lg,
-    marginBottom: vs(12),
+    marginBottom: vs(spacing.md),
   },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: vs(18),
-    paddingHorizontal: s(18),
+    paddingVertical: vs(spacing.headerPadding),
+    paddingHorizontal: s(spacing.headerPadding),
   },
   logoSection: {
-    marginRight: s(12),
+    marginRight: s(spacing.md),
   },
   swapLogosContainer: {
     flexDirection: 'row',
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     marginLeft: -14,
     borderWidth: 2,
     borderColor: colors.background.secondary,
-    borderRadius: 18,
+    borderRadius: borderRadius.iconContainer,
   },
   logoWithBadgeContainer: {
     position: 'relative',
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     right: -4,
     width: 18,
     height: 18,
-    borderRadius: 9,
+    borderRadius: borderRadius.badge,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: borderRadius.iconLg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: s(6),
-    marginBottom: vs(4),
+    marginBottom: vs(spacing.xs),
   },
   typeText: {
     fontSize: ms(fontSize.lg),
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
   },
   sourceBadge: {
     paddingHorizontal: s(6),
-    paddingVertical: vs(2),
+    paddingVertical: vs(spacing.xxs),
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
   },
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.medium,
     color: colors.text.tertiary,
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    letterSpacing: letterSpacing.semiWide,
   },
   descriptionText: {
     fontSize: ms(fontSize.base),
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   },
   rightSection: {
     alignItems: 'flex-end',
-    marginLeft: s(8),
+    marginLeft: s(spacing.sm),
   },
   amountsContainer: {
     alignItems: 'flex-end',
@@ -502,12 +502,12 @@ const styles = StyleSheet.create({
   amountText: {
     fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
-    marginBottom: vs(2),
+    marginBottom: vs(spacing.xxs),
   },
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: vs(4),
+    marginTop: vs(spacing.xs),
   },
   timeText: {
     fontSize: ms(fontSize.sm),
@@ -515,12 +515,12 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
   },
   expandChevron: {
-    marginLeft: s(4),
+    marginLeft: s(spacing.xs),
   },
   failedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(4),
+    gap: s(spacing.xs),
   },
   failedText: {
     fontSize: ms(fontSize.base),
@@ -530,9 +530,9 @@ const styles = StyleSheet.create({
   pendingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(4),
-    paddingHorizontal: s(8),
-    paddingVertical: vs(4),
+    gap: s(spacing.xs),
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing.xs),
     backgroundColor: `${colors.status.warning}15`,
     borderRadius: borderRadius.sm,
   },
@@ -544,8 +544,8 @@ const styles = StyleSheet.create({
   expandBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(2),
-    marginTop: vs(4),
+    gap: s(spacing.xxs),
+    marginTop: vs(spacing.xs),
   },
   expandText: {
     fontSize: ms(fontSize.xs),

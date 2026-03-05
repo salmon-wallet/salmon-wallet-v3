@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, componentSizes, spacing } from '@salmon/shared';
+import { colors, componentSizes, spacing, fontSize, } from '@salmon/shared';
 
 interface PasswordInputProps {
   value: string;
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text.primary,
     fontFamily: 'DMSansRegular',
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   toggleButton: {
     padding: spacing.xs,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.status.error,
     fontFamily: 'DMSansRegular',
-    fontSize: 12,
+    fontSize: fontSize.sm,
     marginTop: spacing.xs,
     paddingHorizontal: spacing.xs,
   },

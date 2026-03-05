@@ -11,7 +11,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 import { PrimaryButton } from '../Button';
 
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['3xl']),
   },
   checkmark: {
-    fontSize: ms(44),
+    fontSize: ms(fontSize['5xl']),
     color: colors.text.primary,
     fontWeight: '700',
   },
@@ -174,14 +174,14 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing.lg),
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(spacing.sm),
   },
   summary: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     textAlign: 'center',
@@ -194,13 +194,13 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing.xl),
   },
   bridgeLabel: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
     marginBottom: vs(spacing.xs),
   },
   bridgeValue: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
     marginBottom: vs(spacing.md),
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['4xl']),
   },
   explorerLink: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.accent.primary,
     textAlign: 'center',
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   },
   buttonGradient: {
     borderRadius: borderRadius.lg,
-    borderWidth: 0.8,
+    borderWidth: borderWidth.accent,
     borderColor: colors.accent.border,
     ...shadows.button,
   },

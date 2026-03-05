@@ -1,4 +1,4 @@
-import { colors, gradients, shadows, ms, s, vs } from '@salmon/shared';
+import { colors, fontSize, borderRadius, gradients, shadows, ms, s, vs, spacing } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useState } from 'react';
 import {
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     // Card size: ~194x193px with responsive scaling
     width: s(194),
     height: vs(193),
-    borderRadius: ms(18),
+    borderRadius: ms(borderRadius.iconContainer),
     overflow: 'hidden',
     // Shadow: 0px 3px 9px rgba(0,0,0,0.4)
     ...shadows.nftCard,
@@ -195,24 +195,24 @@ const styles = StyleSheet.create({
   },
   nameBadgeContainer: {
     position: 'absolute',
-    bottom: vs(8),
-    left: s(8),
-    right: s(8),
+    bottom: vs(spacing.sm),
+    left: s(spacing.sm),
+    right: s(spacing.sm),
     alignItems: 'center',
   },
   nameBadge: {
     // Border radius: 9px (BlurContainer handles background/border)
-    borderRadius: ms(9),
+    borderRadius: ms(borderRadius.badge),
     // Padding: 6px vertical
     paddingVertical: vs(6),
-    paddingHorizontal: s(16),
+    paddingHorizontal: s(spacing.lg),
     width: '100%',
     overflow: 'hidden',
   },
   nameText: {
     // DM Sans SemiBold, ~13px, color #e0e0e0
     fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontWeight: '600',
     color: colors.text.balance,
     textAlign: 'center',
