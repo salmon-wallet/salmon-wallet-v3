@@ -24,7 +24,8 @@ import {
   fontFamilyNative,
   type NetworkSelectorBaseProps,
   type NetworkSelectorItem,
-fontSize, } from '@salmon/shared';
+fontSize,   borderWidth,
+} from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   networkOptionSelected: {
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.accent.primary,
   },
   networkInfo: {

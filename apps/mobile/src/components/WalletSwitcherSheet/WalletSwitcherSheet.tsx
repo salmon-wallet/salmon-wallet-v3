@@ -56,6 +56,7 @@ import {
   getInitials,
   getAccountAddress,
   fontFamilyNative,
+  borderWidth,
 } from '@salmon/shared';
 
 import type {
@@ -487,7 +488,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: borderRadius.tokenIcon,
     backgroundColor: colors.background.card,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     borderStyle: 'dashed',
     alignItems: 'center',

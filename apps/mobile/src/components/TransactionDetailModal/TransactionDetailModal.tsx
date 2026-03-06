@@ -26,7 +26,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, shadows, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
+import { borderWidth, colors, shadows, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
@@ -1160,7 +1160,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     paddingHorizontal: s(spacing.base),
     paddingVertical: vs(6),
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     minWidth: '45%',
   },
@@ -1201,7 +1201,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(spacing.xxs),
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
   },
   hopBadgeText: {
@@ -1237,7 +1237,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(spacing.xxs),
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
   },
   devBadgeText: {
@@ -1302,7 +1302,7 @@ const styles = StyleSheet.create({
     paddingVertical: vs(spacing.md),
     paddingHorizontal: s(spacing.md),
     gap: s(6),
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
   },
   actionButtonText: {

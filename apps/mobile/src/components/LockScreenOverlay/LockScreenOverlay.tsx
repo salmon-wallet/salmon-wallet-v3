@@ -30,7 +30,9 @@ import {
   s,
   spacing,
   vs,
-borderWidth, borderRadius, } from '@salmon/shared';
+  borderWidth,
+  borderRadius,
+} from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState, type ComponentProps } from 'react';
@@ -562,7 +564,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: vs(53),
     borderRadius: borderRadius.xl,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,
     alignItems: 'center',
     justifyContent: 'center',

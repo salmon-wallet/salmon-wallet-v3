@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, fontSize, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
+import { borderWidth, colors, fontSize, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
 import { SwapReviewButtons } from '../SwapScreen/SwapReviewButtons';
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   warningBox: {
     backgroundColor: colors.status.warningBackground,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.status.warningBorder,
     padding: s(spacing.base),
     marginBottom: vs(spacing.lg),

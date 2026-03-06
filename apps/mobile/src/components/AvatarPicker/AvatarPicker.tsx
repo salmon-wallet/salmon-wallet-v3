@@ -29,6 +29,7 @@ import {
   useAvatarNfts,
   type NftAvatarItem,
   type AvatarPickerPropsBase,
+  borderWidth,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE / 2,
     overflow: 'hidden',
-    borderWidth: 2,
+    borderWidth: borderWidth.medium,
     borderColor: 'transparent',
   },
   presetItemSelected: {
@@ -251,7 +252,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: borderRadius.md,
     overflow: 'hidden',
-    borderWidth: 2,
+    borderWidth: borderWidth.medium,
     borderColor: 'transparent',
   },
   nftItemSelected: {

@@ -3,6 +3,7 @@ import { Dimensions, StyleSheet, View } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
 import {
   borderRadius,
+  borderWidth,
   colors,
   componentSizes,
   contentPadding,
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card.background,
     borderRadius: borderRadius.xl,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.card.border,
     padding: spacing.lg,
     marginBottom: spacing.md,

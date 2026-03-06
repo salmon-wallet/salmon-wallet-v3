@@ -17,7 +17,8 @@ import {
   fontFamilyNative,
   type LanguageSelectorBaseProps,
   type LanguageSelectorItem,
-fontSize, } from '@salmon/shared';
+fontSize,   borderWidth,
+} from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   languageOptionSelected: {
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.accent.primary,
   },
   languageInfo: {

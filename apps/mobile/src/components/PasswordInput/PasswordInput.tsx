@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, componentSizes, spacing, fontSize, } from '@salmon/shared';
+import { borderWidth, colors, componentSizes, spacing, fontSize, } from '@salmon/shared';
 
 interface PasswordInputProps {
   value: string;
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: componentSizes.inputHeight,
     backgroundColor: colors.input.background,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderRadius: componentSizes.inputRadius,
     paddingHorizontal: spacing.lg,
   },

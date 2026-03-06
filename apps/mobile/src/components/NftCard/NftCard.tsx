@@ -1,4 +1,4 @@
-import { colors, fontSize, borderRadius, gradients, shadows, ms, s, vs, spacing } from '@salmon/shared';
+import { borderWidth, colors, fontSize, borderRadius, gradients, shadows, ms, s, vs, spacing } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useState } from 'react';
 import {
@@ -130,7 +130,7 @@ export const NftCard: React.FC<NftCardProps> = ({
           blurIntensity={6}
           backgroundColor={colors.overlay.darkHover}
           borderColor={colors.accent.border}
-          borderWidth={0.5}
+          borderWidth={borderWidth.actionButton}
         >
           <Text
             style={styles.nameText}

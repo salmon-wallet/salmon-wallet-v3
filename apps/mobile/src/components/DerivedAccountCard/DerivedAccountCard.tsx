@@ -4,7 +4,8 @@ import {
   colors,
   componentSizes,
   spacing,
-fontSize, } from '@salmon/shared';
+fontSize,   borderWidth,
+} from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon/SvgIcons';
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.card.background,
     borderRadius: borderRadius.xl,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.card.border,
     padding: spacing.lg,
     marginBottom: spacing.md,

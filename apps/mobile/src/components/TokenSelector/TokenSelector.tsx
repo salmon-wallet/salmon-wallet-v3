@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { colors, getShortAddress, borderRadius, spacing, fontSize, } from '@salmon/shared';
+import { borderWidth, colors, getShortAddress, borderRadius, spacing, fontSize, } from '@salmon/shared';
 import { TokenSelectorModal } from './TokenSelectorModal';
 import type { TokenSelectorToken, TokenSelectorProps } from './types';
 
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.scanner.background,
     borderRadius: borderRadius.xl,
     padding: spacing.sm,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.scanner.surface,
   },
   inputContainer: {

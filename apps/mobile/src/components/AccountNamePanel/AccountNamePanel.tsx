@@ -15,6 +15,7 @@ import {
   borderRadius,
   fontSize,
   fontFamilyNative,
+  borderWidth,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import { PrimaryButton } from '../Button';
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,

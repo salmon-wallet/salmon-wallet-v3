@@ -1,5 +1,5 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { colors, componentSizes, fontSize, gradients, ms, s, spacing, vs } from '@salmon/shared';
+import { borderWidth, colors, componentSizes, fontSize, gradients, ms, s, spacing, vs } from '@salmon/shared';
 import { BlurView } from 'expo-blur';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -116,7 +116,7 @@ function GlassPill({ children }: { children: React.ReactNode }) {
         {
           backgroundColor: colors.background.glass,
           borderColor: colors.border.subtle,
-          borderWidth: 1,
+          borderWidth: borderWidth.thin,
         },
       ]}
     >

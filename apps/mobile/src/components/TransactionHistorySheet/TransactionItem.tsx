@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontFamilyNative, spacing, letterSpacing, } from '@salmon/shared';
+import { borderWidth, colors, ms, vs, s, fontSize, borderRadius, formatRawAmount, formatRelativeTimeCompact, getTransactionDescription, fontFamilyNative, spacing, letterSpacing, } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
 import { SwapRouteVisualization } from './SwapRouteVisualization';
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   swapLogoOverlap: {
     marginLeft: -14,
-    borderWidth: 2,
+    borderWidth: borderWidth.medium,
     borderColor: colors.background.secondary,
     borderRadius: borderRadius.iconContainer,
   },
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.badge,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
+    borderWidth: borderWidth.medium,
     borderColor: colors.background.secondary,
   },
   typeBadgeSingle: {

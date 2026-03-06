@@ -21,6 +21,7 @@ import {
   fontSize,
   borderRadius,
   spacing,
+  borderWidth,
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: vs(48),
     borderRadius: ms(borderRadius.lg),
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,
     backgroundColor: colors.button.cancelBackground,
     alignItems: 'center',
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: vs(48),
     borderRadius: ms(borderRadius.lg),
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,
     overflow: 'hidden',
     ...BUTTON_SHADOW,

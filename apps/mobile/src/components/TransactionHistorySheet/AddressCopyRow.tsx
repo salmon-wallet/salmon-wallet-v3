@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, ms, vs, s, fontSize, fontFamilyNative, borderRadius, getShortAddress, spacing, } from '@salmon/shared';
+import { borderWidth, colors, ms, vs, s, fontSize, fontFamilyNative, borderRadius, getShortAddress, spacing, } from '@salmon/shared';
 
 // ============================================================================
 // Types
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.lg),
     backgroundColor: `${colors.background.card}60`,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
   },
   label: {

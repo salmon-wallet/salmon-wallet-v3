@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   infoBox: {
     backgroundColor: colors.background.tokenItem,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     padding: s(spacing.base),
     marginBottom: vs(spacing['2xl']),

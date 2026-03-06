@@ -33,6 +33,7 @@ import {
   getShortAddress,
   letterSpacing,
   spacing,
+  borderWidth,
 } from '@salmon/shared';
 import {
   CallMadeSvgIcon,
@@ -398,7 +399,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             blurIntensity={2.5}
             backgroundColor={colors.interactive.surface}
             borderColor={colors.accent.border}
-            borderWidth={0.5}
+            borderWidth={borderWidth.actionButton}
           >
             <TouchableOpacity
               style={styles.secondaryButtonContent}
@@ -438,7 +439,7 @@ const styles = StyleSheet.create({
   },
   blockchainBadge: {
     borderRadius: ms(borderRadius.lg),
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     overflow: 'hidden',
     backgroundColor: colors.background.tokenItem,
@@ -481,7 +482,7 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     borderRadius: ms(borderRadius.badge),
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     overflow: 'hidden',
     backgroundColor: colors.background.tokenItem,
@@ -578,7 +579,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.xl),
     gap: s(spacing.base),
     borderRadius: ms(borderRadius.button),
-    borderWidth: 0.5,
+    borderWidth: borderWidth.actionButton,
     borderColor: colors.accent.border,
   },
   secondaryButtonWrapper: {

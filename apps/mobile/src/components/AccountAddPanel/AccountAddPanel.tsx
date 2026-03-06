@@ -27,6 +27,7 @@ import {
   spacing,
   borderRadius,
   fontSize,
+  borderWidth,
   fontFamilyNative,
   useAccountsContext,
   scanDerivedAccounts,
@@ -370,7 +371,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
@@ -381,7 +382,7 @@ const styles = StyleSheet.create({
   seedInput: {
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,

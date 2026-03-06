@@ -23,7 +23,8 @@ import {
   fontFamilyNative,
   type ExplorerSelectorBaseProps,
   type ExplorerSelectorItem,
-fontSize, } from '@salmon/shared';
+fontSize,   borderWidth,
+} from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   explorerOptionSelected: {
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.accent.primary,
   },
   explorerName: {

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fontSize, borderRadius, gradients, shadows, ms, s, vs, spacing, } from '@salmon/shared';
+import { borderWidth, colors, fontSize, borderRadius, gradients, shadows, ms, s, vs, spacing, } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCarouselSectionProps, NftBlockchain } from './types';
@@ -124,7 +124,7 @@ const MiniNftCard: React.FC<MiniNftCardProps> = ({ nft, onPress }) => {
           blurIntensity={6}
           backgroundColor={colors.overlay.darkHover}
           borderColor={colors.accent.border}
-          borderWidth={0.5}
+          borderWidth={borderWidth.actionButton}
         >
           <Text style={styles.nameText} numberOfLines={1} ellipsizeMode="tail">
             {nft.name || 'Unnamed NFT'}
