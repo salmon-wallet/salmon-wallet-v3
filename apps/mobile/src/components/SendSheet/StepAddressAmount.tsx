@@ -26,8 +26,8 @@ import {
   getShortAddress,
   fontSize,
   borderRadius,
-  spacing,
   borderWidth,
+  spacing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';

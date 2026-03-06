@@ -13,9 +13,9 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   fontSize,
   fontFamilyNative,
-  borderWidth,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import { PrimaryButton } from '../Button';

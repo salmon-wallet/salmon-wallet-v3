@@ -31,9 +31,9 @@ import {
   getNftBlockchainLabel,
   getSatRarityColor,
   getShortAddress,
+  borderWidth,
   letterSpacing,
   spacing,
-  borderWidth,
 } from '@salmon/shared';
 import {
   CallMadeSvgIcon,

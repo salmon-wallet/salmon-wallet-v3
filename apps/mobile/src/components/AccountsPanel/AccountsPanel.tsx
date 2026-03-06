@@ -24,6 +24,7 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   fontSize,
   lineHeight,
   fontFamilyNative,
@@ -32,7 +33,6 @@ import {
   getInitials,
   getAccountAddress,
   type Account,
-  borderWidth,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import type { AccountsPanelProps } from './types';

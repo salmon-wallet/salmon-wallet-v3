@@ -2,7 +2,7 @@ import React, { useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ContentLoader, Rect } from '@salmon/shared';
-import { colors, spacing, borderRadius, isPositivePerformance, PRICE_CHART_PERIODS, fontSize, } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamilyNative, isPositivePerformance, PRICE_CHART_PERIODS, fontSize, } from '@salmon/shared';
 import type { PriceChartPeriod, PriceDataPoint } from '@salmon/shared';
 import type { PriceChartProps } from './types';
 
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text.primary,
     opacity: 0.9,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
   },
   periodButtonTextSelected: {
     color: colors.text.primary,

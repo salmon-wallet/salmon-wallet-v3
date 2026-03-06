@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import {
   borderRadius,
+  borderWidth,
   colors,
   componentSizes,
   spacing,
-fontSize,   borderWidth,
-} from '@salmon/shared';
+fontSize, fontFamilyNative, } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon/SvgIcons';
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   address: {
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.md,
   },
   networkRow: {
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   path: {
     color: colors.text.tertiary,
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     fontSize: fontSize.sm,
   },
   balanceContainer: {
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   },
   balance: {
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.base,
   },
   dimmed: {

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextLayoutEventData, NativeSyntheticEvent } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
-import { colors, fontSize, ms, vs, s, borderRadius, spacing, } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, ms, vs, s, borderRadius, spacing, } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenAboutProps } from './types';
 
@@ -110,21 +110,21 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(fontSize.base),
-    fontFamily: 'DMSansSemiBold',
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     marginBottom: vs(spacing.sm),
     letterSpacing: ms(-0.07, 0.3),
   },
   description: {
     fontSize: ms(fontSize.xs),
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     lineHeight: ms(9) * 1.4,
     letterSpacing: ms(-0.045, 0.3),
   },
   readMore: {
     fontSize: ms(fontSize.sm),
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     color: colors.accent.primary,
     marginTop: vs(spacing.sm),
   },

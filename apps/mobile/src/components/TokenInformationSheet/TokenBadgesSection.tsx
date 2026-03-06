@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSize, ms, s, spacing, vs, borderRadius } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, ms, s, spacing, vs, borderRadius } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(fontSize.base),
-    fontFamily: 'DMSansSemiBold',
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     marginBottom: vs(spacing.md),
     letterSpacing: ms(-0.07, 0.3),
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   },
   badgeLabel: {
     fontSize: ms(fontSize.xs),
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     textAlign: 'center',
     letterSpacing: ms(-0.05, 0.3),
   },

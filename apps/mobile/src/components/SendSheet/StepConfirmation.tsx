@@ -20,8 +20,8 @@ import {
   useSendTransaction,
   fontSize,
   borderRadius,
-  spacing,
   borderWidth,
+  spacing,
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';

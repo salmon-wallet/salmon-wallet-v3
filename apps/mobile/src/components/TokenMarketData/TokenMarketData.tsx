@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
-import { colors, fontSize, ms, vs, s, formatLargeNumber, formatPercentageCompact, formatDateString, useCurrencyContext, borderRadius, spacing, } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, ms, vs, s, formatLargeNumber, formatPercentageCompact, formatDateString, useCurrencyContext, borderRadius, spacing, } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { TokenMarketDataProps } from './types';
 
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(fontSize.base),
-    fontFamily: 'DMSansSemiBold',
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     marginBottom: vs(spacing.sm),
     letterSpacing: ms(-0.07, 0.3),
@@ -250,13 +250,13 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     fontSize: ms(fontSize.sm),
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     letterSpacing: ms(-0.065, 0.3),
   },
   rowValue: {
     fontSize: ms(fontSize.sm),
-    fontFamily: 'DMSansSemiBold',
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     letterSpacing: ms(-0.065, 0.3),
   },

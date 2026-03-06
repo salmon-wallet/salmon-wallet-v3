@@ -16,6 +16,8 @@ export const fontFamily = {
  * Actual font family names loaded in Expo
  */
 export const fontFamilyNative = {
+  /** DM Sans Light (300) */
+  light: 'DMSansLight',
   /** DM Sans Regular (400) */
   regular: 'DMSansRegular',
   /** DM Sans Medium (500) */

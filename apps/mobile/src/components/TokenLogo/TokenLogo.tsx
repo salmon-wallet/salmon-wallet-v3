@@ -1,4 +1,4 @@
-import { colors, ms } from '@salmon/shared';
+import { colors, ms, fontFamilyNative } from '@salmon/shared';
 import { Image } from 'expo-image';
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, View, type ImageStyle, type ViewStyle } from 'react-native';
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
   fallbackText: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
   },
 });
 

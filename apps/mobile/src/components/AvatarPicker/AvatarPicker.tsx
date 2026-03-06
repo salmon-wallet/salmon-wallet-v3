@@ -23,13 +23,13 @@ import {
   colors,
   spacing,
   borderRadius,
+  borderWidth,
   fontSize,
   fontFamilyNative,
   PRESET_AVATAR_URLS,
   useAvatarNfts,
   type NftAvatarItem,
   type AvatarPickerPropsBase,
-  borderWidth,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 

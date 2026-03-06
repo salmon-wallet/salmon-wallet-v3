@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {
   colors,
+  fontFamilyNative,
   fontSize,
   componentSizes,
   ms,
@@ -179,14 +180,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: ms(fontSize['2xl']),
-    fontFamily: 'DMSansExtraBold',
+    fontFamily: fontFamilyNative.extraBold,
     color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: ms(-0.32, 0.3),
   },
   count: {
     fontSize: ms(fontSize.lg),
-    fontFamily: 'DMSans-Regular',
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
   scrollContent: {

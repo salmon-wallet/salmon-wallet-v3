@@ -24,7 +24,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Logo } from '@salmon/assets';
-import { colors, DEFAULT_WALLET_TIP_KEYS, spacing, fontSize, } from '@salmon/shared';
+import { colors, DEFAULT_WALLET_TIP_KEYS, fontFamilyNative, spacing, fontSize, } from '@salmon/shared';
 
 import { LoadingScreenProps } from './types';
 
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: fontSize['2xl'],
     lineHeight: 32,
     textAlign: 'center',
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.md,
     lineHeight: 24,
     textAlign: 'center',
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   },
   tipLabel: {
     color: colors.accent.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: fontSize.sm,
     lineHeight: 16,
     textTransform: 'uppercase',
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   },
   tipText: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.base,
     lineHeight: 20,
     textAlign: 'center',

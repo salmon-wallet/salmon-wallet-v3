@@ -3,6 +3,7 @@ import {
   borderWidth,
   colors,
   componentSizes,
+  fontFamilyNative,
   fontSize,
   getLabelValue,
   hiddenValue,
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: ms(fontSize.tokenNamePrice),
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.balance,
     flexShrink: 1,
     lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: ms(fontSize.tokenNamePrice),
-    fontFamily: 'DMSansSemiBold',
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.muted,
     lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
   },
   changeText: {
     fontSize: ms(fontSize.tokenChange),
-    fontFamily: 'DMSansLight',
+    fontFamily: fontFamilyNative.light,
     letterSpacing: ms(-0.06, 0.3),
   },
   valueContainer: {
@@ -271,13 +272,13 @@ const styles = StyleSheet.create({
   },
   usdValue: {
     fontSize: ms(fontSize.lg),
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.balance,
     letterSpacing: ms(-0.09, 0.3),
   },
   tokenAmount: {
     fontSize: ms(fontSize.sm),
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
 
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
   },
   bitcoinPrice: {
     fontSize: ms(fontSize.lg),
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     letterSpacing: ms(-0.09, 0.3),
   },
@@ -306,7 +307,7 @@ const styles = StyleSheet.create({
   },
   bitcoinChangeText: {
     fontSize: ms(fontSize.tokenChange),
-    fontFamily: 'DMSansLight',
+    fontFamily: fontFamilyNative.light,
     letterSpacing: ms(-0.06, 0.3),
   },
   bitcoinAmountContainer: {
@@ -315,7 +316,7 @@ const styles = StyleSheet.create({
   },
   bitcoinAmount: {
     fontSize: ms(fontSize.xl),
-    fontFamily: 'DMSansSemiBold',
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.muted,
     letterSpacing: ms(-0.095, 0.3),
   },
