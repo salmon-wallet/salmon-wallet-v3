@@ -101,6 +101,7 @@ export function BlurContainer({
   borderColor = colors.border.default,
   borderWidth = 1,
   useGradientBorder = true,
+  pointerEvents,
 }: BlurContainerProps) {
   const [layout, setLayout] = useState({ width: 0, height: 0 });
 
@@ -123,6 +124,7 @@ export function BlurContainer({
     return (
       <View
         onLayout={useGradientBorder ? handleLayout : undefined}
+        pointerEvents={pointerEvents}
         style={[
           styles.container,
           { backgroundColor: ANDROID_BG },
@@ -150,6 +152,7 @@ export function BlurContainer({
       tint={blurTint}
       experimentalBlurMethod="dimezisBlurView"
       onLayout={useGradientBorder ? handleLayout : undefined}
+      pointerEvents={pointerEvents}
       style={[
         styles.container,
         { backgroundColor },

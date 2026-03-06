@@ -43,20 +43,21 @@ import {
   WalletSwitcherSheet,
   ScalesBackground,
   LanguageSelector,
+  CurrencySelector,
   ExplorerSelector,
   NetworkSelector,
   TrustedAppsSelector,
   SupportSelector,
-  AddressBookSelector,
-  AddressBookAdd,
-  AddressBookEdit,
-  AvatarPicker,
+  AddressBookPanel,
+  AddressAddPanel,
+  AddressEditPanel,
+  AccountAvatarPanel,
   AccountsPanel,
   AccountEditPanel,
   AccountNamePanel,
   AccountAddPanel,
   SecurityPanel,
-  PrivateKeyReveal,
+  PrivateKeyPanel,
   BackupPanel,
   AboutPanel,
   type MobilePanelRegistry,
@@ -164,7 +165,7 @@ export default function TabLayout() {
     avatar: ({ onBack }) => {
       if (!activeAccount) return null;
       return (
-        <AvatarPicker
+        <AccountAvatarPanel
           currentAvatarUrl={activeAccount.avatar}
           account={activeAccount}
           onSave={async (avatarUrl: string) => {
@@ -187,7 +188,7 @@ export default function TabLayout() {
       if (!activeAccount) return null;
       const networks = buildNetworkListFromAccount(activeAccount);
       return (
-        <PrivateKeyReveal
+        <PrivateKeyPanel
           networks={networks}
           activeAccount={activeAccount}
           onBack={onBack}
@@ -223,13 +224,11 @@ export default function TabLayout() {
           symbol: CURRENCY_MAP[code].symbol,
         })
       );
-      // Use a simple LanguageSelector-like pattern; mobile CurrencySelector
-      // is handled by the shared CurrencySelector UI
       return (
-        <LanguageSelector
-          languages={currencyItems.map((c) => ({ code: c.code, nativeName: `${c.symbol} ${c.name}` }))}
-          activeLanguageCode={currency}
-          onSelectLanguage={async (code: string) => {
+        <CurrencySelector
+          currencies={currencyItems}
+          activeCurrencyCode={currency}
+          onSelectCurrency={async (code: string) => {
             await changeCurrency(code as CurrencyCode);
             onBack();
           }}
@@ -275,7 +274,7 @@ export default function TabLayout() {
       );
     },
     addressBook: ({ onBack, onNavigate }) => (
-      <AddressBookSelector
+      <AddressBookPanel
         contacts={addressBookItems}
         activeNetworkId={networkId || 'solana-mainnet'}
         onAddContact={() => onNavigate('address-book-add')}
@@ -292,7 +291,7 @@ export default function TabLayout() {
       const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
       const blockchain = (networkId || 'solana-mainnet').split('-')[0];
       return (
-        <AddressBookAdd
+        <AddressAddPanel
           activeNetworkId={activeNet?.id || 'solana-mainnet'}
           activeNetworkName={activeNet?.name || 'Solana Mainnet'}
           activeBlockchain={blockchain}
@@ -308,7 +307,7 @@ export default function TabLayout() {
       if (!editingContact) return null;
       const blockchain = (editingContact.networkId || 'solana-mainnet').split('-')[0];
       return (
-        <AddressBookEdit
+        <AddressEditPanel
           contact={editingContact}
           activeBlockchain={blockchain}
           onSave={async (originalAddress: string, input: AddressInput) => {

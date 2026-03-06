@@ -22,10 +22,10 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import {
-  useSettingsPanelStack,
   type SettingsScreen,
   colors,
 } from '@salmon/shared';
+import { ScalesBackground } from '../ScalesBackground';
 
 import type { MobileSettingsPanelStackProps } from './types';
 
@@ -36,45 +36,60 @@ const SWIPE_THRESHOLD = 80;
 
 export function SettingsPanelStack({
   panelRegistry,
-  initialPanels,
+  stack,
+  push,
+  pop,
+  canGoBack,
+  onBackActionChange,
 }: MobileSettingsPanelStackProps): React.ReactElement {
-  const { stack, push, pop, canGoBack } = useSettingsPanelStack();
-
   const [animating, setAnimating] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'in' | 'out'>('in');
-  const initialPanelsPushedRef = useRef(false);
+  const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Push initial panels on mount (no animation)
   useEffect(() => {
-    if (initialPanels && initialPanels.length > 0 && !initialPanelsPushedRef.current) {
-      initialPanelsPushedRef.current = true;
-      for (const entry of initialPanels) {
-        push(entry.screen, entry.props);
+    return () => {
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
       }
-    }
-  }, [initialPanels, push]);
+    };
+  }, []);
 
   const handlePush = useCallback(
     (screen: SettingsScreen, props?: Record<string, unknown>) => {
       if (animating) return;
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+      }
       setSlideDirection('in');
       setAnimating(true);
       push(screen, props);
-      setTimeout(() => setAnimating(false), PUSH_DURATION);
+      animationTimerRef.current = setTimeout(() => {
+        setAnimating(false);
+        animationTimerRef.current = null;
+      }, PUSH_DURATION);
     },
     [push, animating],
   );
 
   const handlePop = useCallback(() => {
     if (animating || !canGoBack) return;
+    if (animationTimerRef.current) {
+      clearTimeout(animationTimerRef.current);
+    }
     // Animate out first, then pop after animation completes
     setSlideDirection('out');
     setAnimating(true);
-    setTimeout(() => {
+    animationTimerRef.current = setTimeout(() => {
       pop();
       setAnimating(false);
+      animationTimerRef.current = null;
     }, POP_DURATION);
   }, [pop, canGoBack, animating]);
+
+  useEffect(() => {
+    onBackActionChange?.(canGoBack ? handlePop : null);
+    return () => onBackActionChange?.(null);
+  }, [canGoBack, handlePop, onBackActionChange]);
 
   return (
     <View style={styles.container}>
@@ -128,21 +143,32 @@ function PanelSlide({
   const translateX = useSharedValue(direction === 'in' && animating ? SCREEN_WIDTH : 0);
 
   useEffect(() => {
-    if (animating && isTop) {
-      if (direction === 'in') {
-        translateX.value = SCREEN_WIDTH;
+    if (!isTop) {
+      translateX.value = 0;
+      return;
+    }
+
+    if (animating && direction === 'in') {
+      translateX.value = SCREEN_WIDTH;
+      const frame = requestAnimationFrame(() => {
         translateX.value = withTiming(0, {
           duration: PUSH_DURATION,
           easing: Easing.out(Easing.cubic),
         });
-      } else if (direction === 'out') {
-        // Panel is already at 0 from previous push — animate it out
-        translateX.value = withTiming(SCREEN_WIDTH, {
-          duration: POP_DURATION,
-          easing: Easing.in(Easing.cubic),
-        });
-      }
+      });
+
+      return () => cancelAnimationFrame(frame);
     }
+
+    if (animating && direction === 'out') {
+      translateX.value = withTiming(SCREEN_WIDTH, {
+        duration: POP_DURATION,
+        easing: Easing.in(Easing.cubic),
+      });
+      return;
+    }
+
+    translateX.value = 0;
   }, [animating, isTop, direction, translateX]);
 
   // Swipe-right gesture to pop — useMemo so the responder updates when deps change
@@ -174,7 +200,12 @@ function PanelSlide({
       ]}
       {...(canSwipe ? panResponder.panHandlers : {})}
     >
-      {children}
+      <View style={styles.panelBackground}>
+        <ScalesBackground />
+      </View>
+      <View style={styles.panelContent}>
+        {children}
+      </View>
     </Animated.View>
   );
 }
@@ -186,7 +217,15 @@ const styles = StyleSheet.create({
   },
   panel: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
+    overflow: 'hidden',
+  },
+  panelBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.background.primary,
+  },
+  panelContent: {
+    flex: 1,
   },
 });
 

@@ -48,6 +48,17 @@ export interface TopSheetProps {
   title?: string;
 
   /**
+   * Optional back action shown on the left side of the header.
+   * When provided, renders a back button mirrored to the close button.
+   */
+  onBack?: () => void;
+
+  /**
+   * Accessibility label for the optional back button.
+   */
+  backAccessibilityLabel?: string;
+
+  /**
    * Custom style for the sheet container.
    * Use this to adjust padding, background color, or other container styles.
    */

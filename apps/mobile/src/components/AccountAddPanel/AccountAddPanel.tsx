@@ -16,8 +16,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  FlatList,
-  type ListRenderItemInfo,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -40,6 +38,7 @@ import {
   type DerivedAccountInfo,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
+import { useSettingsHeaderOverride } from '../SettingsHeaderContext';
 import { PrimaryButton } from '../Button';
 import { DerivedAccountCard } from '../DerivedAccountCard';
 import type { AccountAddPanelProps } from './types';
@@ -201,23 +200,19 @@ export function AccountAddPanel({
         </View>
       ) : (
         <>
-          <FlatList
-            data={derivedAccounts}
-            renderItem={({ item }: ListRenderItemInfo<DerivedAccountInfo>) => (
-              <DerivedAccountCard
-                address={item.address}
-                networkName={item.networkName}
-                path={item.path}
-                balanceFormatted={item.balanceFormatted}
-                selected={selectedDerived?.address === item.address}
-                dimmed={item.balance === 0}
-                onToggle={() => handleDerivedSelect(item)}
-                blockchain={NETWORK_DISPLAY[item.networkId]?.blockchain}
-              />
-            )}
-            keyExtractor={(item) => `${item.networkId}-${item.address}`}
-            scrollEnabled={false}
-          />
+          {derivedAccounts.map((item: DerivedAccountInfo) => (
+            <DerivedAccountCard
+              key={`${item.networkId}-${item.address}`}
+              address={item.address}
+              networkName={item.networkName}
+              path={item.path}
+              balanceFormatted={item.balanceFormatted}
+              selected={selectedDerived?.address === item.address}
+              dimmed={item.balance === 0}
+              onToggle={() => handleDerivedSelect(item)}
+              blockchain={NETWORK_DISPLAY[item.networkId]?.blockchain}
+            />
+          ))}
           <View style={styles.buttonContainer}>
             <PrimaryButton
               onPress={handleDerivedContinue}
@@ -291,9 +286,15 @@ export function AccountAddPanel({
     'set-name': t('settings.account_add.set_name'),
     'complete': t('settings.account_add.title'),
   };
+  const currentTitle = stepTitles[step];
+
+  useSettingsHeaderOverride({
+    title: currentTitle,
+    onBack: handleStepBack,
+  });
 
   return (
-    <SettingsScreenLayout title={stepTitles[step]} onBack={handleStepBack}>
+    <SettingsScreenLayout title={currentTitle} onBack={handleStepBack}>
       {step === 'select-method' && renderSelectMethod()}
       {step === 'derive-scan' && renderDeriveScan()}
       {step === 'import-seed' && renderImportSeed()}

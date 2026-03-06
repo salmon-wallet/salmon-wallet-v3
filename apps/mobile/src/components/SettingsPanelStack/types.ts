@@ -1,4 +1,8 @@
-import type { SettingsScreen, SettingsPanelEntry } from '@salmon/shared';
+import type {
+  SettingsScreen,
+  SettingsPanelEntry,
+  UseSettingsPanelStackResult,
+} from '@salmon/shared';
 
 /**
  * Props that every panel content component receives.
@@ -24,5 +28,9 @@ export type MobilePanelRegistry = Partial<Record<SettingsScreen, MobilePanelRend
  */
 export interface MobileSettingsPanelStackProps {
   panelRegistry: MobilePanelRegistry;
-  initialPanels?: SettingsPanelEntry[];
+  stack: SettingsPanelEntry[];
+  push: UseSettingsPanelStackResult['push'];
+  pop: UseSettingsPanelStackResult['pop'];
+  canGoBack: boolean;
+  onBackActionChange?: (handler: (() => void) | null) => void;
 }
