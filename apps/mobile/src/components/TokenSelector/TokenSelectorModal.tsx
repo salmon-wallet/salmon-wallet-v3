@@ -13,7 +13,7 @@ import {
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 
-import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey, fontSize, } from '@salmon/shared';
+import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey, fontSize, fontWeight, } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import type { TokenSelectorToken, TokenSelectorModalProps } from './types';
 
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text.primary,
     fontSize: fontSize.lg,
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     textAlign: 'center',
   },
   searchContainer: {
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   tokenName: {
     color: colors.text.primary,
     fontSize: fontSize.md,
-    fontWeight: '500',
+    fontWeight: fontWeight.medium,
     padding: 0,
   },
   tokenBalance: {
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   networkChipText: {
     color: colors.text.secondary,
     fontSize: fontSize.xs,
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     padding: 0,
   },
   featuredContainer: {
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   loadMoreText: {
     color: colors.text.primary,
     fontSize: fontSize.md,
-    fontWeight: '500',
+    fontWeight: fontWeight.medium,
     padding: 0,
   },
   emptyContainer: {
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: colors.text.primary,
     fontSize: fontSize.md,
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     padding: 0,
   },
 });

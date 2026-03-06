@@ -11,7 +11,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, fontSize, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 import { PrimaryButton } from '../Button';
 
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   checkmark: {
     fontSize: ms(fontSize['5xl']),
     color: colors.text.primary,
-    fontWeight: '700',
+    fontWeight: fontWeight.bold,
   },
   textContainer: {
     alignItems: 'center',

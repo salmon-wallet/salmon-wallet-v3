@@ -1,6 +1,7 @@
 import {
   colors,
   fontSize,
+  letterSpacing,
   spacing,
   borderRadius,
   componentSizes,
@@ -8,6 +9,7 @@ import {
   ms,
   s,
   vs,
+  lineHeight,
 } from '@salmon/shared';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -139,8 +141,8 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.24,
-    lineHeight: ms(24 * 1.3),
+    letterSpacing: letterSpacing.wide,
+    lineHeight: ms(24 * lineHeight.condensed),
   },
   content: {
     alignItems: 'center',
@@ -160,8 +162,8 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.14,
-    lineHeight: ms(14 * 1.3),
+    letterSpacing: letterSpacing.change,
+    lineHeight: ms(14 * lineHeight.condensed),
   },
   copyButton: {
     flexDirection: 'row',

@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, fontSize, shadows, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, letterSpacing, lineHeight, shadows, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative, opacity } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapAmountInputProps } from './types';
@@ -103,8 +103,8 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    letterSpacing: 0.02,
-    lineHeight: ms(18),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.base * lineHeight.condensed),
   },
   inputContainer: {
     flexDirection: 'row',
@@ -144,9 +144,9 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    opacity: 0.9,
-    letterSpacing: 0.018,
-    lineHeight: ms(18),
+    opacity: opacity.soft,
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.base * lineHeight.condensed),
   },
   infoRow: {
     flexDirection: 'row',
@@ -157,15 +157,15 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    letterSpacing: 0.018,
-    lineHeight: ms(21),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
   availableBalance: {
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
-    letterSpacing: 0.018,
-    lineHeight: ms(21),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
 });
 

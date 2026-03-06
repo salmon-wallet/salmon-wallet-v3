@@ -28,6 +28,7 @@ import {
   borderRadius,
   borderWidth,
   spacing,
+  opacity,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -544,7 +545,7 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   reviewButtonDisabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
     borderColor: colors.border.default,
   },
   reviewButtonGradient: {

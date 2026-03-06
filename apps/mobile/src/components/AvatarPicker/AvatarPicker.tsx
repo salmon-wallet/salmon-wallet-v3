@@ -30,6 +30,7 @@ import {
   useAvatarNfts,
   type NftAvatarItem,
   type AvatarPickerPropsBase,
+  opacity,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   saveButtonDisabled: {
-    opacity: 0.4,
+    opacity: opacity.faint,
   },
   saveButtonText: {
     fontFamily: fontFamilyNative.bold,

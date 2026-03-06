@@ -23,7 +23,7 @@ import {
   fontFamilyNative,
   type TrustedAppsSelectorBaseProps,
   type TrustedAppItem,
-fontSize, } from '@salmon/shared';
+fontSize, opacity, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   revokeButtonDisabled: {
-    opacity: 0.4,
+    opacity: opacity.faint,
   },
   emptyContainer: {
     alignItems: 'center',

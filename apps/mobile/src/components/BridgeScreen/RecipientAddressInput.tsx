@@ -9,6 +9,7 @@ import {
 import {
   colors,
   fontSize,
+  letterSpacing,
   spacing,
   borderRadius,
   borderWidth,
@@ -151,14 +152,14 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    letterSpacing: 0.02,
+    letterSpacing: letterSpacing.normal,
     lineHeight: ms(18),
   },
   chainHint: {
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    letterSpacing: 0.018,
+    letterSpacing: letterSpacing.normal,
     lineHeight: ms(16),
   },
   inputContainer: {
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
-    letterSpacing: 0.018,
+    letterSpacing: letterSpacing.normal,
     lineHeight: ms(16),
     color: colors.text.secondary,
   },
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.xs),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    letterSpacing: 0.018,
+    letterSpacing: letterSpacing.normal,
     lineHeight: ms(16),
   },
 });

@@ -12,7 +12,7 @@
 import React from 'react';
 import { Modal, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { colors, spacing, borderRadius, fontSize, } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, } from '@salmon/shared';
 import type { QRScannerProps } from './types';
 
 /**
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSize.lg,
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.scanner.text,
   },
   headerSpacer: {
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   messageTitle: {
     fontSize: fontSize.xl,
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.scanner.text,
     marginBottom: spacing.md,
     textAlign: 'center',
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.scanner.text,
     fontSize: fontSize.md,
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
   },
 });
 

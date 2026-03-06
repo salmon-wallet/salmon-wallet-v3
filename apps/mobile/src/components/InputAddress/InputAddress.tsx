@@ -20,7 +20,7 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from 'react-native';
-import { borderWidth, colors, useAddressValidation, useAccountsContext, type ValidationState, spacing, borderRadius, fontSize, } from '@salmon/shared';
+import { borderWidth, colors, useAddressValidation, useAccountsContext, type ValidationState, spacing, borderRadius, fontSize, fontWeight, } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 
 // ============================================================================
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: fontSize.base,
-    fontWeight: '500',
+    fontWeight: fontWeight.medium,
     marginBottom: spacing.sm,
     color: colors.text.primary,
   },

@@ -51,6 +51,8 @@ import {
   type BlockchainType,
   type ValidationCallbackResult,
   spacing,
+  fontWeight,
+  opacity,
 } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
 import { InputAddress } from '../InputAddress';
@@ -347,7 +349,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fontFamilyNative.bold,
     fontSize: ms(fontSize.lg),
-    fontWeight: '700',
+    fontWeight: fontWeight.bold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(spacing.lg),
@@ -371,7 +373,7 @@ const styles = StyleSheet.create({
   nftName: {
     fontFamily: fontFamilyNative.medium,
     fontSize: ms(fontSize.md),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
   },
   nftCollection: {
@@ -427,7 +429,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontFamily: fontFamilyNative.medium,
     fontSize: ms(fontSize.md),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
   },
   confirmButton: {
@@ -444,11 +446,11 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     fontFamily: fontFamilyNative.medium,
     fontSize: ms(fontSize.md),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
   },
   confirmButtonTextDisabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
   },
 });
 

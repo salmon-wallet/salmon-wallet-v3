@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { borderWidth, colors, fontSize, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
+import { borderWidth, colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
 import { SwapReviewButtons } from '../SwapScreen/SwapReviewButtons';
@@ -113,8 +113,8 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.24,
-    lineHeight: ms(24 * 1.3),
+    letterSpacing: letterSpacing.wide,
+    lineHeight: ms(24 * lineHeight.condensed),
     marginBottom: vs(spacing['2xl']),
   },
   scrollView: {
@@ -144,14 +144,14 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
-    letterSpacing: 0.02,
+    letterSpacing: letterSpacing.normal,
   },
   warningText: {
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
-    letterSpacing: 0.018,
-    lineHeight: ms(18),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
 });
 

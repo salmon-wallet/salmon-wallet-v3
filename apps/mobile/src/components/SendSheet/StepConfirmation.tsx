@@ -22,6 +22,7 @@ import {
   borderRadius,
   borderWidth,
   spacing,
+  opacity,
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
@@ -302,7 +303,7 @@ const styles = StyleSheet.create({
     ...BUTTON_SHADOW,
   },
   confirmButtonDisabled: {
-    opacity: 0.7,
+    opacity: opacity.medium,
   },
   confirmButtonGradient: {
     flex: 1,

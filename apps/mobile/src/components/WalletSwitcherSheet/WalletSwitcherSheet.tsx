@@ -57,6 +57,7 @@ import {
   getAccountAddress,
   fontFamilyNative,
   borderWidth,
+  opacity,
 } from '@salmon/shared';
 
 import type {
@@ -464,7 +465,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
   },
   actionButtonDisabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
   },
   checkmarkContainer: {
     width: 32,

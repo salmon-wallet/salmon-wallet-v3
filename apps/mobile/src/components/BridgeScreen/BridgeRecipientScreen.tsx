@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fontSize, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
+import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
 import { RecipientAddressInput } from './RecipientAddressInput';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -96,8 +96,8 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.24,
-    lineHeight: ms(24 * 1.3),
+    letterSpacing: letterSpacing.wide,
+    lineHeight: ms(24 * lineHeight.condensed),
     marginBottom: vs(spacing.md),
   },
   description: {
@@ -105,8 +105,8 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     textAlign: 'center',
-    letterSpacing: 0.02,
-    lineHeight: ms(20),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.base * lineHeight.tokenListItem),
     marginBottom: vs(spacing['2xl']),
   },
   inputContainer: {
@@ -125,14 +125,14 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
-    letterSpacing: 0.02,
+    letterSpacing: letterSpacing.normal,
   },
   infoText: {
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
-    letterSpacing: 0.018,
-    lineHeight: ms(18),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
   buttonsContainer: {
     flexDirection: 'row',

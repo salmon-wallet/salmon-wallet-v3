@@ -10,6 +10,7 @@ import {
   fontWeight,
   fontFamily,
   letterSpacing,
+  opacity,
 } from '@salmon/shared';
 import type { SubAccountSelectorProps } from './types';
 
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     borderColor: colors.card.border,
   },
   chipPending: {
-    opacity: 0.6,
+    opacity: opacity.low,
   },
   chipText: {
     fontFamily: fontFamily.sans,

@@ -1,4 +1,4 @@
-import { colors, fontFamilyNative, fontSize, borderRadius, borderWidth, gradients, shadows, ms, s, vs, spacing } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, fontWeight, borderRadius, borderWidth, gradients, shadows, ms, s, vs, spacing } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useState } from 'react';
 import {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     // DM Sans SemiBold, ~13px, color #e0e0e0
     fontFamily: fontFamilyNative.semiBold,
     fontSize: ms(fontSize.sm),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.balance,
     textAlign: 'center',
   },

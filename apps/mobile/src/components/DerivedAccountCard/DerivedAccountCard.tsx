@@ -5,7 +5,7 @@ import {
   colors,
   componentSizes,
   spacing,
-fontSize, fontFamilyNative, } from '@salmon/shared';
+fontSize, fontFamilyNative, opacity, } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon/SvgIcons';
@@ -125,6 +125,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.base,
   },
   dimmed: {
-    opacity: 0.4,
+    opacity: opacity.faint,
   },
 });

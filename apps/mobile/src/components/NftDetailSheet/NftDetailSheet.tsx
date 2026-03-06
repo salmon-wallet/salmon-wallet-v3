@@ -33,7 +33,9 @@ import {
   getShortAddress,
   borderWidth,
   letterSpacing,
+  lineHeight,
   spacing,
+  fontWeight,
 } from '@salmon/shared';
 import {
   CallMadeSvgIcon,
@@ -500,7 +502,7 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    lineHeight: ms(18),
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
   attributesGrid: {
     flexDirection: 'row',
@@ -598,9 +600,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: ms(fontSize.md),
-    fontWeight: '500',
+    fontWeight: fontWeight.medium,
     color: colors.text.balance,
-    lineHeight: ms(16 * 1.5),
+    lineHeight: ms(16 * lineHeight.normal),
   },
 });
 

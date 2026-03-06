@@ -3,6 +3,7 @@ import {
   colors,
   componentSizes,
   fontSize,
+  fontWeight,
   gradients,
   ms,
   s,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: ms(fontSize.actionButton), // 14.5px
-    fontWeight: '400',
+    fontWeight: fontWeight.regular,
     color: colors.text.balance,
     lineHeight: ms(fontSize.actionButton * 1.5), // lineHeight: 1.5
   },
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: ms(fontSize.actionButton), // 14.5px
-    fontWeight: '400',
+    fontWeight: fontWeight.regular,
     color: colors.text.balance,
     lineHeight: ms(fontSize.actionButton * 1.5), // lineHeight: 1.5
   },

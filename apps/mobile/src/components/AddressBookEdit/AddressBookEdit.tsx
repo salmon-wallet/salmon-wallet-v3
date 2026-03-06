@@ -19,7 +19,7 @@ import {
   fontFamilyNative,
   useAddressBookForm,
   type AddressBookEditBaseProps,
-fontSize, } from '@salmon/shared';
+fontSize, opacity, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 import { InputAddress } from '../InputAddress';
 
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     marginTop: spacing['2xl'],
   },
   saveButtonDisabled: {
-    opacity: 0.4,
+    opacity: opacity.faint,
   },
   saveButtonText: {
     color: colors.text.primary,

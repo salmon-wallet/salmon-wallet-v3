@@ -24,7 +24,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Logo } from '@salmon/assets';
-import { colors, DEFAULT_WALLET_TIP_KEYS, fontFamilyNative, spacing, fontSize, } from '@salmon/shared';
+import { colors, DEFAULT_WALLET_TIP_KEYS, fontFamilyNative, letterSpacing, spacing, fontSize, } from '@salmon/shared';
 
 import { LoadingScreenProps } from './types';
 
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     lineHeight: 16,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: letterSpacing.widest,
     marginBottom: spacing.sm,
   },
   tipText: {

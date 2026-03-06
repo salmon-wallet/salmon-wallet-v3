@@ -17,6 +17,8 @@ import {
   vs,
   getScalesColorForBlockchain,
   getNetworkLabel,
+  fontWeight,
+  opacity,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
@@ -333,7 +335,7 @@ const styles = StyleSheet.create({
   },
   networkLabelText: {
     fontSize: ms(fontSize.xs),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
@@ -365,12 +367,12 @@ const styles = StyleSheet.create({
   },
   balanceDollars: {
     fontSize: ms(fontSize.balance),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.balance,
     letterSpacing: letterSpacing.balance,
   },
   balanceDecimals: {
-    opacity: 0.4,
+    opacity: opacity.faint,
     color: colors.text.primary,
   },
   eyeButton: {
@@ -394,7 +396,7 @@ const styles = StyleSheet.create({
   },
   changeText: {
     fontSize: ms(fontSize.sm),
-    fontWeight: '500',
+    fontWeight: fontWeight.medium,
     letterSpacing: letterSpacing.change,
     lineHeight: ms(fontSize.sm * 1.3),
   },

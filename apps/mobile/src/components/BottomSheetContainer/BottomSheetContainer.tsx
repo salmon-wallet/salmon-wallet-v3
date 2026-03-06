@@ -31,6 +31,7 @@ import {
   vs,
   s,
   spacing,
+  opacity,
 } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
 
@@ -338,7 +339,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: colors.interactive.surface,
-    opacity: 0.4,
+    opacity: opacity.faint,
   },
   dragArea: {
     // Gesture is attached here; keep it empty so consumers can add dragAreaStyle

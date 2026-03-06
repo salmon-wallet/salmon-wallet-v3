@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
-import { colors, fontSize, spacing, borderRadius, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, ms, vs, s, fontFamilyNative } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapReviewCardProps } from './types';
 
@@ -37,23 +37,23 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
-    letterSpacing: -0.075,
-    lineHeight: ms(15 * 1.5),
+    letterSpacing: letterSpacing.slight,
+    lineHeight: ms(15 * lineHeight.normal),
   },
   amount: {
     fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    letterSpacing: -0.12,
-    lineHeight: ms(25),
+    letterSpacing: letterSpacing.snug,
+    lineHeight: ms(fontSize['2xl'] * lineHeight.tight),
     marginTop: vs(spacing.xxs),
   },
   usdValue: {
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
-    letterSpacing: -0.065,
-    lineHeight: ms(13 * 1.4),
+    letterSpacing: letterSpacing.slight,
+    lineHeight: ms(13 * lineHeight.tokenListItem),
     marginTop: vs(spacing.xxs),
   },
 });
