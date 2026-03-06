@@ -114,6 +114,8 @@ export const componentSizes = {
   // Logo
   logoSizeLarge: 137,
   logoSizeMedium: 120,
+  /** 96px - Success circle */
+  successCircleSize: 96,
   logoSizeSmall: 80,
 
   // Step indicator
@@ -172,6 +174,8 @@ export const componentSizes = {
   // Tab Bar (GlassTabBar)
   tabBarPaddingTop: 32,
   tabBarMinBottomPadding: 16,
+  /** 60px - Tab bar item container height */
+  tabBarItemHeight: 60,
   tabBarHeight: 88,
   /** Scroll content bottom padding to clear tab bar */
   tabBarScrollPadding: 160,
@@ -206,6 +210,10 @@ export const componentSizes = {
   // NFT
   nftBadgeHeight: 25,
   nftCardGap: 9,
+  /** 194px - NFT card width (mobile) */
+  nftCardWidth: 194,
+  /** 193px - NFT card height (mobile) */
+  nftCardHeight: 193,
 
   // Skeleton
   skeletonBadgeWidth: 100,
@@ -252,6 +260,12 @@ export const componentSizes = {
 
   // Sheet
   sheetMaxHeight: 700,
+
+  // Lock Screen (mobile)
+  /** 140px - Lock screen logo */
+  lockScreenLogoSize: 140,
+  /** 64px - Biometric auth button */
+  biometricButtonSize: 64,
 
   // Breakpoints
   breakpointDesktop: 768,

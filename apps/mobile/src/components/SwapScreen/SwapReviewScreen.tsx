@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: vs(200),
+    height: vs(componentSizes.chartHeight),
     opacity: opacity.faint,
   },
   title: {

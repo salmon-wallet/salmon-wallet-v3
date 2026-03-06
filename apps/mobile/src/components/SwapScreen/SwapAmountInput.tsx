@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, fontSize, letterSpacing, lineHeight, shadows, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative, opacity } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, letterSpacing, lineHeight, shadows, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative, opacity, componentSizes } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapAmountInputProps } from './types';
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: borderRadius.md,
-    height: vs(58),
+    height: vs(componentSizes.inputHeightLg),
     paddingHorizontal: s(spacing.md),
   },
   loadingContainer: {
@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(spacing.xxs),
     gap: s(spacing.sm - 1),
-    height: vs(36),
-    minWidth: s(100),
+    height: vs(componentSizes.iconSizeXL),
+    minWidth: s(componentSizes.swapSelectorMinWidth),
     ...shadows.sm,
   },
   tokenSymbol: {

@@ -140,8 +140,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   button: {
-    minWidth: s(180),
-    height: vs(42),
+    minWidth: s(componentSizes.copyButtonWidth),
+    height: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

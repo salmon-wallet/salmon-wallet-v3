@@ -26,7 +26,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { borderWidth, colors, shadows, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress, opacity } from '@salmon/shared';
+import { borderWidth, colors, shadows, componentSizes, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress, opacity } from '@salmon/shared';
 
 import { ScalesBackground } from '../ScalesBackground';
 import { BlurContainer } from '../BlurContainer';
@@ -924,8 +924,8 @@ const styles = StyleSheet.create({
     paddingBottom: vs(spacing.sm),
   },
   handle: {
-    width: s(70),
-    height: vs(6),
+    width: s(componentSizes.sheetHandleWidth),
+    height: vs(componentSizes.sheetHandleHeight),
     borderRadius: 75,
     backgroundColor: colors.sheet.handle,
     opacity: opacity.faint,

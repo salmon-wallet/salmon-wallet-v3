@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: ms(borderRadius.md),
     paddingHorizontal: s(spacing.lg),
-    height: vs(38),
+    height: vs(componentSizes.tokenIcon),
     marginBottom: vs(spacing.headerPadding),
   },
   searchIcon: {

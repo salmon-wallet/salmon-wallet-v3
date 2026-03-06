@@ -29,6 +29,7 @@ import {
   borderWidth,
   spacing,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -377,7 +378,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: ms(borderRadius.lg),
     paddingHorizontal: s(spacing.lg),
-    height: vs(48),
+    height: vs(componentSizes.buttonHeightMedium),
   },
   inputContainerError: {
     borderWidth: borderWidth.thin,
@@ -478,7 +479,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: ms(borderRadius.lg),
     paddingHorizontal: s(spacing.lg),
-    height: vs(48),
+    height: vs(componentSizes.buttonHeightMedium),
   },
   amountInput: {
     flex: 1,
@@ -521,7 +522,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    height: vs(48),
+    height: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,
@@ -537,7 +538,7 @@ const styles = StyleSheet.create({
   },
   reviewButton: {
     flex: 1,
-    height: vs(48),
+    height: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     overflow: 'hidden',
     borderWidth: borderWidth.thin,

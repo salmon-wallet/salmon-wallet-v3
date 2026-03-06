@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, shadows, vs, s, borderWidth, } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, shadows, vs, s, borderWidth, componentSizes, } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 
 export interface SwapReviewButtonsProps {
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
-    height: vs(42),
+    height: vs(componentSizes.buttonHeightCompact),
     borderWidth: borderWidth.accent,
     borderColor: colors.accent.border,
     borderRadius: borderRadius.lg,
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   confirmButton: {
-    height: vs(42),
+    height: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

@@ -171,8 +171,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.button.primaryBackground,
     borderRadius: ms(borderRadius.lg),
-    width: s(180),
-    height: vs(42),
+    width: s(componentSizes.copyButtonWidth),
+    height: vs(componentSizes.buttonHeightCompact),
     gap: s(spacing.xs),
   },
   copyButtonText: {

@@ -362,8 +362,8 @@ const styles = StyleSheet.create({
     gap: s(spacing.md),
   },
   nftImage: {
-    width: ms(56),
-    height: ms(56),
+    width: ms(componentSizes.buttonHeight),
+    height: ms(componentSizes.buttonHeight),
     borderRadius: ms(borderRadius.md),
     backgroundColor: colors.background.card,
   },
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    height: vs(48),
+    height: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     backgroundColor: colors.background.tertiary,
     alignItems: 'center',
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 1,
-    height: vs(48),
+    height: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     backgroundColor: colors.accent.primary,
     alignItems: 'center',

@@ -20,6 +20,7 @@ import {
   getDefaultExplorer,
   getShortAddress,
   spacing,
+  componentSizes,
 } from '@salmon/shared';
 import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   backButtonSpacer: {
-    width: ms(24),
+    width: ms(componentSizes.iconSizeMedium),
   },
   title: {
     fontSize: ms(fontSize['2xl']),

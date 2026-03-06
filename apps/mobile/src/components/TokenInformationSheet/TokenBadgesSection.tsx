@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { colors, fontFamilyNative, fontSize, ms, s, spacing, vs, borderRadius } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, componentSizes, ms, s, spacing, vs, borderRadius } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
@@ -281,11 +281,11 @@ const styles = StyleSheet.create({
   },
   badgeItem: {
     alignItems: 'center',
-    minWidth: s(55),
+    minWidth: s(componentSizes.badgeMinWidth),
   },
   badgeIcon: {
-    width: s(40),
-    height: s(40),
+    width: s(componentSizes.iconSize2XL),
+    height: s(componentSizes.iconSize2XL),
     borderRadius: s(20),
     alignItems: 'center',
     justifyContent: 'center',

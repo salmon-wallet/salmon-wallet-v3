@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
-    height: vs(42),
+    height: vs(componentSizes.buttonHeightCompact),
     borderWidth: borderWidth.accent,
     borderColor: colors.accent.border,
     borderRadius: borderRadius.lg,
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     borderColor: colors.accent.border,
   },
   continueButton: {
-    height: vs(42),
+    height: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

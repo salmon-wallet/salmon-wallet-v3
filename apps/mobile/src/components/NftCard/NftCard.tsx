@@ -1,4 +1,4 @@
-import { colors, fontFamilyNative, fontSize, fontWeight, borderRadius, borderWidth, gradients, shadows, ms, s, vs, spacing } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, fontWeight, borderRadius, borderWidth, gradients, shadows, componentSizes, ms, s, vs, spacing } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useState } from 'react';
 import {
@@ -164,8 +164,8 @@ export const NftCard: React.FC<NftCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     // Card size: ~194x193px with responsive scaling
-    width: s(194),
-    height: vs(193),
+    width: s(componentSizes.nftCardWidth),
+    height: vs(componentSizes.nftCardHeight),
     borderRadius: ms(borderRadius.iconContainer),
     overflow: 'hidden',
     // Shadow: 0px 3px 9px rgba(0,0,0,0.4)

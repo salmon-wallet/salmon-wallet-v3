@@ -212,13 +212,13 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: vs(60),
+    height: vs(componentSizes.tabBarItemHeight),
     paddingHorizontal: s(spacing.lg),
     gap: s(spacing.xxs),
   },
   // Icon container
   tabIconContainer: {
-    height: vs(28),
+    height: vs(componentSizes.iconSizeMButton),
     alignItems: 'center',
     justifyContent: 'center',
   },

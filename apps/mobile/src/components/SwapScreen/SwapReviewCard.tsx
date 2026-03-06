@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
-import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, ms, vs, s, fontFamilyNative, componentSizes } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapReviewCardProps } from './types';
 
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingHorizontal: s(spacing.base),
     paddingVertical: vs(spacing.sm),
-    minHeight: vs(75),
+    minHeight: vs(componentSizes.swapReviewCardMinHeight),
     justifyContent: 'center',
   },
   label: {

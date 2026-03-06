@@ -1,4 +1,4 @@
-import { borderRadius, colors, fontSize, fontWeight, letterSpacing, ms, s, shadows, spacing, vs, getShortAddress, getAvatarColor, getInitials } from '@salmon/shared';
+import { borderRadius, colors, fontSize, fontWeight, letterSpacing, componentSizes, ms, s, shadows, spacing, vs, getShortAddress, getAvatarColor, getInitials } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -176,8 +176,8 @@ const styles = StyleSheet.create({
     gap: s(spacing.base),
   },
   walletIconContainer: {
-    width: s(32),
-    height: vs(46),
+    width: s(componentSizes.iconSizeLarge),
+    height: vs(componentSizes.buttonHeightSmall),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -198,19 +198,19 @@ const styles = StyleSheet.create({
     padding: s(spacing.xs),
   },
   settingsButton: {
-    width: s(30),
-    height: vs(32),
+    width: s(componentSizes.iconSizeLarge),
+    height: vs(componentSizes.iconSizeLarge),
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerAvatar: {
-    width: s(28),
-    height: s(28),
+    width: s(componentSizes.iconSizeMButton),
+    height: s(componentSizes.iconSizeMButton),
     borderRadius: s(14),
   },
   headerAvatarFallback: {
-    width: s(28),
-    height: s(28),
+    width: s(componentSizes.iconSizeMButton),
+    height: s(componentSizes.iconSizeMButton),
     borderRadius: s(14),
     alignItems: 'center',
     justifyContent: 'center',

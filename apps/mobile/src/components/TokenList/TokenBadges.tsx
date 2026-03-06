@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { borderRadius, colors, ms, s, spacing, vs } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, ms, s, spacing, vs } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { TokenBadgesProps } from './types';
@@ -144,8 +144,8 @@ const styles = StyleSheet.create({
     marginLeft: s(spacing.sm),
   },
   badge: {
-    width: s(18),
-    height: vs(18),
+    width: s(componentSizes.iconSizeXSmall),
+    height: vs(componentSizes.iconSizeXSmall),
     borderRadius: borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',

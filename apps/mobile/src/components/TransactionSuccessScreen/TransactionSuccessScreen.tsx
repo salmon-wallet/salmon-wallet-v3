@@ -156,8 +156,8 @@ const styles = StyleSheet.create({
     paddingBottom: vs(componentSizes.tabBarHeight + spacing.xl),
   },
   circleOuter: {
-    width: vs(96),
-    height: vs(96),
+    width: vs(componentSizes.successCircleSize),
+    height: vs(componentSizes.successCircleSize),
     borderRadius: vs(48),
     backgroundColor: colors.status.success,
     alignItems: 'center',
@@ -226,8 +226,8 @@ const styles = StyleSheet.create({
     ...shadows.button,
   },
   button: {
-    minWidth: s(180),
-    height: vs(42),
+    minWidth: s(componentSizes.copyButtonWidth),
+    height: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

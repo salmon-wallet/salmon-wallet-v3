@@ -33,6 +33,7 @@ import {
   vs,
   borderWidth,
   borderRadius,
+  componentSizes,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -521,8 +522,8 @@ const styles = StyleSheet.create({
   },
   // Adjusted: larger logo for better visibility
   logo: {
-    width: s(140),
-    height: s(140),
+    width: s(componentSizes.lockScreenLogoSize),
+    height: s(componentSizes.lockScreenLogoSize),
   },
   welcomeText: {
     color: colors.text.primary,
@@ -537,7 +538,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: vs(54),
+    height: vs(componentSizes.iconSize5XL),
     backgroundColor: colors.input.background,
     borderWidth: borderWidth.sheet,
     borderRadius: borderRadius.badge,
@@ -563,7 +564,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '100%',
-    height: vs(53),
+    height: vs(componentSizes.iconSize4XL),
     borderRadius: borderRadius.xl,
     borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,
@@ -585,8 +586,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   biometricButton: {
-    width: s(64),
-    height: s(64),
+    width: s(componentSizes.biometricButtonSize),
+    height: s(componentSizes.biometricButtonSize),
     borderRadius: 32,
     backgroundColor: colors.input.background,
     borderWidth: borderWidth.sheet,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
-import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, ms, vs, s, fontFamilyNative, componentSizes } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapDetailRowProps } from './types';
 
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: s(spacing.base),
     paddingVertical: vs(spacing.sm),
-    minHeight: vs(40),
+    minHeight: vs(componentSizes.backButtonSize),
   },
   label: {
     fontSize: ms(fontSize.md),

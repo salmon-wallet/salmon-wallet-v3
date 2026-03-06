@@ -23,6 +23,7 @@ import {
   borderWidth,
   spacing,
   opacity,
+  componentSizes,
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    height: vs(48),
+    height: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 1,
-    height: vs(48),
+    height: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,

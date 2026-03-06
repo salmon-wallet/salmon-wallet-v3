@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fontFamilyNative, fontSize, fontWeight, borderRadius, borderWidth, gradients, shadows, ms, s, vs, spacing, } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, fontWeight, borderRadius, borderWidth, gradients, shadows, componentSizes, ms, s, vs, spacing, } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCarouselSectionProps, NftBlockchain } from './types';
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: s(spacing.headerPadding),
     marginBottom: vs(spacing.md),
-    height: vs(32),
+    height: vs(componentSizes.iconSizeLarge),
   },
   headerLeft: {
     flexDirection: 'row',
