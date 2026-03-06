@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: vs(14),
+    paddingVertical: vs(spacing.lg),
     paddingHorizontal: s(spacing.md),
     borderRadius: borderRadius.md,
     backgroundColor: colors.background.card,

@@ -920,7 +920,7 @@ const styles = StyleSheet.create({
   },
   handleContainer: {
     alignItems: 'center',
-    paddingTop: vs(9),
+    paddingTop: vs(spacing.sm),
     paddingBottom: vs(spacing.sm),
   },
   handle: {
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
   },
   sourceBadge: {
     paddingHorizontal: s(spacing.sm),
-    paddingVertical: vs(3),
+    paddingVertical: vs(spacing.xxs),
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
   },
@@ -1159,7 +1159,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,
     paddingHorizontal: s(spacing.base),
-    paddingVertical: vs(6),
+    paddingVertical: vs(spacing.xs),
     borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     minWidth: '45%',
@@ -1301,7 +1301,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingVertical: vs(spacing.md),
     paddingHorizontal: s(spacing.md),
-    gap: s(6),
+    gap: s(spacing.xs),
     borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
   },

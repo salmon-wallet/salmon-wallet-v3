@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     letterSpacing: ms(-0.07, 0.3),
   },
   rowsContainer: {
-    gap: vs(11),
+    gap: vs(spacing.md),
   },
   row: {
     flexDirection: 'row',

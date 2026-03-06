@@ -140,7 +140,7 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
             selectedPeriod={chartPeriod}
             onPeriodChange={onChartPeriodChange}
             loading={loading}
-            style={{ marginHorizontal: -s(18) }}
+            style={{ marginHorizontal: -s(spacing.headerPadding) }}
           />
         )}
 
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(15),
+    marginBottom: vs(spacing.lg),
     letterSpacing: ms(-0.12, 0.3),
   },
   scrollView: {
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     paddingHorizontal: s(spacing.headerPadding),
     paddingBottom: vs(spacing['3.5xl']),
-    gap: vs(15),
+    gap: vs(spacing.lg),
   },
   tokenItemSkeletonContainer: {
     backgroundColor: colors.background.tokenItem,

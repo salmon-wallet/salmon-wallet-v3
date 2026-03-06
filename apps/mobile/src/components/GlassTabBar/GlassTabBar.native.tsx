@@ -206,15 +206,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: s(45),
+    paddingHorizontal: s(spacing.tabBarPadding),
   },
   // Tab item - Figma: h-[60.497px], auto width
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
     height: vs(60),
-    paddingHorizontal: s(14),
-    gap: s(3),
+    paddingHorizontal: s(spacing.lg),
+    gap: s(spacing.xxs),
   },
   // Icon container
   tabIconContainer: {

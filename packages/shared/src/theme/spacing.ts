@@ -23,16 +23,26 @@ export const spacing = {
   headerPadding: 18,
   /** 20px */
   xl: 20,
+  /** 22px - Lock screen gap */
+  lockScreenGap: 22,
   /** 24px */
   '2xl': 24,
   /** 30px */
   '3.5xl': 30,
+  /** 31px - Lock screen section gap */
+  lockScreenSectionGap: 31,
   /** 32px */
   '3xl': 32,
+  /** 34px - Sheet bottom padding */
+  sheetBottomPadding: 34,
+  /** 36px - Lock screen horizontal padding */
+  lockScreenPadding: 36,
   /** 40px */
   '4xl': 40,
   /** 42px - Pagination gap in balance card */
   paginationGap: 42,
+  /** 45px - Tab bar outer padding */
+  tabBarPadding: 45,
   /** 48px */
   '5xl': 48,
   /** 60px */

@@ -450,8 +450,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: s(spacing.md),
-    paddingVertical: vs(6),
-    gap: s(6),
+    paddingVertical: vs(spacing.xs),
+    gap: s(spacing.xs),
   },
   blockchainLabel: {
     fontSize: ms(fontSize.sm),
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.tokenItem,
   },
   sectionContent: {
-    padding: s(7),
+    padding: s(spacing.sm),
   },
   sectionTitle: {
     fontSize: ms(fontSize.sm),
@@ -507,11 +507,11 @@ const styles = StyleSheet.create({
   attributesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginHorizontal: -s(6),
+    marginHorizontal: -s(spacing.xs),
   },
   attributeItem: {
     width: '50%',
-    paddingHorizontal: s(6),
+    paddingHorizontal: s(spacing.xs),
     paddingVertical: vs(spacing.sm),
   },
   attributeName: {

@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: s(spacing.headerPadding),
-    marginBottom: vs(15),
+    marginBottom: vs(spacing.lg),
   },
   backButton: {
     position: 'absolute',

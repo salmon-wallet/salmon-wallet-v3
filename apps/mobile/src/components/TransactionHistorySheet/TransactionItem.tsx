@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   typeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(6),
+    gap: s(spacing.xs),
     marginBottom: vs(spacing.xs),
   },
   typeText: {
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   sourceBadge: {
-    paddingHorizontal: s(6),
+    paddingHorizontal: s(spacing.xs),
     paddingVertical: vs(spacing.xxs),
     backgroundColor: colors.background.card,
     borderRadius: borderRadius.sm,

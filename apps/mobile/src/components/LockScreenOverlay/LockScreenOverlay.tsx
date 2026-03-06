@@ -508,13 +508,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(36),
+    paddingHorizontal: s(spacing.lockScreenPadding),
     gap: vs(spacing['4xl']),
   },
   logoSection: {
     width: '100%',
     alignItems: 'center',
-    gap: vs(31),
+    gap: vs(spacing.lockScreenSectionGap),
   },
   logoContainer: {
     // No margin - using gap in parent
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
   },
   buttonSection: {
     width: '100%',
-    gap: vs(22),
+    gap: vs(spacing.lockScreenGap),
   },
   buttonContainer: {
     width: '100%',

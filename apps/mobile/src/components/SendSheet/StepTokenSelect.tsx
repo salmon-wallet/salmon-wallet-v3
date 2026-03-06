@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: ms(borderRadius.md),
-    paddingHorizontal: s(14),
+    paddingHorizontal: s(spacing.lg),
     height: vs(38),
     marginBottom: vs(spacing.headerPadding),
   },

@@ -343,8 +343,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: ms(borderRadius.button),
-    paddingVertical: vs(14),
-    paddingHorizontal: s(14),
+    paddingVertical: vs(spacing.lg),
+    paddingHorizontal: s(spacing.lg),
     marginBottom: vs(spacing['2xl']),
   },
   tokenCardLeft: {
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: ms(borderRadius.lg),
-    paddingHorizontal: s(14),
+    paddingHorizontal: s(spacing.lg),
     height: vs(48),
   },
   inputContainerError: {
@@ -442,8 +442,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.card,
     borderRadius: ms(borderRadius.badge),
     paddingVertical: vs(spacing.md),
-    paddingHorizontal: s(14),
-    marginBottom: vs(6),
+    paddingHorizontal: s(spacing.lg),
+    marginBottom: vs(spacing.xs),
   },
   contactInfo: {
     flex: 1,
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.tertiary,
     borderRadius: ms(borderRadius.sm),
     paddingHorizontal: s(spacing.sm),
-    paddingVertical: vs(3),
+    paddingVertical: vs(spacing.xxs),
     flexShrink: 0,
   },
   blockchainBadgeText: {
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: ms(borderRadius.lg),
-    paddingHorizontal: s(14),
+    paddingHorizontal: s(spacing.lg),
     height: vs(48),
   },
   amountInput: {
@@ -489,13 +489,13 @@ const styles = StyleSheet.create({
   },
   quickFillButtons: {
     flexDirection: 'row',
-    gap: s(6),
+    gap: s(spacing.xs),
   },
   quickFillButton: {
     backgroundColor: colors.button.secondaryBackground,
     borderRadius: ms(borderRadius.sm),
     paddingHorizontal: s(spacing.base),
-    paddingVertical: vs(5),
+    paddingVertical: vs(spacing.xs),
   },
   quickFillText: {
     fontSize: ms(fontSize.sm),
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
   bottomButtons: {
     flexDirection: 'row',
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(34),
+    paddingBottom: vs(spacing.sheetBottomPadding),
     paddingTop: vs(spacing.md),
     gap: s(spacing.md),
   },

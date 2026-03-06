@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: vs(6),
+    marginBottom: vs(spacing.xs),
   },
   summaryLabel: {
     fontSize: ms(fontSize.sm),

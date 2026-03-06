@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch',
     borderRadius: ms(borderRadius.md),
-    paddingVertical: vs(14),
+    paddingVertical: vs(spacing.lg),
     paddingHorizontal: s(spacing.lg),
     gap: s(spacing.base),
   },
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    marginTop: vs(14),
+    marginTop: vs(spacing.lg),
     textAlign: 'center',
   },
   // Error
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   bottomButtons: {
     flexDirection: 'row',
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(34),
+    paddingBottom: vs(spacing.sheetBottomPadding),
     paddingTop: vs(spacing.md),
     gap: s(spacing.md),
   },

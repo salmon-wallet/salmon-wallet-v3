@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     // Border radius: 9px (BlurContainer handles background/border)
     borderRadius: ms(borderRadius.badge),
     // Padding: 6px vertical
-    paddingVertical: vs(6),
+    paddingVertical: vs(spacing.xs),
     paddingHorizontal: s(spacing.lg),
     width: '100%',
     overflow: 'hidden',

@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     borderRightWidth: borderWidth.sheet,
     borderColor: colors.background.tertiary,
     overflow: 'hidden',
-    paddingBottom: vs(34),
+    paddingBottom: vs(spacing.sheetBottomPadding),
   },
   handleContainer: {
     alignItems: 'center',

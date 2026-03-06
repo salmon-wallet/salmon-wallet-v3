@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     // Additional styles for small variant if needed
   },
   icon: {
-    marginRight: s(6),
+    marginRight: s(spacing.xs),
   },
   iconSmall: {
     marginRight: s(spacing.xs),

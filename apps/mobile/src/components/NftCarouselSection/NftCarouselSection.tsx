@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   },
   nameBadge: {
     borderRadius: ms(borderRadius.badge),
-    paddingVertical: vs(6),
+    paddingVertical: vs(spacing.xs),
     paddingHorizontal: s(spacing.lg),
     width: '100%',
     overflow: 'hidden',
