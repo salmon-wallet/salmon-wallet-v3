@@ -8,7 +8,7 @@
  * Used in the settings flow to change the account profile picture.
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -16,12 +16,14 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import {
   colors,
   spacing,
+  contentPadding,
   borderRadius,
   borderWidth,
   fontSize,
@@ -38,9 +40,13 @@ import { SettingsScreenLayout } from '../SettingsScreenLayout';
 // Constants
 // ============================================================================
 
-const PRESET_COLUMNS = 5;
-const NFT_COLUMNS = 3;
-const AVATAR_SIZE = 60;
+const PRESET_MIN_COLUMNS = 4;
+const PRESET_MAX_COLUMNS = 5;
+const PRESET_MIN_SIZE = 56;
+const NFT_MIN_COLUMNS = 2;
+const NFT_MAX_COLUMNS = 3;
+const NFT_MIN_SIZE = 96;
+const GRID_GAP = spacing.sm;
 
 type Tab = 'presets' | 'nfts';
 
@@ -49,6 +55,16 @@ type Tab = 'presets' | 'nfts';
 // ============================================================================
 
 export type AccountAvatarPanelProps = AvatarPickerPropsBase;
+
+function getResponsiveColumns(
+  availableWidth: number,
+  minItemSize: number,
+  minColumns: number,
+  maxColumns: number,
+): number {
+  const columns = Math.floor((availableWidth + GRID_GAP) / (minItemSize + GRID_GAP));
+  return Math.max(minColumns, Math.min(maxColumns, columns));
+}
 
 // ============================================================================
 // Component
@@ -61,6 +77,7 @@ export function AccountAvatarPanel({
   onBack,
 }: AccountAvatarPanelProps): React.ReactElement {
   const { t } = useTranslation();
+  const { width: windowWidth } = useWindowDimensions();
   const [activeTab, setActiveTab] = useState<Tab>('presets');
   const [selectedUrl, setSelectedUrl] = useState<string | undefined>(currentAvatarUrl);
 
@@ -70,6 +87,26 @@ export function AccountAvatarPanel({
   });
 
   const hasChanged = selectedUrl !== currentAvatarUrl;
+  const availableWidth = useMemo(
+    () => windowWidth - contentPadding.screen * 2,
+    [windowWidth],
+  );
+  const presetColumns = useMemo(
+    () => getResponsiveColumns(availableWidth, PRESET_MIN_SIZE, PRESET_MIN_COLUMNS, PRESET_MAX_COLUMNS),
+    [availableWidth],
+  );
+  const nftColumns = useMemo(
+    () => getResponsiveColumns(availableWidth, NFT_MIN_SIZE, NFT_MIN_COLUMNS, NFT_MAX_COLUMNS),
+    [availableWidth],
+  );
+  const presetItemSize = useMemo(
+    () => (availableWidth - GRID_GAP * (presetColumns - 1)) / presetColumns,
+    [availableWidth, presetColumns],
+  );
+  const nftItemSize = useMemo(
+    () => (availableWidth - GRID_GAP * (nftColumns - 1)) / nftColumns,
+    [availableWidth, nftColumns],
+  );
 
   const handleSave = useCallback(() => {
     if (selectedUrl && hasChanged) {
@@ -83,20 +120,31 @@ export function AccountAvatarPanel({
       const isSelected = selectedUrl === item;
       return (
         <TouchableOpacity
-          style={[styles.presetItem, isSelected && styles.presetItemSelected]}
+          style={[
+            styles.presetItem,
+            {
+              width: presetItemSize,
+              height: presetItemSize,
+              borderRadius: presetItemSize / 2,
+            },
+            isSelected && styles.presetItemSelected,
+          ]}
           onPress={() => setSelectedUrl(item)}
           activeOpacity={0.7}
         >
           <Image
             source={{ uri: item }}
-            style={styles.presetImage}
+            style={[
+              styles.presetImage,
+              { borderRadius: presetItemSize / 2 },
+            ]}
             contentFit="cover"
             transition={200}
           />
         </TouchableOpacity>
       );
     },
-    [selectedUrl],
+    [presetItemSize, selectedUrl],
   );
 
   // NFT item renderer
@@ -105,7 +153,14 @@ export function AccountAvatarPanel({
       const isSelected = selectedUrl === item.image;
       return (
         <TouchableOpacity
-          style={[styles.nftItem, isSelected && styles.nftItemSelected]}
+          style={[
+            styles.nftItem,
+            {
+              width: nftItemSize,
+              height: nftItemSize,
+            },
+            isSelected && styles.nftItemSelected,
+          ]}
           onPress={() => item.image && setSelectedUrl(item.image)}
           activeOpacity={0.7}
         >
@@ -118,7 +173,7 @@ export function AccountAvatarPanel({
         </TouchableOpacity>
       );
     },
-    [selectedUrl],
+    [nftItemSize, selectedUrl],
   );
 
   const presetKeyExtractor = useCallback((_item: string, index: number) => `preset-${index}`, []);
@@ -155,11 +210,12 @@ export function AccountAvatarPanel({
 
         {activeTab === 'presets' ? (
           <FlatList
+            key={`presets-${presetColumns}`}
             style={styles.list}
             data={PRESET_AVATAR_URLS}
             renderItem={renderPresetItem}
             keyExtractor={presetKeyExtractor}
-            numColumns={PRESET_COLUMNS}
+            numColumns={presetColumns}
             contentContainerStyle={styles.gridContent}
             columnWrapperStyle={styles.columnWrapper}
             showsVerticalScrollIndicator={false}
@@ -174,11 +230,12 @@ export function AccountAvatarPanel({
           </View>
         ) : (
           <FlatList
+            key={`nfts-${nftColumns}`}
             style={styles.list}
             data={nfts}
             renderItem={renderNftItem}
             keyExtractor={nftKeyExtractor}
-            numColumns={NFT_COLUMNS}
+            numColumns={nftColumns}
             contentContainerStyle={styles.gridContent}
             columnWrapperStyle={styles.columnWrapper}
             showsVerticalScrollIndicator={false}
@@ -239,13 +296,10 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
   },
   columnWrapper: {
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
+    gap: GRID_GAP,
+    marginBottom: GRID_GAP,
   },
   presetItem: {
-    width: AVATAR_SIZE,
-    height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2,
     overflow: 'hidden',
     borderWidth: borderWidth.medium,
     borderColor: 'transparent',
@@ -256,11 +310,8 @@ const styles = StyleSheet.create({
   presetImage: {
     width: '100%',
     height: '100%',
-    borderRadius: AVATAR_SIZE / 2,
   },
   nftItem: {
-    flex: 1,
-    aspectRatio: 1,
     borderRadius: borderRadius.md,
     overflow: 'hidden',
     borderWidth: borderWidth.medium,
