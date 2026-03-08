@@ -365,3 +365,6 @@ export { BackupPanel } from './BackupPanel';
 
 // AboutPanel - App info and links
 export { AboutPanel } from './AboutPanel';
+
+// ShimmerRect - Inline shimmer loading placeholder
+export { ShimmerRect } from './ShimmerRect';

@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sheet.backdrop,
   },
   sheetContainer: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
     borderTopLeftRadius: borderRadius.card,
     borderTopRightRadius: borderRadius.card,
     borderTopWidth: borderWidth.sheet,

@@ -3,14 +3,11 @@ import { BlurView } from 'expo-blur';
 import React, { useId, useState } from 'react';
 import {
   type LayoutChangeEvent,
-  Platform,
   StyleSheet,
   View,
 } from 'react-native';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import type { BlurContainerProps } from './types';
-
-const ANDROID_BG = 'rgba(56, 63, 82, 0.35)';
 
 /** Radial gradient stops for glassy border effect (Figma "Glassy_BORDER") */
 const GLASSY_BORDER_STOPS = [
@@ -120,47 +117,19 @@ export function BlurContainer({
     ? { borderColor, borderWidth }
     : undefined;
 
-  if (Platform.OS === 'android') {
-    return (
-      <View
-        onLayout={useGradientBorder ? handleLayout : undefined}
-        pointerEvents={pointerEvents}
-        style={[
-          styles.container,
-          { backgroundColor: ANDROID_BG },
-          solidBorderStyle,
-          style,
-        ]}
-      >
-        {children}
-        {useGradientBorder && (
-          <GradientBorderOverlay
-            width={layout.width}
-            height={layout.height}
-            borderRadius={borderRadius}
-            color={borderColor}
-            strokeWidth={GLASSY_BORDER_WIDTH}
-          />
-        )}
-      </View>
-    );
-  }
-
   return (
-    <BlurView
-      intensity={blurIntensity}
-      tint={blurTint}
-      experimentalBlurMethod="dimezisBlurView"
+    <View
+      style={[styles.container, solidBorderStyle, style]}
       onLayout={useGradientBorder ? handleLayout : undefined}
       pointerEvents={pointerEvents}
-      style={[
-        styles.container,
-        { backgroundColor },
-        solidBorderStyle,
-        style,
-      ]}
     >
-      {children}
+      <BlurView
+        intensity={blurIntensity}
+        tint={blurTint}
+        experimentalBlurMethod="dimezisBlurView"
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFill, { backgroundColor }]}
+      />
       {useGradientBorder && (
         <GradientBorderOverlay
           width={layout.width}
@@ -170,7 +139,8 @@ export function BlurContainer({
           strokeWidth={GLASSY_BORDER_WIDTH}
         />
       )}
-    </BlurView>
+      {children}
+    </View>
   );
 }
 
