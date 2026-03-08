@@ -1,7 +1,6 @@
 import type {
   SettingsScreen,
   SettingsPanelEntry,
-  UseSettingsPanelStackResult,
 } from '@salmon/shared';
 
 /**
@@ -29,8 +28,8 @@ export type MobilePanelRegistry = Partial<Record<SettingsScreen, MobilePanelRend
 export interface MobileSettingsPanelStackProps {
   panelRegistry: MobilePanelRegistry;
   stack: SettingsPanelEntry[];
-  push: UseSettingsPanelStackResult['push'];
-  pop: UseSettingsPanelStackResult['pop'];
-  canGoBack: boolean;
-  onBackActionChange?: (handler: (() => void) | null) => void;
+  onNavigate: (screen: SettingsScreen, props?: Record<string, unknown>) => void;
+  onBack: () => void;
+  animating: boolean;
+  slideDirection: 'in' | 'out' | 'idle';
 }

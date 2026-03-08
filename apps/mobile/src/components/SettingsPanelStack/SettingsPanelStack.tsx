@@ -1,11 +1,11 @@
 /**
  * SettingsPanelStack – React Native panel stack with reanimated slide animations.
  *
- * Renders stacked panels on top of the settings menu with translateX slide
- * transitions (300ms push, 200ms pop). Includes swipe-right gesture to pop.
+ * Renders stacked panels on top of the settings menu using navigation/animation
+ * state owned by the parent sheet. Includes swipe-right gesture to pop.
  */
 
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -21,10 +21,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import {
-  type SettingsScreen,
-  colors,
-} from '@salmon/shared';
+import { colors } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
 
 import type { MobileSettingsPanelStackProps } from './types';
@@ -37,81 +34,11 @@ const SWIPE_THRESHOLD = 80;
 export function SettingsPanelStack({
   panelRegistry,
   stack,
-  push,
-  pop,
-  canGoBack,
-  onBackActionChange,
+  onNavigate,
+  onBack,
+  animating,
+  slideDirection,
 }: MobileSettingsPanelStackProps): React.ReactElement {
-  const [animating, setAnimating] = useState(false);
-  const [slideDirection, setSlideDirection] = useState<'in' | 'out'>('in');
-  const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const previousStackLengthRef = useRef(0);
-
-  useEffect(() => {
-    return () => {
-      if (animationTimerRef.current) {
-        clearTimeout(animationTimerRef.current);
-      }
-    };
-  }, []);
-
-  useLayoutEffect(() => {
-    const previousLength = previousStackLengthRef.current;
-    const nextLength = stack.length;
-
-    // Animate panels that are pushed from the parent sheet, not only from nested sub-screens.
-    if (nextLength > previousLength && !animating) {
-      if (animationTimerRef.current) {
-        clearTimeout(animationTimerRef.current);
-      }
-      setSlideDirection('in');
-      setAnimating(true);
-      animationTimerRef.current = setTimeout(() => {
-        setAnimating(false);
-        animationTimerRef.current = null;
-      }, PUSH_DURATION);
-    }
-
-    previousStackLengthRef.current = nextLength;
-  }, [stack.length, animating]);
-
-  const handlePush = useCallback(
-    (screen: SettingsScreen, props?: Record<string, unknown>) => {
-      if (animating) return;
-      if (animationTimerRef.current) {
-        clearTimeout(animationTimerRef.current);
-      }
-      setSlideDirection('in');
-      setAnimating(true);
-      push(screen, props);
-      animationTimerRef.current = setTimeout(() => {
-        setAnimating(false);
-        animationTimerRef.current = null;
-      }, PUSH_DURATION);
-    },
-    [push, animating],
-  );
-
-  const handlePop = useCallback(() => {
-    if (animating || !canGoBack) return;
-    if (animationTimerRef.current) {
-      clearTimeout(animationTimerRef.current);
-    }
-    // Animate out first, then pop after animation completes
-    setSlideDirection('out');
-    setAnimating(true);
-    animationTimerRef.current = setTimeout(() => {
-      pop();
-      setAnimating(false);
-      animationTimerRef.current = null;
-    }, POP_DURATION);
-  }, [pop, canGoBack, animating]);
-
-  useEffect(() => {
-    onBackActionChange?.(canGoBack ? handlePop : null);
-    return () => onBackActionChange?.(null);
-  }, [canGoBack, handlePop, onBackActionChange]);
-
   return (
     <View style={styles.container}>
       {stack.map((entry, idx) => {
@@ -125,12 +52,12 @@ export function SettingsPanelStack({
             direction={isTop && animating ? slideDirection : 'idle'}
             isTop={isTop}
             animating={animating && isTop}
-            onSwipeRight={handlePop}
+            onSwipeRight={onBack}
             canSwipe={isTop && !animating}
           >
             {panelRegistry[entry.screen]?.({
-              onBack: isExiting ? () => {} : handlePop,
-              onNavigate: isExiting ? () => {} : handlePush,
+              onBack: isExiting ? () => {} : onBack,
+              onNavigate: isExiting ? () => {} : onNavigate,
               ...(entry.props || {}),
             })}
           </PanelSlide>

@@ -53,6 +53,8 @@ const DANGER_COLORS = {
 const NEUTRAL_OPTION_COLORS = {
   background: colors.background.card,
 } as const;
+const PUSH_DURATION = 300;
+const POP_DURATION = 200;
 
 const SCREEN_TITLE_KEYS: Partial<Record<SettingsScreen, string>> = {
   accounts: 'settings.accounts.title',
@@ -147,9 +149,12 @@ export function SettingsSheet({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { stack, push, pop, reset, canGoBack } = useSettingsPanelStack();
-  const [panelBackAction, setPanelBackAction] = React.useState<(() => void) | null>(null);
   const [headerOverride, setHeaderOverride] = React.useState<SettingsHeaderState | null>(null);
   const headerOverrideBackRef = React.useRef<(() => void) | null>(null);
+  const headerOverrideOwnerRef = React.useRef<symbol | null>(null);
+  const [animating, setAnimating] = React.useState(false);
+  const [slideDirection, setSlideDirection] = React.useState<'in' | 'out' | 'idle'>('idle');
+  const animationTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Top fade gradient opacity
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
@@ -157,10 +162,61 @@ export function SettingsSheet({
   // Reset stack when sheet closes
   useEffect(() => {
     if (!visible) {
-      const timer = setTimeout(() => reset(), 300);
+      const timer = setTimeout(() => {
+        if (animationTimerRef.current) {
+          clearTimeout(animationTimerRef.current);
+          animationTimerRef.current = null;
+        }
+        setAnimating(false);
+        setSlideDirection('idle');
+        reset();
+      }, PUSH_DURATION);
       return () => clearTimeout(timer);
     }
   }, [visible, reset]);
+
+  useEffect(() => {
+    return () => {
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+      }
+    };
+  }, []);
+
+  const finishAnimation = useCallback(() => {
+    setAnimating(false);
+    setSlideDirection('idle');
+    animationTimerRef.current = null;
+  }, []);
+
+  const handlePush = useCallback(
+    (screen: SettingsScreen, props?: Record<string, unknown>) => {
+      if (animating) return;
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+      }
+      setSlideDirection('in');
+      setAnimating(true);
+      push(screen, props);
+      animationTimerRef.current = setTimeout(() => {
+        finishAnimation();
+      }, PUSH_DURATION);
+    },
+    [animating, finishAnimation, push],
+  );
+
+  const handlePop = useCallback(() => {
+    if (animating || !canGoBack) return;
+    if (animationTimerRef.current) {
+      clearTimeout(animationTimerRef.current);
+    }
+    setSlideDirection('out');
+    setAnimating(true);
+    animationTimerRef.current = setTimeout(() => {
+      pop();
+      finishAnimation();
+    }, POP_DURATION);
+  }, [animating, canGoBack, finishAnimation, pop]);
 
   // Push initial panels when drawer opens
   const initialPanelsPushedRef = React.useRef(false);
@@ -190,10 +246,10 @@ export function SettingsSheet({
 
       // Push panel instead of navigating
       if (!option.isToggle && option.id !== 'developerNetworks' && panelRegistry) {
-        push(option.id as SettingsScreen);
+        handlePush(option.id as SettingsScreen);
       }
     },
-    [onClose, onRemoveWallet, onRemoveAllWallets, push, panelRegistry]
+    [handlePush, onClose, onRemoveAllWallets, onRemoveWallet, panelRegistry]
   );
 
   const handleDeveloperNetworksToggle = useCallback(
@@ -306,19 +362,26 @@ export function SettingsSheet({
     : t('settings.title');
   const currentTitle = headerOverride?.title || fallbackTitle;
   const currentBackAction = currentPanel
-    ? headerOverride?.onBack || panelBackAction || undefined
+    ? headerOverride?.onBack || handlePop
     : undefined;
   const invokeHeaderOverrideBack = useCallback(() => {
     headerOverrideBackRef.current?.();
   }, []);
   const handleHeaderStateChange = useCallback(
-    (nextState: SettingsHeaderState | null) => {
-      headerOverrideBackRef.current = nextState?.onBack ?? null;
-      setHeaderOverride((previousState) => {
-        if (!nextState) {
-          return previousState === null ? previousState : null;
+    (ownerId: symbol, nextState: SettingsHeaderState | null) => {
+      if (!nextState) {
+        if (headerOverrideOwnerRef.current !== ownerId) {
+          return;
         }
+        headerOverrideOwnerRef.current = null;
+        headerOverrideBackRef.current = null;
+        setHeaderOverride((previousState) => (previousState === null ? previousState : null));
+        return;
+      }
 
+      headerOverrideOwnerRef.current = ownerId;
+      headerOverrideBackRef.current = nextState.onBack;
+      setHeaderOverride((previousState) => {
         const hasSameTitle = previousState?.title === nextState.title;
         if (hasSameTitle && previousState !== null) {
           return previousState;
@@ -336,15 +399,9 @@ export function SettingsSheet({
     () => ({ setHeaderState: handleHeaderStateChange }),
     [handleHeaderStateChange],
   );
-  const handlePanelBackActionChange = useCallback(
-    (handler: (() => void) | null) => {
-      setPanelBackAction(() => handler);
-    },
-    [],
-  );
-
   useEffect(() => {
     if (!currentPanel || !DYNAMIC_HEADER_SCREENS.has(currentPanel.screen)) {
+      headerOverrideOwnerRef.current = null;
       headerOverrideBackRef.current = null;
       setHeaderOverride(null);
     }
@@ -398,10 +455,10 @@ export function SettingsSheet({
               <SettingsPanelStack
                 panelRegistry={panelRegistry}
                 stack={stack}
-                push={push}
-                pop={pop}
-                canGoBack={canGoBack}
-                onBackActionChange={handlePanelBackActionChange}
+                onNavigate={handlePush}
+                onBack={handlePop}
+                animating={animating}
+                slideDirection={slideDirection}
               />
             </View>
           )}
