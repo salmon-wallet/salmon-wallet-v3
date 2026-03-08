@@ -31,7 +31,7 @@ import {
 } from 'react-native';
 import { BitcoinSvgIcon, EthereumSvgIcon, SolanaSvgIcon } from '../Icon/SvgIcons';
 import { ScalesBackground } from '../ScalesBackground';
-import { BalanceCardSkeleton } from './BalanceCardSkeleton';
+import { ShimmerRect } from '../ShimmerRect';
 import type { BalanceCardProps, BlockchainId } from './types';
 
 /**
@@ -253,14 +253,22 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       {/* Balance display */}
       <View style={styles.balanceContainer}>
         {loading ? (
-          <BalanceCardSkeleton testID="balance-card-skeleton" />
+          <View style={styles.balanceRow}>
+            <ShimmerRect width={ms(componentSizes.buttonMinWidthLg)} height={ms(fontSize.balance)} />
+          </View>
         ) : (
           renderBalance()
         )}
       </View>
 
       {/* 24h change */}
-      {!loading && renderChange()}
+      {loading ? (
+        <View style={styles.changeRow}>
+          <ShimmerRect width={ms(componentSizes.buttonMinWidth)} height={ms(fontSize.sm)} />
+        </View>
+      ) : (
+        renderChange()
+      )}
 
       {/* Pagination dots */}
       {totalCount > 1 && (

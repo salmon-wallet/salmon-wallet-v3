@@ -16,8 +16,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  FlatList,
-  type ListRenderItemInfo,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -40,8 +39,10 @@ import {
   type DerivedAccountInfo,
 } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
+import { useSettingsHeaderOverride } from '../SettingsHeaderContext';
 import { PrimaryButton } from '../Button';
 import { DerivedAccountCard } from '../DerivedAccountCard';
+import { LoadingScreen } from '../LoadingScreen';
 import type { AccountAddPanelProps } from './types';
 
 // ============================================================================
@@ -63,6 +64,9 @@ export function AccountAddPanel({
   const [derivedAccounts, setDerivedAccounts] = useState<DerivedAccountInfo[]>([]);
   const [selectedDerived, setSelectedDerived] = useState<DerivedAccountInfo | null>(null);
   const [scanning, setScanning] = useState(false);
+
+  // Loading state
+  const [loading, setLoading] = useState(false);
 
   // Import flow state
   const [seedPhrase, setSeedPhrase] = useState('');
@@ -123,7 +127,9 @@ export function AccountAddPanel({
   }, [seedPhrase, defaultName, t]);
 
   const handleConfirm = useCallback(async () => {
+    if (loading) return;
     const name = accountName.trim() || defaultName;
+    setLoading(true);
     try {
       const mnemonic = selectedDerived ? (activeAccount?.mnemonic || '') : seedPhrase;
       const startIndex = selectedDerived ? selectedDerived.index : 0;
@@ -136,9 +142,10 @@ export function AccountAddPanel({
       await accountActions.addAccount(account);
       onComplete();
     } catch {
-      // Error handled by context
+      setLoading(false);
+      Alert.alert(t('general.error'), t('settings.account_add.creation_error'));
     }
-  }, [accountName, defaultName, selectedDerived, activeAccount, seedPhrase, accountActions, onComplete]);
+  }, [loading, accountName, defaultName, selectedDerived, activeAccount, seedPhrase, accountActions, onComplete, t]);
 
   const handleStepBack = useCallback(() => {
     if (step === 'set-name') {
@@ -201,23 +208,19 @@ export function AccountAddPanel({
         </View>
       ) : (
         <>
-          <FlatList
-            data={derivedAccounts}
-            renderItem={({ item }: ListRenderItemInfo<DerivedAccountInfo>) => (
-              <DerivedAccountCard
-                address={item.address}
-                networkName={item.networkName}
-                path={item.path}
-                balanceFormatted={item.balanceFormatted}
-                selected={selectedDerived?.address === item.address}
-                dimmed={item.balance === 0}
-                onToggle={() => handleDerivedSelect(item)}
-                blockchain={NETWORK_DISPLAY[item.networkId]?.blockchain}
-              />
-            )}
-            keyExtractor={(item) => `${item.networkId}-${item.address}`}
-            scrollEnabled={false}
-          />
+          {derivedAccounts.map((item: DerivedAccountInfo) => (
+            <DerivedAccountCard
+              key={`${item.networkId}-${item.address}`}
+              address={item.address}
+              networkName={item.networkName}
+              path={item.path}
+              balanceFormatted={item.balanceFormatted}
+              selected={selectedDerived?.address === item.address}
+              dimmed={item.balance === 0}
+              onToggle={() => handleDerivedSelect(item)}
+              blockchain={NETWORK_DISPLAY[item.networkId]?.blockchain}
+            />
+          ))}
           <View style={styles.buttonContainer}>
             <PrimaryButton
               onPress={handleDerivedContinue}
@@ -291,14 +294,29 @@ export function AccountAddPanel({
     'set-name': t('settings.account_add.set_name'),
     'complete': t('settings.account_add.title'),
   };
+  const currentTitle = stepTitles[step];
+
+  useSettingsHeaderOverride({
+    title: currentTitle,
+    onBack: handleStepBack,
+  });
 
   return (
-    <SettingsScreenLayout title={stepTitles[step]} onBack={handleStepBack}>
-      {step === 'select-method' && renderSelectMethod()}
-      {step === 'derive-scan' && renderDeriveScan()}
-      {step === 'import-seed' && renderImportSeed()}
-      {step === 'set-name' && renderSetName()}
-    </SettingsScreenLayout>
+    <>
+      <LoadingScreen
+        visible={loading}
+        title={selectedDerived
+          ? t('settings.account_add.confirm_create')
+          : t('settings.account_add.confirm_import')}
+        subtitle={t('general.loading')}
+      />
+      <SettingsScreenLayout title={currentTitle} onBack={handleStepBack}>
+        {step === 'select-method' && renderSelectMethod()}
+        {step === 'derive-scan' && renderDeriveScan()}
+        {step === 'import-seed' && renderImportSeed()}
+        {step === 'set-name' && renderSetName()}
+      </SettingsScreenLayout>
+    </>
   );
 }
 

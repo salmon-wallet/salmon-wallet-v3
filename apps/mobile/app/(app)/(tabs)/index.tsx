@@ -393,7 +393,7 @@ export default function HomeScreen() {
   }, [activeAccount, networkId]);
 
   // Debounce timer ref to prevent rapid sub-account switching from spamming API
-  const subAccountChangeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const subAccountChangeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleSubAccountChange = useCallback((index: number) => {
     // Don't do anything if already on this account

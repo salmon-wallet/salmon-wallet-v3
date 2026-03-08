@@ -140,6 +140,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
 
         {/* Recipient Address */}
         <TouchableOpacity
+          style={styles.addressButton}
           onPress={handleCopy}
           activeOpacity={0.7}
           accessibilityLabel="Copy recipient address"
@@ -239,10 +240,13 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['2xl']),
   },
   // Address
+  addressButton: {
+    alignSelf: 'stretch',
+  },
   addressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'stretch',
+    width: '100%',
     borderRadius: ms(borderRadius.md),
     paddingVertical: vs(spacing.lg),
     paddingHorizontal: s(spacing.lg),

@@ -81,7 +81,7 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
   }, [onCopy]);
 
   const title = (
-    <Text style={styles.title}>{t('wallet.receive.title')}</Text>
+    <Text style={styles.title}>{t('token.receive.title')}</Text>
   );
 
   return (
@@ -114,7 +114,7 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
           onPress={handleCopyPress}
           activeOpacity={0.8}
           accessibilityRole="button"
-          accessibilityLabel={t('wallet.receive.copyAddress')}
+          accessibilityLabel={t('token.receive.copyAddress')}
         >
           {copied ? (
             <Ionicons name="checkmark" size={ms(23)} color={colors.button.primaryText} />
@@ -122,7 +122,7 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
             <ContentCopySvgIcon size={ms(23)} color={colors.button.primaryText} />
           )}
           <Text style={styles.copyButtonText}>
-            {copied ? t('wallet.receive.copied') : t('wallet.receive.copyAddress')}
+            {copied ? t('token.receive.copied') : t('token.receive.copyAddress')}
           </Text>
         </TouchableOpacity>
       </View>

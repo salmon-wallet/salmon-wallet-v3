@@ -220,7 +220,8 @@
       "scan_complete": "Búsqueda completada",
       "confirm_create": "Crear Cuenta",
       "confirm_import": "Importar Cuenta",
-      "confirm": "Confirmar"
+      "confirm": "Confirmar",
+      "creation_error": "Error al crear la cuenta. Por favor, inténtalo de nuevo."
     },
     "security": {
       "title": "Seguridad",

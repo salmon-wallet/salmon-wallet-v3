@@ -1,11 +1,11 @@
 /**
  * SettingsPanelStack – React Native panel stack with reanimated slide animations.
  *
- * Renders stacked panels on top of the settings menu with translateX slide
- * transitions (300ms push, 200ms pop). Includes swipe-right gesture to pop.
+ * Renders stacked panels on top of the settings menu using navigation/animation
+ * state owned by the parent sheet. Includes swipe-right gesture to pop.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -21,11 +21,8 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import {
-  useSettingsPanelStack,
-  type SettingsScreen,
-  colors,
-} from '@salmon/shared';
+import { colors } from '@salmon/shared';
+import { ScalesBackground } from '../ScalesBackground';
 
 import type { MobileSettingsPanelStackProps } from './types';
 
@@ -36,46 +33,12 @@ const SWIPE_THRESHOLD = 80;
 
 export function SettingsPanelStack({
   panelRegistry,
-  initialPanels,
+  stack,
+  onNavigate,
+  onBack,
+  animating,
+  slideDirection,
 }: MobileSettingsPanelStackProps): React.ReactElement {
-  const { stack, push, pop, canGoBack } = useSettingsPanelStack();
-
-  const [animating, setAnimating] = useState(false);
-  const [slideDirection, setSlideDirection] = useState<'in' | 'out'>('in');
-  const initialPanelsPushedRef = useRef(false);
-
-  // Push initial panels on mount (no animation)
-  useEffect(() => {
-    if (initialPanels && initialPanels.length > 0 && !initialPanelsPushedRef.current) {
-      initialPanelsPushedRef.current = true;
-      for (const entry of initialPanels) {
-        push(entry.screen, entry.props);
-      }
-    }
-  }, [initialPanels, push]);
-
-  const handlePush = useCallback(
-    (screen: SettingsScreen, props?: Record<string, unknown>) => {
-      if (animating) return;
-      setSlideDirection('in');
-      setAnimating(true);
-      push(screen, props);
-      setTimeout(() => setAnimating(false), PUSH_DURATION);
-    },
-    [push, animating],
-  );
-
-  const handlePop = useCallback(() => {
-    if (animating || !canGoBack) return;
-    // Animate out first, then pop after animation completes
-    setSlideDirection('out');
-    setAnimating(true);
-    setTimeout(() => {
-      pop();
-      setAnimating(false);
-    }, POP_DURATION);
-  }, [pop, canGoBack, animating]);
-
   return (
     <View style={styles.container}>
       {stack.map((entry, idx) => {
@@ -89,12 +52,12 @@ export function SettingsPanelStack({
             direction={isTop && animating ? slideDirection : 'idle'}
             isTop={isTop}
             animating={animating && isTop}
-            onSwipeRight={handlePop}
+            onSwipeRight={onBack}
             canSwipe={isTop && !animating}
           >
             {panelRegistry[entry.screen]?.({
-              onBack: isExiting ? () => {} : handlePop,
-              onNavigate: isExiting ? () => {} : handlePush,
+              onBack: isExiting ? () => {} : onBack,
+              onNavigate: isExiting ? () => {} : onNavigate,
               ...(entry.props || {}),
             })}
           </PanelSlide>
@@ -128,21 +91,32 @@ function PanelSlide({
   const translateX = useSharedValue(direction === 'in' && animating ? SCREEN_WIDTH : 0);
 
   useEffect(() => {
-    if (animating && isTop) {
-      if (direction === 'in') {
-        translateX.value = SCREEN_WIDTH;
+    if (!isTop) {
+      translateX.value = 0;
+      return;
+    }
+
+    if (animating && direction === 'in') {
+      translateX.value = SCREEN_WIDTH;
+      const frame = requestAnimationFrame(() => {
         translateX.value = withTiming(0, {
           duration: PUSH_DURATION,
           easing: Easing.out(Easing.cubic),
         });
-      } else if (direction === 'out') {
-        // Panel is already at 0 from previous push — animate it out
-        translateX.value = withTiming(SCREEN_WIDTH, {
-          duration: POP_DURATION,
-          easing: Easing.in(Easing.cubic),
-        });
-      }
+      });
+
+      return () => cancelAnimationFrame(frame);
     }
+
+    if (animating && direction === 'out') {
+      translateX.value = withTiming(SCREEN_WIDTH, {
+        duration: POP_DURATION,
+        easing: Easing.in(Easing.cubic),
+      });
+      return;
+    }
+
+    translateX.value = 0;
   }, [animating, isTop, direction, translateX]);
 
   // Swipe-right gesture to pop — useMemo so the responder updates when deps change
@@ -174,7 +148,12 @@ function PanelSlide({
       ]}
       {...(canSwipe ? panResponder.panHandlers : {})}
     >
-      {children}
+      <View style={styles.panelBackground}>
+        <ScalesBackground />
+      </View>
+      <View style={styles.panelContent}>
+        {children}
+      </View>
     </Animated.View>
   );
 }
@@ -186,7 +165,15 @@ const styles = StyleSheet.create({
   },
   panel: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
+    overflow: 'hidden',
+  },
+  panelBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.background.primary,
+  },
+  panelContent: {
+    flex: 1,
   },
 });
 

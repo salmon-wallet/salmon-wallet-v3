@@ -153,7 +153,7 @@ export type {
 } from './WalletSwitcherSheet';
 
 // BlurContainer - Reusable blur effect component
-export { BlurContainer } from './BlurContainer';
+export { BlurContainer, BlurTargetProvider } from './BlurContainer';
 export type { BlurContainerProps, BlurTint } from './BlurContainer';
 
 // NftCard - NFT display card for grid layouts
@@ -316,10 +316,13 @@ export { ExplorerSelector } from './ExplorerSelector';
 // LanguageSelector - Language selection for settings
 export { LanguageSelector } from './LanguageSelector';
 
+// CurrencySelector - Currency selection for settings
+export { CurrencySelector } from './CurrencySelector';
+
 // AddressBook - Address book management for settings
-export { AddressBookSelector } from './AddressBookSelector';
-export { AddressBookAdd } from './AddressBookAdd';
-export { AddressBookEdit } from './AddressBookEdit';
+export { AddressBookPanel } from './AddressBookPanel';
+export { AddressAddPanel } from './AddressAddPanel';
+export { AddressEditPanel } from './AddressEditPanel';
 
 // TrustedAppsSelector - Connected dApps management for settings
 export { TrustedAppsSelector } from './TrustedAppsSelector';
@@ -327,12 +330,13 @@ export { TrustedAppsSelector } from './TrustedAppsSelector';
 // SupportSelector - Help & Support for settings
 export { SupportSelector } from './SupportSelector';
 
-// PrivateKeyReveal - Private key reveal with biometric auth
-export { PrivateKeyReveal } from './PrivateKeyReveal';
+// PrivateKeyPanel - Private key reveal with biometric auth
+export { PrivateKeyPanel } from './PrivateKeyPanel';
+export type { PrivateKeyPanelProps } from './PrivateKeyPanel';
 
-// AvatarPicker - Avatar selection with presets and NFTs
-export { AvatarPicker } from './AvatarPicker';
-export type { AvatarPickerProps } from './AvatarPicker';
+// AccountAvatarPanel - Avatar selection with presets and NFTs
+export { AccountAvatarPanel } from './AccountAvatarPanel';
+export type { AccountAvatarPanelProps } from './AccountAvatarPanel';
 
 export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';
 
@@ -361,3 +365,6 @@ export { BackupPanel } from './BackupPanel';
 
 // AboutPanel - App info and links
 export { AboutPanel } from './AboutPanel';
+
+// ShimmerRect - Inline shimmer loading placeholder
+export { ShimmerRect } from './ShimmerRect';

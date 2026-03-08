@@ -12,9 +12,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
   Alert,
-  type ListRenderItemInfo,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -168,7 +166,7 @@ export function AccountsPanel({
   );
 
   const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<Account>) => (
+    (item: Account) => (
       <AccountListItem
         account={item}
         isActive={item.id === activeAccountId}
@@ -180,8 +178,6 @@ export function AccountsPanel({
     ),
     [activeAccountId, onSelectAccount, onEditAccount, handleDelete, canDelete],
   );
-
-  const keyExtractor = useCallback((item: Account) => item.id, []);
 
   const ListFooter = useMemo(
     () => (
@@ -204,16 +200,19 @@ export function AccountsPanel({
   );
 
   return (
-    <SettingsScreenLayout title={t('settings.accounts.title')} onBack={onBack}>
-      <FlatList
-        data={accounts}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        ListFooterComponent={ListFooter}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        scrollEnabled={false}
-      />
+    <SettingsScreenLayout
+      title={t('settings.accounts.title')}
+      onBack={onBack}
+      scrollable={false}
+    >
+      <View>
+        {accounts.map((account) => (
+          <React.Fragment key={account.id}>
+            {renderItem(account)}
+          </React.Fragment>
+        ))}
+        {ListFooter}
+      </View>
     </SettingsScreenLayout>
   );
 }
@@ -226,12 +225,15 @@ const styles = StyleSheet.create({
   accountItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: colors.background.card,
     paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
   },
   accountItemActive: {
-    backgroundColor: colors.background.card,
+    borderWidth: borderWidth.thin,
+    borderColor: colors.accent.primary,
   },
   avatar: {
     width: 44,
@@ -281,16 +283,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  separator: {
-    height: 1,
-    backgroundColor: colors.border.default,
-  },
   addAccountButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: colors.background.card,
     paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.md,
     marginTop: spacing.md,
+    borderRadius: borderRadius.md,
   },
   addAccountIcon: {
     width: 44,

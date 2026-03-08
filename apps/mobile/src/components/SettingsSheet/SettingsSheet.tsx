@@ -20,11 +20,14 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TopSheet } from '../TopSheet';
 import { SettingsPanelStack } from '../SettingsPanelStack';
+import { SettingsHeaderContext, type SettingsHeaderState } from '../SettingsHeaderContext';
 import {
   colors,
   spacing,
+  contentPadding,
   borderRadius,
   fontSize,
   componentSizes,
@@ -46,6 +49,35 @@ const DANGER_COLORS = {
   background: colors.status.errorBackground,
   iconBackground: colors.status.errorBackground,
 } as const;
+
+const NEUTRAL_OPTION_COLORS = {
+  background: colors.background.card,
+} as const;
+const PUSH_DURATION = 300;
+const POP_DURATION = 200;
+
+const SCREEN_TITLE_KEYS: Partial<Record<SettingsScreen, string>> = {
+  accounts: 'settings.accounts.title',
+  avatar: 'settings.profile_picture',
+  security: 'settings.security.title',
+  backup: 'settings.backup',
+  privateKey: 'settings.private_key',
+  language: 'settings.display_language',
+  currency: 'settings.currency',
+  explorer: 'settings.select_explorer',
+  network: 'settings.developer_networks',
+  addressBook: 'settings.address_book',
+  'address-book-add': 'settings.addressbook.add',
+  'address-book-edit': 'settings.addressbook.edit',
+  trustedApps: 'settings.trusted_apps',
+  support: 'settings.help_support',
+  about: 'settings.about',
+  'account-edit': 'settings.account_edit.title',
+  'account-name': 'settings.account_edit.name_section',
+  'account-add': 'settings.account_add.title',
+};
+
+const DYNAMIC_HEADER_SCREENS = new Set<SettingsScreen>(['account-add', 'privateKey']);
 
 const SETTINGS_SECTIONS: SettingsSection[] = [
   {
@@ -115,7 +147,14 @@ export function SettingsSheet({
   onRemoveAllWallets,
 }: SettingsSheetWithPanelsProps): React.ReactElement {
   const { t } = useTranslation();
-  const { stack, push, reset } = useSettingsPanelStack();
+  const insets = useSafeAreaInsets();
+  const { stack, push, pop, reset, canGoBack } = useSettingsPanelStack();
+  const [headerOverride, setHeaderOverride] = React.useState<SettingsHeaderState | null>(null);
+  const headerOverrideBackRef = React.useRef<(() => void) | null>(null);
+  const headerOverrideOwnerRef = React.useRef<symbol | null>(null);
+  const [animating, setAnimating] = React.useState(false);
+  const [slideDirection, setSlideDirection] = React.useState<'in' | 'out' | 'idle'>('idle');
+  const animationTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Top fade gradient opacity
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
@@ -123,10 +162,61 @@ export function SettingsSheet({
   // Reset stack when sheet closes
   useEffect(() => {
     if (!visible) {
-      const timer = setTimeout(() => reset(), 300);
+      const timer = setTimeout(() => {
+        if (animationTimerRef.current) {
+          clearTimeout(animationTimerRef.current);
+          animationTimerRef.current = null;
+        }
+        setAnimating(false);
+        setSlideDirection('idle');
+        reset();
+      }, PUSH_DURATION);
       return () => clearTimeout(timer);
     }
   }, [visible, reset]);
+
+  useEffect(() => {
+    return () => {
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+      }
+    };
+  }, []);
+
+  const finishAnimation = useCallback(() => {
+    setAnimating(false);
+    setSlideDirection('idle');
+    animationTimerRef.current = null;
+  }, []);
+
+  const handlePush = useCallback(
+    (screen: SettingsScreen, props?: Record<string, unknown>) => {
+      if (animating) return;
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+      }
+      setSlideDirection('in');
+      setAnimating(true);
+      push(screen, props);
+      animationTimerRef.current = setTimeout(() => {
+        finishAnimation();
+      }, PUSH_DURATION);
+    },
+    [animating, finishAnimation, push],
+  );
+
+  const handlePop = useCallback(() => {
+    if (animating || !canGoBack) return;
+    if (animationTimerRef.current) {
+      clearTimeout(animationTimerRef.current);
+    }
+    setSlideDirection('out');
+    setAnimating(true);
+    animationTimerRef.current = setTimeout(() => {
+      pop();
+      finishAnimation();
+    }, POP_DURATION);
+  }, [animating, canGoBack, finishAnimation, pop]);
 
   // Push initial panels when drawer opens
   const initialPanelsPushedRef = React.useRef(false);
@@ -156,10 +246,10 @@ export function SettingsSheet({
 
       // Push panel instead of navigating
       if (!option.isToggle && option.id !== 'developerNetworks' && panelRegistry) {
-        push(option.id as SettingsScreen);
+        handlePush(option.id as SettingsScreen);
       }
     },
-    [onClose, onRemoveWallet, onRemoveAllWallets, push, panelRegistry]
+    [handlePush, onClose, onRemoveAllWallets, onRemoveWallet, panelRegistry]
   );
 
   const handleDeveloperNetworksToggle = useCallback(
@@ -203,7 +293,7 @@ export function SettingsSheet({
         return (
           <View
             key={`toggle-${option.labelKey}`}
-            style={styles.optionRow}
+            style={[styles.optionRow, styles.optionRowSurface, styles.optionRowNeutral]}
             accessibilityRole="switch"
             accessibilityLabel={label}
             accessibilityState={{ checked: developerNetworksEnabled }}
@@ -217,12 +307,14 @@ export function SettingsSheet({
                 {t('settings.developer_networks_description')}
               </Text>
             </View>
-            <Switch
-              value={developerNetworksEnabled}
-              onValueChange={handleDeveloperNetworksToggle}
-              trackColor={{ false: colors.background.card, true: colors.accent.primary }}
-              thumbColor={colors.text.primary}
-            />
+            <View style={styles.toggleControl}>
+              <Switch
+                value={developerNetworksEnabled}
+                onValueChange={handleDeveloperNetworksToggle}
+                trackColor={{ false: colors.background.card, true: colors.accent.primary }}
+                thumbColor={colors.text.primary}
+              />
+            </View>
           </View>
         );
       }
@@ -230,7 +322,11 @@ export function SettingsSheet({
       return (
         <TouchableOpacity
           key={option.id}
-          style={[styles.optionRow, isDanger && styles.optionRowDanger]}
+          style={[
+            styles.optionRow,
+            styles.optionRowSurface,
+            isDanger ? styles.optionRowDanger : styles.optionRowNeutral,
+          ]}
           onPress={() => handleOptionPress(option)}
           activeOpacity={0.7}
           accessibilityRole="button"
@@ -260,45 +356,115 @@ export function SettingsSheet({
   );
 
   const hasPanels = panelRegistry && stack.length > 0;
+  const currentPanel = stack.length > 0 ? stack[stack.length - 1] : null;
+  const fallbackTitle = currentPanel
+    ? t(SCREEN_TITLE_KEYS[currentPanel.screen] || 'settings.title')
+    : t('settings.title');
+  const currentTitle = headerOverride?.title || fallbackTitle;
+  const currentBackAction = currentPanel
+    ? headerOverride?.onBack || handlePop
+    : undefined;
+  const invokeHeaderOverrideBack = useCallback(() => {
+    headerOverrideBackRef.current?.();
+  }, []);
+  const handleHeaderStateChange = useCallback(
+    (ownerId: symbol, nextState: SettingsHeaderState | null) => {
+      if (!nextState) {
+        if (headerOverrideOwnerRef.current !== ownerId) {
+          return;
+        }
+        headerOverrideOwnerRef.current = null;
+        headerOverrideBackRef.current = null;
+        setHeaderOverride((previousState) => (previousState === null ? previousState : null));
+        return;
+      }
+
+      headerOverrideOwnerRef.current = ownerId;
+      headerOverrideBackRef.current = nextState.onBack;
+      setHeaderOverride((previousState) => {
+        const hasSameTitle = previousState?.title === nextState.title;
+        if (hasSameTitle && previousState !== null) {
+          return previousState;
+        }
+
+        return {
+          title: nextState.title,
+          onBack: invokeHeaderOverrideBack,
+        };
+      });
+    },
+    [invokeHeaderOverrideBack],
+  );
+  const headerContextValue = useMemo(
+    () => ({ setHeaderState: handleHeaderStateChange }),
+    [handleHeaderStateChange],
+  );
+  useEffect(() => {
+    if (!currentPanel || !DYNAMIC_HEADER_SCREENS.has(currentPanel.screen)) {
+      headerOverrideOwnerRef.current = null;
+      headerOverrideBackRef.current = null;
+      setHeaderOverride(null);
+    }
+  }, [currentPanel]);
 
   return (
-    <TopSheet
-      visible={visible}
-      onClose={onClose}
-      title={t('settings.title')}
-      testID="settings-sheet"
-    >
-      <View style={styles.container}>
-        {/* Base: Settings Menu (panel 0) */}
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-        >
-          {SETTINGS_SECTIONS.map(renderSection)}
-        </ScrollView>
+    <SettingsHeaderContext.Provider value={headerContextValue}>
+      <TopSheet
+        visible={visible}
+        onClose={onClose}
+        title={currentTitle}
+        onBack={currentBackAction}
+        backAccessibilityLabel={t('actions.back', 'Go back')}
+        fullHeight
+        showHandle={false}
+        style={styles.topSheet}
+        contentStyle={styles.topSheetContent}
+        testID="settings-sheet"
+      >
+        <View style={styles.container}>
+          {/* Base: Settings Menu (panel 0) */}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: insets.bottom + spacing['5xl'] },
+            ]}
+            scrollEnabled
+            alwaysBounceVertical
+            showsVerticalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+          >
+            {SETTINGS_SECTIONS.map(renderSection)}
+          </ScrollView>
 
-        {/* Top fade gradient */}
-        <Animated.View
-          style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
-          pointerEvents="none"
-        >
-          <LinearGradient
-            colors={[colors.background.secondary, 'transparent']}
-            style={StyleSheet.absoluteFill}
-          />
-        </Animated.View>
+          {/* Top fade gradient */}
+          <Animated.View
+            style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+            pointerEvents="none"
+          >
+            <LinearGradient
+              colors={[colors.background.secondary, 'transparent']}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
 
-        {/* Stacked panels overlay */}
-        {hasPanels && panelRegistry && (
-          <View style={styles.panelOverlay}>
-            <SettingsPanelStack panelRegistry={panelRegistry} />
-          </View>
-        )}
-      </View>
-    </TopSheet>
+          {/* Stacked panels overlay */}
+          {hasPanels && panelRegistry && (
+            <View style={styles.panelOverlay}>
+              <SettingsPanelStack
+                panelRegistry={panelRegistry}
+                stack={stack}
+                onNavigate={handlePush}
+                onBack={handlePop}
+                animating={animating}
+                slideDirection={slideDirection}
+              />
+            </View>
+          )}
+        </View>
+      </TopSheet>
+    </SettingsHeaderContext.Provider>
   );
 }
 
@@ -307,20 +473,30 @@ export function SettingsSheet({
 // ============================================================================
 
 const styles = StyleSheet.create({
+  topSheet: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  topSheetContent: {
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+  },
   container: {
+    flex: 1,
     position: 'relative',
   },
   scrollView: {
-    maxHeight: 500,
+    flex: 1,
   },
   scrollContent: {
-    paddingBottom: spacing.md,
+    paddingTop: spacing.lg,
+    paddingHorizontal: contentPadding.screen,
   },
   section: {
     marginBottom: spacing.sm,
   },
   sectionHeader: {
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: 0,
     paddingVertical: spacing.sm,
     marginTop: spacing.xs,
   },
@@ -344,13 +520,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: 0,
     borderRadius: borderRadius.md,
+  },
+  optionRowSurface: {
+    marginHorizontal: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    marginVertical: spacing.xs / 2,
+  },
+  optionRowNeutral: {
+    backgroundColor: NEUTRAL_OPTION_COLORS.background,
   },
   optionRowDanger: {
     backgroundColor: DANGER_COLORS.background,
-    marginHorizontal: spacing.xs,
-    marginVertical: spacing.xs / 2,
   },
   iconContainer: {
     width: 40,
@@ -376,6 +558,11 @@ const styles = StyleSheet.create({
   toggleLabelContainer: {
     flex: 1,
     marginRight: spacing.sm,
+  },
+  toggleControl: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   toggleDescription: {
     color: colors.text.secondary,

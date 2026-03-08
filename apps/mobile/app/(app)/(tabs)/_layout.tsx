@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
+import { BlurTargetView } from 'expo-blur';
 import { Tabs, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -43,23 +44,25 @@ import {
   WalletSwitcherSheet,
   ScalesBackground,
   LanguageSelector,
+  CurrencySelector,
   ExplorerSelector,
   NetworkSelector,
   TrustedAppsSelector,
   SupportSelector,
-  AddressBookSelector,
-  AddressBookAdd,
-  AddressBookEdit,
-  AvatarPicker,
+  AddressBookPanel,
+  AddressAddPanel,
+  AddressEditPanel,
+  AccountAvatarPanel,
   AccountsPanel,
   AccountEditPanel,
   AccountNamePanel,
   AccountAddPanel,
   SecurityPanel,
-  PrivateKeyReveal,
+  PrivateKeyPanel,
   BackupPanel,
   AboutPanel,
   type MobilePanelRegistry,
+  BlurTargetProvider,
 } from '../../../src/components';
 import { useLanguage } from '../../../src/i18n';
 import { useBiometricAuth } from '../../../hooks/useBiometricAuth';
@@ -75,6 +78,7 @@ export default function TabLayout() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const openLink = useOpenLink();
+  const blurTargetRef = useRef<View>(null);
 
   // Shared UI state
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -164,7 +168,7 @@ export default function TabLayout() {
     avatar: ({ onBack }) => {
       if (!activeAccount) return null;
       return (
-        <AvatarPicker
+        <AccountAvatarPanel
           currentAvatarUrl={activeAccount.avatar}
           account={activeAccount}
           onSave={async (avatarUrl: string) => {
@@ -187,7 +191,7 @@ export default function TabLayout() {
       if (!activeAccount) return null;
       const networks = buildNetworkListFromAccount(activeAccount);
       return (
-        <PrivateKeyReveal
+        <PrivateKeyPanel
           networks={networks}
           activeAccount={activeAccount}
           onBack={onBack}
@@ -223,13 +227,11 @@ export default function TabLayout() {
           symbol: CURRENCY_MAP[code].symbol,
         })
       );
-      // Use a simple LanguageSelector-like pattern; mobile CurrencySelector
-      // is handled by the shared CurrencySelector UI
       return (
-        <LanguageSelector
-          languages={currencyItems.map((c) => ({ code: c.code, nativeName: `${c.symbol} ${c.name}` }))}
-          activeLanguageCode={currency}
-          onSelectLanguage={async (code: string) => {
+        <CurrencySelector
+          currencies={currencyItems}
+          activeCurrencyCode={currency}
+          onSelectCurrency={async (code: string) => {
             await changeCurrency(code as CurrencyCode);
             onBack();
           }}
@@ -275,7 +277,7 @@ export default function TabLayout() {
       );
     },
     addressBook: ({ onBack, onNavigate }) => (
-      <AddressBookSelector
+      <AddressBookPanel
         contacts={addressBookItems}
         activeNetworkId={networkId || 'solana-mainnet'}
         onAddContact={() => onNavigate('address-book-add')}
@@ -292,7 +294,7 @@ export default function TabLayout() {
       const activeNet = allNetworks.find((n) => n.id === networkId) || allNetworks[0];
       const blockchain = (networkId || 'solana-mainnet').split('-')[0];
       return (
-        <AddressBookAdd
+        <AddressAddPanel
           activeNetworkId={activeNet?.id || 'solana-mainnet'}
           activeNetworkName={activeNet?.name || 'Solana Mainnet'}
           activeBlockchain={blockchain}
@@ -308,7 +310,7 @@ export default function TabLayout() {
       if (!editingContact) return null;
       const blockchain = (editingContact.networkId || 'solana-mainnet').split('-')[0];
       return (
-        <AddressBookEdit
+        <AddressEditPanel
           contact={editingContact}
           activeBlockchain={blockchain}
           onSave={async (originalAddress: string, input: AddressInput) => {
@@ -517,20 +519,24 @@ export default function TabLayout() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Layer 1: Solid background for status bar area and entire screen */}
-      <View style={styles.solidBackground} />
+      {/* Background layers wrapped in BlurTargetView for Android blur targeting */}
+      <BlurTargetView ref={blurTargetRef} style={StyleSheet.absoluteFill}>
+        {/* Layer 1: Solid background for status bar area and entire screen */}
+        <View style={styles.solidBackground} />
 
-      {/* Layer 2: Bottom fade gradient - rendered before scales so it's underneath */}
-      <LinearGradient
-        colors={['transparent', colors.background.primary]}
-        style={styles.bottomFadeGradient}
-        pointerEvents="none"
-      />
+        {/* Layer 2: Bottom fade gradient - rendered before scales so it's underneath */}
+        <LinearGradient
+          colors={['transparent', colors.background.primary]}
+          style={styles.bottomFadeGradient}
+          pointerEvents="none"
+        />
 
-      {/* Layer 3: Scales pattern background - starts below header */}
-      <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
+        {/* Layer 3: Scales pattern background - starts below header */}
+        <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
+      </BlurTargetView>
 
       {/* Tab screens fill the remaining space */}
+      <BlurTargetProvider value={blurTargetRef}>
       <Tabs
         tabBar={(props) => <GlassTabBar {...props} />}
         screenOptions={{
@@ -546,6 +552,7 @@ export default function TabLayout() {
           options={{ href: null, title: 'Settings' }}
         />
       </Tabs>
+      </BlurTargetProvider>
 
       {/* Header - Absolutely positioned above content */}
       <WalletHeader

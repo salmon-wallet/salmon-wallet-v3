@@ -1,6 +1,5 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { colors, componentSizes, fontFamilyNative, fontSize, gradients, ms, s, spacing, vs, borderWidth } from '@salmon/shared';
-import { BlurView } from 'expo-blur';
+import { colors, componentSizes, fontFamilyNative, ms, s, spacing, vs, borderWidth, gradients } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
@@ -11,12 +10,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BlurContainer } from '../BlurContainer';
 import { GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '../Icon';
 import type { TabConfig } from './types';
-
-/**
- * Web version of GlassTabBar — uses BlurView only (no expo-glass-effect).
- */
 
 const TAB_CONFIG: Record<string, TabConfig> = {
   index: {
@@ -72,33 +68,10 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
       <View style={styles.tabIconContainer}>
         <IconComponent size={config.iconSize} color={iconColor} />
       </View>
-      <Text style={[styles.tabLabel, { color: labelColor }]}>
+      <Text style={[styles.tabLabel, isFocused ? styles.tabLabelActive : styles.tabLabelInactive, { color: labelColor }]}>
         {config.label}
       </Text>
     </TouchableOpacity>
-  );
-}
-
-/**
- * GlassPill — BlurView fallback for web (no Liquid Glass)
- */
-function GlassPill({ children }: { children: React.ReactNode }) {
-  return (
-    <BlurView
-      intensity={80}
-      tint="dark"
-      experimentalBlurMethod="dimezisBlurView"
-      style={[
-        styles.glassContainer,
-        {
-          backgroundColor: colors.background.glass,
-          borderColor: colors.border.subtle,
-          borderWidth: borderWidth.thin,
-        },
-      ]}
-    >
-      {children}
-    </BlurView>
   );
 }
 
@@ -119,10 +92,23 @@ export function GlassTabBar({
       colors={gradients.tabBarFade.colors}
       start={gradients.tabBarFade.start}
       end={gradients.tabBarFade.end}
-      style={[styles.container, { paddingBottom: Math.max(insets.bottom, componentSizes.tabBarMinBottomPadding) }]}
+      style={[
+        styles.container,
+        {
+          paddingBottom: Math.max(insets.bottom, componentSizes.tabBarMinBottomPadding),
+        },
+      ]}
+      pointerEvents="box-none"
     >
-      <GlassPill>
-        <View style={styles.pillContainer}>
+      <BlurContainer
+        style={styles.glassContainer}
+        blurIntensity={24}
+        backgroundColor={colors.background.glass}
+        borderColor={colors.border.subtle}
+        borderWidth={borderWidth.thin}
+        useGradientBorder
+      >
+        <View style={styles.bar}>
           {visibleRoutes.map((route) => {
             const isFocused = state.routes[state.index]?.name === route.name;
 
@@ -156,55 +142,66 @@ export function GlassTabBar({
             );
           })}
         </View>
-      </GlassPill>
+      </BlurContainer>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  // Outer container with gradient fade
   container: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: s(spacing['3xl']),
-    paddingTop: vs(componentSizes.tabBarPaddingTop),
+    paddingHorizontal: s(spacing.lg),
+    paddingTop: vs(spacing.lg),
+    zIndex: 50,
   },
-  // Glass pill container
   glassContainer: {
-    borderRadius: 62,
+    width: '100%',
+    borderRadius: 28,
     overflow: 'hidden',
+    backgroundColor: colors.background.glass,
+    borderColor: colors.border.subtle,
+    borderWidth: borderWidth.thin,
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.22)',
   },
-  // Inner pill content - Figma: px-[44.813px]
-  pillContainer: {
+  bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     width: '100%',
-    paddingHorizontal: s(spacing.tabBarPadding),
+    minHeight: vs(componentSizes.tabBarItemHeight + 8),
+    paddingHorizontal: s(spacing.md),
+    paddingVertical: vs(spacing.xs),
   },
-  // Tab item - Figma: h-[60.497px], auto width
   tabItem: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: vs(componentSizes.tabBarItemHeight),
-    paddingHorizontal: s(spacing.lg),
-    gap: s(spacing.xxs),
+    minHeight: vs(componentSizes.tabBarItemHeight),
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing.xs),
+    gap: s(2),
   },
-  // Icon container
   tabIconContainer: {
     height: vs(componentSizes.iconSizeMButton),
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Tab label
   tabLabel: {
     fontFamily: fontFamilyNative.semiBold,
-    fontSize: ms(fontSize.xs),
+    fontSize: ms(11),
+    lineHeight: ms(13),
     letterSpacing: ms(0.2, 0.3),
     textAlign: 'center',
+  },
+  tabLabelActive: {
+    color: colors.tabBar.active,
+  },
+  tabLabelInactive: {
+    color: colors.tabBar.inactive,
   },
 });
 
