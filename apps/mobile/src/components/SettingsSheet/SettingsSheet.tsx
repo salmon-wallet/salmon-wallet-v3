@@ -149,6 +149,7 @@ export function SettingsSheet({
   const { stack, push, pop, reset, canGoBack } = useSettingsPanelStack();
   const [panelBackAction, setPanelBackAction] = React.useState<(() => void) | null>(null);
   const [headerOverride, setHeaderOverride] = React.useState<SettingsHeaderState | null>(null);
+  const headerOverrideBackRef = React.useRef<(() => void) | null>(null);
 
   // Top fade gradient opacity
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
@@ -307,9 +308,33 @@ export function SettingsSheet({
   const currentBackAction = currentPanel
     ? headerOverride?.onBack || panelBackAction || undefined
     : undefined;
+  const invokeHeaderOverrideBack = useCallback(() => {
+    headerOverrideBackRef.current?.();
+  }, []);
+  const handleHeaderStateChange = useCallback(
+    (nextState: SettingsHeaderState | null) => {
+      headerOverrideBackRef.current = nextState?.onBack ?? null;
+      setHeaderOverride((previousState) => {
+        if (!nextState) {
+          return previousState === null ? previousState : null;
+        }
+
+        const hasSameTitle = previousState?.title === nextState.title;
+        if (hasSameTitle && previousState !== null) {
+          return previousState;
+        }
+
+        return {
+          title: nextState.title,
+          onBack: invokeHeaderOverrideBack,
+        };
+      });
+    },
+    [invokeHeaderOverrideBack],
+  );
   const headerContextValue = useMemo(
-    () => ({ setHeaderState: setHeaderOverride }),
-    [],
+    () => ({ setHeaderState: handleHeaderStateChange }),
+    [handleHeaderStateChange],
   );
   const handlePanelBackActionChange = useCallback(
     (handler: (() => void) | null) => {
@@ -320,6 +345,7 @@ export function SettingsSheet({
 
   useEffect(() => {
     if (!currentPanel || !DYNAMIC_HEADER_SCREENS.has(currentPanel.screen)) {
+      headerOverrideBackRef.current = null;
       setHeaderOverride(null);
     }
   }, [currentPanel]);

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export interface SettingsHeaderState {
   title: string;
@@ -23,13 +23,41 @@ export function useSettingsHeaderOverride(
   const setHeaderState = settingsHeader?.setHeaderState;
   const title = state?.title;
   const onBack = state?.onBack;
+  const lastAppliedStateRef = useRef<SettingsHeaderState | null>(null);
 
   useEffect(() => {
-    if (!enabled || !setHeaderState || !title || !onBack) {
+    if (!setHeaderState) {
       return undefined;
     }
 
-    setHeaderState({ title, onBack });
-    return () => setHeaderState(null);
+    if (!enabled || !title || !onBack) {
+      if (lastAppliedStateRef.current !== null) {
+        lastAppliedStateRef.current = null;
+        setHeaderState(null);
+      }
+      return undefined;
+    }
+
+    const previousState = lastAppliedStateRef.current;
+    if (
+      previousState?.title === title &&
+      previousState?.onBack === onBack
+    ) {
+      return undefined;
+    }
+
+    const nextState = { title, onBack };
+    lastAppliedStateRef.current = nextState;
+    setHeaderState(nextState);
+    return undefined;
   }, [enabled, onBack, setHeaderState, title]);
+
+  useEffect(() => {
+    return () => {
+      if (lastAppliedStateRef.current !== null && setHeaderState) {
+        lastAppliedStateRef.current = null;
+        setHeaderState(null);
+      }
+    };
+  }, [setHeaderState]);
 }

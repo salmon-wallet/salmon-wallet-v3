@@ -5,7 +5,7 @@
  * transitions (300ms push, 200ms pop). Includes swipe-right gesture to pop.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -45,6 +45,7 @@ export function SettingsPanelStack({
   const [animating, setAnimating] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'in' | 'out'>('in');
   const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousStackLengthRef = useRef(0);
 
   useEffect(() => {
     return () => {
@@ -53,6 +54,26 @@ export function SettingsPanelStack({
       }
     };
   }, []);
+
+  useLayoutEffect(() => {
+    const previousLength = previousStackLengthRef.current;
+    const nextLength = stack.length;
+
+    // Animate panels that are pushed from the parent sheet, not only from nested sub-screens.
+    if (nextLength > previousLength && !animating) {
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+      }
+      setSlideDirection('in');
+      setAnimating(true);
+      animationTimerRef.current = setTimeout(() => {
+        setAnimating(false);
+        animationTimerRef.current = null;
+      }, PUSH_DURATION);
+    }
+
+    previousStackLengthRef.current = nextLength;
+  }, [stack.length, animating]);
 
   const handlePush = useCallback(
     (screen: SettingsScreen, props?: Record<string, unknown>) => {
