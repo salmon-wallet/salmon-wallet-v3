@@ -31,7 +31,7 @@
  * ```
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -43,6 +43,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurTargetView } from 'expo-blur';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -59,6 +60,7 @@ import {
   borderRadius,
   fontSize,
 } from '@salmon/shared';
+import { BlurTargetProvider } from '../BlurContainer';
 import { ScalesBackground } from '../ScalesBackground';
 
 import type { TopSheetProps } from './types';
@@ -94,6 +96,8 @@ export function TopSheet({
   onOpenComplete,
   onCloseComplete,
 }: TopSheetProps): React.ReactElement | null {
+  const blurTargetRef = useRef<View>(null);
+
   // Get screen dimensions reactively
   const { height: screenHeight } = useWindowDimensions();
 
@@ -226,57 +230,61 @@ export function TopSheet({
           style={[styles.sheet, fullHeight && styles.sheetFullHeight, style]}
           edges={['top']}
         >
-          {/* Scales Background */}
-          <ScalesBackground />
+          <BlurTargetView ref={blurTargetRef} style={StyleSheet.absoluteFill}>
+            {/* Scales Background */}
+            <ScalesBackground />
+          </BlurTargetView>
 
-          {/* Header (optional) */}
-          {title && (
-            <View style={styles.header}>
-              {onBack ? (
+          <BlurTargetProvider value={blurTargetRef}>
+            {/* Header (optional) */}
+            {title && (
+              <View style={styles.header}>
+                {onBack ? (
+                  <TouchableOpacity
+                    onPress={onBack}
+                    style={styles.headerButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityLabel={backAccessibilityLabel}
+                    accessibilityRole="button"
+                  >
+                    <Ionicons
+                      name="chevron-back"
+                      size={24}
+                      color={colors.text.primary}
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.headerButtonPlaceholder} />
+                )}
+                <Text style={styles.headerTitle}>{title}</Text>
                 <TouchableOpacity
-                  onPress={onBack}
+                  onPress={onClose}
                   style={styles.headerButton}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  accessibilityLabel={backAccessibilityLabel}
+                  accessibilityLabel="Close sheet"
                   accessibilityRole="button"
                 >
                   <Ionicons
-                    name="chevron-back"
+                    name="close"
                     size={24}
                     color={colors.text.primary}
                   />
                 </TouchableOpacity>
-              ) : (
-                <View style={styles.headerButtonPlaceholder} />
-              )}
-              <Text style={styles.headerTitle}>{title}</Text>
-              <TouchableOpacity
-                onPress={onClose}
-                style={styles.headerButton}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                accessibilityLabel="Close sheet"
-                accessibilityRole="button"
-              >
-                <Ionicons
-                  name="close"
-                  size={24}
-                  color={colors.text.primary}
-                />
-              </TouchableOpacity>
-            </View>
-          )}
+              </View>
+            )}
 
-          {/* Content */}
-          <View style={[styles.content, fullHeight && styles.contentFullHeight, contentStyle]}>
-            {children}
-          </View>
-
-          {/* Handle indicator (bottom of sheet) */}
-          {showHandle && (
-            <View style={styles.handleContainer}>
-              <View style={styles.handle} />
+            {/* Content */}
+            <View style={[styles.content, fullHeight && styles.contentFullHeight, contentStyle]}>
+              {children}
             </View>
-          )}
+
+            {/* Handle indicator (bottom of sheet) */}
+            {showHandle && (
+              <View style={styles.handleContainer}>
+                <View style={styles.handle} />
+              </View>
+            )}
+          </BlurTargetProvider>
         </SafeAreaView>
       </Animated.View>
     </View>

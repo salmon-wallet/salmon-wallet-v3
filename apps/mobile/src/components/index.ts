@@ -153,7 +153,7 @@ export type {
 } from './WalletSwitcherSheet';
 
 // BlurContainer - Reusable blur effect component
-export { BlurContainer } from './BlurContainer';
+export { BlurContainer, BlurTargetProvider } from './BlurContainer';
 export type { BlurContainerProps, BlurTint } from './BlurContainer';
 
 // NftCard - NFT display card for grid layouts

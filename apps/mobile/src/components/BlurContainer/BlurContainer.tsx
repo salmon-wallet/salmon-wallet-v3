@@ -3,10 +3,12 @@ import { BlurView } from 'expo-blur';
 import React, { useId, useState } from 'react';
 import {
   type LayoutChangeEvent,
+  Platform,
   StyleSheet,
   View,
 } from 'react-native';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
+import { useBlurTarget } from './BlurTargetContext';
 import type { BlurContainerProps } from './types';
 
 /** Radial gradient stops for glassy border effect (Figma "Glassy_BORDER") */
@@ -89,6 +91,8 @@ function GradientBorderOverlay({
   );
 }
 
+const IS_ANDROID = Platform.OS === 'android';
+
 export function BlurContainer({
   children,
   style,
@@ -100,6 +104,7 @@ export function BlurContainer({
   useGradientBorder = true,
   pointerEvents,
 }: BlurContainerProps) {
+  const blurTarget = useBlurTarget();
   const [layout, setLayout] = useState({ width: 0, height: 0 });
 
   const handleLayout = (e: LayoutChangeEvent) => {
@@ -123,13 +128,20 @@ export function BlurContainer({
       onLayout={useGradientBorder ? handleLayout : undefined}
       pointerEvents={pointerEvents}
     >
-      <BlurView
-        intensity={blurIntensity}
-        tint={blurTint}
-        experimentalBlurMethod="dimezisBlurView"
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { backgroundColor }]}
-      />
+      {IS_ANDROID ? (
+        <View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, { backgroundColor }]}
+        />
+      ) : (
+        <BlurView
+          intensity={blurIntensity}
+          tint={blurTint}
+          blurTarget={blurTarget}
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, { backgroundColor }]}
+        />
+      )}
       {useGradientBorder && (
         <GradientBorderOverlay
           width={layout.width}

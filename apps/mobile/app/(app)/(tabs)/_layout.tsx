@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
+import { BlurTargetView } from 'expo-blur';
 import { Tabs, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -61,6 +62,7 @@ import {
   BackupPanel,
   AboutPanel,
   type MobilePanelRegistry,
+  BlurTargetProvider,
 } from '../../../src/components';
 import { useLanguage } from '../../../src/i18n';
 import { useBiometricAuth } from '../../../hooks/useBiometricAuth';
@@ -76,6 +78,7 @@ export default function TabLayout() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const openLink = useOpenLink();
+  const blurTargetRef = useRef<View>(null);
 
   // Shared UI state
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -516,20 +519,24 @@ export default function TabLayout() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Layer 1: Solid background for status bar area and entire screen */}
-      <View style={styles.solidBackground} />
+      {/* Background layers wrapped in BlurTargetView for Android blur targeting */}
+      <BlurTargetView ref={blurTargetRef} style={StyleSheet.absoluteFill}>
+        {/* Layer 1: Solid background for status bar area and entire screen */}
+        <View style={styles.solidBackground} />
 
-      {/* Layer 2: Bottom fade gradient - rendered before scales so it's underneath */}
-      <LinearGradient
-        colors={['transparent', colors.background.primary]}
-        style={styles.bottomFadeGradient}
-        pointerEvents="none"
-      />
+        {/* Layer 2: Bottom fade gradient - rendered before scales so it's underneath */}
+        <LinearGradient
+          colors={['transparent', colors.background.primary]}
+          style={styles.bottomFadeGradient}
+          pointerEvents="none"
+        />
 
-      {/* Layer 3: Scales pattern background - starts below header */}
-      <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
+        {/* Layer 3: Scales pattern background - starts below header */}
+        <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
+      </BlurTargetView>
 
       {/* Tab screens fill the remaining space */}
+      <BlurTargetProvider value={blurTargetRef}>
       <Tabs
         tabBar={(props) => <GlassTabBar {...props} />}
         screenOptions={{
@@ -545,6 +552,7 @@ export default function TabLayout() {
           options={{ href: null, title: 'Settings' }}
         />
       </Tabs>
+      </BlurTargetProvider>
 
       {/* Header - Absolutely positioned above content */}
       <WalletHeader
