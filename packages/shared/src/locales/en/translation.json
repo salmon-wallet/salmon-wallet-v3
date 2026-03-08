@@ -220,7 +220,8 @@
       "scan_complete": "Scan complete",
       "confirm_create": "Create Account",
       "confirm_import": "Import Account",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "creation_error": "Failed to create account. Please try again."
     },
     "security": {
       "title": "Security",
