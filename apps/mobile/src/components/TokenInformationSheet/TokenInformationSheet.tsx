@@ -23,8 +23,8 @@ import {
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { TokenListItem } from '../TokenList';
 import { PriceChart } from '../PriceChart';
-import { TokenMarketData } from '../TokenMarketData';
-import { TokenAbout } from '../TokenAbout';
+import { TokenMarketData } from './TokenMarketData';
+import { TokenAbout } from './TokenAbout';
 import { TokenBadgesSection } from './TokenBadgesSection';
 import type { TokenInformationSheetProps } from './types';
 

@@ -1,15 +1,45 @@
-// React Native components
-// Cross-platform UI components for Salmon Wallet
+// =============================================================================
+// Mobile Components - Barrel Exports
+// =============================================================================
 
-// QRCode - QR code display component
+// ---------------------------------------------------------------------------
+// Foundation
+// ---------------------------------------------------------------------------
+
+export { PrimaryButton, SecondaryButton, TextButton } from './Button';
+export type { PrimaryButtonProps, SecondaryButtonProps, TextButtonProps } from './Button';
+
+export {
+  WalletSvgIcon,
+  ContentCopySvgIcon,
+  SettingsSvgIcon,
+  SolanaSvgIcon,
+  BitcoinSvgIcon,
+  EthereumSvgIcon,
+  GridViewSvgIcon,
+  HomeSvgIcon,
+  SwapSvgIcon,
+} from './Icon';
+
+export { PasswordInput, PasswordStrengthBar } from './PasswordInput';
+
+export { StepIndicator } from './StepIndicator';
+export type { StepIndicatorProps } from './StepIndicator';
+
+export { ScreenHeader } from './ScreenHeader';
+export type { ScreenHeaderProps } from './ScreenHeader';
+
+export { LoadingScreen } from './LoadingScreen';
+export type { LoadingScreenProps } from './LoadingScreen';
+
+export { ShimmerRect } from './ShimmerRect';
+
 export { default as QRCode } from './QRCode';
 export type { QRCodeProps } from './QRCode';
 
-// QRScanner - QR code scanning component
 export { QRScanner, default as QRScannerDefault } from './QRScanner';
 export type { QRScannerProps, QRScanResult } from './QRScanner';
 
-// InputAddress - Address input with validation
 export {
   InputAddress,
   useAddressValidation,
@@ -21,7 +51,65 @@ export {
   type UseAddressValidationOptions,
 } from './InputAddress';
 
-// TokenList - Token list display component
+export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
+
+export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
+export type { DerivedAccountCardProps, DerivedAccountCardSkeletonProps } from './DerivedAccountCard';
+
+export { SubAccountSelector } from './SubAccountSelector';
+export type { SubAccount, SubAccountSelectorProps } from './SubAccountSelector';
+
+export { ConfirmSheet } from './ConfirmSheet';
+export type { ConfirmSheetProps } from './ConfirmSheet';
+
+// ---------------------------------------------------------------------------
+// Layout & Background
+// ---------------------------------------------------------------------------
+
+export { GradientBackground } from './GradientBackground';
+export type { GradientBackgroundProps } from './GradientBackground';
+
+export { ScalesBackground } from './ScalesBackground';
+export type { ScalesBackgroundProps } from './ScalesBackground';
+
+export { BlurContainer, BlurTargetProvider } from './BlurContainer';
+export type { BlurContainerProps, BlurTint } from './BlurContainer';
+
+export { GlassTabBar } from './GlassTabBar';
+export type { GlassTabBarProps, TabConfig } from './GlassTabBar';
+
+// ---------------------------------------------------------------------------
+// Sheets & Modals
+// ---------------------------------------------------------------------------
+
+export { TopSheet } from './TopSheet';
+export type { TopSheetProps, TopSheetAnimationConfig, TopSheetRef } from './TopSheet';
+
+export { WalletSwitcherSheet } from './WalletSwitcherSheet';
+export type { WalletSwitcherSheetProps, AccountListItemProps } from './WalletSwitcherSheet';
+
+export { ReceiveSheet } from './ReceiveSheet';
+export type { ReceiveSheetProps } from './ReceiveSheet';
+
+// ---------------------------------------------------------------------------
+// Home
+// ---------------------------------------------------------------------------
+
+export { WalletHeader } from './WalletHeader';
+export type { WalletHeaderProps } from './WalletHeader';
+
+export { BalanceCard, BalanceCardCarousel } from './BalanceCard';
+export type {
+  BalanceCardProps,
+  BalanceCardCarouselProps,
+  BlockchainId,
+  BlockchainBalance,
+  BlockchainNetworkInfo,
+} from './BalanceCard';
+
+export { ActionButtonRow } from './ActionButtonRow';
+export type { ActionButtonRowProps, ActionButton } from './ActionButtonRow';
+
 export {
   TokenList,
   TokenListItem,
@@ -35,7 +123,6 @@ export type {
   TokenBadgesProps,
 } from './TokenList';
 
-// TokenSelector - Token selection with search and pagination
 export {
   TokenSelector,
   TokenSelectorModal,
@@ -48,115 +135,34 @@ export type {
   UseTokenSearchResult,
 } from './TokenSelector';
 
-// GradientBackground - Linear gradient wrapper component
-export { GradientBackground } from './GradientBackground';
-export type { GradientBackgroundProps } from './GradientBackground';
+export { TokenLogo } from './TokenLogo';
 
-// WalletHeader - Account info and settings navigation
-export { WalletHeader } from './WalletHeader';
-export type { WalletHeaderProps } from './WalletHeader';
+// ---------------------------------------------------------------------------
+// Token Detail (TokenInformationSheet + sub-components)
+// ---------------------------------------------------------------------------
 
-// BalanceCard - Portfolio balance display with gradient
-export { BalanceCard, BalanceCardCarousel } from './BalanceCard';
-export type {
-  BalanceCardProps,
-  BalanceCardCarouselProps,
-  BlockchainId,
-  BlockchainBalance,
-  BlockchainNetworkInfo,
-} from './BalanceCard';
-
-// ActionButtonRow - Send/Receive/Activity action buttons
-export { ActionButtonRow } from './ActionButtonRow';
-export type { ActionButtonRowProps, ActionButton } from './ActionButtonRow';
-
-// Button - Reusable button components
-export { PrimaryButton, SecondaryButton, TextButton } from './Button';
-export type {
-  PrimaryButtonProps,
-  SecondaryButtonProps,
-  TextButtonProps,
-} from './Button';
-
-// StepIndicator - Progress indicator for multi-step flows
-export { StepIndicator } from './StepIndicator';
-export type { StepIndicatorProps } from './StepIndicator';
-
-// PasswordInput - Secure password input with visibility toggle and strength indicator
-export { PasswordInput, PasswordStrengthBar } from './PasswordInput';
-
-// SeedPhrase - Seed phrase display and input components
-export { SeedWordGrid, SeedWordInput } from './SeedPhrase';
-
-// ScreenHeader - Common header for onboarding/auth screens
-export { ScreenHeader } from './ScreenHeader';
-export type { ScreenHeaderProps } from './ScreenHeader';
-
-// LoadingScreen - Animated loading overlay with pulsing logo and spinner
-export { LoadingScreen } from './LoadingScreen';
-export type { LoadingScreenProps } from './LoadingScreen';
-
-// PriceChart - Token price history chart with time period selector
-export { PriceChart } from './PriceChart';
-export type { PriceChartProps } from './PriceChart';
-
-// TokenInfo - Token information display (description, market stats, contract)
-export { TokenInfo } from './TokenInfo';
-export type { TokenInfoProps } from './TokenInfo';
-
-// TokenAbout - Token description/about section with glassmorphism
-export { TokenAbout } from './TokenAbout';
-export type { TokenAboutProps } from './TokenAbout';
-
-// TokenMarketData - Token market statistics with glassmorphism
-export { TokenMarketData } from './TokenMarketData';
-export type { TokenMarketDataProps, MarketData } from './TokenMarketData';
-
-// TokenFeatures - Token characteristics/features badges
-export { TokenFeatures } from './TokenFeatures';
-export type { TokenFeaturesProps } from './TokenFeatures';
-
-// TokenInformationSheet - Bottom sheet modal for token details
 export { TokenInformationSheet } from './TokenInformationSheet';
 export type { TokenInformationSheetProps, CoinInfo } from './TokenInformationSheet';
 
-// TopSheet - Slide-down modal from top of screen
-export { TopSheet } from './TopSheet';
-export type {
-  TopSheetProps,
-  TopSheetAnimationConfig,
-  TopSheetRef,
-} from './TopSheet';
+export { TokenAbout } from './TokenInformationSheet/TokenAbout';
+export type { TokenAboutProps } from './TokenInformationSheet/TokenAbout';
 
-// SettingsSheet - Slide-down settings panel
-export { SettingsSheet } from './SettingsSheet';
-export type {
-  SettingsSheetProps,
-  SettingsOption,
-  SettingsSection,
-} from './SettingsSheet';
+export { TokenMarketData } from './TokenInformationSheet/TokenMarketData';
+export type { TokenMarketDataProps, MarketData } from './TokenInformationSheet/TokenMarketData';
 
-// SettingsPanelStack - Stacking panel navigation for settings
-export { SettingsPanelStack } from './SettingsPanelStack';
-export type {
-  MobilePanelContentProps,
-  MobilePanelRenderer,
-  MobilePanelRegistry,
-  MobileSettingsPanelStackProps,
-} from './SettingsPanelStack';
+export { TokenFeatures } from './TokenInformationSheet/TokenFeatures';
+export type { TokenFeaturesProps } from './TokenInformationSheet/TokenFeatures';
 
-// WalletSwitcherSheet - Account selection sheet
-export { WalletSwitcherSheet } from './WalletSwitcherSheet';
-export type {
-  WalletSwitcherSheetProps,
-  AccountListItemProps,
-} from './WalletSwitcherSheet';
+export { TokenInfo } from './TokenInformationSheet/TokenInfo';
+export type { TokenInfoProps } from './TokenInformationSheet/TokenInfo';
 
-// BlurContainer - Reusable blur effect component
-export { BlurContainer, BlurTargetProvider } from './BlurContainer';
-export type { BlurContainerProps, BlurTint } from './BlurContainer';
+export { PriceChart } from './PriceChart';
+export type { PriceChartProps } from './PriceChart';
 
-// NftCard - NFT display card for grid layouts
+// ---------------------------------------------------------------------------
+// NFT
+// ---------------------------------------------------------------------------
+
 export { NftCard, NftCardSkeleton } from './NftCard';
 export type {
   NftCardProps,
@@ -171,47 +177,22 @@ export type {
   BitcoinNftData,
 } from './NftCard';
 
-// NftDetailSheet - Bottom sheet modal for NFT details
 export { NftDetailSheet } from './NftDetailSheet';
 export type { NftDetailSheetProps, NftDetailData } from './NftDetailSheet';
 
-// NftCarouselSection - Netflix-style horizontal carousel for NFTs by blockchain
 export { NftCarouselSection, NftCarouselSectionSkeleton } from './NftCarouselSection';
-export type {
-  NftCarouselSectionProps,
-  NftCarouselSectionSkeletonProps,
-} from './NftCarouselSection';
+export type { NftCarouselSectionProps, NftCarouselSectionSkeletonProps } from './NftCarouselSection';
 
-// NftSeeAllSheet - Bottom sheet with full NFT grid for a blockchain
 export { NftSeeAllSheet } from './NftSeeAllSheet';
 export type { NftSeeAllSheetProps } from './NftSeeAllSheet';
 
-// NftSendSheet - Bottom sheet for sending an NFT
 export { NftSendSheet } from './NftSendSheet';
 export type { NftSendSheetProps } from './NftSendSheet';
 
-// SVG Icons
-export {
-  WalletSvgIcon,
-  ContentCopySvgIcon,
-  SettingsSvgIcon,
-  SolanaSvgIcon,
-  BitcoinSvgIcon,
-  EthereumSvgIcon,
-  GridViewSvgIcon,
-  HomeSvgIcon,
-  SwapSvgIcon,
-} from './Icon';
+// ---------------------------------------------------------------------------
+// Transaction
+// ---------------------------------------------------------------------------
 
-// ScalesBackground - Repeating fish scales pattern background
-export { ScalesBackground } from './ScalesBackground';
-export type { ScalesBackgroundProps } from './ScalesBackground';
-
-// ReceiveSheet - Bottom sheet for receiving tokens with QR code
-export { ReceiveSheet } from './ReceiveSheet';
-export type { ReceiveSheetProps } from './ReceiveSheet';
-
-// TransactionHistorySheet - Bottom sheet for transaction history
 export { TransactionHistorySheet, TransactionItem } from './TransactionHistorySheet';
 export type {
   TransactionHistorySheetProps,
@@ -223,11 +204,15 @@ export type {
   TransactionFee,
 } from './TransactionHistorySheet';
 
-// TransactionDetailModal - Bottom sheet modal for transaction details
 export { TransactionDetailModal } from './TransactionDetailModal';
 export type { TransactionDetailModalProps } from './TransactionDetailModal';
 
-// SendSheet - Bottom sheet for sending tokens
+export { TransactionSuccessScreen } from './TransactionSuccessScreen';
+
+// ---------------------------------------------------------------------------
+// Send / Swap / Bridge
+// ---------------------------------------------------------------------------
+
 export { SendSheet } from './SendSheet';
 export type {
   SendSheetProps,
@@ -236,7 +221,6 @@ export type {
   BlockchainType as SendSheetBlockchainType,
 } from './SendSheet';
 
-// SwapScreen - Swap and Bridge interface
 export {
   SwapScreen,
   SwapTabSelector,
@@ -259,13 +243,11 @@ export type {
   SwapReviewCardProps,
   SwapInputScreenProps,
   SwapReviewScreenProps,
-  // Bridge types used in SwapScreen
   BridgeTokenSimple,
   BridgeEstimateSimple,
   BridgeExchangeSimple,
 } from './SwapScreen';
 
-// BridgeScreen - Cross-chain swap sub-screens (used by SwapScreen)
 export {
   BridgeRecipientScreen,
   BridgeReviewScreen,
@@ -281,90 +263,81 @@ export type {
   RecipientAddressInputProps,
 } from './BridgeScreen';
 
-// LockScreenOverlay - Animated lock screen overlay with slide animation
-export { LockScreenOverlay } from './LockScreenOverlay';
+// ---------------------------------------------------------------------------
+// Settings
+// ---------------------------------------------------------------------------
+
+export { SettingsSheet } from './SettingsSheet';
+export type { SettingsSheetProps, SettingsOption, SettingsSection } from './SettingsSheet';
+
+export { SettingsPanelStack } from './SettingsPanelStack';
 export type {
-  LockScreenOverlayProps,
-  BiometricConfig,
-  BiometricAuthState,
-} from './LockScreenOverlay';
+  MobilePanelContentProps,
+  MobilePanelRenderer,
+  MobilePanelRegistry,
+  MobileSettingsPanelStackProps,
+} from './SettingsPanelStack';
 
-// GlassTabBar - Glass-effect bottom tab bar with Liquid Glass support
-export { GlassTabBar } from './GlassTabBar';
-export type { GlassTabBarProps, TabConfig } from './GlassTabBar';
-
-// DerivedAccountCard - Selectable card for derived account import screen
-export { DerivedAccountCard, DerivedAccountCardSkeleton } from './DerivedAccountCard';
-export type {
-  DerivedAccountCardProps,
-  DerivedAccountCardSkeletonProps,
-} from './DerivedAccountCard';
-
-// SubAccountSelector - Horizontal pill selector for derived account path indexes
-export { SubAccountSelector } from './SubAccountSelector';
-export type { SubAccount, SubAccountSelectorProps } from './SubAccountSelector';
-
-// SettingsScreenLayout - Reusable layout for settings screens
 export { SettingsScreenLayout } from './SettingsScreenLayout';
-
-// NetworkSelector - Network selection for settings
-export { NetworkSelector } from './NetworkSelector';
-
-// ExplorerSelector - Block explorer selection for settings
-export { ExplorerSelector } from './ExplorerSelector';
-
-// LanguageSelector - Language selection for settings
-export { LanguageSelector } from './LanguageSelector';
-
-// CurrencySelector - Currency selection for settings
-export { CurrencySelector } from './CurrencySelector';
-
-// AddressBook - Address book management for settings
-export { AddressBookPanel } from './AddressBookPanel';
-export { AddressAddPanel } from './AddressAddPanel';
-export { AddressEditPanel } from './AddressEditPanel';
-
-// TrustedAppsSelector - Connected dApps management for settings
-export { TrustedAppsSelector } from './TrustedAppsSelector';
-
-// SupportSelector - Help & Support for settings
-export { SupportSelector } from './SupportSelector';
-
-// PrivateKeyPanel - Private key reveal with biometric auth
-export { PrivateKeyPanel } from './PrivateKeyPanel';
-export type { PrivateKeyPanelProps } from './PrivateKeyPanel';
-
-// AccountAvatarPanel - Avatar selection with presets and NFTs
-export { AccountAvatarPanel } from './AccountAvatarPanel';
-export type { AccountAvatarPanelProps } from './AccountAvatarPanel';
-
 export type { SettingsScreenLayoutProps } from './SettingsScreenLayout';
 
-// AccountsPanel - Account management list
-export { AccountsPanel } from './AccountsPanel';
-export type { AccountsPanelProps } from './AccountsPanel';
+export {
+  SettingsHeaderContext,
+  useSettingsHeader,
+  useSettingsHeaderOverride,
+} from './SettingsHeaderContext';
+export type { SettingsHeaderState } from './SettingsHeaderContext';
 
-// AccountEditPanel - Account editing options
-export { AccountEditPanel } from './AccountEditPanel';
-export type { AccountEditPanelProps } from './AccountEditPanel';
+// Settings Selectors
+export { LanguageSelector } from './SettingsSelectors/LanguageSelector';
+export { NetworkSelector } from './SettingsSelectors/NetworkSelector';
+export { CurrencySelector } from './SettingsSelectors/CurrencySelector';
+export { ExplorerSelector } from './SettingsSelectors/ExplorerSelector';
+export { SettingsSelectorList } from './SettingsSelectors/SettingsSelectorList';
+export type { SettingsSelectorListProps } from './SettingsSelectors/SettingsSelectorList';
 
-// AccountNamePanel - Edit account name
-export { AccountNamePanel } from './AccountNamePanel';
-export type { AccountNamePanelProps } from './AccountNamePanel';
+export { TrustedAppsSelector } from './TrustedAppsSelector';
+export { SupportSelector } from './SupportSelector';
 
-// AccountAddPanel - Multi-step account creation
-export { AccountAddPanel } from './AccountAddPanel';
-export type { AccountAddPanelProps } from './AccountAddPanel';
+// ---------------------------------------------------------------------------
+// Account Management
+// ---------------------------------------------------------------------------
 
-// SecurityPanel - Security settings with password change and biometrics
+export { AccountsPanel } from './AccountPanels/AccountsPanel';
+export type { AccountsPanelProps } from './AccountPanels/AccountsPanel';
+
+export { AccountEditPanel } from './AccountPanels/AccountEditPanel';
+export type { AccountEditPanelProps } from './AccountPanels/AccountEditPanel';
+
+export { AccountNamePanel } from './AccountPanels/AccountNamePanel';
+export type { AccountNamePanelProps } from './AccountPanels/AccountNamePanel';
+
+export { AccountAddPanel } from './AccountPanels/AccountAddPanel';
+export type { AccountAddPanelProps } from './AccountPanels/AccountAddPanel';
+
+export { AccountAvatarPanel } from './AccountPanels/AccountAvatarPanel';
+export type { AccountAvatarPanelProps } from './AccountPanels/AccountAvatarPanel';
+
+// ---------------------------------------------------------------------------
+// Address Book
+// ---------------------------------------------------------------------------
+
+export { AddressBookPanel } from './AddressPanels/AddressBookPanel';
+export { AddressAddPanel } from './AddressPanels/AddressAddPanel';
+export { AddressEditPanel } from './AddressPanels/AddressEditPanel';
+
+// ---------------------------------------------------------------------------
+// Security
+// ---------------------------------------------------------------------------
+
 export { SecurityPanel } from './SecurityPanel';
 export type { SecurityPanelProps } from './SecurityPanel';
 
-// BackupPanel - Seed phrase backup/export
-export { BackupPanel } from './BackupPanel';
+export { PrivateKeyPanel } from './PrivateKeyPanel';
+export type { PrivateKeyPanelProps } from './PrivateKeyPanel';
 
-// AboutPanel - App info and links
+export { BackupPanel } from './BackupPanel';
 export { AboutPanel } from './AboutPanel';
 
-// ShimmerRect - Inline shimmer loading placeholder
-export { ShimmerRect } from './ShimmerRect';
+export { LockScreenOverlay } from './LockScreenOverlay';
+export type { LockScreenOverlayProps, BiometricConfig, BiometricAuthState } from './LockScreenOverlay';
