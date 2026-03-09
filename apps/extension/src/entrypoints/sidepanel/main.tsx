@@ -25,6 +25,7 @@ const waitForLayout = (): Promise<void> =>
       resolve();
       return;
     }
+
     const check = () => {
       if (window.innerWidth > 0 && window.innerHeight > 0) {
         resolve();
@@ -32,6 +33,7 @@ const waitForLayout = (): Promise<void> =>
         requestAnimationFrame(check);
       }
     };
+
     requestAnimationFrame(check);
   });
 
@@ -53,7 +55,25 @@ const waitForLayout = (): Promise<void> =>
     </React.StrictMode>
   );
 
-  // Connect a persistent port so the background knows the side panel is open.
-  // The background uses this to route dApp approvals to the panel instead of a popup window.
-  chrome.runtime.connect({ name: 'salmon_sidepanel' });
+  // ----------------------------
+  // CONNECT SIDE PANEL TO BACKGROUND
+  // ----------------------------
+
+  const port = chrome.runtime.connect({ name: 'salmon_sidepanel' });
+
+  // Receive messages from background
+  port.onMessage.addListener((msg) => {
+    console.log('Message from background:', msg);
+
+    if (msg.type === 'CONNECT_REQUEST') {
+      // acá podés disparar la UI de aprobación
+      window.dispatchEvent(
+        new CustomEvent('salmon_connect_request', { detail: msg.data })
+      );
+    }
+  });
+
+  port.onDisconnect.addListener(() => {
+    console.warn('Sidepanel disconnected from background');
+  });
 })();

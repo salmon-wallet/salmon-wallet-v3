@@ -57,18 +57,21 @@ export default defineConfig({
     description: '__MSG_extDescription__',
     // Set default locale for i18n
     default_locale: 'en',
-    version: '1.0.0',
+    version: '0.9.1',
     icons: {
       16: 'icon.png',
       48: 'icon.png',
       128: 'icon-192.png',
       512: 'icon-512.png',
     },
-    permissions: ['storage', 'alarms', 'tabs', 'clipboardRead'],
+    permissions: ['storage', 'alarms', 'clipboardRead'],
     host_permissions: [
       'https://te4x28v8e0.execute-api.us-east-1.amazonaws.com/*',
       'https://d1fh2pwo7kzely.cloudfront.net/*',
     ],
+    side_panel: {
+      default_path: 'entrypoints/sidepanel/index.html',
+    },
     web_accessible_resources: [
       {
         resources: ['injected.js'],
