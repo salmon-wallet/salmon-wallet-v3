@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
 import { RecipientAddressInput } from './RecipientAddressInput';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import type { BridgeRecipientScreenProps } from './types';
@@ -20,16 +21,17 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
   addressError,
   style,
 }) => {
+  const { t } = useTranslation();
   const canContinue = isValidAddress && recipientAddress.length > 0;
 
   return (
     <View style={[styles.container, style]}>
       {/* Title */}
-      <Text style={styles.title}>Recipient Address</Text>
+      <Text style={styles.title}>{t('bridge.recipient.title', 'Recipient Address')}</Text>
 
       {/* Description */}
       <Text style={styles.description}>
-        Enter the address where you want to receive your swapped tokens
+        {t('bridge.recipient.description', 'Enter the address where you want to receive your swapped tokens')}
         {targetChain ? ` on ${targetChain.name}` : ''}.
       </Text>
 
@@ -39,17 +41,17 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
           value={recipientAddress}
           onChangeValue={onAddressChange}
           targetChain={targetChain}
-          label="Destination Address"
-          placeholder="Enter recipient address"
+          label={t('bridge.recipient.destinationAddress', 'Destination Address')}
+          placeholder={t('bridge.recipient.enterRecipientAddress', 'Enter recipient address')}
           error={addressError}
         />
       </View>
 
       {/* Info Box */}
       <View style={styles.infoBox}>
-        <Text style={styles.infoTitle}>Important</Text>
+        <Text style={styles.infoTitle}>{t('bridge.recipient.important', 'Important')}</Text>
         <Text style={styles.infoText}>
-          Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.
+          {t('bridge.recipient.importantText', 'Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.')}
         </Text>
       </View>
 
@@ -59,7 +61,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
           onPress={onBack}
           style={styles.backButton}
         >
-          Back
+          {t('actions.back', 'Back')}
         </SecondaryButton>
         <LinearGradient
           colors={canContinue ? gradients.primaryButton.colors : gradients.disabled.colors}
@@ -75,7 +77,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
             disabled={!canContinue}
             style={styles.continueButton}
           >
-            Review
+            {t('bridge.recipient.review', 'Review')}
           </PrimaryButton>
         </LinearGradient>
       </View>
@@ -90,21 +92,21 @@ const styles = StyleSheet.create({
     paddingTop: vs(spacing['2xl']),
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.24,
-    lineHeight: ms(24 * 1.3),
+    letterSpacing: letterSpacing.wide,
+    lineHeight: ms(24 * lineHeight.condensed),
     marginBottom: vs(spacing.md),
   },
   description: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
     textAlign: 'center',
-    letterSpacing: 0.02,
-    lineHeight: ms(20),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.base * lineHeight.tokenListItem),
     marginBottom: vs(spacing['2xl']),
   },
   inputContainer: {
@@ -113,24 +115,24 @@ const styles = StyleSheet.create({
   infoBox: {
     backgroundColor: colors.background.tokenItem,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     padding: s(spacing.base),
     marginBottom: vs(spacing['2xl']),
   },
   infoTitle: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
-    letterSpacing: 0.02,
+    letterSpacing: letterSpacing.normal,
   },
   infoText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
-    letterSpacing: 0.018,
-    lineHeight: ms(18),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -142,28 +144,24 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
-    height: vs(42),
-    borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    height: vs(componentSizes.buttonHeightCompact),
+    borderWidth: borderWidth.accent,
+    borderColor: colors.accent.border,
     borderRadius: borderRadius.lg,
-    backgroundColor: '#1f232f',
+    backgroundColor: colors.button.cancelBackground,
   },
   continueButtonGradient: {
     flex: 1,
     borderRadius: borderRadius.lg,
-    borderWidth: 0.8,
+    borderWidth: borderWidth.accent,
     borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 8,
+    ...shadows.button,
   },
   continueButtonGradientActive: {
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
   },
   continueButton: {
-    height: vs(42),
+    height: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

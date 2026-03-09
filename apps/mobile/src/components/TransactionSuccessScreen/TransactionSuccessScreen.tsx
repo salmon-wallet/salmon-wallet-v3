@@ -11,7 +11,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, gradients, componentSizes, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 import { PrimaryButton } from '../Button';
 
@@ -156,32 +156,32 @@ const styles = StyleSheet.create({
     paddingBottom: vs(componentSizes.tabBarHeight + spacing.xl),
   },
   circleOuter: {
-    width: vs(96),
-    height: vs(96),
+    width: vs(componentSizes.successCircleSize),
+    height: vs(componentSizes.successCircleSize),
     borderRadius: vs(48),
-    backgroundColor: '#10B981',
+    backgroundColor: colors.status.success,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: vs(spacing['3xl']),
   },
   checkmark: {
-    fontSize: ms(44),
-    color: '#FFFFFF',
-    fontWeight: '700',
+    fontSize: ms(fontSize['5xl']),
+    color: colors.text.primary,
+    fontWeight: fontWeight.bold,
   },
   textContainer: {
     alignItems: 'center',
     marginBottom: vs(spacing.lg),
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     textAlign: 'center',
     marginBottom: vs(spacing.sm),
   },
   summary: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
     textAlign: 'center',
@@ -194,13 +194,13 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing.xl),
   },
   bridgeLabel: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
     marginBottom: vs(spacing.xs),
   },
   bridgeValue: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
     marginBottom: vs(spacing.md),
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['4xl']),
   },
   explorerLink: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.accent.primary,
     textAlign: 'center',
@@ -221,17 +221,13 @@ const styles = StyleSheet.create({
   },
   buttonGradient: {
     borderRadius: borderRadius.lg,
-    borderWidth: 0.8,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 8,
+    borderWidth: borderWidth.accent,
+    borderColor: colors.accent.border,
+    ...shadows.button,
   },
   button: {
-    minWidth: s(180),
-    height: vs(42),
+    minWidth: s(componentSizes.copyButtonWidth),
+    height: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

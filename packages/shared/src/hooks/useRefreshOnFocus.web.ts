@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { DEFAULT_CACHE_TTL, type UseRefreshOnFocusOptions } from './useRefreshOnFocus';
+import { DEFAULT_CACHE_TTL, type UseRefreshOnFocusOptions } from './useRefreshOnFocus.shared';
 
 /**
  * useRefreshOnFocus — Web implementation

@@ -11,9 +11,9 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { useUserConfig, type UseUserConfigParams } from './useUserConfig';
-import { SOLANA_NETWORKS } from '../blockchain/solana/factory';
-import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/factory';
-import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/factory';
+import { SOLANA_NETWORKS } from '../blockchain/solana/networks';
+import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/networks';
+import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/networks';
 import type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
 import { MAINNET_NETWORK_IDS, filterNetworks } from '../utils/network';
 import { isBlockchainEnabled } from '../config/blockchains';
@@ -99,6 +99,17 @@ export async function fetchAndMergeNetworkConfigs(): Promise<boolean> {
 // ============================================================================
 
 /**
+ * Parameters for useAvailableNetworks.
+ * Extends UseUserConfigParams with an optional developerNetworks override.
+ * When provided, the override takes precedence over the internal useUserConfig value,
+ * allowing callers that already have a useUserConfig instance to avoid stale reads.
+ */
+export interface UseAvailableNetworksParams extends UseUserConfigParams {
+  /** Override developerNetworks value (bypasses internal useUserConfig read) */
+  developerNetworks?: boolean;
+}
+
+/**
  * Hook for getting available networks filtered by developer mode.
  *
  * When developerNetworks is FALSE (default), only mainnet networks are returned.
@@ -108,9 +119,10 @@ export async function fetchAndMergeNetworkConfigs(): Promise<boolean> {
  * @returns Available networks and related state
  */
 export function useAvailableNetworks(
-  params: UseUserConfigParams
+  params: UseAvailableNetworksParams
 ): UseAvailableNetworksResult {
-  const { developerNetworks, isLoading } = useUserConfig(params);
+  const { developerNetworks: configDeveloperNetworks, isLoading } = useUserConfig(params);
+  const developerNetworks = params.developerNetworks ?? configDeveloperNetworks;
   const [apiMerged, setApiMerged] = useState(false);
 
   useEffect(() => {

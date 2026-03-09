@@ -10,15 +10,22 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   colors,
   componentSizes,
+  ContentLoader,
+  Rect,
+  Circle,
   fontFamilyNative,
   ms,
   vs,
   s,
+  fontSize,
+  borderRadius,
+  spacing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -80,15 +87,75 @@ TokenRow.displayName = 'TokenRow';
 // Main Component
 // ============================================================================
 
+const SKELETON_COUNT = 5;
+const SKELETON_ROW_HEIGHT = vs(12) * 2 + ms(32); // paddingVertical * 2 + logo height
+const SKELETON_ROW_WIDTH = 280; // approximate inner width
+
+const TokenSelectSkeleton: React.FC = () => (
+  <View style={styles.container}>
+    {/* Search bar skeleton */}
+    <BlurContainer style={styles.searchContainer}>
+      <ContentLoader
+        speed={1.5}
+        width={SKELETON_ROW_WIDTH}
+        height={vs(20)}
+        viewBox={`0 0 ${SKELETON_ROW_WIDTH} ${vs(20)}`}
+        backgroundColor={colors.skeleton.base}
+        foregroundColor={colors.skeleton.highlight}
+        accessibilityLabel="Loading token list"
+      >
+        <Circle cx={ms(9)} cy={vs(10)} r={ms(9)} />
+        <Rect x={ms(24)} y={vs(4)} rx="4" ry="4" width="120" height={vs(12)} />
+      </ContentLoader>
+    </BlurContainer>
+
+    {/* Section header skeleton */}
+    <View style={styles.skeletonHeaderPlaceholder}>
+      <ContentLoader
+        speed={1.5}
+        width={120}
+        height={ms(18)}
+        viewBox={`0 0 120 ${ms(18)}`}
+        backgroundColor={colors.skeleton.base}
+        foregroundColor={colors.skeleton.highlight}
+      >
+        <Rect x="0" y="0" rx="4" ry="4" width="120" height={ms(18)} />
+      </ContentLoader>
+    </View>
+
+    {/* Token row skeletons */}
+    <View style={styles.skeletonList}>
+      {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+        <BlurContainer key={i} style={styles.tokenRow}>
+          <ContentLoader
+            speed={1.5}
+            width={SKELETON_ROW_WIDTH}
+            height={SKELETON_ROW_HEIGHT}
+            viewBox={`0 0 ${SKELETON_ROW_WIDTH} ${SKELETON_ROW_HEIGHT}`}
+            backgroundColor={colors.skeleton.base}
+            foregroundColor={colors.skeleton.highlight}
+          >
+            <Circle cx={ms(16)} cy={SKELETON_ROW_HEIGHT / 2} r={ms(16)} />
+            <Rect x={ms(40)} y={SKELETON_ROW_HEIGHT / 2 - ms(8)} rx="4" ry="4" width="100" height={ms(16)} />
+            <Rect x={SKELETON_ROW_WIDTH - 80} y={SKELETON_ROW_HEIGHT / 2 - ms(8)} rx="4" ry="4" width="70" height={ms(16)} />
+          </ContentLoader>
+        </BlurContainer>
+      ))}
+    </View>
+  </View>
+);
+
 export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
   tokens,
   onSelectToken,
   showUnverifiedTokens,
+  loading,
 }) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
 
-  // Filter out unverified tokens unless developer mode is enabled
+  // All hooks must be called before any early return (Rules of Hooks)
   const verifiedTokens = useMemo(() => {
     return tokens.filter((token) => {
       const hasMeaningfulTags =
@@ -100,7 +167,6 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
     });
   }, [tokens, showUnverifiedTokens]);
 
-  // Filter tokens by search query
   const filteredTokens = useMemo(() => {
     if (!searchQuery.trim()) return verifiedTokens;
     const query = searchQuery.toLowerCase().trim();
@@ -112,7 +178,6 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
     );
   }, [verifiedTokens, searchQuery]);
 
-  // Handle scroll for top fade gradient
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetY = event.nativeEvent.contentOffset.y;
@@ -131,6 +196,10 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
 
   const keyExtractor = useCallback((item: SendToken) => item.address, []);
 
+  if (loading) {
+    return <TokenSelectSkeleton />;
+  }
+
   return (
     <View style={styles.container}>
       {/* Search Input */}
@@ -143,7 +212,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
         />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search..."
+          placeholder={t('actions.search_placeholder', 'Search...')}
           placeholderTextColor={colors.text.secondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -154,7 +223,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
       </BlurContainer>
 
       {/* Section Header */}
-      <Text style={styles.sectionHeader}>Select Token</Text>
+      <Text style={styles.sectionHeader}>{t('wallet.select_token', 'Select Token')}</Text>
 
       {/* Token List */}
       <View style={styles.listWrapper}>
@@ -191,38 +260,38 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: ms(8),
-    paddingHorizontal: s(14),
-    height: vs(38),
-    marginBottom: vs(18),
+    borderRadius: ms(borderRadius.md),
+    paddingHorizontal: s(spacing.lg),
+    height: vs(componentSizes.tokenIcon),
+    marginBottom: vs(spacing.headerPadding),
   },
   searchIcon: {
-    marginRight: s(8),
+    marginRight: s(spacing.sm),
   },
   searchInput: {
     flex: 1,
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     paddingVertical: 0,
   },
   sectionHeader: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    marginBottom: vs(12),
+    marginBottom: vs(spacing.md),
   },
   listWrapper: {
     flex: 1,
   },
   listContent: {
-    paddingBottom: vs(30),
-    gap: vs(10),
+    paddingBottom: vs(spacing['3.5xl']),
+    gap: vs(spacing.base),
   },
   topFadeGradient: {
     position: 'absolute',
@@ -235,24 +304,30 @@ const styles = StyleSheet.create({
   tokenRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: ms(10),
-    paddingVertical: vs(12),
-    paddingHorizontal: s(12),
+    borderRadius: ms(borderRadius.badge),
+    paddingVertical: vs(spacing.md),
+    paddingHorizontal: s(spacing.md),
   },
   tokenLogoContainer: {
-    marginRight: s(12),
+    marginRight: s(spacing.md),
   },
   tokenName: {
     flex: 1,
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
-    color: '#d6d6d6',
+    color: colors.text.balance,
   },
   tokenBalance: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
-    color: '#d6d6d6',
-    marginLeft: s(8),
+    color: colors.text.balance,
+    marginLeft: s(spacing.sm),
+  },
+  skeletonHeaderPlaceholder: {
+    marginBottom: vs(spacing.md),
+  },
+  skeletonList: {
+    gap: vs(spacing.base),
   },
 });
 

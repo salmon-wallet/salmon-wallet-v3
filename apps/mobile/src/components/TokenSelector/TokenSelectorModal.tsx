@@ -13,7 +13,7 @@ import {
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 
-import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey } from '@salmon/shared';
+import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey, fontSize, fontWeight, } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
 import type { TokenSelectorToken, TokenSelectorModalProps } from './types';
 
@@ -204,7 +204,7 @@ export function TokenSelectorModal({
           <TextInput
             style={styles.searchInput}
             placeholder={t('actions.search_placeholder', 'Search tokens...')}
-            placeholderTextColor={colors.text.placeholder}
+            placeholderTextColor={colors.text.tertiary}
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoCapitalize="none"
@@ -273,8 +273,8 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text.primary,
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
     textAlign: 'center',
   },
   searchContainer: {
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text.primary,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   skeletonContainer: {
     paddingHorizontal: spacing.lg,
@@ -320,27 +320,27 @@ const styles = StyleSheet.create({
   },
   tokenName: {
     color: colors.text.primary,
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.medium,
     padding: 0,
   },
   tokenBalance: {
     color: colors.text.secondary,
-    fontSize: 14,
-    marginTop: 2,
+    fontSize: fontSize.base,
+    marginTop: spacing.xxs,
     padding: 0,
   },
   networkChip: {
     backgroundColor: colors.border.default,
-    borderRadius: 4,
+    borderRadius: borderRadius.sm,
     paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingVertical: spacing.xxs,
     marginLeft: spacing.sm,
   },
   networkChipText: {
     color: colors.text.secondary,
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.semibold,
     padding: 0,
   },
   featuredContainer: {
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   },
   disclaimerText: {
     color: colors.text.secondary,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     textAlign: 'center',
     padding: 0,
   },
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
   searchingText: {
     color: colors.text.secondary,
-    fontSize: 14,
+    fontSize: fontSize.base,
     marginLeft: spacing.sm,
     padding: 0,
   },
@@ -385,8 +385,8 @@ const styles = StyleSheet.create({
   },
   loadMoreText: {
     color: colors.text.primary,
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.medium,
     padding: 0,
   },
   emptyContainer: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: colors.text.secondary,
-    fontSize: 16,
+    fontSize: fontSize.md,
     padding: 0,
   },
   footer: {
@@ -412,8 +412,8 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: colors.text.primary,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
     padding: 0,
   },
 });

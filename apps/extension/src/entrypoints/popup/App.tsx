@@ -202,6 +202,7 @@ function App() {
   useInactivityTimeout({
     timeoutMs: 5 * 60 * 1000,
     onTimeout: () => {
+      void clearSessionKey();
       actions.lockAccounts();
     },
     enabled: ready && !locked && accounts.length > 0 && !justCreated && !isAddingAccount,

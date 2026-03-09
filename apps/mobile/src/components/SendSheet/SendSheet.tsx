@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import {
   colors,
+  fontSize,
   fontFamilyNative,
   ms,
   vs,
@@ -18,6 +19,8 @@ import {
   getTransactionUrl,
   getDefaultExplorer,
   getShortAddress,
+  spacing,
+  componentSizes,
 } from '@salmon/shared';
 import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
@@ -47,6 +50,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
   account,
   onSuccess,
   showUnverifiedTokens,
+  loading,
   style,
 }) => {
   // Bitcoin has only one token (BTC), so skip token selection
@@ -193,6 +197,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
             tokens={tokens}
             onSelectToken={handleSelectToken}
             showUnverifiedTokens={showUnverifiedTokens}
+            loading={loading}
           />
         )}
 
@@ -247,19 +252,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(18),
-    marginBottom: vs(15),
+    paddingHorizontal: s(spacing.headerPadding),
+    marginBottom: vs(spacing.lg),
   },
   backButton: {
     position: 'absolute',
-    left: s(18),
+    left: s(spacing.headerPadding),
     zIndex: 1,
   },
   backButtonSpacer: {
-    width: ms(24),
+    width: ms(componentSizes.iconSizeMedium),
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',

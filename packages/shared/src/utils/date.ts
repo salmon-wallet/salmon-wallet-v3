@@ -118,16 +118,29 @@ export function formatBlockNumber(slot: number): string {
 // ============================================================================
 
 /**
- * Short relative time: "Just now", "5m ago", "2h ago", "3d ago", or date
+ * Short relative time: "Just now", "5m ago", "2h ago", "3d ago", or date.
+ *
+ * Pass an optional `t` translation function to get localized output.
+ * Without `t`, returns English strings (backward-compatible).
  */
-export function formatRelativeTimeCompact(timestamp: number): string {
+export function formatRelativeTimeCompact(
+  timestamp: number,
+  t?: (key: string, options?: Record<string, unknown>) => string,
+): string {
   const now = Date.now() / 1000;
   const diff = now - timestamp;
 
-  if (diff < 60) return 'Just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  if (t) {
+    if (diff < 60) return t('time.justNow');
+    if (diff < 3600) return t('time.minutesAgo', { count: Math.floor(diff / 60) });
+    if (diff < 86400) return t('time.hoursAgo', { count: Math.floor(diff / 3600) });
+    if (diff < 604800) return t('time.daysAgo', { count: Math.floor(diff / 86400) });
+  } else {
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  }
 
   const date = fromUnixTime(timestamp);
   const currentYear = new Date().getFullYear();

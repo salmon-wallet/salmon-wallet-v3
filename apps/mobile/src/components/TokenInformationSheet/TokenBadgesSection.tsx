@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { colors, ms, s, spacing, vs } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, componentSizes, ms, s, spacing, vs, borderRadius } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
@@ -259,7 +259,7 @@ export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
 
 const styles = StyleSheet.create({
   glassWrapper: {
-    borderRadius: 18,
+    borderRadius: borderRadius.iconContainer,
     marginHorizontal: s(spacing['2xl']),
     overflow: 'hidden',
   },
@@ -267,8 +267,8 @@ const styles = StyleSheet.create({
     padding: s(spacing.md),
   },
   title: {
-    fontSize: ms(14),
-    fontFamily: 'DMSansSemiBold',
+    fontSize: ms(fontSize.base),
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     marginBottom: vs(spacing.md),
     letterSpacing: ms(-0.07, 0.3),
@@ -281,19 +281,19 @@ const styles = StyleSheet.create({
   },
   badgeItem: {
     alignItems: 'center',
-    minWidth: s(55),
+    minWidth: s(componentSizes.badgeMinWidth),
   },
   badgeIcon: {
-    width: s(40),
-    height: s(40),
+    width: s(componentSizes.iconSize2XL),
+    height: s(componentSizes.iconSize2XL),
     borderRadius: s(20),
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: vs(spacing.xs),
   },
   badgeLabel: {
-    fontSize: ms(10),
-    fontFamily: 'DMSansMedium',
+    fontSize: ms(fontSize.xs),
+    fontFamily: fontFamilyNative.medium,
     textAlign: 'center',
     letterSpacing: ms(-0.05, 0.3),
   },

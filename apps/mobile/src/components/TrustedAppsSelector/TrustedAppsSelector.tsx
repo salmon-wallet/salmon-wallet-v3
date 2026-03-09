@@ -23,7 +23,7 @@ import {
   fontFamilyNative,
   type TrustedAppsSelectorBaseProps,
   type TrustedAppItem,
-} from '@salmon/shared';
+fontSize, opacity, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -147,26 +147,26 @@ const styles = StyleSheet.create({
   appIcon: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: borderRadius.iconContainer,
+    backgroundColor: colors.card.border,
   },
   appIconPlaceholder: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: borderRadius.iconContainer,
+    backgroundColor: colors.card.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   appText: {
     flex: 1,
     marginLeft: spacing.md,
-    gap: 2,
+    gap: spacing.xxs,
   },
   appName: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   appDomain: {
     color: colors.text.secondary,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   revokeButtonDisabled: {
-    opacity: 0.4,
+    opacity: opacity.faint,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -189,13 +189,13 @@ const styles = StyleSheet.create({
   emptyText: {
     color: colors.text.secondary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 14,
+    fontSize: fontSize.base,
     textAlign: 'center',
   },
   emptySubtext: {
-    color: 'rgba(255, 255, 255, 0.4)',
+    color: colors.text.disabled,
     fontFamily: fontFamilyNative.regular,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     textAlign: 'center',
   },
 });

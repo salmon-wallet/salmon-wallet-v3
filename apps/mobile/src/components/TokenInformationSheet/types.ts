@@ -1,6 +1,6 @@
 import type { ViewStyle } from 'react-native';
 import type { TokenInformationSheetPropsBase } from '@salmon/shared';
-import type { MarketData } from '../TokenMarketData';
+import type { MarketData } from './TokenMarketData';
 
 // Re-export CoinInfo for consumers
 export type { CoinInfo } from '@salmon/shared';

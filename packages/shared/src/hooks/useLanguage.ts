@@ -10,6 +10,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import i18n from 'i18next';
 import { getStorage, STORAGE_KEYS } from '../storage';
 import {
   AVAILABLE_LANGUAGES,
@@ -111,9 +112,11 @@ export function useLanguage(): UseLanguageResult {
 
         if (savedLanguage && AVAILABLE_LANGUAGES.includes(savedLanguage)) {
           setLanguage(savedLanguage);
+          await i18n.changeLanguage(savedLanguage);
         } else {
           // Set default language if no valid preference exists
           setLanguage(DEFAULT_LANGUAGE);
+          await i18n.changeLanguage(DEFAULT_LANGUAGE);
           await storage.setItem(STORAGE_KEYS.LANGUAGE, DEFAULT_LANGUAGE);
         }
       } catch (error) {
@@ -137,8 +140,9 @@ export function useLanguage(): UseLanguageResult {
         return;
       }
 
-      // Update local state
+      // Update local state + i18next
       setLanguage(languageCode);
+      await i18n.changeLanguage(languageCode);
 
       // Persist to storage
       try {

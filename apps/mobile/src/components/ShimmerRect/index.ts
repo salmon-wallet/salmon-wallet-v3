@@ -1,0 +1,1 @@
+export { ShimmerRect } from './ShimmerRect';

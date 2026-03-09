@@ -1,4 +1,10 @@
 {
+  "time": {
+    "justNow": "Justo ahora",
+    "minutesAgo": "hace {{count}}m",
+    "hoursAgo": "hace {{count}}h",
+    "daysAgo": "hace {{count}}d"
+  },
   "tabs": {
     "wallet": "Billetera",
     "swap": "Intercambiar",
@@ -30,7 +36,20 @@
       "EMPTY_ACCOUNT": "Esta dirección no tiene fondos. Por favor verifica si la dirección es correcta.",
       "NO_FUNDS": "La dirección no tiene fondos"
     },
-    "open_explorer": "Abrir en explorer"
+    "open_explorer": "Abrir en explorer",
+    "tip": "Consejo",
+    "tips": {
+      "0": "Nunca compartas tu frase de recuperación con nadie",
+      "1": "Siempre verifica los detalles de la transacción antes de firmar",
+      "2": "Guarda tu frase de recuperación en un lugar seguro y sin conexión",
+      "3": "Habilita la autenticación biométrica para mayor seguridad",
+      "4": "Verifica las direcciones de billetera antes de enviar",
+      "5": "Tus llaves, tu cripto - mantén el control",
+      "6": "Guarda en favoritos los sitios oficiales para evitar phishing",
+      "7": "Comienza con transacciones de prueba pequeñas",
+      "8": "Mantén tu app actualizada para parches de seguridad",
+      "9": "Usa una billetera de hardware para grandes cantidades"
+    }
   },
   "actions": {
     "approve": "Aprobar",
@@ -59,7 +78,8 @@
     "follow_us": "¡Síguenos!",
     "bridge": "Bridge",
     "retry": "Reintentar",
-    "searching": "Buscando..."
+    "searching": "Buscando...",
+    "activity": "Actividad"
   },
   "dapp": {
     "connect_title": "Conectar con dApp",
@@ -200,7 +220,8 @@
       "scan_complete": "Búsqueda completada",
       "confirm_create": "Crear Cuenta",
       "confirm_import": "Importar Cuenta",
-      "confirm": "Confirmar"
+      "confirm": "Confirmar",
+      "creation_error": "Error al crear la cuenta. Por favor, inténtalo de nuevo."
     },
     "security": {
       "title": "Seguridad",
@@ -228,6 +249,8 @@
     },
     "receive": {
       "title": "Recibir",
+      "copyAddress": "Copiar dirección",
+      "copied": "¡Copiado!",
       "warning": "Esta dirección es para tokens en la block chain {{blockchain}}. Por favor, no envíe ningún otro token, ya que puede provocar la pérdida de fondos."
     },
     "send": {
@@ -260,7 +283,46 @@
       "transaction_fail": "Error",
       "goto_explorer": "Ir al Explorer",
       "view_transaction": "Ver transacción",
-      "empty_account_fee": "No es posible estimar la comisión porque la cuenta de destino está vacía"
+      "empty_account_fee": "No es posible estimar la comisión porque la cuenta de destino está vacía",
+      "recipient": "Destinatario",
+      "amountLabel": "Monto",
+      "reviewAndSend": "Revisar y Enviar",
+      "blockchainAddress": "Dirección {{blockchain}}",
+      "networkFee": "Comisión de Red",
+      "sending": "Enviando...",
+      "retry": "Reintentar"
+    },
+    "marketData": {
+      "marketCap": "Capitalización",
+      "rank": "Ranking",
+      "volume24h": "Volumen 24h",
+      "high24h": "Máximo 24h",
+      "low24h": "Mínimo 24h",
+      "circulatingSupply": "Suministro Circulante",
+      "totalSupply": "Suministro Total",
+      "maxSupply": "Suministro Máximo",
+      "allTimeHigh": "Máximo Histórico",
+      "fromATH": "Desde ATH",
+      "athDate": "Fecha ATH",
+      "allTimeLow": "Mínimo Histórico",
+      "fromATL": "Desde ATL",
+      "atlDate": "Fecha ATL"
+    },
+    "info": {
+      "about": "Acerca de",
+      "marketStats": "Estadísticas de Mercado",
+      "marketCap": "Capitalización",
+      "volume24h": "Volumen 24h",
+      "circulating": "Circulante",
+      "totalSupply": "Suministro Total",
+      "maxSupply": "Suministro Máximo",
+      "contractAddress": "Dirección del Contrato",
+      "visitWebsite": "Visitar Sitio Web",
+      "contractAddressCopied": "Dirección del contrato copiada"
+    },
+    "about": {
+      "readMore": "Leer más",
+      "readLess": "Leer menos"
     },
     "balance": {
       "percentage_info": "Variación de tu posición en las últimas 24 horas."
@@ -366,11 +428,11 @@
       "titleOnboarded": "Nueva Cuenta",
       "titleWelcome": "Bienvenidx",
       "title1": "Bienvenido a Salmon!",
-      "content1": "Your all-in-one & open-source wallet\nfor the crypto space",
-      "title2": "Keep the control\nof your tokens",
-      "content2": "All your assets, in your hands.\nWe don’t have access to them at all.",
-      "title3": "Stay tuned",
-      "content3": "Follow us at ",
+      "content1": "Tu billetera todo-en-uno y de código abierto\npara el mundo cripto",
+      "title2": "Mantén el control\nde tus tokens",
+      "content2": "Todos tus activos, en tus manos.\nNo tenemos acceso a ellos en absoluto.",
+      "title3": "Mantente al día",
+      "content3": "Síguenos en ",
       "content3b": "@salmonwallet"
     },
     "pending_txs": {
@@ -436,7 +498,73 @@
     "from": "De",
     "to": "Para",
     "fee": "Comisión",
-    "memo": "Memo"
+    "memo": "Memo",
+    "historyTitle": "Historial de Transacciones",
+    "noTransactions": "Sin Transacciones",
+    "emptySubtitle": "Tu historial de transacciones aparecerá aquí",
+    "loadError": "Error al cargar transacciones",
+    "tapToRetry": "Toca para reintentar",
+    "showMore": "ver más",
+    "showLess": "ver menos",
+    "detail": {
+      "sent": "Enviado",
+      "received": "Recibido",
+      "swapped": "Intercambiado",
+      "minted": "Acuñado",
+      "burned": "Quemado",
+      "staked": "En Staking",
+      "loan": "Préstamo",
+      "interaction": "Interacción",
+      "unknown": "Desconocido",
+      "completed": "Completado",
+      "failed": "Fallido",
+      "pending": "Pendiente",
+      "processed": "Procesado",
+      "confirmed": "Confirmado",
+      "finalized": "Finalizado",
+      "nftDetails": "Detalles del NFT",
+      "collection": "Colección",
+      "attributes": "Atributos",
+      "dateTime": "Fecha y Hora",
+      "confirmation": "Confirmación",
+      "block": "Bloque",
+      "conversion": "Conversión",
+      "swapRoute": "Ruta del Swap",
+      "addresses": "Direcciones",
+      "networkFee": "Comisión de Red",
+      "swapFee": "Comisión de Swap",
+      "transactionHash": "Hash de Transacción",
+      "developerInfo": "Info de Desarrollador",
+      "heliusType": "Tipo Helius",
+      "accountsInvolved": "Cuentas Involucradas",
+      "programs": "Programas",
+      "innerSwaps": "Swaps Internos",
+      "swapFees": "Comisiones de Swap",
+      "sentLabel": "Enviado",
+      "receivedLabel": "Recibido",
+      "priceImpact": "Impacto en el Precio",
+      "rate": "Tasa",
+      "feePayer": "Pagador de Comisión",
+      "share": "Compartir",
+      "route": "Ruta",
+      "viaSource": "vía {{source}}",
+      "hopCount_one": "{{count}} salto",
+      "hopCount_other": "{{count}} saltos",
+      "nMore": "+{{count}} más",
+      "totalFees": "Comisiones Totales",
+      "time": "Hora",
+      "txHash": "Hash Tx",
+      "accounts": "Cuentas",
+      "swapFeesNative": "Comisiones de Swap (Nativas)",
+      "feeCount_one": "{{count}} comisión",
+      "feeCount_other": "{{count}} comisiones",
+      "routeHops": "Saltos de Ruta",
+      "viewOnExplorer": "Ver en Explorer",
+      "viewOn": "Ver en {{name}}",
+      "copyAddressLabel": "Copiar dirección de {{label}}",
+      "innerCount": "{{count}} internas",
+      "copyTransactionHash": "Copiar hash de transacción"
+    }
   },
   "nft": {
     "description": "Descripción",
@@ -481,7 +609,30 @@
     "burn_nft": "Quemar",
     "burning": "Quemando",
     "update": "update",
-    "status_pending": "Esperando confirmación"
+    "status_pending": "Esperando confirmación",
+    "detail": {
+      "description": "Descripción",
+      "attributes": "Atributos",
+      "details": "Detalles",
+      "tokenStandard": "Estándar del Token",
+      "compressed": "Comprimido",
+      "collectionVerified": "Colección Verificada",
+      "royalties": "Regalías",
+      "tokenType": "Tipo de Token",
+      "contract": "Contrato",
+      "tokenId": "ID del Token",
+      "balance": "Balance",
+      "inscriptionNumber": "Inscripción #",
+      "rarity": "Rareza",
+      "contentType": "Tipo de Contenido",
+      "genesisBlock": "Bloque Génesis"
+    },
+    "send": {
+      "title": "Enviar NFT",
+      "sending": "Enviando NFT...",
+      "enterRecipientAddress": "Ingresa la dirección del destinatario",
+      "ordinalsNotSupported": "Las transferencias de Ordinals aún no están soportadas."
+    }
   },
   "swap": {
     "swap": "Swap",
@@ -511,7 +662,17 @@
     "minimum_amount": "El monto debe ser mayor a $1 USD",
     "not_available_on_network": "Swap no está disponible en esta red",
     "select_solana_network": "Selecciona una red de Solana para continuar",
-    "showing_verified_tokens": "Mostrando tokens verificados. Busca para encontrar otros tokens."
+    "showing_verified_tokens": "Mostrando tokens verificados. Busca para encontrar otros tokens.",
+    "review": {
+      "title": "Revisión de Swap",
+      "salmonFee": "Comisión Salmon",
+      "route": "Ruta",
+      "totalPriceImpact": "Impacto Total en el Precio",
+      "pleaseNote": "Nota Importante",
+      "pleaseNoteText": "Las tasas de swap son estimadas. El monto real que recibirás puede variar debido al deslizamiento y las condiciones del mercado. Las transacciones son irreversibles una vez confirmadas.",
+      "confirmSwap": "Confirmar",
+      "reviewAndSwap": "Revisar y Swap"
+    }
   },
   "bridge": {
     "bridge": "Bridge",
@@ -521,8 +682,30 @@
     "provider_error": "Actualmente el proveedor de Bridge no está respondiendo.\nPor favor vuelve a intentar más tarde.",
     "recipient_type": "Wallet de destino:",
     "you_pay": "Pagas",
-    "own_wallet_alert": "Keep in mind that to see the tokens you will receive, you will have to switch from this {{from}} Wallet to the {{to}} one from the menu.",
-    "other_wallet_alert": "Keep in mind that the tokens you will receive are being sent to a {{to}} Wallet that it’s not configured in Salmon. You will not see the tokens unless you open that wallet."
+    "own_wallet_alert": "Ten en cuenta que para ver los tokens que recibirás, deberás cambiar de esta Billetera {{from}} a la de {{to}} desde el menú.",
+    "other_wallet_alert": "Ten en cuenta que los tokens que recibirás se envían a una Billetera {{to}} que no está configurada en Salmon. No verás los tokens a menos que abras esa billetera.",
+    "recipient": {
+      "title": "Dirección del Destinatario",
+      "description": "Ingresa la dirección donde deseas recibir tus tokens intercambiados",
+      "destinationAddress": "Dirección de Destino",
+      "enterRecipientAddress": "Ingresa la dirección del destinatario",
+      "important": "Importante",
+      "importantText": "Asegúrate de que la dirección sea correcta. Las transacciones entre cadenas no se pueden revertir una vez iniciadas.",
+      "review": "Revisar"
+    },
+    "review": {
+      "title": "Revisión de Swap",
+      "youReceiveEstimated": "Recibes (estimado)",
+      "recipient": "Destinatario",
+      "fromNetwork": "Red de Origen",
+      "toNetwork": "Red de Destino",
+      "minimumAmount": "Monto Mínimo",
+      "estimatedOutput": "Salida Estimada",
+      "provider": "Proveedor",
+      "pleaseNote": "Nota Importante",
+      "pleaseNoteText": "Los swaps entre cadenas típicamente tardan de 10 a 30 minutos en completarse. Recibirás una dirección de depósito después de la confirmación.",
+      "confirmSwap": "Confirmar Swap"
+    }
   },
   "header": {
     "connected": "Conectado a {{hostname}}",

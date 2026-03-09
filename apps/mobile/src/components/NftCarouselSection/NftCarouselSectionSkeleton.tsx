@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dimensions, View, StyleSheet, ScrollView } from 'react-native';
 import { ContentLoader, Rect } from '@salmon/shared';
-import { colors, ms, s, vs } from '@salmon/shared';
+import { colors, ms, s, vs, spacing, } from '@salmon/shared';
 import type { NftCarouselSectionSkeletonProps } from './types';
 
 // Card dimensions for carousel (matches Figma node 1702:6142 — ~194x193pt)
@@ -122,18 +122,18 @@ export const NftCarouselSectionSkeleton: React.FC<NftCarouselSectionSkeletonProp
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: vs(24),
+    marginBottom: vs(spacing['2xl']),
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: s(18),
-    marginBottom: vs(12),
+    paddingHorizontal: s(spacing.headerPadding),
+    marginBottom: vs(spacing.md),
     height: HEADER_HEIGHT,
   },
   scrollContent: {
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
     gap: CARD_GAP,
   },
   cardWrapper: {

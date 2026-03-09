@@ -620,27 +620,54 @@ describe('Price Service', () => {
       expect(mockApiClientGet).toHaveBeenCalledWith('/v1/solana-devnet/ft/price/' + KNOWN_MINTS.USDC);
     });
 
-    it('should return null when token price not found (404)', async () => {
+    it('should fallback to CoinGecko when backend returns 404', async () => {
       const notFoundError = new ApiError('Token not found', 404, 'NOT_FOUND');
       mockApiClientGet.mockRejectedValueOnce(notFoundError);
+      // CoinGecko fallback
+      mockStaticApiClientGet.mockResolvedValueOnce({ data: MOCK_SOLANA_PRICES });
+
+      const result = await getSolanaTokenPrice(KNOWN_MINTS.USDC, 'solana-mainnet', 'usd-coin');
+
+      expect(result).not.toBeNull();
+      expect(result!.usdPrice).toBe(1.0);
+    });
+
+    it('should fallback to CoinGecko when backend returns 200 without usdPrice', async () => {
+      mockApiClientGet.mockResolvedValueOnce({ data: {} });
+      // CoinGecko fallback
+      mockStaticApiClientGet.mockResolvedValueOnce({ data: MOCK_SOLANA_PRICES });
+
+      const result = await getSolanaTokenPrice(KNOWN_MINTS.SOL, 'solana-mainnet', 'solana');
+
+      expect(result).not.toBeNull();
+      expect(result!.usdPrice).toBe(100.5);
+    });
+
+    it('should fallback to CoinGecko on backend error (non-404)', async () => {
+      mockApiClientGet.mockRejectedValueOnce(new Error('Server error'));
+      // CoinGecko fallback
+      mockStaticApiClientGet.mockResolvedValueOnce({ data: MOCK_SOLANA_PRICES });
+
+      const result = await getSolanaTokenPrice(KNOWN_MINTS.SOL, 'solana-mainnet', 'solana');
+
+      expect(result).not.toBeNull();
+      expect(result!.usdPrice).toBe(100.5);
+    });
+
+    it('should return null when both backend and CoinGecko fail', async () => {
+      mockApiClientGet.mockRejectedValueOnce(new Error('Server error'));
+      mockStaticApiClientGet.mockRejectedValueOnce(new Error('CDN error'));
+
+      const result = await getSolanaTokenPrice(KNOWN_MINTS.SOL, 'solana-mainnet', 'solana');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when backend 200 without price and CoinGecko has no match', async () => {
+      mockApiClientGet.mockResolvedValueOnce({ data: {} });
+      mockStaticApiClientGet.mockResolvedValueOnce({ data: MOCK_SOLANA_PRICES });
 
       const result = await getSolanaTokenPrice('UnknownMint111111111111111111111111111111');
-
-      expect(result).toBeNull();
-    });
-
-    it('should return null when API returns undefined usdPrice', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: {} });
-
-      const result = await getSolanaTokenPrice(KNOWN_MINTS.SOL);
-
-      expect(result).toBeNull();
-    });
-
-    it('should return null on API error (non-404)', async () => {
-      mockApiClientGet.mockRejectedValueOnce(new Error('Server error'));
-
-      const result = await getSolanaTokenPrice(KNOWN_MINTS.SOL);
 
       expect(result).toBeNull();
     });
@@ -1042,7 +1069,7 @@ describe('Price Service', () => {
     });
 
     describe('Cache TTL', () => {
-      it('should use cache within TTL window (1 minute)', async () => {
+      it('should use cache within TTL window (5 minutes)', async () => {
         mockStaticApiClientGet.mockResolvedValueOnce({ data: MOCK_SOLANA_PRICES });
 
         await getPricesByPlatform('solana');
@@ -1060,8 +1087,8 @@ describe('Price Service', () => {
 
         await getPricesByPlatform('solana');
 
-        // Advance time by 61 seconds (past 60 second TTL)
-        vi.advanceTimersByTime(61000);
+        // Advance time by 301 seconds (past 300 second TTL)
+        vi.advanceTimersByTime(301000);
 
         await getPricesByPlatform('solana');
 

@@ -24,6 +24,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedAnimated, {
@@ -36,6 +37,7 @@ import ReanimatedAnimated, {
 } from 'react-native-reanimated';
 import {
   colors,
+  fontSize,
   borderRadius,
   borderWidth,
   componentSizes,
@@ -48,6 +50,9 @@ import {
   fontFamilyNative,
   type BlockchainType,
   type ValidationCallbackResult,
+  spacing,
+  fontWeight,
+  opacity,
 } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
 import { InputAddress } from '../InputAddress';
@@ -87,6 +92,7 @@ export function NftSendSheet({
   account,
   onSuccess,
 }: NftSendSheetProps): React.ReactElement | null {
+  const { t } = useTranslation();
   const [address, setAddress] = useState('');
   const [addressValid, setAddressValid] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -215,7 +221,7 @@ export function NftSendSheet({
             </View>
 
             {/* Title */}
-            <Text style={styles.title}>Send NFT</Text>
+            <Text style={styles.title}>{t('nft.send.title', 'Send NFT')}</Text>
 
             {/* NFT Preview */}
             <View style={styles.nftPreview}>
@@ -243,13 +249,13 @@ export function NftSendSheet({
             {isBitcoin ? (
               <View style={styles.messageContainer}>
                 <Text style={styles.messageText}>
-                  Ordinal transfers are not yet supported.
+                  {t('nft.send.ordinalsNotSupported', 'Ordinal transfers are not yet supported.')}
                 </Text>
               </View>
             ) : loading ? (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#FF6B35" />
-                <Text style={styles.loadingText}>Sending NFT...</Text>
+                <ActivityIndicator size="large" color={colors.accent.primary} />
+                <Text style={styles.loadingText}>{t('nft.send.sending', 'Sending NFT...')}</Text>
               </View>
             ) : (
               <View style={styles.inputContainer}>
@@ -257,8 +263,8 @@ export function NftSendSheet({
                   address={address}
                   onChange={setAddress}
                   onValidation={handleValidation}
-                  placeholder="Enter recipient address"
-                  label="Recipient"
+                  placeholder={t('nft.send.enterRecipientAddress', 'Enter recipient address')}
+                  label={t('token.send.recipient', 'Recipient')}
                 />
 
                 {error && (
@@ -274,7 +280,7 @@ export function NftSendSheet({
                 onPress={dismiss}
                 activeOpacity={0.7}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t('actions.cancel', 'Cancel')}</Text>
               </TouchableOpacity>
 
               {!isBitcoin && (
@@ -291,7 +297,7 @@ export function NftSendSheet({
                     styles.confirmButtonText,
                     !canConfirm && styles.confirmButtonTextDisabled,
                   ]}>
-                    {loading ? 'Sending...' : 'Send'}
+                    {loading ? t('nft.send.sending', 'Sending NFT...') : t('actions.send', 'Send')}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -326,13 +332,13 @@ const styles = StyleSheet.create({
     borderTopWidth: borderWidth.sheet,
     borderLeftWidth: borderWidth.sheet,
     borderRightWidth: borderWidth.sheet,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.background.tertiary,
     overflow: 'hidden',
-    paddingBottom: vs(34),
+    paddingBottom: vs(spacing.sheetBottomPadding),
   },
   handleContainer: {
     alignItems: 'center',
-    paddingVertical: vs(12),
+    paddingVertical: vs(spacing.md),
   },
   handle: {
     width: componentSizes.sheetHandleWidth,
@@ -342,109 +348,109 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fontFamilyNative.bold,
-    fontSize: ms(18),
-    fontWeight: '700',
+    fontSize: ms(fontSize.lg),
+    fontWeight: fontWeight.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   nftPreview: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: s(20),
-    marginBottom: vs(20),
-    gap: s(12),
+    paddingHorizontal: s(spacing.xl),
+    marginBottom: vs(spacing.xl),
+    gap: s(spacing.md),
   },
   nftImage: {
-    width: ms(56),
-    height: ms(56),
-    borderRadius: ms(8),
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    width: ms(componentSizes.buttonHeight),
+    height: ms(componentSizes.buttonHeight),
+    borderRadius: ms(borderRadius.md),
+    backgroundColor: colors.background.card,
   },
   nftInfo: {
     flex: 1,
   },
   nftName: {
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(16),
-    fontWeight: '600',
+    fontSize: ms(fontSize.md),
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
   },
   nftCollection: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     color: colors.text.secondary,
-    marginTop: vs(2),
+    marginTop: vs(spacing.xxs),
   },
   inputContainer: {
-    paddingHorizontal: s(20),
-    marginBottom: vs(20),
+    paddingHorizontal: s(spacing.xl),
+    marginBottom: vs(spacing.xl),
   },
   messageContainer: {
-    paddingHorizontal: s(20),
-    paddingVertical: vs(24),
+    paddingHorizontal: s(spacing.xl),
+    paddingVertical: vs(spacing['2xl']),
     alignItems: 'center',
   },
   messageText: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     color: colors.text.secondary,
     textAlign: 'center',
   },
   loadingContainer: {
-    paddingVertical: vs(24),
+    paddingVertical: vs(spacing['2xl']),
     alignItems: 'center',
-    gap: vs(12),
+    gap: vs(spacing.md),
   },
   loadingText: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     color: colors.text.secondary,
   },
   errorText: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     color: colors.status.error,
-    marginTop: vs(8),
+    marginTop: vs(spacing.sm),
   },
   actions: {
     flexDirection: 'row',
-    paddingHorizontal: s(20),
-    gap: s(12),
+    paddingHorizontal: s(spacing.xl),
+    gap: s(spacing.md),
   },
   cancelButton: {
     flex: 1,
-    height: vs(48),
-    borderRadius: ms(12),
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    height: vs(componentSizes.buttonHeightMedium),
+    borderRadius: ms(borderRadius.lg),
+    backgroundColor: colors.background.tertiary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cancelButtonText: {
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(15),
-    fontWeight: '600',
+    fontSize: ms(fontSize.md),
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
   },
   confirmButton: {
     flex: 1,
-    height: vs(48),
-    borderRadius: ms(12),
-    backgroundColor: '#FF6B35',
+    height: vs(componentSizes.buttonHeightMedium),
+    borderRadius: ms(borderRadius.lg),
+    backgroundColor: colors.accent.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   confirmButtonDisabled: {
-    backgroundColor: 'rgba(255, 107, 53, 0.3)',
+    backgroundColor: colors.accent.tintHover,
   },
   confirmButtonText: {
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(15),
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: ms(fontSize.md),
+    fontWeight: fontWeight.semibold,
+    color: colors.text.primary,
   },
   confirmButtonTextDisabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
   },
 });
 

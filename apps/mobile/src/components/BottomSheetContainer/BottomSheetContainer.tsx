@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Modal,
@@ -11,6 +11,7 @@ import {
   StyleProp,
   ViewStyle,
 } from 'react-native';
+import { BlurTargetView } from 'expo-blur';
 import Reanimated, {
   useSharedValue,
   useAnimatedStyle,
@@ -30,7 +31,10 @@ import {
   componentSizes,
   vs,
   s,
+  spacing,
+  opacity,
 } from '@salmon/shared';
+import { BlurTargetProvider } from '../BlurContainer';
 import { ScalesBackground } from '../ScalesBackground';
 
 // ============================================================================
@@ -141,6 +145,8 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
   dragAreaStyle,
   testID,
 }) => {
+  const blurTargetRef = useRef<View>(null);
+
   // Reanimated shared values for the sheet and backdrop
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const backdropOpacity = useSharedValue(0);
@@ -255,27 +261,31 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
 
           {/* Sheet */}
           <Reanimated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
-            {/* Fish scale background */}
-            <ScalesBackground />
+            <BlurTargetView ref={blurTargetRef} style={StyleSheet.absoluteFill}>
+              {/* Fish scale background */}
+              <ScalesBackground />
 
-            {/* Optional texture overlay (NFT sheets) */}
-            {showTextureOverlay && <View style={styles.textureOverlay} />}
+              {/* Optional texture overlay (NFT sheets) */}
+              {showTextureOverlay && <View style={styles.textureOverlay} />}
+            </BlurTargetView>
 
-            {/* Draggable area: handle + header content */}
-            <GestureDetector gesture={panGesture}>
-              <Reanimated.View style={[styles.dragArea, dragAreaStyle]}>
-                {/* Drag handle bar */}
-                <View style={styles.handleContainer}>
-                  <View style={styles.handle} />
-                </View>
+            <BlurTargetProvider value={blurTargetRef}>
+              {/* Draggable area: handle + header content */}
+              <GestureDetector gesture={panGesture}>
+                <Reanimated.View style={[styles.dragArea, dragAreaStyle]}>
+                  {/* Drag handle bar */}
+                  <View style={styles.handleContainer}>
+                    <View style={styles.handle} />
+                  </View>
 
-                {/* Header: custom content wins, otherwise plain title */}
-                {headerContent ?? title ?? null}
-              </Reanimated.View>
-            </GestureDetector>
+                  {/* Header: custom content wins, otherwise plain title */}
+                  {headerContent ?? title ?? null}
+                </Reanimated.View>
+              </GestureDetector>
 
-            {/* Sheet body */}
-            {children}
+              {/* Sheet body */}
+              {children}
+            </BlurTargetProvider>
 
             {/* Top fade gradient for scrollable content */}
             {showFadeGradient && scrollOffsetValue && (
@@ -321,7 +331,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sheet.backdrop,
   },
   sheetContainer: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
     borderTopLeftRadius: borderRadius.card,
     borderTopRightRadius: borderRadius.card,
     borderTopWidth: borderWidth.sheet,
@@ -336,16 +346,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    opacity: 0.4,
+    backgroundColor: colors.interactive.surface,
+    opacity: opacity.faint,
   },
   dragArea: {
     // Gesture is attached here; keep it empty so consumers can add dragAreaStyle
   },
   handleContainer: {
     alignItems: 'center',
-    paddingTop: vs(12),
-    paddingBottom: vs(8),
+    paddingTop: vs(spacing.md),
+    paddingBottom: vs(spacing.sm),
   },
   handle: {
     width: s(componentSizes.sheetHandleWidth),
@@ -359,7 +369,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     // Positioned by caller via absolute placement; default sits just below handle
-    top: vs(12) + vs(8),
+    top: vs(spacing.md) + vs(8),
     height: componentSizes.sheetFadeGradientHeight,
     zIndex: 1,
   },

@@ -2,7 +2,7 @@
  * SeedWordGrid - Displays mnemonic words in a numbered grid
  */
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, borderWidth, fontFamilyNative, } from '@salmon/shared';
 
 interface SeedWordGridProps {
   /** Array of mnemonic words */
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.card.background,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.card.border,
     borderRadius: borderRadius.md,
     paddingVertical: spacing.sm,
@@ -44,13 +44,13 @@ const styles = StyleSheet.create({
   },
   wordIndex: {
     color: colors.accent.primary,
-    fontFamily: 'DMSansBold',
-    fontSize: 12,
+    fontFamily: fontFamilyNative.bold,
+    fontSize: fontSize.sm,
     minWidth: 20,
   },
   wordText: {
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 14,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.base,
   },
 });

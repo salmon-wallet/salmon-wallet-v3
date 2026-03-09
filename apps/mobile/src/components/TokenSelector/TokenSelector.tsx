@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { getShortAddress } from '@salmon/shared';
+import { borderWidth, colors, getShortAddress, borderRadius, spacing, fontSize, fontWeight, opacity, } from '@salmon/shared';
 import { TokenSelectorModal } from './TokenSelectorModal';
 import type { TokenSelectorToken, TokenSelectorProps } from './types';
 
@@ -92,7 +92,7 @@ export function TokenSelector({
           value={value}
           onChangeText={handleChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.text.tertiary}
           keyboardType="decimal-pad"
           editable={!disabled}
         />
@@ -149,65 +149,65 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1a1a2e',
-    borderRadius: 16,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#2a2a4e',
+    backgroundColor: colors.scanner.background,
+    borderRadius: borderRadius.xl,
+    padding: spacing.sm,
+    borderWidth: borderWidth.thin,
+    borderColor: colors.scanner.surface,
   },
   inputContainer: {
     flex: 1,
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   input: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    fontSize: fontSize['2xl'],
+    fontWeight: fontWeight.semibold,
+    color: colors.text.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   selectorButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a2a4e',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: colors.scanner.surface,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     minWidth: 120,
   },
   selectorButtonDisabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
   },
   tokenIcon: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    marginRight: 8,
+    borderRadius: borderRadius.xl,
+    marginRight: spacing.sm,
   },
   tokenIconPlaceholder: {
-    backgroundColor: '#3a3a5e',
+    backgroundColor: colors.scanner.button,
   },
   tokenTextContainer: {
     flex: 1,
   },
   tokenName: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
+    color: colors.text.primary,
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.medium,
     padding: 0,
   },
   tokenAddress: {
-    color: '#999',
+    color: colors.text.secondary,
     fontSize: 11,
     marginTop: 1,
     padding: 0,
   },
   chevron: {
-    marginLeft: 4,
+    marginLeft: spacing.xs,
   },
   chevronIcon: {
-    color: '#999',
-    fontSize: 14,
+    color: colors.text.secondary,
+    fontSize: fontSize.base,
     padding: 0,
   },
 });

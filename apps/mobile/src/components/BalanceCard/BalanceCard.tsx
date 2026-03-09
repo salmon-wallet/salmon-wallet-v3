@@ -17,6 +17,8 @@ import {
   vs,
   getScalesColorForBlockchain,
   getNetworkLabel,
+  fontWeight,
+  opacity,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
@@ -29,7 +31,7 @@ import {
 } from 'react-native';
 import { BitcoinSvgIcon, EthereumSvgIcon, SolanaSvgIcon } from '../Icon/SvgIcons';
 import { ScalesBackground } from '../ScalesBackground';
-import { BalanceCardSkeleton } from './BalanceCardSkeleton';
+import { ShimmerRect } from '../ShimmerRect';
 import type { BalanceCardProps, BlockchainId } from './types';
 
 /**
@@ -62,15 +64,15 @@ const renderBlockchainLogo = (blockchain: BlockchainId) => {
   switch (blockchain) {
     case 'solana':
     case 'solana-devnet':
-      return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <SolanaSvgIcon size={iconSize} color={colors.text.primary} />;
     case 'bitcoin':
     case 'bitcoin-testnet':
-      return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <BitcoinSvgIcon size={iconSize} color={colors.text.primary} />;
     case 'ethereum':
     case 'ethereum-sepolia':
-      return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <EthereumSvgIcon size={iconSize} color={colors.text.primary} />;
     default:
-      return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <SolanaSvgIcon size={iconSize} color={colors.text.primary} />;
   }
 };
 
@@ -251,14 +253,22 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
       {/* Balance display */}
       <View style={styles.balanceContainer}>
         {loading ? (
-          <BalanceCardSkeleton testID="balance-card-skeleton" />
+          <View style={styles.balanceRow}>
+            <ShimmerRect width={ms(componentSizes.buttonMinWidthLg)} height={ms(fontSize.balance)} />
+          </View>
         ) : (
           renderBalance()
         )}
       </View>
 
       {/* 24h change */}
-      {!loading && renderChange()}
+      {loading ? (
+        <View style={styles.changeRow}>
+          <ShimmerRect width={ms(componentSizes.buttonMinWidth)} height={ms(fontSize.sm)} />
+        </View>
+      ) : (
+        renderChange()
+      )}
 
       {/* Pagination dots */}
       {totalCount > 1 && (
@@ -325,7 +335,7 @@ const styles = StyleSheet.create({
     }),
   },
   networkLabelContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: colors.background.glass,
     paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(spacing.xxs),
     borderRadius: ms(borderRadius.sm),
@@ -333,7 +343,7 @@ const styles = StyleSheet.create({
   },
   networkLabelText: {
     fontSize: ms(fontSize.xs),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
@@ -365,12 +375,12 @@ const styles = StyleSheet.create({
   },
   balanceDollars: {
     fontSize: ms(fontSize.balance),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.balance,
     letterSpacing: letterSpacing.balance,
   },
   balanceDecimals: {
-    opacity: 0.4,
+    opacity: opacity.faint,
     color: colors.text.primary,
   },
   eyeButton: {
@@ -394,12 +404,12 @@ const styles = StyleSheet.create({
   },
   changeText: {
     fontSize: ms(fontSize.sm),
-    fontWeight: '500',
+    fontWeight: fontWeight.medium,
     letterSpacing: letterSpacing.change,
     lineHeight: ms(fontSize.sm * 1.3),
   },
   trendingIcon: {
-    marginHorizontal: s(spacing['2xs']),
+    marginHorizontal: s(spacing.xxs),
   },
   changeHidden: {
     fontSize: ms(fontSize.sm),
@@ -414,7 +424,7 @@ const styles = StyleSheet.create({
   paginationDot: {
     width: s(spacing.xs),
     height: s(spacing.xs),
-    borderRadius: s(spacing['2xs']),
+    borderRadius: s(spacing.xxs),
     backgroundColor: colors.step.inactive,
     marginHorizontal: s(spacing.xxs + 1),
   },

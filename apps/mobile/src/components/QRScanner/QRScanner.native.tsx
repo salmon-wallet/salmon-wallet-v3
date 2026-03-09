@@ -12,7 +12,7 @@
 import React from 'react';
 import { Modal, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { colors } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, } from '@salmon/shared';
 import type { QRScannerProps } from './types';
 
 /**
@@ -88,20 +88,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    paddingTop: 48, // Account for status bar on mobile
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    paddingTop: spacing['5xl'], // Account for status bar on mobile
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   backButtonText: {
     color: colors.scanner.text,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
     color: colors.scanner.text,
   },
   headerSpacer: {
@@ -111,16 +111,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: spacing['3xl'],
   },
   scannerPlaceholder: {
     width: 250,
     height: 250,
     backgroundColor: colors.scanner.surface,
-    borderRadius: 20,
+    borderRadius: borderRadius.iconLg,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: spacing['3xl'],
   },
   markerContainer: {
     width: 200,
@@ -165,40 +165,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   messageTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: fontSize.xl,
+    fontWeight: fontWeight.semibold,
     color: colors.scanner.text,
-    marginBottom: 12,
+    marginBottom: spacing.md,
     textAlign: 'center',
   },
   messageText: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.scanner.textSecondary,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   messageSubtext: {
-    fontSize: 14,
+    fontSize: fontSize.base,
     color: colors.scanner.textTertiary,
     textAlign: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
   footer: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-    paddingBottom: 48, // Account for home indicator on mobile
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing['2xl'],
+    paddingBottom: spacing['5xl'], // Account for home indicator on mobile
   },
   button: {
     backgroundColor: colors.scanner.button,
     paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    paddingHorizontal: spacing['2xl'],
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
   buttonText: {
     color: colors.scanner.text,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
   },
 });
 

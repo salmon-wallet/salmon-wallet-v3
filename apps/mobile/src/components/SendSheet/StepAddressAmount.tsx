@@ -14,6 +14,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import {
   colors,
+  gradients,
+  shadows,
   fontFamilyNative,
   ms,
   vs,
@@ -22,6 +24,12 @@ import {
   useCurrencyContext,
   useSendContacts,
   getShortAddress,
+  fontSize,
+  borderRadius,
+  borderWidth,
+  spacing,
+  opacity,
+  componentSizes,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -119,15 +127,15 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   const addressPlaceholder = useMemo(() => {
     switch (blockchain) {
       case 'solana':
-        return 'Solana Address';
+        return t('token.send.blockchainAddress', { blockchain: 'Solana', defaultValue: 'Solana Address' });
       case 'ethereum':
-        return 'Ethereum Address';
+        return t('token.send.blockchainAddress', { blockchain: 'Ethereum', defaultValue: 'Ethereum Address' });
       case 'bitcoin':
-        return 'Bitcoin Address';
+        return t('token.send.blockchainAddress', { blockchain: 'Bitcoin', defaultValue: 'Bitcoin Address' });
       default:
-        return 'Recipient Address';
+        return t('token.send.recipient', 'Recipient Address');
     }
-  }, [blockchain]);
+  }, [blockchain, t]);
 
   return (
     <KeyboardAvoidingView
@@ -149,7 +157,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
         >
           <BlurContainer style={styles.tokenCard}>
           <View style={styles.tokenCardLeft}>
-            <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={ms(36)} style={{ marginRight: s(10) }} />
+            <TokenLogo uri={token.logo || undefined} symbol={token.symbol} size={ms(36)} style={{ marginRight: s(spacing.base) }} />
             <Text style={styles.tokenCardName} numberOfLines={1}>
               {token.symbol}
             </Text>
@@ -162,7 +170,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
 
         {/* Recipient */}
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Recipient</Text>
+          <Text style={styles.fieldLabel}>{t('token.send.recipient', 'Recipient')}</Text>
           <BlurContainer style={[
             styles.inputContainer,
             validationState === 'invalid' && styles.inputContainerError,
@@ -255,7 +263,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
 
         {/* Amount */}
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Amount</Text>
+          <Text style={styles.fieldLabel}>{t('token.send.amountLabel', 'Amount')}</Text>
           <BlurContainer style={styles.amountInputContainer}>
             <TextInput
               style={styles.amountInput}
@@ -292,7 +300,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
           onPress={onCancel}
           activeOpacity={0.7}
         >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
+          <Text style={styles.cancelButtonText}>{t('actions.cancel', 'Cancel')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -302,12 +310,12 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
           disabled={!isValid}
         >
           <LinearGradient
-            colors={isValid ? ['#FF5C45', 'rgba(161, 42, 42, 0.9)'] : ['#555555', '#444444']}
+            colors={isValid ? [...gradients.primary.colors] : [...gradients.disabled.colors]}
             style={styles.reviewButtonGradient}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.4 }}
           >
-            <Text style={styles.reviewButtonText}>Review & Send</Text>
+            <Text style={styles.reviewButtonText}>{t('token.send.reviewAndSend', 'Review & Send')}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -327,18 +335,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: s(18),
-    paddingBottom: vs(20),
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing.xl),
   },
   // Token Card
   tokenCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderRadius: ms(14),
-    paddingVertical: vs(14),
-    paddingHorizontal: s(14),
-    marginBottom: vs(24),
+    borderRadius: ms(borderRadius.button),
+    paddingVertical: vs(spacing.lg),
+    paddingHorizontal: s(spacing.lg),
+    marginBottom: vs(spacing['2xl']),
   },
   tokenCardLeft: {
     flexDirection: 'row',
@@ -346,71 +354,71 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tokenCardName: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   tokenCardBalance: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   // Fields
   fieldGroup: {
-    marginBottom: vs(20),
+    marginBottom: vs(spacing.xl),
   },
   fieldLabel: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: ms(12),
-    paddingHorizontal: s(14),
-    height: vs(48),
+    borderRadius: ms(borderRadius.lg),
+    paddingHorizontal: s(spacing.lg),
+    height: vs(componentSizes.buttonHeightMedium),
   },
   inputContainerError: {
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.status.error,
   },
   inputContainerWarning: {
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.status.warning,
   },
   inputContainerSuccess: {
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.status.success,
   },
   textInput: {
     flex: 1,
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     paddingVertical: 0,
   },
   validationIndicator: {
-    marginLeft: s(8),
+    marginLeft: s(spacing.sm),
   },
   validIcon: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     color: colors.status.success,
   },
   invalidIcon: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     color: colors.status.error,
   },
   warningIcon: {
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     color: colors.status.warning,
   },
   validationMessage: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    marginTop: vs(4),
+    marginTop: vs(spacing.xs),
   },
   validationMessageError: {
     color: colors.status.error,
@@ -420,48 +428,48 @@ const styles = StyleSheet.create({
   },
   // Contact / Wallet sections
   contactSection: {
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   contactSectionHeader: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.secondary,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: ms(10),
-    paddingVertical: vs(12),
-    paddingHorizontal: s(14),
-    marginBottom: vs(6),
+    backgroundColor: colors.background.card,
+    borderRadius: ms(borderRadius.badge),
+    paddingVertical: vs(spacing.md),
+    paddingHorizontal: s(spacing.lg),
+    marginBottom: vs(spacing.xs),
   },
   contactInfo: {
     flex: 1,
-    marginRight: s(8),
+    marginRight: s(spacing.sm),
   },
   contactName: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   contactAddress: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    marginTop: vs(2),
+    marginTop: vs(spacing.xxs),
   },
   blockchainBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: ms(6),
-    paddingHorizontal: s(8),
-    paddingVertical: vs(3),
+    backgroundColor: colors.background.tertiary,
+    borderRadius: ms(borderRadius.sm),
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing.xxs),
     flexShrink: 0,
   },
   blockchainBadgeText: {
-    fontSize: ms(11),
+    fontSize: ms(fontSize.xs),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
@@ -469,84 +477,76 @@ const styles = StyleSheet.create({
   amountInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: ms(12),
-    paddingHorizontal: s(14),
-    height: vs(48),
+    borderRadius: ms(borderRadius.lg),
+    paddingHorizontal: s(spacing.lg),
+    height: vs(componentSizes.buttonHeightMedium),
   },
   amountInput: {
     flex: 1,
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
     paddingVertical: 0,
   },
   quickFillButtons: {
     flexDirection: 'row',
-    gap: s(6),
+    gap: s(spacing.xs),
   },
   quickFillButton: {
-    backgroundColor: '#2A384E',
-    borderRadius: ms(6),
-    paddingHorizontal: s(10),
-    paddingVertical: vs(5),
+    backgroundColor: colors.button.secondaryBackground,
+    borderRadius: ms(borderRadius.sm),
+    paddingHorizontal: s(spacing.base),
+    paddingVertical: vs(spacing.xs),
   },
   quickFillText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textTransform: 'uppercase',
   },
   // USD
   usdConversion: {
-    fontSize: ms(20),
+    fontSize: ms(fontSize.xl),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginTop: vs(4),
+    marginTop: vs(spacing.xs),
   },
   // Bottom Buttons
   bottomButtons: {
     flexDirection: 'row',
-    paddingHorizontal: s(18),
-    paddingBottom: vs(34),
-    paddingTop: vs(12),
-    gap: s(12),
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing.sheetBottomPadding),
+    paddingTop: vs(spacing.md),
+    gap: s(spacing.md),
   },
   cancelButton: {
     flex: 1,
-    height: vs(48),
-    borderRadius: ms(12),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    backgroundColor: '#1f232f',
+    height: vs(componentSizes.buttonHeightMedium),
+    borderRadius: ms(borderRadius.lg),
+    borderWidth: borderWidth.thin,
+    borderColor: colors.accent.border,
+    backgroundColor: colors.button.cancelBackground,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 12,
+    ...shadows.button,
   },
   cancelButtonText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   reviewButton: {
     flex: 1,
-    height: vs(48),
-    borderRadius: ms(12),
+    height: vs(componentSizes.buttonHeightMedium),
+    borderRadius: ms(borderRadius.lg),
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 12,
+    borderWidth: borderWidth.thin,
+    borderColor: colors.accent.border,
+    ...shadows.button,
   },
   reviewButtonDisabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
     borderColor: colors.border.default,
   },
   reviewButtonGradient: {
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   reviewButtonText: {
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },

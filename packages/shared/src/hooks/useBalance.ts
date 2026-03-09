@@ -117,7 +117,7 @@ const CACHE_TTL = 60 * 1000;
  */
 export function useBalance({
   account,
-  networkId: _networkId = 'solana-mainnet',
+  networkId = 'solana-mainnet',
   skip = false,
 }: UseBalanceOptions): UseBalanceResult {
   const [balance, setBalance] = useState<WalletBalance | null>(null);
@@ -127,15 +127,16 @@ export function useBalance({
   const [hiddenBalance, setHiddenBalance] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
-  // Cache ref to avoid stale closures — keyed by account address to prevent cross-chain stale data
+  // Cache ref to avoid stale closures — keyed by address:networkId to prevent cross-network stale data
   const cacheRef = useRef<{ data: WalletBalance; timestamp: number; accountKey: string } | null>(null);
 
-  // Track previous account to detect changes and reset stale state
+  // Track previous account+network to detect changes and reset stale state
   const prevAccountKeyRef = useRef<string | undefined>(undefined);
 
-  // Reset state when account changes to prevent stale cross-chain data
+  // Reset state when account or network changes to prevent stale cross-network data
   useEffect(() => {
-    const currentKey = account?.getReceiveAddress();
+    const address = account?.getReceiveAddress();
+    const currentKey = address ? `${address}:${networkId}` : undefined;
     if (currentKey !== prevAccountKeyRef.current) {
       prevAccountKeyRef.current = currentKey;
       if (currentKey === undefined) {
@@ -143,13 +144,13 @@ export function useBalance({
         setBalance(null);
         setLoading(false);
       } else if (cacheRef.current?.accountKey !== currentKey) {
-        // Different account — clear stale data and show loading
+        // Different account or network — clear stale data and show loading
         setBalance(null);
         setLoading(true);
         cacheRef.current = null;
       }
     }
-  }, [account]);
+  }, [account, networkId]);
 
   // Load hidden balance preference
   useEffect(() => {
@@ -367,9 +368,9 @@ export function useBalance({
         return;
       }
 
-      // Check cache validity — must match current account to prevent cross-chain stale data
+      // Check cache validity — must match current account+network to prevent cross-network stale data
       const now = Date.now();
-      const currentAccountKey = account.getReceiveAddress();
+      const currentAccountKey = `${account.getReceiveAddress()}:${networkId}`;
       if (
         cacheRef.current &&
         cacheRef.current.accountKey === currentAccountKey &&
@@ -416,7 +417,7 @@ export function useBalance({
         setRefreshing(false);
       }
     },
-    [account, skip, fetchSolanaBalance, fetchBitcoinBalance, fetchEthereumBalance]
+    [account, networkId, skip, fetchSolanaBalance, fetchBitcoinBalance, fetchEthereumBalance]
   );
 
   // Initial fetch

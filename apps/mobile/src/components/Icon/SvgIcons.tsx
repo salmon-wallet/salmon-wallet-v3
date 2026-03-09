@@ -1,5 +1,6 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
+import { colors } from '@salmon/shared';
 
 interface SvgIconProps {
   size?: number;
@@ -12,7 +13,7 @@ interface SvgIconProps {
  */
 export const WalletSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#808799',
+  color = colors.text.secondary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -42,7 +43,7 @@ export const WalletSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const ContentCopySvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#808799',
+  color = colors.text.secondary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -60,7 +61,7 @@ export const ContentCopySvgIcon: React.FC<SvgIconProps> = ({
  */
 export const SettingsSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#808799',
+  color = colors.text.secondary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -79,7 +80,7 @@ export const SettingsSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const SolanaSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="24 15 43 57" fill="none">
@@ -97,7 +98,7 @@ export const SolanaSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const BitcoinSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 43 57" fill="none">
@@ -115,7 +116,7 @@ export const BitcoinSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const EthereumSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 34 54" fill="none">
@@ -157,7 +158,7 @@ export const EthereumSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const GridViewSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -175,7 +176,7 @@ export const GridViewSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const HomeSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -193,7 +194,7 @@ export const HomeSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const SwapSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -211,7 +212,7 @@ export const SwapSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const CallMadeSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="3 3 18 18" fill="none">
@@ -229,7 +230,7 @@ export const CallMadeSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const QrCodeScannerSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="1 1 22 22" fill="none">
@@ -247,7 +248,7 @@ export const QrCodeScannerSvgIcon: React.FC<SvgIconProps> = ({
  */
 export const ReceiptLongSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="3 2 18 20" fill="none">

@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, ms, vs, s, fontSize, fontFamilyNative, borderRadius, getShortAddress } from '@salmon/shared';
+import { borderWidth, colors, ms, vs, s, fontSize, fontFamilyNative, borderRadius, getShortAddress, spacing, } from '@salmon/shared';
 
 // ============================================================================
 // Types
@@ -152,11 +152,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: vs(12),
-    paddingHorizontal: s(16),
+    paddingVertical: vs(spacing.md),
+    paddingHorizontal: s(spacing.lg),
     backgroundColor: `${colors.background.card}60`,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
   },
   label: {
@@ -169,19 +169,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'flex-end',
-    marginLeft: s(12),
+    marginLeft: s(spacing.md),
   },
   address: {
     fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
-    marginRight: s(8),
+    marginRight: s(spacing.sm),
     flexShrink: 1,
   },
   copyButton: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: borderRadius.xl,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: `${colors.background.card}80`,

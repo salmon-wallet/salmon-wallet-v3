@@ -1,11 +1,17 @@
 import {
   colors,
+  fontSize,
+  letterSpacing,
+  spacing,
+  borderRadius,
+  componentSizes,
   fontFamilyNative,
   ms,
   s,
   vs,
+  lineHeight,
 } from '@salmon/shared';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,6 +19,8 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
@@ -21,7 +29,7 @@ import type { ReceiveSheetProps } from './types';
 
 // Layout constants
 const CONTENT_PADDING_HORIZONTAL = 24;
-const QR_BORDER_WIDTH = 24;
+const COPY_FEEDBACK_DURATION = 2000;
 
 /**
  * ReceiveSheet - Bottom sheet modal for receiving tokens
@@ -53,16 +61,27 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
   style,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
+  const [copied, setCopied] = useState(false);
+  const { t } = useTranslation();
 
   // Calculate QR size: full width minus padding and border
-  const qrSize = screenWidth - (CONTENT_PADDING_HORIZONTAL * 2) - (QR_BORDER_WIDTH * 2);
+  const qrSize = screenWidth - (CONTENT_PADDING_HORIZONTAL * 2) - (componentSizes.qrBorderWidth * 2);
+
+  // Reset copied state when sheet closes
+  useEffect(() => {
+    if (!visible) {
+      setCopied(false);
+    }
+  }, [visible]);
 
   const handleCopyPress = useCallback(() => {
     onCopy?.();
+    setCopied(true);
+    setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION);
   }, [onCopy]);
 
   const title = (
-    <Text style={styles.title}>Receive</Text>
+    <Text style={styles.title}>{t('token.receive.title')}</Text>
   );
 
   return (
@@ -79,8 +98,8 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
           <QRCode
             value={address}
             size={qrSize}
-            backgroundColor="#FFFFFF"
-            color="#000000"
+            backgroundColor={colors.button.primaryBackground}
+            color={colors.button.primaryText}
           />
         </View>
 
@@ -95,10 +114,16 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
           onPress={handleCopyPress}
           activeOpacity={0.8}
           accessibilityRole="button"
-          accessibilityLabel="Copy address"
+          accessibilityLabel={t('token.receive.copyAddress')}
         >
-          <ContentCopySvgIcon size={ms(23)} color="#000000" />
-          <Text style={styles.copyButtonText}>Copy address</Text>
+          {copied ? (
+            <Ionicons name="checkmark" size={ms(23)} color={colors.button.primaryText} />
+          ) : (
+            <ContentCopySvgIcon size={ms(23)} color={colors.button.primaryText} />
+          )}
+          <Text style={styles.copyButtonText}>
+            {copied ? t('token.receive.copied') : t('token.receive.copyAddress')}
+          </Text>
         </TouchableOpacity>
       </View>
     </BottomSheetContainer>
@@ -112,48 +137,48 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.24,
-    lineHeight: ms(24 * 1.3),
+    letterSpacing: letterSpacing.wide,
+    lineHeight: ms(24 * lineHeight.condensed),
   },
   content: {
     alignItems: 'center',
     paddingHorizontal: s(CONTENT_PADDING_HORIZONTAL),
-    paddingBottom: vs(40),
-    gap: vs(42),
+    paddingBottom: vs(spacing['4xl']),
+    gap: vs(componentSizes.receiveContentGap),
   },
   qrContainer: {
-    borderRadius: ms(16),
-    borderWidth: QR_BORDER_WIDTH,
-    borderColor: '#FFFFFF',
+    borderRadius: ms(borderRadius.xl),
+    borderWidth: componentSizes.qrBorderWidth,
+    borderColor: colors.text.primary,
     overflow: 'hidden',
-    marginTop: vs(18),
+    marginTop: vs(spacing.headerPadding),
   },
   address: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.14,
-    lineHeight: ms(14 * 1.3),
+    letterSpacing: letterSpacing.change,
+    lineHeight: ms(14 * lineHeight.condensed),
   },
   copyButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fcfcfc',
-    borderRadius: ms(11),
-    width: s(180),
-    height: vs(42),
-    gap: s(4),
+    backgroundColor: colors.button.primaryBackground,
+    borderRadius: ms(borderRadius.lg),
+    width: s(componentSizes.copyButtonWidth),
+    height: vs(componentSizes.buttonHeightCompact),
+    gap: s(spacing.xs),
   },
   copyButtonText: {
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.bold,
-    color: '#000000',
+    color: colors.button.primaryText,
     textAlign: 'center',
     textTransform: 'capitalize',
   },

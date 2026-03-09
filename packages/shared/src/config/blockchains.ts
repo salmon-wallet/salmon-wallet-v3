@@ -10,7 +10,6 @@
  */
 
 import type { BlockchainType } from '../types/blockchain';
-import { getBlockchainFromNetworkId } from '../utils/account';
 
 // ============================================================================
 // Configuration
@@ -34,6 +33,18 @@ export const ENABLED_BLOCKCHAINS: readonly BlockchainType[] = [
 // ============================================================================
 // Helpers
 // ============================================================================
+
+/**
+ * Determines the blockchain type from a network ID string.
+ *
+ * @param networkId - Network identifier (e.g., 'solana-mainnet', 'bitcoin-testnet', 'ethereum-sepolia')
+ * @returns The blockchain type ('solana', 'bitcoin', or 'ethereum')
+ */
+export function getBlockchainFromNetworkId(networkId: string): BlockchainType {
+  if (networkId.startsWith('bitcoin')) return 'bitcoin';
+  if (networkId.startsWith('ethereum')) return 'ethereum';
+  return 'solana';
+}
 
 /**
  * Returns true if the given blockchain family is enabled.

@@ -14,23 +14,10 @@ import { ethereumApiFunctions } from '../api/services/ethereum';
 import type { BlockchainAccount, BlockchainType } from '../types/blockchain';
 import type { Account } from '../types/account';
 import type { AccountKeyInfo } from '../types/settings';
-import { isNetworkEnabled } from '../config/blockchains';
+import { isNetworkEnabled, getBlockchainFromNetworkId } from '../config/blockchains';
 
-// ============================================================================
-// Blockchain Type Detection from Network ID
-// ============================================================================
-
-/**
- * Determines the blockchain type from a network ID string.
- *
- * @param networkId - Network identifier (e.g., 'solana-mainnet', 'bitcoin-testnet', 'ethereum-sepolia')
- * @returns The blockchain type ('solana', 'bitcoin', or 'ethereum')
- */
-export function getBlockchainFromNetworkId(networkId: string): BlockchainType {
-  if (networkId.startsWith('bitcoin')) return 'bitcoin';
-  if (networkId.startsWith('ethereum')) return 'ethereum';
-  return 'solana';
-}
+// Re-export for backward compatibility — canonical definition is in config/blockchains
+export { getBlockchainFromNetworkId } from '../config/blockchains';
 
 /**
  * Returns the human-readable display name for a blockchain type.

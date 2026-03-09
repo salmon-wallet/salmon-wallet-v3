@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { colors, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
+import { useTranslation } from 'react-i18next';
+import { borderWidth, colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, ms, vs, s, fontFamilyNative, formatAmountWithSymbol, getShortAddress } from '@salmon/shared';
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
 import { SwapReviewButtons } from '../SwapScreen/SwapReviewButtons';
@@ -24,10 +25,12 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
   confirmLabel,
   style,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={[styles.container, style]}>
       {/* Title */}
-      <Text style={styles.title}>Swap Review</Text>
+      <Text style={styles.title}>{t('bridge.review.title', 'Swap Review')}</Text>
 
       {/* Scrollable Content */}
       <ScrollView
@@ -38,11 +41,11 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
         {/* Send/Receive Cards */}
         <View style={styles.cardsContainer}>
           <SwapReviewCard
-            label="You Send"
+            label={t('swap.you_send', 'You Send')}
             amount={formatAmountWithSymbol(inAmount, inToken.symbol)}
           />
           <SwapReviewCard
-            label="You Receive (estimated)"
+            label={t('bridge.review.youReceiveEstimated', 'You Receive (estimated)')}
             amount={formatAmountWithSymbol(outAmount, outToken.symbol)}
           />
         </View>
@@ -50,40 +53,40 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
         {/* Details Section */}
         <View style={styles.detailsContainer}>
           <SwapDetailRow
-            label="Recipient"
+            label={t('bridge.review.recipient', 'Recipient')}
             value={getShortAddress(recipientAddress, 8) ?? ''}
           />
           <SwapDetailRow
-            label="From Network"
+            label={t('bridge.review.fromNetwork', 'From Network')}
             value={inToken.network || 'Solana'}
           />
           <SwapDetailRow
-            label="To Network"
+            label={t('bridge.review.toNetwork', 'To Network')}
             value={outToken.network || 'Unknown'}
           />
           {estimate && (
             <>
               <SwapDetailRow
-                label="Minimum Amount"
+                label={t('bridge.review.minimumAmount', 'Minimum Amount')}
                 value={formatAmountWithSymbol(estimate.minAmount, inToken.symbol)}
               />
               <SwapDetailRow
-                label="Estimated Output"
+                label={t('bridge.review.estimatedOutput', 'Estimated Output')}
                 value={formatAmountWithSymbol(estimate.estimatedAmount, outToken.symbol)}
               />
             </>
           )}
           <SwapDetailRow
-            label="Provider"
+            label={t('bridge.review.provider', 'Provider')}
             value="StealthEX"
           />
         </View>
 
         {/* Warning Box */}
         <View style={styles.warningBox}>
-          <Text style={styles.warningTitle}>Please Note</Text>
+          <Text style={styles.warningTitle}>{t('bridge.review.pleaseNote', 'Please Note')}</Text>
           <Text style={styles.warningText}>
-            Cross-chain swaps typically take 10-30 minutes to complete. You will receive a deposit address after confirmation.
+            {t('bridge.review.pleaseNoteText', 'Cross-chain swaps typically take 10-30 minutes to complete. You will receive a deposit address after confirmation.')}
           </Text>
         </View>
       </ScrollView>
@@ -93,7 +96,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
         onBack={onBack}
         onConfirm={onConfirm}
         isConfirming={isConfirming}
-        confirmLabel={confirmLabel ?? 'Confirm Swap'}
+        confirmLabel={confirmLabel ?? t('bridge.review.confirmSwap', 'Confirm Swap')}
       />
     </View>
   );
@@ -106,12 +109,12 @@ const styles = StyleSheet.create({
     paddingTop: vs(spacing['2xl']),
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.24,
-    lineHeight: ms(24 * 1.3),
+    letterSpacing: letterSpacing.wide,
+    lineHeight: ms(24 * lineHeight.condensed),
     marginBottom: vs(spacing['2xl']),
   },
   scrollView: {
@@ -129,26 +132,26 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['2xl']),
   },
   warningBox: {
-    backgroundColor: 'rgba(255, 179, 0, 0.1)',
+    backgroundColor: colors.status.warningBackground,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 179, 0, 0.3)',
+    borderWidth: borderWidth.thin,
+    borderColor: colors.status.warningBorder,
     padding: s(spacing.base),
     marginBottom: vs(spacing.lg),
   },
   warningTitle: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
-    letterSpacing: 0.02,
+    letterSpacing: letterSpacing.normal,
   },
   warningText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
-    letterSpacing: 0.018,
-    lineHeight: ms(18),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
 });
 

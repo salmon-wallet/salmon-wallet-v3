@@ -20,7 +20,7 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from 'react-native';
-import { colors, useAddressValidation, useAccountsContext, type ValidationState } from '@salmon/shared';
+import { borderWidth, colors, useAddressValidation, useAccountsContext, type ValidationState, spacing, borderRadius, fontSize, fontWeight, } from '@salmon/shared';
 import type { InputAddressProps } from './types';
 
 // ============================================================================
@@ -177,7 +177,7 @@ export function InputAddress({
           value={address}
           onChangeText={handleChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.text.placeholder}
+          placeholderTextColor={colors.text.tertiary}
           editable={!disabled && !isValidating}
           autoCapitalize="none"
           autoCorrect={false}
@@ -230,26 +230,26 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.medium,
+    marginBottom: spacing.sm,
     color: colors.text.primary,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.scanner.background,
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: borderRadius.lg,
+    borderWidth: borderWidth.thin,
     borderColor: colors.input.border,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
     minHeight: 56,
   },
   inputContainerValid: {
-    borderColor: colors.input.borderSuccess,
+    borderColor: colors.status.success,
   },
   inputContainerInvalid: {
-    borderColor: colors.input.borderError,
+    borderColor: colors.status.error,
   },
   inputContainerWarning: {
     borderColor: colors.status.warning,
@@ -259,18 +259,18 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.text.primary,
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
   },
   inputDisabled: {
     color: colors.text.tertiary,
   },
   validationIcon: {
-    marginLeft: 12,
+    marginLeft: spacing.md,
   },
   messageContainer: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   message: {
     fontSize: 13,
@@ -283,15 +283,15 @@ const styles = StyleSheet.create({
     color: colors.status.warning,
   },
   domainInfo: {
-    marginTop: 8,
-    padding: 12,
+    marginTop: spacing.sm,
+    padding: spacing.md,
     backgroundColor: colors.scanner.background,
-    borderRadius: 8,
+    borderRadius: borderRadius.md,
   },
   domainLabel: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: colors.text.secondary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   domainValue: {
     fontSize: 13,

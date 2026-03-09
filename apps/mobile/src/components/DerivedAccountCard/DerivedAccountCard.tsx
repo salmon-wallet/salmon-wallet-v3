@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import {
   borderRadius,
+  borderWidth,
   colors,
   componentSizes,
   spacing,
-} from '@salmon/shared';
+fontSize, fontFamilyNative, opacity, } from '@salmon/shared';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon/SvgIcons';
@@ -15,11 +16,11 @@ const ICON_SIZE = 16;
 const BlockchainIcon: React.FC<{ blockchain?: string }> = ({ blockchain }) => {
   switch (blockchain) {
     case 'solana':
-      return <SolanaSvgIcon size={ICON_SIZE} color={colors.text.placeholder} />;
+      return <SolanaSvgIcon size={ICON_SIZE} color={colors.text.tertiary} />;
     case 'bitcoin':
-      return <BitcoinSvgIcon size={ICON_SIZE} color={colors.text.placeholder} />;
+      return <BitcoinSvgIcon size={ICON_SIZE} color={colors.text.tertiary} />;
     case 'ethereum':
-      return <EthereumSvgIcon size={ICON_SIZE} color={colors.text.placeholder} />;
+      return <EthereumSvgIcon size={ICON_SIZE} color={colors.text.tertiary} />;
     default:
       return null;
   }
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.card.background,
     borderRadius: borderRadius.xl,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.card.border,
     padding: spacing.lg,
     marginBottom: spacing.md,
@@ -88,7 +89,7 @@ const styles = StyleSheet.create({
     width: componentSizes.checkboxSize,
     height: componentSizes.checkboxSize,
     borderRadius: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: colors.interactive.highlight,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.lg,
@@ -101,29 +102,29 @@ const styles = StyleSheet.create({
   },
   address: {
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 16,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.md,
   },
   networkRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 2,
+    gap: spacing.xs,
+    marginTop: spacing.xxs,
   },
   path: {
-    color: colors.text.placeholder,
-    fontFamily: 'DMSansMedium',
-    fontSize: 12,
+    color: colors.text.tertiary,
+    fontFamily: fontFamilyNative.medium,
+    fontSize: fontSize.sm,
   },
   balanceContainer: {
     alignItems: 'flex-end',
   },
   balance: {
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 14,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.base,
   },
   dimmed: {
-    opacity: 0.4,
+    opacity: opacity.faint,
   },
 });

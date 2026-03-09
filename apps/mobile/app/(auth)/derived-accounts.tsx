@@ -207,7 +207,7 @@ export default function DerivedAccountsScreen() {
     if (accounts.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <Ionicons name="wallet-outline" size={64} color={colors.text.placeholder} />
+          <Ionicons name="wallet-outline" size={64} color={colors.text.tertiary} />
           <Text style={styles.emptyTitle}>No Derived Accounts Found</Text>
           <Text style={styles.emptySubtitle}>
             Could not derive additional accounts from your seed phrase.

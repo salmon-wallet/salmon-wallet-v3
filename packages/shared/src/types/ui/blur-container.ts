@@ -34,4 +34,9 @@ export interface BlurContainerPropsBase<TStyle> {
    * @default 1
    */
   borderWidth?: number;
+  /**
+   * Use radial gradient border (Figma "Glassy_BORDER") instead of solid border
+   * @default true
+   */
+  useGradientBorder?: boolean;
 }

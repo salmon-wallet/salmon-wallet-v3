@@ -28,7 +28,7 @@ import type {
 // In-memory cache for prices
 // ============================================================================
 
-const priceCache = new SmartCache<TokenPrice[]>({ maxSize: 10, ttl: 60000 });
+const priceCache = new SmartCache<TokenPrice[]>({ maxSize: 10, ttl: 300000 });
 
 // ============================================================================
 // Price Service Functions
@@ -119,6 +119,7 @@ export async function getSolanaTokenPrice(
   networkId: SolanaNetworkId = 'solana-mainnet',
   coingeckoId?: string
 ): Promise<JupiterApiPriceData | null> {
+  // Step 1: Try backend (Jupiter proxy)
   try {
     const { data } = await apiClient.get<{ usdPrice?: number; priceChange24h?: number | null }>(
       `/v1/${networkId}/ft/price/${mintAddress}`
@@ -129,27 +130,25 @@ export async function getSolanaTokenPrice(
         priceChange24h: data.priceChange24h ?? null,
       };
     }
-    return null;
-  } catch (error) {
-    console.error(`[PriceService] Failed to fetch price for ${mintAddress}:`, error);
-
-    // Fallback: try CoinGecko static API for ALL errors (including 404)
-    try {
-      // Prefer coingeckoId (e.g. "usd-coin") over mintAddress for CoinGecko lookup
-      const lookupKey = coingeckoId || mintAddress;
-      const fallback = await findTokenPrice(lookupKey, 'solana');
-      if (fallback) {
-        return {
-          usdPrice: fallback.usdPrice,
-          priceChange24h: fallback.perc24HoursChange,
-        };
-      }
-    } catch (fallbackError) {
-      console.error(`[PriceService] CoinGecko fallback also failed for ${mintAddress}:`, fallbackError);
-    }
-
-    return null;
+  } catch {
+    // Backend failed — fall through to CoinGecko
   }
+
+  // Step 2: CoinGecko fallback (always attempted if backend didn't return a price)
+  try {
+    const lookupKey = coingeckoId || mintAddress;
+    const fallback = await findTokenPrice(lookupKey, 'solana');
+    if (fallback) {
+      return {
+        usdPrice: fallback.usdPrice,
+        priceChange24h: fallback.perc24HoursChange,
+      };
+    }
+  } catch {
+    // CoinGecko also failed
+  }
+
+  return null;
 }
 
 /**

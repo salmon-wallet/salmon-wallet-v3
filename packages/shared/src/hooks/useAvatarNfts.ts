@@ -2,7 +2,7 @@
  * useAvatarNfts Hook
  *
  * Fetches the current account's Solana NFTs for avatar selection.
- * Shared between mobile (AvatarPicker) and extension (AccountAvatarPage).
+ * Shared between mobile (AvatarPicker) and extension (AccountAvatarPanel).
  */
 
 import { useState, useEffect, useRef } from 'react';

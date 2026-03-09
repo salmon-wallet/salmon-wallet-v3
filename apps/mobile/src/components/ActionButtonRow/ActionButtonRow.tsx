@@ -3,6 +3,7 @@ import {
   colors,
   componentSizes,
   fontSize,
+  fontWeight,
   gradients,
   ms,
   s,
@@ -12,6 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { BlurContainer } from '../BlurContainer';
 import {
   CallMadeSvgIcon,
@@ -50,6 +52,8 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
   activityDisabled = false,
   style,
 }) => {
+  const { t } = useTranslation();
+
   const handleSendPress = useCallback(() => {
     if (!sendDisabled) {
       onSendPress?.();
@@ -85,8 +89,8 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           end={gradients.primaryButton.end}
           style={styles.primaryButton}
         >
-          <CallMadeSvgIcon size={ms(componentSizes.actionButtonIcon)} color="#e0e0e0" />
-          <Text style={styles.primaryButtonText}>Send</Text>
+          <CallMadeSvgIcon size={ms(componentSizes.actionButtonIcon)} color={colors.text.balance} />
+          <Text style={styles.primaryButtonText}>{t('actions.send', 'Send')}</Text>
         </LinearGradient>
       </TouchableOpacity>
 
@@ -107,10 +111,10 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           >
             <QrCodeScannerSvgIcon
               size={ms(componentSizes.actionButtonIcon)}
-              color={receiveDisabled ? colors.button.disabledText : '#e0e0e0'}
+              color={receiveDisabled ? colors.button.disabledText : colors.text.balance}
             />
             <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
-              Receive
+              {t('actions.receive', 'Receive')}
             </Text>
           </TouchableOpacity>
         </BlurContainer>
@@ -133,10 +137,10 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           >
             <ReceiptLongSvgIcon
               size={ms(componentSizes.actionButtonIcon)}
-              color={activityDisabled ? colors.button.disabledText : '#e0e0e0'}
+              color={activityDisabled ? colors.button.disabledText : colors.text.balance}
             />
             <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
-              Activity
+              {t('actions.activity', 'Activity')}
             </Text>
           </TouchableOpacity>
         </BlurContainer>
@@ -176,12 +180,12 @@ const styles = StyleSheet.create({
     gap: s(spacing.sm), // 8px
     borderRadius: ms(componentSizes.actionButtonRadius), // 14px
     borderWidth: borderWidth.actionButton, // 0.5px
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
   },
   primaryButtonText: {
     fontSize: ms(fontSize.actionButton), // 14.5px
-    fontWeight: '400',
-    color: '#e0e0e0',
+    fontWeight: fontWeight.regular,
+    color: colors.text.balance,
     lineHeight: ms(fontSize.actionButton * 1.5), // lineHeight: 1.5
   },
   secondaryButton: {
@@ -197,8 +201,8 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: ms(fontSize.actionButton), // 14.5px
-    fontWeight: '400',
-    color: '#e0e0e0',
+    fontWeight: fontWeight.regular,
+    color: colors.text.balance,
     lineHeight: ms(fontSize.actionButton * 1.5), // lineHeight: 1.5
   },
   textDisabled: {

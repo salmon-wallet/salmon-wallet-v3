@@ -16,6 +16,8 @@ export type SettingsScreen =
   | 'privateKey'
   | 'support'
   | 'addressBook'
+  | 'address-book-add'
+  | 'address-book-edit'
   | 'explorer'
   | 'trustedApps'
   | 'removeWallet'
@@ -25,6 +27,16 @@ export type SettingsScreen =
   | 'account-edit'
   | 'account-name'
   | 'account-add';
+
+/**
+ * An entry in the settings panel stack.
+ */
+export interface SettingsPanelEntry {
+  /** The screen to render */
+  screen: SettingsScreen;
+  /** Optional props to pass to the screen component */
+  props?: Record<string, unknown>;
+}
 
 /**
  * Base props shared between mobile and extension SettingsSheet
@@ -39,11 +51,6 @@ export interface SettingsSheetBaseProps {
    * Callback when the sheet should close.
    */
   onClose: () => void;
-
-  /**
-   * Optional callback when user navigates to a settings screen.
-   */
-  onNavigate?: (screen: SettingsScreen) => void;
 
   /**
    * Whether developer networks (testnets/devnets) are enabled.

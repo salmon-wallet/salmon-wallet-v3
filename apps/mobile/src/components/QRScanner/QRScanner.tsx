@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Modal, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { colors } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontWeight, } from '@salmon/shared';
 import type { QRScannerProps } from './types';
 
 /**
@@ -71,28 +71,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.scanner.surface,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
     color: colors.scanner.text,
   },
   closeButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   closeButtonText: {
     color: colors.scanner.textSecondary,
-    fontSize: 16,
+    fontSize: fontSize.md,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: spacing['3xl'],
   },
   iconContainer: {
     width: 80,
@@ -101,44 +101,44 @@ const styles = StyleSheet.create({
     backgroundColor: colors.scanner.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing['2xl'],
   },
   icon: {
-    fontSize: 36,
+    fontSize: fontSize['4xl'],
   },
   messageTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: fontSize.xl,
+    fontWeight: fontWeight.semibold,
     color: colors.scanner.text,
-    marginBottom: 12,
+    marginBottom: spacing.md,
     textAlign: 'center',
   },
   messageText: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: colors.scanner.textSecondary,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   messageSubtext: {
-    fontSize: 14,
+    fontSize: fontSize.base,
     color: colors.scanner.textTertiary,
     textAlign: 'center',
   },
   footer: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing['2xl'],
   },
   button: {
     backgroundColor: colors.scanner.button,
     paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    paddingHorizontal: spacing['2xl'],
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
   buttonText: {
     color: colors.scanner.text,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
   },
 });
 

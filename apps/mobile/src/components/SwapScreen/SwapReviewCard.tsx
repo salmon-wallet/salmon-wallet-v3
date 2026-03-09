@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s, fontFamilyNative } from '@salmon/shared';
+import { Text, StyleSheet } from 'react-native';
+import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, ms, vs, s, fontFamilyNative, componentSizes } from '@salmon/shared';
+import { BlurContainer } from '../BlurContainer';
 import type { SwapReviewCardProps } from './types';
 
 /**
@@ -15,52 +15,46 @@ export const SwapReviewCard: React.FC<SwapReviewCardProps> = ({
   style,
 }) => {
   return (
-    <View style={[styles.container, style]}>
-      <BlurView intensity={5} tint="dark" style={styles.blurContent}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.amount}>{amount}</Text>
-        {usdValue != null && <Text style={styles.usdValue}>{usdValue}</Text>}
-      </BlurView>
-    </View>
+    <BlurContainer
+      style={[styles.container, style]}
+    >
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.amount}>{amount}</Text>
+      {usdValue != null && <Text style={styles.usdValue}>{usdValue}</Text>}
+    </BlurContainer>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: borderWidth.tokenListItem,
-    borderColor: colors.border.default,
     borderRadius: borderRadius.md,
-    overflow: 'hidden',
-    backgroundColor: colors.background.tokenItem,
-  },
-  blurContent: {
     paddingHorizontal: s(spacing.base),
     paddingVertical: vs(spacing.sm),
-    minHeight: vs(75),
+    minHeight: vs(componentSizes.swapReviewCardMinHeight),
     justifyContent: 'center',
   },
   label: {
-    fontSize: ms(15),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
-    letterSpacing: -0.075,
-    lineHeight: ms(15 * 1.5),
+    letterSpacing: letterSpacing.slight,
+    lineHeight: ms(15 * lineHeight.normal),
   },
   amount: {
-    fontSize: ms(25),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    letterSpacing: -0.12,
-    lineHeight: ms(25),
-    marginTop: vs(2),
+    letterSpacing: letterSpacing.snug,
+    lineHeight: ms(fontSize['2xl'] * lineHeight.tight),
+    marginTop: vs(spacing.xxs),
   },
   usdValue: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
-    letterSpacing: -0.065,
-    lineHeight: ms(13 * 1.4),
-    marginTop: vs(2),
+    letterSpacing: letterSpacing.slight,
+    lineHeight: ms(13 * lineHeight.tokenListItem),
+    marginTop: vs(spacing.xxs),
   },
 });
 

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, componentSizes, spacing } from '@salmon/shared';
+import { colors, componentSizes, spacing, borderWidth, fontSize, fontFamilyNative, } from '@salmon/shared';
 
 interface PasswordInputProps {
   value: string;
@@ -29,8 +29,8 @@ export function PasswordInput({
   const [isFocused, setIsFocused] = useState(false);
 
   const getBorderColor = () => {
-    if (error) return colors.input.borderError;
-    if (isFocused) return colors.input.borderFocus;
+    if (error) return colors.status.error;
+    if (isFocused) return colors.accent.primary;
     return colors.input.border;
   };
 
@@ -42,7 +42,7 @@ export function PasswordInput({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.text.placeholder}
+          placeholderTextColor={colors.text.tertiary}
           secureTextEntry={!showPassword}
           autoCapitalize="none"
           autoCorrect={false}
@@ -78,23 +78,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: componentSizes.inputHeight,
     backgroundColor: colors.input.background,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderRadius: componentSizes.inputRadius,
     paddingHorizontal: spacing.lg,
   },
   input: {
     flex: 1,
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 16,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.md,
   },
   toggleButton: {
     padding: spacing.xs,
   },
   errorText: {
     color: colors.status.error,
-    fontFamily: 'DMSansRegular',
-    fontSize: 12,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.sm,
     marginTop: spacing.xs,
     paddingHorizontal: spacing.xs,
   },

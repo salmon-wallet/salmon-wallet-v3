@@ -15,6 +15,9 @@ import {
   useCurrencyContext,
   vs,
   getNetworkLabel,
+  getScalesColorForBlockchain,
+  fontWeight,
+  opacity,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
@@ -54,15 +57,6 @@ const BLOCKCHAIN_GRADIENTS: Record<BlockchainId, readonly [string, string, strin
   'ethereum-sepolia': gradients.balanceCardEthereumSepolia.colors,
 };
 
-// ScalesBackground stroke colors for each blockchain (15% opacity)
-const BLOCKCHAIN_SCALES_COLORS: Record<BlockchainId, string> = {
-  solana: 'rgba(153, 69, 255, 0.15)',    // Solana purple (#9945FF)
-  'solana-devnet': 'rgba(0, 255, 163, 0.15)',     // Solana Devnet green (#00FFA3)
-  bitcoin: 'rgba(247, 147, 26, 0.15)',   // Bitcoin orange (#F7931A)
-  'bitcoin-testnet': 'rgba(255, 149, 0, 0.15)',   // Bitcoin Testnet orange (#FF9500)
-  ethereum: 'rgba(98, 126, 234, 0.15)',  // Ethereum blue (#627EEA)
-  'ethereum-sepolia': 'rgba(76, 175, 80, 0.15)',  // Ethereum Sepolia green (#4CAF50)
-};
 
 /**
  * BalanceCardCarousel - Fixed container carousel with sliding content
@@ -204,7 +198,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   const currentBlockchain = blockchains[activeIndex];
   const currentBlockchainId = currentBlockchain?.network.blockchain || 'solana';
   const currentGradient = BLOCKCHAIN_GRADIENTS[currentBlockchainId];
-  const currentScalesColor = BLOCKCHAIN_SCALES_COLORS[currentBlockchainId];
+  const currentScalesColor = getScalesColorForBlockchain(currentBlockchainId);
 
   // Format values
   const { usdTotal, changePercent = 0, changeAmount = 0 } = currentBlockchain || {};
@@ -216,15 +210,15 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
     const iconSize = s(componentSizes.blockchainIcon);
     // Map network variants to their base blockchain for icon selection
     if (blockchain.startsWith('solana')) {
-      return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <SolanaSvgIcon size={iconSize} color={colors.text.primary} />;
     }
     if (blockchain.startsWith('bitcoin')) {
-      return <BitcoinSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <BitcoinSvgIcon size={iconSize} color={colors.text.primary} />;
     }
     if (blockchain.startsWith('ethereum')) {
-      return <EthereumSvgIcon size={iconSize} color="#FFFFFF" />;
+      return <EthereumSvgIcon size={iconSize} color={colors.text.primary} />;
     }
-    return <SolanaSvgIcon size={iconSize} color="#FFFFFF" />;
+    return <SolanaSvgIcon size={iconSize} color={colors.text.primary} />;
   };
 
   // Get network label if in developer mode
@@ -369,14 +363,14 @@ const styles = StyleSheet.create({
     }),
   },
   networkLabelContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: colors.background.glass,
     paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(spacing.xxs),
     borderRadius: ms(borderRadius.sm),
   },
   networkLabelText: {
     fontSize: ms(fontSize.xs),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
     textTransform: 'uppercase',
     letterSpacing: letterSpacing.wide,
@@ -404,12 +398,12 @@ const styles = StyleSheet.create({
   },
   balance: {
     fontSize: ms(fontSize.balance),
-    fontWeight: '600',
+    fontWeight: fontWeight.semibold,
     color: colors.text.balance,
     letterSpacing: letterSpacing.balance,
   },
   balanceDecimals: {
-    opacity: 0.4,
+    opacity: opacity.faint,
     color: colors.text.primary,
   },
   eyeButton: {
@@ -433,12 +427,12 @@ const styles = StyleSheet.create({
   },
   changeText: {
     fontSize: ms(fontSize.sm),
-    fontWeight: '500',
+    fontWeight: fontWeight.medium,
     letterSpacing: letterSpacing.change,
     lineHeight: ms(fontSize.sm * 1.3),
   },
   changeArrow: {
-    marginHorizontal: s(spacing['2xs']),
+    marginHorizontal: s(spacing.xxs),
   },
   pagination: {
     flexDirection: 'row',
@@ -449,7 +443,7 @@ const styles = StyleSheet.create({
   dot: {
     width: s(spacing.xs),
     height: s(spacing.xs),
-    borderRadius: s(spacing['2xs']),
+    borderRadius: s(spacing.xxs),
     backgroundColor: colors.step.inactive,
     marginHorizontal: s(spacing.xxs + 1),
   },

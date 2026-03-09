@@ -1,6 +1,8 @@
-import { borderRadius, colors, componentSizes, fontFamilyNative, formatAmountWithSymbol, formatSolFee, formatPercent, ms, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
+import { borderRadius, colors, componentSizes, fontSize, fontFamilyNative, formatAmountWithSymbol, formatSolFee, formatPercent, letterSpacing, lineHeight, ms, opacity, s, spacing, useCurrencyContext, vs } from '@salmon/shared';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { BlurContainer } from '../BlurContainer';
 import { SwapDetailRow } from './SwapDetailRow';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapReviewButtons } from './SwapReviewButtons';
@@ -22,6 +24,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
   confirmLabel,
   style,
 }) => {
+  const { t } = useTranslation();
   const [, { formatValue }] = useCurrencyContext();
   const formatUsd = (value: number | undefined): string | undefined =>
     value != null ? `~${formatValue(value)}` : undefined;
@@ -50,7 +53,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
       </View>
 
       {/* Title */}
-      <Text style={styles.title}>Swap Review</Text>
+      <Text style={styles.title}>{t('swap.review.title', 'Swap Review')}</Text>
 
       {/* Scrollable Content */}
       <ScrollView
@@ -61,12 +64,12 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
         {/* Send/Receive Cards */}
         <View style={styles.cardsContainer}>
           <SwapReviewCard
-            label="You Send"
+            label={t('swap.you_send', 'You Send')}
             amount={formatAmountWithSymbol(displayInAmount, inSymbol)}
             usdValue={formatUsd(details?.inUsdValue)}
           />
           <SwapReviewCard
-            label="You Receive"
+            label={t('swap.you_receive', 'You Receive')}
             amount={formatAmountWithSymbol(displayOutAmount, outSymbol)}
             usdValue={formatUsd(details?.outUsdValue)}
           />
@@ -76,73 +79,77 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
         <View style={styles.detailsContainer}>
           {fee && (
             <SwapDetailRow
-              label="Salmon fee"
+              label={t('swap.review.salmonFee', 'Salmon fee')}
               value={formatPercent(fee.percent)}
             />
           )}
           {details?.router && (
             <SwapDetailRow
-              label="Router"
+              label={t('swap.router', 'Router')}
               value={details.router}
             />
           )}
           {routeNames && routeNames.length > 0 && (
             <SwapDetailRow
-              label="Route"
+              label={t('swap.review.route', 'Route')}
               value={routeNames.join(' → ')}
             />
           )}
           {details?.gasless && (
             <SwapDetailRow
-              label="Gasless"
-              value="Yes"
+              label={t('swap.gasless', 'Gasless')}
+              value={t('swap.yes', 'Yes')}
             />
           )}
           {details?.prioritizationFeeLamports != null && (
             <SwapDetailRow
-              label="Priority Fee"
+              label={t('swap.priority_fee', 'Priority Fee')}
               value={formatSolFee(details.prioritizationFeeLamports)}
             />
           )}
           {details?.rentFeeLamports != null && (
             <SwapDetailRow
-              label="Rent Fee"
+              label={t('swap.rent_fee', 'Rent Fee')}
               value={formatSolFee(details.rentFeeLamports)}
             />
           )}
           {details?.slippageBps != null && (
             <SwapDetailRow
-              label="Slippage Tolerance"
+              label={t('swap.slippage_tolerance', 'Slippage Tolerance')}
               value={formatPercent(details.slippageBps / 100)}
             />
           )}
           {details?.otherAmountThreshold != null && (
             <SwapDetailRow
-              label="Minimum Received"
+              label={t('swap.minimum_received', 'Minimum Received')}
               value={formatAmountWithSymbol(Number(details.otherAmountThreshold) / (10 ** outDecimals), outSymbol)}
             />
           )}
           {details?.swapMode && (
             <SwapDetailRow
-              label="Swap Mode"
+              label={t('swap.swap_mode', 'Swap Mode')}
               value={details.swapMode}
             />
           )}
           {details?.priceImpact != null && (
             <SwapDetailRow
-              label="Total Price Impact"
+              label={t('swap.review.totalPriceImpact', 'Total Price Impact')}
               value={formatPercent(details.priceImpact)}
             />
           )}
         </View>
 
         {/* Warning Box */}
-        <View style={styles.warningBox}>
-          <Text style={styles.warningTitle}>Please Note</Text>
+        <BlurContainer
+          borderColor={colors.palette.amber}
+          backgroundColor={colors.status.warningBackground}
+          style={styles.warningBox}
+        >
+          <Text style={styles.warningTitle}>{t('swap.review.pleaseNote', 'Please Note')}</Text>
           <Text style={styles.warningText}>
-            Swap rates are estimates. The actual amount you receive may differ due to slippage and market conditions. Transactions are irreversible once confirmed.
+            {t('swap.review.pleaseNoteText', 'Swap rates are estimates. The actual amount you receive may differ due to slippage and market conditions. Transactions are irreversible once confirmed.')}
           </Text>
-        </View>
+        </BlurContainer>
       </ScrollView>
 
       {/* Buttons */}
@@ -150,7 +157,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
         onBack={onBack}
         onConfirm={onConfirm}
         isConfirming={isConfirming}
-        confirmLabel={confirmLabel ?? 'Confirm'}
+        confirmLabel={confirmLabel ?? t('swap.review.confirmSwap', 'Confirm')}
       />
     </View>
   );
@@ -168,16 +175,16 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: vs(200),
-    opacity: 0.4,
+    height: vs(componentSizes.chartHeight),
+    opacity: opacity.faint,
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.semiBold,
     color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.24,
-    lineHeight: ms(24 * 1.3),
+    letterSpacing: letterSpacing.wide,
+    lineHeight: ms(24 * lineHeight.condensed),
     marginBottom: vs(spacing['2xl']),
   },
   scrollView: {
@@ -195,26 +202,23 @@ const styles = StyleSheet.create({
     marginBottom: vs(spacing['3xl']),
   },
   warningBox: {
-    backgroundColor: 'rgba(255, 179, 0, 0.1)',
     borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 179, 0, 0.3)',
     padding: s(spacing.base),
     marginBottom: vs(spacing.lg),
   },
   warningTitle: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.semiBold,
     color: colors.status.warning,
     marginBottom: vs(spacing.xs),
-    letterSpacing: 0.02,
+    letterSpacing: letterSpacing.normal,
   },
   warningText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
-    lineHeight: ms(12 * 1.5),
-    letterSpacing: 0.01,
+    lineHeight: ms(12 * lineHeight.normal),
+    letterSpacing: letterSpacing.normal,
   },
 });
 

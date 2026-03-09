@@ -8,9 +8,12 @@ import {
 } from 'react-native';
 import {
   colors,
+  fontSize,
+  letterSpacing,
   spacing,
   borderRadius,
   borderWidth,
+  componentSizes,
   ms,
   vs,
   s,
@@ -92,7 +95,7 @@ export const RecipientAddressInput: React.FC<RecipientAddressInputProps> = ({
           value={value}
           onChangeText={handleChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.text.placeholder}
+          placeholderTextColor={colors.text.tertiary}
           autoCapitalize="none"
           autoCorrect={false}
           multiline={false}
@@ -147,17 +150,17 @@ const styles = StyleSheet.create({
     gap: s(spacing.xs),
   },
   label: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    letterSpacing: 0.02,
+    letterSpacing: letterSpacing.normal,
     lineHeight: ms(18),
   },
   chainHint: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    letterSpacing: 0.018,
+    letterSpacing: letterSpacing.normal,
     lineHeight: ms(16),
   },
   inputContainer: {
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     borderWidth: borderWidth.tokenListItem,
     borderColor: colors.border.default,
     borderRadius: borderRadius.md,
-    minHeight: vs(58),
+    minHeight: vs(componentSizes.inputHeightLg),
     paddingHorizontal: s(spacing.md),
     paddingVertical: vs(spacing.sm),
   },
@@ -181,7 +184,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
     paddingVertical: 0,
@@ -190,21 +193,21 @@ const styles = StyleSheet.create({
     marginLeft: s(spacing.sm),
   },
   validIcon: {
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     color: colors.status.success,
   },
   invalidIcon: {
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     color: colors.status.error,
   },
   warningIcon: {
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     color: colors.status.warning,
   },
   messageText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
-    letterSpacing: 0.018,
+    letterSpacing: letterSpacing.normal,
     lineHeight: ms(16),
     color: colors.text.secondary,
   },
@@ -215,10 +218,10 @@ const styles = StyleSheet.create({
     color: colors.status.warning,
   },
   helperText: {
-    fontSize: ms(11),
+    fontSize: ms(fontSize.xs),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    letterSpacing: 0.018,
+    letterSpacing: letterSpacing.normal,
     lineHeight: ms(16),
   },
 });

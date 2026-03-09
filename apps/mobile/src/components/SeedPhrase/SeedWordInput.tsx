@@ -2,7 +2,7 @@
  * SeedWordInput - Input for validating a specific mnemonic word
  */
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { colors, spacing, componentSizes } from '@salmon/shared';
+import { colors, spacing, componentSizes, fontSize, borderWidth, fontFamilyNative, } from '@salmon/shared';
 
 type ValidationState = 'idle' | 'correct' | 'incorrect';
 
@@ -31,8 +31,8 @@ export function SeedWordInput({
 }: SeedWordInputProps) {
   const getBorderColor = () => {
     switch (validationState) {
-      case 'correct': return colors.input.borderSuccess;
-      case 'incorrect': return colors.input.borderError;
+      case 'correct': return colors.status.success;
+      case 'incorrect': return colors.status.error;
       default: return colors.input.border;
     }
   };
@@ -45,7 +45,7 @@ export function SeedWordInput({
         value={value}
         onChangeText={onChangeText}
         placeholder={`Enter word #${position}`}
-        placeholderTextColor={colors.text.placeholder}
+        placeholderTextColor={colors.text.tertiary}
         autoCapitalize="none"
         autoCorrect={false}
         autoFocus={autoFocus}
@@ -62,19 +62,19 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansMedium',
-    fontSize: 12,
+    fontFamily: fontFamilyNative.medium,
+    fontSize: fontSize.sm,
     marginBottom: spacing.xs,
   },
   input: {
     width: '100%',
     height: componentSizes.inputHeight,
     backgroundColor: colors.input.background,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderRadius: componentSizes.inputRadius,
     paddingHorizontal: spacing.lg,
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 16,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.md,
   },
 });

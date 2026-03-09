@@ -1,0 +1,37 @@
+{
+  "name": "@salmon/ui",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "private": true,
+  "scripts": {
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.5",
+    "@salmon/shared": "workspace:*",
+    "keen-slider": "^6.8.6",
+    "qrcode.react": "^4.2.0",
+    "react-content-loader": "^7.1.1",
+    "recharts": "^3.5.1"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "@types/react-dom": "~19.1.0",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.18"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "react-i18next": ">=15.0.0",
+    "i18next": ">=23.0.0"
+  }
+}

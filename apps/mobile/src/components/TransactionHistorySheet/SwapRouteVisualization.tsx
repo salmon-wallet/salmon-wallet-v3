@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { colors, ms, vs, s, fontSize, borderRadius, spacing, formatBlockNumber, formatDateTime, getShortAddress, formatRawAmount, truncateHash, fontFamilyNative } from '@salmon/shared';
+import { colors, ms, vs, s, fontSize, borderRadius, spacing, formatBlockNumber, formatDateTime, getShortAddress, formatRawAmount, truncateHash, fontFamilyNative, letterSpacing, } from '@salmon/shared';
 import type { Transaction, SwapRouteHop } from './types';
 import { TokenLogo } from '../TokenLogo';
 import { PriceImpactBadge } from './PriceImpactBadge';
@@ -550,13 +550,13 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
     marginBottom: vs(spacing.xs),
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: letterSpacing.wider,
   },
   routeTokenRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: s(spacing.xs),
-    marginBottom: vs(2),
+    marginBottom: vs(spacing.xxs),
   },
   routeTokenText: {
     fontSize: ms(fontSize.base),
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.xs),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.tertiary,
-    marginTop: vs(2),
+    marginTop: vs(spacing.xxs),
   },
   feeRow: {
     flexDirection: 'row',
@@ -624,7 +624,7 @@ const styles = StyleSheet.create({
   dexBadge: {
     backgroundColor: colors.background.tokenItem,
     paddingHorizontal: s(spacing.xs),
-    paddingVertical: vs(2),
+    paddingVertical: vs(spacing.xxs),
     borderRadius: borderRadius.sm,
     flexDirection: 'row',
     alignItems: 'center',
@@ -646,13 +646,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
     paddingTop: vs(spacing.xs),
-    marginTop: vs(2),
+    marginTop: vs(spacing.xxs),
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: vs(6),
+    marginBottom: vs(spacing.xs),
   },
   summaryLabel: {
     fontSize: ms(fontSize.sm),
@@ -675,7 +675,7 @@ const styles = StyleSheet.create({
     gap: s(spacing.xs),
   },
   copyIcon: {
-    marginLeft: s(2),
+    marginLeft: s(spacing.xxs),
   },
 });
 

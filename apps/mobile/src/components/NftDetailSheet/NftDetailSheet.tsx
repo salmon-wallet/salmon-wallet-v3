@@ -10,13 +10,17 @@ import {
   NativeScrollEvent,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import {
   colors,
+  fontSize,
+  borderRadius,
   fontFamilyNative,
   gradients,
+  shadows,
   componentSizes,
   ms,
   vs,
@@ -27,6 +31,11 @@ import {
   getNftBlockchainLabel,
   getSatRarityColor,
   getShortAddress,
+  borderWidth,
+  letterSpacing,
+  lineHeight,
+  spacing,
+  fontWeight,
 } from '@salmon/shared';
 import {
   CallMadeSvgIcon,
@@ -45,7 +54,7 @@ import type { NftDetailSheetProps, NftAttribute } from './types';
  */
 const BurnIcon: React.FC<{ size?: number; color?: string }> = ({
   size = 24,
-  color = '#FFFFFF',
+  color = colors.text.primary,
 }) => {
   return (
     <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
@@ -56,10 +65,10 @@ const BurnIcon: React.FC<{ size?: number; color?: string }> = ({
 
 // Fallback gradient for NFTs without images (matches NftCard)
 const FALLBACK_GRADIENT = {
-  colors: ['rgb(255, 92, 69)', 'rgba(161, 42, 42, 0.9)'] as const,
+  colors: [...gradients.primaryButton.colors],
   start: { x: 0.12, y: 0.5 },
   end: { x: 0.83, y: 0.5 },
-};
+} as const;
 
 export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   visible,
@@ -69,6 +78,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   onBurnPress,
   style,
 }) => {
+  const { t } = useTranslation();
   // Image loading/error state
   const [imageLoading, setImageLoading] = React.useState(true);
   const [imageError, setImageError] = React.useState(false);
@@ -141,25 +151,25 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
         <>
           {nft.tokenStandard && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Token Standard</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.tokenStandard', 'Token Standard')}</Text>
               <Text style={styles.detailValue}>{nft.tokenStandard}</Text>
             </View>
           )}
           {nft.compressed !== undefined && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Compressed</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.compressed', 'Compressed')}</Text>
               <Text style={styles.detailValue}>{nft.compressed ? 'Yes' : 'No'}</Text>
             </View>
           )}
           {nft.collectionVerified !== undefined && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Collection Verified</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.collectionVerified', 'Collection Verified')}</Text>
               <Text style={styles.detailValue}>{nft.collectionVerified ? '✓' : '✗'}</Text>
             </View>
           )}
           {nft.royaltyBps !== undefined && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Royalties</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.royalties', 'Royalties')}</Text>
               <Text style={styles.detailValue}>{(nft.royaltyBps / 100).toFixed(2)}%</Text>
             </View>
           )}
@@ -172,11 +182,11 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       return (
         <>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Token Type</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.tokenType', 'Token Type')}</Text>
             <Text style={styles.detailValue}>{nft.tokenType}</Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Contract</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.contract', 'Contract')}</Text>
             <View style={styles.detailValueWithCopy}>
               <Text style={styles.detailValue}>{getShortAddress(nft.contractAddress, 6)}</Text>
               <TouchableOpacity
@@ -190,12 +200,12 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             </View>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Token ID</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.tokenId', 'Token ID')}</Text>
             <Text style={styles.detailValue}>{getShortAddress(nft.tokenId, 6)}</Text>
           </View>
           {nft.balance !== undefined && nft.balance > 1 && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Balance</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.balance', 'Balance')}</Text>
               <Text style={styles.detailValue}>{nft.balance}</Text>
             </View>
           )}
@@ -208,24 +218,24 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       return (
         <>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Inscription #</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.inscriptionNumber', 'Inscription #')}</Text>
             <Text style={styles.detailValue}>{nft.inscriptionNumber}</Text>
           </View>
           {nft.satRarity && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Rarity</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.rarity', 'Rarity')}</Text>
               <View style={[styles.rarityBadge, { backgroundColor: getSatRarityColor(nft.satRarity) }]}>
                 <Text style={styles.rarityText}>{nft.satRarity}</Text>
               </View>
             </View>
           )}
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Content Type</Text>
+            <Text style={styles.detailLabel}>{t('nft.detail.contentType', 'Content Type')}</Text>
             <Text style={styles.detailValue}>{nft.contentType}</Text>
           </View>
           {nft.genesisHeight && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Genesis Block</Text>
+              <Text style={styles.detailLabel}>{t('nft.detail.genesisBlock', 'Genesis Block')}</Text>
               <Text style={styles.detailValue}>{nft.genesisHeight}</Text>
             </View>
           )}
@@ -330,7 +340,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             style={styles.sectionContainer}
           >
             <View style={styles.sectionContent}>
-              <Text style={styles.sectionTitle}>Description</Text>
+              <Text style={styles.sectionTitle}>{t('nft.detail.description', 'Description')}</Text>
               <Text style={styles.descriptionText}>{nft.description}</Text>
             </View>
           </BlurView>
@@ -344,7 +354,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             style={styles.sectionContainer}
           >
             <View style={styles.sectionContent}>
-              <Text style={styles.sectionTitle}>Attributes</Text>
+              <Text style={styles.sectionTitle}>{t('nft.detail.attributes', 'Attributes')}</Text>
               <View style={styles.attributesGrid}>
                 {nft.attributes.map(renderAttribute)}
               </View>
@@ -359,7 +369,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
           style={styles.sectionContainer}
         >
           <View style={styles.sectionContent}>
-            <Text style={styles.sectionTitle}>Details</Text>
+            <Text style={styles.sectionTitle}>{t('nft.detail.details', 'Details')}</Text>
             {renderBlockchainDetails()}
           </View>
         </BlurView>
@@ -375,13 +385,13 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             accessibilityLabel="Send NFT"
           >
             <LinearGradient
-              colors={gradients.primaryButton.colors}
+              colors={[...gradients.primaryButton.colors]}
               start={gradients.primaryButton.start}
               end={gradients.primaryButton.end}
               style={styles.primaryButton}
             >
-              <CallMadeSvgIcon size={ms(15)} color="#e0e0e0" />
-              <Text style={styles.buttonText}>Send</Text>
+              <CallMadeSvgIcon size={ms(15)} color={colors.text.balance} />
+              <Text style={styles.buttonText}>{t('actions.send', 'Send')}</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -389,9 +399,9 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
           <BlurContainer
             style={styles.secondaryButtonWrapper}
             blurIntensity={2.5}
-            backgroundColor="rgba(255, 255, 255, 0.04)"
-            borderColor="rgba(255, 92, 69, 0.8)"
-            borderWidth={0.5}
+            backgroundColor={colors.interactive.surface}
+            borderColor={colors.accent.border}
+            borderWidth={borderWidth.actionButton}
           >
             <TouchableOpacity
               style={styles.secondaryButtonContent}
@@ -400,8 +410,8 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               accessibilityRole="button"
               accessibilityLabel="Burn NFT"
             >
-              <BurnIcon size={ms(15)} color="#e0e0e0" />
-              <Text style={styles.buttonText}>Burn</Text>
+              <BurnIcon size={ms(15)} color={colors.text.balance} />
+              <Text style={styles.buttonText}>{t('nft.burn_nft', 'Burn')}</Text>
             </TouchableOpacity>
           </BlurContainer>
         </View>
@@ -417,21 +427,21 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   nftName: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(8),
-    paddingHorizontal: s(18),
+    marginBottom: vs(spacing.sm),
+    paddingHorizontal: s(spacing.headerPadding),
     letterSpacing: ms(-0.32, 0.3),
   },
   blockchainBadgeContainer: {
     alignItems: 'center',
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   blockchainBadge: {
-    borderRadius: ms(12),
-    borderWidth: 1,
+    borderRadius: ms(borderRadius.lg),
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     overflow: 'hidden',
     backgroundColor: colors.background.tokenItem,
@@ -439,12 +449,12 @@ const styles = StyleSheet.create({
   blockchainBadgeContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: s(12),
-    paddingVertical: vs(6),
-    gap: s(6),
+    paddingHorizontal: s(spacing.md),
+    paddingVertical: vs(spacing.xs),
+    gap: s(spacing.xs),
   },
   blockchainLabel: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
@@ -452,25 +462,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollViewContent: {
-    paddingHorizontal: s(18),
-    paddingBottom: vs(40),
-    gap: vs(16),
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing['4xl']),
+    gap: vs(spacing.lg),
   },
   imageContainer: {
     alignItems: 'center',
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   nftImage: {
-    width: s(406),
-    height: s(406),
-    borderRadius: ms(18),
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.9,
-    shadowRadius: 20,
+    width: s(componentSizes.nftImageMaxWidth),
+    height: s(componentSizes.nftImageMaxWidth),
+    borderRadius: ms(borderRadius.iconContainer),
+    ...shadows.imageHero,
   },
   imageLoadingOverlay: {
     position: 'absolute',
@@ -479,47 +483,47 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   sectionContainer: {
-    borderRadius: ms(9),
-    borderWidth: 1,
+    borderRadius: ms(borderRadius.badge),
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     overflow: 'hidden',
     backgroundColor: colors.background.tokenItem,
   },
   sectionContent: {
-    padding: s(7),
+    padding: s(spacing.sm),
   },
   sectionTitle: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   descriptionText: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    lineHeight: ms(18),
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
   attributesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginHorizontal: -s(6),
+    marginHorizontal: -s(spacing.xs),
   },
   attributeItem: {
     width: '50%',
-    paddingHorizontal: s(6),
-    paddingVertical: vs(8),
+    paddingHorizontal: s(spacing.xs),
+    paddingVertical: vs(spacing.sm),
   },
   attributeName: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    marginBottom: vs(4),
+    marginBottom: vs(spacing.xs),
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: letterSpacing.wider,
   },
   attributeValue: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
@@ -527,32 +531,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: vs(8),
+    paddingVertical: vs(spacing.sm),
     borderBottomWidth: 0.5,
     borderBottomColor: colors.border.default,
   },
   detailLabel: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.secondary,
   },
   detailValue: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   detailValueWithCopy: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(8),
+    gap: s(spacing.sm),
   },
   rarityBadge: {
-    paddingHorizontal: s(8),
-    paddingVertical: vs(4),
-    borderRadius: ms(6),
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing.xs),
+    borderRadius: ms(borderRadius.sm),
   },
   rarityText: {
-    fontSize: ms(11),
+    fontSize: ms(fontSize.xs),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textTransform: 'capitalize',
@@ -560,45 +564,45 @@ const styles = StyleSheet.create({
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: s(16),
-    marginTop: vs(16),
+    gap: s(spacing.lg),
+    marginTop: vs(spacing.lg),
   },
   buttonWrapper: {
-    borderRadius: ms(14),
+    borderRadius: ms(borderRadius.button),
     overflow: 'hidden',
     flex: 1,
-    maxWidth: s(160),
+    maxWidth: s(componentSizes.buttonMinWidthLg),
   },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: vs(52),
-    paddingHorizontal: s(20),
-    gap: s(10),
-    borderRadius: ms(14),
-    borderWidth: 0.5,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    height: vs(componentSizes.iconSize4XL),
+    paddingHorizontal: s(spacing.xl),
+    gap: s(spacing.base),
+    borderRadius: ms(borderRadius.button),
+    borderWidth: borderWidth.actionButton,
+    borderColor: colors.accent.border,
   },
   secondaryButtonWrapper: {
-    borderRadius: ms(14),
+    borderRadius: ms(borderRadius.button),
     overflow: 'hidden',
     flex: 1,
-    maxWidth: s(160),
+    maxWidth: s(componentSizes.buttonMinWidthLg),
   },
   secondaryButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: vs(52),
-    paddingHorizontal: s(20),
-    gap: s(10),
+    height: vs(componentSizes.iconSize4XL),
+    paddingHorizontal: s(spacing.xl),
+    gap: s(spacing.base),
   },
   buttonText: {
-    fontSize: ms(16),
-    fontWeight: '500',
-    color: '#e0e0e0',
-    lineHeight: ms(16 * 1.5),
+    fontSize: ms(fontSize.md),
+    fontWeight: fontWeight.medium,
+    color: colors.text.balance,
+    lineHeight: ms(16 * lineHeight.normal),
   },
 });
 

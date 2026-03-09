@@ -12,17 +12,26 @@
  */
 
 import React, { type ReactNode } from 'react';
-import { Text, StyleSheet, ScrollView } from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
 
 import {
   colors,
   spacing,
   contentPadding,
+  fontSize,
+  fontFamilyNative,
+  componentSizes,
 } from '@salmon/shared';
-import { ScreenHeader } from '../ScreenHeader';
 
 // ============================================================================
 // Types
@@ -39,6 +48,12 @@ export interface SettingsScreenLayoutProps {
   onBack: () => void;
   /** Whether to show vertical scroll indicator. Default: false */
   showsVerticalScrollIndicator?: boolean;
+  /** Whether layout should provide its own ScrollView wrapper. Default: true */
+  scrollable?: boolean;
+  /** Optional style override for the content container */
+  contentContainerStyle?: StyleProp<ViewStyle>;
+  /** Whether to render the internal header. Default: false */
+  showHeader?: boolean;
 }
 
 // ============================================================================
@@ -51,36 +66,65 @@ export function SettingsScreenLayout({
   children,
   onBack,
   showsVerticalScrollIndicator = false,
+  scrollable = true,
+  contentContainerStyle,
+  showHeader = false,
 }: SettingsScreenLayoutProps) {
-
   return (
-    <LinearGradient
-      colors={[colors.background.primary, colors.background.secondary]}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* Header */}
-        <ScreenHeader onBack={onBack} />
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+        {showHeader && (
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={onBack}
+              style={styles.backButton}
+              accessibilityLabel="Go back"
+              accessibilityRole="button"
+            >
+              <Ionicons
+                name="chevron-back"
+                size={componentSizes.iconSizeMedium}
+                color={colors.text.primary}
+              />
+            </TouchableOpacity>
+            <Text style={styles.title} numberOfLines={1}>
+              {title}
+            </Text>
+          </View>
+        )}
 
-        {/* Title */}
-        <Text style={styles.title}>{title}</Text>
+        {subtitle && (
+          <Text style={[styles.subtitle, !showHeader && styles.subtitleStandalone]}>
+            {subtitle}
+          </Text>
+        )}
 
-        {/* Subtitle (optional) */}
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-
-        {/* Scrollable Content */}
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={showsVerticalScrollIndicator}
-        >
-          {children}
-        </ScrollView>
+        {scrollable ? (
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollContent,
+              !showHeader && styles.scrollContentHeaderless,
+              contentContainerStyle,
+            ]}
+            showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+          >
+            {children}
+          </ScrollView>
+        ) : (
+          <View
+            style={[
+              styles.staticContent,
+              styles.scrollContent,
+              !showHeader && styles.scrollContentHeaderless,
+              contentContainerStyle,
+            ]}
+          >
+            {children}
+          </View>
+        )}
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -95,29 +139,48 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  backButton: {
+    width: componentSizes.backButtonSize,
+    height: componentSizes.backButtonSize,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
   title: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
-    fontSize: 24,
-    lineHeight: 32,
-    marginBottom: spacing.lg,
-    paddingHorizontal: contentPadding.screen,
-    textAlign: 'center',
+    fontFamily: fontFamilyNative.bold,
+    fontSize: fontSize.lg,
+    flex: 1,
   },
   subtitle: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 14,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.base,
     lineHeight: 20,
-    marginBottom: spacing.xl,
     paddingHorizontal: contentPadding.screen,
-    textAlign: 'center',
+    marginBottom: spacing.lg,
+  },
+  subtitleStandalone: {
+    marginTop: spacing.md,
   },
   scrollView: {
     flex: 1,
   },
+  staticContent: {
+    flex: 1,
+  },
   scrollContent: {
+    paddingTop: spacing.lg,
     paddingHorizontal: contentPadding.screen,
     paddingBottom: spacing['2xl'],
+  },
+  scrollContentHeaderless: {
+    paddingTop: spacing.md,
   },
 });

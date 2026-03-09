@@ -56,6 +56,8 @@ import {
   getInitials,
   getAccountAddress,
   fontFamilyNative,
+  borderWidth,
+  opacity,
 } from '@salmon/shared';
 
 import type {
@@ -422,7 +424,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: borderRadius.tokenIcon,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -448,7 +450,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.regular,
     fontSize: fontSize.sm,
     lineHeight: fontSize.sm * lineHeight.normal,
-    marginTop: spacing['2xs'],
+    marginTop: spacing.xxs,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -463,7 +465,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
   },
   actionButtonDisabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
   },
   checkmarkContainer: {
     width: 32,
@@ -485,9 +487,9 @@ const styles = StyleSheet.create({
   addAccountIcon: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: borderRadius.tokenIcon,
     backgroundColor: colors.background.card,
-    borderWidth: 1,
+    borderWidth: borderWidth.thin,
     borderColor: colors.border.default,
     borderStyle: 'dashed',
     alignItems: 'center',

@@ -7,8 +7,10 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { colors, spacing, borderRadius, borderWidth, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative } from '@salmon/shared';
+import { useTranslation } from 'react-i18next';
+import { colors, spacing, borderRadius, fontSize, letterSpacing, lineHeight, shadows, ms, vs, s, formatTokenBalance, useCurrencyContext, fontFamilyNative, opacity, componentSizes } from '@salmon/shared';
 import { TokenLogo } from '../TokenLogo';
+import { BlurContainer } from '../BlurContainer';
 import type { SwapAmountInputProps } from './types';
 
 /**
@@ -27,6 +29,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
   style,
   isLoading = false,
 }) => {
+  const { t } = useTranslation();
   const [{ currency }, { formatPrecise }] = useCurrencyContext();
   const handleChangeText = useCallback(
     (text: string) => {
@@ -46,7 +49,10 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
       <Text style={styles.label}>{label}</Text>
 
       {/* Input Row */}
-      <View style={styles.inputContainer}>
+      <BlurContainer
+        borderColor={value ? colors.accent.primary : undefined}
+        style={styles.inputContainer}
+      >
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="small" color={colors.text.secondary} />
@@ -57,7 +63,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
             value={value}
             onChangeText={handleChangeText}
             placeholder={placeholder}
-            placeholderTextColor={colors.text.placeholder}
+            placeholderTextColor={colors.text.tertiary}
             keyboardType="decimal-pad"
             editable={editable}
           />
@@ -70,9 +76,9 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
           activeOpacity={0.7}
         >
           <TokenLogo uri={token?.logo || undefined} symbol={token?.symbol} size={ms(22)} />
-          <Text style={styles.tokenSymbol}>{token?.symbol || 'Select'}</Text>
+          <Text style={styles.tokenSymbol}>{token?.symbol || t('actions.select', 'Select')}</Text>
         </TouchableOpacity>
-      </View>
+      </BlurContainer>
 
       {/* USD Value and Balance Row */}
       {(usdValue !== undefined || availableBalance !== undefined) && (
@@ -94,20 +100,18 @@ const styles = StyleSheet.create({
     gap: vs(spacing.sm),
   },
   label: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    letterSpacing: 0.02,
-    lineHeight: ms(18),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.base * lineHeight.condensed),
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: borderWidth.tokenListItem,
-    borderColor: colors.border.default,
     borderRadius: borderRadius.md,
-    height: vs(58),
+    height: vs(componentSizes.inputHeightLg),
     paddingHorizontal: s(spacing.md),
   },
   loadingContainer: {
@@ -116,7 +120,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: ms(16),
+    fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     paddingVertical: 0,
@@ -130,23 +134,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.button.secondaryBackground,
     borderRadius: borderRadius.sm + 2,
     paddingHorizontal: s(spacing.sm),
-    paddingVertical: vs(2),
+    paddingVertical: vs(spacing.xxs),
     gap: s(spacing.sm - 1),
-    height: vs(36),
-    minWidth: s(100),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 3,
+    height: vs(componentSizes.iconSizeXL),
+    minWidth: s(componentSizes.swapSelectorMinWidth),
+    ...shadows.sm,
   },
   tokenSymbol: {
-    fontSize: ms(14),
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    opacity: 0.9,
-    letterSpacing: 0.018,
-    lineHeight: ms(18),
+    opacity: opacity.soft,
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.base * lineHeight.condensed),
   },
   infoRow: {
     flexDirection: 'row',
@@ -154,18 +154,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   usdValue: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
-    letterSpacing: 0.018,
-    lineHeight: ms(21),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
   availableBalance: {
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.primary,
-    letterSpacing: 0.018,
-    lineHeight: ms(21),
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
   },
 });
 

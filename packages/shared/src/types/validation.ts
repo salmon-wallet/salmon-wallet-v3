@@ -40,6 +40,7 @@ export type ValidationResultCode =
   | 'invalid'
   | 'same_address'
   | 'invalid_domain'
+  | 'network_error'
   // Solana-specific
   | 'off_curve_no_funds'
   | 'off_curve_has_funds'
@@ -129,6 +130,12 @@ export const VALIDATION_RESULTS = {
   INVALID_DOMAIN: {
     type: 'ERROR' as const,
     code: 'invalid_domain' as const,
+  } satisfies ValidationResult,
+
+  /** Network or RPC error during validation */
+  NETWORK_ERROR: {
+    type: 'ERROR' as const,
+    code: 'network_error' as const,
   } satisfies ValidationResult,
 };
 

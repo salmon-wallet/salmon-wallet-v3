@@ -24,11 +24,16 @@ import {
   fontFamilyNative,
   fontSize,
   gradients,
+  letterSpacing,
+  shadows,
   lineHeight,
   ms,
   s,
   spacing,
   vs,
+  borderWidth,
+  borderRadius,
+  componentSizes,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -327,8 +332,8 @@ export function LockScreenOverlay({
    * Determine input border color based on state
    */
   const getInputBorderColor = () => {
-    if (error) return colors.input.borderError;
-    if (isFocused) return colors.input.borderFocus;
+    if (error) return colors.status.error;
+    if (isFocused) return colors.accent.primary;
     return colors.input.border;
   };
 
@@ -377,7 +382,7 @@ export function LockScreenOverlay({
                           { borderColor: getInputBorderColor() },
                         ]}
                         placeholder={t('lock.enter_password')}
-                        placeholderTextColor="#667294"
+                        placeholderTextColor={colors.text.secondary}
                         secureTextEntry
                         value={password}
                         onChangeText={(text) => {
@@ -504,27 +509,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(36),
-    gap: vs(40),
+    paddingHorizontal: s(spacing.lockScreenPadding),
+    gap: vs(spacing['4xl']),
   },
   logoSection: {
     width: '100%',
     alignItems: 'center',
-    gap: vs(31),
+    gap: vs(spacing.lockScreenSectionGap),
   },
   logoContainer: {
     // No margin - using gap in parent
   },
   // Adjusted: larger logo for better visibility
   logo: {
-    width: s(140),
-    height: s(140),
+    width: s(componentSizes.lockScreenLogoSize),
+    height: s(componentSizes.lockScreenLogoSize),
   },
   welcomeText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.bold,
-    fontSize: ms(27),
-    letterSpacing: -0.46,
+    fontSize: ms(fontSize['2xl']),
+    letterSpacing: letterSpacing.balance,
     lineHeight: vs(38),
     textAlign: 'center',
   },
@@ -533,14 +538,14 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: vs(54),
+    height: vs(componentSizes.iconSize5XL),
     backgroundColor: colors.input.background,
-    borderWidth: 0.75,
-    borderRadius: 9,
+    borderWidth: borderWidth.sheet,
+    borderRadius: borderRadius.badge,
     paddingHorizontal: s(spacing.lg),
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(17),
+    fontSize: ms(fontSize.lg),
   },
   errorText: {
     color: colors.status.error,
@@ -552,25 +557,21 @@ const styles = StyleSheet.create({
   },
   buttonSection: {
     width: '100%',
-    gap: vs(22),
+    gap: vs(spacing.lockScreenGap),
   },
   buttonContainer: {
     width: '100%',
   },
   button: {
     width: '100%',
-    height: vs(53),
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    height: vs(componentSizes.iconSize4XL),
+    borderRadius: borderRadius.xl,
+    borderWidth: borderWidth.thin,
+    borderColor: colors.accent.border,
     alignItems: 'center',
     justifyContent: 'center',
     // Shadow for button
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 15,
-    elevation: 8,
+    ...shadows.button,
   },
   buttonDisabled: {
     opacity: colors.button.disabledOpacity,
@@ -578,18 +579,18 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.bold,
-    fontSize: ms(16),
-    lineHeight: ms(16 * 1.5),
+    fontSize: ms(fontSize.md),
+    lineHeight: ms(16 * lineHeight.normal),
   },
   biometricContainer: {
     alignItems: 'center',
   },
   biometricButton: {
-    width: s(64),
-    height: s(64),
+    width: s(componentSizes.biometricButtonSize),
+    height: s(componentSizes.biometricButtonSize),
     borderRadius: 32,
     backgroundColor: colors.input.background,
-    borderWidth: 0.75,
+    borderWidth: borderWidth.sheet,
     borderColor: colors.input.border,
     alignItems: 'center',
     justifyContent: 'center',
@@ -608,8 +609,8 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.bold,
-    fontSize: ms(15),
-    letterSpacing: -0.46,
+    fontSize: ms(fontSize.md),
+    letterSpacing: letterSpacing.balance,
     lineHeight: vs(38),
     textAlign: 'center',
   },

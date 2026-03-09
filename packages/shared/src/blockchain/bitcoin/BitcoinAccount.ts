@@ -364,7 +364,7 @@ export class BitcoinAccount {
       return { usdTotal, last24HoursChange, items: balances };
     }
 
-    return { items: balances };
+    return { usdTotal: 0, last24HoursChange: 0, items: balances };
   }
 
   // ============================================================================

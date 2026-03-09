@@ -3,6 +3,7 @@ import {
   borderWidth,
   colors,
   componentSizes,
+  fontFamilyNative,
   fontSize,
   getLabelValue,
   hiddenValue,
@@ -239,8 +240,8 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: ms(fontSize.tokenNamePrice),
-    fontFamily: 'DMSansMedium',
-    color: colors.text.token,
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.balance,
     flexShrink: 1,
     lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
@@ -248,12 +249,12 @@ const styles = StyleSheet.create({
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(spacing['2xs']),
+    gap: s(spacing.xxs),
   },
   price: {
     fontSize: ms(fontSize.tokenNamePrice),
-    fontFamily: 'DMSansSemiBold',
-    color: colors.text.tokenPrice,
+    fontFamily: fontFamilyNative.semiBold,
+    color: colors.text.muted,
     lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
   },
@@ -262,22 +263,22 @@ const styles = StyleSheet.create({
   },
   changeText: {
     fontSize: ms(fontSize.tokenChange),
-    fontFamily: 'DMSansLight',
+    fontFamily: fontFamilyNative.light,
     letterSpacing: ms(-0.06, 0.3),
   },
   valueContainer: {
     alignItems: 'flex-end',
-    gap: vs(spacing.tokenAmountGap),
+    gap: vs(spacing.xs),
   },
   usdValue: {
     fontSize: ms(fontSize.lg),
-    fontFamily: 'DMSansMedium',
-    color: colors.text.token,
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.balance,
     letterSpacing: ms(-0.09, 0.3),
   },
   tokenAmount: {
     fontSize: ms(fontSize.sm),
-    fontFamily: 'DMSansMedium',
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
 
@@ -291,22 +292,22 @@ const styles = StyleSheet.create({
   },
   bitcoinInfoContainer: {
     flex: 1,
-    gap: vs(spacing['2xs']),
+    gap: vs(spacing.xxs),
   },
   bitcoinPrice: {
     fontSize: ms(fontSize.lg),
-    fontFamily: 'DMSansBold',
-    color: '#FFFFFF',
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.primary,
     letterSpacing: ms(-0.09, 0.3),
   },
   bitcoinChangeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(spacing['2xs']),
+    gap: s(spacing.xxs),
   },
   bitcoinChangeText: {
     fontSize: ms(fontSize.tokenChange),
-    fontFamily: 'DMSansLight',
+    fontFamily: fontFamilyNative.light,
     letterSpacing: ms(-0.06, 0.3),
   },
   bitcoinAmountContainer: {
@@ -314,9 +315,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bitcoinAmount: {
-    fontSize: ms(19),
-    fontFamily: 'DMSansSemiBold',
-    color: 'rgba(255, 255, 255, 0.79)',
+    fontSize: ms(fontSize.xl),
+    fontFamily: fontFamilyNative.semiBold,
+    color: colors.text.muted,
     letterSpacing: ms(-0.095, 0.3),
   },
 });

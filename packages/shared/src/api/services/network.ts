@@ -9,7 +9,7 @@
  * - GET /v1/networks - Get all available networks (static API)
  */
 
-import { staticApiClient } from '../client';
+import { apiClient } from '../client';
 import type { Network } from '../../types/blockchain';
 
 // ============================================================================
@@ -40,7 +40,7 @@ export async function getNetworks(): Promise<Network[]> {
     return networksPromise;
   }
 
-  networksPromise = staticApiClient
+  networksPromise = apiClient
     .get<Network[]>('/v1/networks')
     .then(({ data }) => data);
 

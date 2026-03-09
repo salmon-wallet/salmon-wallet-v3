@@ -10,10 +10,13 @@ import {
 } from 'react-native';
 import {
   colors,
+  fontFamilyNative,
+  fontSize,
   componentSizes,
   ms,
   vs,
   s,
+  spacing,
 } from '@salmon/shared';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
@@ -171,20 +174,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: s(8),
-    marginBottom: vs(16),
-    paddingHorizontal: s(18),
+    gap: s(spacing.sm),
+    marginBottom: vs(spacing.lg),
+    paddingHorizontal: s(spacing.headerPadding),
   },
   title: {
-    fontSize: ms(24),
-    fontFamily: 'DMSansExtraBold',
+    fontSize: ms(fontSize['2xl']),
+    fontFamily: fontFamilyNative.extraBold,
     color: colors.text.primary,
     textAlign: 'center',
     letterSpacing: ms(-0.32, 0.3),
   },
   count: {
-    fontSize: ms(18),
-    fontFamily: 'DMSans-Regular',
+    fontSize: ms(fontSize.lg),
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
   scrollContent: {
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: HORIZONTAL_PADDING,
-    paddingBottom: vs(40),
+    paddingBottom: vs(spacing['4xl']),
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -205,7 +208,7 @@ const styles = StyleSheet.create({
   },
   // Skeleton styles
   skeletonGrid: {
-    paddingTop: vs(8),
+    paddingTop: vs(spacing.sm),
   },
   skeletonRow: {
     flexDirection: 'row',

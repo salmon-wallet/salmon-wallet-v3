@@ -1,9 +1,8 @@
-import { colors, ms, s, vs } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, fontWeight, borderRadius, borderWidth, gradients, shadows, componentSizes, ms, s, vs, spacing } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -19,10 +18,10 @@ import type { NftCardProps, NftCardSkeletonProps } from './types';
  * Gradient: linear-gradient(91.6deg, rgb(255, 92, 69) 12%, rgba(161, 42, 42, 0.9) 83%)
  */
 const FALLBACK_GRADIENT = {
-  colors: ['rgb(255, 92, 69)', 'rgba(161, 42, 42, 0.9)'] as const,
+  colors: [...gradients.primaryButton.colors],
   start: { x: 0.12, y: 0.5 },
   end: { x: 0.83, y: 0.5 },
-};
+} as const;
 
 /**
  * NftCard component for displaying NFTs in a grid layout
@@ -129,9 +128,9 @@ export const NftCard: React.FC<NftCardProps> = ({
         <BlurContainer
           style={styles.nameBadge}
           blurIntensity={6}
-          backgroundColor="rgba(0, 0, 0, 0.6)"
-          borderColor="rgba(255, 92, 69, 0.8)"
-          borderWidth={0.5}
+          backgroundColor={colors.overlay.darkHover}
+          borderColor={colors.accent.border}
+          borderWidth={borderWidth.actionButton}
         >
           <Text
             style={styles.nameText}
@@ -165,22 +164,12 @@ export const NftCard: React.FC<NftCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     // Card size: ~194x193px with responsive scaling
-    width: s(194),
-    height: vs(193),
-    borderRadius: ms(18),
+    width: s(componentSizes.nftCardWidth),
+    height: vs(componentSizes.nftCardHeight),
+    borderRadius: ms(borderRadius.iconContainer),
     overflow: 'hidden',
     // Shadow: 0px 3px 9px rgba(0,0,0,0.4)
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.4,
-        shadowRadius: 9,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
+    ...shadows.nftCard,
   },
   image: {
     width: '100%',
@@ -206,26 +195,26 @@ const styles = StyleSheet.create({
   },
   nameBadgeContainer: {
     position: 'absolute',
-    bottom: vs(8),
-    left: s(8),
-    right: s(8),
+    bottom: vs(spacing.sm),
+    left: s(spacing.sm),
+    right: s(spacing.sm),
     alignItems: 'center',
   },
   nameBadge: {
     // Border radius: 9px (BlurContainer handles background/border)
-    borderRadius: ms(9),
+    borderRadius: ms(borderRadius.badge),
     // Padding: 6px vertical
-    paddingVertical: vs(6),
-    paddingHorizontal: s(16),
+    paddingVertical: vs(spacing.xs),
+    paddingHorizontal: s(spacing.lg),
     width: '100%',
     overflow: 'hidden',
   },
   nameText: {
     // DM Sans SemiBold, ~13px, color #e0e0e0
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(13),
-    fontWeight: '600',
-    color: '#e0e0e0',
+    fontFamily: fontFamilyNative.semiBold,
+    fontSize: ms(fontSize.sm),
+    fontWeight: fontWeight.semibold,
+    color: colors.text.balance,
     textAlign: 'center',
   },
 });

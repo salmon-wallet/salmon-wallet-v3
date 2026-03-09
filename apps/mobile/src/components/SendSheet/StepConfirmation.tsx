@@ -8,13 +8,22 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import {
   colors,
+  gradients,
+  shadows,
   fontFamilyNative,
   ms,
   vs,
   s,
   useSendTransaction,
+  fontSize,
+  borderRadius,
+  borderWidth,
+  spacing,
+  opacity,
+  componentSizes,
 } from '@salmon/shared';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
@@ -25,13 +34,7 @@ import type { StepConfirmationProps } from './types';
 // Constants
 // ============================================================================
 
-const BUTTON_SHADOW = {
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.64,
-  shadowRadius: 12,
-  elevation: 8,
-} as const;
+const BUTTON_SHADOW = shadows.button;
 
 // ============================================================================
 // Component
@@ -47,6 +50,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
   onCancel,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   const [estimatedFee, setEstimatedFee] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -136,6 +140,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
 
         {/* Recipient Address */}
         <TouchableOpacity
+          style={styles.addressButton}
           onPress={handleCopy}
           activeOpacity={0.7}
           accessibilityLabel="Copy recipient address"
@@ -155,7 +160,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
         {/* Fee Display */}
         {estimatedFee && (
           <Text style={styles.feeText}>
-            Network Fee: ~{estimatedFee}
+            {t('token.send.networkFee', 'Network Fee')}: ~{estimatedFee}
           </Text>
         )}
 
@@ -174,7 +179,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
           disabled={isSending}
         >
           <Text style={styles.cancelButtonText}>
-            {isFailed ? 'CANCEL' : 'CANCEL'}
+            {t('actions.cancel', 'CANCEL').toUpperCase()}
           </Text>
         </TouchableOpacity>
 
@@ -185,7 +190,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
           disabled={isSending}
         >
           <LinearGradient
-            colors={['#FF5C45', '#A12A2AE6']}
+            colors={[...gradients.primary.colors]}
             style={styles.confirmButtonGradient}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.4 }}
@@ -193,11 +198,11 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
             {isSending ? (
               <View style={styles.sendingRow}>
                 <ActivityIndicator size="small" color={colors.text.primary} />
-                <Text style={styles.confirmButtonText}>Sending...</Text>
+                <Text style={styles.confirmButtonText}>{t('token.send.sending', 'Sending...')}</Text>
               </View>
             ) : (
               <Text style={styles.confirmButtonText}>
-                {isFailed ? 'RETRY' : 'CONFIRM'}
+                {isFailed ? t('actions.retry', 'RETRY').toUpperCase() : t('actions.confirm', 'CONFIRM').toUpperCase()}
               </Text>
             )}
           </LinearGradient>
@@ -220,87 +225,90 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
   },
   // Token Icon
   tokenIconWrapper: {
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   // Amount
   amountText: {
-    fontSize: ms(22),
+    fontSize: ms(fontSize.title),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(24),
+    marginBottom: vs(spacing['2xl']),
   },
   // Address
+  addressButton: {
+    alignSelf: 'stretch',
+  },
   addressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'stretch',
-    borderRadius: ms(8),
-    paddingVertical: vs(14),
-    paddingHorizontal: s(16),
-    gap: s(10),
+    width: '100%',
+    borderRadius: ms(borderRadius.md),
+    paddingVertical: vs(spacing.lg),
+    paddingHorizontal: s(spacing.lg),
+    gap: s(spacing.base),
   },
   addressText: {
     flex: 1,
-    fontSize: ms(12),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   // Fee
   feeText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
-    marginTop: vs(14),
+    marginTop: vs(spacing.lg),
     textAlign: 'center',
   },
   // Error
   errorText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
     color: colors.status.error,
-    marginTop: vs(12),
+    marginTop: vs(spacing.md),
     textAlign: 'center',
   },
   // Bottom Buttons
   bottomButtons: {
     flexDirection: 'row',
-    paddingHorizontal: s(18),
-    paddingBottom: vs(34),
-    paddingTop: vs(12),
-    gap: s(12),
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing.sheetBottomPadding),
+    paddingTop: vs(spacing.md),
+    gap: s(spacing.md),
   },
   cancelButton: {
     flex: 1,
-    height: vs(48),
-    borderRadius: ms(12),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
-    backgroundColor: '#1f232f',
+    height: vs(componentSizes.buttonHeightMedium),
+    borderRadius: ms(borderRadius.lg),
+    borderWidth: borderWidth.thin,
+    borderColor: colors.accent.border,
+    backgroundColor: colors.button.cancelBackground,
     alignItems: 'center',
     justifyContent: 'center',
     ...BUTTON_SHADOW,
   },
   cancelButtonText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   confirmButton: {
     flex: 1,
-    height: vs(48),
-    borderRadius: ms(12),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    height: vs(componentSizes.buttonHeightMedium),
+    borderRadius: ms(borderRadius.lg),
+    borderWidth: borderWidth.thin,
+    borderColor: colors.accent.border,
     overflow: 'hidden',
     ...BUTTON_SHADOW,
   },
   confirmButtonDisabled: {
-    opacity: 0.7,
+    opacity: opacity.medium,
   },
   confirmButtonGradient: {
     flex: 1,
@@ -308,14 +316,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   confirmButtonText: {
-    fontSize: ms(13),
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
   },
   sendingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(8),
+    gap: s(spacing.sm),
   },
 });
 

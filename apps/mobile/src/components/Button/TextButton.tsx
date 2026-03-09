@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   ViewStyle,
 } from 'react-native';
-import { colors, componentSizes } from '@salmon/shared';
+import { colors, componentSizes, fontFamilyNative, spacing, fontSize, letterSpacing, } from '@salmon/shared';
 
 interface TextButtonProps {
   onPress: () => void;
@@ -54,15 +54,15 @@ const styles = StyleSheet.create({
     height: componentSizes.buttonHeightSmall,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
   disabled: {
     opacity: colors.button.disabledOpacity,
   },
   text: {
     color: colors.text.primary,
-    fontFamily: 'DMSansMedium',
-    fontSize: 14,
-    letterSpacing: 0.5,
+    fontFamily: fontFamilyNative.medium,
+    fontSize: fontSize.base,
+    letterSpacing: letterSpacing.wider,
   },
 });

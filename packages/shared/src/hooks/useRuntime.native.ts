@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Linking } from 'react-native';
-import type { RuntimeInfo } from './useRuntime';
-import { ADAPTER_PREFIXES } from './useRuntime';
+import type { RuntimeInfo } from './useRuntime.shared';
+import { ADAPTER_PREFIXES } from './useRuntime.shared';
 
 /**
  * Runtime hook for React Native / Expo environments.

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, type TextStyle } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, borderRadius, gradients, componentSizes, fontFamily, fontWeight, vs, s } from '@salmon/shared';
+import { colors, spacing, borderRadius, gradients, shadows, componentSizes, fontFamily, fontWeight, vs, s, fontSize, borderWidth, } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
 import type { SwapInputScreenProps } from './types';
@@ -25,13 +26,15 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
   onReview,
   style,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={[styles.container, style]}>
       {/* Input Fields */}
       <View style={styles.inputsContainer}>
         {/* You Send */}
         <SwapAmountInput
-          label="You Send"
+          label={t('swap.you_send', 'You Send')}
           value={inAmount}
           onChangeValue={onInAmountChange}
           token={inToken}
@@ -39,14 +42,14 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
           usdValue={inUsdValue}
           availableBalance={inToken?.balance}
           editable={true}
-          placeholder="Enter an amount"
+          placeholder={t('swap.enter_amount', 'Enter an amount')}
         />
 
         {reviewWarning ? <Text style={styles.warningText}>{reviewWarning}</Text> : null}
 
         {/* You Receive */}
         <SwapAmountInput
-          label="You Receive"
+          label={t('swap.you_receive', 'You Receive')}
           value={outAmount}
           onChangeValue={() => {}}
           token={outToken}
@@ -56,7 +59,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
           isLoading={isLoadingQuote}
         />
 
-        <Text style={styles.disclaimerText}>Includes 0.5% platform fee</Text>
+        <Text style={styles.disclaimerText}>{t('swap.platform_fee_disclaimer', 'Includes 0.5% platform fee')}</Text>
       </View>
 
       {/* Review Button */}
@@ -73,7 +76,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
               disabled={false}
               style={styles.button}
             >
-              Review & Swap
+              {t('swap.review.reviewAndSwap', 'Review & Swap')}
             </PrimaryButton>
           </LinearGradient>
         ) : (
@@ -83,7 +86,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
               disabled={true}
               style={styles.button}
             >
-              Review & Swap
+              {t('swap.review.reviewAndSwap', 'Review & Swap')}
             </PrimaryButton>
           </View>
         )}
@@ -110,7 +113,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   warningText: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     fontFamily: fontFamily.sans,
     fontWeight: fontWeight.medium as TextStyle['fontWeight'],
     color: colors.status.warning,
@@ -125,24 +128,20 @@ const styles = StyleSheet.create({
   },
   buttonGradient: {
     borderRadius: borderRadius.lg,
-    borderWidth: 0.8,
+    borderWidth: borderWidth.accent,
     borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.64,
-    shadowRadius: 12,
-    elevation: 8,
+    ...shadows.button,
   },
   buttonGradientActive: {
-    borderColor: 'rgba(255, 92, 69, 0.8)',
+    borderColor: colors.accent.border,
   },
   buttonGradientInactive: {
     backgroundColor: colors.button.inactiveBackground,
     borderColor: 'transparent',
   },
   button: {
-    minWidth: s(180),
-    height: vs(42),
+    minWidth: s(componentSizes.copyButtonWidth),
+    height: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

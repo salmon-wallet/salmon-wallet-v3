@@ -127,20 +127,24 @@ export interface LoadingScreenBaseProps {
 }
 
 /**
- * Default security tips to display on loading screens
+ * Translation key identifiers for loading screen tips.
+ * Resolve via t() at render time in LoadingScreen components.
  */
-export const DEFAULT_WALLET_TIPS = [
-  'Never share your seed phrase with anyone',
-  'Always verify transaction details before signing',
-  'Keep your recovery phrase in a safe place offline',
-  'Enable biometric authentication for extra security',
-  'Double-check wallet addresses before sending',
-  'Your keys, your crypto - stay in control',
-  'Bookmark official sites to avoid phishing',
-  'Start with small test transactions',
-  'Keep your app updated for security patches',
-  'Use a hardware wallet for large holdings',
+export const DEFAULT_WALLET_TIP_KEYS = [
+  'general.tips.0',
+  'general.tips.1',
+  'general.tips.2',
+  'general.tips.3',
+  'general.tips.4',
+  'general.tips.5',
+  'general.tips.6',
+  'general.tips.7',
+  'general.tips.8',
+  'general.tips.9',
 ] as const;
+
+/** @deprecated Use DEFAULT_WALLET_TIP_KEYS instead */
+export const DEFAULT_WALLET_TIPS = DEFAULT_WALLET_TIP_KEYS;
 
 // ============================================================================
 // Token Features Types

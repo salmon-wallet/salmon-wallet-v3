@@ -5,12 +5,11 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Platform,
   ActivityIndicator,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, ms, s, vs } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, fontWeight, borderRadius, borderWidth, gradients, shadows, componentSizes, ms, s, vs, spacing, } from '@salmon/shared';
 import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCarouselSectionProps, NftBlockchain } from './types';
@@ -25,10 +24,10 @@ const CARD_GAP = s(9);
 
 // Fallback gradient for NFTs without images
 const FALLBACK_GRADIENT = {
-  colors: ['rgb(255, 92, 69)', 'rgba(161, 42, 42, 0.9)'] as const,
+  colors: [...gradients.primaryButton.colors],
   start: { x: 0.12, y: 0.5 },
   end: { x: 0.83, y: 0.5 },
-};
+} as const;
 
 /**
  * Get blockchain icon component based on blockchain type
@@ -123,9 +122,9 @@ const MiniNftCard: React.FC<MiniNftCardProps> = ({ nft, onPress }) => {
         <BlurContainer
           style={styles.nameBadge}
           blurIntensity={6}
-          backgroundColor="rgba(0, 0, 0, 0.6)"
-          borderColor="rgba(255, 92, 69, 0.8)"
-          borderWidth={0.5}
+          backgroundColor={colors.overlay.darkHover}
+          borderColor={colors.accent.border}
+          borderWidth={borderWidth.actionButton}
         >
           <Text style={styles.nameText} numberOfLines={1} ellipsizeMode="tail">
             {nft.name || 'Unnamed NFT'}
@@ -229,38 +228,38 @@ export const NftCarouselSection: React.FC<NftCarouselSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: vs(24),
+    marginBottom: vs(spacing['2xl']),
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: s(18),
-    marginBottom: vs(12),
-    height: vs(32),
+    paddingHorizontal: s(spacing.headerPadding),
+    marginBottom: vs(spacing.md),
+    height: vs(componentSizes.iconSizeLarge),
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(8),
+    gap: s(spacing.sm),
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(18),
-    fontWeight: '600',
+    fontFamily: fontFamilyNative.semiBold,
+    fontSize: ms(fontSize.lg),
+    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
   },
   count: {
-    fontFamily: 'DMSans-Regular',
-    fontSize: ms(14),
+    fontFamily: fontFamilyNative.regular,
+    fontSize: ms(fontSize.base),
     color: colors.text.secondary,
   },
   scrollContent: {
-    paddingHorizontal: s(18),
+    paddingHorizontal: s(spacing.headerPadding),
     gap: CARD_GAP,
   },
   // Mini Card Styles
@@ -269,17 +268,7 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
     borderRadius: CARD_BORDER_RADIUS,
     overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.4,
-        shadowRadius: 9,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
+    ...shadows.nftCard,
   },
   cardBackground: {
     width: '100%',
@@ -302,23 +291,23 @@ const styles = StyleSheet.create({
   },
   nameBadgeContainer: {
     position: 'absolute',
-    bottom: vs(8),
-    left: s(8),
-    right: s(8),
+    bottom: vs(spacing.sm),
+    left: s(spacing.sm),
+    right: s(spacing.sm),
     alignItems: 'center',
   },
   nameBadge: {
-    borderRadius: ms(9),
-    paddingVertical: vs(6),
-    paddingHorizontal: s(16),
+    borderRadius: ms(borderRadius.badge),
+    paddingVertical: vs(spacing.xs),
+    paddingHorizontal: s(spacing.lg),
     width: '100%',
     overflow: 'hidden',
   },
   nameText: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: ms(13),
-    fontWeight: '600',
-    color: '#e0e0e0',
+    fontFamily: fontFamilyNative.semiBold,
+    fontSize: ms(fontSize.sm),
+    fontWeight: fontWeight.semibold,
+    color: colors.text.balance,
     textAlign: 'center',
   },
 });

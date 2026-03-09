@@ -15,13 +15,16 @@ import {
   vs,
   s,
   fontFamilyNative,
+  fontSize,
+  borderRadius,
+  spacing,
 } from '@salmon/shared';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { TokenListItem } from '../TokenList';
 import { PriceChart } from '../PriceChart';
-import { TokenMarketData } from '../TokenMarketData';
-import { TokenAbout } from '../TokenAbout';
+import { TokenMarketData } from './TokenMarketData';
+import { TokenAbout } from './TokenAbout';
 import { TokenBadgesSection } from './TokenBadgesSection';
 import type { TokenInformationSheetProps } from './types';
 
@@ -137,7 +140,7 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
             selectedPeriod={chartPeriod}
             onPeriodChange={onChartPeriodChange}
             loading={loading}
-            style={{ marginHorizontal: -s(18) }}
+            style={{ marginHorizontal: -s(spacing.headerPadding) }}
           />
         )}
 
@@ -186,25 +189,25 @@ const styles = StyleSheet.create({
     minHeight: '85%',
   },
   title: {
-    fontSize: ms(24),
+    fontSize: ms(fontSize['2xl']),
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(15),
+    marginBottom: vs(spacing.lg),
     letterSpacing: ms(-0.12, 0.3),
   },
   scrollView: {
     flex: 1,
   },
   scrollViewContent: {
-    paddingHorizontal: s(18),
-    paddingBottom: vs(30),
-    gap: vs(15),
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing['3.5xl']),
+    gap: vs(spacing.lg),
   },
   tokenItemSkeletonContainer: {
     backgroundColor: colors.background.tokenItem,
-    borderRadius: 12,
-    marginBottom: vs(8),
+    borderRadius: borderRadius.lg,
+    marginBottom: vs(spacing.sm),
     overflow: 'hidden',
   },
 });

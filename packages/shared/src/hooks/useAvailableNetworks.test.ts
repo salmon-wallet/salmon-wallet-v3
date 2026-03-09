@@ -18,7 +18,7 @@ vi.mock('./useUserConfig', () => ({
   useUserConfig: vi.fn(),
 }));
 
-vi.mock('../blockchain/solana/factory', () => ({
+vi.mock('../blockchain/solana/networks', () => ({
   SOLANA_NETWORKS: {
     'solana-mainnet': {
       id: 'solana-mainnet',
@@ -39,7 +39,7 @@ vi.mock('../blockchain/solana/factory', () => ({
   },
 }));
 
-vi.mock('../blockchain/bitcoin/factory', () => ({
+vi.mock('../blockchain/bitcoin/networks', () => ({
   BITCOIN_NETWORKS: {
     'bitcoin-mainnet': {
       id: 'bitcoin-mainnet',
@@ -62,7 +62,7 @@ vi.mock('../blockchain/bitcoin/factory', () => ({
   },
 }));
 
-vi.mock('../blockchain/ethereum/factory', () => ({
+vi.mock('../blockchain/ethereum/networks', () => ({
   ETHEREUM_NETWORKS: {
     'ethereum-mainnet': {
       id: 'ethereum-mainnet',
@@ -86,6 +86,14 @@ vi.mock('../blockchain/ethereum/factory', () => ({
     },
   },
 }));
+
+vi.mock('../config/blockchains', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../config/blockchains')>();
+  return {
+    ...actual,
+    isBlockchainEnabled: () => true,
+  };
+});
 
 // ============================================================================
 // Test Data

@@ -17,7 +17,7 @@ import {
   fontFamilyNative,
   type SupportSelectorBaseProps,
   type SupportOptionItem,
-} from '@salmon/shared';
+fontSize, } from '@salmon/shared';
 import { SettingsScreenLayout } from '../SettingsScreenLayout';
 
 // ============================================================================
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: borderRadius.md,
-    backgroundColor: 'rgba(255, 92, 69, 0.1)',
+    backgroundColor: colors.accent.tint,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
@@ -126,8 +126,8 @@ const styles = StyleSheet.create({
   optionTitle: {
     color: colors.text.primary,
     fontFamily: fontFamilyNative.medium,
-    fontSize: 16,
-    marginBottom: 2,
+    fontSize: fontSize.md,
+    marginBottom: spacing.xxs,
   },
   optionDescription: {
     color: colors.text.secondary,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   securityNotice: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: 'rgba(255, 179, 0, 0.1)',
+    backgroundColor: colors.status.warningBackground,
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginTop: spacing.lg,

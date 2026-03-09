@@ -217,10 +217,14 @@ export function getTransactionDate(tx: SolanaTransaction): Date {
 /**
  * Get a human-readable time ago string for a transaction
  * @param tx - Transaction to get time ago for
+ * @param t - Optional translation function for localized output
  * @returns Human-readable time ago string (e.g., "2h ago")
  */
-export function getTimeAgo(tx: SolanaTransaction): string {
-  return formatRelativeTimeCompact(tx.timestamp);
+export function getTimeAgo(
+  tx: SolanaTransaction,
+  t?: (key: string, options?: Record<string, unknown>) => string,
+): string {
+  return formatRelativeTimeCompact(tx.timestamp, t);
 }
 
 /**

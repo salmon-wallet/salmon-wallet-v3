@@ -2,7 +2,7 @@
  * PasswordStrengthBar - Visual indicator of password strength
  */
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontSize, fontFamilyNative, } from '@salmon/shared';
 import { PasswordStrength, getPasswordStrengthLabel } from '@salmon/shared';
 
 interface PasswordStrengthBarProps {
@@ -13,9 +13,9 @@ interface PasswordStrengthBarProps {
 export function PasswordStrengthBar({ strength, t }: PasswordStrengthBarProps) {
   const getStrengthColor = () => {
     switch (strength) {
-      case 'strong': return colors.passwordStrength.strong;
-      case 'medium': return colors.passwordStrength.medium;
-      default: return colors.passwordStrength.weak;
+      case 'strong': return colors.status.success;
+      case 'medium': return colors.status.warning;
+      default: return colors.status.error;
     }
   };
 
@@ -62,11 +62,11 @@ const styles = StyleSheet.create({
   bar: {
     width: 32,
     height: 4,
-    borderRadius: 2,
+    borderRadius: borderRadius.scrollbar,
   },
   label: {
-    fontFamily: 'DMSansMedium',
-    fontSize: 12,
+    fontFamily: fontFamilyNative.medium,
+    fontSize: fontSize.sm,
     textTransform: 'capitalize',
   },
 });

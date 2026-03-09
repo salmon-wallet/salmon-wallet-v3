@@ -14,7 +14,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import mapValues from 'lodash-es/mapValues';
 import merge from 'lodash-es/merge';
 import omit from 'lodash-es/omit';
-import axios from 'axios';
 
 import {
   getStorageItem,
@@ -41,7 +40,6 @@ import { SOLANA_NETWORKS } from '../blockchain/solana';
 import { BITCOIN_NETWORKS } from '../blockchain/bitcoin';
 import { ETHEREUM_NETWORKS } from '../blockchain/ethereum';
 import type { SolanaNetwork, BitcoinNetwork, EthereumNetwork } from '../types/blockchain';
-import { getApiUrl } from '../api/config';
 import {
   getPathIndex,
   getBlockchainFromNetworkId,
@@ -110,8 +108,6 @@ export interface UseAccountsState {
   activeTrustedApps: Record<string, TrustedApp>;
   /** Custom tokens for the current network */
   activeTokens: Record<string, TokenInfo>;
-  /** Whether the current account is whitelisted */
-  whitelisted: boolean;
   /** Whether a network switch is in progress (shows skeletons) */
   switchingNetwork: boolean;
 }
@@ -382,7 +378,6 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   const [pathIndex, setPathIndex] = useState(0);
   const [trustedApps, setTrustedApps] = useState<TrustedApps>({});
   const [tokens, setTokens] = useState<CustomTokens>({});
-  const [whitelisted, setWhitelisted] = useState(false);
   const [switchingNetwork, setSwitchingNetwork] = useState(false);
 
   // --------------------------------------------------------------------------
@@ -775,6 +770,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         // populate the actual blockchain account instances in networksAccounts.
         await load(mnemonics);
         setLocked(false);
+        await updateLastActivity();
 
         await setStashItem(STASH_KEYS.PASSWORD, password);
 
@@ -825,6 +821,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         // populate the actual blockchain account instances in networksAccounts.
         await load(mnemonics);
         setLocked(false);
+        await updateLastActivity();
 
         return true;
       } catch (error) {
@@ -926,31 +923,6 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     };
 
     updateConnection();
-  }, [activeBlockchainAccount, networkId]);
-
-  // --------------------------------------------------------------------------
-  // Whitelist Check Effect
-  // --------------------------------------------------------------------------
-
-  useEffect(() => {
-    const checkWhitelist = async (): Promise<void> => {
-      setWhitelisted(false);
-      if (!activeBlockchainAccount || !networkId) return;
-
-      try {
-        const address = activeBlockchainAccount.getReceiveAddress();
-        const apiUrl = getApiUrl();
-        const url = `${apiUrl}/v1/${networkId}/account/${address}/info`;
-        const { data } = await axios.get(url);
-        if (data?.whitelisted) {
-          setWhitelisted(true);
-        }
-      } catch {
-        // Silently handle - not all accounts are whitelisted
-      }
-    };
-
-    checkWhitelist();
   }, [activeBlockchainAccount, networkId]);
 
   // --------------------------------------------------------------------------
@@ -1298,7 +1270,6 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     activeBlockchainAccount,
     activeTrustedApps,
     activeTokens,
-    whitelisted,
     switchingNetwork,
   };
 

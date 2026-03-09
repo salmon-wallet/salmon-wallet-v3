@@ -12,6 +12,8 @@ import type { ValidationResult, ValidationState } from '../types/validation';
  * Validation result code to message mapping.
  */
 export const VALIDATION_MESSAGES: Record<string, string> = {
+  // Shared
+  network_error: 'Could not verify address. Check your connection.',
   // Solana
   invalid: 'Invalid address format',
   invalid_domain: 'Could not resolve domain name',

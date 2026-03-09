@@ -10,8 +10,9 @@
  * Uses react-native-reanimated for 60fps animations
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -23,7 +24,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Logo } from '@salmon/assets';
-import { colors, DEFAULT_WALLET_TIPS } from '@salmon/shared';
+import { colors, DEFAULT_WALLET_TIP_KEYS, fontFamilyNative, letterSpacing, spacing, fontSize, } from '@salmon/shared';
 
 import { LoadingScreenProps } from './types';
 
@@ -43,12 +44,20 @@ export function LoadingScreen({
   visible,
   title,
   subtitle,
-  tips = DEFAULT_WALLET_TIPS as unknown as string[],
+  tips = DEFAULT_WALLET_TIP_KEYS as unknown as string[],
   tipInterval = 4000,
   showTips = true,
   logoSize = 100,
   spinnerSize = 140,
 }: LoadingScreenProps) {
+  const { t } = useTranslation();
+
+  // Resolve tip keys through t() for i18n
+  const resolvedTips = useMemo(
+    () => tips.map((tipKey) => t(tipKey, tipKey)),
+    [tips, t],
+  );
+
   // State
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(visible);
@@ -101,8 +110,8 @@ export function LoadingScreen({
 
   // Helper function to advance to next tip
   const advanceToNextTip = useCallback(() => {
-    setCurrentTipIndex((prev) => (prev + 1) % tips.length);
-  }, [tips.length]);
+    setCurrentTipIndex((prev) => (prev + 1) % resolvedTips.length);
+  }, [resolvedTips.length]);
 
   // Helper function to fade tip back in
   // Note: tipOpacity is a Reanimated SharedValue which is stable and doesn't need to be in dependencies
@@ -113,7 +122,7 @@ export function LoadingScreen({
 
   // Cycle through tips
   useEffect(() => {
-    if (!visible || !showTips || tips.length <= 1) return;
+    if (!visible || !showTips || resolvedTips.length <= 1) return;
 
     const interval = setInterval(() => {
       // Fade out current tip
@@ -127,7 +136,7 @@ export function LoadingScreen({
     }, tipInterval);
 
     return () => clearInterval(interval);
-  }, [visible, showTips, tips.length, tipInterval, tipOpacity, advanceToNextTip, fadeInTip]);
+  }, [visible, showTips, resolvedTips.length, tipInterval, tipOpacity, advanceToNextTip, fadeInTip]);
 
   // Animated styles
   const pulseStyle = useAnimatedStyle(() => ({
@@ -184,11 +193,11 @@ export function LoadingScreen({
           </View>
 
           {/* Tips Section */}
-          {showTips && tips.length > 0 && (
+          {showTips && resolvedTips.length > 0 && (
             <View style={styles.tipsContainer}>
-              <Text style={styles.tipLabel}>Tip</Text>
+              <Text style={styles.tipLabel}>{t('general.tip', 'Tip')}</Text>
               <Animated.Text style={[styles.tipText, tipStyle]}>
-                {tips[currentTipIndex]}
+                {resolvedTips[currentTipIndex]}
               </Animated.Text>
             </View>
           )}
@@ -249,28 +258,28 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing['2xl'],
   },
   title: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
-    fontSize: 24,
+    fontFamily: fontFamilyNative.bold,
+    fontSize: fontSize['2xl'],
     lineHeight: 32,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 16,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.md,
     lineHeight: 24,
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: spacing['3xl'],
   },
   logoSpinnerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 48,
+    marginBottom: spacing['5xl'],
   },
   spinnerContainer: {
     position: 'absolute',
@@ -296,20 +305,20 @@ const styles = StyleSheet.create({
   },
   tipLabel: {
     color: colors.accent.primary,
-    fontFamily: 'DMSansBold',
-    fontSize: 12,
+    fontFamily: fontFamilyNative.bold,
+    fontSize: fontSize.sm,
     lineHeight: 16,
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
+    letterSpacing: letterSpacing.widest,
+    marginBottom: spacing.sm,
   },
   tipText: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
-    fontSize: 14,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.base,
     lineHeight: 20,
     textAlign: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
 });
 

@@ -116,20 +116,36 @@ export type {
   AvatarPickerPropsBase,
 } from './avatar-picker';
 
-// Accounts Page
-export type { AccountsPagePropsBase } from './accounts-page';
+// Accounts Panel
+export type { AccountsPanelPropsBase } from './accounts-panel';
 
-// Account Edit Page
-export type { AccountEditPagePropsBase } from './account-edit-page';
+// Account Edit Panel
+export type { AccountEditPanelPropsBase } from './account-edit-panel';
 
-// Account Add Page
-export type { AccountAddStep, AccountAddPagePropsBase } from './account-add';
+// Account Add Panel
+export type { AccountAddStep, AccountAddPanelPropsBase } from './account-add';
 
-// Security Page
+// Security Panel
 export type {
-  SecurityPagePropsBase,
-  SecurityPagePropsMobile,
-} from './security-page';
+  SecurityPanelPropsBase,
+  SecurityPanelPropsMobile,
+} from './security-panel';
 
 // Transaction Success Screen
 export type { TransactionSuccessScreenProps } from './transaction-success-screen';
+
+// Backup Panel
+export type { BackupPanelPropsBase } from './backup-panel';
+
+// Private Key Panel
+export type { PrivateKeyPanelPropsBase } from './private-key-panel';
+
+// Address Book Panels
+export type {
+  AddressBookPanelPropsBase,
+  AddressAddPanelPropsBase,
+  AddressEditPanelPropsBase,
+} from './address-book-panel';
+
+// About Panel
+export type { AboutPanelPropsBase } from './about-panel';

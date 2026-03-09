@@ -4,6 +4,9 @@ import {
   BitcoinKeyPair,
 } from './BitcoinAccount';
 import type { BitcoinNetwork } from '../../types/blockchain';
+
+// Re-export for backward compatibility — canonical definition is in ./networks
+export { BITCOIN_NETWORKS } from './networks';
 import type { BitcoinAccountApiFunctions } from '../../types/transfer';
 import type { BitcoinNetworkId } from '../../types/blockchain';
 import {
@@ -294,26 +297,3 @@ export function createBitcoinAccountFromWIF(
   return createBitcoinAccountFromKeyPair(network, keyPair, index, apiFunctions);
 }
 
-/**
- * Pre-defined network configurations for common Bitcoin networks
- */
-export const BITCOIN_NETWORKS: Record<string, BitcoinNetwork> = {
-  'bitcoin-mainnet': {
-    id: 'bitcoin-mainnet',
-    name: 'Bitcoin Mainnet',
-    networkId: 'bitcoin-mainnet',
-    environment: 'mainnet',
-    config: {
-      network: bitcoin.networks.bitcoin,
-    },
-  },
-  'bitcoin-testnet': {
-    id: 'bitcoin-testnet',
-    name: 'Bitcoin Testnet',
-    networkId: 'bitcoin-testnet',
-    environment: 'testnet',
-    config: {
-      network: bitcoin.networks.testnet,
-    },
-  },
-};

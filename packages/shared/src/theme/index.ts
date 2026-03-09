@@ -18,6 +18,8 @@ import {
   borderWidth,
   componentSizes,
   contentPadding,
+  opacity,
+  blur,
 } from './spacing';
 import {
   fontFamily,
@@ -26,9 +28,9 @@ import {
   lineHeight,
   fontWeight,
   letterSpacing,
-  textStyles,
 } from './typography';
 import { shadows, shadowsCSS } from './shadows';
+import { duration, durationMs, easing } from './durations';
 
 // Re-export all tokens from colors
 export { colors, gradients, getScalesColorForBlockchain } from './colors';
@@ -41,6 +43,8 @@ export {
   borderWidth,
   componentSizes,
   contentPadding,
+  opacity,
+  blur,
 } from './spacing';
 export type {
   Spacing,
@@ -48,6 +52,8 @@ export type {
   BorderWidth,
   ComponentSizes,
   ContentPadding,
+  Opacity,
+  Blur,
 } from './spacing';
 
 // Re-export all tokens from typography
@@ -58,7 +64,6 @@ export {
   lineHeight,
   fontWeight,
   letterSpacing,
-  textStyles,
 } from './typography';
 export type {
   FontFamily,
@@ -67,12 +72,15 @@ export type {
   LineHeight,
   FontWeight,
   LetterSpacing,
-  TextStyles,
 } from './typography';
 
 // Re-export all tokens from shadows
 export { shadows, shadowsCSS } from './shadows';
 export type { Shadows, ShadowsCSS } from './shadows';
+
+// Re-export all tokens from durations
+export { duration, durationMs, easing } from './durations';
+export type { Duration, DurationMs, Easing } from './durations';
 
 /**
  * Complete theme object combining all tokens
@@ -92,9 +100,13 @@ export const theme = {
   fontWeight,
   lineHeight,
   letterSpacing,
-  textStyles,
+  opacity,
+  blur,
   shadows,
   shadowsCSS,
+  duration,
+  durationMs,
+  easing,
 } as const;
 
 export type Theme = typeof theme;

@@ -38,20 +38,13 @@ import {
   contentPadding,
   createAccount,
   generateAccountName,
+  MIRROR_NETWORKS,
   PASSWORD_CONSTRAINTS,
+  SCAN_NETWORKS,
   spacing,
   useAccountsContext,
   validatePassword,
-  SCAN_NETWORKS,
-  MIRROR_NETWORKS,
 } from '@salmon/shared';
-import {
-  LoadingScreen,
-  PasswordInput,
-  PasswordStrengthBar,
-  PrimaryButton,
-  ScreenHeader,
-} from '../../src/components';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useRef, useState } from 'react';
@@ -69,6 +62,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  LoadingScreen,
+  PasswordInput,
+  PasswordStrengthBar,
+  PrimaryButton,
+  ScreenHeader,
+} from '../../src/components';
 
 // ============================================================================
 // Component
@@ -156,7 +156,7 @@ export default function PasswordScreen() {
    * Handle terms & conditions press
    */
   const handleTermsPress = useCallback(() => {
-    Linking.openURL('https://salmonwallet.io/terms.html');
+    Linking.openURL('https://salmonwallet.io/terms');
   }, []);
 
   /**

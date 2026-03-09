@@ -154,30 +154,35 @@ export function ExplorerLinkButton({
 
   return (
     <>
-      <TouchableOpacity
-        style={[styles.button, style]}
-        onPress={handlePress}
-        activeOpacity={0.7}
-        accessibilityRole="link"
-        accessibilityLabel={buttonText}
-        accessibilityHint="Opens transaction in blockchain explorer"
+      <BlurContainer
+        borderColor={colors.palette.amber}
+        style={[styles.blurWrapper, style]}
       >
-        <Ionicons
-          name="open-outline"
-          size={16}
-          color={colors.accent.primary}
-          style={styles.icon}
-        />
-        <Text style={styles.buttonText}>{buttonText}</Text>
-        {showMenu && availableExplorers.length > 1 && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handlePress}
+          activeOpacity={0.7}
+          accessibilityRole="link"
+          accessibilityLabel={buttonText}
+          accessibilityHint="Opens transaction in blockchain explorer"
+        >
           <Ionicons
-            name="chevron-down"
-            size={14}
-            color={colors.accent.primary}
-            style={styles.chevron}
+            name="open-outline"
+            size={16}
+            color={colors.palette.amber}
+            style={styles.icon}
           />
-        )}
-      </TouchableOpacity>
+          <Text style={styles.buttonText}>{buttonText}</Text>
+          {showMenu && availableExplorers.length > 1 && (
+            <Ionicons
+              name="chevron-down"
+              size={14}
+              color={colors.palette.amber}
+              style={styles.chevron}
+            />
+          )}
+        </TouchableOpacity>
+      </BlurContainer>
 
       {/* Explorer menu modal */}
       {showMenu && availableExplorers.length > 1 && (
@@ -226,31 +231,30 @@ export function ExplorerLinkButton({
 // ============================================================================
 
 const styles = StyleSheet.create({
+  blurWrapper: {
+    borderRadius: borderRadius.md,
+  },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: vs(12),
-    paddingHorizontal: s(16),
-    backgroundColor: `${colors.accent.primary}15`,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: `${colors.accent.primary}30`,
+    paddingVertical: vs(spacing.md),
+    paddingHorizontal: s(spacing.lg),
   },
   icon: {
-    marginRight: s(8),
+    marginRight: s(spacing.sm),
   },
   buttonText: {
     fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.medium,
-    color: colors.accent.primary,
+    color: colors.palette.amber,
   },
   chevron: {
-    marginLeft: s(4),
+    marginLeft: s(spacing.xs),
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: colors.dialog.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.lg,
@@ -268,19 +272,19 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: vs(16),
+    marginBottom: vs(spacing.lg),
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: vs(14),
-    paddingHorizontal: s(12),
+    paddingVertical: vs(spacing.lg),
+    paddingHorizontal: s(spacing.md),
     borderRadius: borderRadius.md,
     backgroundColor: colors.background.card,
-    marginBottom: vs(8),
+    marginBottom: vs(spacing.sm),
   },
   menuItemIcon: {
-    marginRight: s(12),
+    marginRight: s(spacing.md),
   },
   menuItemText: {
     flex: 1,
