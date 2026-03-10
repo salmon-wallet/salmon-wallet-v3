@@ -3,8 +3,6 @@
 # dependencies
 node_modules/
 
-# pnpm
-pnpm-lock.yaml
 
 # Turborepo
 .turbo/
@@ -49,3 +47,8 @@ coverage/
 # generated native folders
 ios/
 android/
+
+# build artifacts
+*.apk
+*.aab
+*.ipa

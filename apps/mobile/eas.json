@@ -4,7 +4,12 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "base": {
+      "node": "22.12.0",
+      "pnpm": "9.0.0"
+    },
     "local": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "env": {
@@ -18,6 +23,7 @@
       }
     },
     "staging": {
+      "extends": "base",
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_SALMON_ENV": "staging",
@@ -32,23 +38,24 @@
       "channel": "staging"
     },
     "production": {
+      "extends": "base",
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_SALMON_ENV": "production",
         "EXPO_PUBLIC_HELIUS_API_KEY": "b91df46c-46f2-4d7e-b095-14220b8e4540"
       },
       "channel": "production"
+    },
+    "production-apk": {
+      "extends": "production",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {
     "production": {
-      "ios": {
-        "appleId": "",
-        "ascAppId": "",
-        "appleTeamId": ""
-      },
       "android": {
-        "serviceAccountKeyPath": "",
         "track": "internal"
       }
     }

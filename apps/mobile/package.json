@@ -12,7 +12,8 @@
     "lint": "eslint app hooks src --ext .ts,.tsx --ignore-pattern '**/*.js'",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "eas-build-post-install": "test \"$EAS_BUILD_PLATFORM\" = \"android\" && echo 'org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g' >> ./android/gradle.properties || true"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -41,6 +42,7 @@
     "expo-secure-store": "~55.0.8",
     "expo-splash-screen": "~55.0.10",
     "expo-status-bar": "~55.0.4",
+    "expo-updates": "~55.0.12",
     "expo-web-browser": "~55.0.9",
     "i18next": "^25.6.2",
     "qrcode.react": "^4.2.0",

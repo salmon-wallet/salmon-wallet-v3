@@ -7,13 +7,15 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Helper to find a package in pnpm's node_modules structure (version-agnostic)
-// For scoped packages like @bonfida/spl-name-service:
-// - pnpm directory uses: @bonfida+spl-name-service@version
-// - node_modules path uses: @bonfida/spl-name-service
-function findPnpmPackage(packageName, subPath = '') {
+// Helper to find a package in node_modules (supports both pnpm hoisted and non-hoisted)
+function findPackage(packageName, subPath = '') {
+  // Try hoisted (flat) structure first (node-linker=hoisted)
+  const hoistedPath = path.join(monorepoRoot, 'node_modules', packageName, subPath);
+  if (fs.existsSync(hoistedPath)) {
+    return hoistedPath;
+  }
+  // Try pnpm's .pnpm structure (non-hoisted / default pnpm)
   const pnpmDir = path.join(monorepoRoot, 'node_modules/.pnpm');
-  // Convert scoped package name to pnpm directory format (@ -> @, / -> +)
   const pnpmDirName = packageName.replace('/', '+');
   try {
     const dirs = fs.readdirSync(pnpmDir);
@@ -53,7 +55,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   // See: https://github.com/solana-labs/solana-web3.js/issues/1981
   if (moduleName === 'rpc-websockets') {
     // Find rpc-websockets in pnpm's node_modules structure (version-agnostic)
-    const rpcWebsocketsBrowserPath = findPnpmPackage(
+    const rpcWebsocketsBrowserPath = findPackage(
       'rpc-websockets',
       'dist/index.browser.cjs'
     );
@@ -71,7 +73,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   // Use the CJS build which exists at the correct path.
   if (moduleName === '@bonfida/spl-name-service') {
     // Find @bonfida/spl-name-service in pnpm's node_modules structure (version-agnostic)
-    const bonfidaPath = findPnpmPackage(
+    const bonfidaPath = findPackage(
       '@bonfida/spl-name-service',
       'dist/cjs/index.js'
     );
@@ -89,7 +91,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   // The package has a "react-native" export condition but Metro doesn't honor it when
   // unstable_enablePackageExports is disabled.
   if (moduleName === 'axios') {
-    const axiosBrowserPath = findPnpmPackage('axios', 'dist/browser/axios.cjs');
+    const axiosBrowserPath = findPackage('axios', 'dist/browser/axios.cjs');
     if (axiosBrowserPath && fs.existsSync(axiosBrowserPath)) {
       return {
         filePath: axiosBrowserPath,
@@ -105,7 +107,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   // which uses browserify-compatible crypto polyfills.
   // See: https://github.com/crypto-browserify/createHmac
   if (moduleName === 'create-hmac') {
-    const createHmacBrowserPath = findPnpmPackage('create-hmac', 'browser.js');
+    const createHmacBrowserPath = findPackage('create-hmac', 'browser.js');
     if (createHmacBrowserPath && fs.existsSync(createHmacBrowserPath)) {
       return {
         filePath: createHmacBrowserPath,
@@ -118,7 +120,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   // Fix for create-hash: Same issue as create-hmac - transitive dependency that needs
   // the browser build for React Native compatibility.
   if (moduleName === 'create-hash') {
-    const createHashBrowserPath = findPnpmPackage('create-hash', 'browser.js');
+    const createHashBrowserPath = findPackage('create-hash', 'browser.js');
     if (createHashBrowserPath && fs.existsSync(createHashBrowserPath)) {
       return {
         filePath: createHashBrowserPath,
