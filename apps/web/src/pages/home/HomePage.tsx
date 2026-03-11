@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@salmon/ui';
+import { styled } from '@salmon/ui/utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
@@ -34,7 +34,6 @@ import {
   type MarketData,
   type Token,
   type NftData,
-  type SettingsScreen,
   type SettingsPanelEntry,
   type CurrencySelectorItem,
   type LanguageSelectorItem,
@@ -217,7 +216,7 @@ const TabButton = styled('button', {
   border: 'none',
   borderBottom: active ? `2px solid ${colors.accent.primary}` : '2px solid transparent',
   color: active ? colors.text.primary : colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: active ? 600 : 400,
   fontSize: 14,
   textAlign: 'center',

@@ -16,6 +16,7 @@ import {
   colors,
   componentSizes,
   contentPadding,
+  fontFamilyNative,
   fontSize,
   spacing,
   useAccountsContext,
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: fontSize['2xl'],
     lineHeight: 32,
     textAlign: 'center',
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
   },
   brandName: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: 32,
     lineHeight: 40,
     textAlign: 'center',

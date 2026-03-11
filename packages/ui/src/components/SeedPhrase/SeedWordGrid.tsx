@@ -32,7 +32,7 @@ const WordCard = styled(Box)({
 
 const WordIndex = styled(Typography)({
   color: colors.accent.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: fontWeight.bold,
   fontSize: fontSize.sm,
   minWidth: componentSizes.iconSizeSmall,
@@ -40,7 +40,7 @@ const WordIndex = styled(Typography)({
 
 const WordText = styled(Typography)({
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.base,
 });
 

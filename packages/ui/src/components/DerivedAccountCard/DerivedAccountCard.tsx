@@ -63,7 +63,7 @@ const Info = styled(Box)({
 
 const Address = styled(Typography)({
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.md,
 });
 
@@ -77,7 +77,7 @@ const NetworkRow = styled(Box)({
 
 const PathText = styled(Typography)({
   color: colors.text.tertiary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: fontWeight.medium,
   fontSize: fontSize.sm,
 });
@@ -90,7 +90,7 @@ const BalanceContainer = styled(Box)({
 
 const Balance = styled(Typography)<{ $dimmed: boolean }>(({ $dimmed }) => ({
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.base,
   opacity: $dimmed ? 0.4 : 1,
 }));

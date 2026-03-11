@@ -55,7 +55,7 @@ const ButtonContainer = styled(Box)({
 
 const WarningText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: fontWeight.medium,
   color: colors.status.warning,
   textAlign: 'center',

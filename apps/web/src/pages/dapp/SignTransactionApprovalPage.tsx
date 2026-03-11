@@ -1,143 +1,139 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { styled } from '@salmon/ui';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { colors, spacing, fontFamily } from '@salmon/shared';
-import { PrimaryButton, SecondaryButton } from '@salmon/ui';
-import { onRequest, sendResponse, type BridgeRequest } from '../../utils/walletBridge';
-
-const Container = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100vh',
-  overflow: 'hidden',
-  backgroundColor: colors.background.primary,
-  padding: spacing['2xl'],
-});
-
-const CenterContent = styled(Box)({
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: spacing.xl,
-});
-
-const Title = styled(Typography)({
-  color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontWeight: 700,
-  fontSize: 24,
-  textAlign: 'center',
-});
-
-const Origin = styled(Typography)({
-  color: colors.accent.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 14,
-  textAlign: 'center',
-  wordBreak: 'break-all',
-});
-
-const InfoBox = styled(Box)({
-  width: '100%',
-  backgroundColor: colors.background.card,
-  borderRadius: 12,
-  padding: spacing.lg,
-  border: `1px solid ${colors.border.default}`,
-});
-
-const InfoRow = styled(Box)({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: `${spacing.sm}px 0`,
-  borderBottom: `1px solid ${colors.border.default}`,
-  '&:last-child': { borderBottom: 'none' },
-});
-
-const InfoLabel = styled(Typography)({
-  color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
-  fontSize: 13,
-});
-
-const InfoValue = styled(Typography)({
-  color: colors.text.primary,
-  fontFamily: 'monospace',
-  fontSize: 13,
-});
-
-const ButtonsContainer = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing.md,
-  width: '100%',
-});
+import {
+  DAppTransactionApprovalView,
+} from '@salmon/ui';
+import {
+  approveSolanaTransactionRequest,
+  getDAppTransactionRequestSummary,
+  loadSolanaTransactionApprovalDetails,
+  useAccountsContext,
+  type DAppTransactionRequest,
+} from '@salmon/shared';
+import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
+import { onRequest, sendResponse } from '../../utils/walletBridge';
 
 export function SignTransactionApprovalPage(): React.ReactElement {
   const [searchParams] = useSearchParams();
   const requestId = searchParams.get('requestId') || '';
   const origin = searchParams.get('origin') || '';
-  const [request, setRequest] = useState<BridgeRequest | null>(null);
+  const [state] = useAccountsContext();
+  const [request, setRequest] = useState<DAppTransactionRequest | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [parsingError, setParsingError] = useState<string | null>(null);
+  const [feeLamports, setFeeLamports] = useState<number | null>(null);
+  const [instructionCount, setInstructionCount] = useState<number | null>(null);
+  const [feePayer, setFeePayer] = useState<string | null>(null);
+  const [recentBlockhash, setRecentBlockhash] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsub = onRequest((req) => {
-      if (req.requestId === requestId) setRequest(req);
+    const unsubscribe = onRequest((incoming) => {
+      if (
+        incoming.requestId === requestId &&
+        (
+          incoming.request.method === 'signTransaction' ||
+          incoming.request.method === 'signAllTransactions' ||
+          incoming.request.method === 'signAndSendTransaction'
+        )
+      ) {
+        setRequest(incoming.request);
+      }
     });
-    return unsub;
+
+    return unsubscribe;
   }, [requestId]);
 
-  const txBytes = request?.payload
-    ? (request.payload as { transaction: number[] }).transaction
-    : null;
-  const txSize = txBytes ? txBytes.length : 0;
+  const solanaAccount = useMemo(
+    () => getActiveSolanaApprovalAccount(
+      state.activeAccount,
+      state.activeBlockchainAccount,
+      state.pathIndex,
+    ),
+    [state.activeAccount, state.activeBlockchainAccount, state.pathIndex],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      setParsingError(null);
+      setFeeLamports(null);
+      setInstructionCount(null);
+      setFeePayer(null);
+      setRecentBlockhash(null);
+
+      if (!solanaAccount || !request) return;
+
+      try {
+        const details = await loadSolanaTransactionApprovalDetails(solanaAccount, request);
+        if (cancelled) return;
+
+        setFeeLamports(details.feeLamports);
+        setInstructionCount(details.instructionCount);
+        setFeePayer(details.feePayer);
+        setRecentBlockhash(details.recentBlockhash);
+      } catch (error) {
+        if (cancelled) return;
+        setParsingError(
+          error instanceof Error ? error.message : 'Failed to decode transaction',
+        );
+      }
+    }
+
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [request, solanaAccount]);
 
   const handleApprove = useCallback(async () => {
-    // TODO: Sign the transaction with the active account's private key
-    // For now, send a placeholder response
-    sendResponse({
-      requestId,
-      approved: true,
-      payload: { signedTransaction: txBytes || [] },
-    });
-    window.close();
-  }, [requestId, txBytes]);
+    if (!solanaAccount || !request) return;
+
+    setLoading(true);
+    try {
+      const payload = await approveSolanaTransactionRequest(solanaAccount, request);
+      sendResponse({
+        requestId,
+        approved: true,
+        payload,
+      });
+      window.close();
+    } catch (error) {
+      sendResponse({
+        requestId,
+        approved: false,
+        error: error instanceof Error ? error.message : 'Transaction approval failed',
+      });
+      window.close();
+    } finally {
+      setLoading(false);
+    }
+  }, [request, requestId, solanaAccount]);
 
   const handleReject = useCallback(() => {
-    sendResponse({ requestId, approved: false });
+    sendResponse({ requestId, approved: false, error: 'User rejected the request' });
     window.close();
   }, [requestId]);
 
+  const feeSol = useMemo(() => {
+    if (feeLamports == null) return null;
+    return (feeLamports / 1_000_000_000).toFixed(9).replace(/0+$/, '').replace(/\.$/, '');
+  }, [feeLamports]);
+
   return (
-    <Container>
-      <CenterContent>
-        <Title>Approve Transaction</Title>
-        <Origin>{origin}</Origin>
-
-        <InfoBox>
-          <InfoRow>
-            <InfoLabel>Transaction size</InfoLabel>
-            <InfoValue>{txSize} bytes</InfoValue>
-          </InfoRow>
-          <InfoRow>
-            <InfoLabel>Status</InfoLabel>
-            <InfoValue>{request ? 'Ready to sign' : 'Waiting for data...'}</InfoValue>
-          </InfoRow>
-        </InfoBox>
-
-        <Typography sx={{ color: colors.text.secondary, fontFamily: `${fontFamily.sans}, sans-serif`, fontSize: 14, textAlign: 'center' }}>
-          This app is requesting you to sign and submit a transaction. Make sure you trust this app
-          before approving.
-        </Typography>
-      </CenterContent>
-
-      <ButtonsContainer>
-        <PrimaryButton onClick={handleApprove} disabled={!request}>Approve & Sign</PrimaryButton>
-        <SecondaryButton onClick={handleReject}>Reject</SecondaryButton>
-      </ButtonsContainer>
-    </Container>
+    <DAppTransactionApprovalView
+      origin={origin}
+      requestSummary={request ? getDAppTransactionRequestSummary(request.method) : 'signTransaction'}
+      feeSol={feeSol}
+      instructionCount={instructionCount}
+      feePayer={feePayer}
+      recentBlockhash={recentBlockhash}
+      parsingError={parsingError}
+      disabled={!solanaAccount || !request}
+      loading={loading}
+      onApprove={handleApprove}
+      onReject={handleReject}
+    />
   );
 }

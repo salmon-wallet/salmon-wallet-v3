@@ -7,8 +7,8 @@
 export const fontFamily = {
   /** Primary font - DM Sans */
   sans: 'DM Sans',
-  /** Monospace font for addresses, codes, etc. */
-  mono: 'DM Mono',
+  /** Legacy alias kept for compatibility; resolves to DM Sans */
+  mono: 'DM Sans',
 } as const;
 
 /**
@@ -28,6 +28,8 @@ export const fontFamilyNative = {
   bold: 'DMSansBold',
   /** DM Sans ExtraBold (800) */
   extraBold: 'DMSansExtraBold',
+  /** DM Sans Black (900) */
+  black: 'DMSansBlack',
 } as const;
 
 /**

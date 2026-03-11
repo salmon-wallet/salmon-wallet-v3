@@ -280,6 +280,10 @@ export function TransactionHistoryPage({
     [onTransactionDetailClick]
   );
 
+  const handleScrollContentRef = useCallback((node: HTMLDivElement | null) => {
+    scrollRef.current = node;
+  }, []);
+
   return (
     <PageShell
       title={t('transactions.historyTitle')}
@@ -288,7 +292,8 @@ export function TransactionHistoryPage({
       scrollContentStyle={{
         padding: `${spacing.md}px ${spacing.lg}px ${spacing.xl}px`,
       }}
-      scrollContentProps={{ ref: scrollRef, onScroll: handleScroll as React.UIEventHandler<HTMLDivElement> }}
+      scrollContentProps={{ onScroll: handleScroll as React.UIEventHandler<HTMLDivElement> }}
+      scrollContentRef={handleScrollContentRef}
       style={style}
       className={className}
     >

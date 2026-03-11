@@ -31,7 +31,7 @@ const StyledButton = styled(Button)<{ $customColor?: string }>(
     paddingRight: spacing.lg,
     background: 'transparent',
     borderRadius: borderRadius.none,
-    fontFamily: `${fontFamily.sans}, sans-serif`,
+    fontFamily: fontFamily.sans,
     fontSize: fontSize.sm,
     fontWeight: fontWeight.medium,
     letterSpacing: letterSpacing.wide,

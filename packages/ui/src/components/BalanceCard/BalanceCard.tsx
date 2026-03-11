@@ -134,7 +134,7 @@ const NetworkLabel = styled(Box)({
 const NetworkLabelText = styled(Typography)({
   fontSize: ms(fontSize.xs),
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textTransform: 'uppercase',
   letterSpacing: letterSpacing.wide,
@@ -153,7 +153,7 @@ const BalanceRow = styled(Box)({
 const BalanceDollars = styled(Typography)({
   fontSize: ms(fontSize.balance),
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.balance,
   letterSpacing: letterSpacing.balance,
 });
@@ -161,7 +161,7 @@ const BalanceDollars = styled(Typography)({
 const BalanceDecimals = styled(Typography)({
   fontSize: ms(fontSize.balance),
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   letterSpacing: letterSpacing.balance,
   opacity: opacity.faint,
@@ -199,7 +199,7 @@ const ChangeRow = styled(Box)({
 const ChangeText = styled(Typography)<{ $color?: string }>(({ $color }) => ({
   fontSize: ms(fontSize.sm),
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: $color || colors.text.muted,
   letterSpacing: letterSpacing.change,
 }));

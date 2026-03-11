@@ -46,7 +46,7 @@ const AccountTextContainer = styled(Box)({
 const AccountName = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: spacing.xxs,
   overflow: 'hidden',
@@ -62,7 +62,7 @@ const AddressContainer = styled(Box)({
 
 const Address = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: 'monospace',
+  fontFamily: fontFamily.mono,
   color: colors.text.muted,
   overflow: 'hidden',
   textOverflow: 'ellipsis',

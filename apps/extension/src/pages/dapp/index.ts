@@ -1,3 +1,9 @@
-export { DAppConnectPage, type DAppConnectRequest } from './DAppConnectPage';
-export { DAppTransactionApprovalPage, type DAppTransactionRequest } from './DAppTransactionApprovalPage';
-export { DAppSignMessageApprovalPage, type DAppSignMessageRequest } from './DAppSignMessageApprovalPage';
+export { DAppConnectPage } from './DAppConnectPage';
+export { DAppTransactionApprovalPage } from './DAppTransactionApprovalPage';
+export { DAppSignMessageApprovalPage } from './DAppSignMessageApprovalPage';
+export type {
+  DAppApprovalRequest,
+  DAppConnectRequest,
+  DAppTransactionRequest,
+  DAppSignMessageRequest,
+} from '@salmon/shared';

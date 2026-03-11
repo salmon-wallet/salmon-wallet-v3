@@ -55,7 +55,7 @@ const LoadingContainer = styled(Box)({
 
 const LoadingText = styled(Typography)({
   color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: 16,
 });
 

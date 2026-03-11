@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@salmon/ui';
+import { styled } from '@salmon/ui/utils/styled';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import Typography from '@mui/material/Typography';
@@ -43,7 +43,7 @@ const LogoImage = styled('img')({
 const Title = styled(Typography)({
   fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textAlign: 'center',
   marginBottom: spacing.sm,
@@ -51,7 +51,7 @@ const Title = styled(Typography)({
 
 const Subtitle = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   textAlign: 'center',
   marginBottom: spacing['3xl'],
@@ -65,7 +65,7 @@ const StyledInput = styled(InputBase)<{ $hasError: boolean }>(({ $hasError }) =>
   width: '100%',
   padding: '14px 16px',
   fontSize: fontSize.md,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   backgroundColor: colors.input.background,
   border: `1px solid ${$hasError ? colors.status.error : colors.input.border}`,
   borderRadius: componentSizes.inputRadius,
@@ -79,7 +79,7 @@ const StyledInput = styled(InputBase)<{ $hasError: boolean }>(({ $hasError }) =>
 const ErrorText = styled(Typography)({
   color: colors.status.error,
   fontSize: fontSize.xs,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   marginTop: spacing.sm,
   marginLeft: spacing.xs,
 });
@@ -91,7 +91,7 @@ const ForgotPasswordButton = styled('button')({
   border: 'none',
   color: colors.text.secondary,
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   cursor: 'pointer',
   width: '100%',
   textAlign: 'center',

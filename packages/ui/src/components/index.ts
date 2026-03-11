@@ -201,6 +201,36 @@ export type {
 export { BridgeRecipientScreen, BridgeReviewScreen } from './BridgeScreen';
 export type { BridgeChain, BridgeToken, BridgeEstimate, BridgeRecipientScreenProps, BridgeReviewScreenProps } from './BridgeScreen';
 
+// DAppApproval - Shared approval views for web and extension
+export {
+  DAppConnectApprovalView,
+  DAppSignMessageApprovalView,
+  DAppTransactionApprovalView,
+} from './DAppApproval';
+export type {
+  DAppConnectApprovalViewProps,
+  DAppSignMessageApprovalViewProps,
+  DAppTransactionApprovalViewProps,
+} from './DAppApproval';
+
+// AuthFlow - Shared auth screens for web and extension
+export {
+  CreateWalletPage,
+  DerivedAccountsPage,
+  PasswordPage,
+  RecoverWalletPage,
+  SelectOptionsPage,
+  SuccessPage,
+} from './AuthFlow';
+export type {
+  CreateWalletPageProps,
+  DerivedAccountsPageProps,
+  PasswordPageProps,
+  RecoverWalletPageProps,
+  SelectOptionsPageProps,
+  SuccessPageProps,
+} from './AuthFlow';
+
 // BaseDialog - Base compound component for MUI dialogs
 export { BaseDialog, MessageText } from './BaseDialog';
 export type {

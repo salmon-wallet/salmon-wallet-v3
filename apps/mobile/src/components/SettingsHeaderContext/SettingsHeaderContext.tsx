@@ -54,10 +54,11 @@ export function useSettingsHeaderOverride(
   }, [enabled, onBack, setHeaderState, title]);
 
   useEffect(() => {
+    const ownerId = ownerIdRef.current;
     return () => {
       if (lastAppliedStateRef.current !== null && setHeaderState) {
         lastAppliedStateRef.current = null;
-        setHeaderState(ownerIdRef.current, null);
+        setHeaderState(ownerId, null);
       }
     };
   }, [setHeaderState]);

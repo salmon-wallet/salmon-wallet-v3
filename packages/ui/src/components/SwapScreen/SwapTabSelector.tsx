@@ -53,7 +53,7 @@ const Tab = styled(ButtonBase)({
 const TabText = styled(Typography)<{ $active: boolean }>(({ $active }) => ({
   fontSize: fontSize.lg,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   letterSpacing: letterSpacing.wide,
   lineHeight: `${fontSize.lg * lineHeight.condensed}px`,
   color: $active ? colors.text.primary : colors.text.disabled,

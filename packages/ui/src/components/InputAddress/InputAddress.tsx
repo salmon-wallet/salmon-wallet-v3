@@ -51,7 +51,7 @@ const Label = styled(Typography)({
   fontWeight: fontWeight.medium,
   marginBottom: spacing.sm,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 });
 
 const InputWrapper = styled(Box)<{
@@ -76,7 +76,7 @@ const StyledInput = styled(InputBase)<{
 }>(({ $inputDisabled }) => ({
   flex: 1,
   color: $inputDisabled ? colors.text.tertiary : colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.md,
   '& .MuiInputBase-input': {
     padding: `${spacing.md}px 0`,
@@ -121,7 +121,7 @@ const MessageText = styled(Typography)<{
 }>(({ $messageType }) => ({
   fontSize: fontSize.sm,
   lineHeight: `${fontSize.sm * lineHeight.normal}px`,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color:
     $messageType === 'error'
       ? colors.status.error
@@ -140,14 +140,14 @@ const DomainInfo = styled(Box)({
 const DomainLabel = styled(Typography)({
   fontSize: fontSize.sm,
   color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   marginBottom: spacing.xs,
 });
 
 const DomainValue = styled(Typography)({
   fontSize: fontSize.sm,
   color: colors.text.primary,
-  fontFamily: 'monospace',
+  fontFamily: fontFamily.mono,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',

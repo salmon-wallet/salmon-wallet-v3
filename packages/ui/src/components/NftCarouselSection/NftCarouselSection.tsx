@@ -40,7 +40,7 @@ const Title = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   flex: 1,
   textAlign: 'left',
 });
@@ -49,7 +49,7 @@ const Count = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 });
 
 const Grid = styled(Box)({

@@ -46,7 +46,7 @@ const InputWrapper = styled(Box)<{
 const StyledInput = styled(InputBase)({
   flex: 1,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSizeTokens.md,
   '& .MuiInputBase-input': {
     padding: 0,
@@ -66,7 +66,7 @@ const ToggleButton = styled(IconButton)({
 
 const ErrorText = styled(Typography)({
   color: colors.status.error,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSizeTokens.xs,
   marginTop: spacing.xs,
   paddingLeft: spacing.xs,

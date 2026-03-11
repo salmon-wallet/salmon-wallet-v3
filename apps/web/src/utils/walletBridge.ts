@@ -1,18 +1,15 @@
 /**
- * walletBridge — BroadcastChannel wrapper for cross-window dApp communication.
- *
- * The main wallet tab registers as a wallet provider (wallet-standard).
- * When a dApp in another tab requests connect/sign, the wallet opens an
- * approval popup.  This bridge enables the popup ↔ wallet tab communication.
+ * BroadcastChannel bridge for popup-based dApp approvals in the web wallet.
  */
+
+import type { DAppApprovalRequest } from '@salmon/shared';
 
 const CHANNEL_NAME = 'salmon_wallet_bridge';
 
 export interface BridgeRequest {
-  type: 'connect' | 'sign-message' | 'sign-transaction';
   requestId: string;
   origin: string;
-  payload: unknown;
+  request: DAppApprovalRequest;
 }
 
 export interface BridgeResponse {
@@ -21,10 +18,6 @@ export interface BridgeResponse {
   payload?: unknown;
   error?: string;
 }
-
-// ---------------------------------------------------------------------------
-// Send / Receive helpers
-// ---------------------------------------------------------------------------
 
 let channel: BroadcastChannel | null = null;
 
@@ -35,61 +28,50 @@ function getChannel(): BroadcastChannel {
   return channel;
 }
 
-/** Post a response back to the requesting tab. */
 export function sendResponse(response: BridgeResponse): void {
   getChannel().postMessage(response);
 }
 
-/** Post a request from the wallet provider to an approval popup. */
 export function sendRequest(request: BridgeRequest): void {
   getChannel().postMessage(request);
 }
 
-/**
- * Wait for a response matching the given requestId.
- * Resolves with the response or rejects after timeoutMs.
- */
 export function waitForResponse(
   requestId: string,
   timeoutMs = 120_000,
 ): Promise<BridgeResponse> {
   return new Promise((resolve, reject) => {
-    const ch = getChannel();
+    const channelRef = getChannel();
     const timer = setTimeout(() => {
-      ch.removeEventListener('message', handler);
+      channelRef.removeEventListener('message', handler);
       reject(new Error('Wallet bridge response timeout'));
     }, timeoutMs);
 
     function handler(event: MessageEvent<BridgeResponse>) {
       if (event.data?.requestId === requestId) {
         clearTimeout(timer);
-        ch.removeEventListener('message', handler);
+        channelRef.removeEventListener('message', handler);
         resolve(event.data);
       }
     }
 
-    ch.addEventListener('message', handler);
+    channelRef.addEventListener('message', handler);
   });
 }
 
-/**
- * Listen for incoming requests (used by the approval popup).
- * Returns an unsubscribe function.
- */
-export function onRequest(
-  callback: (request: BridgeRequest) => void,
-): () => void {
-  const ch = getChannel();
+export function onRequest(callback: (request: BridgeRequest) => void): () => void {
+  const channelRef = getChannel();
+
   function handler(event: MessageEvent<BridgeRequest>) {
-    if (event.data?.type && event.data?.requestId) {
+    if (event.data?.requestId && event.data?.request?.method) {
       callback(event.data);
     }
   }
-  ch.addEventListener('message', handler);
-  return () => ch.removeEventListener('message', handler);
+
+  channelRef.addEventListener('message', handler);
+  return () => channelRef.removeEventListener('message', handler);
 }
 
-/** Clean up the BroadcastChannel. */
 export function closeBridge(): void {
   channel?.close();
   channel = null;

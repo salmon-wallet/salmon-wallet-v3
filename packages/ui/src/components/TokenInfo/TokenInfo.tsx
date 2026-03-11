@@ -43,7 +43,7 @@ const Section = styled(Box)({
 const SectionTitle = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: spacing.sm,
 });
@@ -51,7 +51,7 @@ const SectionTitle = styled(Typography)({
 const Description = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.regular,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.muted,
   lineHeight: lineHeight.normal,
 });
@@ -72,7 +72,7 @@ const StatItem = styled(Box)({
 const StatLabel = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.regular,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   marginBottom: spacing.xxs,
 });
@@ -80,7 +80,7 @@ const StatLabel = styled(Typography)({
 const StatValue = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 
@@ -101,7 +101,7 @@ const ContractRow = styled(Box)({
 const ContractAddress = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.regular,
-  fontFamily: `${fontFamily.mono}, monospace`,
+  fontFamily: fontFamily.mono,
   color: colors.text.muted,
 });
 
@@ -129,7 +129,7 @@ const WebsiteRow = styled(Box)({
 const WebsiteText = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.accent.primary,
   marginLeft: spacing.sm,
   flex: 1,

@@ -18,6 +18,7 @@ import {
   colors,
   componentSizes,
   contentPadding,
+  fontFamilyNative,
   generateMnemonic,
   generateValidationPositions,
   spacing,
@@ -432,7 +433,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: 24,
     lineHeight: 32,
     marginBottom: spacing.md,
@@ -440,7 +441,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
     lineHeight: 20,
     marginBottom: spacing['2xl'],
@@ -449,7 +450,7 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 16,
     lineHeight: 24,
     marginBottom: spacing['3xl'],
@@ -494,7 +495,7 @@ const styles = StyleSheet.create({
   },
   toastText: {
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
     lineHeight: 20,
   },

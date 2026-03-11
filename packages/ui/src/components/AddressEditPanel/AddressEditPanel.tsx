@@ -32,7 +32,7 @@ const FieldLabel = styled(Typography)({
   color: colors.text.secondary,
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   marginBottom: spacing.sm,
   marginTop: spacing.lg,
 });
@@ -44,7 +44,7 @@ const StyledInput = styled(InputBase)({
   border: `${borderWidth.thin}px solid ${colors.input.border}`,
   padding: `${spacing.sm}px ${spacing.lg}px`,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.md,
   '& .MuiInputBase-input': {
     padding: `${spacing.md}px 0`,
@@ -64,7 +64,7 @@ const NetworkBox = styled(Box)({
 const NetworkText = styled(Typography)({
   color: colors.text.secondary,
   fontSize: fontSize.md,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 });
 
 const SaveButton = styled(Button)({
@@ -75,7 +75,7 @@ const SaveButton = styled(Button)({
   textTransform: 'none',
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   backgroundColor: colors.accent.primary,
   color: colors.text.primary,
   '&:hover': {

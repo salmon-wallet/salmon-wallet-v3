@@ -414,7 +414,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
     } else {
       onPress?.(transaction);
     }
-  }, [isSwap, onPress, transaction]);
+  }, [isSwap, onPress, setExpanded, transaction]);
 
   const handleDoubleClick = useCallback(() => {
     onDetailClick?.(transaction);

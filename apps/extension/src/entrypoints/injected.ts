@@ -1,3 +1,4 @@
+import '../polyfills/node';
 import { SolanaProvider } from '@/lib/SolanaProvider';
 import { initialize } from 'salmon-wallet-standard';
 

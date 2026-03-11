@@ -1,5 +1,16 @@
 // URL utilities
 export { normalizeIpfsUrl, DEAD_DOMAINS, getExplorerUrl, getSolscanUrl, formatOrigin } from './url';
+export {
+  approveSolanaSignMessage,
+  approveSolanaTransactionRequest,
+  buildTransactionFromEncodedMessage,
+  decodeDAppMessage,
+  getDAppTransactionRequestSummary,
+  isSecureOrigin,
+  loadSolanaTransactionApprovalDetails,
+  serializeSignedTransactionFromApproval,
+  serializeSignedTransactionsFromApproval,
+} from './dapp-approval';
 
 // Account utilities
 export {
@@ -16,6 +27,7 @@ export {
   buildNetworkListFromAccount,
   getAccountKeysForNetwork,
   getAccountAddress,
+  getActiveSolanaApprovalAccount,
 } from './account';
 
 // Avatar utilities

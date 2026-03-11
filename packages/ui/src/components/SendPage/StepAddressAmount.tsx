@@ -138,14 +138,14 @@ const TokenCardLogoFallback = styled(Box)({
 const TokenCardLogoFallbackText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 
 const TokenCardName = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -155,7 +155,7 @@ const TokenCardName = styled(Typography)({
 const TokenCardBalance = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   flexShrink: 0,
   marginLeft: spacing.sm,
@@ -169,7 +169,7 @@ const FieldGroup = styled(Box)({
 const FieldLabel = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: spacing.sm,
 });
@@ -178,7 +178,7 @@ const StyledInput = styled(InputBase)({
   width: '100%',
   color: colors.text.primary,
   fontSize: fontSize.md,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   '& .MuiInputBase-input': {
     padding: `${spacing.md}px 0`,
     '&::placeholder': {
@@ -209,7 +209,7 @@ const ValidationMessage = styled(Typography)<{
 }>(({ $messageType }) => ({
   fontSize: fontSize.sm,
   lineHeight: `${fontSize.sm * lineHeight.condensed}px`,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   marginTop: spacing.xs,
   color:
     $messageType === 'error'
@@ -247,7 +247,7 @@ const QuickFillButton = styled(ButtonBase)({
 const QuickFillText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textTransform: 'uppercase',
 });
@@ -256,7 +256,7 @@ const QuickFillText = styled(Typography)({
 const UsdConversion = styled(Typography)({
   fontSize: fontSize.xl,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textAlign: 'center',
   marginTop: spacing.xs,
@@ -292,7 +292,7 @@ const CancelButton = styled(ButtonBase)({
 const CancelButtonText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 
@@ -325,7 +325,7 @@ const ReviewButtonGradient = styled(Box)<{ $isDisabled?: boolean }>(({ $isDisabl
 const ReviewButtonText = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.extraBold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 
@@ -337,7 +337,7 @@ const ContactSection = styled(Box)({
 const ContactSectionHeader = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   marginBottom: spacing.sm,
 });
@@ -368,7 +368,7 @@ const ContactInfo = styled(Box)({
 const ContactName = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -378,7 +378,7 @@ const ContactName = styled(Typography)({
 
 const ContactAddress = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   textAlign: 'left',
 });
@@ -393,7 +393,7 @@ const BlockchainBadge = styled(Box)({
 const BlockchainBadgeText = styled(Typography)({
   fontSize: fontSize.xs,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
 });
 

@@ -18,7 +18,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
-import { colors, borderRadius, componentSizes, getShortAddress, copyToClipboard, spacing, fontSize, fontWeight, durationMs } from '@salmon/shared';
+import { colors, borderRadius, componentSizes, fontFamily, getShortAddress, copyToClipboard, spacing, fontSize, fontWeight, durationMs } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { AddressCopyRowProps } from './types';
 
@@ -69,7 +69,7 @@ const AddressText = styled(Typography)({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  fontFamily: 'monospace',
+  fontFamily: fontFamily.mono,
 });
 
 const CopyButton = styled(IconButton)({

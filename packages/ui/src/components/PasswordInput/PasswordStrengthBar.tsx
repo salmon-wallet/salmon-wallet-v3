@@ -46,7 +46,7 @@ const Bar = styled(Box)<{ $active: boolean; $barColor: string }>(
 
 const Label = styled(Typography)<{ $labelColor: string }>(
   ({ $labelColor }) => ({
-    fontFamily: `${fontFamily.sans}, sans-serif`,
+    fontFamily: fontFamily.sans,
     fontSize: fontSize.sm,
     fontWeight: fontWeight.medium,
     textTransform: 'capitalize',

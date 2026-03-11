@@ -257,6 +257,46 @@ export function getAccountAddress(account: Account): string {
 }
 
 /**
+ * Resolves the Solana account to use for dApp approvals.
+ * Prefers the currently active Solana account, otherwise falls back to the
+ * matching path index on solana-mainnet and then to the first available Solana account.
+ */
+export function getActiveSolanaApprovalAccount(
+  activeAccount: Account | null | undefined,
+  activeBlockchainAccount: BlockchainAccount | null | undefined,
+  pathIndex = 0,
+): SolanaAccount | null {
+  if (activeBlockchainAccount && isSolanaAccount(activeBlockchainAccount)) {
+    return activeBlockchainAccount;
+  }
+
+  if (!activeAccount?.networksAccounts) return null;
+
+  const candidateNetworkIds = [
+    'solana-mainnet',
+    ...Object.keys(activeAccount.networksAccounts).filter((id) => id.startsWith('solana-') && id !== 'solana-mainnet'),
+  ];
+
+  for (const networkId of candidateNetworkIds) {
+    const networkAccounts = activeAccount.networksAccounts[networkId];
+    if (!networkAccounts?.length) continue;
+
+    const preferred = networkAccounts[pathIndex];
+    if (preferred && isSolanaAccount(preferred)) {
+      return preferred;
+    }
+
+    const fallback = networkAccounts.find((account): account is SolanaAccount => {
+      if (!account) return false;
+      return isSolanaAccount(account);
+    });
+    if (fallback) return fallback;
+  }
+
+  return null;
+}
+
+/**
  * Extracts AccountKeyInfo (path, address, privateKey) for every non-null
  * account in a specific network.
  *

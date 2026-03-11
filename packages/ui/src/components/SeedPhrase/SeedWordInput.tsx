@@ -17,7 +17,7 @@ const Container = styled(Box)({
 
 const Label = styled(Typography)({
   color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: fontWeight.medium,
   fontSize: fontSize.sm,
   marginBottom: spacing.xs,
@@ -32,7 +32,7 @@ const StyledInput = styled(InputBase)<{ $borderColor: string }>(({ $borderColor 
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.md,
   transition: `border-color ${duration.normal} ${easing.ease}`,
   '& .MuiInputBase-input': {

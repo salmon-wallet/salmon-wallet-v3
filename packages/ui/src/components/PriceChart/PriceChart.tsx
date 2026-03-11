@@ -72,7 +72,7 @@ const PeriodButton = styled(Button)<{ $selected?: boolean }>(({ $selected }) => 
   color: $selected ? colors.background.primary : colors.text.secondary,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   textTransform: 'none',
   '&:hover': {
     backgroundColor: $selected
@@ -99,7 +99,7 @@ const EmptyState = styled(Box)<{ $height: number }>(({ $height }) => ({
 const EmptyStateText = styled(Typography)({
   fontSize: fontSize.base,
   color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 });
 
 const TooltipContainer = styled(Box)({
@@ -113,14 +113,14 @@ const TooltipContainer = styled(Box)({
 const TooltipPrice = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: spacing.xxs,
 });
 
 const TooltipDate = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
 });
 

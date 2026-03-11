@@ -33,6 +33,7 @@ import {
   getShortAddress,
   getAvatarColor,
   getInitials,
+  fontFamily,
   fontSize as fontSizeTokens,
   fontWeight as fontWeightTokens,
   componentSizes,
@@ -85,7 +86,7 @@ const AccountName = styled('span')({
 const AccountAddress = styled('span')({
   fontSize: fontSizeTokens.sm,
   color: colors.text.secondary,
-  fontFamily: 'monospace',
+  fontFamily: fontFamily.mono,
   display: 'block',
 });
 

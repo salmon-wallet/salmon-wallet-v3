@@ -14,6 +14,7 @@ import {
   colors,
   componentSizes,
   contentPadding,
+  fontFamilyNative,
   spacing,
 } from '@salmon/shared';
 import {
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: 32,
     lineHeight: 40,
     marginBottom: spacing.md,
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 16,
     lineHeight: 24,
     textAlign: 'center',
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
   },
   dialogTitle: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: 20,
     lineHeight: 28,
     textAlign: 'center',
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
   },
   dialogBody: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
     lineHeight: 22,
     textAlign: 'center',

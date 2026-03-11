@@ -12,6 +12,7 @@ export * from './trusted-app';
 export * from './send';
 export * from './transfer';
 export * from './bridge';
+export * from './dapp-approval';
 export * from './price';
 export * from './validation';
 

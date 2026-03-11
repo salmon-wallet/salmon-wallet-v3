@@ -31,7 +31,7 @@ const StyledButton = styled(Button)<{
     $buttonVariant === 'outline' ? 'transparent' : colors.button.secondaryBackground,
   border: $buttonVariant === 'outline' ? `1px solid ${colors.border.default}` : 'none',
   borderRadius: componentSizes.buttonRadius,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.md,
   fontWeight: fontWeight.bold,
   letterSpacing: letterSpacing.widest,

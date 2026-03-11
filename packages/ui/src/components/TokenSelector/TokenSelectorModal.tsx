@@ -74,7 +74,7 @@ const StyledDialogTitle = styled(DialogTitle)({
 const TitleText = styled(Typography)({
   fontSize: fontSize.lg,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   flex: 1,
   textAlign: 'center',
@@ -99,7 +99,7 @@ const SearchInput = styled(InputBase)({
   padding: `${spacing.sm}px ${spacing.md}px`,
   color: colors.text.primary,
   fontSize: fontSize.md,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   border: `${borderWidth.thin}px solid ${colors.input.border}`,
   transition: `border-color ${duration.normal} ${easing.ease}`,
   '&.Mui-focused': {
@@ -177,7 +177,7 @@ const TokenNameRow = styled(Box)({
 const TokenName = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -195,14 +195,14 @@ const NetworkChip = styled(Box)({
 const NetworkChipText = styled(Typography)({
   fontSize: fontSize.xs,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   textTransform: 'uppercase',
 });
 
 const TokenBalance = styled(Typography)({
   fontSize: fontSize.base,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   marginTop: spacing.xxs,
 });
@@ -257,7 +257,7 @@ const DisclaimerContainer = styled(Box)({
 
 const DisclaimerText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   textAlign: 'center',
 });
@@ -272,7 +272,7 @@ const SearchingContainer = styled(Box)({
 
 const SearchingText = styled(Typography)({
   fontSize: fontSize.base,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   marginLeft: spacing.sm,
 });
@@ -286,7 +286,7 @@ const LoadMoreButton = styled(Button)({
   color: colors.text.primary,
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   marginTop: spacing.sm,
   '&:hover': {
     backgroundColor: colors.background.tertiary,
@@ -302,7 +302,7 @@ const EmptyContainer = styled(Box)({
 
 const EmptyText = styled(Typography)({
   fontSize: fontSize.md,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
 });
 
@@ -320,7 +320,7 @@ const CloseActionButton = styled(Button)({
   color: colors.text.primary,
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   '&:hover': {
     backgroundColor: colors.button.dangerHover,
   },

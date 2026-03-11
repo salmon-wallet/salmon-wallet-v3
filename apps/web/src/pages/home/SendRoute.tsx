@@ -85,7 +85,7 @@ export function SendRoute(): React.ReactElement {
       }}>
         <Typography sx={{
           color: colors.text.secondary,
-          fontFamily: `${fontFamily.sans}, sans-serif`,
+          fontFamily: fontFamily.sans,
           fontSize: fontSize.lg,
           textAlign: 'center',
         }}>

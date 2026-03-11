@@ -87,7 +87,7 @@ const SectionContent = styled(Box)({
 });
 
 const SectionTitle = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
   color: colors.text.primary,
@@ -95,7 +95,7 @@ const SectionTitle = styled(Typography)({
 });
 
 const DescriptionText = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.regular,
   color: colors.text.secondary,
@@ -119,7 +119,7 @@ const AttributeItem = styled(Box)({
 });
 
 const AttributeName = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.black,
   color: colors.text.primary,
@@ -129,7 +129,7 @@ const AttributeName = styled(Typography)({
 });
 
 const AttributeValue = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.regular,
   color: colors.text.secondary,
@@ -152,7 +152,7 @@ const BlockchainBadgeContent = styled(Box)({
 });
 
 const BlockchainLabel = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.primary,
@@ -172,14 +172,14 @@ const DetailRow = styled(Box)({
 });
 
 const DetailLabel = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.secondary,
 });
 
 const DetailValue = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.primary,
@@ -201,7 +201,7 @@ const RarityBadge = styled(Box)({
 });
 
 const RarityText = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.xs,
   fontWeight: fontWeight.bold,
   color: colors.text.primary,
@@ -247,7 +247,7 @@ const SecondaryButtonInner = styled(ButtonBase)({
 });
 
 const ButtonText = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
   color: colors.text.balance,

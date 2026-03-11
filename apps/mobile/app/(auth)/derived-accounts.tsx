@@ -24,6 +24,7 @@ import {
   componentSizes,
   contentPadding,
   deriveBlockchainAccount,
+  fontFamilyNative,
   getShortAddress,
   spacing,
   useAccountsContext,
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: 24,
     lineHeight: 32,
     marginBottom: spacing.sm,
@@ -331,7 +332,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
     lineHeight: 20,
     marginBottom: spacing['2xl'],
@@ -347,7 +348,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 16,
     marginTop: spacing.lg,
     marginBottom: spacing['2xl'],
@@ -362,14 +363,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     color: colors.text.primary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 16,
     marginTop: spacing.lg,
     textAlign: 'center',
   },
   emptySubtitle: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
     marginTop: spacing.sm,
     textAlign: 'center',
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
   },
   foundText: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 14,
     marginBottom: spacing.lg,
     textAlign: 'center',

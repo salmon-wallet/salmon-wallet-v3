@@ -175,7 +175,7 @@ export const LoadingScreen = memo(function LoadingScreen({
 
   const titleStyle: CSSProperties = {
     color: colors.text.primary,
-    fontFamily: `${fontFamily.sans}, sans-serif`,
+    fontFamily: fontFamily.sans,
     fontWeight: fontWeight.bold,
     fontSize: fontSize['2xl'],
     lineHeight: `${fontSize['2xl'] * lineHeight.condensed}px`,
@@ -184,7 +184,7 @@ export const LoadingScreen = memo(function LoadingScreen({
 
   const subtitleStyle: CSSProperties = {
     color: colors.text.secondary,
-    fontFamily: `${fontFamily.sans}, sans-serif`,
+    fontFamily: fontFamily.sans,
     fontWeight: fontWeight.regular,
     fontSize: fontSize.md,
     lineHeight: `${fontSize.md * lineHeight.normal}px`,
@@ -234,7 +234,7 @@ export const LoadingScreen = memo(function LoadingScreen({
 
   const tipLabelStyle: CSSProperties = {
     color: colors.accent.primary,
-    fontFamily: `${fontFamily.sans}, sans-serif`,
+    fontFamily: fontFamily.sans,
     fontWeight: fontWeight.bold,
     fontSize: fontSize.sm,
     lineHeight: `${fontSize.sm * lineHeight.condensed}px`,
@@ -246,7 +246,7 @@ export const LoadingScreen = memo(function LoadingScreen({
 
   const tipTextStyle: CSSProperties = {
     color: colors.text.secondary,
-    fontFamily: `${fontFamily.sans}, sans-serif`,
+    fontFamily: fontFamily.sans,
     fontWeight: fontWeight.regular,
     fontSize: fontSize.base,
     lineHeight: `${fontSize.base * lineHeight.tokenListItem}px`,

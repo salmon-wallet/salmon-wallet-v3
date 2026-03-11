@@ -43,7 +43,7 @@ const Container = styled(Box)({
 const Title = styled(Typography)({
   fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textAlign: 'center',
   letterSpacing: letterSpacing.wide,
@@ -90,7 +90,7 @@ const WarningBox = styled(Box)({
 const WarningTitle = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.status.warning,
   marginBottom: spacing.xs,
   letterSpacing: letterSpacing.normal,
@@ -99,7 +99,7 @@ const WarningTitle = styled(Typography)({
 const WarningText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   letterSpacing: letterSpacing.normal,
   lineHeight: `${fontSize.sm * lineHeight.normal}px`,

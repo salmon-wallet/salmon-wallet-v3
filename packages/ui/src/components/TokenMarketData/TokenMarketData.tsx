@@ -33,7 +33,7 @@ const ContentContainer = styled(Box)({
 const Title = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: spacing.sm,
 });
@@ -53,14 +53,14 @@ const Row = styled(Box)({
 const RowLabel = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
 });
 
 const RowValue = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 

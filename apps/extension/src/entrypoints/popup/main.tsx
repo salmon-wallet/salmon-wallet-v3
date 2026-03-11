@@ -1,10 +1,9 @@
-// Polyfill Buffer globally before any Solana library loads
-import { Buffer } from 'buffer';
-(globalThis as Record<string, unknown>).Buffer = Buffer;
+import '../../polyfills/node';
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import '../../assets/fonts.css';
 
 // Initialize i18n configuration - must be imported before App
 import i18n from '../../i18n/config';

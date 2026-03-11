@@ -1,14 +1,18 @@
 /**
- * SalmonWalletProvider — Wallet Standard registration for the web wallet.
- *
- * Registers Salmon as a discoverable wallet so dApps using
- * @solana/wallet-adapter or wallet-standard can find it.
- *
- * Communication with approval popups uses the BroadcastChannel-based
- * walletBridge utility.
+ * Salmon wallet registration for the web wallet popup flow.
  */
 
+import bs58 from 'bs58';
 import { useEffect } from 'react';
+import {
+  serializeSignedTransactionFromApproval,
+  serializeSignedTransactionsFromApproval,
+  type DAppConnectApprovalPayload,
+  type DAppSignAllTransactionsApprovalPayload,
+  type DAppSignAndSendTransactionApprovalPayload,
+  type DAppSignMessageApprovalPayload,
+  type DAppSignTransactionApprovalPayload,
+} from '@salmon/shared';
 import { sendRequest, waitForResponse, type BridgeRequest } from '../utils/walletBridge';
 
 let registered = false;
@@ -17,12 +21,11 @@ function generateRequestId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-/**
- * Minimal wallet-standard–compatible wallet object.
- *
- * A full implementation would use @wallet-standard/base `registerWallet()`.
- * This scaffolding sets up the request → popup → response flow.
- */
+function openApprovalPopup(path: string, requestId: string, origin: string, name: string): void {
+  const popupUrl = `${path}?requestId=${requestId}&origin=${encodeURIComponent(origin)}`;
+  window.open(popupUrl, name, 'width=420,height=600,popup=yes');
+}
+
 function createSalmonWallet() {
   return {
     name: 'Salmon' as const,
@@ -32,81 +35,136 @@ function createSalmonWallet() {
     async connect(origin: string): Promise<{ publicKey: string } | null> {
       const requestId = generateRequestId();
       const request: BridgeRequest = {
-        type: 'connect',
         requestId,
         origin,
-        payload: null,
+        request: {
+          id: requestId,
+          method: 'connect',
+          params: {},
+        },
       };
 
-      // Open approval popup
-      const popupUrl = `/dapp/connect?requestId=${requestId}&origin=${encodeURIComponent(origin)}`;
-      window.open(popupUrl, 'salmon-connect', 'width=420,height=600,popup=yes');
-
+      openApprovalPopup('/dapp/connect', requestId, origin, 'salmon-connect');
       sendRequest(request);
       const response = await waitForResponse(requestId);
 
       if (!response.approved) return null;
-      return response.payload as { publicKey: string };
+      return response.payload as DAppConnectApprovalPayload;
     },
 
     async signMessage(origin: string, message: Uint8Array): Promise<Uint8Array | null> {
       const requestId = generateRequestId();
       const request: BridgeRequest = {
-        type: 'sign-message',
         requestId,
         origin,
-        payload: { message: Array.from(message) },
+        request: {
+          id: requestId,
+          method: 'sign',
+          params: { data: Array.from(message) },
+        },
       };
 
-      const popupUrl = `/dapp/sign-message?requestId=${requestId}&origin=${encodeURIComponent(origin)}`;
-      window.open(popupUrl, 'salmon-sign', 'width=420,height=600,popup=yes');
-
+      openApprovalPopup('/dapp/sign-message', requestId, origin, 'salmon-sign');
       sendRequest(request);
       const response = await waitForResponse(requestId);
 
       if (!response.approved) return null;
-      const sig = response.payload as { signature: number[] };
-      return new Uint8Array(sig.signature);
+      const payload = response.payload as DAppSignMessageApprovalPayload;
+      return new Uint8Array(bs58.decode(payload.signature));
     },
 
     async signTransaction(origin: string, transaction: Uint8Array): Promise<Uint8Array | null> {
       const requestId = generateRequestId();
+      const encodedMessage = bs58.encode(transaction);
       const request: BridgeRequest = {
-        type: 'sign-transaction',
         requestId,
         origin,
-        payload: { transaction: Array.from(transaction) },
+        request: {
+          id: requestId,
+          method: 'signTransaction',
+          params: { message: encodedMessage },
+        },
       };
 
-      const popupUrl = `/dapp/sign-transaction?requestId=${requestId}&origin=${encodeURIComponent(origin)}`;
-      window.open(popupUrl, 'salmon-sign-tx', 'width=420,height=600,popup=yes');
-
+      openApprovalPopup('/dapp/sign-transaction', requestId, origin, 'salmon-sign-tx');
       sendRequest(request);
       const response = await waitForResponse(requestId);
 
       if (!response.approved) return null;
-      const signed = response.payload as { signedTransaction: number[] };
-      return new Uint8Array(signed.signedTransaction);
+      const payload = response.payload as DAppSignTransactionApprovalPayload;
+      return serializeSignedTransactionFromApproval(
+        encodedMessage,
+        payload.publicKey,
+        payload.signature,
+      );
+    },
+
+    async signAllTransactions(
+      origin: string,
+      transactions: Uint8Array[],
+    ): Promise<Uint8Array[] | null> {
+      const requestId = generateRequestId();
+      const encodedMessages = transactions.map((transaction) => bs58.encode(transaction));
+      const request: BridgeRequest = {
+        requestId,
+        origin,
+        request: {
+          id: requestId,
+          method: 'signAllTransactions',
+          params: { messages: encodedMessages },
+        },
+      };
+
+      openApprovalPopup('/dapp/sign-transaction', requestId, origin, 'salmon-sign-all-tx');
+      sendRequest(request);
+      const response = await waitForResponse(requestId);
+
+      if (!response.approved) return null;
+      const payload = response.payload as DAppSignAllTransactionsApprovalPayload;
+      return serializeSignedTransactionsFromApproval(
+        encodedMessages,
+        payload.publicKey,
+        payload.signatures,
+      );
+    },
+
+    async signAndSendTransaction(
+      origin: string,
+      transaction: Uint8Array,
+      options?: Record<string, unknown>,
+    ): Promise<string | null> {
+      const requestId = generateRequestId();
+      const request: BridgeRequest = {
+        requestId,
+        origin,
+        request: {
+          id: requestId,
+          method: 'signAndSendTransaction',
+          params: {
+            message: bs58.encode(transaction),
+            options,
+          },
+        },
+      };
+
+      openApprovalPopup('/dapp/sign-transaction', requestId, origin, 'salmon-sign-send-tx');
+      sendRequest(request);
+      const response = await waitForResponse(requestId);
+
+      if (!response.approved) return null;
+      const payload = response.payload as DAppSignAndSendTransactionApprovalPayload;
+      return payload.signature;
     },
   };
 }
 
-/**
- * Register the Salmon wallet globally so it's discoverable
- * via wallet-standard's `getWallets()`.
- *
- * Follows the wallet-standard protocol (same as salmon-wallet-standard/src/register.ts):
- * 1. Dispatch 'wallet-standard:register-wallet' for apps already listening
- * 2. Listen for 'wallet-standard:app-ready' for apps that load later
- */
 function registerSalmonWallet(): () => void {
   if (registered) return () => {};
   registered = true;
 
   const wallet = createSalmonWallet();
-  const callback = ({ register }: { register: (w: unknown) => void }) => register(wallet);
+  const callback = ({ register }: { register: (wallet: unknown) => void }) => register(wallet);
 
-  // Dispatch register-wallet event for dApps already listening
   window.dispatchEvent(
     new CustomEvent('wallet-standard:register-wallet', {
       detail: callback,
@@ -115,13 +173,10 @@ function registerSalmonWallet(): () => void {
     }),
   );
 
-  // Listen for app-ready events from dApps that load after the wallet
   const appReadyHandler = (event: Event) => {
     callback((event as CustomEvent).detail);
   };
   window.addEventListener('wallet-standard:app-ready', appReadyHandler);
-
-  // Also expose on window for direct access
   (window as unknown as Record<string, unknown>).__salmonWallet = wallet;
 
   return () => {
@@ -129,10 +184,6 @@ function registerSalmonWallet(): () => void {
   };
 }
 
-/**
- * React component that registers the wallet provider on mount.
- * Include in the app tree to make Salmon discoverable.
- */
 export function SalmonWalletRegistrar(): null {
   useEffect(() => {
     const cleanup = registerSalmonWallet();

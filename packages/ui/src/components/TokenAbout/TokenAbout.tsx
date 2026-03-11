@@ -30,7 +30,7 @@ const ContentContainer = styled(Box)({
 const Title = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: spacing.sm,
 });
@@ -41,7 +41,7 @@ const Description = styled(Typography)<{
 }>(({ $maxLines, $expanded }) => ({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.regular,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   lineHeight: lineHeight.tokenListItem,
   ...($maxLines > 0 && !$expanded
@@ -61,7 +61,7 @@ const ReadMoreButton = styled('button')({
   cursor: 'pointer',
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.accent.primary,
   marginTop: spacing.sm,
   '&:hover': {

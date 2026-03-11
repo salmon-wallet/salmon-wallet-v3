@@ -9,10 +9,10 @@ import {
   spacing,
   useAccountsContext,
   isSolanaNft,
-  isSolanaAccount,
   createBurnTransaction,
   type NftData,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { NftDetailPage, NftSendDialog, ConfirmDialog } from '@salmon/ui';
 
 export function NftDetailRoute(): React.ReactElement {
@@ -52,13 +52,12 @@ export function NftDetailRoute(): React.ReactElement {
       // Dynamic import — module resolved at runtime via shared's dependency
       // Use variable to prevent TS module resolution at compile time
       const solanaWeb3Module = '@solana/web3.js';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const web3: any = await import(/* @vite-ignore */ solanaWeb3Module);
+      const { VersionedTransaction } = await import(/* @vite-ignore */ solanaWeb3Module);
       const txBytes = Buffer.from(txResponse.transaction, 'base64');
-      const tx = web3.VersionedTransaction.deserialize(txBytes);
+      const tx = VersionedTransaction.deserialize(txBytes);
       const connection = await activeBlockchainAccount.getConnection();
       tx.sign([activeBlockchainAccount.keyPair]);
-      await (connection as any).sendRawTransaction(tx.serialize());
+      await connection.sendRawTransaction(tx.serialize());
 
       setBurnConfirmVisible(false);
       navigate('/home');
@@ -86,7 +85,7 @@ export function NftDetailRoute(): React.ReactElement {
       }}>
         <Typography sx={{
           color: colors.text.secondary,
-          fontFamily: `${fontFamily.sans}, sans-serif`,
+          fontFamily: fontFamily.sans,
           fontSize: fontSize.lg,
           textAlign: 'center',
           marginBottom: spacing.md,
@@ -98,7 +97,7 @@ export function NftDetailRoute(): React.ReactElement {
           onClick={() => navigate('/home')}
           sx={{
             color: colors.accent.primary,
-            fontFamily: `${fontFamily.sans}, sans-serif`,
+            fontFamily: fontFamily.sans,
             fontSize: fontSize.md,
             cursor: 'pointer',
             textDecoration: 'underline',

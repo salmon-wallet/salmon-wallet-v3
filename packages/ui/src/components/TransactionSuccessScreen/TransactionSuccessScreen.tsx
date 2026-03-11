@@ -59,7 +59,7 @@ const Checkmark = styled(Typography)({
 
 const Title = styled(Typography)({
   fontSize: fontSize.title,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: fontWeight.semibold,
   color: colors.text.primary,
   textAlign: 'center',
@@ -70,7 +70,7 @@ const Title = styled(Typography)({
 
 const Summary = styled(Typography)({
   fontSize: fontSize.md,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   textAlign: 'center',
   marginBottom: spacing.lg,
@@ -80,7 +80,7 @@ const Summary = styled(Typography)({
 
 const ExplorerLink = styled(Link)({
   fontSize: fontSize.base,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.accent.primary,
   textAlign: 'center',
   cursor: 'pointer',
@@ -101,14 +101,14 @@ const BridgeInfoBox = styled(Box)({
 
 const BridgeLabel = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.tertiary,
   marginBottom: spacing.xs,
 });
 
 const BridgeValue = styled(Typography)({
   fontSize: fontSize.base,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   wordBreak: 'break-all' as const,
   marginBottom: spacing.md,
@@ -121,7 +121,7 @@ const ContinueButton = styled(Button)({
   background: gradients.primaryCSS,
   border: `${borderWidth.accent}px solid ${colors.accent.border}`,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: fontWeight.semibold,
   fontSize: fontSize.md,
   textTransform: 'none',

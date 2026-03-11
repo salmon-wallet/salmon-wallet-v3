@@ -44,7 +44,7 @@ const Container = styled(Box)({
   minHeight: '100vh',
   padding: spacing['2xl'],
   background: `linear-gradient(180deg, ${colors.background.primary} 0%, ${colors.background.secondary} 100%)`,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 });
 
 const Content = styled(Box)({
@@ -65,7 +65,7 @@ const LogoImage = styled('img')({
 const Title = styled(Typography)({
   fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textAlign: 'center',
   marginBottom: spacing.sm,
@@ -73,7 +73,7 @@ const Title = styled(Typography)({
 
 const Subtitle = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   textAlign: 'center',
   marginBottom: spacing['3xl'],
@@ -93,7 +93,7 @@ const StyledInput = styled(InputBase)<{
   width: '100%',
   padding: '14px 16px',
   fontSize: fontSize.md,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   backgroundColor: colors.input.background,
   border: `1px solid ${$hasError ? colors.status.error : colors.input.border}`,
   borderRadius: componentSizes.inputRadius,
@@ -107,7 +107,7 @@ const StyledInput = styled(InputBase)<{
 const ErrorText = styled(Typography)({
   color: colors.status.error,
   fontSize: fontSize.xs,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   marginTop: spacing.sm,
   marginLeft: spacing.xs,
 });
@@ -119,7 +119,7 @@ const ForgotPasswordButton = styled('button')({
   border: 'none',
   color: colors.text.secondary,
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   cursor: 'pointer',
   width: '100%',
   textAlign: 'center',

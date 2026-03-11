@@ -11,7 +11,7 @@
  */
 
 import { useState, useEffect, CSSProperties } from 'react';
-import { colors, DEFAULT_WALLET_TIPS } from '@salmon/shared';
+import { colors, DEFAULT_WALLET_TIPS, fontFamily } from '@salmon/shared';
 // Note: For web, you'll need to import the logo as a URL
 // import logoUrl from '@salmon/assets/images/Logo.png';
 
@@ -155,7 +155,7 @@ export function LoadingScreenWeb({
 
   const titleStyle: CSSProperties = {
     color: colors.text.primary,
-    fontFamily: 'DM Sans, sans-serif',
+    fontFamily: fontFamily.sans,
     fontWeight: 700,
     fontSize: '24px',
     lineHeight: '32px',
@@ -164,7 +164,7 @@ export function LoadingScreenWeb({
 
   const subtitleStyle: CSSProperties = {
     color: colors.text.secondary,
-    fontFamily: 'DM Sans, sans-serif',
+    fontFamily: fontFamily.sans,
     fontWeight: 400,
     fontSize: '16px',
     lineHeight: '24px',
@@ -214,7 +214,7 @@ export function LoadingScreenWeb({
 
   const tipLabelStyle: CSSProperties = {
     color: colors.accent.primary,
-    fontFamily: 'DM Sans, sans-serif',
+    fontFamily: fontFamily.sans,
     fontWeight: 700,
     fontSize: '12px',
     lineHeight: '16px',
@@ -225,7 +225,7 @@ export function LoadingScreenWeb({
 
   const tipTextStyle: CSSProperties = {
     color: colors.text.secondary,
-    fontFamily: 'DM Sans, sans-serif',
+    fontFamily: fontFamily.sans,
     fontWeight: 400,
     fontSize: '14px',
     lineHeight: '20px',

@@ -28,6 +28,7 @@ import {
 } from '../storage';
 import {
   lock,
+  lockAndGetKey,
   unlock,
   lockWithKey,
   unlockAndGetKey,
@@ -147,7 +148,7 @@ export interface UseAccountsActions {
   /** Remove all accounts */
   removeAllAccounts: () => Promise<void>;
   /** Add a trusted app */
-  addTrustedApp: (domain: string, app?: TrustedApp) => Promise<void>;
+  addTrustedApp: (domain: string, app?: TrustedApp, targetNetworkId?: string) => Promise<void>;
   /** Remove a trusted app */
   removeTrustedApp: (domain: string) => Promise<void>;
   /** Import custom tokens */
@@ -1034,9 +1035,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
           const vault = lockWithKey(newMnemonics, cachedKey);
           lockedMnemonics = { ...vault, isEncrypted: true as const };
         } else {
-          // No valid cache, derive new key
-          const vault = await lock(newMnemonics, password);
+          // No valid cache, derive a fresh key and keep it in memory for this session.
+          const { vault, keyCache } = await lockAndGetKey(newMnemonics, password);
           lockedMnemonics = { ...vault, isEncrypted: true as const };
+          await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
         }
 
         await setStorageItem(STORAGE_KEYS.MNEMONICS, lockedMnemonics);
@@ -1204,11 +1206,16 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   // --------------------------------------------------------------------------
 
   const addTrustedApp = useCallback(
-    async (domain: string, { name, icon }: TrustedApp = {}): Promise<void> => {
-      if (!networkId) return;
+    async (
+      domain: string,
+      { name, icon }: TrustedApp = {},
+      targetNetworkId?: string,
+    ): Promise<void> => {
+      const resolvedNetworkId = targetNetworkId ?? networkId;
+      if (!resolvedNetworkId) return;
 
       const newTrustedApps = { ...trustedApps };
-      merge(newTrustedApps, { [networkId]: { [domain]: { name, icon } } });
+      merge(newTrustedApps, { [resolvedNetworkId]: { [domain]: { name, icon } } });
       await setStorageItem(STORAGE_KEYS.TRUSTED_APPS, newTrustedApps);
       setTrustedApps(newTrustedApps);
     },

@@ -56,7 +56,7 @@ const AmountInput = styled(InputBase)({
   width: '100%',
   fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   padding: `${spacing.sm}px ${spacing.md}px`,
   '& .MuiInputBase-input::placeholder': {
@@ -106,7 +106,7 @@ const TokenTextContainer = styled(Box)({
 const TokenName = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -115,7 +115,7 @@ const TokenName = styled(Typography)({
 
 const TokenAddress = styled(Typography)({
   fontSize: fontSize.xs,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   marginTop: spacing.xxs,
 });

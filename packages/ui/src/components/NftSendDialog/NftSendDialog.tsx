@@ -68,7 +68,7 @@ const NftImage = styled('img')({
 const NftName = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',

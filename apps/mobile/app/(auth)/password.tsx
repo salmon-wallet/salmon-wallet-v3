@@ -37,6 +37,7 @@ import {
   componentSizes,
   contentPadding,
   createAccount,
+  fontFamilyNative,
   generateAccountName,
   MIRROR_NETWORKS,
   PASSWORD_CONSTRAINTS,
@@ -410,7 +411,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text.primary,
-    fontFamily: 'DMSansBold',
+    fontFamily: fontFamilyNative.bold,
     fontSize: 28,
     lineHeight: 36,
     marginBottom: spacing.sm,
@@ -418,7 +419,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 16,
     lineHeight: 24,
     marginBottom: spacing['3xl'],
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
   },
   generalError: {
     color: colors.status.error,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 12,
     lineHeight: 16,
     marginBottom: spacing.lg,
@@ -443,7 +444,7 @@ const styles = StyleSheet.create({
   },
   termsText: {
     color: colors.text.secondary,
-    fontFamily: 'DMSansRegular',
+    fontFamily: fontFamilyNative.regular,
     fontSize: 12,
     lineHeight: 18,
     textAlign: 'center',

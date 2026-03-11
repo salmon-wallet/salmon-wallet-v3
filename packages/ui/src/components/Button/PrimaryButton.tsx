@@ -26,7 +26,7 @@ const StyledButton = styled(Button)<{ fullWidth?: boolean }>(({ fullWidth }) => 
   height: componentSizes.buttonHeight,
   backgroundColor: colors.button.primaryBackground,
   borderRadius: componentSizes.buttonRadius,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.md,
   fontWeight: fontWeight.bold,
   letterSpacing: letterSpacing.widest,

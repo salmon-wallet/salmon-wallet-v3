@@ -73,7 +73,7 @@ const BackButton = styled(IconButton)({
 const TitleText = styled(Typography)({
   fontSize: fontSize['2xl'],
   fontWeight: fontWeight.extraBold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textAlign: 'center',
   flex: 1,

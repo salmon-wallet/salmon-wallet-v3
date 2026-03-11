@@ -42,7 +42,7 @@ const Container = styled(Box)({
 const Title = styled(Typography)({
   fontSize: fontSize['2xl'],
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textAlign: 'center',
   letterSpacing: letterSpacing.wide,
@@ -53,7 +53,7 @@ const Title = styled(Typography)({
 const Description = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   textAlign: 'center',
   letterSpacing: letterSpacing.normal,
@@ -74,7 +74,7 @@ const AddressInput = styled('input')({
   borderRadius: borderRadius.md,
   color: colors.text.primary,
   fontSize: fontSize.base,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: fontWeight.medium,
   letterSpacing: letterSpacing.normal,
   outline: 'none',
@@ -91,7 +91,7 @@ const AddressInput = styled('input')({
 const ErrorText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.status.error,
   marginTop: spacing.xs,
   letterSpacing: letterSpacing.normal,
@@ -108,7 +108,7 @@ const InfoBox = styled(Box)({
 const InfoTitle = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.status.warning,
   marginBottom: spacing.xs,
   letterSpacing: letterSpacing.normal,
@@ -117,7 +117,7 @@ const InfoTitle = styled(Typography)({
 const InfoText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   letterSpacing: letterSpacing.normal,
   lineHeight: `${fontSize.sm * lineHeight.normal}px`,

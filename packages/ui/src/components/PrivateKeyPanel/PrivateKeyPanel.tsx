@@ -37,9 +37,8 @@ import {
   borderWidth,
   useAccounts,
   getShortAddress,
-  buildNetworkListFromAccount,
-  getAccountKeysForNetwork,
   type AccountKeyInfo,
+  fontFamily,
   fontSize,
   fontWeight,
   lineHeight,
@@ -48,6 +47,10 @@ import {
   duration,
   durationMs,
 } from '@salmon/shared';
+import {
+  buildNetworkListFromAccount,
+  getAccountKeysForNetwork,
+} from '@salmon/shared/utils/account';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 
 // ============================================================================
@@ -92,7 +95,7 @@ const KeyText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.primary,
-  fontFamily: 'monospace',
+  fontFamily: fontFamily.mono,
   wordBreak: 'break-all',
   lineHeight: lineHeight.relaxed,
   minHeight: componentSizes.backButtonSize,
@@ -111,7 +114,7 @@ const PathValue = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
   color: colors.text.primary,
-  fontFamily: 'monospace',
+  fontFamily: fontFamily.mono,
 });
 
 const AddressValue = styled(Typography)({

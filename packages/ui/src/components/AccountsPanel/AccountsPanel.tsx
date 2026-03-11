@@ -28,10 +28,10 @@ import {
   getAvatarColor,
   getShortAddress,
   getInitials,
-  getAccountAddress,
   useAccountsContext,
   type Account,
 } from '@salmon/shared';
+import { getAccountAddress } from '@salmon/shared/utils/account';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { ConfirmDialog } from '../ConfirmDialog';
 

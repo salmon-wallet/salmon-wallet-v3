@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { styled } from '@salmon/ui';
+import { styled } from '@salmon/ui/utils/styled';
 import Box from '@mui/material/Box';
 import {
   useAccountsContext,

@@ -99,7 +99,7 @@ const SecondaryButton = styled(Button)({
 const ButtonText = styled(Typography)<{ $disabled?: boolean }>(({ $disabled }) => ({
   fontSize: ms(fontSize.actionButton),
   fontWeight: fontWeight.regular,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: $disabled ? colors.button.disabledText : colors.text.balance,
 }));
 

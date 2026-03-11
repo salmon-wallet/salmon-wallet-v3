@@ -57,7 +57,7 @@ const SearchInputStyled = styled(InputBase)({
   color: colors.text.primary,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   '& .MuiInputBase-input::placeholder': {
     color: colors.text.secondary,
     opacity: opacity.full,
@@ -73,7 +73,7 @@ const SearchIconStyled = styled(SearchIcon)({
 const SectionHeader = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: spacing.md,
 });
@@ -162,7 +162,7 @@ const TokenLogoFallback = styled(Box)({
 const TokenLogoFallbackText = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 
@@ -170,7 +170,7 @@ const TokenName = styled(Typography)({
   flex: 1,
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.balance,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -180,7 +180,7 @@ const TokenName = styled(Typography)({
 const TokenBalance = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.balance,
   marginLeft: spacing.sm,
   flexShrink: 0,
@@ -188,7 +188,7 @@ const TokenBalance = styled(Typography)({
 
 const EmptyMessage = styled(Typography)({
   fontSize: fontSize.base,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   textAlign: 'center',
   padding: `${spacing['2xl']}px 0`,

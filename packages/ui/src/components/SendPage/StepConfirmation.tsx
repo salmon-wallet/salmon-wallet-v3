@@ -94,7 +94,7 @@ const TokenIconFallback = styled(Box)({
 const TokenIconFallbackText = styled(Typography)({
   fontSize: fontSize['3xl'],
   fontWeight: fontWeight.extraBold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 
@@ -102,7 +102,7 @@ const TokenIconFallbackText = styled(Typography)({
 const AmountText = styled(Typography)({
   fontSize: fontSize.title,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   textAlign: 'center',
   marginBottom: spacing.xl,
@@ -132,7 +132,7 @@ const AddressText = styled(Typography)({
   flex: 1,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -142,7 +142,7 @@ const AddressText = styled(Typography)({
 // Fee
 const FeeText = styled(Typography)({
   fontSize: fontSize.sm,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   marginTop: spacing.lg,
   textAlign: 'center',
@@ -152,7 +152,7 @@ const FeeText = styled(Typography)({
 const ErrorText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.status.error,
   marginTop: spacing.md,
   textAlign: 'center',
@@ -190,7 +190,7 @@ const CancelButton = styled(ButtonBase)<{ disabled?: boolean }>(({ disabled }) =
 const CancelButtonText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 
@@ -221,7 +221,7 @@ const ConfirmButtonGradient = styled(Box)({
 const ConfirmButtonText = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 

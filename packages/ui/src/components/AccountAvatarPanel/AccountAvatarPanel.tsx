@@ -75,7 +75,7 @@ const ToggleButton = styled('button')<{ $isActive?: boolean }>(({ $isActive }) =
   color: $isActive ? colors.text.primary : colors.text.secondary,
   textAlign: 'center',
   transition: `color ${duration.medium} ${easing.ease}`,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 }));
 
 const Grid = styled(Box)({

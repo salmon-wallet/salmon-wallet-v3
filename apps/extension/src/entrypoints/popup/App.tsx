@@ -1,9 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useAccountsContext, useInactivityTimeout, DerivedKeyCache } from '@salmon/shared';
+import {
+  useAccountsContext,
+  useInactivityTimeout,
+  DerivedKeyCache,
+} from '@salmon/shared';
+import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { LockPage } from '../../pages/lock/LockPage';
 import { HomePage } from '../../pages/home/HomePage';
 import {
   DAppConnectPage,
+  type DAppApprovalRequest,
   type DAppConnectRequest,
   DAppTransactionApprovalPage,
   type DAppTransactionRequest,
@@ -58,7 +64,7 @@ function LoadingSpinner() {
  */
 function App() {
   const [state, actions] = useAccountsContext();
-  const { ready, locked, accounts, activeBlockchainAccount, networkId } = state;
+  const { ready, locked, accounts, activeAccount, activeBlockchainAccount, pathIndex } = state;
 
   // dApp connection flow (when popup is launched for connect approval)
   const [pendingDAppRequest, setPendingDAppRequest] = useState<{
@@ -86,7 +92,7 @@ function App() {
     const requestStr = params.get('request');
     if (origin && requestStr) {
       try {
-        const request = JSON.parse(requestStr) as DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest;
+        const request = JSON.parse(requestStr) as DAppApprovalRequest;
         if (request.method === 'connect' && request.id != null) {
           setPendingDAppRequest({ origin, request });
         } else if (request.method === 'sign' && request.id != null) {
@@ -107,7 +113,7 @@ function App() {
 
   // Helper: route a single approval to the right pending state
   const routeApproval = useCallback(
-    (approval: { origin: string; request: DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest }) => {
+    (approval: { origin: string; request: DAppApprovalRequest }) => {
       const { origin, request } = approval;
       if (request.method === 'connect' && request.id != null) {
         setPendingDAppRequest({ origin, request });
@@ -131,7 +137,7 @@ function App() {
     sessionArea.get('salmon_pending_approval').then((result) => {
       const queue = result['salmon_pending_approval'] as Array<{
         origin: string;
-        request: DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest;
+        request: DAppApprovalRequest;
       }> | undefined;
       if (queue && queue.length > 0) {
         routeApproval(queue[0]);
@@ -148,7 +154,7 @@ function App() {
       if (!change) return;
       const queue = change.newValue as Array<{
         origin: string;
-        request: DAppConnectRequest & DAppTransactionRequest & DAppSignMessageRequest;
+        request: DAppApprovalRequest;
       }> | undefined;
       if (queue && queue.length > 0) {
         routeApproval(queue[0]);
@@ -304,9 +310,18 @@ function App() {
   // dApp connect approval
   const handleDAppApprove = useCallback(
     async (origin: string) => {
-      await actions.addTrustedApp(origin);
+      const solanaApprovalAccount = getActiveSolanaApprovalAccount(
+        activeAccount,
+        activeBlockchainAccount,
+        pathIndex,
+      );
+      if (!solanaApprovalAccount) {
+        throw new Error('Solana account not available');
+      }
+
+      await actions.addTrustedApp(origin, undefined, solanaApprovalAccount.network.id);
     },
-    [actions]
+    [actions, activeAccount, activeBlockchainAccount, pathIndex]
   );
 
   const handleDAppDeny = useCallback(() => {
@@ -394,23 +409,26 @@ function App() {
   }
 
   // dApp connection approval (popup launched by dApp connect request)
-  const isSolanaNetwork = networkId?.startsWith('solana') ?? false;
-  const solanaAddress = isSolanaNetwork && activeBlockchainAccount
-    ? activeBlockchainAccount.getReceiveAddress()
-    : '';
+  const solanaApprovalAccount = getActiveSolanaApprovalAccount(
+    activeAccount,
+    activeBlockchainAccount,
+    pathIndex,
+  );
+  const solanaAddress = solanaApprovalAccount?.getReceiveAddress() ?? '';
+  const solanaApprovalNetworkId = solanaApprovalAccount?.network.id ?? null;
 
   // dApp sign message approval
   if (
     pendingDAppSignMessageRequest &&
     !locked &&
     accounts.length > 0 &&
-    isSolanaNetwork
+    solanaApprovalAccount
   ) {
     return (
       <DAppSignMessageApprovalPage
         origin={pendingDAppSignMessageRequest.origin}
         request={pendingDAppSignMessageRequest.request}
-        account={activeBlockchainAccount}
+        account={solanaApprovalAccount}
         onDismiss={dismissApprovalWithRefresh}
       />
     );
@@ -421,14 +439,14 @@ function App() {
     pendingDAppTxRequest &&
     !locked &&
     accounts.length > 0 &&
-    isSolanaNetwork
+    solanaApprovalAccount
   ) {
     return (
       <DAppTransactionApprovalPage
         origin={pendingDAppTxRequest.origin}
         request={pendingDAppTxRequest.request}
-        account={activeBlockchainAccount}
-        networkId={networkId ?? null}
+        account={solanaApprovalAccount}
+        networkId={solanaApprovalNetworkId}
         onDismiss={dismissApprovalWithRefresh}
       />
     );
@@ -438,7 +456,7 @@ function App() {
     pendingDAppRequest &&
     !locked &&
     accounts.length > 0 &&
-    isSolanaNetwork &&
+    solanaApprovalAccount &&
     solanaAddress
   ) {
     return (
@@ -446,7 +464,7 @@ function App() {
         origin={pendingDAppRequest.origin}
         request={pendingDAppRequest.request}
         address={solanaAddress}
-        networkId={networkId ?? null}
+        networkId={solanaApprovalNetworkId}
         onApprove={handleDAppApprove}
         onDeny={handleDAppDeny}
         onDismiss={dismissApproval}

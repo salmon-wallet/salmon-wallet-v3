@@ -6,9 +6,8 @@ import {
   borderRadius,
   borderWidth,
   contentPadding,
+  fontFamilyNative,
   fontSize,
-  fontWeight,
-  fontFamily,
   letterSpacing,
   opacity,
 } from '@salmon/shared';
@@ -80,16 +79,15 @@ const styles = StyleSheet.create({
     opacity: opacity.low,
   },
   chipText: {
-    fontFamily: fontFamily.sans,
     fontSize: fontSize.sm,
     letterSpacing: letterSpacing.wide,
   },
   chipTextActive: {
-    fontWeight: fontWeight.medium,
+    fontFamily: fontFamilyNative.medium,
     color: colors.text.primary,
   },
   chipTextInactive: {
-    fontWeight: fontWeight.regular,
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.secondary,
   },
 });

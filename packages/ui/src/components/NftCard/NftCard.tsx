@@ -82,7 +82,7 @@ const NameBadgeContainer = styled(Box)({
 });
 
 const NameText = styled(Typography)({
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontSize: fontSize.sm,
   fontWeight: fontWeight.semibold,
   color: colors.text.balance,

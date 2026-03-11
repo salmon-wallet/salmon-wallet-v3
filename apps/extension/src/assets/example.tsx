@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { fontFamily } from '@salmon/shared';
 import {
   // Individual imports
   IconWallet,
@@ -27,7 +28,7 @@ import '@/assets/fonts.css';
 
 export function AssetExampleComponent() {
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
+    <div style={{ fontFamily: fontFamily.sans }}>
       <h1>Asset Usage Examples</h1>
 
       {/* Using individual exports */}

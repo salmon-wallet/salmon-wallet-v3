@@ -244,7 +244,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
     }
 
     return null;
-  }, [nft]);
+  }, [nft, t]);
 
   if (!visible || !nft) {
     return null;

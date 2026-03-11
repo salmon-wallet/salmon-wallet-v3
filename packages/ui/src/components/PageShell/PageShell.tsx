@@ -22,6 +22,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { colors, spacing, fontFamily, fontWeight, fontSize } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
 
+type ScrollContentProps = Omit<React.ComponentPropsWithoutRef<'div'>, 'children' | 'style'>;
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -70,10 +72,12 @@ export interface PageShellProps {
   scrollContentStyle?: React.CSSProperties;
   /**
    * Additional props forwarded verbatim to the ScrollContent Box.
-   * Use this for page-level ref forwarding, onScroll handlers, etc.
-   * (e.g. TransactionHistoryPage passes ref + onScroll for infinite scroll).
+   * Use this for page-level DOM handlers and attributes
+   * (e.g. TransactionHistoryPage passes onScroll for infinite scroll).
    */
-  scrollContentProps?: React.ComponentPropsWithRef<'div'>;
+  scrollContentProps?: ScrollContentProps;
+  /** Optional callback ref for the scrollable content container. */
+  scrollContentRef?: (node: HTMLDivElement | null) => void;
   /**
    * Optional max-width in pixels. When provided, the Container is centred
    * horizontally with `margin: 0 auto` — useful for the standalone web app.
@@ -123,7 +127,7 @@ export const HeaderTitle = styled(Typography)({
   fontSize: fontSize.lg,
   fontWeight: fontWeight.semibold,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -153,6 +157,7 @@ export function PageShell({
   headerRight,
   scrollContentStyle,
   scrollContentProps,
+  scrollContentRef,
   maxWidth,
   className,
   style,
@@ -182,7 +187,11 @@ export function PageShell({
         {headerRight}
       </Header>
 
-      <ScrollContent style={scrollContentStyle} {...scrollContentProps}>
+      <ScrollContent
+        style={scrollContentStyle}
+        ref={scrollContentRef ? (node) => scrollContentRef(node as HTMLDivElement | null) : undefined}
+        {...scrollContentProps}
+      >
         {children}
       </ScrollContent>
     </Container>

@@ -1,6 +1,11 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const bufferPath = path.dirname(require.resolve('buffer/package.json'));
+const processPath = path.dirname(require.resolve('process/package.json'));
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, 'VITE_');
@@ -13,8 +18,8 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, 'src'),
         '@salmon/shared': path.resolve(__dirname, '../../packages/shared/src'),
         '@salmon/ui': path.resolve(__dirname, '../../packages/ui/src'),
-        'buffer': path.resolve(__dirname, 'node_modules/buffer'),
-        'process': path.resolve(__dirname, 'node_modules/process'),
+        'buffer': bufferPath,
+        'process': processPath,
       },
     },
     define: {
@@ -32,11 +37,14 @@ export default defineConfig(({ mode }) => {
       }),
     },
     optimizeDeps: {
-      include: ['buffer'],
+      include: ['buffer', 'process'],
       esbuildOptions: {
         define: { global: 'globalThis' },
         inject: [path.resolve(__dirname, 'src/buffer-shim.js')],
       },
+    },
+    build: {
+      chunkSizeWarningLimit: 6000,
     },
   };
 });

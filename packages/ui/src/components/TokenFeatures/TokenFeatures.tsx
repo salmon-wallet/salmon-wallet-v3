@@ -124,7 +124,7 @@ const BadgeIcon = styled('svg')({
 const BadgeLabel = styled(Typography)<{ $labelColor: string }>(({ $labelColor }) => ({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: $labelColor,
   whiteSpace: 'nowrap',
 }));

@@ -14,8 +14,6 @@ import {
   colors,
   spacing,
   fontFamily,
-  getAllNfts,
-  getSolanaNfts,
   SOLANA_NETWORKS,
   // getEthereumNfts,
   // getBitcoinOrdinals,
@@ -34,6 +32,8 @@ import {
   // type EthereumNft,
   // type BitcoinOrdinal,
 } from '@salmon/shared';
+import { getAll as getAllNfts } from '@salmon/shared/blockchain/solana/nft';
+import { getSolanaNfts } from '@salmon/shared/api/services/solana-nft';
 import {
   // NftCarouselSection,
   // NftCarouselSectionSkeleton,
@@ -73,7 +73,7 @@ const SectionTitle = styled(Typography)({
   fontSize: 18,
   fontWeight: 600,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   paddingLeft: spacing.lg,
   paddingRight: spacing.lg,
 });
@@ -91,14 +91,14 @@ const EmptyStateText = styled(Typography)({
   fontSize: 14,
   fontWeight: 500,
   color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   marginBottom: spacing.sm,
 });
 
 const EmptyStateSubtext = styled(Typography)({
   fontSize: 12,
   color: 'rgba(255, 255, 255, 0.4)',
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 });
 
 const SectionHeaderRow = styled(Box)({
@@ -113,7 +113,7 @@ const SectionTitleText = styled(Typography)({
   fontSize: 16,
   fontWeight: 600,
   color: colors.text.primary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   flex: 1,
 });
 
@@ -121,7 +121,7 @@ const SectionCount = styled(Typography)({
   fontSize: 13,
   fontWeight: 500,
   color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 });
 
 const Grid = styled(Box)({

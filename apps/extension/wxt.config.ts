@@ -1,6 +1,11 @@
 import { defineConfig } from 'wxt';
 import { loadEnv } from 'vite';
 import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const bufferPath = path.dirname(require.resolve('buffer/package.json'));
+const processPath = path.dirname(require.resolve('process/package.json'));
 
 export default defineConfig({
   srcDir: 'src',
@@ -30,23 +35,30 @@ export default defineConfig({
       },
       resolve: {
         alias: {
+          '@salmon/shared': path.resolve(__dirname, '../../packages/shared/src'),
+          '@salmon/ui': path.resolve(__dirname, '../../packages/ui/src'),
           // Mock react-native modules for web extension build
           'react-native-fast-crypto': path.resolve(__dirname, 'src/stubs/react-native-fast-crypto.ts'),
           'react-native': path.resolve(__dirname, 'src/stubs/react-native.ts'),
           // Resolve Node.js built-ins to npm polyfills (prevents Vite from externalizing them)
-          'buffer': path.resolve(__dirname, 'node_modules/buffer'),
-          'process': path.resolve(__dirname, 'node_modules/process'),
+          'buffer': bufferPath,
+          'process': processPath,
         },
       },
       optimizeDeps: {
-        include: ['buffer'],
+        entries: [
+          path.resolve(__dirname, 'src/entrypoints/popup/index.html'),
+          path.resolve(__dirname, 'src/entrypoints/sidepanel/index.html'),
+        ],
+        include: ['buffer', 'process'],
         esbuildOptions: {
           define: {
             global: 'globalThis',
           },
-          // Inject Buffer into every pre-bundled dependency that references it
-          inject: [path.resolve(__dirname, 'src/buffer-shim.js')],
         },
+      },
+      build: {
+        chunkSizeWarningLimit: 6000,
       },
     };
   },

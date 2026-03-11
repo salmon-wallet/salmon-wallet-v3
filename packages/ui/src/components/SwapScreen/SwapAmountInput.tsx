@@ -43,7 +43,7 @@ const Container = styled(Box)({
 const Label = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   letterSpacing: letterSpacing.normal,
   lineHeight: `${fontSize.base * lineHeight.condensed}px`,
@@ -69,7 +69,7 @@ const StyledInput = styled(InputBase)({
   flex: 1,
   fontSize: fontSize.md,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   height: '100%',
   '& .MuiInputBase-input': {
@@ -122,7 +122,7 @@ const TokenIconPlaceholder = styled(Box)({
 const TokenSymbol = styled(Typography)({
   fontSize: fontSize.base,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   opacity: opacity.soft,
   letterSpacing: letterSpacing.normal,
@@ -139,7 +139,7 @@ const InfoRow = styled(Box)({
 const UsdValue = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   letterSpacing: letterSpacing.normal,
   lineHeight: `${fontSize.sm * lineHeight.normal}px`,
@@ -148,7 +148,7 @@ const UsdValue = styled(Typography)({
 const AvailableBalance = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.light,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   letterSpacing: letterSpacing.normal,
   lineHeight: `${fontSize.sm * lineHeight.normal}px`,

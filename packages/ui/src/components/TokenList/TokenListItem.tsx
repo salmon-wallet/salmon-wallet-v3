@@ -70,7 +70,7 @@ const BitcoinInfoContainer = styled(Box)({
 const BitcoinPrice = styled(Typography)({
   fontSize: ms(fontSize.tokenNamePrice),
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: vs(spacing.xxs),
 });
@@ -85,7 +85,7 @@ const BitcoinChangeRow = styled(Box)({
 const BitcoinChangeText = styled(Typography)<{ $changeColor?: string }>(({ $changeColor }) => ({
   fontSize: ms(fontSize.tokenChange),
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: $changeColor || colors.text.muted,
 }));
 
@@ -99,7 +99,7 @@ const BitcoinAmountContainer = styled(Box)({
 const BitcoinAmount = styled(Typography)({
   fontSize: ms(fontSize.lg),
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
 });
 
@@ -154,7 +154,7 @@ const NameRow = styled(Box)({
 const TokenName = styled(Typography)({
   fontSize: ms(fontSize.tokenNamePrice),
   fontWeight: fontWeight.semibold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -172,7 +172,7 @@ const PriceRow = styled(Box)({
 
 const Price = styled(Typography)({
   fontSize: ms(fontSize.tokenNamePrice),
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.muted,
 });
 
@@ -184,7 +184,7 @@ const BulletSeparator = styled(Typography)({
 const ChangeText = styled(Typography)<{ $changeColor?: string }>(({ $changeColor }) => ({
   fontSize: ms(fontSize.tokenChange),
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: $changeColor || colors.text.muted,
 }));
 
@@ -199,14 +199,14 @@ const ValueContainer = styled(Box)({
 const UsdValue = styled(Typography)({
   fontSize: ms(fontSize.lg),
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   marginBottom: vs(spacing.xxs),
 });
 
 const TokenAmount = styled(Typography)({
   fontSize: ms(fontSize.sm),
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.muted,
 });
 

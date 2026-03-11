@@ -36,7 +36,6 @@ import {
   type BlockchainType,
   isSolanaNft,
   createBurnTransaction,
-  isSolanaAccount,
   useCurrencyContext,
   LANGUAGE_NAMES,
   type LanguageCode,
@@ -53,6 +52,7 @@ import {
   PERIOD_TO_DAYS,
   coinInfoToMarketData,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 import {
   WalletHeader,
   BalanceCardCarousel,
@@ -244,7 +244,7 @@ const TabButton = styled('button', {
   border: 'none',
   borderBottom: active ? `2px solid ${colors.accent.primary}` : '2px solid transparent',
   color: active ? colors.text.primary : colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   fontWeight: active ? 600 : 400,
   fontSize: 14,
   textAlign: 'center',

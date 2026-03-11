@@ -270,6 +270,43 @@ export async function lock<T>(
 }
 
 /**
+ * Encrypts data and returns both the vault and the derived key cache.
+ * Use this when a newly-created vault should immediately participate in
+ * the same in-memory/session unlock flow as a regular password unlock.
+ */
+export async function lockAndGetKey<T>(
+  unlocked: T,
+  password: string,
+  options: LockOptions = {}
+): Promise<{ vault: LockedVault; keyCache: DerivedKeyCache }> {
+  const { iterations = DEFAULT_ITERATIONS, digest = DEFAULT_DIGEST } = options;
+
+  const salt = randomBytes(SALT_LENGTH);
+  const key = await deriveEncryptionKey(password, salt, iterations, digest);
+  const nonce = randomBytes(secretbox.nonceLength);
+  const plaintext = Buffer.from(JSON.stringify(unlocked));
+  const encrypted = secretbox(plaintext, nonce, key);
+
+  return {
+    vault: {
+      encrypted: bs58.encode(encrypted),
+      nonce: bs58.encode(nonce),
+      salt: bs58.encode(salt),
+      iterations,
+      digest,
+      kdf: 'pbkdf2',
+    },
+    keyCache: {
+      key: Array.from(key),
+      salt: bs58.encode(salt),
+      iterations,
+      digest,
+      expiresAt: Date.now() + KEY_CACHE_TTL,
+    },
+  };
+}
+
+/**
  * Validates the structure and integrity of a locked vault.
  * Helper function to avoid code duplication between unlock functions.
  *

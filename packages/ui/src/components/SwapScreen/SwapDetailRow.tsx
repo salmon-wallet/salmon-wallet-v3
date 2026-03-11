@@ -37,7 +37,7 @@ const BlurContent = styled('div')({
 const Label = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   letterSpacing: letterSpacing.slight,
   lineHeight: `${fontSize.md * lineHeight.normal}px`,
@@ -46,7 +46,7 @@ const Label = styled(Typography)({
 const Value = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   letterSpacing: letterSpacing.slight,
   lineHeight: `${fontSize.md * lineHeight.normal}px`,

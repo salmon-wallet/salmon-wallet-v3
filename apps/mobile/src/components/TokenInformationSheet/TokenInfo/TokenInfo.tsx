@@ -3,6 +3,7 @@ import {
   borderRadius,
   colors,
   ContentLoader,
+  fontFamilyNative,
   fontSize,
   fontWeight,
   Rect,
@@ -298,7 +299,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.base,
     fontWeight: fontWeight.regular as '400',
     color: colors.text.muted,
-    fontFamily: 'monospace',
+    fontFamily: fontFamilyNative.regular,
   },
   copyButton: {
     padding: spacing.xs,

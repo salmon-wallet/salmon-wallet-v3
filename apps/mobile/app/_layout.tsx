@@ -31,7 +31,6 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('@salmon/assets/src/fonts/SpaceMono-Regular.ttf'),
     DMSansLight: require('@salmon/assets/src/fonts/DMSans-Light.ttf'),
     DMSansRegular: require('@salmon/assets/src/fonts/DMSans-Regular.ttf'),
     DMSansMedium: require('@salmon/assets/src/fonts/DMSans-Medium.ttf'),
@@ -153,8 +152,10 @@ function RootLayoutNav() {
       // Also skip redirect when user is on post-creation auth screens
       // (password, success, derived-accounts) — they're still in the
       // creation flow and should finish before being sent to the app.
+      const authScreen = segments.slice(1, 2)[0];
       const isPostCreationScreen = inAuthGroup &&
-        ['password', 'success', 'derived-accounts'].includes(segments[1] as string);
+        typeof authScreen === 'string' &&
+        ['password', 'success', 'derived-accounts'].includes(authScreen);
 
       if (!inAppGroup && !hasNavigated && !state.locked && !isPostCreationScreen) {
         // Only auto-navigate to app on initial load when not locked

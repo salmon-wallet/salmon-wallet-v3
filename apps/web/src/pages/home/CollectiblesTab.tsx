@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@salmon/ui';
+import { styled } from '@salmon/ui/utils/styled';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
@@ -11,13 +11,13 @@ import {
   filterSpamNfts,
   getNftSectionTitle,
   INITIAL_NFT_SECTIONS,
-  isSolanaAccount,
   type Account,
   type NftData,
   type NftSectionKey,
   type NftSection,
   type NftsBySection,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { NftCarouselSection } from '@salmon/ui';
 
 // ---------------------------------------------------------------------------
@@ -51,7 +51,7 @@ const EmptyStateText = styled(Typography)({
   fontSize: 14,
   fontWeight: 500,
   color: colors.text.secondary,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
 });
 
 // ---------------------------------------------------------------------------

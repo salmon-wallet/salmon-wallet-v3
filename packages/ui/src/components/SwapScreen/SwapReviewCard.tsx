@@ -36,7 +36,7 @@ const BlurContent = styled('div')({
 const Label = styled(Typography)({
   fontSize: fontSize.md,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   letterSpacing: letterSpacing.slight,
   lineHeight: `${fontSize.md * lineHeight.normal}px`,
@@ -45,7 +45,7 @@ const Label = styled(Typography)({
 const Amount = styled(Typography)({
   fontSize: fontSize['2xl'],
   fontWeight: fontWeight.bold,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.primary,
   letterSpacing: letterSpacing.snug,
   lineHeight: `${fontSize['2xl'] * lineHeight.tight}px`,
@@ -55,7 +55,7 @@ const Amount = styled(Typography)({
 const UsdValue = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.medium,
-  fontFamily: `${fontFamily.sans}, sans-serif`,
+  fontFamily: fontFamily.sans,
   color: colors.text.secondary,
   letterSpacing: letterSpacing.slight,
   lineHeight: `${fontSize.sm * lineHeight.tokenListItem}px`,
