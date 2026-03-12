@@ -37,7 +37,7 @@ import {
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useState, type ComponentProps } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -108,6 +108,7 @@ export function LockScreenOverlay({
   const [error, setError] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [isVisible, setIsVisible] = useState(locked);
+  const hasAutoPromptedBiometric = useRef(false);
 
   // Determine if biometric button should be shown
   const showBiometricButton =
@@ -282,6 +283,27 @@ export function LockScreenOverlay({
       refreshBiometricState();
     }
   }, [isVisible, refreshBiometricState]);
+
+  useEffect(() => {
+    if (!locked || !isVisible) {
+      hasAutoPromptedBiometric.current = false;
+    }
+  }, [isVisible, locked]);
+
+  useEffect(() => {
+    if (
+      !locked ||
+      !isVisible ||
+      !showBiometricButton ||
+      isLoading ||
+      hasAutoPromptedBiometric.current
+    ) {
+      return;
+    }
+
+    hasAutoPromptedBiometric.current = true;
+    void handleBiometricUnlock();
+  }, [handleBiometricUnlock, isLoading, isVisible, locked, showBiometricButton]);
 
   /**
    * Handle forgot password - shows warning and offers to reset wallet

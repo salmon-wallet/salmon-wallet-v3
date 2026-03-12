@@ -140,7 +140,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: s(spacing.xs),
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
+    flexShrink: 0,
     marginLeft: s(spacing.sm),
   },
   badge: {

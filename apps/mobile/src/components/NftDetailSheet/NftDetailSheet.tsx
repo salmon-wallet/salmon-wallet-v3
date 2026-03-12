@@ -422,8 +422,8 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
 
 const styles = StyleSheet.create({
   sheetContainer: {
-    maxHeight: '90%',
-    minHeight: undefined,
+    minHeight: '85%',
+    maxHeight: '92%',
     overflow: 'hidden',
   },
   nftName: {
@@ -462,6 +462,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollViewContent: {
+    flexGrow: 1,
     paddingHorizontal: s(spacing.headerPadding),
     paddingBottom: vs(spacing['4xl']),
     gap: vs(spacing.lg),

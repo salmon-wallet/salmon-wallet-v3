@@ -34,6 +34,54 @@ const MIN_SWAP_USD = 1;
 const QUOTE_DEBOUNCE_MS = 500;
 const QUOTE_COUNTDOWN_SECONDS = 10;
 
+function getSwapTokenKey(token: SwapToken | null | undefined): string | null {
+  if (!token) return null;
+
+  return [
+    token.chain || '',
+    token.networkId || '',
+    token.address || '',
+    token.symbol || '',
+  ].join(':');
+}
+
+function findMatchingToken(
+  tokens: SwapToken[],
+  target: SwapToken | null | undefined
+): SwapToken | null {
+  if (!target) return null;
+
+  const targetKey = getSwapTokenKey(target);
+  return (
+    tokens.find((token) => getSwapTokenKey(token) === targetKey) ??
+    tokens.find(
+      (token) =>
+        token.address === target.address &&
+        (token.chain || '') === (target.chain || '')
+    ) ??
+    null
+  );
+}
+
+function hasTokenSnapshotChanged(
+  current: SwapToken | null | undefined,
+  next: SwapToken | null | undefined
+): boolean {
+  if (!current || !next) {
+    return current !== next;
+  }
+
+  return (
+    current.name !== next.name ||
+    current.symbol !== next.symbol ||
+    current.logo !== next.logo ||
+    current.balance !== next.balance ||
+    current.usdPrice !== next.usdPrice ||
+    current.decimals !== next.decimals ||
+    current.networkId !== next.networkId
+  );
+}
+
 // ============================================================================
 // Hook options
 // ============================================================================
@@ -440,6 +488,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
       const result = await onSwap(quote);
       setSuccessTxId(result.txId);
       setStep('success');
+      void onRefreshBalances?.();
       onSuccess?.(result.txId);
     } catch (error) {
       console.error('Swap failed:', error);
@@ -452,7 +501,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [quote, onSwap, onSuccess, onError]);
+  }, [onError, onRefreshBalances, onSuccess, onSwap, quote]);
 
   const handleConfirmBridge = useCallback(async () => {
     if (!inToken || !outToken || !inAmount || !recipientAddress || !onCreateBridgeExchange) return;
@@ -480,6 +529,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
         }
         setSuccessExchange(exchange);
         setStep('success');
+        void onRefreshBalances?.();
         onBridgeSuccess?.(exchange);
       } else {
         throw new Error('Failed to create bridge exchange');
@@ -495,7 +545,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onBridgeSuccess, onBridgeError]);
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onBridgeSuccess, onBridgeError, onRefreshBalances]);
 
   const handleRefreshQuote = useCallback(async () => {
     if (isLoadingQuote || isLoadingEstimate) return;
@@ -589,6 +639,59 @@ export function useSwapScreenLogic<StyleType = unknown>({
       return availableOutTokens;
     }
   }, [inToken, tokens, jupiterTokens, availableOutTokens]);
+
+  useEffect(() => {
+    if (tokens.length === 0) {
+      if (inToken !== null) {
+        setInToken(null);
+      }
+      return;
+    }
+
+    if (!inToken) {
+      const nextToken = findMatchingToken(tokens, initialInToken ?? null) ?? tokens[0] ?? null;
+      if (nextToken) {
+        setInToken(nextToken);
+      }
+      return;
+    }
+
+    const matchedToken = findMatchingToken(tokens, inToken);
+    if (!matchedToken) {
+      const fallbackToken = findMatchingToken(tokens, initialInToken ?? null) ?? tokens[0] ?? null;
+      if (fallbackToken && getSwapTokenKey(fallbackToken) !== getSwapTokenKey(inToken)) {
+        setInToken(fallbackToken);
+      }
+      setInAmount('');
+      setOutAmount('');
+      setQuote(null);
+      setBridgeEstimate(null);
+      return;
+    }
+
+    if (hasTokenSnapshotChanged(inToken, matchedToken)) {
+      setInToken(matchedToken);
+    }
+  }, [initialInToken, inToken, tokens]);
+
+  useEffect(() => {
+    if (!outToken) {
+      return;
+    }
+
+    const matchedToken = findMatchingToken(outputTokens, outToken);
+    if (!matchedToken) {
+      setOutToken(null);
+      setOutAmount('');
+      setQuote(null);
+      setBridgeEstimate(null);
+      return;
+    }
+
+    if (hasTokenSnapshotChanged(outToken, matchedToken)) {
+      setOutToken(matchedToken);
+    }
+  }, [outToken, outputTokens]);
 
   // Modal-level handler for output token (needs outputTokens, so defined after it)
   const handleOutTokenModalSelect = useCallback((token: TokenSelectorToken) => {

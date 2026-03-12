@@ -233,16 +233,19 @@ const styles = StyleSheet.create({
   // Solana/Ethereum styles
   infoContainer: {
     flex: 1,
+    minWidth: 0,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    minWidth: 0,
   },
   name: {
     fontSize: ms(fontSize.tokenNamePrice),
     fontFamily: fontFamilyNative.medium,
     color: colors.text.balance,
     flexShrink: 1,
+    minWidth: 0,
     lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
   },

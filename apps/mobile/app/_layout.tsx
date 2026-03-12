@@ -7,8 +7,8 @@ import { colors } from '@salmon/shared';
 import { useFonts } from 'expo-font';
 import { Stack, router, useSegments, useRootNavigationState } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { View, StyleSheet, AppState, type AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
 
 import { LockScreenOverlay } from '../src/components';
@@ -81,6 +81,7 @@ function RootLayoutNav() {
   const segments = useSegments();
   const navigationState = useRootNavigationState();
   const biometric = useBiometricAuth();
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
   // Track if we've done the initial navigation
   const [hasNavigated, setHasNavigated] = useState(false);
@@ -168,6 +169,36 @@ function RootLayoutNav() {
   // Determine if lock screen should be shown
   const hasAccounts = state.accounts.length > 0;
   const shouldShowLockScreen = state.ready && hasAccounts && state.locked;
+
+  useEffect(() => {
+    if (!state.ready) {
+      return;
+    }
+
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      const previousState = appStateRef.current;
+      appStateRef.current = nextState;
+
+      const leavingForeground =
+        previousState === 'active' &&
+        (nextState === 'inactive' || nextState === 'background');
+
+      if (
+        !leavingForeground ||
+        !state.requiredLock ||
+        state.locked ||
+        state.accounts.length === 0
+      ) {
+        return;
+      }
+
+      void actions.lockAccounts();
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [actions, state.accounts.length, state.locked, state.ready, state.requiredLock]);
 
   return (
     <I18nProvider>
