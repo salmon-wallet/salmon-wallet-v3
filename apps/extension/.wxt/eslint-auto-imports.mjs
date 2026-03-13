@@ -289,7 +289,6 @@ const globals = {
   "defineUnlistedScript": true,
   "defineWxtPlugin": true,
   "fakeBrowser": true,
-  "getAppConfig": true,
   "getSessionKey": true,
   "hasValidSessionKey": true,
   "injectScript": true,
