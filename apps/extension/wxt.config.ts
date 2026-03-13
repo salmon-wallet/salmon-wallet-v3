@@ -100,9 +100,10 @@ export default defineConfig({
     ...(browser === 'firefox' && {
       browser_specific_settings: {
         gecko: {
-          id: 'extension@salmonwallet.io',
-          strict_min_version: '109.0',
+          id: 'firefoxextension@salmonwallet.io',
+          strict_min_version: '142.0',
           data_collection_permissions: {
+            required: ['none'],
             personally_identifying_info: false,
             health_info: false,
             financial_and_payment_info: false,
