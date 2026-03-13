@@ -529,9 +529,6 @@ importers:
       react:
         specifier: '>=18.0.0'
         version: 19.2.0
-      react-content-loader:
-        specifier: ^7.1.1
-        version: 7.1.2(react@19.2.0)
       react-dom:
         specifier: '>=18.0.0'
         version: 19.2.0(react@19.2.0)

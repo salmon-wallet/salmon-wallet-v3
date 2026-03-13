@@ -63,7 +63,7 @@ export default defineConfig({
     };
   },
 
-  manifest: {
+  manifest: ({ browser }) => ({
     // Use i18n message placeholders for name and description
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
@@ -71,10 +71,9 @@ export default defineConfig({
     default_locale: 'en',
     version: '0.9.1',
     icons: {
-      16: 'icon.png',
-      48: 'icon.png',
-      128: 'icon-192.png',
-      512: 'icon-512.png',
+      16: 'icon-16.png',
+      48: 'icon-48.png',
+      128: 'icon-128.png',
     },
     permissions: ['storage', 'alarms', 'clipboardRead'],
     host_permissions: [
@@ -98,6 +97,28 @@ export default defineConfig({
         use_dynamic_url: true,
       },
     ],
+    ...(browser === 'firefox' && {
+      browser_specific_settings: {
+        gecko: {
+          id: '{99e7120d-f33a-4e8a-ad82-40fb91039a72}',
+          strict_min_version: '109.0',
+          data_collection_permissions: {
+            personally_identifying_info: false,
+            health_info: false,
+            financial_and_payment_info: false,
+            authentication_info: false,
+            personal_communications: false,
+            location: false,
+            browsing_history: false,
+            technical_and_interaction: false,
+          },
+        },
+      },
+    }),
+  }),
+
+  zip: {
+    exclude: ['**/__MACOSX/**', '**/.*'],
   },
 
   modules: ['@wxt-dev/module-react'],

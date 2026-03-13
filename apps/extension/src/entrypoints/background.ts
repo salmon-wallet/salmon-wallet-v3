@@ -370,6 +370,7 @@ export default defineBackground(() => {
         // user gesture chain from the dApp click. This is a Chrome API requirement:
         // sidePanel.open() silently fails if called after any async operation.
         if (
+          import.meta.env.CHROME &&
           msg.data.method !== 'connect' &&
           msg.data.method !== 'disconnect' &&
           !sidePanelPort &&
