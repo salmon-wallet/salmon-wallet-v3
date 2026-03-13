@@ -14,6 +14,6 @@ export type {
   BlockchainType,
   ValidationState,
   ValidationCallbackResult,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
+  UseAddressValidationResult,
+  UseAddressValidationParams,
 } from '@salmon/shared';

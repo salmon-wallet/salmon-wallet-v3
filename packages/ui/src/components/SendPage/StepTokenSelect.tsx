@@ -405,4 +405,3 @@ export function StepTokenSelect({
   );
 }
 
-export default StepTokenSelect;

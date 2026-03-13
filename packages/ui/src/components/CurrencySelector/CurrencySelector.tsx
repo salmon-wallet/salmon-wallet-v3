@@ -7,7 +7,6 @@ import {
   colors,
   spacing,
   borderRadius,
-  type CurrencySelectorBaseProps,
   type CurrencySelectorItem,
   fontSize,
   fontWeight,
@@ -15,6 +14,7 @@ import {
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
+import type { CurrencySelectorProps } from './types';
 
 // ============================================================================
 // Styled Components (currency-specific leading element)
@@ -46,7 +46,7 @@ export function CurrencySelector({
   activeCurrencyCode,
   onSelectCurrency,
   onBack,
-}: CurrencySelectorBaseProps): React.ReactElement {
+}: CurrencySelectorProps): React.ReactElement {
   const { t } = useTranslation();
 
   const handleSelect = useCallback(
@@ -75,5 +75,3 @@ export function CurrencySelector({
     </SettingsPanelContent>
   );
 }
-
-export default CurrencySelector;

@@ -347,4 +347,3 @@ export function InputAddress({
   );
 }
 
-export default InputAddress;

@@ -84,9 +84,12 @@ export type { GradientBackgroundPropsBase } from './gradient-background';
 // Bridge Screen
 // Note: BridgeChain, BridgeToken, BridgeEstimate, BridgeExchange are UI-specific
 // data shapes that differ from the API/domain types in types/bridge.ts.
-// They are not re-exported here to avoid name collisions — import them
-// directly from '@salmon/shared/types/ui/bridge-screen' if needed.
+// Export them under explicit aliases so consumers can stay on the public barrel.
 export type {
+  BridgeChain as BridgeScreenChain,
+  BridgeToken as BridgeScreenToken,
+  BridgeEstimate as BridgeScreenEstimate,
+  BridgeExchange as BridgeScreenExchange,
   RecipientAddressInputPropsBase,
   BridgeRecipientScreenPropsBase,
   BridgeReviewScreenPropsBase,

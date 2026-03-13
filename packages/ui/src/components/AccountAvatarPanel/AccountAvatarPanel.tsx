@@ -28,14 +28,7 @@ import {
   useAvatarNfts,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface AccountAvatarPanelProps {
-  onBack: () => void;
-}
+import type { AccountAvatarPanelProps } from './types';
 
 // ============================================================================
 // Styled Components

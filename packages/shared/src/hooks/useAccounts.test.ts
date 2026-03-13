@@ -6,9 +6,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAccounts } from './useAccounts';
-import type { Account } from './useAccounts';
+import type { Account } from '../types/account';
 import * as storage from '../storage';
 import * as encryption from '../crypto/encryption';
+import { encryptMnemonics } from '../crypto/encrypt-mnemonics';
 import { createSolanaAccount } from '../blockchain/solana';
 
 // ============================================================================
@@ -54,7 +55,15 @@ vi.mock('../crypto/encryption', () => ({
   unlockAndGetKey: vi.fn(),
   unlockWithKey: vi.fn(),
   lockWithKey: vi.fn(),
+  lockAndGetKey: vi.fn(),
   isKeyCacheValid: vi.fn(),
+}));
+
+vi.mock('../crypto/encrypt-mnemonics', () => ({
+  encryptMnemonics: vi.fn().mockResolvedValue({
+    vault: { isEncrypted: true },
+    requiredLock: true,
+  }),
 }));
 
 vi.mock('../blockchain/solana', () => ({
@@ -186,6 +195,10 @@ describe('useAccounts Hook', () => {
     (storage.getStorageItem as any).mockResolvedValue(null);
     (createSolanaAccount as any).mockResolvedValue(mockSolanaAccount);
     (storage.updateLastActivity as any).mockResolvedValue(undefined);
+    (encryptMnemonics as any).mockResolvedValue({
+      vault: { isEncrypted: true },
+      requiredLock: true,
+    });
 
     // Stateful stash mocks - getStashItem returns what setStashItem stored
     (storage.setStashItem as any).mockImplementation((key: string, value: any) => {
@@ -524,13 +537,6 @@ describe('useAccounts Hook', () => {
     });
 
     it('should add account with password encryption', async () => {
-      (encryption.lock as any).mockResolvedValue({
-        nonce: 'nonce',
-        salt: 'salt',
-        ciphertext: 'encrypted',
-      });
-      (encryption.isKeyCacheValid as any).mockReturnValue(false);
-
       const { result } = renderHook(() => useAccounts());
 
       await waitFor(() => {
@@ -544,36 +550,21 @@ describe('useAccounts Hook', () => {
         await actions.addAccount(newAccount, MOCK_PASSWORD);
       });
 
-      expect(encryption.lock).toHaveBeenCalled();
+      // encryptMnemonics is called with mnemonics, password, and options
+      expect(encryptMnemonics).toHaveBeenCalledWith(
+        { [newAccount.id]: MOCK_MNEMONIC },
+        MOCK_PASSWORD,
+        { cacheNewKey: true },
+      );
       expect(storage.setStorageItem).toHaveBeenCalledWith(
         'salmon_mnemonics',
         expect.objectContaining({ isEncrypted: true })
       );
-      expect(storage.setStashItem).toHaveBeenCalledWith('password', MOCK_PASSWORD);
     });
 
     it('should re-encrypt mnemonics when adding account without explicit password to encrypted wallet', async () => {
       // When addAccount is called without a password but the wallet is encrypted,
-      // it should re-encrypt using cached derived key or stashed password
-      // instead of storing plain mnemonics.
-      const mockKeyCache = {
-        salt: 'test-salt',
-        derivedKey: new Uint8Array(32),
-        createdAt: Date.now(),
-      };
-
-      const mockVault = {
-        nonce: 'new-nonce',
-        salt: 'test-salt',
-        ciphertext: 'new-encrypted',
-      };
-
-      // Pre-populate stash with a cached derived key (simulates post-unlock state)
-      stashStore['derived_key_cache'] = mockKeyCache;
-
-      (encryption.isKeyCacheValid as any).mockReturnValue(true);
-      (encryption.lockWithKey as any).mockReturnValue(mockVault);
-
+      // encryptMnemonics handles re-encryption using cached derived key or stashed password.
       const { result } = renderHook(() => useAccounts());
 
       await waitFor(() => {
@@ -587,8 +578,12 @@ describe('useAccounts Hook', () => {
         await result.current[1].addAccount(newAccount);
       });
 
-      // Should have re-encrypted with cached key
-      expect(encryption.lockWithKey).toHaveBeenCalled();
+      // encryptMnemonics is called without password — it internally decides how to encrypt
+      expect(encryptMnemonics).toHaveBeenCalledWith(
+        { [newAccount.id]: MOCK_MNEMONIC },
+        undefined,
+        { cacheNewKey: false },
+      );
       expect(storage.setStorageItem).toHaveBeenCalledWith(
         'salmon_mnemonics',
         expect.objectContaining({ isEncrypted: true })
@@ -597,21 +592,9 @@ describe('useAccounts Hook', () => {
 
     it('should re-encrypt mnemonics when removing account without explicit password from encrypted wallet', async () => {
       // When removeAccount is called without a password but the wallet is encrypted,
-      // it should re-encrypt using stashed password instead of storing plain mnemonics.
+      // encryptMnemonics handles re-encryption using stashed password or cached key.
       const mockAccount1 = createMockAccount();
       const mockAccount2 = { ...createMockAccount(), id: 'account_789' };
-
-      // Pre-populate stash with password (simulates post-unlock state)
-      stashStore['password'] = MOCK_PASSWORD;
-
-      const mockVault = {
-        nonce: 'new-nonce',
-        salt: 'new-salt',
-        ciphertext: 'new-encrypted',
-      };
-
-      (encryption.isKeyCacheValid as any).mockReturnValue(false);
-      (encryption.lock as any).mockResolvedValue(mockVault);
 
       (storage.getStorageItem as any).mockImplementation((key: string) => {
         if (key === 'salmon_accounts') return Promise.resolve([
@@ -639,10 +622,11 @@ describe('useAccounts Hook', () => {
         await result.current[1].removeAccount(mockAccount1.id);
       });
 
-      // Should have re-encrypted with stashed password
-      expect(encryption.lock).toHaveBeenCalledWith(
+      // encryptMnemonics is called with remaining mnemonics, no password, cacheNewKey=false
+      expect(encryptMnemonics).toHaveBeenCalledWith(
         { [mockAccount2.id]: MOCK_MNEMONIC },
-        MOCK_PASSWORD
+        undefined,
+        { cacheNewKey: false },
       );
       expect(storage.setStorageItem).toHaveBeenCalledWith(
         'salmon_mnemonics',

@@ -38,6 +38,10 @@ export interface UseTokenSearchResult {
   loadMore: () => void;
   /** Reset search state */
   reset: () => void;
+  /** Error message if search failed */
+  error: string | null;
+  /** Whether an error occurred */
+  isError: boolean;
 }
 
 /**

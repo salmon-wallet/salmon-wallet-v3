@@ -265,4 +265,3 @@ export function TokenSelector({
   );
 }
 
-export default TokenSelector;

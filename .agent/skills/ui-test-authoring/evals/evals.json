@@ -1,0 +1,25 @@
+{
+  "skill_name": "ui-test-authoring",
+  "evals": [
+    {
+      "id": "simple-dom-render-test",
+      "prompt": "Add a lightweight test for StepIndicator so packages/ui has coverage for a simple presentational component.",
+      "expected_output": "Use ui-test-authoring, write a co-located Component.test.tsx file, add file-level jsdom, use @testing-library/react, and assert public render behavior instead of styling internals.",
+      "files": [
+        "packages/ui/src/components/StepIndicator/StepIndicator.tsx",
+        "packages/ui/src/components/StepIndicator/types.ts",
+        "packages/ui/package.json"
+      ]
+    },
+    {
+      "id": "behavior-heavy-dom-audit",
+      "prompt": "Audit ConfirmDialog for missing test coverage around conditional rendering, async confirmation, and callback behavior.",
+      "expected_output": "Use ui-test-authoring to produce a focused audit that prioritizes user-visible behavior, callback flow, and interaction risk, without centering implementation details.",
+      "files": [
+        "packages/ui/src/components/ConfirmDialog/ConfirmDialog.tsx",
+        "packages/ui/src/components/ConfirmDialog/types.ts",
+        "packages/ui/package.json"
+      ]
+    }
+  ]
+}

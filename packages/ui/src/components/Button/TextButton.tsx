@@ -97,4 +97,3 @@ export function TextButton({
   );
 }
 
-export default TextButton;

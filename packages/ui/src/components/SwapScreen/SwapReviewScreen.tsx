@@ -279,4 +279,3 @@ export function SwapReviewScreen({
   );
 }
 
-export default SwapReviewScreen;

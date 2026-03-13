@@ -28,6 +28,10 @@ export interface UseAvatarNftsResult {
   nfts: NftAvatarItem[];
   /** Whether NFTs are currently loading */
   loading: boolean;
+  /** Error message if fetch failed */
+  error: string | null;
+  /** Whether an error occurred */
+  isError: boolean;
 }
 
 // ============================================================================
@@ -37,6 +41,7 @@ export interface UseAvatarNftsResult {
 export function useAvatarNfts({ account, enabled }: UseAvatarNftsParams): UseAvatarNftsResult {
   const [nfts, setNfts] = useState<NftAvatarItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [fetched, setFetched] = useState(false);
 
   // Reset when account changes so NFTs are re-fetched for the new account
@@ -82,8 +87,9 @@ export function useAvatarNfts({ account, enabled }: UseAvatarNftsParams): UseAva
             image: nft.image,
           })),
         );
-      } catch (error) {
-        console.error('[useAvatarNfts] Failed to fetch NFTs:', error);
+      } catch (err) {
+        console.error('[useAvatarNfts] Failed to fetch NFTs:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch NFTs');
       } finally {
         setLoading(false);
         setFetched(true);
@@ -93,7 +99,6 @@ export function useAvatarNfts({ account, enabled }: UseAvatarNftsParams): UseAva
     fetchNfts();
   }, [enabled, fetched, account]);
 
-  return { nfts, loading };
+  return { nfts, loading, error, isError: error !== null };
 }
 
-export default useAvatarNfts;

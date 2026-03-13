@@ -29,19 +29,7 @@ import {
   componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface AccountEditPanelProps {
-  accountId: string;
-  onEditName: (accountId: string) => void;
-  onEditAvatar: () => void;
-  onBackupSeed: () => void;
-  onExportPrivateKey: () => void;
-  onBack: () => void;
-}
+import type { AccountEditPanelProps } from './types';
 
 // ============================================================================
 // Styled Components

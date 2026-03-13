@@ -2,9 +2,6 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { TokenSelectorToken, UseTokenSearchResult } from '../types/ui/token-selector';
 import { filterTokensLocally } from '../utils/tokens';
 
-// Re-export types for backward compatibility
-export type { TokenSelectorToken, UseTokenSearchResult };
-
 const PAGE_SIZE = 20;
 const DEBOUNCE_DELAY = 300;
 const MIN_SEARCH_LENGTH = 3;
@@ -23,6 +20,7 @@ export function useTokenSearch(
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<TokenSelectorToken[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Ref to track the latest search query for async operations
@@ -49,6 +47,7 @@ export function useTokenSearch(
     }
 
     setIsSearching(true);
+    setError(null);
 
     const timeoutId = setTimeout(async () => {
       try {
@@ -58,10 +57,11 @@ export function useTokenSearch(
         if (latestQueryRef.current === searchQuery) {
           setSearchResults(results || []);
         }
-      } catch (error) {
-        console.warn('Token search failed:', error);
+      } catch (err) {
+        console.warn('Token search failed:', err);
         if (latestQueryRef.current === searchQuery) {
           setSearchResults([]);
+          setError(err instanceof Error ? err.message : 'Search failed');
         }
       } finally {
         if (latestQueryRef.current === searchQuery) {
@@ -110,6 +110,7 @@ export function useTokenSearch(
     setSearchQuery('');
     setSearchResults([]);
     setIsSearching(false);
+    setError(null);
     setCurrentPage(1);
   }, []);
 
@@ -122,7 +123,8 @@ export function useTokenSearch(
     hasMore,
     loadMore,
     reset,
+    error,
+    isError: error !== null,
   };
 }
 
-export default useTokenSearch;

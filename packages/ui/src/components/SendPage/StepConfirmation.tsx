@@ -403,4 +403,3 @@ export function StepConfirmation({
   );
 }
 
-export default StepConfirmation;

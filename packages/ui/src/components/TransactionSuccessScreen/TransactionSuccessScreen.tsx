@@ -7,7 +7,7 @@ import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import { colors, gradients, spacing, borderRadius, fontFamily, fontSize, fontWeight, lineHeight, componentSizes, borderWidth, duration, easing } from '@salmon/shared';
-import type { TransactionSuccessScreenProps } from '@salmon/shared';
+import type { TransactionSuccessScreenProps } from './types';
 
 // ============================================================================
 // Keyframes

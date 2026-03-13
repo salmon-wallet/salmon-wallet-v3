@@ -32,9 +32,6 @@ import type { BlockchainAccount, NetworkId } from '../types/blockchain';
 import { isSolanaAccount, isBitcoinAccount, isEthereumAccount } from '../utils/account';
 import { removeDecimals } from '../utils/decimals';
 
-// Re-export domain types for backward compatibility
-export type { BlockchainAccount } from '../types/blockchain';
-export type { NetworkId } from '../types/blockchain';
 import {
   type WalletBalance,
   type TokenBalanceWithPrice,
@@ -48,7 +45,7 @@ import { getStorageItem, setStorageItem, STORAGE_KEYS } from '../storage';
 /**
  * Options for the useBalance hook
  */
-export interface UseBalanceOptions {
+export interface UseBalanceParams {
   /** The blockchain account instance (Solana, Bitcoin, or Ethereum) */
   account: BlockchainAccount | undefined;
   /** Network identifier */
@@ -76,7 +73,9 @@ export interface UseBalanceResult {
   /** Whether a refresh is in progress */
   refreshing: boolean;
   /** Error if fetch failed */
-  error: Error | null;
+  error: string | null;
+  /** Whether an error occurred */
+  isError: boolean;
   /** Refetch balance data */
   refresh: () => Promise<void>;
   /** Whether balance is hidden */
@@ -119,11 +118,11 @@ export function useBalance({
   account,
   networkId = 'solana-mainnet',
   skip = false,
-}: UseBalanceOptions): UseBalanceResult {
+}: UseBalanceParams): UseBalanceResult {
   const [balance, setBalance] = useState<WalletBalance | null>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [hiddenBalance, setHiddenBalance] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
@@ -411,7 +410,7 @@ export function useBalance({
         setLastUpdated(now);
       } catch (err) {
         console.error('[useBalance] Failed to fetch balance:', err);
-        setError(err instanceof Error ? err : new Error('Failed to fetch balance'));
+        setError(err instanceof Error ? err.message : 'Failed to fetch balance');
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -447,6 +446,7 @@ export function useBalance({
     loading,
     refreshing,
     error,
+    isError: error !== null,
     refresh,
     hiddenBalance,
     toggleHidden,
@@ -454,4 +454,3 @@ export function useBalance({
   };
 }
 
-export default useBalance;

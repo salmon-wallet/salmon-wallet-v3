@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@salmon/ui/utils/styled';
+import { styled } from '@salmon/ui';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
@@ -15,6 +15,8 @@ import {
   useAddressbook,
   colors,
   spacing,
+  fontSize,
+  borderRadius,
   fontFamily,
   getBlockchainFromNetworkId,
   BLOCKCHAIN_TO_COINGECKO,
@@ -183,20 +185,20 @@ const TopListFade = styled(Box)({
 const EmptyState = styled(Box)({
   padding: `${spacing.xl}px ${spacing.lg}px`,
   textAlign: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  borderRadius: 12,
+  backgroundColor: colors.background.card,
+  borderRadius: borderRadius.lg,
 });
 
 const EmptyStateText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 500,
   color: colors.text.secondary,
   marginBottom: spacing.sm,
 });
 
 const EmptyStateSubtext = styled(Typography)({
-  fontSize: 12,
-  color: 'rgba(255, 255, 255, 0.4)',
+  fontSize: fontSize.sm,
+  color: colors.text.disabled,
 });
 
 const TabBar = styled(Box)({
@@ -218,7 +220,7 @@ const TabButton = styled('button', {
   color: active ? colors.text.primary : colors.text.secondary,
   fontFamily: fontFamily.sans,
   fontWeight: active ? 600 : 400,
-  fontSize: 14,
+  fontSize: fontSize.base,
   textAlign: 'center',
   cursor: 'pointer',
   transition: 'all 0.2s ease',
@@ -778,7 +780,7 @@ export function HomePage(): React.ReactElement {
                 onSendPress={handleSendPress}
                 onReceivePress={handleReceivePress}
                 onActivityPress={handleActivityPress}
-                style={{ marginTop: 24, marginBottom: 24 }}
+                style={{ marginTop: spacing['2xl'], marginBottom: spacing['2xl'] }}
               />
 
               <TokenSectionWrapper>

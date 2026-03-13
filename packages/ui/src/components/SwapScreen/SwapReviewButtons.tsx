@@ -3,14 +3,7 @@ import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import { colors, spacing, borderRadius, gradients, shadowsCSS, componentSizes, borderWidth } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
-
-export interface SwapReviewButtonsProps {
-  onBack: () => void;
-  onConfirm: () => void;
-  isConfirming?: boolean;
-  confirmLabel?: string;
-  style?: React.CSSProperties;
-}
+import type { SwapReviewButtonsProps } from './types';
 
 // ============================================================================
 // Styled Components
@@ -43,13 +36,13 @@ const ConfirmButtonGradient = styled('div')({
  * SwapReviewButtons - Shared Back/Confirm buttons for review screens
  * Used by SwapReviewScreen and BridgeReviewScreen
  */
-export const SwapReviewButtons: React.FC<SwapReviewButtonsProps> = ({
+export function SwapReviewButtons({
   onBack,
   onConfirm,
   isConfirming = false,
   confirmLabel = 'Confirm',
   style,
-}) => {
+}: SwapReviewButtonsProps) {
   return (
     <ButtonsContainer style={style}>
       <BackButtonWrapper>
@@ -82,4 +75,4 @@ export const SwapReviewButtons: React.FC<SwapReviewButtonsProps> = ({
       </ConfirmButtonGradient>
     </ButtonsContainer>
   );
-};
+}

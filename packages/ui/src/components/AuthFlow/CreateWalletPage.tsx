@@ -18,7 +18,8 @@ import { styled } from '../../utils/styled';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import { ScreenHeader } from '../ScreenHeader';
 import { SeedWordGrid, SeedWordInput } from '../SeedPhrase';
-import { AuthScreenLayoutProps, getAuthContainerStyles } from './common';
+import { getAuthContainerStyles } from './common';
+import type { CreateWalletPageProps } from './types';
 
 type Step = 'message' | 'seedPhrase' | 'validate';
 
@@ -26,11 +27,6 @@ interface ValidationWord {
   position: number;
   expectedWord: string;
   userInput: string;
-}
-
-export interface CreateWalletPageProps extends AuthScreenLayoutProps {
-  onComplete: (mnemonic: string) => void;
-  onBack: () => void;
 }
 
 const Container = styled(Box)<{ $contained?: boolean }>(({ $contained = false }) => ({

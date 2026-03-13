@@ -340,4 +340,3 @@ export function TransactionHistoryPage({
   );
 }
 
-export default TransactionHistoryPage;

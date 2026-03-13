@@ -15,15 +15,9 @@ import {
 } from '@salmon/shared';
 import { styled } from '../../utils/styled';
 import { PrimaryButton, SecondaryButton } from '../Button';
-import { AuthScreenLayoutProps, getAuthContainerStyles } from './common';
+import { getAuthContainerStyles } from './common';
+import type { SelectOptionsPageProps } from './types';
 import { ScreenHeader } from '../ScreenHeader';
-
-export interface SelectOptionsPageProps extends AuthScreenLayoutProps {
-  onCreateWallet: () => void;
-  onRecoverWallet: () => void;
-  hasAccounts?: boolean;
-  onAccessExisting?: () => void;
-}
 
 const Container = styled(Box)<{ $contained?: boolean }>(({ $contained = false }) => ({
   display: 'flex',

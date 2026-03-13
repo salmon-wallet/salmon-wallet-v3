@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mobile Component Scaffold"
+  short_description: "Scaffold RN components for mobile"
+  default_prompt: "Use $mobile-component-scaffold to create or modify a React Native component in apps/mobile following Salmon repo rules."

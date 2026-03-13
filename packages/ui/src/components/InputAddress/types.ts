@@ -5,7 +5,7 @@
  * browser extension with standard HTML input elements.
  *
  * Hook-related types (BlockchainType, ValidationState, ValidationCallbackResult,
- * UseAddressValidationReturn, UseAddressValidationOptions) are now defined in
+ * UseAddressValidationResult, UseAddressValidationParams) are now defined in
  * @salmon/shared and re-exported from the barrel index.ts for backwards compat.
  */
 

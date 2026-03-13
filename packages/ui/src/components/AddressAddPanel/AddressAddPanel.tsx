@@ -15,7 +15,6 @@ import {
   fontFamily,
   fontWeight,
   useAddressBookForm,
-  type AddressBookAddBaseProps,
   borderRadius,
   borderWidth,
   fontSize,
@@ -23,6 +22,7 @@ import {
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { InputAddress } from '../InputAddress';
+import type { AddressAddPanelProps } from './types';
 
 // ============================================================================
 // Styled Components
@@ -99,7 +99,7 @@ export function AddressAddPanel({
   activeBlockchain,
   onSave,
   onBack,
-}: AddressBookAddBaseProps): React.ReactElement {
+}: AddressAddPanelProps): React.ReactElement {
   const { t } = useTranslation();
   const form = useAddressBookForm({ networkId: activeNetworkId });
 

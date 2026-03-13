@@ -106,4 +106,3 @@ export function useSendContacts(senderAddress: string): UseSendContactsResult {
   return { contacts, ownWallets, isLoading };
 }
 
-export default useSendContacts;

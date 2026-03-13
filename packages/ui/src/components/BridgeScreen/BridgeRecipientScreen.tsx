@@ -151,7 +151,7 @@ const ContinueButtonGradient = styled('div')({
  * BridgeRecipientScreen - Second step of bridge flow
  * Allows user to enter the recipient address for the destination chain
  */
-export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
+export function BridgeRecipientScreen({
   recipientAddress,
   onAddressChange,
   targetChain,
@@ -160,7 +160,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
   isValidAddress,
   addressError,
   style,
-}) => {
+}: BridgeRecipientScreenProps) {
   const canContinue = isValidAddress && recipientAddress.length > 0;
 
   return (
@@ -223,6 +223,5 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
       </ButtonsContainer>
     </Container>
   );
-};
+}
 
-export default BridgeRecipientScreen;

@@ -161,4 +161,3 @@ export function SwapInputScreen({
   );
 }
 
-export default SwapInputScreen;

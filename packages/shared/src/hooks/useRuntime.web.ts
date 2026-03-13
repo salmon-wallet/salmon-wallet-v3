@@ -48,6 +48,9 @@ const isExtension = (): boolean => {
  * }
  * ```
  */
+// NOTE: Returns a plain RuntimeInfo object instead of [State, Actions] tuple.
+// This hook is synchronous with no mutable actions — the tuple pattern would add
+// unnecessary complexity for a read-only, always-ready data source.
 const useRuntime = (): RuntimeInfo => {
   const context = useMemo(
     () => new URLSearchParams(window.location.hash.slice(1)),
@@ -69,4 +72,4 @@ const useRuntime = (): RuntimeInfo => {
   };
 };
 
-export default useRuntime;
+export { useRuntime };

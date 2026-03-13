@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useUserConfig } from './useUserConfig';
-import type { ActiveBlockchainAccount } from './useUserConfig';
+import type { ActiveBlockchainAccount } from '../types/account';
 import * as storage from '../storage';
 
 // ============================================================================

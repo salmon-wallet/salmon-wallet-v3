@@ -517,4 +517,3 @@ export function NftDetailPage({
   );
 }
 
-export default NftDetailPage;

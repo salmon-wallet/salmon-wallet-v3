@@ -28,21 +28,15 @@ import {
 } from '../storage';
 import {
   lock,
-  lockAndGetKey,
-  unlock,
-  lockWithKey,
   unlockAndGetKey,
   unlockWithKey,
   isKeyCacheValid,
   type LockedVault,
   type DerivedKeyCache,
 } from '../crypto/encryption';
-import { SOLANA_NETWORKS } from '../blockchain/solana';
-import { BITCOIN_NETWORKS } from '../blockchain/bitcoin';
-import { ETHEREUM_NETWORKS } from '../blockchain/ethereum';
-import type { SolanaNetwork, BitcoinNetwork, EthereumNetwork } from '../types/blockchain';
+import { encryptMnemonics } from '../crypto/encrypt-mnemonics';
+import { migrateLegacyWallets } from '../utils/legacy-migration';
 import {
-  getPathIndex,
   getBlockchainFromNetworkId,
   generateAccountId,
   createBlockchainAccountForNetwork,
@@ -50,10 +44,8 @@ import {
 import { getRandomAvatar } from '../utils/avatar';
 import type {
   BlockchainAccount,
-  AnyNetwork,
 } from '../types/blockchain';
 import type {
-  NetworkPathIndexes,
   NetworksAccounts,
   StoredAccount,
   Account,
@@ -63,19 +55,6 @@ import type {
 } from '../types/account';
 import type { TrustedApp, TrustedApps } from '../types/trusted-app';
 import type { TokenInfo, CustomTokens, TokenToImport } from '../types/token';
-
-// Re-export domain types for backward compatibility
-export type { BlockchainAccount } from '../types/blockchain';
-export type {
-  NetworkPathIndexes,
-  NetworksAccounts,
-  StoredAccount,
-  Account,
-  EditAccountParams,
-  ConnectionInfo,
-} from '../types/account';
-export type { TrustedApp, TrustedApps } from '../types/trusted-app';
-export type { TokenInfo, CustomTokens, TokenToImport } from '../types/token';
 
 // ============================================================================
 // Types & Interfaces
@@ -111,6 +90,10 @@ export interface UseAccountsState {
   activeTokens: Record<string, TokenInfo>;
   /** Whether a network switch is in progress (shows skeletons) */
   switchingNetwork: boolean;
+  /** Last error from an account operation, null when no error */
+  error: string | null;
+  /** Whether an error is present (derived from error !== null) */
+  isError: boolean;
 }
 
 /**
@@ -153,6 +136,8 @@ export interface UseAccountsActions {
   removeTrustedApp: (domain: string) => Promise<void>;
   /** Import custom tokens */
   importTokens: (targetNetworkId: string, tokenList?: TokenToImport[]) => Promise<void>;
+  /** Clear the current error */
+  resetError: () => void;
 }
 
 // ============================================================================
@@ -184,45 +169,6 @@ function formatAccountForStorage(account: Account): StoredAccount {
     avatar,
     pathIndexes: mapValues(networksAccounts, getPathIndexes),
   };
-}
-
-/**
- * Inverts an object's key-value pairs, grouping keys by their values.
- * Used for grouping addresses by mnemonic during migration.
- */
-function invertBy<T extends Record<string, string>>(obj: T): Record<string, string[]> {
-  const result: Record<string, string[]> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (!result[value]) {
-      result[value] = [];
-    }
-    result[value].push(key);
-  }
-  return result;
-}
-
-/**
- * Gets available networks configuration for all supported blockchains.
- * Returns Solana, Bitcoin, and Ethereum networks.
- */
-async function getNetworks(): Promise<AnyNetwork[]> {
-  const solanaNetworks = Object.values(SOLANA_NETWORKS).map((network) => ({
-    ...network,
-    blockchain: 'SOLANA',
-    environment: network.id,
-  })) as unknown as SolanaNetwork[];
-
-  const bitcoinNetworks = Object.values(BITCOIN_NETWORKS).map((network) => ({
-    ...network,
-    blockchain: 'BITCOIN',
-  })) as unknown as BitcoinNetwork[];
-
-  const ethereumNetworks = Object.values(ETHEREUM_NETWORKS).map((network) => ({
-    ...network,
-    blockchain: 'ETHEREUM',
-  })) as unknown as EthereumNetwork[];
-
-  return [...solanaNetworks, ...bitcoinNetworks, ...ethereumNetworks];
 }
 
 /**
@@ -380,211 +326,28 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   const [trustedApps, setTrustedApps] = useState<TrustedApps>({});
   const [tokens, setTokens] = useState<CustomTokens>({});
   const [switchingNetwork, setSwitchingNetwork] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // --------------------------------------------------------------------------
   // Legacy Migration (v2 -> v3)
   // --------------------------------------------------------------------------
 
   const runUpgrades = useCallback(async (password?: string): Promise<boolean> => {
-    interface LegacyWallets {
-      passwordRequired?: boolean;
-      wallets: Array<{
-        address: string;
-        path: string;
-        chain: string;
-        mnemonic?: string;
-      }>;
-      mnemonics?: StoredMnemonics;
-      lastNumber?: number;
-      config?: Record<string, {
-        name?: string;
-        avatar?: string;
-        trustedApps?: Record<string, TrustedApp>;
-        tokens?: Record<string, TokenInfo>;
-      }>;
+    const result = await migrateLegacyWallets(
+      { restoreAccount, formatAccountForStorage },
+      password,
+    );
+
+    if (result.status === 'no-migration') return true;
+
+    if (result.status === 'needs-password') {
+      setLocked(true);
+      return false;
     }
 
-    const storedWallets = await getStorageItem<LegacyWallets>(STORAGE_KEYS.WALLETS);
-    if (!storedWallets) return true;
-
-    // Handle password-protected wallets
-    if (storedWallets.passwordRequired) {
-      if (!password) {
-        setLocked(true);
-        return false;
-      }
-
-      if (!('mnemonics' in storedWallets) || !storedWallets.mnemonics) {
-        // Migrate from old format where mnemonic was in wallet
-        const decryptedWallets = await unlock<typeof storedWallets.wallets>(
-          storedWallets.wallets as unknown as LockedVault,
-          password
-        );
-        storedWallets.wallets = decryptedWallets;
-        storedWallets.mnemonics = storedWallets.wallets.reduce(
-          (m, wallet) => {
-            if (wallet.mnemonic) {
-              m[wallet.address] = wallet.mnemonic;
-              delete wallet.mnemonic;
-            }
-            return m;
-          },
-          {} as Record<string, string>
-        );
-      } else {
-        // New format with separate mnemonics
-        storedWallets.mnemonics = await unlock<Record<string, string>>(
-          storedWallets.mnemonics as unknown as LockedVault,
-          password
-        );
-      }
-    } else if (!('mnemonics' in storedWallets) || !storedWallets.mnemonics) {
-      // Unprotected wallet, migrate mnemonics
-      storedWallets.mnemonics = storedWallets.wallets.reduce(
-        (m, wallet) => {
-          if (wallet.mnemonic) {
-            m[wallet.address] = wallet.mnemonic;
-            delete wallet.mnemonic;
-          }
-          return m;
-        },
-        {} as Record<string, string>
-      );
-    }
-
-    const storedIndex = await getStorageItem<number>(STORAGE_KEYS.ACTIVE);
-    const activeWallet = storedWallets.wallets[storedIndex ?? 0];
-    const storedEndpoints = await getStorageItem<Record<string, string>>(STORAGE_KEYS.ENDPOINTS);
-
-    let newCounter = storedWallets.lastNumber ?? 0;
-    const newAccounts: Account[] = [];
-    let newMnemonics: Record<string, string> = {};
-    let newAccountId: string | undefined;
-    let newNetworkId: string | undefined;
-    let newPathIndex: number | undefined;
-    const newTrustedApps: TrustedApps = {};
-    const newTokens: CustomTokens = {};
-
-    const networks = await getNetworks();
-    const mnemonicsObj = storedWallets.mnemonics as Record<string, string>;
-    const grouped = invertBy(mnemonicsObj);
-
-    for (const [mnemonic, addresses] of Object.entries(grouped)) {
-      let name: string | undefined;
-      let avatar: string | undefined;
-      const pathIndexes: NetworkPathIndexes = {};
-
-      for (const address of addresses) {
-        const config = storedWallets.config?.[address];
-
-        if (!name && config?.name) name = config.name;
-        if (!avatar && config?.avatar) avatar = config.avatar;
-
-        const wallet = storedWallets.wallets.find((w) => w.address === address);
-        if (!wallet) continue;
-
-        const { path, chain } = wallet;
-        const network = networks.find(
-          (n) => (n as unknown as { blockchain: string }).blockchain?.toUpperCase() === chain.toUpperCase()
-        );
-
-        if (!network) continue;
-
-        const index = getPathIndex(path);
-        if (index === undefined) continue;
-
-        if (!pathIndexes[network.id]) {
-          pathIndexes[network.id] = [];
-        }
-        pathIndexes[network.id].push(index);
-
-        // Migrate trusted apps
-        if (config?.trustedApps) {
-          if (newTrustedApps[network.id]) {
-            Object.assign(newTrustedApps[network.id], config.trustedApps);
-          } else {
-            newTrustedApps[network.id] = { ...config.trustedApps };
-          }
-        }
-
-        // Migrate tokens
-        if (config?.tokens) {
-          if (newTokens[network.id]) {
-            Object.assign(newTokens[network.id], config.tokens);
-          } else {
-            newTokens[network.id] = { ...config.tokens };
-          }
-        }
-      }
-
-      const account = await restoreAccount({
-        name,
-        avatar,
-        mnemonic,
-        pathIndexes,
-      });
-
-      newAccounts.push(account);
-      newMnemonics[account.id] = mnemonic;
-
-      // Find current account based on active wallet
-      const current = Object.values(account.networksAccounts)
-        .flat()
-        .find((blockchainAccount) => {
-          if (!blockchainAccount) return false;
-          const { path, network } = blockchainAccount;
-          const address = blockchainAccount.getReceiveAddress();
-          return (
-            path === activeWallet?.path &&
-            address === activeWallet?.address &&
-            network.id === storedEndpoints?.[(network as unknown as { blockchain: string }).blockchain?.toUpperCase()]
-          );
-        });
-
-      if (current) {
-        newAccountId = account.id;
-        newNetworkId = current.network.id;
-        newPathIndex = getPathIndex(current.path);
-      }
-    }
-
-    // Set defaults if not found
-    if (!newAccountId || !newNetworkId || newPathIndex === undefined) {
-      const firstAccount = newAccounts[0];
-      if (firstAccount) {
-        newAccountId = firstAccount.id;
-        const availableNetworks = Object.keys(firstAccount.pathIndexes);
-        newNetworkId = availableNetworks.includes('solana-mainnet')
-          ? 'solana-mainnet'
-          : availableNetworks[0];
-        newPathIndex = firstAccount.pathIndexes[newNetworkId]?.find(
-          (n): n is number => typeof n === 'number'
-        ) ?? 0;
-      }
-    }
-
-    // Encrypt mnemonics if password required
-    if (storedWallets.passwordRequired && password) {
-      const lockedMnemonics = await lock(newMnemonics, password);
-      await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...lockedMnemonics, isEncrypted: true });
-    } else {
-      await setStorageItem(STORAGE_KEYS.MNEMONICS, newMnemonics);
-    }
-
-    // Save migrated data
-    await setStorageItem(STORAGE_KEYS.COUNTER, newCounter);
-    await setStorageItem(STORAGE_KEYS.ACCOUNTS, newAccounts.map(formatAccountForStorage));
-    await setStorageItem(STORAGE_KEYS.ACCOUNT_ID, newAccountId);
-    await setStorageItem(STORAGE_KEYS.NETWORK_ID, newNetworkId);
-    await setStorageItem(STORAGE_KEYS.PATH_INDEX, newPathIndex);
-    await setStorageItem(STORAGE_KEYS.TRUSTED_APPS, newTrustedApps);
-    await setStorageItem(STORAGE_KEYS.CUSTOM_TOKENS, newTokens);
-
-    // Remove legacy storage
-    await removeStorageItem(STORAGE_KEYS.WALLETS);
-    await removeStorageItem(STORAGE_KEYS.ACTIVE);
-    await removeStorageItem(STORAGE_KEYS.ENDPOINTS);
-
+    // result.status === 'migrated'
+    // State is set by the caller (init / unlockAccounts) after loading;
+    // storage writes already happened inside migrateLegacyWallets.
     return true;
   }, []);
 
@@ -776,8 +539,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         await setStashItem(STASH_KEYS.PASSWORD, password);
 
         return true;
-      } catch (error) {
-        console.warn('Failed to unlock accounts:', error);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to unlock accounts';
+        console.warn('Failed to unlock accounts:', err);
+        setError(msg);
         return false;
       }
     },
@@ -825,8 +590,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         await updateLastActivity();
 
         return true;
-      } catch (error) {
-        console.warn('Failed to unlock accounts with cached key:', error);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to unlock accounts';
+        console.warn('Failed to unlock accounts with cached key:', err);
+        setError(msg);
         return false;
       }
     },
@@ -868,8 +635,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       setReady(true);
     };
 
-    init().catch((error) => {
-      console.error('[useAccounts] init failed:', error);
+    init().catch((err) => {
+      const msg = err instanceof Error ? err.message : 'Account initialization failed';
+      console.error('[useAccounts] init failed:', err);
+      setError(msg);
       setReady(true);
     });
   }, [runUpgrades, unlockAccounts, load, loadMetadata]);
@@ -1025,41 +794,12 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       setNetworkId(newNetworkId);
       setPathIndex(getDefaultPathIndex(account, newNetworkId));
 
+      const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: !!password });
+      await setStorageItem(STORAGE_KEYS.MNEMONICS, encryptResult.vault);
       if (password) {
-        // Check for cached derived key to avoid expensive PBKDF2 re-derivation
-        const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
-
-        let lockedMnemonics: LockedVault & { isEncrypted: true };
-        if (isKeyCacheValid(cachedKey)) {
-          // Reuse cached key (saves ~1.5s of PBKDF2 derivation)
-          const vault = lockWithKey(newMnemonics, cachedKey);
-          lockedMnemonics = { ...vault, isEncrypted: true as const };
-        } else {
-          // No valid cache, derive a fresh key and keep it in memory for this session.
-          const { vault, keyCache } = await lockAndGetKey(newMnemonics, password);
-          lockedMnemonics = { ...vault, isEncrypted: true as const };
-          await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
-        }
-
-        await setStorageItem(STORAGE_KEYS.MNEMONICS, lockedMnemonics);
-        await setStashItem(STASH_KEYS.PASSWORD, password);
         setRequiredLock(true);
-      } else {
-        // No explicit password - re-encrypt if wallet was previously encrypted
-        const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
-        if (isKeyCacheValid(cachedKey)) {
-          const vault = lockWithKey(newMnemonics, cachedKey);
-          await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...vault, isEncrypted: true as const });
-        } else {
-          const stashedPassword = await getStashItem<string>(STASH_KEYS.PASSWORD);
-          if (stashedPassword) {
-            const vault = await lock(newMnemonics, stashedPassword);
-            await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...vault, isEncrypted: true as const });
-          } else {
-            await setStorageItem(STORAGE_KEYS.MNEMONICS, newMnemonics);
-            setRequiredLock(false);
-          }
-        }
+      } else if (!encryptResult.requiredLock) {
+        setRequiredLock(false);
       }
 
       await setStorageItem(STORAGE_KEYS.COUNTER, newCounter);
@@ -1161,41 +901,12 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
       await setStorageItem(STORAGE_KEYS.ACCOUNTS, newAccounts.map(formatAccountForStorage));
 
+      const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: false });
+      await setStorageItem(STORAGE_KEYS.MNEMONICS, encryptResult.vault);
       if (password) {
         setRequiredLock(true);
-
-        // Check for cached derived key to avoid expensive PBKDF2 re-derivation
-        const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
-
-        let lockedMnemonics: LockedVault & { isEncrypted: true };
-        if (isKeyCacheValid(cachedKey)) {
-          // Reuse cached key (saves ~1.5s of PBKDF2 derivation)
-          const vault = lockWithKey(newMnemonics, cachedKey);
-          lockedMnemonics = { ...vault, isEncrypted: true as const };
-        } else {
-          // No valid cache, derive new key
-          const vault = await lock(newMnemonics, password);
-          lockedMnemonics = { ...vault, isEncrypted: true as const };
-        }
-
-        await setStorageItem(STORAGE_KEYS.MNEMONICS, lockedMnemonics);
-        await setStashItem(STASH_KEYS.PASSWORD, password);
-      } else {
-        // No explicit password - re-encrypt if wallet was previously encrypted
-        const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
-        if (isKeyCacheValid(cachedKey)) {
-          const vault = lockWithKey(newMnemonics, cachedKey);
-          await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...vault, isEncrypted: true as const });
-        } else {
-          const stashedPassword = await getStashItem<string>(STASH_KEYS.PASSWORD);
-          if (stashedPassword) {
-            const vault = await lock(newMnemonics, stashedPassword);
-            await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...vault, isEncrypted: true as const });
-          } else {
-            await setStorageItem(STORAGE_KEYS.MNEMONICS, newMnemonics);
-            setRequiredLock(false);
-          }
-        }
+      } else if (!encryptResult.requiredLock) {
+        setRequiredLock(false);
       }
     },
     [accounts, accountId, networkId, removeAllAccounts]
@@ -1260,6 +971,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     [tokens]
   );
 
+  const resetError = useCallback(() => setError(null), []);
+
   // --------------------------------------------------------------------------
   // Return State and Actions
   // --------------------------------------------------------------------------
@@ -1278,6 +991,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     activeTrustedApps,
     activeTokens,
     switchingNetwork,
+    error,
+    isError: error !== null,
   };
 
   const actions: UseAccountsActions = {
@@ -1299,9 +1014,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     addTrustedApp,
     removeTrustedApp,
     importTokens,
+    resetError,
   };
 
   return [state, actions];
 }
-
-export default useAccounts;

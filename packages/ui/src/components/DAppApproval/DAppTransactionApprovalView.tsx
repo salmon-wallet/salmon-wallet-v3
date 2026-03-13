@@ -27,20 +27,7 @@ import {
   Title,
   Value,
 } from './common';
-
-export interface DAppTransactionApprovalViewProps {
-  origin: string;
-  requestSummary: string;
-  feeSol: string | null;
-  instructionCount: number | null;
-  feePayer: string | null;
-  recentBlockhash: string | null;
-  parsingError: string | null;
-  disabled?: boolean;
-  loading?: boolean;
-  onApprove: () => void | Promise<void>;
-  onReject: () => void;
-}
+import type { DAppTransactionApprovalViewProps } from './types';
 
 export function DAppTransactionApprovalView({
   origin,

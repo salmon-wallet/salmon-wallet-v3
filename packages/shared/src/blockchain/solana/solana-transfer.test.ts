@@ -731,6 +731,6 @@ describe('SolanaAccount.getBalance', () => {
 
     expect(balance).toBeDefined();
     expect(balance.items.length).toBe(1);
-    expect(balance.usdTotal).toBeUndefined();
+    expect(balance.usdTotal).toBe(0);
   });
 });

@@ -48,7 +48,7 @@ import type { SettingsPanelStackProps } from './types';
 
 // Re-use the same section/item types from the old SettingsSheet
 interface SettingsItem {
-  id: string;
+  id: SettingsScreen | 'developerNetworks';
   labelKey: string;
   descriptionKey?: string;
   type: 'navigation' | 'toggle' | 'action';
@@ -330,7 +330,9 @@ export function SettingsPanelStack({
   const handleItemClick = useCallback(
     (item: SettingsItem) => {
       if (item.type === 'navigation') {
-        handlePush(item.id as SettingsScreen);
+        if (item.id !== 'developerNetworks') {
+          handlePush(item.id);
+        }
       } else if (item.type === 'action') {
         if (item.id === 'removeWallet' && onRemoveWallet) {
           onRemoveWallet();
@@ -455,7 +457,10 @@ export function SettingsPanelStack({
           if (idx < stack.length - 2) return null;
           const isExiting = isTop && animating && slideDirection === 'out';
           const Panel = panelRegistry[entry.screen];
-          if (!Panel) return null;
+          if (!Panel) {
+            console.warn(`SettingsPanelStack: No panel registered for screen "${entry.screen}"`);
+            return null;
+          }
           return (
             <PanelWrapper
               key={`${entry.screen}-${idx}`}
@@ -521,4 +526,3 @@ const PanelWrapper = styled(Box, {
   },
 );
 
-export default SettingsPanelStack;

@@ -1,2 +1,2 @@
 export { BackupPanel } from './BackupPanel';
-export type { BackupPanelProps } from './BackupPanel';
+export type { BackupPanelProps } from './types';

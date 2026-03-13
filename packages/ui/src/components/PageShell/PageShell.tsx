@@ -21,73 +21,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { colors, spacing, fontFamily, fontWeight, fontSize } from '@salmon/shared';
 import { ScalesBackground } from '../ScalesBackground';
-
-type ScrollContentProps = Omit<React.ComponentPropsWithoutRef<'div'>, 'children' | 'style'>;
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface PageShellProps {
-  /** Page header title */
-  title: React.ReactNode;
-  /** Callback when the back button is pressed */
-  onBack: () => void;
-  /** Page body content rendered inside the scrollable area */
-  children: React.ReactNode;
-  /**
-   * Background colour variant.
-   * - 'secondary' (default) — used by TokenDetailPage, NftDetailPage, etc.
-   * - 'primary' — used by SettingsPanelContent
-   */
-  backgroundColor?: 'primary' | 'secondary';
-  /**
-   * Whether the header height mode uses `height: 100vh` (default) or
-   * `minHeight: 100vh` (used by SettingsPanelContent whose content can exceed
-   * the viewport).
-   */
-  fullHeight?: boolean;
-  /**
-   * Render the decorative ScalesBackground behind the content.
-   * Off by default; enable for token/NFT/send pages.
-   */
-  showScalesBackground?: boolean;
-  /**
-   * Extra props forwarded to <ScalesBackground />.
-   * Only meaningful when showScalesBackground is true.
-   * Use this to pass custom strokeColor / strokeWidth / patternHeight / style.
-   */
-  scalesBackgroundProps?: React.ComponentProps<typeof ScalesBackground>;
-  /**
-   * Optional node rendered on the right side of the header (e.g. a refresh
-   * button).  The title automatically flexes to fill remaining space so this
-   * node stays pinned to the right edge.
-   */
-  headerRight?: React.ReactNode;
-  /**
-   * Extra inline styles applied to the ScrollContent wrapper.
-   * Use this to add padding when the page owns it at the scroll level
-   * (e.g. TransactionHistoryPage).
-   */
-  scrollContentStyle?: React.CSSProperties;
-  /**
-   * Additional props forwarded verbatim to the ScrollContent Box.
-   * Use this for page-level DOM handlers and attributes
-   * (e.g. TransactionHistoryPage passes onScroll for infinite scroll).
-   */
-  scrollContentProps?: ScrollContentProps;
-  /** Optional callback ref for the scrollable content container. */
-  scrollContentRef?: (node: HTMLDivElement | null) => void;
-  /**
-   * Optional max-width in pixels. When provided, the Container is centred
-   * horizontally with `margin: 0 auto` — useful for the standalone web app.
-   */
-  maxWidth?: number;
-  /** Optional className forwarded to the outermost Container */
-  className?: string;
-  /** Optional inline style forwarded to the outermost Container */
-  style?: React.CSSProperties;
-}
+import type { PageShellProps } from './types';
 
 // ============================================================================
 // Shared Styled Components
@@ -197,5 +131,3 @@ export function PageShell({
     </Container>
   );
 }
-
-export default PageShell;

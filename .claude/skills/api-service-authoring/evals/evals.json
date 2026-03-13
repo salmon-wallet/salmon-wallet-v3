@@ -1,0 +1,27 @@
+{
+  "skill_name": "api-service-authoring",
+  "evals": [
+    {
+      "id": "shared-service-new-endpoint",
+      "prompt": "Add a new shared API service in packages/shared/src/api/services that fetches CDN-backed token metadata and caches it appropriately.",
+      "expected_output": "Use api-service-authoring, search existing services first, choose staticApiClient, decide the cache strategy explicitly, update shared barrels, and add co-located tests following the shared service patterns.",
+      "files": [
+        "packages/shared/src/api/services/network.ts",
+        "packages/shared/src/api/services/tokens.ts",
+        "packages/shared/src/api/services/index.ts",
+        "packages/shared/src/api/index.ts"
+      ]
+    },
+    {
+      "id": "shared-service-audit",
+      "prompt": "Audit the shared API services for missing cache clears, inconsistent error handling, and direct Axios usage.",
+      "expected_output": "Produce a prioritized audit that checks apiClient/staticApiClient usage, cache clear helpers, error handling choices, and missing test coverage in packages/shared/src/api/services.",
+      "files": [
+        "packages/shared/src/api/services/price.ts",
+        "packages/shared/src/api/services/network.ts",
+        "packages/shared/src/api/services/balance.ts",
+        "packages/shared/src/api/services/price.test.ts"
+      ]
+    }
+  ]
+}

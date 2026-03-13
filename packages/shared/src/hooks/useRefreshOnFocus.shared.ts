@@ -11,7 +11,7 @@
 /** Default cache TTL matching useBalance (60 seconds) */
 export const DEFAULT_CACHE_TTL = 60 * 1000;
 
-export interface UseRefreshOnFocusOptions {
+export interface UseRefreshOnFocusParams {
   /** Callback to run when app regains focus */
   onFocus: () => void;
   /** Timestamp of last successful data fetch (from useBalance) */

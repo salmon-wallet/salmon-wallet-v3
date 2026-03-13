@@ -27,6 +27,8 @@ export interface UseAddressbookParams {
 export interface UseAddressbookState {
   contacts: Address[];
   isLoading: boolean;
+  error: string | null;
+  isError: boolean;
 }
 
 export interface UseAddressbookActions {
@@ -74,6 +76,7 @@ export function useAddressbook({
   const [storedContacts, setStoredContacts] = useState<StoredAddress[]>([]);
   const [contacts, setContacts] = useState<Address[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Load contacts from storage on mount
   useEffect(() => {
@@ -93,8 +96,9 @@ export function useAddressbook({
             setContacts(resolved);
           }
         }
-      } catch (error) {
-        console.error('Failed to load address book:', error);
+      } catch (err) {
+        console.error('Failed to load address book:', err);
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load address book');
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -158,9 +162,8 @@ export function useAddressbook({
   );
 
   return [
-    { contacts, isLoading },
+    { contacts, isLoading, error, isError: error !== null },
     { addContact, editContact, removeContact },
   ];
 }
 
-export default useAddressbook;

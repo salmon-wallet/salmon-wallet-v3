@@ -26,7 +26,6 @@ import {
   colors,
   spacing,
   borderRadius,
-  type SupportSelectorBaseProps,
   type SupportOptionItem,
   fontSize,
   fontWeight,
@@ -34,6 +33,7 @@ import {
   componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
+import type { SupportSelectorProps } from './types';
 
 // ============================================================================
 // Icon mapping
@@ -103,7 +103,7 @@ export function SupportSelector({
   options,
   onOpenLink,
   onBack,
-}: SupportSelectorBaseProps): React.ReactElement {
+}: SupportSelectorProps): React.ReactElement {
   const { t } = useTranslation();
 
   const renderOption = useCallback(
@@ -154,5 +154,3 @@ export function SupportSelector({
     </SettingsPanelContent>
   );
 }
-
-export default SupportSelector;

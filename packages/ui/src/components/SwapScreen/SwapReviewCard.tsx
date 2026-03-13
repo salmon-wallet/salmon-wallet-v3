@@ -93,4 +93,3 @@ export function SwapReviewCard({
   );
 }
 
-export default SwapReviewCard;

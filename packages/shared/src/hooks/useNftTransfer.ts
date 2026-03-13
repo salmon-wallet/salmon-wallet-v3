@@ -28,6 +28,7 @@ export interface UseNftTransferResult {
   sendNft: (nft: NftData, recipientAddress: string) => Promise<{ txId: string }>;
   status: NftTransferStatus;
   error: string | null;
+  isError: boolean;
   reset: () => void;
 }
 
@@ -86,7 +87,6 @@ export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransfe
     [account],
   );
 
-  return { sendNft, status, error, reset };
+  return { sendNft, status, error, isError: error !== null, reset };
 }
 
-export default useNftTransfer;

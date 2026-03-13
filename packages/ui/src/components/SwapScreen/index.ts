@@ -20,6 +20,7 @@ export type {
   SwapAmountInputProps,
   SwapDetailRowProps,
   SwapReviewCardProps,
+  SwapReviewButtonsProps,
   SwapInputScreenProps,
   SwapReviewScreenProps,
   // Bridge types used in SwapScreen
@@ -27,4 +28,3 @@ export type {
   BridgeEstimateSimple,
   BridgeExchangeSimple,
 } from './types';
-export type { SwapReviewButtonsProps } from './SwapReviewButtons';

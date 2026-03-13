@@ -571,4 +571,3 @@ export function TokenSelectorModal({
   );
 }
 
-export default TokenSelectorModal;

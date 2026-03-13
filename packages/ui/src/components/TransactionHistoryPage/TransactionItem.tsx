@@ -390,14 +390,14 @@ const AmountDisplay: React.FC<{
 // Main Component
 // ============================================================================
 
-export const TransactionItem: React.FC<TransactionItemProps> = ({
+export function TransactionItem({
   transaction,
   onPress,
   onDetailClick,
   hiddenBalance = false,
   className,
   style,
-}) => {
+}: TransactionItemProps) {
   const { t } = useTranslation();
   const { type, timestamp, status, inputs, outputs, description, source } = transaction;
   const config = getTypeConfig(type);
@@ -583,6 +583,5 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       </BlurContainer>
     </ItemWrapper>
   );
-};
+}
 
-export default TransactionItem;

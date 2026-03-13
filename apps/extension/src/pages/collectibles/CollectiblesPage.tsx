@@ -13,7 +13,10 @@ import Typography from '@mui/material/Typography';
 import {
   colors,
   spacing,
+  fontSize,
+  borderRadius,
   fontFamily,
+  componentSizes,
   SOLANA_NETWORKS,
   // getEthereumNfts,
   // getBitcoinOrdinals,
@@ -31,9 +34,9 @@ import {
   type Nft,
   // type EthereumNft,
   // type BitcoinOrdinal,
+  getAllNfts,
+  getSolanaNfts,
 } from '@salmon/shared';
-import { getAll as getAllNfts } from '@salmon/shared/blockchain/solana/nft';
-import { getSolanaNfts } from '@salmon/shared/api/services/solana-nft';
 import {
   // NftCarouselSection,
   // NftCarouselSectionSkeleton,
@@ -70,7 +73,7 @@ const Container = styled(Box)({
 });
 
 const SectionTitle = styled(Typography)({
-  fontSize: 18,
+  fontSize: fontSize.lg,
   fontWeight: 600,
   color: colors.text.primary,
   fontFamily: fontFamily.sans,
@@ -81,14 +84,14 @@ const SectionTitle = styled(Typography)({
 const EmptyState = styled(Box)({
   padding: `${spacing.xl}px ${spacing.lg}px`,
   textAlign: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  borderRadius: 12,
+  backgroundColor: colors.background.card,
+  borderRadius: borderRadius.lg,
   marginLeft: spacing.lg,
   marginRight: spacing.lg,
 });
 
 const EmptyStateText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 500,
   color: colors.text.secondary,
   fontFamily: fontFamily.sans,
@@ -96,8 +99,8 @@ const EmptyStateText = styled(Typography)({
 });
 
 const EmptyStateSubtext = styled(Typography)({
-  fontSize: 12,
-  color: 'rgba(255, 255, 255, 0.4)',
+  fontSize: fontSize.sm,
+  color: colors.text.disabled,
   fontFamily: fontFamily.sans,
 });
 
@@ -110,7 +113,7 @@ const SectionHeaderRow = styled(Box)({
 });
 
 const SectionTitleText = styled(Typography)({
-  fontSize: 16,
+  fontSize: fontSize.md,
   fontWeight: 600,
   color: colors.text.primary,
   fontFamily: fontFamily.sans,
@@ -311,7 +314,7 @@ export function CollectiblesPage({ activeAccount, developerNetworks, onNftDetail
           <Box key={key} sx={{ display: 'flex', flexDirection: 'column', gap: `${spacing.md}px` }}>
             {/* Section header */}
             <SectionHeaderRow>
-              <SolanaSvgIcon sx={{ width: 24, height: 24, color: colors.text.primary }} />
+              <SolanaSvgIcon sx={{ width: componentSizes.iconSizeMedium, height: componentSizes.iconSizeMedium, color: colors.text.primary }} />
               <SectionTitleText>{getNftSectionTitle(key, section)}</SectionTitleText>
               <SectionCount>({section.nfts.length})</SectionCount>
             </SectionHeaderRow>

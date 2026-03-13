@@ -26,15 +26,7 @@ import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius, borderWidth, useAccounts, fontFamily, fontSize, fontWeight, letterSpacing, opacity, componentSizes, duration, durationMs } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface BackupPanelProps {
-  /** Callback to navigate back to home */
-  onBack: () => void;
-}
+import type { BackupPanelProps } from './types';
 
 // ============================================================================
 // Styled Components

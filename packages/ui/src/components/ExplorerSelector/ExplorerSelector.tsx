@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type ExplorerSelectorBaseProps, type ExplorerSelectorItem } from '@salmon/shared';
+import { type ExplorerSelectorItem } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
+import type { ExplorerSelectorProps } from './types';
 
 export function ExplorerSelector({
   explorers,
@@ -10,7 +11,7 @@ export function ExplorerSelector({
   onSelectExplorer,
   onBack,
   loading,
-}: ExplorerSelectorBaseProps): React.ReactElement {
+}: ExplorerSelectorProps): React.ReactElement {
   const { t } = useTranslation();
 
   const handleSelect = useCallback(
@@ -35,5 +36,3 @@ export function ExplorerSelector({
     </SettingsPanelContent>
   );
 }
-
-export default ExplorerSelector;

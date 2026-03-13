@@ -232,4 +232,3 @@ export function WalletHeader({
   );
 }
 
-export default WalletHeader;

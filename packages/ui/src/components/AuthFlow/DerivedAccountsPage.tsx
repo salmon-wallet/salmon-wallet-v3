@@ -21,12 +21,8 @@ import { styled } from '../../utils/styled';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import { DerivedAccountCard, DerivedAccountCardSkeleton } from '../DerivedAccountCard';
 import { ScreenHeader } from '../ScreenHeader';
-import { AuthScreenLayoutProps, getAuthContainerStyles } from './common';
-
-export interface DerivedAccountsPageProps extends AuthScreenLayoutProps {
-  onComplete: () => void;
-  onBack: () => void;
-}
+import { getAuthContainerStyles } from './common';
+import type { DerivedAccountsPageProps } from './types';
 
 const Container = styled(Box)<{ $contained?: boolean }>(({ $contained = false }) => ({
   display: 'flex',

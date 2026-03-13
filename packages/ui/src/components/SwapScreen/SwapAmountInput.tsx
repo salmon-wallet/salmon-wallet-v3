@@ -250,4 +250,3 @@ export function SwapAmountInput({
   );
 }
 
-export default SwapAmountInput;

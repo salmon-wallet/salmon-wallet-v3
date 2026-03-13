@@ -1,15 +1,16 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type LanguageSelectorBaseProps, type LanguageSelectorItem } from '@salmon/shared';
+import { type LanguageSelectorItem } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
+import type { LanguageSelectorProps } from './types';
 
 export function LanguageSelector({
   languages,
   activeLanguageCode,
   onSelectLanguage,
   onBack,
-}: LanguageSelectorBaseProps): React.ReactElement {
+}: LanguageSelectorProps): React.ReactElement {
   const { t } = useTranslation();
 
   const handleSelect = useCallback(
@@ -33,5 +34,3 @@ export function LanguageSelector({
     </SettingsPanelContent>
   );
 }
-
-export default LanguageSelector;

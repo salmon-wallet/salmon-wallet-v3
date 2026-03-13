@@ -140,4 +140,3 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
   );
 }
 
-export default SwapScreen;

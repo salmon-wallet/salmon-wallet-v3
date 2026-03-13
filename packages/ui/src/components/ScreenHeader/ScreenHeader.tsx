@@ -115,4 +115,3 @@ export function ScreenHeader({
   );
 }
 
-export default ScreenHeader;

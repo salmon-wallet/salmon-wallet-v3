@@ -883,7 +883,7 @@ const NftMetadataSection: React.FC<{
 // Main Component
 // ============================================================================
 
-export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
+export function TransactionDetailModal({
   visible,
   onClose,
   transaction,
@@ -893,7 +893,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   developerMode,
   className,
   style,
-}) => {
+}: TransactionDetailModalProps) {
   const { t } = useTranslation();
   // Inline hash copy state
   const [hashCopied, setHashCopied] = useState(false);
@@ -1322,6 +1322,5 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
       </FixedBottomBar>
     </StyledDialog>
   );
-};
+}
 
-export default TransactionDetailModal;

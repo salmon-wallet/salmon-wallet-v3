@@ -185,4 +185,3 @@ export function TokenAbout({
   );
 }
 
-export default TokenAbout;

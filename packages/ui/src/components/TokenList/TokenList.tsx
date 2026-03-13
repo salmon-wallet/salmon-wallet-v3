@@ -19,7 +19,7 @@ import {
   ms,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
-import TokenListItem from './TokenListItem';
+import { TokenListItem } from './TokenListItem';
 import type { TokenListProps, TokenListSkeletonProps } from './types';
 
 const Container = styled(Box)({
@@ -137,5 +137,3 @@ export function TokenList({
     </Container>
   );
 }
-
-export default TokenList;

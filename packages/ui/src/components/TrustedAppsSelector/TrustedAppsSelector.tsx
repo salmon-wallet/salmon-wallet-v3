@@ -22,13 +22,13 @@ import { useTranslation } from 'react-i18next';
 import {
   colors,
   spacing,
-  type TrustedAppsSelectorBaseProps,
   type TrustedAppItem,
   fontSize,
   fontWeight,
   componentSizes,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
+import type { TrustedAppsSelectorProps } from './types';
 
 // ============================================================================
 // Styled Components
@@ -87,7 +87,7 @@ export function TrustedAppsSelector({
   apps,
   onRevokeApp,
   onBack,
-}: TrustedAppsSelectorBaseProps): React.ReactElement {
+}: TrustedAppsSelectorProps): React.ReactElement {
   const { t } = useTranslation();
   const [revoking, setRevoking] = useState<string | null>(null);
 
@@ -178,5 +178,3 @@ export function TrustedAppsSelector({
     </SettingsPanelContent>
   );
 }
-
-export default TrustedAppsSelector;

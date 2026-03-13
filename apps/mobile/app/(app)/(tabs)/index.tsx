@@ -32,8 +32,10 @@ import {
 } from 'react-native';
 
 import {
+  borderRadius,
   colors,
   componentSizes,
+  fontSize,
   getCoinInfo,
   getMarketChart,
   getShortAddress,
@@ -753,7 +755,7 @@ export default function HomeScreen() {
   if (!ready) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B35" />
+        <ActivityIndicator size="large" color={colors.accent.primary} />
         <Text style={styles.loadingText}>Loading wallet...</Text>
       </View>
     );
@@ -938,9 +940,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 16,
-    marginTop: 16,
+    color: colors.text.muted,
+    fontSize: fontSize.md,
+    marginTop: spacing.lg,
   },
   fixedHeader: {
     // Fixed header containing balance card and action buttons
@@ -952,7 +954,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingTop: 8,
+    paddingTop: spacing.sm,
     paddingBottom: vs(componentSizes.tabBarScrollPadding),
   },
   balanceCard: {
@@ -961,36 +963,36 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     // 24px vertical spacing moved from ActionButtonRow to create space for card shadow
-    marginTop: vs(24), // Space for card shadow to be visible
-    marginBottom: vs(24), // Gap before token list
+    marginTop: vs(spacing['2xl']), // Space for card shadow to be visible
+    marginBottom: vs(spacing['2xl']), // Gap before token list
   },
   topFadeGradient: {
     position: 'absolute',
     left: 0,
     right: 0,
     top: 0,
-    height: 30, // iOS standard fade height
+    height: componentSizes.sheetFadeGradientHeight,
     zIndex: 1,
   },
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-    marginHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 16,
+    paddingVertical: spacing['5xl'],
+    paddingHorizontal: spacing['2xl'],
+    marginHorizontal: spacing.lg,
+    backgroundColor: colors.background.card,
+    borderRadius: borderRadius.xl,
   },
   emptyStateText: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginBottom: 8,
+    color: colors.text.muted,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
   emptyStateSubtext: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: fontSize.base,
+    color: colors.text.disabled,
     textAlign: 'center',
   },
   // Bitcoin view styles
@@ -998,10 +1000,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bitcoinContent: {
-    paddingTop: 8,
+    paddingTop: spacing.sm,
     paddingBottom: vs(componentSizes.tabBarScrollPadding),
   },
   bitcoinSection: {
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
 });

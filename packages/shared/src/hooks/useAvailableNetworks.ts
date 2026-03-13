@@ -19,9 +19,6 @@ import { MAINNET_NETWORK_IDS, filterNetworks } from '../utils/network';
 import { isBlockchainEnabled } from '../config/blockchains';
 import { getNetworks } from '../api/services/network';
 
-// Re-export domain types for backward compatibility
-export type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
-
 /**
  * Return type for the useAvailableNetworks hook.
  */
@@ -175,4 +172,3 @@ export function useAvailableNetworks(
   };
 }
 
-export default useAvailableNetworks;

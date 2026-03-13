@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@salmon/ui/utils/styled';
+import { styled } from '@salmon/ui';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
@@ -16,8 +16,8 @@ import {
   type NftSectionKey,
   type NftSection,
   type NftsBySection,
+  isSolanaAccount,
 } from '@salmon/shared';
-import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { NftCarouselSection } from '@salmon/ui';
 
 // ---------------------------------------------------------------------------

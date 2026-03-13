@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mobile Test Authoring"
+  short_description: "Write tests for apps/mobile"
+  default_prompt: "Use $mobile-test-authoring to write or audit Jest tests for React Native components in apps/mobile."

@@ -44,13 +44,13 @@ const CompactText = styled(Typography)({
 // Component
 // ============================================================================
 
-export const ConversionRateDisplay: React.FC<ConversionRateDisplayProps> = ({
+export function ConversionRateDisplay({
   fromSymbol,
   toSymbol,
   rate,
   size = 'medium',
   className,
-}) => {
+}: ConversionRateDisplayProps) {
   const formattedRate = useMemo(() => formatConversionRate(rate), [rate]);
   const isSmall = size === 'small';
 
@@ -74,6 +74,5 @@ export const ConversionRateDisplay: React.FC<ConversionRateDisplayProps> = ({
       </RateText>
     </Container>
   );
-};
+}
 
-export default ConversionRateDisplay;

@@ -194,4 +194,3 @@ export function NftCard({ nft, onPress, style, className, testID }: NftCardProps
   );
 }
 
-export default NftCard;

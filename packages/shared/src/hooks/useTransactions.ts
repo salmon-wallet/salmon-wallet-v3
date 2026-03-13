@@ -38,7 +38,7 @@ import { transformSolanaTransaction, transformMultichainTransaction } from '../u
 /**
  * Options for the useTransactions hook
  */
-export interface UseTransactionsOptions {
+export interface UseTransactionsParams {
   /** Wallet address to fetch transactions for */
   address: string | undefined;
   /** Network identifier (supports Solana, Bitcoin, and Ethereum networks) */
@@ -65,6 +65,8 @@ export interface UseTransactionsResult {
   refreshing: boolean;
   /** Error message if fetch failed */
   error: string | null;
+  /** Whether an error occurred */
+  isError: boolean;
   /** Whether there are more transactions to load */
   hasMore: boolean;
   /** Load more transactions */
@@ -101,7 +103,7 @@ export function useTransactions({
   pageSize = DEFAULT_PAGE_SIZE,
   skip = false,
   account,
-}: UseTransactionsOptions): UseTransactionsResult {
+}: UseTransactionsParams): UseTransactionsResult {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -239,6 +241,7 @@ export function useTransactions({
     loadingMore,
     refreshing,
     error,
+    isError: error !== null,
     hasMore,
     loadMore,
     refresh,
@@ -246,4 +249,3 @@ export function useTransactions({
   };
 }
 
-export default useTransactions;

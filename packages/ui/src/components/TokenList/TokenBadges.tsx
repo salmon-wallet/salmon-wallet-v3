@@ -187,5 +187,3 @@ export function TokenBadges({ tags }: TokenBadgesProps) {
     </BadgesContainer>
   );
 }
-
-export default TokenBadges;

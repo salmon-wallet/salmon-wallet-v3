@@ -7,7 +7,7 @@
  * Web version using MUI and @emotion/styled for browser extension.
  */
 
-export { InputAddress, default } from './InputAddress';
+export { InputAddress } from './InputAddress';
 export { useAddressValidation } from '@salmon/shared';
 export type {
   InputAddressProps,
@@ -16,6 +16,6 @@ export type {
   BlockchainType,
   ValidationState,
   ValidationCallbackResult,
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
+  UseAddressValidationResult,
+  UseAddressValidationParams,
 } from '@salmon/shared';

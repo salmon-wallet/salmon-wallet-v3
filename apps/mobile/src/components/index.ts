@@ -47,8 +47,8 @@ export {
   type BlockchainType,
   type ValidationState,
   type ValidationCallbackResult,
-  type UseAddressValidationReturn,
-  type UseAddressValidationOptions,
+  type UseAddressValidationResult,
+  type UseAddressValidationParams,
 } from './InputAddress';
 
 export { SeedWordGrid, SeedWordInput } from './SeedPhrase';

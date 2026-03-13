@@ -1,0 +1,23 @@
+{
+  "skill_name": "shared-test-authoring",
+  "evals": [
+    {
+      "id": "shared-service-cache-test",
+      "prompt": "Extend the shared price service tests to cover caching, cache clearing, and API error handling.",
+      "expected_output": "Use shared-test-authoring, extend the existing co-located service test file, mock the API client before imports, clear caches in beforeEach, and cover success, cache-hit, and error paths.",
+      "files": [
+        "packages/shared/src/api/services/price.ts",
+        "packages/shared/src/api/services/price.test.ts"
+      ]
+    },
+    {
+      "id": "shared-hook-test",
+      "prompt": "Add tests for a change in useAccounts that affects initialization and persisted storage behavior.",
+      "expected_output": "Use shared-test-authoring, keep the test co-located, use jsdom and renderHook for the hook, and model storage as a stateful mock where needed.",
+      "files": [
+        "packages/shared/src/hooks/useAccounts.ts",
+        "packages/shared/src/hooks/useAccounts.test.ts"
+      ]
+    }
+  ]
+}

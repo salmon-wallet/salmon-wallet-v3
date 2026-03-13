@@ -688,4 +688,3 @@ export function StepAddressAmount({
   );
 }
 
-export default StepAddressAmount;

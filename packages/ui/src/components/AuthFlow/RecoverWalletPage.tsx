@@ -17,12 +17,8 @@ import {
 import { styled } from '../../utils/styled';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import { ScreenHeader } from '../ScreenHeader';
-import { AuthScreenLayoutProps, getAuthContainerStyles } from './common';
-
-export interface RecoverWalletPageProps extends AuthScreenLayoutProps {
-  onComplete: (mnemonic: string) => void;
-  onBack: () => void;
-}
+import { getAuthContainerStyles } from './common';
+import type { RecoverWalletPageProps } from './types';
 
 const Container = styled(Box)<{ $contained?: boolean }>(({ $contained = false }) => ({
   display: 'flex',

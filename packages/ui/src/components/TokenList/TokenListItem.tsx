@@ -341,5 +341,3 @@ export function TokenListItem({
     </BlurContainer>
   );
 }
-
-export default TokenListItem;

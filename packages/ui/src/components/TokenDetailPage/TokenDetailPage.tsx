@@ -161,4 +161,3 @@ export function TokenDetailPage({
   );
 }
 
-export default TokenDetailPage;

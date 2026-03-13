@@ -23,15 +23,7 @@ import {
   opacity,
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface AccountNamePanelProps {
-  accountId: string;
-  onBack: () => void;
-}
+import type { AccountNamePanelProps } from './types';
 
 // ============================================================================
 // Styled Components

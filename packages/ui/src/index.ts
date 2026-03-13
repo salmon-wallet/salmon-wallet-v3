@@ -9,3 +9,6 @@ export * from './components';
 
 // Layouts
 export * from './layouts';
+
+// Utilities
+export { styled } from './utils/styled';

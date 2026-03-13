@@ -110,6 +110,8 @@ export const componentSizes = {
   /** 58px - Swap amount input */
   inputHeightLg: 58,
   inputRadius: 12,
+  /** 14px - Input vertical padding */
+  inputPaddingVertical: 14,
 
   // Logo
   logoSizeLarge: 137,
@@ -264,6 +266,8 @@ export const componentSizes = {
   // Lock Screen (mobile)
   /** 140px - Lock screen logo */
   lockScreenLogoSize: 140,
+  /** 72px - Lock screen logo (extension) */
+  lockScreenLogoSizeExtension: 72,
   /** 64px - Biometric auth button */
   biometricButtonSize: 64,
 

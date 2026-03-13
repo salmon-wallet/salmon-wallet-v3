@@ -62,6 +62,17 @@ export interface SwapDetailRowProps extends SwapDetailRowPropsBase<CSSProperties
 export interface SwapReviewCardProps extends SwapReviewCardPropsBase<CSSProperties> {}
 
 /**
+ * Props for SwapReviewButtons component (Web)
+ */
+export interface SwapReviewButtonsProps {
+  onBack: () => void;
+  onConfirm: () => void;
+  isConfirming?: boolean;
+  confirmLabel?: string;
+  style?: CSSProperties;
+}
+
+/**
  * Props for SwapReviewScreen sub-component (Web)
  */
 export interface SwapReviewScreenProps extends SwapReviewScreenPropsBase<CSSProperties> {}

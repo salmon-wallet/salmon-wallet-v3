@@ -402,4 +402,3 @@ export function TokenInfo({
   );
 }
 
-export default TokenInfo;

@@ -18,17 +18,9 @@ import {
   Title,
   Value,
 } from './common';
+import type { DAppSignMessageApprovalViewProps } from './types';
 
 const MessageBox = Box;
-
-export interface DAppSignMessageApprovalViewProps {
-  origin: string;
-  messageText: string;
-  disabled?: boolean;
-  loading?: boolean;
-  onApprove: () => void | Promise<void>;
-  onReject: () => void;
-}
 
 export function DAppSignMessageApprovalView({
   origin,

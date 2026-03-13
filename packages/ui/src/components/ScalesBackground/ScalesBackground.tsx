@@ -3,41 +3,9 @@
  *
  * Web version using standard HTML SVG elements for browser extension
  */
-import { CSSProperties } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-
-export interface ScalesBackgroundProps {
-  /**
-   * Stroke color for the scales pattern
-   * @default "rgba(0, 0, 0, 0.5)"
-   */
-  strokeColor?: string;
-  /**
-   * Stroke width for the scales
-   * @default 1
-   */
-  strokeWidth?: number;
-  /**
-   * Pattern height (controls vertical spacing/overlap)
-   * Use values < 27 for overlap (e.g., 26 = -1 gap)
-   * @default 26
-   */
-  patternHeight?: number;
-  /**
-   * Top offset to start the pattern below a header
-   * @default 0
-   */
-  topOffset?: number;
-  /**
-   * Additional styles for the container
-   */
-  style?: CSSProperties;
-  /**
-   * Optional className for styling
-   */
-  className?: string;
-}
+import type { ScalesBackgroundProps } from './types';
 
 const Container = styled(Box)<{ $topOffset: number }>(({ $topOffset }) => ({
   position: 'absolute',
@@ -120,5 +88,3 @@ export function ScalesBackground({
     </Container>
   );
 }
-
-export default ScalesBackground;

@@ -20,9 +20,6 @@ import {
 } from '../config/explorers';
 import type { UserConfig, ActiveBlockchainAccount } from '../types/account';
 
-// Re-export for backwards compatibility
-export type { UserConfig, ActiveBlockchainAccount };
-
 // ============================================================================
 // Types
 // ============================================================================
@@ -276,4 +273,3 @@ export function useUserConfig({
   };
 }
 
-export default useUserConfig;

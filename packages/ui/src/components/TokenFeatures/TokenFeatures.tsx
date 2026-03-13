@@ -237,4 +237,3 @@ export function TokenFeatures({
   );
 }
 
-export default TokenFeatures;

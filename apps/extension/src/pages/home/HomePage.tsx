@@ -15,6 +15,8 @@ import {
   getCoinInfo,
   colors,
   spacing,
+  fontSize,
+  borderRadius,
   fontFamily,
   type SettingsPanelEntry,
   type BlockchainBalance,
@@ -51,8 +53,8 @@ import {
   BLOCKCHAIN_TO_COINGECKO,
   PERIOD_TO_DAYS,
   coinInfoToMarketData,
+  isSolanaAccount,
 } from '@salmon/shared';
-import { isSolanaAccount } from '@salmon/shared/utils/account';
 import {
   WalletHeader,
   BalanceCardCarousel,
@@ -211,20 +213,20 @@ const TopListFade = styled(Box)({
 const EmptyState = styled(Box)({
   padding: `${spacing.xl}px ${spacing.lg}px`,
   textAlign: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  borderRadius: 12,
+  backgroundColor: colors.background.card,
+  borderRadius: borderRadius.lg,
 });
 
 const EmptyStateText = styled(Typography)({
-  fontSize: 14,
+  fontSize: fontSize.base,
   fontWeight: 500,
   color: colors.text.secondary,
   marginBottom: spacing.sm,
 });
 
 const EmptyStateSubtext = styled(Typography)({
-  fontSize: 12,
-  color: 'rgba(255, 255, 255, 0.4)',
+  fontSize: fontSize.sm,
+  color: colors.text.disabled,
 });
 
 const TabBar = styled(Box)({
@@ -246,7 +248,7 @@ const TabButton = styled('button', {
   color: active ? colors.text.primary : colors.text.secondary,
   fontFamily: fontFamily.sans,
   fontWeight: active ? 600 : 400,
-  fontSize: 14,
+  fontSize: fontSize.base,
   textAlign: 'center',
   cursor: 'pointer',
   transition: 'all 0.2s ease',
@@ -281,12 +283,12 @@ function PlaceholderPage({
           onClick={onBack}
           sx={{ color: colors.text.secondary, mr: 1 }}
         >
-          <Box component="span" sx={{ fontSize: 20 }}>
+          <Box component="span" sx={{ fontSize: fontSize.xl }}>
             &#8592;
           </Box>
         </IconButton>
         <Typography
-          sx={{ fontSize: 18, fontWeight: 600, color: colors.text.primary }}
+          sx={{ fontSize: fontSize.lg, fontWeight: 600, color: colors.text.primary }}
         >
           {title}
         </Typography>
@@ -1296,7 +1298,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
                 onSendPress={handleSendPress}
                 onReceivePress={handleReceivePress}
                 onActivityPress={handleActivityPress}
-                style={{ marginTop: 24, marginBottom: 24 }}
+                style={{ marginTop: spacing['2xl'], marginBottom: spacing['2xl'] }}
               />
 
               {/* Token List Section — only this area scrolls */}

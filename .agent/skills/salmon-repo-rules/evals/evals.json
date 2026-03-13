@@ -1,0 +1,26 @@
+{
+  "skill_name": "salmon-repo-rules",
+  "evals": [
+    {
+      "id": "placement-decision-dom-vs-mobile-vs-shared",
+      "prompt": "I need to add a new wallet summary header that exists in mobile and browser surfaces. Where should the contract and implementations live?",
+      "expected_output": "Use salmon-repo-rules to separate shared semantic contracts from DOM and React Native implementations, recommend packages/shared/src/types/ui for the contract, packages/ui for the DOM implementation, and apps/mobile for the RN implementation.",
+      "files": [
+        "packages/shared/src/types/ui/wallet-header.ts",
+        "packages/ui/src/components/WalletHeader/types.ts",
+        "apps/mobile/src/components/WalletHeader/types.ts"
+      ]
+    },
+    {
+      "id": "repo-structure-audit",
+      "prompt": "Audit the repo for placement mistakes around shared contracts, packages/ui ownership, and mobile-only code leaking into shared packages.",
+      "expected_output": "Produce a prioritized structural audit that checks shared-vs-app boundaries, DOM-only versus RN-only ownership, and public barrels.",
+      "files": [
+        "packages/shared/src/types/ui/index.ts",
+        "packages/ui/src/components/index.ts",
+        "apps/mobile/src/components/index.ts",
+        "openspec/config.yaml"
+      ]
+    }
+  ]
+}

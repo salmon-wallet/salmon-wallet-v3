@@ -82,4 +82,3 @@ export const NftCardSkeleton = memo<NftCardSkeletonProps>(
   }
 );
 
-export default NftCardSkeleton;

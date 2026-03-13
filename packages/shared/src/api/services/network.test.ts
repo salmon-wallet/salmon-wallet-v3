@@ -37,7 +37,7 @@ vi.mock('axios', () => {
   };
 });
 
-import { staticApiClient } from '../client';
+import { apiClient } from '../client';
 import { getNetworks, getNetwork, clearNetworksCache } from './network';
 import type { Network } from '../../types/blockchain';
 
@@ -58,13 +58,13 @@ describe('Network Service', () => {
         { id: 'ethereum-mainnet', name: 'Ethereum Mainnet', blockchain: 'ethereum', environment: 'mainnet', config: { rpcUrl: 'https://eth.llamarpc.com', chainId: 1 } },
       ];
 
-      staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
+      apiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
 
       const networks = await getNetworks();
 
       expect(Array.isArray(networks)).toBe(true);
       expect(networks.length).toBeGreaterThan(0);
-      expect(staticApiClient.get).toHaveBeenCalledWith('/v1/networks');
+      expect(apiClient.get).toHaveBeenCalledWith('/v1/networks');
       expect(networks).toEqual(mockNetworks);
     });
 
@@ -73,17 +73,17 @@ describe('Network Service', () => {
         { id: 'solana-mainnet', name: 'Solana Mainnet', blockchain: 'solana', environment: 'mainnet', config: { nodeUrl: 'https://api.mainnet-beta.solana.com' } },
       ];
 
-      staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
+      apiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
 
       const networks1 = await getNetworks();
       const networks2 = await getNetworks();
 
       expect(networks1).toBe(networks2);
-      expect(staticApiClient.get).toHaveBeenCalledTimes(1);
+      expect(apiClient.get).toHaveBeenCalledTimes(1);
     });
 
     it('should clear cache and retry on error', async () => {
-      staticApiClient.get = vi
+      apiClient.get = vi
         .fn()
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({ data: [{ id: 'test', name: 'Test Network', blockchain: 'solana', environment: 'testnet', config: {} }] });
@@ -92,11 +92,11 @@ describe('Network Service', () => {
 
       const networks = await getNetworks();
       expect(networks).toHaveLength(1);
-      expect(staticApiClient.get).toHaveBeenCalledTimes(2);
+      expect(apiClient.get).toHaveBeenCalledTimes(2);
     });
 
     it('should handle empty networks array', async () => {
-      staticApiClient.get = vi.fn().mockResolvedValue({ data: [] });
+      apiClient.get = vi.fn().mockResolvedValue({ data: [] });
 
       const networks = await getNetworks();
 
@@ -112,7 +112,7 @@ describe('Network Service', () => {
         { id: 'ethereum-mainnet', name: 'Ethereum Mainnet', blockchain: 'ethereum', environment: 'mainnet', config: { rpcUrl: 'https://eth.llamarpc.com', chainId: 1 } },
       ];
 
-      staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
+      apiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
 
       const network = await getNetwork('solana-mainnet');
 
@@ -126,7 +126,7 @@ describe('Network Service', () => {
         { id: 'solana-mainnet', name: 'Solana Mainnet', blockchain: 'solana', environment: 'mainnet', config: { nodeUrl: 'https://api.mainnet-beta.solana.com' } },
       ];
 
-      staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
+      apiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
 
       const network = await getNetwork('non-existent-network');
 
@@ -138,12 +138,12 @@ describe('Network Service', () => {
         { id: 'test-network', name: 'Test Network', blockchain: 'solana', environment: 'testnet', config: {} },
       ];
 
-      staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
+      apiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
 
       await getNetwork('test-network');
       await getNetwork('test-network');
 
-      expect(staticApiClient.get).toHaveBeenCalledTimes(1);
+      expect(apiClient.get).toHaveBeenCalledTimes(1);
     });
 
     it('should handle case-sensitive network ids', async () => {
@@ -151,7 +151,7 @@ describe('Network Service', () => {
         { id: 'Solana-Mainnet', name: 'Solana Mainnet', blockchain: 'solana', environment: 'mainnet', config: {} },
       ];
 
-      staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
+      apiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
 
       const network1 = await getNetwork('Solana-Mainnet');
       const network2 = await getNetwork('solana-mainnet');
@@ -167,22 +167,22 @@ describe('Network Service', () => {
         { id: 'test', name: 'Test', blockchain: 'solana', environment: 'testnet', config: {} },
       ];
 
-      staticApiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
+      apiClient.get = vi.fn().mockResolvedValue({ data: mockNetworks });
 
       await getNetworks();
-      expect(staticApiClient.get).toHaveBeenCalledTimes(1);
+      expect(apiClient.get).toHaveBeenCalledTimes(1);
 
       clearNetworksCache();
 
       await getNetworks();
-      expect(staticApiClient.get).toHaveBeenCalledTimes(2);
+      expect(apiClient.get).toHaveBeenCalledTimes(2);
     });
 
     it('should allow fresh fetch after cache clear', async () => {
       const mockNetworks1: Network[] = [{ id: 'network1', name: 'Network 1', blockchain: 'solana', environment: 'mainnet', config: {} }];
       const mockNetworks2: Network[] = [{ id: 'network2', name: 'Network 2', blockchain: 'bitcoin', environment: 'mainnet', config: {} }];
 
-      staticApiClient.get = vi
+      apiClient.get = vi
         .fn()
         .mockResolvedValueOnce({ data: mockNetworks1 })
         .mockResolvedValueOnce({ data: mockNetworks2 });

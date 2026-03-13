@@ -25,7 +25,7 @@ import * as storage from '../storage';
 import { SmartCache } from '../utils/cache';
 
 // Types
-import type { StoredAccount } from './useAccounts';
+import type { StoredAccount } from '../types/account';
 import type { TokenBalanceWithPrice } from '../utils/balance';
 import type { TokenMetadata } from '../types/token';
 import type {

@@ -16,9 +16,9 @@ import { useEffect, useRef } from 'react';
 
 // Re-export shared types and constants so existing consumers are unaffected
 export { DEFAULT_CACHE_TTL } from './useRefreshOnFocus.shared';
-export type { UseRefreshOnFocusOptions } from './useRefreshOnFocus.shared';
+export type { UseRefreshOnFocusParams } from './useRefreshOnFocus.shared';
 import { DEFAULT_CACHE_TTL } from './useRefreshOnFocus.shared';
-import type { UseRefreshOnFocusOptions } from './useRefreshOnFocus.shared';
+import type { UseRefreshOnFocusParams } from './useRefreshOnFocus.shared';
 
 /**
  * Web implementation (default for tsc resolution).
@@ -30,7 +30,7 @@ function useRefreshOnFocus({
   lastUpdated,
   cacheTtl = DEFAULT_CACHE_TTL,
   enabled = true,
-}: UseRefreshOnFocusOptions): void {
+}: UseRefreshOnFocusParams): void {
   const onFocusRef = useRef(onFocus);
   useEffect(() => { onFocusRef.current = onFocus; }, [onFocus]);
 
@@ -56,5 +56,4 @@ function useRefreshOnFocus({
   }, [enabled, cacheTtl]);
 }
 
-export default useRefreshOnFocus;
 export { useRefreshOnFocus };

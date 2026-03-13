@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-import { DEFAULT_CACHE_TTL, type UseRefreshOnFocusOptions } from './useRefreshOnFocus.shared';
+import { DEFAULT_CACHE_TTL, type UseRefreshOnFocusParams } from './useRefreshOnFocus.shared';
 
 /**
  * useRefreshOnFocus — React Native implementation
@@ -9,12 +9,15 @@ import { DEFAULT_CACHE_TTL, type UseRefreshOnFocusOptions } from './useRefreshOn
  * when the app transitions from background/inactive to active,
  * but only if cached data is stale.
  */
+// NOTE: Returns void instead of [State, Actions] tuple.
+// This is a pure side-effect hook (event listener lifecycle) — there is no state
+// to expose or actions to provide; the caller controls behavior via params.
 function useRefreshOnFocus({
   onFocus,
   lastUpdated,
   cacheTtl = DEFAULT_CACHE_TTL,
   enabled = true,
-}: UseRefreshOnFocusOptions): void {
+}: UseRefreshOnFocusParams): void {
   const onFocusRef = useRef(onFocus);
   useEffect(() => { onFocusRef.current = onFocus; }, [onFocus]);
 
@@ -44,5 +47,4 @@ function useRefreshOnFocus({
   }, [enabled, cacheTtl]);
 }
 
-export default useRefreshOnFocus;
 export { useRefreshOnFocus };

@@ -1,4 +1,4 @@
-export { TransactionHistoryPage, default } from './TransactionHistoryPage';
+export { TransactionHistoryPage } from './TransactionHistoryPage';
 export { TransactionItem } from './TransactionItem';
 export { SwapRouteVisualization } from './SwapRouteVisualization';
 export { PriceImpactBadge } from './PriceImpactBadge';

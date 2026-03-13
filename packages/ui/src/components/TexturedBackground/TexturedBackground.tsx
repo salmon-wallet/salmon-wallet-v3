@@ -10,50 +10,9 @@
  * TexturedBackground produces filled, solid-looking scales with
  * subtle edge highlights for a richer textured appearance.
  */
-import { CSSProperties } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-
-export interface TexturedBackgroundProps {
-  /**
-   * Scale fill color (the body of each scale)
-   * @default "rgba(20, 22, 30, 1)"
-   */
-  fillColor?: string;
-  /**
-   * Edge/highlight color for the scale borders
-   * @default "rgba(45, 48, 62, 0.6)"
-   */
-  edgeColor?: string;
-  /**
-   * Background color behind the scales
-   * @default "rgba(10, 11, 16, 1)"
-   */
-  backgroundColor?: string;
-  /**
-   * Size of each scale unit in pixels
-   * @default 30
-   */
-  scaleSize?: number;
-  /**
-   * Overall opacity of the pattern
-   * @default 1
-   */
-  opacity?: number;
-  /**
-   * Top offset to start the pattern below a header
-   * @default 0
-   */
-  topOffset?: number;
-  /**
-   * Additional styles for the container
-   */
-  style?: CSSProperties;
-  /**
-   * Optional className for styling
-   */
-  className?: string;
-}
+import type { TexturedBackgroundProps } from './types';
 
 const Container = styled(Box)<{
   $topOffset: number;
@@ -133,5 +92,3 @@ export function TexturedBackground({
     />
   );
 }
-
-export default TexturedBackground;

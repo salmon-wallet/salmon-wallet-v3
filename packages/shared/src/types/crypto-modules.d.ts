@@ -14,6 +14,8 @@ declare module 'react-native-fast-crypto' {
   };
 }
 
+// NOTE: default export is intentional — crypto-js uses CommonJS module.exports,
+// so TypeScript needs `export default` for `import CryptoJS from 'crypto-js'` interop.
 declare module 'crypto-js' {
   interface WordArray {
     words: number[];

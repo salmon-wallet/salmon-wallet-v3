@@ -19,10 +19,14 @@ import {
   SOLANA_NETWORKS,
   SolanaAccount,
   canonicalNftToSolanaNftData,
+    borderRadius,
     colors,
     componentSizes,
     createBurnTransaction,
     fontFamilyNative,
+    fontSize,
+    letterSpacing,
+    spacing,
   // getEthereumNfts,
   // getBitcoinOrdinals,
   // ethereumNftToNftData,
@@ -548,7 +552,7 @@ export default function CollectiblesScreen() {
   if (!ready) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B35" />
+        <ActivityIndicator size="large" color={colors.accent.primary} />
         <Text style={styles.loadingText}>Loading wallet...</Text>
       </View>
     );
@@ -568,7 +572,7 @@ export default function CollectiblesScreen() {
             refreshing={refreshing}
             onRefresh={handleRefresh}
             tintColor={colors.text.primary}
-            colors={['#FF6B35']}
+            colors={[colors.accent.primary]}
           />
         }
       >
@@ -749,9 +753,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: ms(16),
-    marginTop: vs(16),
+    color: colors.text.muted,
+    fontSize: ms(fontSize.md),
+    marginTop: vs(spacing.lg),
   },
   scrollView: {
     flex: 1,
@@ -761,27 +765,27 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     fontFamily: fontFamilyNative.semiBold,
-    fontSize: ms(19.44),
+    fontSize: ms(fontSize.xl),
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     textAlign: 'center',
-    letterSpacing: 0.19,
-    marginBottom: vs(24),
+    letterSpacing: letterSpacing.wide,
+    marginBottom: vs(spacing['2xl']),
   },
   devModeBanner: {
-    backgroundColor: 'rgba(255, 107, 53, 0.2)',
+    backgroundColor: colors.accent.tint,
     borderWidth: 1,
-    borderColor: 'rgba(255, 107, 53, 0.5)',
-    borderRadius: ms(8),
-    paddingVertical: vs(8),
-    paddingHorizontal: s(12),
-    marginHorizontal: s(18),
-    marginBottom: vs(16),
+    borderColor: colors.accent.border,
+    borderRadius: ms(borderRadius.md),
+    paddingVertical: vs(spacing.sm),
+    paddingHorizontal: s(spacing.md),
+    marginHorizontal: s(spacing.headerPadding),
+    marginBottom: vs(spacing.lg),
   },
   devModeBannerText: {
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(12),
-    color: '#FF6B35',
+    fontSize: ms(fontSize.sm),
+    color: colors.accent.primary,
     textAlign: 'center',
   },
   // Empty State
@@ -794,16 +798,16 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontFamily: fontFamilyNative.semiBold,
-    fontSize: ms(18),
+    fontSize: ms(fontSize.lg),
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginBottom: vs(8),
+    color: colors.text.muted,
+    marginBottom: vs(spacing.sm),
     textAlign: 'center',
   },
   emptySubtext: {
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(14),
-    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: ms(fontSize.base),
+    color: colors.text.disabled,
     textAlign: 'center',
   },
   sectionSelector: {

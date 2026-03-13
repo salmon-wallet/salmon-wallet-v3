@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { styled } from '@salmon/ui/utils/styled';
+import { styled } from '@salmon/ui';
 import Box from '@mui/material/Box';
 import {
   useAccountsContext,
@@ -149,7 +149,7 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
 
   const handleSwap = useCallback(async (_quote: SwapQuote): Promise<{ txId: string }> => {
     if (!swapQuote || !currentSharedQuoteRef.current) {
-      window.alert('Quote expired. Please get a new quote.');
+      console.error('Quote expired. Please get a new quote.');
       return { txId: '' };
     }
     const result = await executeSwapHook();
@@ -160,7 +160,7 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
 
   const handleSwapError = useCallback((error: Error) => {
     resetSwap();
-    window.alert('Swap Failed: ' + error.message);
+    console.error('Swap Failed:', error.message);
   }, [resetSwap]);
 
   const handleSearchTokens = useCallback(async (query: string): Promise<SwapToken[]> => {
@@ -232,7 +232,7 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
 
   const handleBridgeError = useCallback((error: Error) => {
     resetBridge();
-    window.alert('Bridge Failed: ' + error.message);
+    console.error('Bridge Failed:', error.message);
   }, [resetBridge]);
 
   return (

@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  colors,
   useAccountsContext,
   useInactivityTimeout,
   DerivedKeyCache,
+  getActiveSolanaApprovalAccount,
 } from '@salmon/shared';
-import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { LockPage } from '../../pages/lock/LockPage';
 import { HomePage } from '../../pages/home/HomePage';
 import {
@@ -486,13 +487,13 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '100vh',
-    backgroundColor: '#0f0f0f',
+    backgroundColor: colors.background.primary,
   },
   spinner: {
     width: '32px',
     height: '32px',
-    border: '3px solid rgba(255, 107, 74, 0.2)',
-    borderTopColor: '#FF6B4A',
+    border: `3px solid ${colors.accent.tint}`,
+    borderTopColor: colors.accent.primary,
     borderRadius: '50%',
     animation: 'spin 0.8s linear infinite',
   },

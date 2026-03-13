@@ -225,4 +225,3 @@ export function ReceiveSheet({
   );
 }
 
-export default ReceiveSheet;

@@ -83,10 +83,65 @@ function hasTokenSnapshotChanged(
 }
 
 // ============================================================================
+// Internal sub-hooks
+// ============================================================================
+
+/**
+ * Manages a countdown timer for quote expiration.
+ * Starts when entering review step, stops when leaving or confirming.
+ */
+function useCountdownTimer({
+  shouldRun,
+  shouldReset,
+}: {
+  shouldRun: boolean;
+  shouldReset: boolean;
+}) {
+  const [countdown, setCountdown] = useState(QUOTE_COUNTDOWN_SECONDS);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearCountdown = useCallback(() => {
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+  }, []);
+
+  const startCountdown = useCallback(() => {
+    clearCountdown();
+    setCountdown(QUOTE_COUNTDOWN_SECONDS);
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownIntervalRef.current!);
+          countdownIntervalRef.current = null;
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [clearCountdown]);
+
+  useEffect(() => {
+    if (shouldRun) {
+      startCountdown();
+    } else {
+      clearCountdown();
+      if (shouldReset) {
+        setCountdown(QUOTE_COUNTDOWN_SECONDS);
+      }
+    }
+    return clearCountdown;
+  }, [shouldRun, shouldReset, startCountdown, clearCountdown]);
+
+  return { countdown, startCountdown, clearCountdown };
+}
+
+// ============================================================================
 // Hook options
 // ============================================================================
 
-export interface UseSwapScreenLogicOptions<StyleType = unknown> extends SwapScreenProps<StyleType> {
+export interface UseSwapScreenLogicParams<StyleType = unknown> extends SwapScreenProps<StyleType> {
   /**
    * Platform-specific callback invoked when a bridge exchange is created.
    * Mobile uses Alert.alert; extension uses window.alert.
@@ -98,7 +153,7 @@ export interface UseSwapScreenLogicOptions<StyleType = unknown> extends SwapScre
 // Return type
 // ============================================================================
 
-export interface UseSwapScreenLogicReturn {
+export interface UseSwapScreenLogicResult {
   // State
   step: SwapScreenStep;
   inToken: SwapToken | null;
@@ -191,7 +246,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   // Platform-specific
   onBridgeInitiated: _onBridgeInitiated,
   onNavigateHome,
-}: UseSwapScreenLogicOptions<StyleType>): UseSwapScreenLogicReturn {
+}: UseSwapScreenLogicParams<StyleType>): UseSwapScreenLogicResult {
   // ── State ──────────────────────────────────────────────────────────────
 
   const [step, setStep] = useState<SwapScreenStep>('input');
@@ -216,8 +271,10 @@ export function useSwapScreenLogic<StyleType = unknown>({
   const [isLoadingBridgeTokens, setIsLoadingBridgeTokens] = useState(false);
 
   const quoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [countdown, setCountdown] = useState(QUOTE_COUNTDOWN_SECONDS);
-  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { countdown, startCountdown } = useCountdownTimer({
+    shouldRun: step === 'review' && !isConfirming,
+    shouldReset: step !== 'review',
+  });
 
   // ── Computed ───────────────────────────────────────────────────────────
 
@@ -373,43 +430,6 @@ export function useSwapScreenLogic<StyleType = unknown>({
       if (quoteTimerRef.current) clearTimeout(quoteTimerRef.current);
     };
   }, [inToken, outToken, inAmount]);
-
-  // ── Countdown helpers ──────────────────────────────────────────────────
-
-  const clearCountdownInterval = useCallback(() => {
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
-      countdownIntervalRef.current = null;
-    }
-  }, []);
-
-  const startCountdown = useCallback(() => {
-    clearCountdownInterval();
-    setCountdown(QUOTE_COUNTDOWN_SECONDS);
-    countdownIntervalRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownIntervalRef.current!);
-          countdownIntervalRef.current = null;
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }, [clearCountdownInterval]);
-
-  // Start/stop countdown based on review step and confirming state
-  useEffect(() => {
-    if (step === 'review' && !isConfirming) {
-      startCountdown();
-    } else {
-      clearCountdownInterval();
-      if (step !== 'review') {
-        setCountdown(QUOTE_COUNTDOWN_SECONDS);
-      }
-    }
-    return clearCountdownInterval;
-  }, [step, isConfirming, startCountdown, clearCountdownInterval]);
 
   // ── Handlers ───────────────────────────────────────────────────────────
 

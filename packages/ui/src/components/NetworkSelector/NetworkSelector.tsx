@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type NetworkSelectorBaseProps, type NetworkSelectorItem } from '@salmon/shared';
+import { type NetworkSelectorItem } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { SettingsSelectorList } from '../SettingsSelectorList';
+import type { NetworkSelectorProps } from './types';
 
 export function NetworkSelector({
   networks,
@@ -10,7 +11,7 @@ export function NetworkSelector({
   onSelectNetwork,
   onBack,
   loading,
-}: NetworkSelectorBaseProps): React.ReactElement {
+}: NetworkSelectorProps): React.ReactElement {
   const { t } = useTranslation();
 
   const handleSelect = useCallback(
@@ -36,5 +37,3 @@ export function NetworkSelector({
     </SettingsPanelContent>
   );
 }
-
-export default NetworkSelector;

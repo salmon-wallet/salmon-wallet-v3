@@ -35,8 +35,6 @@ export const translations = {
   es,
 } as const;
 
-export default translations;
-
 // ============================================================================
 // Language Types and Constants
 // ============================================================================

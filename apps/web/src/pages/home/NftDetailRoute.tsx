@@ -11,8 +11,8 @@ import {
   isSolanaNft,
   createBurnTransaction,
   type NftData,
+  isSolanaAccount,
 } from '@salmon/shared';
-import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { NftDetailPage, NftSendDialog, ConfirmDialog } from '@salmon/ui';
 
 export function NftDetailRoute(): React.ReactElement {

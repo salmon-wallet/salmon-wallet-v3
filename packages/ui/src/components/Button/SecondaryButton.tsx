@@ -100,4 +100,3 @@ export function SecondaryButton({
   );
 }
 
-export default SecondaryButton;

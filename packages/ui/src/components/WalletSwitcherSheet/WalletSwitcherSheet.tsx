@@ -431,4 +431,3 @@ export function WalletSwitcherSheet({
   );
 }
 
-export default WalletSwitcherSheet;

@@ -297,12 +297,12 @@ const BadgeItem: React.FC<{ tag: string }> = ({ tag }) => {
  * Shows verification status, token type, community info, and more.
  * Each badge displays an icon with its name below for clarity.
  */
-export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
+export function TokenBadgesSection({
   tags,
   loading = false,
   style,
   className,
-}) => {
+}: TokenBadgesSectionProps) {
   if (loading) {
     return (
       <BlurContainer
@@ -364,6 +364,4 @@ export const TokenBadgesSection: React.FC<TokenBadgesSectionProps> = ({
       </Container>
     </BlurContainer>
   );
-};
-
-export default TokenBadgesSection;
+}

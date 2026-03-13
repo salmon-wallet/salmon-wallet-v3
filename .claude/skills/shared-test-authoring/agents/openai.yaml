@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shared Test Authoring"
+  short_description: "Write tests for @salmon/shared"
+  default_prompt: "Use $shared-test-authoring to write or audit Vitest coverage for code in packages/shared."

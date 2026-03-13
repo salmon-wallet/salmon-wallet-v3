@@ -58,7 +58,7 @@ export interface TokenData extends Partial<TokenMetadata> {
 /**
  * Options for the useToken hook
  */
-export interface UseTokenOptions {
+export interface UseTokenParams {
   /** Token mint address to fetch */
   tokenId: string;
   /** Network identifier */
@@ -80,7 +80,9 @@ export interface UseTokenResult {
   /** Loading state */
   loading: boolean;
   /** Error if fetch failed */
-  error: Error | null;
+  error: string | null;
+  /** Whether an error occurred */
+  isError: boolean;
   /** Refetch token data */
   refetch: () => Promise<void>;
 }
@@ -106,11 +108,11 @@ export function useToken({
   networkId = 'solana-mainnet',
   balanceItems,
   skipMetadataFetch = false,
-}: UseTokenOptions): UseTokenResult {
+}: UseTokenParams): UseTokenResult {
   const [token, setToken] = useState<TokenData>({ address: tokenId });
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Fetch token data from balance items or API
@@ -182,7 +184,7 @@ export function useToken({
       setLoaded(true);
     } catch (err) {
       console.error('[useToken] Error fetching token:', err);
-      setError(err instanceof Error ? err : new Error('Failed to fetch token'));
+      setError(err instanceof Error ? err.message : 'Failed to fetch token');
       setToken({ address: tokenId });
       setLoaded(true);
     } finally {
@@ -200,8 +202,8 @@ export function useToken({
     loaded,
     loading,
     error,
+    isError: error !== null,
     refetch: fetchToken,
   };
 }
 
-export default useToken;

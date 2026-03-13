@@ -24,8 +24,6 @@ import {
   fontWeight,
   borderRadius,
   useNftTransfer,
-  type NftData,
-  type BlockchainAccount,
   type BlockchainType,
   fontSize,
   componentSizes,
@@ -33,18 +31,7 @@ import {
 import { BaseDialog, MessageText } from '../BaseDialog';
 import { InputAddress } from '../InputAddress';
 import type { ValidationCallbackResult } from '../InputAddress';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface NftSendDialogProps {
-  visible: boolean;
-  onClose: () => void;
-  nft: NftData | null;
-  account: BlockchainAccount | undefined;
-  onSuccess?: (txId: string) => void;
-}
+import type { NftSendDialogProps } from './types';
 
 // ============================================================================
 // Styled Components
@@ -213,5 +200,3 @@ export function NftSendDialog({
     </BaseDialog>
   );
 }
-
-export default NftSendDialog;

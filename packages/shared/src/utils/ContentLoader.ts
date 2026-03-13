@@ -13,7 +13,6 @@ type ContentLoaderProps = IContentLoaderProps & Record<string, unknown>;
 const ContentLoader = BaseContentLoader as React.ComponentType<ContentLoaderProps>;
 
 export { ContentLoader };
-export default ContentLoader;
 
 // Thin wrappers that map uppercase component names (used by code written for
 // react-content-loader/native) to their lowercase SVG element equivalents.

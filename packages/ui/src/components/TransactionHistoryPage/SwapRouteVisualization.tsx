@@ -536,10 +536,10 @@ const DetailedRouteView: React.FC<{ transaction: Transaction }> = ({ transaction
 // Main Component
 // ============================================================================
 
-export const SwapRouteVisualization: React.FC<SwapRouteVisualizationProps> = ({
+export function SwapRouteVisualization({
   transaction,
   expanded,
-}) => {
+}: SwapRouteVisualizationProps) {
   if (transaction.type !== 'swap') {
     return null;
   }
@@ -561,6 +561,5 @@ export const SwapRouteVisualization: React.FC<SwapRouteVisualizationProps> = ({
       </Content>
     </Container>
   );
-};
+}
 
-export default SwapRouteVisualization;

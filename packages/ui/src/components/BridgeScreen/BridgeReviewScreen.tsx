@@ -113,7 +113,7 @@ const WarningText = styled(Typography)({
  * BridgeReviewScreen - Third step of bridge flow
  * Shows bridge details and confirm/back buttons
  */
-export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
+export function BridgeReviewScreen({
   inToken,
   outToken,
   inAmount,
@@ -125,7 +125,7 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
   isConfirming = false,
   confirmLabel,
   style,
-}) => {
+}: BridgeReviewScreenProps) {
   return (
     <Container style={style}>
       {/* Title */}
@@ -201,6 +201,5 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
       />
     </Container>
   );
-};
+}
 
-export default BridgeReviewScreen;

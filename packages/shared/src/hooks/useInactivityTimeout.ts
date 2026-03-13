@@ -62,7 +62,7 @@ const WEB_ACTIVITY_EVENTS = [
 /**
  * Options for configuring the inactivity timeout hook.
  */
-export interface UseInactivityTimeoutOptions {
+export interface UseInactivityTimeoutParams {
   /**
    * Timeout duration in milliseconds.
    * @default 300000 (5 minutes)
@@ -180,7 +180,7 @@ export interface UseInactivityTimeoutResult {
  * ```
  */
 export function useInactivityTimeout(
-  options: UseInactivityTimeoutOptions = {}
+  options: UseInactivityTimeoutParams = {}
 ): UseInactivityTimeoutResult {
   const {
     timeoutMs = DEFAULT_TIMEOUT_MS,
@@ -355,4 +355,3 @@ export function useInactivityTimeout(
   };
 }
 
-export default useInactivityTimeout;

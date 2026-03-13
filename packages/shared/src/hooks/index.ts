@@ -9,55 +9,40 @@
  */
 
 // Account management hook
-export {
-  useAccounts,
-  default as useAccountsDefault,
-} from './useAccounts';
-
+export { useAccounts } from './useAccounts';
 export type {
   UseAccountsState,
   UseAccountsActions,
 } from './useAccounts';
 
 // User configuration hook
-export {
-  useUserConfig,
-  default as useUserConfigDefault,
-} from './useUserConfig';
-
+export { useUserConfig } from './useUserConfig';
 export type {
   UseUserConfigParams,
   UseUserConfigResult,
 } from './useUserConfig';
 
 // Token hook
-export {
-  useToken,
-  default as useTokenDefault,
-} from './useToken';
-
+export { useToken } from './useToken';
 export type {
   TokenData,
-  UseTokenOptions,
+  UseTokenParams,
   UseTokenResult,
 } from './useToken';
 
 // Runtime detection hook
-export { default as useRuntime } from './useRuntime';
+export { useRuntime } from './useRuntime';
 export type { RuntimeInfo } from './useRuntime';
 export { ADAPTER_PREFIXES } from './useRuntime';
 
 // Language management hook
-export { useLanguage, default as useLanguageDefault } from './useLanguage';
+export { useLanguage } from './useLanguage';
 export type { UseLanguageResult } from './useLanguage';
 
 // Inactivity timeout hook
-export {
-  useInactivityTimeout,
-  default as useInactivityTimeoutDefault,
-} from './useInactivityTimeout';
+export { useInactivityTimeout } from './useInactivityTimeout';
 export type {
-  UseInactivityTimeoutOptions,
+  UseInactivityTimeoutParams,
   UseInactivityTimeoutResult,
 } from './useInactivityTimeout';
 
@@ -65,57 +50,41 @@ export type {
 export {
   useAvailableNetworks,
   fetchAndMergeNetworkConfigs,
-  default as useAvailableNetworksDefault,
 } from './useAvailableNetworks';
 export type {
   UseAvailableNetworksResult,
 } from './useAvailableNetworks';
 
 // Balance hook
-export {
-  useBalance,
-  default as useBalanceDefault,
-} from './useBalance';
+export { useBalance } from './useBalance';
 export type {
-  UseBalanceOptions,
+  UseBalanceParams,
   UseBalanceResult,
 } from './useBalance';
 
 // Transactions hook
-export {
-  useTransactions,
-  default as useTransactionsDefault,
-} from './useTransactions';
+export { useTransactions } from './useTransactions';
 export type {
-  UseTransactionsOptions,
+  UseTransactionsParams,
   UseTransactionsResult,
 } from './useTransactions';
 
 // Send transaction hook
-export {
-  useSendTransaction,
-  default as useSendTransactionDefault,
-} from './useSendTransaction';
+export { useSendTransaction } from './useSendTransaction';
 export type {
   UseSendTransactionParams,
   UseSendTransactionResult,
 } from './useSendTransaction';
 
 // Swap hook
-export {
-  useSwap,
-  default as useSwapDefault,
-} from './useSwap';
+export { useSwap } from './useSwap';
 export type {
   UseSwapParams,
   UseSwapResult,
 } from './useSwap';
 
 // Bridge hook
-export {
-  useBridge,
-  default as useBridgeDefault,
-} from './useBridge';
+export { useBridge } from './useBridge';
 export type {
   UseBridgeParams,
   UseBridgeResult,
@@ -124,8 +93,6 @@ export type {
 // Multi-chain tokens hook (for unified swap/bridge)
 export {
   useMultiChainTokens,
-  default as useMultiChainTokensDefault,
-  getChainFromNetworkId,
 } from './useMultiChainTokens';
 export type {
   ChainType,
@@ -134,33 +101,20 @@ export type {
 } from './useMultiChainTokens';
 
 // Token search hook (used by TokenSelector in ui and ui-extension)
-export {
-  useTokenSearch,
-  default as useTokenSearchDefault,
-} from './useTokenSearch';
-export type {
-  TokenSelectorToken,
-  UseTokenSearchResult,
-} from './useTokenSearch';
+export { useTokenSearch } from './useTokenSearch';
 
 // Address validation hook (used by InputAddress in ui and ui-extension)
-export {
-  useAddressValidation,
-  default as useAddressValidationDefault,
-} from './useAddressValidation';
+export { useAddressValidation } from './useAddressValidation';
 export type {
-  UseAddressValidationReturn,
-  UseAddressValidationOptions,
+  UseAddressValidationResult,
+  UseAddressValidationParams,
 } from './useAddressValidation';
 
 // Open link hook (used by settings screens)
 export { useOpenLink } from './useOpenLink';
 
 // NFT transfer hook (shared between mobile & extension)
-export {
-  useNftTransfer,
-  default as useNftTransferDefault,
-} from './useNftTransfer';
+export { useNftTransfer } from './useNftTransfer';
 export type {
   UseNftTransferParams,
   UseNftTransferResult,
@@ -169,18 +123,16 @@ export type {
 
 // SwapScreen logic hook (shared between mobile & extension)
 export { useSwapScreenLogic } from './useSwapScreenLogic';
+export type {
+  UseSwapScreenLogicParams,
+  UseSwapScreenLogicResult,
+} from './useSwapScreenLogic';
 
 // Send contacts hook (address book + own wallets for send flow)
-export {
-  useSendContacts,
-  default as useSendContactsDefault,
-} from './useSendContacts';
+export { useSendContacts } from './useSendContacts';
 
 // Address book hook
-export {
-  useAddressbook,
-  default as useAddressbookDefault,
-} from './useAddressbook';
+export { useAddressbook } from './useAddressbook';
 export type {
   UseAddressbookParams,
   UseAddressbookState,
@@ -189,40 +141,27 @@ export type {
 } from './useAddressbook';
 
 // Address book form hook (shared form logic for Add/Edit screens)
-export {
-  useAddressBookForm,
-  default as useAddressBookFormDefault,
-} from './useAddressBookForm';
+export { useAddressBookForm } from './useAddressBookForm';
 export type {
   AddressBookFormInitial,
   UseAddressBookFormResult,
 } from './useAddressBookForm';
 
 // Avatar NFTs hook (shared between mobile & extension)
-export {
-  useAvatarNfts,
-  default as useAvatarNftsDefault,
-} from './useAvatarNfts';
+export { useAvatarNfts } from './useAvatarNfts';
 export type {
   UseAvatarNftsParams,
   UseAvatarNftsResult,
 } from './useAvatarNfts';
 
 // Refresh on focus hook (platform-split: .native.ts / .web.ts)
-export { default as useRefreshOnFocus } from './useRefreshOnFocus';
-export type { UseRefreshOnFocusOptions } from './useRefreshOnFocus';
+export { useRefreshOnFocus } from './useRefreshOnFocus';
+export type { UseRefreshOnFocusParams } from './useRefreshOnFocus';
 
 // Settings panel stack hook
-export {
-  useSettingsPanelStack,
-  default as useSettingsPanelStackDefault,
-} from './useSettingsPanelStack';
+export { useSettingsPanelStack } from './useSettingsPanelStack';
 export type { UseSettingsPanelStackResult } from './useSettingsPanelStack';
 
 // Currency context (re-export for discoverability)
 export { useCurrencyContext } from '../contexts/CurrencyContext';
 export type { CurrencyState, CurrencyActions } from '../contexts/CurrencyContext';
-export type {
-  UseSwapScreenLogicOptions,
-  UseSwapScreenLogicReturn,
-} from './useSwapScreenLogic';

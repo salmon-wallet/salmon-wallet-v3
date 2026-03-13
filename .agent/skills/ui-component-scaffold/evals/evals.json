@@ -1,0 +1,26 @@
+{
+  "skill_name": "ui-component-scaffold",
+  "evals": [
+    {
+      "id": "dom-only-packages-ui-component",
+      "prompt": "Create a new shared DOM dialog for web and extension only. It does not need a React Native counterpart.",
+      "expected_output": "Use ui-component-scaffold, choose the DOM-only branch, keep the props local to packages/ui, use ../../utils/styled, update the component barrel and packages/ui main barrel, and avoid creating a shared contract in packages/shared/src/types/ui.",
+      "files": [
+        "packages/ui/src/components/ConfirmDialog/types.ts",
+        "packages/ui/src/components/PageShell/types.ts",
+        "packages/ui/src/components/index.ts"
+      ]
+    },
+    {
+      "id": "cross-platform-contract-plus-dom",
+      "prompt": "Create the DOM implementation for a component that will also exist in mobile, and keep the semantic contract shared.",
+      "expected_output": "Use ui-component-scaffold, choose the cross-platform branch, create or extend the shared PropsBase contract in packages/shared/src/types/ui, extend it locally with CSSProperties, and update all relevant barrels.",
+      "files": [
+        "packages/shared/src/types/ui/wallet-header.ts",
+        "packages/shared/src/types/ui/index.ts",
+        "packages/ui/src/components/WalletHeader/types.ts",
+        "packages/ui/src/components/WalletHeader/index.ts"
+      ]
+    }
+  ]
+}

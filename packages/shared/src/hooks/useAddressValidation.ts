@@ -32,13 +32,10 @@ import type { BlockchainAccount } from '../types/blockchain';
 import type { ValidationResult, ValidationState, ValidationCallbackResult } from '../types/validation';
 import { VALIDATION_MESSAGES, getValidationState, getMessageType } from '../utils/validation';
 
-// Re-export domain types for backward compatibility
-export type { ValidationState, ValidationCallbackResult } from '../types/validation';
-
 /**
  * Return type for useAddressValidation hook
  */
-export interface UseAddressValidationReturn {
+export interface UseAddressValidationResult {
   /** Current validation state */
   validationState: ValidationState;
   /** Full validation result */
@@ -60,7 +57,7 @@ export interface UseAddressValidationReturn {
 /**
  * Options for useAddressValidation hook
  */
-export interface UseAddressValidationOptions {
+export interface UseAddressValidationParams {
   /** Debounce delay in milliseconds (default: 500) */
   debounceMs?: number;
   /** Callback when validation completes */
@@ -73,8 +70,8 @@ const DEFAULT_DEBOUNCE_MS = 500;
 export function useAddressValidation(
   address: string,
   account: BlockchainAccount | undefined,
-  options: UseAddressValidationOptions = {}
-): UseAddressValidationReturn {
+  options: UseAddressValidationParams = {}
+): UseAddressValidationResult {
   const {
     debounceMs = DEFAULT_DEBOUNCE_MS,
     onValidation,
@@ -256,4 +253,3 @@ export function useAddressValidation(
   };
 }
 
-export default useAddressValidation;

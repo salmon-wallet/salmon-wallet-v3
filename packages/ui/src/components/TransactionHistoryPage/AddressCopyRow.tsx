@@ -86,12 +86,12 @@ const CopyButton = styled(IconButton)({
 // Component
 // ============================================================================
 
-export const AddressCopyRow: React.FC<AddressCopyRowProps> = ({
+export function AddressCopyRow({
   label,
   address,
   truncate = 'medium',
   className,
-}) => {
+}: AddressCopyRowProps) {
   const [copied, setCopied] = useState(false);
 
   const displayAddress =
@@ -131,6 +131,5 @@ export const AddressCopyRow: React.FC<AddressCopyRowProps> = ({
       </Container>
     </BlurContainer>
   );
-};
+}
 
-export default AddressCopyRow;

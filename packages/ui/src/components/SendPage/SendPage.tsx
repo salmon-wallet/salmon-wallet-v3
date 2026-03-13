@@ -205,4 +205,3 @@ export function SendPage({
   );
 }
 
-export default SendPage;

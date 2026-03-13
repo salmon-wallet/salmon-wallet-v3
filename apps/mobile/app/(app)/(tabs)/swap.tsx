@@ -24,9 +24,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import {
+  colors,
   componentSizes,
+  fontSize,
   getTokenList,
   searchTokens,
+  spacing,
   useAccountsContext,
   useBridge,
   useMultiChainTokens,
@@ -397,8 +400,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 16,
-    marginTop: 16,
+    color: colors.text.muted,
+    fontSize: fontSize.md,
+    marginTop: spacing.lg,
   },
 });

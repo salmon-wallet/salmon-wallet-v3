@@ -19,7 +19,7 @@
  * ```
  */
 
-export { WalletSwitcherSheet, default } from './WalletSwitcherSheet';
+export { WalletSwitcherSheet } from './WalletSwitcherSheet';
 export type {
   WalletSwitcherSheetProps,
   AccountListItemProps,

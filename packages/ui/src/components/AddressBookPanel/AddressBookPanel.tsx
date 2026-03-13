@@ -23,7 +23,6 @@ import {
   colors,
   spacing,
   getShortAddress,
-  type AddressBookSelectorBaseProps,
   type AddressBookItem,
   fontSize,
   fontWeight,
@@ -31,6 +30,7 @@ import {
 } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { ConfirmDialog } from '../ConfirmDialog';
+import type { AddressBookPanelProps } from './types';
 
 // ============================================================================
 // Styled Components
@@ -87,7 +87,7 @@ export function AddressBookPanel({
   onEditContact,
   onRemoveContact,
   onBack,
-}: AddressBookSelectorBaseProps): React.ReactElement {
+}: AddressBookPanelProps): React.ReactElement {
   const { t } = useTranslation();
   const [deleteTarget, setDeleteTarget] = useState<AddressBookItem | null>(null);
 

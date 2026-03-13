@@ -1,12 +1,12 @@
 import type { CSSProperties } from 'react';
 import type {
-  BridgeChain,
-  BridgeToken,
-  BridgeEstimate,
-  BridgeExchange,
+  BridgeScreenChain as BridgeChain,
+  BridgeScreenToken as BridgeToken,
+  BridgeScreenEstimate as BridgeEstimate,
+  BridgeScreenExchange as BridgeExchange,
   BridgeRecipientScreenPropsBase,
   BridgeReviewScreenPropsBase,
-} from '@salmon/shared/src/types/ui/bridge-screen';
+} from '@salmon/shared';
 
 // Re-export shared data types for consumers
 export type { BridgeChain, BridgeToken, BridgeEstimate, BridgeExchange };

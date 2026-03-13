@@ -1,12 +1,14 @@
 export {
   DAppConnectApprovalView,
-  type DAppConnectApprovalViewProps,
 } from './DAppConnectApprovalView';
 export {
   DAppSignMessageApprovalView,
-  type DAppSignMessageApprovalViewProps,
 } from './DAppSignMessageApprovalView';
 export {
   DAppTransactionApprovalView,
-  type DAppTransactionApprovalViewProps,
 } from './DAppTransactionApprovalView';
+export type {
+  DAppConnectApprovalViewProps,
+  DAppSignMessageApprovalViewProps,
+  DAppTransactionApprovalViewProps,
+} from './types';

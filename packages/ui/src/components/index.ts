@@ -67,12 +67,6 @@ export type { MarketData, TokenMarketDataProps } from './TokenMarketData';
 export { TokenFeatures } from './TokenFeatures';
 export type { TokenFeaturesProps } from './TokenFeatures';
 
-// SettingsSheet - Slide-out settings panel (legacy, used internally by SettingsPanelStack)
-export { SettingsSheet } from './SettingsSheet';
-export type {
-  SettingsItem, SettingsSection, SettingsSheetProps
-} from './SettingsSheet';
-
 // SettingsPanelStack - Stacking panel system for settings navigation
 export { SettingsPanelStack } from './SettingsPanelStack';
 export type {
@@ -123,7 +117,7 @@ export {
   useAddressValidation
 } from './InputAddress';
 export type {
-  BlockchainType, InputAddressProps, UseAddressValidationOptions, UseAddressValidationReturn, ValidationCallbackResult, ValidationState
+  BlockchainType, InputAddressProps, UseAddressValidationParams, UseAddressValidationResult, ValidationCallbackResult, ValidationState
 } from './InputAddress';
 
 // NftCard - NFT display card for grid layouts

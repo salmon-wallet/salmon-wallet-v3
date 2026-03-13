@@ -18,17 +18,13 @@ import type { Account } from '../types/account';
 import type { BlockchainAccount, BlockchainType, NetworkId } from '../types/blockchain';
 import type { UnifiedToken } from '../types/token';
 import { useBalance } from './useBalance';
-import { getBlockchainFromNetworkId } from '../utils/account';
 import { MAINNET_NETWORK_ID } from '../utils/network';
-import { isSameChain as isSameChainUtil, getSwapType as getSwapTypeUtil } from '../utils/swap';
 
-// Re-export domain types for backward compatibility
 /**
  * Chain identifier for unified tokens.
  * Alias of the canonical BlockchainType.
  */
 export type ChainType = BlockchainType;
-export type { UnifiedToken } from '../types/token';
 
 /**
  * Balance data for a single chain
@@ -38,7 +34,7 @@ interface ChainBalance {
   networkId: string;
   tokens: UnifiedToken[];
   loading: boolean;
-  error: Error | null;
+  error: string | null;
 }
 
 /**
@@ -64,7 +60,9 @@ export interface UseMultiChainTokensResult {
   /** Whether all chains have loaded */
   ready: boolean;
   /** Errors from any chain */
-  errors: Record<ChainType, Error | null>;
+  errors: Record<ChainType, string | null>;
+  /** Whether any chain has errors */
+  hasErrors: boolean;
   /** Refresh all balances */
   refresh: () => Promise<void>;
   /** Get tokens for a specific chain */
@@ -84,23 +82,6 @@ const NETWORK_IDS = MAINNET_NETWORK_ID;
 // Helper Functions
 // ============================================================================
 
-/**
- * Determines the chain type from a network ID.
- * Re-exported alias for backward compatibility.
- */
-export const getChainFromNetworkId = getBlockchainFromNetworkId;
-
-/**
- * Determines if two tokens are on the same chain.
- * Re-exported from utils/swap for backward compatibility.
- */
-export const isSameChain = isSameChainUtil;
-
-/**
- * Determines the swap type based on input and output tokens.
- * Re-exported from utils/swap for backward compatibility.
- */
-export const getSwapType = getSwapTypeUtil;
 
 // ============================================================================
 // Single Chain Balance Hook
@@ -290,10 +271,10 @@ export function useMultiChainTokens(
     loading,
     ready,
     errors,
+    hasErrors: Object.values(errors).some(e => e !== null),
     refresh,
     getTokensForChain,
     featuredTokens,
   };
 }
 
-export default useMultiChainTokens;

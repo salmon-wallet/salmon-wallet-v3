@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography';
 import {
   colors,
   spacing,
+  fontSize,
   fontFamily,
   getTokenList,
   searchTokens,
@@ -56,7 +57,7 @@ const LoadingContainer = styled(Box)({
 const LoadingText = styled(Typography)({
   color: colors.text.secondary,
   fontFamily: fontFamily.sans,
-  fontSize: 16,
+  fontSize: fontSize.md,
 });
 
 // ============================================================================

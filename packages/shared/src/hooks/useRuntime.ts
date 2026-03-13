@@ -15,8 +15,8 @@
  * import { useRuntime } from '@salmon/shared/hooks';
  *
  * // Or use platform-specific imports if needed:
- * import useRuntime from '@salmon/shared/hooks/useRuntime.web';  // Web/Extension
- * import useRuntime from '@salmon/shared/hooks/useRuntime.native'; // React Native
+ * import { useRuntime } from '@salmon/shared/hooks/useRuntime.web';  // Web/Extension
+ * import { useRuntime } from '@salmon/shared/hooks/useRuntime.native'; // React Native
  * ```
  */
 
@@ -85,4 +85,4 @@ const useRuntime = (): RuntimeInfo => {
   return useRuntimeWeb();
 };
 
-export default useRuntime;
+export { useRuntime };

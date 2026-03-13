@@ -1,0 +1,36 @@
+{
+  "skill_name": "mobile-component-scaffold",
+  "evals": [
+    {
+      "id": "mobile-only-component",
+      "prompt": "Create a new React Native sheet that belongs only in apps/mobile and has no shared DOM counterpart.",
+      "expected_output": "Use mobile-component-scaffold, choose the mobile-only branch, keep props local to apps/mobile, use StyleSheet.create with @salmon/shared tokens, and update the mobile barrel exports.",
+      "files": [
+        "apps/mobile/src/components/ConfirmSheet/ConfirmSheet.tsx",
+        "apps/mobile/src/components/TopSheet/TopSheet.tsx",
+        "apps/mobile/src/components/index.ts"
+      ]
+    },
+    {
+      "id": "cross-platform-mobile-implementation",
+      "prompt": "Implement the React Native side of a component that should share the same semantic contract with web and extension.",
+      "expected_output": "Use mobile-component-scaffold, choose the cross-platform branch, extend the shared PropsBase contract locally with ViewStyle, keep the RN implementation in apps/mobile, and update mobile exports.",
+      "files": [
+        "packages/shared/src/types/ui/wallet-header.ts",
+        "apps/mobile/src/components/WalletHeader/types.ts",
+        "apps/mobile/src/components/WalletHeader/WalletHeader.tsx",
+        "apps/mobile/src/components/index.ts"
+      ]
+    },
+    {
+      "id": "do-not-trigger-on-copy-only-change",
+      "prompt": "Add a new user-facing warning string to the send flow and wire it without hardcoded strings.",
+      "expected_output": "Do not use mobile-component-scaffold for this task unless the request explicitly includes apps/mobile or React Native component work; prefer the translation skill instead.",
+      "files": [
+        "packages/shared/src/locales/en/translation.json",
+        "packages/shared/src/locales/es/translation.json",
+        "apps/mobile/src/components/WalletHeader/WalletHeader.tsx"
+      ]
+    }
+  ]
+}

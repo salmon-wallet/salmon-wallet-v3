@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { styled } from '@salmon/ui/utils/styled';
+import { styled } from '@salmon/ui';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import Typography from '@mui/material/Typography';

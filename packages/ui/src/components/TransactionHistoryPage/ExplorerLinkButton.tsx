@@ -200,4 +200,3 @@ export function ExplorerLinkButton({
   );
 }
 
-export default ExplorerLinkButton;

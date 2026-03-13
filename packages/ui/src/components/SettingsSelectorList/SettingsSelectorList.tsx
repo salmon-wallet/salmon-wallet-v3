@@ -9,6 +9,7 @@ import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
 import CheckIcon from '@mui/icons-material/Check';
 import { colors, spacing, fontSize, fontWeight } from '@salmon/shared';
+import type { SettingsSelectorListProps } from './types';
 
 // ============================================================================
 // Styled Components (shared across all settings selectors)
@@ -48,27 +49,6 @@ const EmptyState = styled(Typography)({
   textAlign: 'center',
   padding: spacing.xl,
 });
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface SettingsSelectorListProps<T> {
-  items: T[];
-  getKey: (item: T) => string;
-  isSelected: (item: T) => boolean;
-  onSelect: (item: T) => void;
-  getPrimaryText: (item: T) => string;
-  getSecondaryText?: (item: T) => string;
-  secondaryTypographyProps?: Record<string, unknown>;
-  renderLeadingElement?: (item: T) => React.ReactNode;
-  loading?: boolean;
-  emptyMessage?: string;
-}
-
-// ============================================================================
-// Component
-// ============================================================================
 
 export function SettingsSelectorList<T>({
   items,

@@ -165,4 +165,3 @@ export function useLanguage(): UseLanguageResult {
   };
 }
 
-export default useLanguage;

@@ -26,24 +26,15 @@ import {
   fontSize,
   fontWeight,
   getAvatarColor,
+  getAccountAddress,
   getShortAddress,
   getInitials,
   useAccountsContext,
   type Account,
 } from '@salmon/shared';
-import { getAccountAddress } from '@salmon/shared/utils/account';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { ConfirmDialog } from '../ConfirmDialog';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface AccountsPanelProps {
-  onBack: () => void;
-  onEditAccount: (accountId: string) => void;
-  onAddAccount: () => void;
-}
+import type { AccountsPanelProps } from './types';
 
 // ============================================================================
 // Styled Components

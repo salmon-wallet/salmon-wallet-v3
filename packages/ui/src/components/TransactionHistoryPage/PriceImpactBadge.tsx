@@ -66,11 +66,11 @@ const Container = styled(Box)({
 // Component
 // ============================================================================
 
-export const PriceImpactBadge: React.FC<PriceImpactBadgeProps> = ({
+export function PriceImpactBadge({
   value,
   size = 'medium',
   showIcon = false,
-}) => {
+}: PriceImpactBadgeProps) {
   const severity = getPriceImpactSeverity(value);
   const color = SEVERITY_COLORS[severity];
   const sizeConfig = SIZE_CONFIG[size];
@@ -101,6 +101,5 @@ export const PriceImpactBadge: React.FC<PriceImpactBadgeProps> = ({
       </Typography>
     </Container>
   );
-};
+}
 
-export default PriceImpactBadge;

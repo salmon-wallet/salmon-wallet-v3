@@ -52,9 +52,6 @@ import type {
   ParsedQuoteInfo,
 } from '../types/swap';
 
-// Re-export for backwards compatibility
-export type { SwapStatus, GetQuoteParams, ParsedQuoteInfo };
-
 // ============================================================================
 // Types
 // ============================================================================
@@ -85,6 +82,8 @@ export interface UseSwapResult {
   status: SwapStatus;
   /** Error message if failed */
   error: string | null;
+  /** Whether the hook is in an error state */
+  isError: boolean;
   /** Transaction ID after successful swap */
   txId: string | null;
   /** Reset the hook state */
@@ -262,10 +261,10 @@ export function useSwap({
     quoteInfo,
     status,
     error,
+    isError: error !== null,
     txId,
     reset,
     clearQuote,
   };
 }
 
-export default useSwap;

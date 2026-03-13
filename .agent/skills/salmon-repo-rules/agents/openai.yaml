@@ -1,0 +1,4 @@
+interface:
+  display_name: "Salmon Repo Rules"
+  short_description: "Resolve placement and ownership"
+  default_prompt: "Use $salmon-repo-rules to decide code placement, ownership, and barrel/export structure in the Salmon Wallet monorepo."

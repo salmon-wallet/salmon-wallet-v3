@@ -32,6 +32,9 @@ import { ADAPTER_PREFIXES } from './useRuntime.shared';
  * }
  * ```
  */
+// NOTE: Returns a plain RuntimeInfo object instead of [State, Actions] tuple.
+// This hook has no mutable actions — it only resolves initial URL state once.
+// The tuple pattern would add unnecessary complexity for a read-only data source.
 const useRuntime = (): RuntimeInfo => {
   const [ready, setReady] = useState(false);
   const [isAdapter, setIsAdapter] = useState(false);
@@ -77,4 +80,4 @@ const useRuntime = (): RuntimeInfo => {
   };
 };
 
-export default useRuntime;
+export { useRuntime };

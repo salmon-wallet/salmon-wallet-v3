@@ -28,14 +28,7 @@ import {
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { PasswordInput } from '../PasswordInput';
 import { PasswordStrengthBar } from '../PasswordInput/PasswordStrengthBar';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface SecurityPanelProps {
-  onBack: () => void;
-}
+import type { SecurityPanelProps } from './types';
 
 // ============================================================================
 // Styled Components

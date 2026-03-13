@@ -15,33 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import { spacing } from '@salmon/shared';
 import { BaseDialog, MessageText } from '../BaseDialog';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface ConfirmDialogProps {
-  /** Whether the dialog is visible */
-  visible: boolean;
-  /** Callback when the dialog should close */
-  onClose: () => void;
-  /** Dialog title */
-  title: string;
-  /** Dialog message/description */
-  message: string;
-  /** Confirm button text */
-  confirmText?: string;
-  /** Cancel button text */
-  cancelText?: string;
-  /** Whether this is a danger/destructive action */
-  isDanger?: boolean;
-  /** Whether to require password confirmation */
-  requirePassword?: boolean;
-  /** Function to validate the password */
-  validatePassword?: (password: string) => Promise<boolean>;
-  /** Callback when user confirms the action */
-  onConfirm: () => Promise<void>;
-}
+import type { ConfirmDialogProps } from './types';
 
 // ============================================================================
 // Styled Components
@@ -212,5 +186,3 @@ export function ConfirmDialog({
     </BaseDialog>
   );
 }
-
-export default ConfirmDialog;

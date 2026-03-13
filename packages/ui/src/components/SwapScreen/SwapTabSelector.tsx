@@ -100,4 +100,3 @@ export function SwapTabSelector({
   );
 }
 
-export default SwapTabSelector;

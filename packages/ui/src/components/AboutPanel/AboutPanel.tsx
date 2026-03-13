@@ -28,15 +28,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius, fontSize, fontWeight, letterSpacing, opacity, componentSizes } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface AboutPanelProps {
-  /** Callback to navigate back to home */
-  onBack: () => void;
-}
+import type { AboutPanelProps } from './types';
 
 interface LinkItem {
   id: string;

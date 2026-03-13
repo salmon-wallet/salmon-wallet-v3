@@ -19,7 +19,6 @@
     "@salmon/shared": "workspace:*",
     "keen-slider": "^6.8.6",
     "qrcode.react": "^4.2.0",
-    "react-content-loader": "^7.1.1",
     "recharts": "^3.5.1"
   },
   "devDependencies": {

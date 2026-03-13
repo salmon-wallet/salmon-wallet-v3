@@ -3,7 +3,7 @@
  * Migrated from salmon-wallet-v2/src/features/InputAddress/InputAddress.js
  *
  * Hook-related types (BlockchainType, ValidationState, ValidationCallbackResult,
- * UseAddressValidationReturn, UseAddressValidationOptions) are now defined in
+ * UseAddressValidationResult, UseAddressValidationParams) are now defined in
  * @salmon/shared and can be imported directly from there.
  */
 

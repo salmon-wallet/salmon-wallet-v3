@@ -32,9 +32,6 @@ import type {
   SendTransactionStatus,
 } from '../types/send';
 
-// Re-export domain types for backward compatibility
-export type { SendTokenInfo, SendTransactionParams, FeeEstimateResult, SendTransactionStatus } from '../types/send';
-
 // ============================================================================
 // Types
 // ============================================================================
@@ -61,6 +58,8 @@ export interface UseSendTransactionResult {
   status: SendTransactionStatus;
   /** Error message if failed */
   error: string | null;
+  /** Whether the hook is in an error state */
+  isError: boolean;
   /** Reset the hook state */
   reset: () => void;
 }
@@ -149,8 +148,8 @@ export function useSendTransaction({
     sendTransaction,
     status,
     error,
+    isError: error !== null,
     reset,
   };
 }
 
-export default useSendTransaction;

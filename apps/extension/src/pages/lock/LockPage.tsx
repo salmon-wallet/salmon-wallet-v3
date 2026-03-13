@@ -56,8 +56,8 @@ const Content = styled(Box)({
 });
 
 const LogoImage = styled('img')({
-  width: 72,
-  height: 72,
+  width: componentSizes.lockScreenLogoSizeExtension,
+  height: componentSizes.lockScreenLogoSizeExtension,
   objectFit: 'contain',
   marginBottom: spacing['3xl'],
 });
@@ -91,7 +91,7 @@ const StyledInput = styled(InputBase)<{
   $hasError: boolean;
 }>(({ $hasError }) => ({
   width: '100%',
-  padding: '14px 16px',
+  padding: `${componentSizes.inputPaddingVertical}px ${spacing.lg}px`,
   fontSize: fontSize.md,
   fontFamily: fontFamily.sans,
   backgroundColor: colors.input.background,

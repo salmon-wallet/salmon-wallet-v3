@@ -34,4 +34,3 @@ export function useSettingsPanelStack(): UseSettingsPanelStackResult {
   return { stack, push, pop, reset, current, canGoBack };
 }
 
-export default useSettingsPanelStack;

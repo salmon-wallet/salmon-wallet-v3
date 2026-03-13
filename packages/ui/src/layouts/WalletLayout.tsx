@@ -10,12 +10,7 @@ import React from 'react';
 import { styled } from '../utils/styled';
 import Box from '@mui/material/Box';
 import { colors, componentSizes } from '@salmon/shared';
-
-export interface WalletLayoutProps {
-  children: React.ReactNode;
-  /** Override the default 375 px max-width */
-  maxWidth?: number;
-}
+import type { WalletLayoutProps } from './types';
 
 const Outer = styled(Box)({
   display: 'flex',

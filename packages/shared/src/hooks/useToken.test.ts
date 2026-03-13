@@ -315,8 +315,8 @@ describe('useToken Hook', () => {
         expect(result.current.loaded).toBe(true);
       });
 
-      expect(result.current.error).toBeDefined();
-      expect(result.current.error?.message).toBe('Failed to fetch token');
+      expect(result.current.error).toBe('Failed to fetch token');
+      expect(result.current.isError).toBe(true);
       expect(result.current.token.address).toBe(MOCK_TOKEN_ADDRESS);
       expect(consoleSpy).toHaveBeenCalled();
 
@@ -350,8 +350,8 @@ describe('useToken Hook', () => {
         expect(result.current.loaded).toBe(true);
       });
 
-      expect(result.current.error).toBeDefined();
-      expect(result.current.error?.message).toBe('Failed to fetch token');
+      expect(result.current.error).toBe('Failed to fetch token');
+      expect(result.current.isError).toBe(true);
     });
   });
 

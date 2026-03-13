@@ -46,4 +46,3 @@ export function QRCode({
   );
 }
 
-export default QRCode;

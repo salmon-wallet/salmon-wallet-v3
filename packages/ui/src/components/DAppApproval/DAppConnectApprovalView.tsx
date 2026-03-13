@@ -23,16 +23,7 @@ import {
   Title,
   Value,
 } from './common';
-
-export interface DAppConnectApprovalViewProps {
-  origin: string;
-  address?: string;
-  disabled?: boolean;
-  loading?: boolean;
-  showOriginWarning?: boolean;
-  onApprove: () => void | Promise<void>;
-  onReject: () => void;
-}
+import type { DAppConnectApprovalViewProps } from './types';
 
 export function DAppConnectApprovalView({
   origin,

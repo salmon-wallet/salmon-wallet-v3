@@ -6,12 +6,8 @@ import { colors, fontFamily, spacing } from '@salmon/shared';
 import { styled } from '../../utils/styled';
 import { PrimaryButton, SecondaryButton, TextButton } from '../Button';
 import { BaseDialog } from '../BaseDialog';
-import { AuthScreenLayoutProps, getAuthContainerStyles } from './common';
-
-export interface SuccessPageProps extends AuthScreenLayoutProps {
-  onGoToWallet: () => void;
-  onCheckDerived: () => void;
-}
+import { getAuthContainerStyles } from './common';
+import type { SuccessPageProps } from './types';
 
 const Container = styled(Box)<{ $contained?: boolean }>(({ $contained = false }) => ({
   display: 'flex',

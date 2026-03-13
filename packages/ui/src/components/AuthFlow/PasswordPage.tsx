@@ -16,22 +16,15 @@ import {
   useAccountsContext,
   validatePassword,
   vs,
+  generateAccountName,
 } from '@salmon/shared';
-import { generateAccountName } from '@salmon/shared/utils/account';
 import { styled } from '../../utils/styled';
 import { PrimaryButton } from '../Button';
 import { LoadingScreen } from '../LoadingScreen';
 import { PasswordInput, PasswordStrengthBar } from '../PasswordInput';
 import { ScreenHeader } from '../ScreenHeader';
-import { AuthScreenLayoutProps, getAuthContainerStyles } from './common';
-
-export interface PasswordPageProps extends AuthScreenLayoutProps {
-  mnemonic: string;
-  flowType: 'create' | 'recover';
-  onCreating?: () => void;
-  onSuccess: () => void;
-  onBack: () => void;
-}
+import { getAuthContainerStyles } from './common';
+import type { PasswordPageProps } from './types';
 
 const Container = styled(Box)<{ $contained?: boolean }>(({ $contained = false }) => ({
   display: 'flex',

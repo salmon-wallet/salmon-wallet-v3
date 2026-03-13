@@ -1,7 +1,7 @@
 /**
  * LoadingScreen - Animated loading overlay for browser extension
  *
- * Uses CSS animations for compatibility with WXT+Vite
+ * Uses Emotion keyframes + styled() for consistency with the rest of @salmon/ui.
  *
  * Features:
  * - Pulsing logo animation (breathing effect)
@@ -9,63 +9,159 @@
  * - Cycling tips/advice at the bottom
  * - Smooth fade in/out transitions
  */
-import { memo, useState, useEffect, useMemo, CSSProperties } from 'react';
+import { memo, useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { colors, fontFamily, fontWeight, fontSize, lineHeight, DEFAULT_WALLET_TIP_KEYS, spacing, borderWidth, duration, durationMs, easing } from '@salmon/shared';
+import { keyframes } from '@emotion/react';
+import { styled } from '../../utils/styled';
+import {
+  colors,
+  fontFamily,
+  fontWeight,
+  fontSize,
+  lineHeight,
+  DEFAULT_WALLET_TIP_KEYS,
+  spacing,
+  borderWidth,
+  duration,
+  durationMs,
+  easing,
+} from '@salmon/shared';
 import type { LoadingScreenProps } from './types';
 
 // ============================================================================
-// CSS Keyframes (injected into document)
+// Keyframes
 // ============================================================================
 
-const KEYFRAMES = `
-@keyframes salmonPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-}
-
-@keyframes salmonSpin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes salmonFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes salmonFadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
+const pulseKeyframes = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 `;
 
-// Inject keyframes once
-let keyframesInjected = false;
-function injectKeyframes() {
-  if (keyframesInjected || typeof document === 'undefined') return;
+const spinKeyframes = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
 
-  const style = document.createElement('style');
-  style.textContent = KEYFRAMES;
-  document.head.appendChild(style);
-  keyframesInjected = true;
-}
+const fadeInKeyframes = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const fadeOutKeyframes = keyframes`
+  from { opacity: 1; }
+  to { opacity: 0; }
+`;
+
+// ============================================================================
+// Styled Components
+// ============================================================================
+
+const Overlay = styled('div')<{ $isFadingOut: boolean }>(({ $isFadingOut }) => ({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 9999,
+  background: `linear-gradient(180deg, ${colors.background.primary} 0%, ${colors.background.secondary} 100%)`,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  animation: `${$isFadingOut ? fadeOutKeyframes : fadeInKeyframes} 0.3s ease-out forwards`,
+}));
+
+const Content = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: spacing['2xl'],
+  textAlign: 'center',
+});
+
+const Title = styled('div')({
+  color: colors.text.primary,
+  fontFamily: fontFamily.sans,
+  fontWeight: fontWeight.bold,
+  fontSize: fontSize['2xl'],
+  lineHeight: `${fontSize['2xl'] * lineHeight.condensed}px`,
+  marginBottom: spacing.sm,
+});
+
+const Subtitle = styled('div')({
+  color: colors.text.secondary,
+  fontFamily: fontFamily.sans,
+  fontWeight: fontWeight.regular,
+  fontSize: fontSize.md,
+  lineHeight: `${fontSize.md * lineHeight.normal}px`,
+  marginBottom: spacing['3xl'],
+});
+
+const LogoSpinnerContainer = styled('div')<{ $size: number }>(({ $size }) => ({
+  position: 'relative',
+  width: $size,
+  height: $size,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: spacing['5xl'],
+}));
+
+const Spinner = styled('div')<{ $size: number }>(({ $size }) => ({
+  position: 'absolute',
+  width: $size,
+  height: $size,
+  borderRadius: '50%',
+  border: `${borderWidth.heavy}px solid transparent`,
+  borderTopColor: colors.accent.primary,
+  borderRightColor: colors.accent.primary,
+  borderBottomColor: colors.accent.primary,
+  animation: `${spinKeyframes} ${durationMs.spinSlow}ms linear infinite`,
+  boxSizing: 'border-box',
+}));
+
+const LogoContainer = styled('div')({
+  animation: `${pulseKeyframes} ${durationMs.pulse}ms ${easing.easeInOut} infinite`,
+});
+
+const Logo = styled('img')<{ $size: number }>(({ $size }) => ({
+  width: $size,
+  height: $size,
+  objectFit: 'contain',
+}));
+
+const TipsContainer = styled('div')({
+  position: 'absolute',
+  bottom: spacing['7xl'],
+  left: spacing['2xl'],
+  right: spacing['2xl'],
+  textAlign: 'center',
+});
+
+const TipLabel = styled('div')({
+  color: colors.accent.primary,
+  fontFamily: fontFamily.sans,
+  fontWeight: fontWeight.bold,
+  fontSize: fontSize.sm,
+  lineHeight: `${fontSize.sm * lineHeight.condensed}px`,
+  textTransform: 'uppercase',
+  letterSpacing: '1px',
+  textAlign: 'center',
+  marginBottom: spacing.sm,
+});
+
+const TipText = styled('div')<{ $fading: boolean }>(({ $fading }) => ({
+  color: colors.text.secondary,
+  fontFamily: fontFamily.sans,
+  fontWeight: fontWeight.regular,
+  fontSize: fontSize.base,
+  lineHeight: `${fontSize.base * lineHeight.tokenListItem}px`,
+  textAlign: 'center',
+  opacity: $fading ? 0 : 1,
+  transition: `opacity ${duration.slower} ${easing.easeInOut}`,
+  padding: `0 ${spacing.lg}px`,
+}));
 
 // ============================================================================
 // Component
@@ -108,11 +204,6 @@ export const LoadingScreen = memo(function LoadingScreen({
   const [isVisible, setIsVisible] = useState(visible);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
-  // Inject keyframes on mount
-  useEffect(() => {
-    injectKeyframes();
-  }, []);
-
   // Handle visibility changes
   useEffect(() => {
     if (visible) {
@@ -146,141 +237,26 @@ export const LoadingScreen = memo(function LoadingScreen({
   // Don't render if not visible
   if (!isVisible) return null;
 
-  // Styles
-  const overlayStyle: CSSProperties = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 9999,
-    background: `linear-gradient(180deg, ${colors.background.primary} 0%, ${colors.background.secondary} 100%)`,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    animation: isFadingOut
-      ? 'salmonFadeOut 0.3s ease-out forwards'
-      : 'salmonFadeIn 0.3s ease-out forwards',
-  };
-
-  const contentStyle: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: `${spacing['2xl']}px`,
-    textAlign: 'center',
-  };
-
-  const titleStyle: CSSProperties = {
-    color: colors.text.primary,
-    fontFamily: fontFamily.sans,
-    fontWeight: fontWeight.bold,
-    fontSize: fontSize['2xl'],
-    lineHeight: `${fontSize['2xl'] * lineHeight.condensed}px`,
-    marginBottom: `${spacing.sm}px`
-  };
-
-  const subtitleStyle: CSSProperties = {
-    color: colors.text.secondary,
-    fontFamily: fontFamily.sans,
-    fontWeight: fontWeight.regular,
-    fontSize: fontSize.md,
-    lineHeight: `${fontSize.md * lineHeight.normal}px`,
-    marginBottom: `${spacing['3xl']}px`
-  };
-
-  const logoSpinnerContainerStyle: CSSProperties = {
-    position: 'relative',
-    width: `${spinnerSize}px`,
-    height: `${spinnerSize}px`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: `${spacing['5xl']}px`
-  };
-
-  const spinnerStyle: CSSProperties = {
-    position: 'absolute',
-    width: `${spinnerSize}px`,
-    height: `${spinnerSize}px`,
-    borderRadius: '50%',
-    border: `${borderWidth.heavy}px solid transparent`,
-    borderTopColor: colors.accent.primary,
-    borderRightColor: colors.accent.primary,
-    borderBottomColor: colors.accent.primary,
-    animation: `salmonSpin ${durationMs.spinSlow}ms linear infinite`,
-    boxSizing: 'border-box',
-  };
-
-  const logoContainerStyle: CSSProperties = {
-    animation: `salmonPulse ${durationMs.pulse}ms ${easing.easeInOut} infinite`,
-  };
-
-  const logoStyle: CSSProperties = {
-    width: `${logoSize}px`,
-    height: `${logoSize}px`,
-    objectFit: 'contain',
-  };
-
-  const tipsContainerStyle: CSSProperties = {
-    position: 'absolute',
-    bottom: `${spacing['7xl']}px`,
-    left: `${spacing['2xl']}px`,
-    right: `${spacing['2xl']}px`,
-    textAlign: 'center',
-  };
-
-  const tipLabelStyle: CSSProperties = {
-    color: colors.accent.primary,
-    fontFamily: fontFamily.sans,
-    fontWeight: fontWeight.bold,
-    fontSize: fontSize.sm,
-    lineHeight: `${fontSize.sm * lineHeight.condensed}px`,
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-    textAlign: 'center',
-    marginBottom: `${spacing.sm}px`
-  };
-
-  const tipTextStyle: CSSProperties = {
-    color: colors.text.secondary,
-    fontFamily: fontFamily.sans,
-    fontWeight: fontWeight.regular,
-    fontSize: fontSize.base,
-    lineHeight: `${fontSize.base * lineHeight.tokenListItem}px`,
-    textAlign: 'center',
-    opacity: tipFading ? 0 : 1,
-    transition: `opacity ${duration.slower} ${easing.easeInOut}`,
-    padding: `0 ${spacing.lg}px`
-  };
-
   return (
-    <div style={overlayStyle}>
-      <div style={contentStyle}>
-        {title && <div style={titleStyle}>{title}</div>}
-        {subtitle && <div style={subtitleStyle}>{subtitle}</div>}
+    <Overlay $isFadingOut={isFadingOut}>
+      <Content>
+        {title && <Title>{title}</Title>}
+        {subtitle && <Subtitle>{subtitle}</Subtitle>}
 
-        <div style={logoSpinnerContainerStyle}>
-          {/* Rotating Spinner */}
-          <div style={spinnerStyle} />
-
-          {/* Pulsing Logo */}
-          <div style={logoContainerStyle}>
-            <img src="/images/Logo.png" alt="Salmon" style={logoStyle} />
-          </div>
-        </div>
-      </div>
+        <LogoSpinnerContainer $size={spinnerSize}>
+          <Spinner $size={spinnerSize} />
+          <LogoContainer>
+            <Logo src="/images/Logo.png" alt="Salmon" $size={logoSize} />
+          </LogoContainer>
+        </LogoSpinnerContainer>
+      </Content>
 
       {showTips && resolvedTips.length > 0 && (
-        <div style={tipsContainerStyle}>
-          <div style={tipLabelStyle}>{t('general.tip', 'Tip')}</div>
-          <div style={tipTextStyle}>{resolvedTips[currentTipIndex]}</div>
-        </div>
+        <TipsContainer>
+          <TipLabel>{t('general.tip', 'Tip')}</TipLabel>
+          <TipText $fading={tipFading}>{resolvedTips[currentTipIndex]}</TipText>
+        </TipsContainer>
       )}
-    </div>
+    </Overlay>
   );
 });
-
-export default LoadingScreen;

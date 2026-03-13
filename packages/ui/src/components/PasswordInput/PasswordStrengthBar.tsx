@@ -116,4 +116,3 @@ export function PasswordStrengthBar({
   );
 }
 
-export default PasswordStrengthBar;

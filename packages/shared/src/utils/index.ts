@@ -237,7 +237,7 @@ export {
 export { transformSolanaTransaction, transformMultichainTransaction, getTransactionDescription } from './transactions';
 
 // Content loader (platform-split: native uses react-content-loader/native, web uses SVG)
-export { default as ContentLoader, ContentLoader as NamedContentLoader, Rect, Circle } from './ContentLoader';
+export { ContentLoader, Rect, Circle } from './ContentLoader';
 
 // NFT utilities
 export {
@@ -262,6 +262,10 @@ export {
 
 // NFT spam filter
 export { isSpamNft, filterSpamNfts } from './nft-spam-filter';
+
+// Legacy migration (v2 -> v3)
+export { migrateLegacyWallets } from './legacy-migration';
+export type { MigrationDeps, MigrationResult } from './legacy-migration';
 
 // Price constants & helpers
 export { BLOCKCHAIN_TO_COINGECKO, PERIOD_TO_DAYS, coinInfoToMarketData } from './price-constants';

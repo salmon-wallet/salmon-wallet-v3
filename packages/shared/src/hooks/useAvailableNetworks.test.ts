@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useAvailableNetworks } from './useAvailableNetworks';
 import * as useUserConfigModule from './useUserConfig';
-import type { ActiveBlockchainAccount } from './useUserConfig';
+import type { ActiveBlockchainAccount } from '../types/account';
 
 // ============================================================================
 // Mocks

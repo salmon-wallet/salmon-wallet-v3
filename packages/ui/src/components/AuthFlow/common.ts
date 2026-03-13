@@ -1,9 +1,5 @@
 import { borderRadius, colors } from '@salmon/shared';
 
-export interface AuthScreenLayoutProps {
-  contained?: boolean;
-}
-
 export function getAuthContainerStyles(contained = false) {
   if (!contained) {
     return {

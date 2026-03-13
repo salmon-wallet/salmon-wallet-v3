@@ -41,15 +41,7 @@ import {
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { DerivedAccountCard } from '../DerivedAccountCard';
 import { LoadingScreen } from '../LoadingScreen';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface AccountAddPanelProps {
-  onComplete: () => void;
-  onBack: () => void;
-}
+import type { AccountAddPanelProps } from './types';
 
 // ============================================================================
 // Styled Components

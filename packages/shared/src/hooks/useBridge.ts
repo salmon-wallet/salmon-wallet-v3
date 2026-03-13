@@ -54,9 +54,6 @@ import type {
   BridgeEstimate,
 } from '../types/bridge';
 
-// Re-export for backwards compatibility
-export type { BridgeOperationStatus, BridgeEstimate };
-
 // ============================================================================
 // Types
 // ============================================================================
@@ -117,6 +114,8 @@ export interface UseBridgeResult {
   status: BridgeOperationStatus;
   /** Error message if failed */
   error: string | null;
+  /** Whether the hook is in an error state */
+  isError: boolean;
   /** Reset the hook state */
   reset: () => void;
 }
@@ -416,8 +415,8 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
     transaction,
     status,
     error,
+    isError: error !== null,
     reset,
   };
 }
 
-export default useBridge;
