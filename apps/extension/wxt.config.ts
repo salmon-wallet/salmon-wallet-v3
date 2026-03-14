@@ -69,7 +69,7 @@ export default defineConfig({
     description: '__MSG_extDescription__',
     // Set default locale for i18n
     default_locale: 'en',
-    version: '0.9.2',
+    version: '0.9.3',
     icons: {
       16: 'icon-16.png',
       48: 'icon-48.png',
@@ -100,7 +100,7 @@ export default defineConfig({
     ...(browser === 'firefox' && {
       browser_specific_settings: {
         gecko: {
-          id: 'firefoxextension@salmonwallet.io',
+          id: 'wallet@salmonwallet.io',
           strict_min_version: '142.0',
           data_collection_permissions: {
             required: ['none'],
