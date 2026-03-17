@@ -525,9 +525,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   const unlockAccounts = useCallback(
     async (password: string): Promise<boolean> => {
       try {
-        const t0 = Date.now();
         await runUpgrades(password);
-        console.log(`[perf] unlock: runUpgrades ${Date.now() - t0}ms`);
 
         const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
         if (!storedMnemonics) {
@@ -537,13 +535,11 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
         let mnemonics: Record<string, string>;
         if (isEncryptedMnemonics(storedMnemonics)) {
-          const t1 = Date.now();
           // Use unlockAndGetKey to cache the derived key for later reuse
           const { data, keyCache } = await unlockAndGetKey<Record<string, string>>(
             storedMnemonics,
             password
           );
-          console.log(`[perf] unlock: PBKDF2 decrypt ${Date.now() - t1}ms`);
           mnemonics = data;
           // Cache the derived key for subsequent operations
           await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
@@ -554,12 +550,9 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
             storedMnemonics.digest !== DEFAULT_DIGEST ||
             storedMnemonics.iterations !== DEFAULT_ITERATIONS
           ) {
-            console.log(`[perf] unlock: migrating vault from ${storedMnemonics.digest}/${storedMnemonics.iterations} to ${DEFAULT_DIGEST}/${DEFAULT_ITERATIONS}`);
-            const t3 = Date.now();
             const { vault: newVault, keyCache: newKeyCache } = await lockAndGetKey(mnemonics, password);
             await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...newVault, isEncrypted: true });
             await setStashItem(STASH_KEYS.DERIVED_KEY, newKeyCache);
-            console.log(`[perf] unlock: vault migration ${Date.now() - t3}ms`);
           }
         } else {
           mnemonics = storedMnemonics;
@@ -568,10 +561,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         // Always reload accounts with decrypted mnemonics on unlock.
         // Even if loadMetadata() was called (setting loaded=true), we need to
         // populate the actual blockchain account instances in networksAccounts.
-        const t2 = Date.now();
         await load(mnemonics);
-        console.log(`[perf] unlock: load (restore accounts) ${Date.now() - t2}ms`);
-        console.log(`[perf] unlock: TOTAL ${Date.now() - t0}ms`);
         setLocked(false);
         await updateLastActivity();
 

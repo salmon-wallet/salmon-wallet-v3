@@ -17,13 +17,20 @@ const URL_PATTERN = /https?:\/\/|\.com\b|\.io\b|\.pro\b|\.lol\b|\.xyz\b|\.net\b|
  * Examples: "JUP.PRO Drop Pass", "MAGICEDEN.LOL REWARD", "MFI.EXPERT WhiteList"
  */
 const NAME_DOMAIN_PATTERN =
-  /\w+\.(com|io|pro|lol|xyz|net|org|app|red|expert|site|fun|club|promo|top|gg|me|cc|pics)\b/i;
+  /\w+\.(com|io|pro|lol|xyz|net|org|app|red|expert|site|fun|club|promo|top|gg|me|cc|pics|bet)\b/i;
 
 /**
  * Phishing keywords commonly found in scam NFT descriptions or names.
  */
 const PHISHING_KEYWORDS =
   /claim your|visit the domain|check available claim|airdrop pass|free mint|eligible for|go to|claim at|lucky box|drop pass|whitelist/i;
+
+/**
+ * Keywords in NFT names that are strong spam signals on their own.
+ * Legitimate projects don't name NFTs with "AirDrop", "Free Mint", etc.
+ */
+const SPAM_NAME_KEYWORDS =
+  /airdrop|free mint|claim your|lucky box|redeem.*voucher/i;
 
 /**
  * H2 — Check if any attribute value contains a URL-like pattern.
@@ -77,6 +84,25 @@ function hasTickerName(name: string): boolean {
 }
 
 /**
+ * H7 — NFT name contains spam keywords (airdrop, free mint, etc.).
+ */
+function hasSpamNameKeyword(name: string): boolean {
+  return SPAM_NAME_KEYWORDS.test(name);
+}
+
+/**
+ * H8 — No description + no collection + no attributes.
+ * Legitimate NFTs always have at least a collection or attributes.
+ * Random airdrops without any metadata are spam.
+ */
+function isBarebonesNft(nft: NftDataBase): boolean {
+  const noDescription = !nft.description || nft.description.trim() === '';
+  const noCollection = !nft.collectionName;
+  const noAttributes = !nft.attributes || nft.attributes.length === 0;
+  return noDescription && noCollection && noAttributes;
+}
+
+/**
  * Determine whether an NFT is likely spam/scam.
  * Any single heuristic hit is enough to flag the NFT.
  *
@@ -101,6 +127,12 @@ export function isSpamNft(nft: NftDataBase): boolean {
 
   // H6 — Name mimics a token ticker ($SYMBOL)
   if (hasTickerName(nft.name)) return true;
+
+  // H7 — Name contains spam keywords (airdrop, free mint, etc.)
+  if (hasSpamNameKeyword(nft.name)) return true;
+
+  // H8 — No description, no collection, no attributes (barebones airdrop spam)
+  if (isBarebonesNft(nft)) return true;
 
   return false;
 }

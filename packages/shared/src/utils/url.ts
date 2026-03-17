@@ -20,6 +20,7 @@ export const DEAD_DOMAINS = [
   'chexbacca.com',
   'cdn.bridgesplit.com',
   'lychee.pics',
+  'img.hi-hi.vip',
 ];
 
 /**

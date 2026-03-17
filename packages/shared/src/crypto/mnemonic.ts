@@ -220,8 +220,6 @@ async function deriveSeedInternal(
     throw new Error('Invalid seed words');
   }
 
-  const t0 = Date.now();
-
   // 1. Try react-native-fast-crypto native module (mobile APK)
   if (pbkdf2?.deriveAsync) {
     try {
@@ -236,7 +234,6 @@ async function deriveSeedInternal(
         64,
         'sha512'
       );
-      console.log(`[perf] mnemonicToSeed (native PBKDF2): ${Date.now() - t0}ms`);
       return Buffer.from(derived);
     } catch {
       // Native module unavailable — fall through
@@ -257,7 +254,6 @@ async function deriveSeedInternal(
         baseKey,
         512 // 64 bytes in bits
       );
-      console.log(`[perf] mnemonicToSeed (Web Crypto API): ${Date.now() - t0}ms`);
       return Buffer.from(derived);
     } catch {
       // Web Crypto unavailable for PBKDF2 — fall through
@@ -266,7 +262,6 @@ async function deriveSeedInternal(
 
   // 3. Pure JS fallback via @scure/bip39 (@noble/hashes pbkdf2Async)
   const scureSeed = await scureMnemonicToSeed(mnemonic, passphrase);
-  console.log(`[perf] mnemonicToSeed (@scure/bip39 JS): ${Date.now() - t0}ms`);
   return Buffer.from(scureSeed);
 }
 

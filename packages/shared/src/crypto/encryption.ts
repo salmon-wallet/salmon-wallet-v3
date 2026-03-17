@@ -148,8 +148,6 @@ export async function deriveEncryptionKey(
   iterations: number,
   digest: DigestAlgorithm
 ): Promise<Uint8Array> {
-  const t0 = Date.now();
-
   try {
     // 1. Try react-native-fast-crypto native module (mobile APK)
     //    NOTE: only supports sha512 — sha256 vaults fall through to Web Crypto / noble
@@ -162,7 +160,6 @@ export async function deriveEncryptionKey(
         secretbox.keyLength,
         digest
       );
-      console.log(`[perf] deriveEncryptionKey (native ${digest}): ${Date.now() - t0}ms`);
       return new Uint8Array(key);
     }
   } catch {
@@ -171,9 +168,7 @@ export async function deriveEncryptionKey(
 
   // 2. Try Web Crypto API (browsers, extensions, some RN environments)
   try {
-    const key = await deriveWithWebCrypto(password, salt, iterations, digest);
-    console.log(`[perf] deriveEncryptionKey (Web Crypto API): ${Date.now() - t0}ms`);
-    return key;
+    return await deriveWithWebCrypto(password, salt, iterations, digest);
   } catch {
     // Web Crypto unavailable — fall through to noble
   }
@@ -226,17 +221,13 @@ async function deriveWithNoble(
   iterations: number,
   digest: DigestAlgorithm
 ): Promise<Uint8Array> {
-  const t0 = Date.now();
   const passwordBytes = new TextEncoder().encode(password);
   const hash = digest === 'sha512' ? sha512 : sha256;
 
-  const key = await pbkdf2Async(hash, passwordBytes, salt, {
+  return await pbkdf2Async(hash, passwordBytes, salt, {
     c: iterations,
     dkLen: secretbox.keyLength,
   });
-
-  console.log(`[perf] deriveEncryptionKey (@noble/hashes ${digest}, ${iterations} iter): ${Date.now() - t0}ms`);
-  return key;
 }
 
 // ============================================================================

@@ -69,7 +69,7 @@ export default defineConfig({
     description: '__MSG_extDescription__',
     // Set default locale for i18n
     default_locale: 'en',
-    version: '0.9.3',
+    version: '0.9.4',
     icons: {
       16: 'icon-16.png',
       48: 'icon-48.png',
@@ -104,14 +104,6 @@ export default defineConfig({
           strict_min_version: '142.0',
           data_collection_permissions: {
             required: ['none'],
-            personally_identifying_info: false,
-            health_info: false,
-            financial_and_payment_info: false,
-            authentication_info: false,
-            personal_communications: false,
-            location: false,
-            browsing_history: false,
-            technical_and_interaction: false,
           },
         },
       },

@@ -61,7 +61,6 @@ function getHeliusApiKey(): string | undefined {
 function getHeliusRpcUrl(networkId: string): string | null {
   const apiKey = getHeliusApiKey();
   if (!apiKey) {
-    console.warn('[NFT Service] HELIUS_API_KEY not configured - NFT fetching may fail');
     return null;
   }
 
@@ -297,8 +296,11 @@ export async function getAllFromHeliusDirect(
     return nft;
   });
 
-  const total = allNfts.length;
-  const paginatedNfts = allNfts.slice(offset, offset + limit);
+  // Filter out NFTs without usable media (dead domains, missing images)
+  const validNfts = allNfts.filter((nft) => nft.media);
+
+  const total = validNfts.length;
+  const paginatedNfts = validNfts.slice(offset, offset + limit);
   const hasMore = offset + limit < total;
 
   return {
@@ -355,20 +357,9 @@ export async function getAll(
   try {
     const result = await getAllFromHeliusDirect(network, publicKey);
     return result.data;
-  } catch (heliusError) {
-    console.warn(
-      `[NFT Service] Direct Helius API call failed (${heliusError instanceof Error ? heliusError.message : 'Unknown error'}), falling back to backend endpoint`
-    );
-
+  } catch {
     // FALLBACK: Try backend endpoint if Helius fails
-    try {
-      return await getAllFromBackend(network, publicKey, noCache, fetchNftsFromBackend);
-    } catch (backendError) {
-      console.error(
-        `[NFT Service] Both direct Helius API and backend endpoint failed: ${backendError instanceof Error ? backendError.message : 'Unknown error'}`
-      );
-      throw backendError;
-    }
+    return await getAllFromBackend(network, publicKey, noCache, fetchNftsFromBackend);
   }
 }
 
