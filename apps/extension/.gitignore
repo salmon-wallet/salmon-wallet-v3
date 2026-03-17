@@ -1,3 +1,4 @@
 .env.local
 .env.*.local
 ./apps/extension/.wxt/types/imports.d.ts
+*.zip
