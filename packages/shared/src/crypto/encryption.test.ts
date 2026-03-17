@@ -139,7 +139,7 @@ describe('Encryption Module', () => {
       expect(typeof vault.nonce).toBe('string');
       expect(typeof vault.salt).toBe('string');
       expect(vault.iterations).toBe(1000);
-      expect(vault.digest).toBe('sha256');
+      expect(vault.digest).toBe('sha512');
       expect(vault.kdf).toBe('pbkdf2');
     });
 

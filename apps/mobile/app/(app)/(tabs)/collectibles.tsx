@@ -19,14 +19,15 @@ import {
   SOLANA_NETWORKS,
   SolanaAccount,
   canonicalNftToSolanaNftData,
-    borderRadius,
-    colors,
-    componentSizes,
-    createBurnTransaction,
-    fontFamilyNative,
-    fontSize,
-    letterSpacing,
-    spacing,
+  borderRadius,
+  colors,
+  componentSizes,
+  createBurnTransaction,
+  fontFamilyNative,
+  fontSize,
+  signAndSendPreparedSolanaTransactions,
+  letterSpacing,
+  spacing,
   // getEthereumNfts,
   // getBitcoinOrdinals,
   // ethereumNftToNftData,
@@ -65,7 +66,6 @@ import {
   // NftCarouselSectionSkeleton,
   // NftSeeAllSheet,
   NftDetailSheet,
-  NftSendSheet,
   SolanaSvgIcon,
   SubAccountSelector,
   type NftBlockchain,
@@ -131,29 +131,6 @@ const GRID_GAP = s(18);
 const GRID_HORIZONTAL_PADDING = s(18);
 
 // ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Convert Solana Nft to NftDetailData for detail sheet
- */
-function solanaNftToDetailData(nft: Nft): NftDetailData {
-  return {
-    blockchain: 'solana',
-    mint: nft.mint.address,
-    name: nft.name || 'Unnamed NFT',
-    image: nft.media || undefined,
-    description: nft.description || undefined,
-    collectionName: nft.collection?.name || undefined,
-    attributes: nft.extras?.attributes?.map((attr) => ({
-      trait_type: attr.trait_type,
-      value: String(attr.value),
-    })),
-  };
-}
-
-
-// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -179,7 +156,11 @@ export default function CollectiblesScreen() {
     nft: null,
     sectionKey: null,
   });
-  const [sendSheetVisible, setSendSheetVisible] = useState(false);
+  const [burnPreview, setBurnPreview] = useState<Awaited<ReturnType<typeof createBurnTransaction>> | null>(null);
+  const [burnPreparing, setBurnPreparing] = useState(false);
+  const [burnExecuting, setBurnExecuting] = useState(false);
+  const [burnSuccessTxId, setBurnSuccessTxId] = useState<string | null>(null);
+  const [burnError, setBurnError] = useState<string | null>(null);
 
   // Per-section sub-account index (each blockchain section can pick its own derived account)
   const [sectionIndexes, setSectionIndexes] = useState<Record<NftSectionKey, number>>(INITIAL_SECTION_INDEXES);
@@ -385,7 +366,7 @@ export default function CollectiblesScreen() {
           (n) => n.mint.address === nftData.mint
         );
         if (rawNft) {
-          detailData = solanaNftToDetailData(rawNft);
+          detailData = canonicalNftToSolanaNftData(rawNft);
         }
       }
       // } else if (section.blockchain === 'ethereum') {
@@ -425,11 +406,12 @@ export default function CollectiblesScreen() {
 
   // Handle detail sheet close
   const handleDetailSheetClose = useCallback(() => {
-    setDetailSheet((prev) => ({ ...prev, visible: false }));
-    // Clear NFT data after animation
-    setTimeout(() => {
-      setDetailSheet({ visible: false, nft: null, sectionKey: null });
-    }, 300);
+    setBurnPreview(null);
+    setBurnPreparing(false);
+    setBurnExecuting(false);
+    setBurnSuccessTxId(null);
+    setBurnError(null);
+    setDetailSheet({ visible: false, nft: null, sectionKey: null });
   }, []);
 
   // // Handle see all sheet close
@@ -437,23 +419,21 @@ export default function CollectiblesScreen() {
   //   setSeeAllSheet({ visible: false, sectionKey: null });
   // }, []);
 
-  // Handle Send button — close detail sheet, open send sheet
-  const handleSend = useCallback(() => {
-    if (detailSheet.nft) {
-      handleDetailSheetClose();
-      setTimeout(() => setSendSheetVisible(true), 350);
-    }
-  }, [detailSheet.nft, handleDetailSheetClose]);
-
   const handleSendSuccess = useCallback((txId: string) => {
-    setSendSheetVisible(false);
     Alert.alert('NFT Sent', `Transaction submitted successfully.\n\nTx: ${txId.slice(0, 20)}...`, [{ text: 'OK' }]);
     // Refresh NFT list
     fetchAllNfts(true);
   }, [fetchAllNfts]);
 
-  // Handle Burn button — confirm and execute burn (Solana only)
-  const handleBurn = useCallback(() => {
+  const resetBurnPreview = useCallback(() => {
+    setBurnPreview(null);
+    setBurnPreparing(false);
+    setBurnExecuting(false);
+    setBurnSuccessTxId(null);
+    setBurnError(null);
+  }, []);
+
+  const handlePrepareBurn = useCallback(async () => {
     if (!detailSheet.nft) return;
     const nft = detailSheet.nft;
     const blockchain = nft.blockchain;
@@ -463,48 +443,58 @@ export default function CollectiblesScreen() {
       return;
     }
 
-    Alert.alert(
-      'Burn NFT',
-      `Are you sure you want to burn "${nft.name}"? This action cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Burn',
-          style: 'destructive',
-          onPress: async () => {
-            if (!nftAccount) {
-              Alert.alert('Error', 'No account available for this network.');
-              return;
-            }
-            try {
-              const ownerAddress = nftAccount.getReceiveAddress();
-              const sectionKey = detailSheet.sectionKey;
-              const networkId = sectionKey ? SECTION_TO_NETWORK[sectionKey] : 'solana-mainnet';
-              const txResponse = await createBurnTransaction(
-                { mintAddress: nft.mint, ownerAddress },
-                networkId as SolanaNetworkId,
-              );
-              // Sign and send using the account's signAndSend helper
-              const solAccount = nftAccount as SolanaAccount;
-              const connection = await solAccount.getConnection();
-              // Deserialize, sign, and send the transaction
-              const { VersionedTransaction } = require('@solana/web3.js');
-              const txBuffer = Buffer.from(txResponse.transaction, 'base64');
-              const transaction = VersionedTransaction.deserialize(txBuffer);
-              transaction.sign([solAccount.keyPair]);
-              const signature = await connection.sendRawTransaction(transaction.serialize());
-              handleDetailSheetClose();
-              Alert.alert('NFT Burned', `"${nft.name}" has been burned.\n\nTx: ${String(signature).slice(0, 20)}...`);
-              fetchAllNfts(true);
-            } catch (err) {
-              const msg = err instanceof Error ? err.message : 'Burn failed';
-              Alert.alert('Burn Failed', msg);
-            }
-          },
-        },
-      ]
-    );
-  }, [detailSheet.nft, detailSheet.sectionKey, nftAccount, handleDetailSheetClose, fetchAllNfts]);
+    if (!nftAccount) {
+      setBurnError('No account available for this network.');
+      return;
+    }
+
+    setBurnPreparing(true);
+    setBurnError(null);
+    setBurnSuccessTxId(null);
+    setBurnPreview(null);
+
+    try {
+      const ownerAddress = nftAccount.getReceiveAddress();
+      const sectionKey = detailSheet.sectionKey;
+      const networkId = sectionKey ? SECTION_TO_NETWORK[sectionKey] : 'solana-mainnet';
+      const txResponse = await createBurnTransaction(
+        { mintAddress: nft.mint, ownerAddress },
+        networkId as SolanaNetworkId,
+      );
+      setBurnPreview(txResponse);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Burn failed';
+      setBurnError(msg);
+    } finally {
+      setBurnPreparing(false);
+    }
+  }, [detailSheet.nft, detailSheet.sectionKey, nftAccount]);
+
+  const handleConfirmBurn = useCallback(async () => {
+    const nft = detailSheet.nft;
+    if (!nft || !nftAccount || !burnPreview) return;
+
+    setBurnExecuting(true);
+    setBurnError(null);
+
+    try {
+      const solAccount = nftAccount as SolanaAccount;
+      const signatures = await signAndSendPreparedSolanaTransactions(solAccount, burnPreview);
+      const signature = signatures[signatures.length - 1] ?? '';
+
+      setBurnSuccessTxId(signature);
+      fetchAllNfts(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Burn failed';
+      setBurnError(msg);
+    } finally {
+      setBurnExecuting(false);
+    }
+  }, [burnPreview, detailSheet.nft, nftAccount, fetchAllNfts]);
+
+  const handleBurnSuccess = useCallback((_txId: string) => {
+    handleDetailSheetClose();
+  }, [handleDetailSheetClose]);
 
   // Get ordered section keys to display (Solana only)
   const visibleSectionKeys = useMemo<NftSectionKey[]>(() => {
@@ -700,8 +690,16 @@ export default function CollectiblesScreen() {
         visible={detailSheet.visible}
         onClose={handleDetailSheetClose}
         nft={detailSheet.nft}
-        onSendPress={handleSend}
-        onBurnPress={handleBurn}
+        account={nftAccount}
+        onSendSuccess={handleSendSuccess}
+        burnPreview={burnPreview}
+        burnPreparing={burnPreparing || burnExecuting}
+        burnSuccessTxId={burnSuccessTxId}
+        burnError={burnError}
+        onBurnPress={handlePrepareBurn}
+        onBurnConfirm={handleConfirmBurn}
+        onBurnSuccess={handleBurnSuccess}
+        onBurnReset={resetBurnPreview}
       />
 
       {/* See All Sheet (commented out — grid replaces it)
@@ -724,15 +722,6 @@ export default function CollectiblesScreen() {
         />
       )}
       */}
-
-      {/* NFT Send Sheet */}
-      <NftSendSheet
-        visible={sendSheetVisible}
-        onClose={() => setSendSheetVisible(false)}
-        nft={detailSheet.nft}
-        account={nftAccount}
-        onSuccess={handleSendSuccess}
-      />
     </View>
   );
 }
@@ -759,6 +748,8 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    position: 'relative',
+    zIndex: 0,
   },
   scrollContent: {
     paddingBottom: vs(componentSizes.tabBarScrollPadding),

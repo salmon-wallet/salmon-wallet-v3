@@ -18,6 +18,28 @@ export default [
     ],
   },
   {
+    files: [
+      'apps/mobile/index.js',
+      'apps/mobile/babel.config.js',
+      'apps/mobile/jest.config.js',
+      'apps/mobile/metro.config.js',
+    ],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'commonjs',
+      globals: {
+        require: 'readonly',
+        module: 'readonly',
+        __dirname: 'readonly',
+        global: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        crypto: 'readonly',
+        __DEV__: 'readonly',
+      },
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: typescriptParser,
@@ -117,6 +139,12 @@ export default [
       '**/__tests__/**/*.ts',
       '**/__tests__/**/*.tsx',
     ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: ['**/*.d.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
     },

@@ -7,14 +7,56 @@
  * @module crypto/mnemonic
  */
 
-import * as bip39 from 'bip39';
+import {
+  generateMnemonic as scureGenerateMnemonic,
+  validateMnemonic as scureValidateMnemonic,
+  mnemonicToSeed as scureMnemonicToSeed,
+} from '@scure/bip39';
+import { wordlist } from '@scure/bip39/wordlists/english.js';
 import { BIP32Factory, type BIP32Interface } from 'bip32';
 import * as ecc from '@bitcoinerlab/secp256k1';
 import { Keypair } from '@solana/web3.js';
 import HDKey from 'micro-key-producer/slip10.js';
+import { pbkdf2 } from './fastCrypto';
 
 // Initialize BIP32 with secp256k1 elliptic curve implementation
 const bip32 = BIP32Factory(ecc);
+
+// ============================================================================
+// Seed Cache
+// ============================================================================
+
+/**
+ * In-memory cache for derived seeds.
+ *
+ * `mnemonicToSeed` runs PBKDF2-HMAC-SHA512 (2048 iterations). The default
+ * `bip39` library uses a pure-JS implementation which is extremely slow on
+ * Hermes (~1-5 s per call on mid-range Android).  Because the seed is
+ * deterministic for a given (mnemonic, passphrase) pair, caching it avoids
+ * redundant derivations during unlock / restore flows where the same
+ * mnemonic is used to derive accounts on multiple networks.
+ *
+ * Call `clearSeedCache()` once the mnemonic is no longer needed in memory.
+ */
+const seedCache = new Map<string, Buffer>();
+
+/**
+ * In-flight promise deduplication.
+ *
+ * When multiple callers request the same seed concurrently (e.g. via
+ * `Promise.all` in account-factory), only the first caller runs PBKDF2;
+ * subsequent callers await the same promise instead of starting redundant
+ * derivations.
+ */
+const inflightSeeds = new Map<string, Promise<Buffer>>();
+
+/**
+ * Clears the in-memory seed cache.
+ * Call after unlock/restore completes to minimise sensitive data exposure.
+ */
+export function clearSeedCache(): void {
+  seedCache.clear();
+}
 
 /**
  * SLIP-0044 registered coin types for BIP-0044 derivation paths.
@@ -95,7 +137,7 @@ export interface SolanaDerivedKey {
  * ```
  */
 export function generateMnemonic(strength: MnemonicStrength = 128): string {
-  return bip39.generateMnemonic(strength);
+  return scureGenerateMnemonic(wordlist, strength);
 }
 
 /**
@@ -119,7 +161,7 @@ export function generateMnemonic(strength: MnemonicStrength = 128): string {
  * ```
  */
 export function validateMnemonic(mnemonic: string): boolean {
-  return bip39.validateMnemonic(mnemonic);
+  return scureValidateMnemonic(mnemonic, wordlist);
 }
 
 /**
@@ -143,10 +185,89 @@ export async function mnemonicToSeed(
   mnemonic: string,
   passphrase: string = ''
 ): Promise<Buffer> {
+  const cacheKey = `${mnemonic}\0${passphrase}`;
+
+  // 1. Return cached seed immediately
+  const cached = seedCache.get(cacheKey);
+  if (cached) return cached;
+
+  // 2. Deduplicate concurrent calls (e.g. Promise.all in account-factory)
+  const inflight = inflightSeeds.get(cacheKey);
+  if (inflight) return inflight;
+
+  // 3. Derive — only one caller reaches here per unique mnemonic
+  const promise = deriveSeedInternal(mnemonic, passphrase);
+  inflightSeeds.set(cacheKey, promise);
+
+  try {
+    const seed = await promise;
+    seedCache.set(cacheKey, seed);
+    return seed;
+  } finally {
+    inflightSeeds.delete(cacheKey);
+  }
+}
+
+/**
+ * Internal: runs the actual PBKDF2 derivation.
+ * Called only once per unique (mnemonic, passphrase) pair thanks to deduplication.
+ */
+async function deriveSeedInternal(
+  mnemonic: string,
+  passphrase: string
+): Promise<Buffer> {
   if (!validateMnemonic(mnemonic)) {
     throw new Error('Invalid seed words');
   }
-  return bip39.mnemonicToSeed(mnemonic, passphrase);
+
+  const t0 = Date.now();
+
+  // 1. Try react-native-fast-crypto native module (mobile APK)
+  if (pbkdf2?.deriveAsync) {
+    try {
+      const passwordBytes = new TextEncoder().encode(mnemonic.normalize('NFKD'));
+      const saltBytes = new TextEncoder().encode(
+        ('mnemonic' + passphrase).normalize('NFKD')
+      );
+      const derived = await pbkdf2.deriveAsync(
+        passwordBytes,
+        saltBytes,
+        2048,
+        64,
+        'sha512'
+      );
+      console.log(`[perf] mnemonicToSeed (native PBKDF2): ${Date.now() - t0}ms`);
+      return Buffer.from(derived);
+    } catch {
+      // Native module unavailable — fall through
+    }
+  }
+
+  // 2. Try Web Crypto API (browsers, extensions, some RN environments)
+  const subtle = globalThis.crypto?.subtle;
+  if (subtle) {
+    try {
+      const passwordBytes = new TextEncoder().encode(mnemonic.normalize('NFKD'));
+      const saltBytes = new TextEncoder().encode(
+        ('mnemonic' + passphrase).normalize('NFKD')
+      );
+      const baseKey = await subtle.importKey('raw', passwordBytes, 'PBKDF2', false, ['deriveBits']);
+      const derived = await subtle.deriveBits(
+        { name: 'PBKDF2', salt: saltBytes, iterations: 2048, hash: 'SHA-512' },
+        baseKey,
+        512 // 64 bytes in bits
+      );
+      console.log(`[perf] mnemonicToSeed (Web Crypto API): ${Date.now() - t0}ms`);
+      return Buffer.from(derived);
+    } catch {
+      // Web Crypto unavailable for PBKDF2 — fall through
+    }
+  }
+
+  // 3. Pure JS fallback via @scure/bip39 (@noble/hashes pbkdf2Async)
+  const scureSeed = await scureMnemonicToSeed(mnemonic, passphrase);
+  console.log(`[perf] mnemonicToSeed (@scure/bip39 JS): ${Date.now() - t0}ms`);
+  return Buffer.from(scureSeed);
 }
 
 /**

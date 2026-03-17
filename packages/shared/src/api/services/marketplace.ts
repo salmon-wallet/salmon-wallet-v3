@@ -198,13 +198,17 @@ export async function createBurnTransaction(
 
   const { data } = await apiClient.post<TransactionResponse>(
     `/v1/${networkId}/nft/${mintAddress}`,
-    null,
+    {},
     {
       params: {
         owner: ownerAddress,
       },
     }
   );
+
+  if (!data?.transaction && !data?.transactions?.length) {
+    throw new Error('Burn transaction was not returned by the API');
+  }
 
   return data;
 }

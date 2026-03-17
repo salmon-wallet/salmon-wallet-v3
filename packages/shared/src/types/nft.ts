@@ -275,9 +275,39 @@ export interface BurnNftParams {
 /**
  * Response containing a serialized transaction
  */
-export interface MarketplaceTransactionResponse {
+export interface MarketplacePreparedTransaction {
   /** Base64 encoded serialized transaction */
   transaction: string;
+  /** Optional flow step identifier */
+  step?: string;
+  /** Optional lookup table address when the step provisions one */
+  lookupTableAddress?: string;
+  /** Optional expected address count after the step lands on-chain */
+  expectedLookupTableAddressCount?: number;
+  /** Optional message or instruction */
+  message?: string;
+}
+
+export interface MarketplaceLookupTableInfo {
+  /** Whether this burn requires a lookup table flow */
+  required: boolean;
+  /** Rent-exempt amount locked in the LUT account */
+  estimatedRentLamports: number;
+  /** Human-readable SOL estimate for the LUT rent */
+  estimatedRentSol: number;
+  /** Number of addresses stored in the LUT */
+  addressCount: number;
+  /** Number of extend transactions required before burn */
+  extendTransactionCount: number;
+}
+
+export interface MarketplaceTransactionResponse {
+  /** Base64 encoded serialized transaction */
+  transaction?: string;
+  /** Optional multi-step transaction flow */
+  transactions?: MarketplacePreparedTransaction[];
+  /** Optional lookup table metadata for multi-step flows */
+  lookupTable?: MarketplaceLookupTableInfo;
   /** Optional message or instruction */
   message?: string;
 }

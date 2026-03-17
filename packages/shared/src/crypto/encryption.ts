@@ -1,9 +1,9 @@
 import bs58 from 'bs58';
 import { randomBytes, secretbox } from 'tweetnacl';
 import { pbkdf2 } from './fastCrypto';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - crypto-js types are declared in types/crypto-modules.d.ts
-import CryptoJS from 'crypto-js';
+import { pbkdf2Async } from '@noble/hashes/pbkdf2';
+import { sha256 } from '@noble/hashes/sha2';
+import { sha512 } from '@noble/hashes/sha2';
 
 // ============================================================================
 // Types & Interfaces
@@ -44,7 +44,7 @@ export interface LockedVault {
  * Configuration options for the lock function.
  */
 export interface LockOptions {
-  /** Number of PBKDF2 iterations (600000, OWASP 2024 minimum but using 100000) */
+  /** Number of PBKDF2 iterations (default: 210000, OWASP 2024 recommendation for SHA-512) */
   iterations?: number;
   /** Digest algorithm for PBKDF2 (default: 'sha256') */
   digest?: DigestAlgorithm;
@@ -111,10 +111,10 @@ export class KeyDerivationError extends Error {
  * Default number of PBKDF2 iterations.
  * Balances security with UX responsiveness for a mobile wallet.
  */
-const DEFAULT_ITERATIONS = 100000;
+export const DEFAULT_ITERATIONS = 210000;
 
-/** Default digest algorithm */
-const DEFAULT_DIGEST: DigestAlgorithm = 'sha256';
+/** Default digest algorithm — sha512 enables native PBKDF2 on mobile (react-native-fast-crypto) */
+export const DEFAULT_DIGEST: DigestAlgorithm = 'sha512';
 
 /** Salt length in bytes */
 const SALT_LENGTH = 16;
@@ -148,8 +148,11 @@ export async function deriveEncryptionKey(
   iterations: number,
   digest: DigestAlgorithm
 ): Promise<Uint8Array> {
+  const t0 = Date.now();
+
   try {
-    // Try native implementation first (React Native)
+    // 1. Try react-native-fast-crypto native module (mobile APK)
+    //    NOTE: only supports sha512 — sha256 vaults fall through to Web Crypto / noble
     if (pbkdf2?.deriveAsync) {
       const passwordBytes = new TextEncoder().encode(password);
       const key = await pbkdf2.deriveAsync(
@@ -159,51 +162,81 @@ export async function deriveEncryptionKey(
         secretbox.keyLength,
         digest
       );
+      console.log(`[perf] deriveEncryptionKey (native ${digest}): ${Date.now() - t0}ms`);
       return new Uint8Array(key);
     }
-
-    // Fallback to crypto-js for web environments
-    return deriveFallback(password, salt, iterations, digest);
-  } catch (error) {
-    // If native fails, try fallback
-    try {
-      return deriveFallback(password, salt, iterations, digest);
-    } catch {
-      throw new KeyDerivationError(
-        `Key derivation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
+  } catch {
+    // Native module unavailable or unsupported digest — fall through
   }
+
+  // 2. Try Web Crypto API (browsers, extensions, some RN environments)
+  try {
+    const key = await deriveWithWebCrypto(password, salt, iterations, digest);
+    console.log(`[perf] deriveEncryptionKey (Web Crypto API): ${Date.now() - t0}ms`);
+    return key;
+  } catch {
+    // Web Crypto unavailable — fall through to noble
+  }
+
+  // 3. Pure JS fallback via @noble/hashes (slowest, but always works)
+  return deriveWithNoble(password, salt, iterations, digest);
 }
 
 /**
- * Fallback key derivation using crypto-js for web environments.
+ * Key derivation using Web Crypto API (crypto.subtle.deriveBits).
+ * Hardware-accelerated in all modern browsers and many JS runtimes.
+ * Typically 50-200ms for 100k iterations vs 10-14s in pure JS.
  */
-function deriveFallback(
+async function deriveWithWebCrypto(
   password: string,
   salt: Uint8Array,
   iterations: number,
   digest: DigestAlgorithm
-): Uint8Array {
-  const saltWordArray = CryptoJS.lib.WordArray.create(salt as unknown as number[]);
-  const hasher = digest === 'sha512' ? CryptoJS.algo.SHA512 : CryptoJS.algo.SHA256;
+): Promise<Uint8Array> {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) throw new Error('Web Crypto API not available');
 
-  const key = CryptoJS.PBKDF2(password, saltWordArray, {
-    keySize: secretbox.keyLength / 4, // CryptoJS uses 32-bit words
-    iterations,
-    hasher,
+  const algo = digest === 'sha512' ? 'SHA-512' : 'SHA-256';
+  const passwordBytes = new TextEncoder().encode(password);
+
+  const baseKey = await subtle.importKey(
+    'raw',
+    passwordBytes,
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+
+  const derived = await subtle.deriveBits(
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations, hash: algo },
+    baseKey,
+    secretbox.keyLength * 8 // bits
+  );
+
+  return new Uint8Array(derived);
+}
+
+/**
+ * Fallback key derivation using @noble/hashes.
+ * Uses pbkdf2Async which yields to the event loop, keeping the UI responsive.
+ */
+async function deriveWithNoble(
+  password: string,
+  salt: Uint8Array,
+  iterations: number,
+  digest: DigestAlgorithm
+): Promise<Uint8Array> {
+  const t0 = Date.now();
+  const passwordBytes = new TextEncoder().encode(password);
+  const hash = digest === 'sha512' ? sha512 : sha256;
+
+  const key = await pbkdf2Async(hash, passwordBytes, salt, {
+    c: iterations,
+    dkLen: secretbox.keyLength,
   });
 
-  // Convert WordArray to Uint8Array
-  const words = key.words;
-  const sigBytes = key.sigBytes;
-  const bytes = new Uint8Array(sigBytes);
-
-  for (let i = 0; i < sigBytes; i++) {
-    bytes[i] = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-  }
-
-  return bytes;
+  console.log(`[perf] deriveEncryptionKey (@noble/hashes ${digest}, ${iterations} iter): ${Date.now() - t0}ms`);
+  return key;
 }
 
 // ============================================================================

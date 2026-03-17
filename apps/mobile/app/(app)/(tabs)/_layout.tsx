@@ -554,6 +554,11 @@ export default function TabLayout() {
       </Tabs>
       </BlurTargetProvider>
 
+      <View
+        pointerEvents="none"
+        style={[styles.topSafeAreaOverlay, { height: insets.top }]}
+      />
+
       {/* Header - Absolutely positioned above content */}
       <WalletHeader
         accountName={accountName}
@@ -608,5 +613,13 @@ const styles = StyleSheet.create({
     right: 0,
     height: 180,
     bottom: 0,
+  },
+  topSafeAreaOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.background.primary,
+    zIndex: 5,
   },
 });

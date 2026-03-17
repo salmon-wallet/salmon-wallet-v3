@@ -5,6 +5,7 @@ import type { EthereumNetwork } from '../../types/blockchain';
 // Re-export for backward compatibility — canonical definition is in ./networks
 export { ETHEREUM_NETWORKS } from './networks';
 import type { EthereumAccountApiFunctions } from '../../types/transfer';
+import { mnemonicToSeed } from '../../crypto/mnemonic';
 
 /**
  * SLIP-0044 coin type for Ethereum
@@ -85,8 +86,11 @@ export async function createEthereumAccount(
 
   const path = getEthereumDerivationPath(index);
 
-  // HDNodeWallet.fromPhrase derives from mnemonic with the given path
-  const hdWallet = HDNodeWallet.fromPhrase(mnemonic, undefined, path);
+  // Use pre-computed seed from mnemonicToSeed (cached + native PBKDF2 on mobile).
+  // HDNodeWallet.fromPhrase would run its own synchronous JS PBKDF2 internally,
+  // duplicating the expensive derivation we already did.
+  const seed = await mnemonicToSeed(mnemonic);
+  const hdWallet = HDNodeWallet.fromSeed(seed).derivePath(path);
 
   // Convert to regular Wallet for consistency
   const wallet = new Wallet(hdWallet.privateKey);

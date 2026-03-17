@@ -38,6 +38,7 @@ import {
   type BlockchainType,
   isSolanaNft,
   createBurnTransaction,
+  signAndSendPreparedSolanaTransactions,
   useCurrencyContext,
   LANGUAGE_NAMES,
   type LanguageCode,
@@ -410,8 +411,10 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
 
   // NFT action dialog state
   const [nftSendDialogVisible, setNftSendDialogVisible] = useState(false);
-  const [burnConfirmVisible, setBurnConfirmVisible] = useState(false);
-  const [_burnLoading, setBurnLoading] = useState(false);
+  const [burnStep, setBurnStep] = useState<'idle' | 'review' | 'success'>('idle');
+  const [burnPreview, setBurnPreview] = useState<Awaited<ReturnType<typeof createBurnTransaction>> | null>(null);
+  const [burnLoading, setBurnLoading] = useState(false);
+  const [burnError, setBurnError] = useState<string | null>(null);
 
   // Token detail page state
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
@@ -423,6 +426,28 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
 
   // NFT detail page state
   const [selectedNft, setSelectedNft] = useState<NftData | null>(null);
+  const collectibleSolanaAccount = useMemo(() => {
+    const networksAccounts = activeAccount?.networksAccounts;
+    if (!networksAccounts) return undefined;
+
+    const preferredNetworkIds = ['solana-mainnet', 'solana-devnet'] as const;
+    for (const preferredNetworkId of preferredNetworkIds) {
+      const account = networksAccounts[preferredNetworkId]?.[0];
+      if (account && isSolanaAccount(account)) {
+        return account;
+      }
+    }
+
+    for (const accounts of Object.values(networksAccounts)) {
+      for (const account of accounts ?? []) {
+        if (account && isSolanaAccount(account)) {
+          return account;
+        }
+      }
+    }
+
+    return undefined;
+  }, [activeAccount]);
 
   // NFT see-all page state
   const [seeAllData, setSeeAllData] = useState<{ title: string; blockchain: NftBlockchain; nfts: NftData[] } | null>(null);
@@ -658,6 +683,10 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
   }, []);
 
   const handleNftDetailBack = useCallback(() => {
+    setBurnStep('idle');
+    setBurnPreview(null);
+    setBurnError(null);
+    setBurnLoading(false);
     setCurrentPage('home');
     setSelectedNft(null);
   }, []);
@@ -678,42 +707,60 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
   }, []);
 
   const handleNftBurnPress = useCallback(() => {
-    if (selectedNft && isSolanaNft(selectedNft)) {
-      setBurnConfirmVisible(true);
-    }
+    if (!selectedNft || !isSolanaNft(selectedNft) || !collectibleSolanaAccount) return;
+
+    setBurnStep('review');
+    setBurnLoading(true);
+    setBurnPreview(null);
+    setBurnError(null);
+
+    const ownerAddress = collectibleSolanaAccount.getReceiveAddress();
+    createBurnTransaction({
+      mintAddress: selectedNft.mint,
+      ownerAddress,
+    })
+      .then((txResponse) => {
+        setBurnPreview(txResponse);
+      })
+      .catch((error) => {
+        setBurnError(error instanceof Error ? error.message : 'Burn failed');
+      })
+      .finally(() => {
+        setBurnLoading(false);
+      });
     // Other chains: burn is not supported (button won't be wired)
-  }, [selectedNft]);
+  }, [selectedNft, collectibleSolanaAccount]);
+
+  const handleNftBurnBack = useCallback(() => {
+    setBurnStep('idle');
+    setBurnPreview(null);
+    setBurnError(null);
+    setBurnLoading(false);
+  }, []);
 
   const confirmBurnNft = useCallback(async () => {
-    if (!selectedNft || !isSolanaNft(selectedNft) || !activeBlockchainAccount || !isSolanaAccount(activeBlockchainAccount)) return;
+    if (!selectedNft || !isSolanaNft(selectedNft) || !collectibleSolanaAccount || !burnPreview) return;
 
     setBurnLoading(true);
     try {
-      const solanaAccount = activeBlockchainAccount;
-      const ownerAddress = solanaAccount.getReceiveAddress();
-      const txResponse = await createBurnTransaction({
-        mintAddress: selectedNft.mint,
-        ownerAddress,
-      });
+      const solanaAccount = collectibleSolanaAccount;
+      await signAndSendPreparedSolanaTransactions(solanaAccount, burnPreview);
 
-      // The burn API returns a serialized transaction — sign and send
-      const { VersionedTransaction } = await import('@solana/web3.js');
-      const txBytes = Buffer.from(txResponse.transaction, 'base64');
-      const tx = VersionedTransaction.deserialize(txBytes);
-      const connection = await solanaAccount.getConnection();
-      tx.sign([solanaAccount.keyPair]);
-      await connection.sendRawTransaction(tx.serialize());
-
-      // Return to home after burn
-      setBurnConfirmVisible(false);
-      setCurrentPage('home');
-      setSelectedNft(null);
+      setBurnStep('success');
     } catch (error) {
       console.error('[HomePage] NFT burn failed:', error);
+      setBurnError(error instanceof Error ? error.message : 'Burn failed');
     } finally {
       setBurnLoading(false);
     }
-  }, [selectedNft, activeBlockchainAccount]);
+  }, [selectedNft, collectibleSolanaAccount, burnPreview]);
+
+  const handleNftBurnSuccessContinue = useCallback(() => {
+    handleNftBurnBack();
+    setCurrentPage('home');
+    setSelectedNft(null);
+    refresh();
+  }, [handleNftBurnBack, refresh]);
 
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
     setSelectedTokenChartPeriod(period);
@@ -1159,6 +1206,13 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
                 onBack={handleNftDetailBack}
                 onSendPress={handleNftSendPress}
                 onBurnPress={handleNftBurnPress}
+                burnStep={burnStep}
+                burnPreview={burnPreview}
+                burnPreparing={burnLoading}
+                burnError={burnError}
+                onBurnBack={handleNftBurnBack}
+                onBurnConfirm={confirmBurnNft}
+                onBurnSuccessContinue={handleNftBurnSuccessContinue}
               />
 
               {/* NFT Send Dialog */}
@@ -1166,27 +1220,13 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
                 visible={nftSendDialogVisible}
                 onClose={() => setNftSendDialogVisible(false)}
                 nft={selectedNft}
-                account={activeBlockchainAccount}
+                account={collectibleSolanaAccount}
                 onSuccess={() => {
                   setNftSendDialogVisible(false);
                   setCurrentPage('home');
                   setSelectedNft(null);
                   refresh();
                 }}
-              />
-
-              {/* NFT Burn Confirmation (Solana only) */}
-              <ConfirmDialog
-                visible={burnConfirmVisible}
-                onClose={() => setBurnConfirmVisible(false)}
-                title={t('nft.burn_nft', 'Burn NFT')}
-                message={t(
-                  'nft.burn_nft_description',
-                  'Are you sure you want to burn this NFT? This action cannot be undone.'
-                )}
-                confirmText={t('actions.burn', 'Burn')}
-                isDanger
-                onConfirm={confirmBurnNft}
               />
             </>
           );

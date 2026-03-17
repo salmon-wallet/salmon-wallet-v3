@@ -28,13 +28,17 @@ import {
 } from '../storage';
 import {
   lock,
+  lockAndGetKey,
   unlockAndGetKey,
   unlockWithKey,
   isKeyCacheValid,
+  DEFAULT_ITERATIONS,
+  DEFAULT_DIGEST,
   type LockedVault,
   type DerivedKeyCache,
 } from '../crypto/encryption';
 import { encryptMnemonics } from '../crypto/encrypt-mnemonics';
+import { clearSeedCache } from '../crypto/mnemonic';
 import { migrateLegacyWallets } from '../utils/legacy-migration';
 import {
   getBlockchainFromNetworkId,
@@ -179,41 +183,55 @@ async function restoreAccount(options: RestoreAccountOptions): Promise<Account> 
   const { name, avatar, mnemonic, pathIndexes = {} } = options;
 
   const id = generateAccountId();
-  const networksAccounts: NetworksAccounts = {};
-
   // Default to Solana mainnet if no path indexes provided
   const defaultPathIndexes = Object.keys(pathIndexes).length > 0
     ? pathIndexes
     : { 'solana-mainnet': [0] };
 
-  // Create blockchain accounts for each network and path index
-  for (const [networkId, indexes] of Object.entries(defaultPathIndexes)) {
-    networksAccounts[networkId] = [];
+  const networksEntries = await Promise.all(
+    Object.entries(defaultPathIndexes).map(async ([networkId, indexes]) => {
+      const resolvedAccounts = await Promise.all(
+        indexes.map(async (index) => {
+          if (index === null) {
+            return { index: null as null, account: null };
+          }
 
-    for (const index of indexes) {
-      if (index === null) {
-        networksAccounts[networkId].push(null);
-        continue;
-      }
+          const account = await createBlockchainAccountForNetwork(
+            networkId,
+            mnemonic,
+            index
+          );
 
-      const blockchainAccount = await createBlockchainAccountForNetwork(
-        networkId,
-        mnemonic,
-        index
+          return { index, account };
+        })
       );
 
-      if (!blockchainAccount) {
-        // Skip unsupported networks
-        continue;
-      }
+      const networkAccounts: NetworksAccounts[string] = [];
 
-      // Ensure the array is large enough
-      while (networksAccounts[networkId].length <= index) {
-        networksAccounts[networkId].push(null);
-      }
-      networksAccounts[networkId][index] = blockchainAccount;
-    }
-  }
+      resolvedAccounts.forEach(({ index, account }) => {
+        if (index === null) {
+          networkAccounts.push(null);
+          return;
+        }
+
+        if (!account) {
+          while (networkAccounts.length <= index) {
+            networkAccounts.push(null);
+          }
+          return;
+        }
+
+        while (networkAccounts.length <= index) {
+          networkAccounts.push(null);
+        }
+        networkAccounts[index] = account;
+      });
+
+      return [networkId, networkAccounts] as const;
+    })
+  );
+
+  const networksAccounts = Object.fromEntries(networksEntries) as NetworksAccounts;
 
   return {
     id,
@@ -231,23 +249,21 @@ async function restoreAccount(options: RestoreAccountOptions): Promise<Account> 
 async function restoreManyAccounts(
   data: Array<StoredAccount & { mnemonic: string }>
 ): Promise<Account[]> {
-  const accounts: Account[] = [];
+  return Promise.all(
+    data.map(async (item) => {
+      const account = await restoreAccount({
+        mnemonic: item.mnemonic,
+        pathIndexes: item.pathIndexes,
+      });
 
-  for (const item of data) {
-    const account = await restoreAccount({
-      mnemonic: item.mnemonic,
-      pathIndexes: item.pathIndexes,
-    });
+      // Override with stored values
+      account.id = item.id;
+      account.name = item.name;
+      account.avatar = item.avatar;
 
-    // Override with stored values
-    account.id = item.id;
-    account.name = item.name;
-    account.avatar = item.avatar;
-
-    accounts.push(account);
-  }
-
-  return accounts;
+      return account;
+    })
+  );
 }
 
 // ============================================================================
@@ -414,6 +430,8 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     setCounter(storedCounter ?? 0);
 
     const loadedAccounts = await restoreManyAccounts(data);
+    // Seed cache served its purpose — clear to minimise sensitive data in memory
+    clearSeedCache();
     setAccounts(loadedAccounts);
 
     const storedAccountId = await getStorageItem<string>(STORAGE_KEYS.ACCOUNT_ID);
@@ -507,7 +525,9 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   const unlockAccounts = useCallback(
     async (password: string): Promise<boolean> => {
       try {
+        const t0 = Date.now();
         await runUpgrades(password);
+        console.log(`[perf] unlock: runUpgrades ${Date.now() - t0}ms`);
 
         const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
         if (!storedMnemonics) {
@@ -517,14 +537,30 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
         let mnemonics: Record<string, string>;
         if (isEncryptedMnemonics(storedMnemonics)) {
+          const t1 = Date.now();
           // Use unlockAndGetKey to cache the derived key for later reuse
           const { data, keyCache } = await unlockAndGetKey<Record<string, string>>(
             storedMnemonics,
             password
           );
+          console.log(`[perf] unlock: PBKDF2 decrypt ${Date.now() - t1}ms`);
           mnemonics = data;
           // Cache the derived key for subsequent operations
           await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
+
+          // Migrate vault to current encryption defaults if outdated
+          // (e.g. sha256 → sha512, or iterations bump). One-time cost.
+          if (
+            storedMnemonics.digest !== DEFAULT_DIGEST ||
+            storedMnemonics.iterations !== DEFAULT_ITERATIONS
+          ) {
+            console.log(`[perf] unlock: migrating vault from ${storedMnemonics.digest}/${storedMnemonics.iterations} to ${DEFAULT_DIGEST}/${DEFAULT_ITERATIONS}`);
+            const t3 = Date.now();
+            const { vault: newVault, keyCache: newKeyCache } = await lockAndGetKey(mnemonics, password);
+            await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...newVault, isEncrypted: true });
+            await setStashItem(STASH_KEYS.DERIVED_KEY, newKeyCache);
+            console.log(`[perf] unlock: vault migration ${Date.now() - t3}ms`);
+          }
         } else {
           mnemonics = storedMnemonics;
         }
@@ -532,7 +568,10 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         // Always reload accounts with decrypted mnemonics on unlock.
         // Even if loadMetadata() was called (setting loaded=true), we need to
         // populate the actual blockchain account instances in networksAccounts.
+        const t2 = Date.now();
         await load(mnemonics);
+        console.log(`[perf] unlock: load (restore accounts) ${Date.now() - t2}ms`);
+        console.log(`[perf] unlock: TOTAL ${Date.now() - t0}ms`);
         setLocked(false);
         await updateLastActivity();
 
@@ -794,7 +833,9 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       setNetworkId(newNetworkId);
       setPathIndex(getDefaultPathIndex(account, newNetworkId));
 
+      const te0 = Date.now();
       const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: !!password });
+      console.log(`[perf] addAccount: encryptMnemonics ${Date.now() - te0}ms`);
       await setStorageItem(STORAGE_KEYS.MNEMONICS, encryptResult.vault);
       if (password) {
         setRequiredLock(true);

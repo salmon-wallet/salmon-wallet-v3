@@ -632,6 +632,20 @@
       "sending": "Enviando NFT...",
       "enterRecipientAddress": "Ingresa la dirección del destinatario",
       "ordinalsNotSupported": "Las transferencias de Ordinals aún no están soportadas."
+    },
+    "burn": {
+      "reviewTitle": "Quemar NFT",
+      "reviewBody": "Esta acción es irreversible. Confirmá solo si querés quemar este NFT de forma permanente.",
+      "preparing": "Preparando quema...",
+      "submitting": "Quemando NFT...",
+      "successTitle": "NFT quemado",
+      "successSummary": "\"{{name}}\" fue quemado.",
+      "lutTitle": "Se requiere una lookup table temporal",
+      "lutBody": "Para que esta quema entre en Solana, Salmon necesita crear una address lookup table temporal antes de enviar la transacción de burn.",
+      "lutRent": "Renta aproximada bloqueada",
+      "lutAddressCount": "Direcciones almacenadas",
+      "lutSteps": "Transacciones adicionales de preparación",
+      "lutFootnote": "La renta queda bloqueada en la lookup table hasta que luego sea desactivada y cerrada."
     }
   },
   "swap": {

@@ -57,6 +57,8 @@ vi.mock('../crypto/encryption', () => ({
   lockWithKey: vi.fn(),
   lockAndGetKey: vi.fn(),
   isKeyCacheValid: vi.fn(),
+  DEFAULT_ITERATIONS: 210000,
+  DEFAULT_DIGEST: 'sha512',
 }));
 
 vi.mock('../crypto/encrypt-mnemonics', () => ({
@@ -434,6 +436,8 @@ describe('useAccounts Hook', () => {
         nonce: 'test-nonce',
         salt: 'test-salt',
         ciphertext: 'encrypted-data',
+        digest: 'sha512' as const,
+        iterations: 210000,
       };
 
       const mockKeyCache = {

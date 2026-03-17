@@ -205,15 +205,20 @@ export default function PasswordScreen() {
       // Create account using factory
       // Derives accounts for ALL networks (mainnet + devnet/testnet)
       // This ensures accounts are ready when user enables developer mode later
+      const t0 = Date.now();
       const { account } = await createAccount({
         name: accountName,
         mnemonic: params.mnemonic,
         networkIds: [...SCAN_NETWORKS, ...Object.values(MIRROR_NETWORKS)],
         startIndex: 0,
       });
+      console.log(`[perf] recovery: createAccount ${Date.now() - t0}ms`);
 
       // Add account with password encryption
+      const t1 = Date.now();
       await actions.addAccount(account, password);
+      console.log(`[perf] recovery: addAccount (encrypt + storage) ${Date.now() - t1}ms`);
+      console.log(`[perf] recovery: TOTAL ${Date.now() - t0}ms`);
 
       // Navigate to success screen
       router.replace('/(auth)/success');

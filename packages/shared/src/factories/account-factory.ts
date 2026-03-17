@@ -66,27 +66,34 @@ export async function createAccount(
   const networksAccounts: NetworksAccounts = {};
   const pathIndexes: NetworkPathIndexes = {};
 
-  // Create accounts for each requested network (supports Solana, Bitcoin, Ethereum)
-  for (const networkId of networkIds) {
-    try {
-      const blockchainAccount = await createBlockchainAccountForNetwork(
-        networkId,
-        mnemonic,
-        startIndex
-      );
+  const createdAccounts = await Promise.all(
+    networkIds.map(async (networkId) => {
+      try {
+        const blockchainAccount = await createBlockchainAccountForNetwork(
+          networkId,
+          mnemonic,
+          startIndex
+        );
 
-      if (!blockchainAccount) {
-        console.warn(`Skipping unknown network: ${networkId}`);
-        continue;
+        if (!blockchainAccount) {
+          console.warn(`Skipping unknown network: ${networkId}`);
+          return null;
+        }
+
+        return { networkId, blockchainAccount };
+      } catch (error) {
+        console.error(`Failed to create account for network ${networkId}:`, error);
+        throw error;
       }
+    })
+  );
 
-      networksAccounts[networkId] = [blockchainAccount];
-      pathIndexes[networkId] = [startIndex];
-    } catch (error) {
-      console.error(`Failed to create account for network ${networkId}:`, error);
-      throw error;
-    }
-  }
+  createdAccounts.forEach((entry) => {
+    if (!entry) return;
+
+    networksAccounts[entry.networkId] = [entry.blockchainAccount];
+    pathIndexes[entry.networkId] = [startIndex];
+  });
 
   const account: Account = {
     id,

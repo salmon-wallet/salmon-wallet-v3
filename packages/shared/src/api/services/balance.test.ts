@@ -15,7 +15,7 @@ import {
   type TokenBalance,
   type TokenBalanceWithPrice,
 } from '../../utils/balance';
-import { getWalletBalance } from './balance';
+import { getJupiterPrices, getWalletBalance } from './balance';
 import type { TokenMetadata } from '../../types/token';
 import type { TokenPrice } from '../../types/price';
 import {
@@ -267,6 +267,71 @@ describe('formatPercentChange', () => {
   it('should format large percentages', () => {
     expect(formatPercentChange(1234.56)).toBe('+1234.56%');
     expect(formatPercentChange(-999.99)).toBe('-999.99%');
+  });
+});
+
+// ============================================================================
+// getJupiterPrices Tests
+// ============================================================================
+
+describe('getJupiterPrices', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should resolve known assets from the cached platform price list before calling the per-mint endpoint', async () => {
+    vi.spyOn(priceModule, 'getPricesByPlatform').mockResolvedValue(MOCK_TOKEN_PRICES);
+    const getSolanaTokenPriceSpy = vi
+      .spyOn(priceModule, 'getSolanaTokenPrice')
+      .mockResolvedValue({
+        usdPrice: 1,
+        priceChange24h: 0,
+      });
+
+    const result = await getJupiterPrices(
+      [
+        SOL_CONSTANTS.ADDRESS,
+        MOCK_TOKEN_METADATA[0].address,
+      ],
+      'solana-mainnet',
+      new Map([
+        [SOL_CONSTANTS.ADDRESS.toLowerCase(), { coingeckoId: 'solana' }],
+        [MOCK_TOKEN_METADATA[0].address.toLowerCase(), { coingeckoId: 'usd-coin' }],
+      ])
+    );
+
+    expect(result.get(SOL_CONSTANTS.ADDRESS.toLowerCase())).toEqual({
+      usdPrice: 100.5,
+      priceChange24h: 5.2,
+    });
+    expect(result.get(MOCK_TOKEN_METADATA[0].address.toLowerCase())).toEqual({
+      usdPrice: 1,
+      priceChange24h: 0.01,
+    });
+    expect(getSolanaTokenPriceSpy).not.toHaveBeenCalled();
+  });
+
+  it('should fall back to the per-mint endpoint for assets missing from the platform price list', async () => {
+    vi.spyOn(priceModule, 'getPricesByPlatform').mockResolvedValue(MOCK_TOKEN_PRICES);
+    const getSolanaTokenPriceSpy = vi
+      .spyOn(priceModule, 'getSolanaTokenPrice')
+      .mockResolvedValue({
+        usdPrice: 42,
+        priceChange24h: 12,
+      });
+
+    const unknownMint = 'UnknownMint11111111111111111111111111111111111';
+    const result = await getJupiterPrices([unknownMint], 'solana-mainnet');
+
+    expect(result.get(unknownMint.toLowerCase())).toEqual({
+      usdPrice: 42,
+      priceChange24h: 12,
+    });
+    expect(getSolanaTokenPriceSpy).toHaveBeenCalledWith(
+      unknownMint,
+      'solana-mainnet',
+      undefined
+    );
   });
 });
 
@@ -1147,7 +1212,8 @@ describe('getWalletBalance', () => {
       const metadataSpy = vi
         .spyOn(tokensModule, 'getTokenMetadataByMints')
         .mockResolvedValue(MOCK_TOKEN_METADATA);
-      // Jupiter price service is already mocked in beforeEach
+      // No platform cache — all addresses should fall through to getSolanaTokenPrice
+      vi.spyOn(priceModule, 'getPricesByPlatform').mockResolvedValue(null as unknown as TokenPrice[]);
       const jupiterPriceSpy = vi.spyOn(priceModule, 'getSolanaTokenPrice');
 
       const solBalance = createSolBalance(1000000000, MOCK_OWNER);

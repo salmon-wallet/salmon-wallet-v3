@@ -10,6 +10,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -31,10 +32,10 @@ import {
   isSolanaNft,
   isEthereumNft,
   isBitcoinNft,
-  getNftBlockchainLabel,
   getSatRarityColor,
   getShortAddress,
   shadowsCSS,
+  formatRawAmount,
   letterSpacing,
   lineHeight,
   opacity,
@@ -48,7 +49,7 @@ import {
 
 import { BlurContainer } from '../BlurContainer';
 import { PageShell } from '../PageShell';
-import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
+import { TransactionSuccessScreen } from '../TransactionSuccessScreen';
 import type { NftDetailPageProps, NftAttribute } from './types';
 
 // ============================================================================
@@ -133,29 +134,6 @@ const AttributeValue = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.regular,
   color: colors.text.secondary,
-});
-
-const BlockchainBadgeContainer = styled(Box)({
-  display: 'flex',
-  justifyContent: 'center',
-});
-
-const BlockchainBadgeContent = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingLeft: spacing.md,
-  paddingRight: spacing.md,
-  paddingTop: spacing.sm,
-  paddingBottom: spacing.sm,
-  gap: spacing.sm,
-});
-
-const BlockchainLabel = styled(Typography)({
-  fontFamily: fontFamily.sans,
-  fontSize: fontSize.sm,
-  fontWeight: fontWeight.medium,
-  color: colors.text.primary,
 });
 
 const DetailRow = styled(Box)({
@@ -263,9 +241,18 @@ export function NftDetailPage({
   onBack,
   onSendPress,
   onBurnPress,
+  burnStep = 'idle',
+  burnPreview,
+  burnPreparing = false,
+  burnError,
+  onBurnBack,
+  onBurnConfirm,
+  burnSuccessExplorerUrl,
+  onBurnSuccessContinue,
   style,
   className,
 }: NftDetailPageProps): React.ReactElement {
+  const { t } = useTranslation();
   const handleSendPress = useCallback(() => {
     onSendPress?.();
   }, [onSendPress]);
@@ -274,15 +261,25 @@ export function NftDetailPage({
     onBurnPress?.();
   }, [onBurnPress]);
 
-  const getBlockchainIcon = useCallback(() => {
-    const iconStyle = { fontSize: fontSize.md, width: componentSizes.iconSizeXs, height: componentSizes.iconSizeXs, color: colors.text.primary };
-    if (isSolanaNft(nft)) return <SolanaSvgIcon style={iconStyle} />;
-    if (isEthereumNft(nft)) return <EthereumSvgIcon style={iconStyle} />;
-    if (isBitcoinNft(nft)) return <BitcoinSvgIcon style={iconStyle} />;
-    return null;
-  }, [nft]);
+  const handleBurnBack = useCallback(() => {
+    onBurnBack?.();
+  }, [onBurnBack]);
+
+  const handleBurnConfirm = useCallback(() => {
+    onBurnConfirm?.();
+  }, [onBurnConfirm]);
+
+  const handleBurnSuccessContinue = useCallback(() => {
+    onBurnSuccessContinue?.();
+  }, [onBurnSuccessContinue]);
 
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const lutInfo = burnPreview?.lookupTable;
+  const isBurnReviewStep = burnStep === 'review';
+  const isBurnSuccessStep = burnStep === 'success';
+  const burnBusyLabel = burnPreview
+    ? t('nft.burn.submitting', 'Burning NFT...')
+    : t('nft.burn.preparing', 'Preparing burn...');
 
   const handleCopy = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
@@ -408,112 +405,203 @@ export function NftDetailPage({
 
   return (
     <PageShell
-      title={nft.name}
-      onBack={onBack}
+      title={
+        isBurnReviewStep
+          ? t('nft.burn.reviewTitle', 'Burn NFT')
+          : isBurnSuccessStep
+            ? t('nft.burn.successTitle', 'NFT burned')
+            : nft.name
+      }
+      onBack={isBurnReviewStep ? handleBurnBack : isBurnSuccessStep ? handleBurnSuccessContinue : onBack}
       showScalesBackground
       style={style}
       className={className}
     >
       <ContentContainer>
-        {/* Blockchain Badge */}
-        <BlockchainBadgeContainer>
-          <BlurContainer
-            blurIntensity={blur.md}
-            blurTint="dark"
-            backgroundColor={colors.background.tokenItem}
-            borderColor={colors.border.default}
-            borderWidth={borderWidth.thin}
-            style={{ borderRadius: borderRadius.lg, overflow: 'hidden' }}
-          >
-            <BlockchainBadgeContent>
-              {getBlockchainIcon()}
-              <BlockchainLabel>{getNftBlockchainLabel(nft)}</BlockchainLabel>
-            </BlockchainBadgeContent>
-          </BlurContainer>
-        </BlockchainBadgeContainer>
+        {isBurnSuccessStep ? (
+          <TransactionSuccessScreen
+            title={t('nft.burn.successTitle', 'NFT burned')}
+            summary={t('nft.burn.successSummary', {
+              name: nft.name,
+              defaultValue: `"${nft.name}" has been burned.`,
+            })}
+            explorerUrl={burnSuccessExplorerUrl ?? null}
+            onContinue={handleBurnSuccessContinue}
+          />
+        ) : (
+          <>
+            {nft.image && (
+              <ImageContainer>
+                <NftImage src={nft.image} alt={`NFT image for ${nft.name}`} />
+              </ImageContainer>
+            )}
 
-        {/* NFT Image */}
-        {nft.image && (
-          <ImageContainer>
-            <NftImage src={nft.image} alt={`NFT image for ${nft.name}`} />
-          </ImageContainer>
+            {nft.description && (
+              <BlurContainer
+                blurIntensity={blur.md}
+                blurTint="dark"
+                backgroundColor={colors.background.tokenItem}
+                borderColor={colors.border.default}
+                borderWidth={borderWidth.thin}
+                style={blurStyle}
+              >
+                <SectionContent>
+                  <SectionTitle>Description</SectionTitle>
+                  <DescriptionText>{nft.description}</DescriptionText>
+                </SectionContent>
+              </BlurContainer>
+            )}
+
+            {nft.attributes && nft.attributes.length > 0 && (
+              <BlurContainer
+                blurIntensity={blur.md}
+                blurTint="dark"
+                backgroundColor={colors.background.tokenItem}
+                borderColor={colors.border.default}
+                borderWidth={borderWidth.thin}
+                style={blurStyle}
+              >
+                <SectionContent>
+                  <SectionTitle>Attributes</SectionTitle>
+                  <AttributesGrid>
+                    {nft.attributes.map(renderAttribute)}
+                  </AttributesGrid>
+                </SectionContent>
+              </BlurContainer>
+            )}
+
+            {renderBlockchainDetails() && (
+              <BlurContainer
+                blurIntensity={blur.md}
+                blurTint="dark"
+                backgroundColor={colors.background.tokenItem}
+                borderColor={colors.border.default}
+                borderWidth={borderWidth.thin}
+                style={blurStyle}
+              >
+                <SectionContent>
+                  <SectionTitle>Details</SectionTitle>
+                  {renderBlockchainDetails()}
+                </SectionContent>
+              </BlurContainer>
+            )}
+
+            {isBurnReviewStep ? (
+              <>
+                <BlurContainer
+                  blurIntensity={blur.md}
+                  blurTint="dark"
+                  backgroundColor={colors.background.tokenItem}
+                  borderColor={colors.border.default}
+                  borderWidth={borderWidth.thin}
+                  style={blurStyle}
+                >
+                  <SectionContent>
+                    <SectionTitle>{t('nft.burn.reviewTitle', 'Burn NFT')}</SectionTitle>
+                    <DescriptionText>
+                      {t(
+                        'nft.burn.reviewBody',
+                        'This action is irreversible. Confirm only if you want to permanently burn this NFT.'
+                      )}
+                    </DescriptionText>
+                  </SectionContent>
+                </BlurContainer>
+
+                {lutInfo && (
+                  <BlurContainer
+                    blurIntensity={blur.md}
+                    blurTint="dark"
+                    backgroundColor={colors.background.tokenItem}
+                    borderColor={colors.border.default}
+                    borderWidth={borderWidth.thin}
+                    style={blurStyle}
+                  >
+                    <SectionContent>
+                      <SectionTitle>{t('nft.burn.lutTitle', 'Temporary lookup table required')}</SectionTitle>
+                      <DescriptionText>
+                        {t(
+                          'nft.burn.lutBody',
+                          'To fit this burn on Solana, Salmon needs to create a temporary address lookup table before submitting the burn transaction.'
+                        )}
+                      </DescriptionText>
+                      <DetailRow>
+                        <DetailLabel>{t('nft.burn.lutRent', 'Approximate rent lock')}</DetailLabel>
+                        <DetailValue>{formatRawAmount(lutInfo.estimatedRentLamports, 9)} SOL</DetailValue>
+                      </DetailRow>
+                      <DetailRow>
+                        <DetailLabel>{t('nft.burn.lutAddressCount', 'Addresses stored')}</DetailLabel>
+                        <DetailValue>{lutInfo.addressCount}</DetailValue>
+                      </DetailRow>
+                      <DetailRow>
+                        <DetailLabel>{t('nft.burn.lutSteps', 'Additional setup transactions')}</DetailLabel>
+                        <DetailValue>{lutInfo.extendTransactionCount + 1}</DetailValue>
+                      </DetailRow>
+                      <DescriptionText sx={{ marginTop: spacing.md }}>
+                        {t(
+                          'nft.burn.lutFootnote',
+                          'The rent stays locked in the lookup table account until it is later deactivated and closed.'
+                        )}
+                      </DescriptionText>
+                    </SectionContent>
+                  </BlurContainer>
+                )}
+
+                {burnPreparing && <DescriptionText>{burnBusyLabel}</DescriptionText>}
+
+                {burnError && (
+                  <DescriptionText sx={{ color: colors.status.error }}>
+                    {burnError}
+                  </DescriptionText>
+                )}
+
+                <ActionButtonsContainer>
+                  <BlurContainer
+                    blurIntensity={blur.xs}
+                    backgroundColor={colors.interactive.surface}
+                    borderColor={colors.accent.border}
+                    borderWidth={borderWidth.actionButton}
+                    style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: componentSizes.buttonMinWidthLg }}
+                  >
+                    <SecondaryButtonInner onClick={handleBurnBack} aria-label="Back to NFT details">
+                      <ButtonText>{t('actions.back', 'Back')}</ButtonText>
+                    </SecondaryButtonInner>
+                  </BlurContainer>
+
+                  <PrimaryButtonBase
+                    onClick={handleBurnConfirm}
+                    aria-label="Confirm burn"
+                    disabled={burnPreparing || !burnPreview || !!burnError}
+                    sx={{ opacity: burnPreparing || !burnPreview || !!burnError ? opacity.medium : 1 }}
+                  >
+                    <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
+                    <ButtonText>{t('nft.burn_nft', 'Burn')}</ButtonText>
+                  </PrimaryButtonBase>
+                </ActionButtonsContainer>
+              </>
+            ) : (
+              <ActionButtonsContainer>
+                <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT">
+                  <CallMadeIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
+                  <ButtonText>{t('actions.send', 'Send')}</ButtonText>
+                </PrimaryButtonBase>
+
+                <BlurContainer
+                  blurIntensity={blur.xs}
+                  backgroundColor={colors.interactive.surface}
+                  borderColor={colors.accent.border}
+                  borderWidth={borderWidth.actionButton}
+                  style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: componentSizes.buttonMinWidthLg }}
+                >
+                  <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
+                    <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
+                    <ButtonText>{t('nft.burn_nft', 'Burn')}</ButtonText>
+                  </SecondaryButtonInner>
+                </BlurContainer>
+              </ActionButtonsContainer>
+            )}
+          </>
         )}
-
-        {/* Description Section */}
-        {nft.description && (
-          <BlurContainer
-            blurIntensity={blur.md}
-            blurTint="dark"
-            backgroundColor={colors.background.tokenItem}
-            borderColor={colors.border.default}
-            borderWidth={borderWidth.thin}
-            style={blurStyle}
-          >
-            <SectionContent>
-              <SectionTitle>Description</SectionTitle>
-              <DescriptionText>{nft.description}</DescriptionText>
-            </SectionContent>
-          </BlurContainer>
-        )}
-
-        {/* Attributes Section */}
-        {nft.attributes && nft.attributes.length > 0 && (
-          <BlurContainer
-            blurIntensity={blur.md}
-            blurTint="dark"
-            backgroundColor={colors.background.tokenItem}
-            borderColor={colors.border.default}
-            borderWidth={borderWidth.thin}
-            style={blurStyle}
-          >
-            <SectionContent>
-              <SectionTitle>Attributes</SectionTitle>
-              <AttributesGrid>
-                {nft.attributes.map(renderAttribute)}
-              </AttributesGrid>
-            </SectionContent>
-          </BlurContainer>
-        )}
-
-        {/* Blockchain Details Section */}
-        {renderBlockchainDetails() && (
-          <BlurContainer
-            blurIntensity={blur.md}
-            blurTint="dark"
-            backgroundColor={colors.background.tokenItem}
-            borderColor={colors.border.default}
-            borderWidth={borderWidth.thin}
-            style={blurStyle}
-          >
-            <SectionContent>
-              <SectionTitle>Details</SectionTitle>
-              {renderBlockchainDetails()}
-            </SectionContent>
-          </BlurContainer>
-        )}
-
-        {/* Action Buttons */}
-        <ActionButtonsContainer>
-          <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT">
-            <CallMadeIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
-            <ButtonText>Send</ButtonText>
-          </PrimaryButtonBase>
-
-          <BlurContainer
-            blurIntensity={blur.xs}
-            backgroundColor={colors.interactive.surface}
-            borderColor={colors.accent.border}
-            borderWidth={borderWidth.actionButton}
-            style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: componentSizes.buttonMinWidthLg }}
-          >
-            <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
-              <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
-              <ButtonText>Burn</ButtonText>
-            </SecondaryButtonInner>
-          </BlurContainer>
-        </ActionButtonsContainer>
       </ContentContainer>
     </PageShell>
   );
 }
-

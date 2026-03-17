@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Modal,
@@ -146,6 +146,7 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
   testID,
 }) => {
   const blurTargetRef = useRef<View>(null);
+  const [isRendered, setIsRendered] = useState(visible);
 
   // Reanimated shared values for the sheet and backdrop
   const translateY = useSharedValue(SCREEN_HEIGHT);
@@ -158,9 +159,15 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
     onClose();
   }, [onClose]);
 
+  const completeClose = useCallback(() => {
+    setIsRendered(false);
+    dragY.value = 0;
+  }, [dragY]);
+
   // Animate in / out when `visible` changes
   useEffect(() => {
     if (visible) {
+      setIsRendered(true);
       dragY.value = 0;
       translateY.value = withTiming(0, {
         duration: ANIMATION_DURATION,
@@ -170,10 +177,14 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
         duration: ANIMATION_DURATION,
         easing: Easing.out(Easing.cubic),
       });
-    } else {
+    } else if (isRendered) {
       translateY.value = withTiming(SCREEN_HEIGHT, {
         duration: ANIMATION_DURATION,
         easing: Easing.in(Easing.cubic),
+      }, (finished) => {
+        if (finished) {
+          runOnJS(completeClose)();
+        }
       });
       backdropOpacity.value = withTiming(0, {
         duration: ANIMATION_DURATION,
@@ -181,7 +192,7 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
+  }, [visible, isRendered, completeClose]);
 
   // Android hardware back button
   useEffect(() => {
@@ -239,13 +250,13 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
     opacity: backdropOpacity.value,
   }));
 
-  if (!visible) {
+  if (!isRendered) {
     return null;
   }
 
   return (
     <Modal
-      visible={visible}
+      visible={isRendered}
       transparent
       animationType="none"
       onRequestClose={onClose}

@@ -1,4 +1,8 @@
 import type { ViewStyle } from 'react-native';
+import type {
+  BlockchainAccount,
+  MarketplaceTransactionResponse,
+} from '@salmon/shared';
 import type { NftData } from '../NftCard/types';
 
 // Re-export for convenience
@@ -21,10 +25,26 @@ export interface NftDetailSheetProps {
   onClose: () => void;
   /** NFT data to display */
   nft: NftDetailData | null;
-  /** Callback when Send button is pressed */
-  onSendPress?: () => void;
+  /** Account used for NFT transfer actions */
+  account?: BlockchainAccount;
+  /** Callback fired after a successful send flow is acknowledged */
+  onSendSuccess?: (txId: string) => void;
+  /** Prepared burn transaction flow metadata */
+  burnPreview?: MarketplaceTransactionResponse | null;
+  /** Whether the burn preview is being prepared or the burn is being submitted */
+  burnPreparing?: boolean;
+  /** Successful burn transaction ID */
+  burnSuccessTxId?: string | null;
+  /** Optional burn preview error */
+  burnError?: string | null;
   /** Callback when Burn button is pressed */
   onBurnPress?: () => void;
+  /** Callback when burn is confirmed from the review step */
+  onBurnConfirm?: () => void;
+  /** Callback fired after a successful burn flow is acknowledged */
+  onBurnSuccess?: (txId: string) => void;
+  /** Callback when burn review state should be reset */
+  onBurnReset?: () => void;
   /** Optional custom styles for the container */
   style?: ViewStyle;
 }

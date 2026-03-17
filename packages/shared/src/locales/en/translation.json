@@ -632,6 +632,20 @@
       "sending": "Sending NFT...",
       "enterRecipientAddress": "Enter recipient address",
       "ordinalsNotSupported": "Ordinal transfers are not yet supported."
+    },
+    "burn": {
+      "reviewTitle": "Burn NFT",
+      "reviewBody": "This action is irreversible. Confirm only if you want to permanently burn this NFT.",
+      "preparing": "Preparing burn...",
+      "submitting": "Burning NFT...",
+      "successTitle": "NFT burned",
+      "successSummary": "\"{{name}}\" has been burned.",
+      "lutTitle": "Temporary lookup table required",
+      "lutBody": "To fit this burn on Solana, Salmon needs to create a temporary address lookup table before submitting the burn transaction.",
+      "lutRent": "Approximate rent lock",
+      "lutAddressCount": "Addresses stored",
+      "lutSteps": "Additional setup transactions",
+      "lutFootnote": "The rent stays locked in the lookup table account until it is later deactivated and closed."
     }
   },
   "swap": {

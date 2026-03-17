@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -10,10 +10,11 @@ import {
   useAccountsContext,
   isSolanaNft,
   createBurnTransaction,
+  signAndSendPreparedSolanaTransactions,
   type NftData,
   isSolanaAccount,
 } from '@salmon/shared';
-import { NftDetailPage, NftSendDialog, ConfirmDialog } from '@salmon/ui';
+import { NftDetailPage, NftSendDialog } from '@salmon/ui';
 
 export function NftDetailRoute(): React.ReactElement {
   const navigate = useNavigate();
@@ -21,10 +22,36 @@ export function NftDetailRoute(): React.ReactElement {
   const nft = location.state as NftData | null;
 
   const [state] = useAccountsContext();
-  const { activeBlockchainAccount } = state;
+  const { activeAccount } = state;
 
   const [nftSendVisible, setNftSendVisible] = useState(false);
-  const [burnConfirmVisible, setBurnConfirmVisible] = useState(false);
+  const [burnStep, setBurnStep] = useState<'idle' | 'review' | 'success'>('idle');
+  const [burnPreview, setBurnPreview] = useState<Awaited<ReturnType<typeof createBurnTransaction>> | null>(null);
+  const [burnPreparing, setBurnPreparing] = useState(false);
+  const [burnError, setBurnError] = useState<string | null>(null);
+
+  const collectibleSolanaAccount = useMemo(() => {
+    const networksAccounts = activeAccount?.networksAccounts;
+    if (!networksAccounts) return undefined;
+
+    const preferredNetworkIds = ['solana-mainnet', 'solana-devnet'] as const;
+    for (const networkId of preferredNetworkIds) {
+      const account = networksAccounts[networkId]?.[0];
+      if (account && isSolanaAccount(account)) {
+        return account;
+      }
+    }
+
+    for (const accounts of Object.values(networksAccounts)) {
+      for (const account of accounts ?? []) {
+        if (account && isSolanaAccount(account)) {
+          return account;
+        }
+      }
+    }
+
+    return undefined;
+  }, [activeAccount]);
 
   const handleBack = useCallback(() => navigate(-1), [navigate]);
 
@@ -33,38 +60,57 @@ export function NftDetailRoute(): React.ReactElement {
   }, []);
 
   const handleBurnPress = useCallback(() => {
-    if (nft && isSolanaNft(nft)) {
-      setBurnConfirmVisible(true);
-    }
-  }, [nft]);
+    if (!nft || !isSolanaNft(nft) || !collectibleSolanaAccount) return;
+
+    setBurnStep('review');
+    setBurnPreparing(true);
+    setBurnPreview(null);
+    setBurnError(null);
+
+    const ownerAddress = collectibleSolanaAccount.getReceiveAddress();
+    createBurnTransaction({
+      mintAddress: nft.mint,
+      ownerAddress,
+    })
+      .then((txResponse) => {
+        setBurnPreview(txResponse);
+      })
+      .catch((err) => {
+        const message = err instanceof Error ? err.message : 'Burn failed';
+        setBurnError(message);
+      })
+      .finally(() => {
+        setBurnPreparing(false);
+      });
+  }, [nft, collectibleSolanaAccount]);
+
+  const handleBurnBack = useCallback(() => {
+    setBurnStep('idle');
+    setBurnPreparing(false);
+    setBurnPreview(null);
+    setBurnError(null);
+  }, []);
 
   const confirmBurnNft = useCallback(async () => {
-    if (!nft || !isSolanaNft(nft) || !activeBlockchainAccount || !isSolanaAccount(activeBlockchainAccount)) return;
+    if (!nft || !isSolanaNft(nft) || !collectibleSolanaAccount || !burnPreview) return;
 
     try {
-      const ownerAddress = activeBlockchainAccount.getReceiveAddress();
-
-      const txResponse = await createBurnTransaction({
-        mintAddress: nft.mint,
-        ownerAddress,
-      });
-
-      // Dynamic import — module resolved at runtime via shared's dependency
-      // Use variable to prevent TS module resolution at compile time
-      const solanaWeb3Module = '@solana/web3.js';
-      const { VersionedTransaction } = await import(/* @vite-ignore */ solanaWeb3Module);
-      const txBytes = Buffer.from(txResponse.transaction, 'base64');
-      const tx = VersionedTransaction.deserialize(txBytes);
-      const connection = await activeBlockchainAccount.getConnection();
-      tx.sign([activeBlockchainAccount.keyPair]);
-      await connection.sendRawTransaction(tx.serialize());
-
-      setBurnConfirmVisible(false);
-      navigate('/home');
+      setBurnPreparing(true);
+      setBurnError(null);
+      await signAndSendPreparedSolanaTransactions(collectibleSolanaAccount, burnPreview);
+      setBurnStep('success');
     } catch (err) {
       console.error('Failed to burn NFT:', err);
+      setBurnError(err instanceof Error ? err.message : 'Burn failed');
+    } finally {
+      setBurnPreparing(false);
     }
-  }, [nft, activeBlockchainAccount, navigate]);
+  }, [nft, collectibleSolanaAccount, burnPreview]);
+
+  const handleBurnSuccessContinue = useCallback(() => {
+    handleBurnBack();
+    navigate('/home');
+  }, [handleBurnBack, navigate]);
 
   const handleSendSuccess = useCallback(() => {
     setNftSendVisible(false);
@@ -116,22 +162,20 @@ export function NftDetailRoute(): React.ReactElement {
         onBack={handleBack}
         onSendPress={handleSendPress}
         onBurnPress={handleBurnPress}
+        burnStep={burnStep}
+        burnPreview={burnPreview}
+        burnPreparing={burnPreparing}
+        burnError={burnError}
+        onBurnBack={handleBurnBack}
+        onBurnConfirm={confirmBurnNft}
+        onBurnSuccessContinue={handleBurnSuccessContinue}
       />
       <NftSendDialog
         visible={nftSendVisible}
         onClose={() => setNftSendVisible(false)}
         nft={nft}
-        account={activeBlockchainAccount}
+        account={collectibleSolanaAccount}
         onSuccess={handleSendSuccess}
-      />
-      <ConfirmDialog
-        visible={burnConfirmVisible}
-        onClose={() => setBurnConfirmVisible(false)}
-        title="Burn NFT"
-        message="Are you sure you want to burn this NFT? This action cannot be undone."
-        confirmText="Burn"
-        isDanger
-        onConfirm={confirmBurnNft}
       />
     </>
   );

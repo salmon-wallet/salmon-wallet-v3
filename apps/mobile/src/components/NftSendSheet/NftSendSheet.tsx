@@ -1,40 +1,24 @@
 /**
- * NftSendSheet - Bottom sheet modal for sending an NFT
+ * NftSendSheet - Full-height bottom sheet modal for sending an NFT.
  *
- * Simple modal with:
- * - NFT preview (image + name)
- * - Address input with per-chain validation
- * - Confirm/Cancel buttons
- * - Loading/success/error states
- *
- * Supports Solana (SPL), Ethereum (ERC721/ERC1155).
- * Bitcoin ordinals show "not supported" message.
+ * Reuses the shared BottomSheetContainer so send keeps the same spatial
+ * context as the NFT detail flow instead of collapsing into a short modal.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
-  Modal,
-  TouchableWithoutFeedback,
   TouchableOpacity,
   StyleSheet,
+  KeyboardAvoidingView,
   Platform,
-  BackHandler,
-  Dimensions,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import ReanimatedAnimated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  Easing,
-  runOnJS,
-} from 'react-native-reanimated';
+import { BlurView } from 'expo-blur';
 import {
   colors,
   fontSize,
@@ -52,26 +36,22 @@ import {
   type ValidationCallbackResult,
   spacing,
   fontWeight,
-  opacity,
+  getNftBlockchainLabel,
+  isSolanaNft,
+  isEthereumNft,
+  isBitcoinNft,
+  lineHeight,
+  gradients,
+  shadows,
 } from '@salmon/shared';
-import { ScalesBackground } from '../ScalesBackground';
 import { InputAddress } from '../InputAddress';
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Animation constants (matching other sheets)
-const ANIMATION_DURATION = 300;
-const BACKDROP_OPACITY = 0.8;
-const DRAG_THRESHOLD = 150;
-const SPRING_CONFIG = {
-  damping: 20,
-  stiffness: 200,
-  mass: 0.5,
-};
-
-// ============================================================================
-// Types
-// ============================================================================
+import { BottomSheetContainer } from '../BottomSheetContainer';
+import {
+  BitcoinSvgIcon,
+  CallMadeSvgIcon,
+  EthereumSvgIcon,
+  SolanaSvgIcon,
+} from '../Icon/SvgIcons';
 
 export interface NftSendSheetProps {
   visible: boolean;
@@ -80,10 +60,6 @@ export interface NftSendSheetProps {
   account: BlockchainAccount | undefined;
   onSuccess?: (txId: string) => void;
 }
-
-// ============================================================================
-// Component
-// ============================================================================
 
 export function NftSendSheet({
   visible,
@@ -103,84 +79,35 @@ export function NftSendSheet({
   const blockchain: BlockchainType = nft?.blockchain ?? 'solana';
   const isBitcoin = blockchain === 'bitcoin';
 
-  // Animation
-  const translateY = useSharedValue(SCREEN_HEIGHT);
-  const backdropOpacity = useSharedValue(0);
+  const getBlockchainIcon = useCallback(() => {
+    const size = ms(16);
+    const color = colors.text.primary;
 
-  // Reset state when sheet opens/closes
-  useEffect(() => {
-    if (visible) {
-      setAddress('');
-      setAddressValid(false);
-      setLoading(false);
-      setError(null);
-      resetTransfer();
-      translateY.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-      backdropOpacity.value = withTiming(BACKDROP_OPACITY, {
-        duration: ANIMATION_DURATION,
-      });
-    } else {
-      translateY.value = withTiming(SCREEN_HEIGHT, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-      backdropOpacity.value = withTiming(0, { duration: ANIMATION_DURATION });
+    if (nft && isSolanaNft(nft)) {
+      return <SolanaSvgIcon size={size} color={color} />;
     }
-  }, [visible, resetTransfer, translateY, backdropOpacity]);
+    if (nft && isEthereumNft(nft)) {
+      return <EthereumSvgIcon size={size} color={color} />;
+    }
+    if (nft && isBitcoinNft(nft)) {
+      return <BitcoinSvgIcon size={size} color={color} />;
+    }
 
-  // Android back button
-  useEffect(() => {
-    if (!visible || Platform.OS !== 'android') return;
-    const handler = BackHandler.addEventListener('hardwareBackPress', () => {
-      onClose();
-      return true;
-    });
-    return () => handler.remove();
-  }, [visible, onClose]);
-
-  // Dismiss animation
-  const dismiss = useCallback(() => {
-    translateY.value = withTiming(
-      SCREEN_HEIGHT,
-      { duration: ANIMATION_DURATION, easing: Easing.in(Easing.cubic) },
-      () => runOnJS(onClose)(),
-    );
-    backdropOpacity.value = withTiming(0, { duration: ANIMATION_DURATION });
-  }, [onClose, translateY, backdropOpacity]);
-
-  // Pan gesture for drag-to-dismiss
-  const panGesture = Gesture.Pan()
-    .onUpdate((e) => {
-      if (e.translationY > 0) {
-        translateY.value = e.translationY;
-      }
-    })
-    .onEnd((e) => {
-      if (e.translationY > DRAG_THRESHOLD) {
-        translateY.value = withSpring(SCREEN_HEIGHT, SPRING_CONFIG, () =>
-          runOnJS(onClose)(),
-        );
-        backdropOpacity.value = withTiming(0, { duration: ANIMATION_DURATION });
-      } else {
-        translateY.value = withSpring(0, SPRING_CONFIG);
-      }
-    });
-
-  // Animated styles
-  const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
+    return null;
+  }, [nft]);
 
   const handleValidation = useCallback((result: ValidationCallbackResult) => {
     setAddressValid(result.isValid);
   }, []);
+
+  const handleClose = useCallback(() => {
+    setAddress('');
+    setAddressValid(false);
+    setLoading(false);
+    setError(null);
+    resetTransfer();
+    onClose();
+  }, [onClose, resetTransfer]);
 
   const handleConfirm = useCallback(async () => {
     if (!nft || !addressValid || loading) return;
@@ -191,266 +118,268 @@ export function NftSendSheet({
     try {
       const result = await sendNft(nft, address);
       onSuccess?.(result.txId);
-      dismiss();
+      handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Transfer failed');
       setLoading(false);
     }
-  }, [nft, address, addressValid, loading, sendNft, onSuccess, dismiss]);
+  }, [nft, address, addressValid, loading, sendNft, onSuccess, handleClose]);
 
   const canConfirm = addressValid && !loading && !isBitcoin;
 
-  if (!nft) return null;
+  if (!visible || !nft) {
+    return null;
+  }
+
+  const headerContent = (
+    <>
+      <Text style={styles.nftName} numberOfLines={2}>
+        {nft.name}
+      </Text>
+      <View style={styles.blockchainBadgeContainer}>
+        <BlurView intensity={10} tint="dark" style={styles.blockchainBadge}>
+          <View style={styles.blockchainBadgeContent}>
+            {getBlockchainIcon()}
+            <Text style={styles.blockchainLabel}>{getNftBlockchainLabel(nft)}</Text>
+          </View>
+        </BlurView>
+      </View>
+    </>
+  );
 
   return (
-    <Modal visible={visible} transparent animationType="none" statusBarTranslucent>
-      <GestureHandlerRootView style={styles.gestureRoot}>
-        {/* Backdrop */}
-        <TouchableWithoutFeedback onPress={dismiss}>
-          <ReanimatedAnimated.View style={[styles.backdrop, backdropAnimatedStyle]} />
-        </TouchableWithoutFeedback>
+    <BottomSheetContainer
+      visible={visible}
+      onClose={handleClose}
+      headerContent={headerContent}
+      showTextureOverlay
+      style={styles.sheetContainer}
+    >
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.imageContainer}>
+            <Image
+              source={nft.image ?? undefined}
+              style={styles.nftImage}
+              contentFit="cover"
+              autoplay={true}
+              recyclingKey={nft.mint}
+            />
+          </View>
 
-        {/* Sheet */}
-        <GestureDetector gesture={panGesture}>
-          <ReanimatedAnimated.View style={[styles.sheet, sheetAnimatedStyle]}>
-            <ScalesBackground style={StyleSheet.absoluteFillObject} />
-
-            {/* Handle */}
-            <View style={styles.handleContainer}>
-              <View style={styles.handle} />
-            </View>
-
-            {/* Title */}
-            <Text style={styles.title}>{t('nft.send.title', 'Send NFT')}</Text>
-
-            {/* NFT Preview */}
-            <View style={styles.nftPreview}>
-              <Image
-                source={nft.image ?? undefined}
-                style={styles.nftImage}
-                contentFit="cover"
-                autoplay={true}
-                recyclingKey={nft.mint}
-                placeholder={undefined}
-              />
-              <View style={styles.nftInfo}>
-                <Text style={styles.nftName} numberOfLines={1}>
-                  {nft.name}
+          <BlurView intensity={10} tint="dark" style={styles.sectionContainer}>
+            <View style={styles.sectionContent}>
+              <Text style={styles.sectionTitle}>{t('nft.send.title', 'Send NFT')}</Text>
+              {nft.collectionName && (
+                <Text style={styles.collectionName} numberOfLines={1}>
+                  {nft.collectionName}
                 </Text>
-                {nft.collectionName && (
-                  <Text style={styles.nftCollection} numberOfLines={1}>
-                    {nft.collectionName}
-                  </Text>
-                )}
-              </View>
-            </View>
+              )}
 
-            {/* Content */}
-            {isBitcoin ? (
-              <View style={styles.messageContainer}>
+              {isBitcoin ? (
                 <Text style={styles.messageText}>
                   {t('nft.send.ordinalsNotSupported', 'Ordinal transfers are not yet supported.')}
                 </Text>
-              </View>
-            ) : loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={colors.accent.primary} />
-                <Text style={styles.loadingText}>{t('nft.send.sending', 'Sending NFT...')}</Text>
-              </View>
-            ) : (
-              <View style={styles.inputContainer}>
-                <InputAddress
-                  address={address}
-                  onChange={setAddress}
-                  onValidation={handleValidation}
-                  placeholder={t('nft.send.enterRecipientAddress', 'Enter recipient address')}
-                  label={t('token.send.recipient', 'Recipient')}
-                />
+              ) : (
+                <>
+                  <InputAddress
+                    address={address}
+                    onChange={setAddress}
+                    onValidation={handleValidation}
+                    placeholder={t('nft.send.enterRecipientAddress', 'Enter recipient address')}
+                    label={t('token.send.recipient', 'Recipient')}
+                  />
 
-                {error && (
-                  <Text style={styles.errorText}>{error}</Text>
-                )}
-              </View>
-            )}
-
-            {/* Actions */}
-            <View style={styles.actions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={dismiss}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.cancelButtonText}>{t('actions.cancel', 'Cancel')}</Text>
-              </TouchableOpacity>
-
-              {!isBitcoin && (
-                <TouchableOpacity
-                  style={[
-                    styles.confirmButton,
-                    !canConfirm && styles.confirmButtonDisabled,
-                  ]}
-                  onPress={handleConfirm}
-                  disabled={!canConfirm}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[
-                    styles.confirmButtonText,
-                    !canConfirm && styles.confirmButtonTextDisabled,
-                  ]}>
-                    {loading ? t('nft.send.sending', 'Sending NFT...') : t('actions.send', 'Send')}
-                  </Text>
-                </TouchableOpacity>
+                  {error && <Text style={styles.errorText}>{error}</Text>}
+                </>
               )}
             </View>
-          </ReanimatedAnimated.View>
-        </GestureDetector>
-      </GestureHandlerRootView>
-    </Modal>
+          </BlurView>
+
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.accent.primary} />
+              <Text style={styles.loadingText}>{t('nft.send.sending', 'Sending NFT...')}</Text>
+            </View>
+          )}
+        </ScrollView>
+
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={handleClose}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.cancelButtonText}>{t('actions.cancel', 'Cancel')}</Text>
+          </TouchableOpacity>
+
+          {!isBitcoin && (
+            <TouchableOpacity
+              style={[styles.primaryButton, !canConfirm && styles.primaryButtonDisabled]}
+              onPress={handleConfirm}
+              disabled={!canConfirm}
+              activeOpacity={0.8}
+            >
+              <CallMadeSvgIcon size={ms(15)} color={colors.text.balance} />
+              <Text style={styles.buttonText}>{t('actions.send', 'Send')}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </BottomSheetContainer>
   );
 }
 
-// ============================================================================
-// Styles
-// ============================================================================
-
 const styles = StyleSheet.create({
-  gestureRoot: {
-    flex: 1,
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.sheet.backdrop,
-  },
-  sheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.background.secondary,
-    borderTopLeftRadius: borderRadius.card,
-    borderTopRightRadius: borderRadius.card,
-    borderTopWidth: borderWidth.sheet,
-    borderLeftWidth: borderWidth.sheet,
-    borderRightWidth: borderWidth.sheet,
-    borderColor: colors.background.tertiary,
+  sheetContainer: {
+    minHeight: '85%',
+    maxHeight: '92%',
     overflow: 'hidden',
-    paddingBottom: vs(spacing.sheetBottomPadding),
   },
-  handleContainer: {
-    alignItems: 'center',
-    paddingVertical: vs(spacing.md),
-  },
-  handle: {
-    width: componentSizes.sheetHandleWidth,
-    height: componentSizes.sheetHandleHeight,
-    borderRadius: componentSizes.sheetHandleHeight / 2,
-    backgroundColor: `rgba(255, 255, 255, ${componentSizes.sheetHandleOpacity})`,
-  },
-  title: {
-    fontFamily: fontFamilyNative.bold,
-    fontSize: ms(fontSize.lg),
-    fontWeight: fontWeight.bold,
-    color: colors.text.primary,
-    textAlign: 'center',
-    marginBottom: vs(spacing.lg),
-  },
-  nftPreview: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: s(spacing.xl),
-    marginBottom: vs(spacing.xl),
-    gap: s(spacing.md),
-  },
-  nftImage: {
-    width: ms(componentSizes.buttonHeight),
-    height: ms(componentSizes.buttonHeight),
-    borderRadius: ms(borderRadius.md),
-    backgroundColor: colors.background.card,
-  },
-  nftInfo: {
+  keyboardView: {
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing.xl),
+    gap: vs(spacing.lg),
   },
   nftName: {
+    fontSize: ms(fontSize['2xl']),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.primary,
+    textAlign: 'center',
+    marginBottom: vs(spacing.sm),
+    paddingHorizontal: s(spacing.headerPadding),
+  },
+  blockchainBadgeContainer: {
+    alignItems: 'center',
+    marginBottom: vs(spacing.lg),
+  },
+  blockchainBadge: {
+    borderRadius: ms(borderRadius.lg),
+    borderWidth: borderWidth.thin,
+    borderColor: colors.border.default,
+    overflow: 'hidden',
+    backgroundColor: colors.background.tokenItem,
+  },
+  blockchainBadgeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: s(spacing.md),
+    paddingVertical: vs(spacing.xs),
+    gap: s(spacing.xs),
+  },
+  blockchainLabel: {
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.medium,
-    fontSize: ms(fontSize.md),
-    fontWeight: fontWeight.semibold,
     color: colors.text.primary,
   },
-  nftCollection: {
-    fontFamily: fontFamilyNative.regular,
-    fontSize: ms(fontSize.sm),
-    color: colors.text.secondary,
-    marginTop: vs(spacing.xxs),
-  },
-  inputContainer: {
-    paddingHorizontal: s(spacing.xl),
-    marginBottom: vs(spacing.xl),
-  },
-  messageContainer: {
-    paddingHorizontal: s(spacing.xl),
-    paddingVertical: vs(spacing['2xl']),
+  imageContainer: {
     alignItems: 'center',
   },
-  messageText: {
-    fontFamily: fontFamilyNative.regular,
-    fontSize: ms(fontSize.base),
-    color: colors.text.secondary,
-    textAlign: 'center',
+  nftImage: {
+    width: s(componentSizes.nftImageMaxWidth),
+    height: s(componentSizes.nftImageMaxWidth),
+    borderRadius: ms(borderRadius.iconContainer),
+    backgroundColor: colors.background.card,
+    ...shadows.imageHero,
   },
-  loadingContainer: {
-    paddingVertical: vs(spacing['2xl']),
-    alignItems: 'center',
+  sectionContainer: {
+    borderRadius: ms(borderRadius.badge),
+    borderWidth: borderWidth.thin,
+    borderColor: colors.border.default,
+    overflow: 'hidden',
+    backgroundColor: colors.background.tokenItem,
+  },
+  sectionContent: {
+    padding: s(spacing.sm),
     gap: vs(spacing.md),
   },
-  loadingText: {
+  sectionTitle: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.primary,
+  },
+  collectionName: {
+    fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.regular,
-    fontSize: ms(fontSize.base),
     color: colors.text.secondary,
   },
-  errorText: {
+  messageText: {
+    fontSize: ms(fontSize.base),
     fontFamily: fontFamilyNative.regular,
+    color: colors.text.secondary,
+    lineHeight: ms(fontSize.base * lineHeight.normal),
+  },
+  errorText: {
     fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.regular,
     color: colors.status.error,
-    marginTop: vs(spacing.sm),
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    gap: vs(spacing.md),
+    paddingVertical: vs(spacing['2xl']),
+  },
+  loadingText: {
+    fontSize: ms(fontSize.base),
+    fontFamily: fontFamilyNative.regular,
+    color: colors.text.secondary,
   },
   actions: {
     flexDirection: 'row',
-    paddingHorizontal: s(spacing.xl),
     gap: s(spacing.md),
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingBottom: vs(spacing.sheetBottomPadding),
+    paddingTop: vs(spacing.md),
   },
   cancelButton: {
     flex: 1,
     height: vs(componentSizes.buttonHeightMedium),
-    borderRadius: ms(borderRadius.lg),
+    borderRadius: ms(borderRadius.button),
     backgroundColor: colors.background.tertiary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cancelButtonText: {
-    fontFamily: fontFamilyNative.medium,
     fontSize: ms(fontSize.md),
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.semibold,
     color: colors.text.primary,
   },
-  confirmButton: {
+  primaryButton: {
     flex: 1,
     height: vs(componentSizes.buttonHeightMedium),
-    borderRadius: ms(borderRadius.lg),
-    backgroundColor: colors.accent.primary,
+    borderRadius: ms(borderRadius.button),
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: s(spacing.base),
+    backgroundColor: colors.accent.primary,
+    borderWidth: borderWidth.actionButton,
+    borderColor: colors.accent.border,
   },
-  confirmButtonDisabled: {
-    backgroundColor: colors.accent.tintHover,
+  primaryButtonDisabled: {
+    backgroundColor: gradients.primaryButton.colors[0],
+    opacity: 0.5,
   },
-  confirmButtonText: {
-    fontFamily: fontFamilyNative.medium,
+  buttonText: {
     fontSize: ms(fontSize.md),
-    fontWeight: fontWeight.semibold,
-    color: colors.text.primary,
-  },
-  confirmButtonTextDisabled: {
-    opacity: opacity.disabled,
+    fontWeight: fontWeight.medium,
+    color: colors.text.balance,
   },
 });
 

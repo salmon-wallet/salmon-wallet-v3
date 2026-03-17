@@ -14,7 +14,7 @@
  */
 
 import { getTokenMetadataByMints } from './tokens';
-import { getSolanaTokenPrice } from './price';
+import { getPricesByPlatform, getSolanaTokenPrice } from './price';
 import {
   decorateBalanceList,
   decorateBalancePrices,
@@ -57,6 +57,35 @@ export async function getJupiterPrices(
 
   const CHUNK_SIZE = 5; // Max 5 concurrent requests to avoid rate limiting
   const CHUNK_DELAY_MS = 100; // 100ms delay between chunks
+  const priceMap = new Map<string, JupiterApiPriceData>();
+
+  // Resolve what we can from the cached platform price list first. This avoids
+  // one backend request per token for common assets on cold wallet open.
+  const platformPrices = await getPricesByPlatform('solana');
+  const platformPriceLookup = new Map(
+    (platformPrices || []).map((price) => [price.id.toLowerCase(), price])
+  );
+
+  const unresolvedAddresses = addresses.filter((address) => {
+    const coingeckoId = hints?.get(address.toLowerCase())?.coingeckoId?.toLowerCase();
+    const lookupKey = coingeckoId || address.toLowerCase();
+    const cachedPrice = platformPriceLookup.get(lookupKey);
+
+    if (!cachedPrice) {
+      return true;
+    }
+
+    priceMap.set(address.toLowerCase(), {
+      usdPrice: cachedPrice.usdPrice,
+      priceChange24h: cachedPrice.perc24HoursChange,
+    });
+
+    return false;
+  });
+
+  if (unresolvedAddresses.length === 0) {
+    return priceMap;
+  }
 
   // Helper to process a chunk of addresses
   const processChunk = async (chunk: string[]) => {
@@ -71,8 +100,8 @@ export async function getJupiterPrices(
 
   // Split addresses into chunks
   const chunks: string[][] = [];
-  for (let i = 0; i < addresses.length; i += CHUNK_SIZE) {
-    chunks.push(addresses.slice(i, i + CHUNK_SIZE));
+  for (let i = 0; i < unresolvedAddresses.length; i += CHUNK_SIZE) {
+    chunks.push(unresolvedAddresses.slice(i, i + CHUNK_SIZE));
   }
 
   // Process chunks sequentially with delay
@@ -87,8 +116,6 @@ export async function getJupiterPrices(
     }
   }
 
-  // Create price map (store API response directly)
-  const priceMap = new Map<string, JupiterApiPriceData>();
   allResults.forEach((result) => {
     if (result.priceData !== null) {
       priceMap.set(result.address.toLowerCase(), result.priceData);

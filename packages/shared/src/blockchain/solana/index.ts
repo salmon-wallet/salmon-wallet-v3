@@ -83,6 +83,14 @@ export {
 
 // Transaction history functions
 export {
+  getPreparedSolanaTransactions,
+  signAndSendPreparedSolanaTransactions,
+} from './prepared-transactions';
+export type {
+  SignAndSendPreparedSolanaTransactionsOptions,
+} from './prepared-transactions';
+
+export {
   getRecentTransactions,
   isTransferTransaction,
   isSwapTransaction,
