@@ -151,7 +151,6 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
   hasMore = false,
   hiddenBalance = false,
   onTransactionPress,
-  onTransactionLongPress,
   error = null,
   onRetry,
   style,
@@ -165,14 +164,6 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
       onTransactionPress?.(transaction);
     },
     [onTransactionPress]
-  );
-
-  // Handle transaction long press (to open detail modal)
-  const handleTransactionLongPress = useCallback(
-    (transaction: Transaction) => {
-      onTransactionLongPress?.(transaction);
-    },
-    [onTransactionLongPress]
   );
 
   // Handle scroll to show/hide top fade gradient dynamically
@@ -195,11 +186,10 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
       <TransactionItem
         transaction={item}
         onPress={handleTransactionPress}
-        onLongPressDetail={handleTransactionLongPress}
         hiddenBalance={hiddenBalance}
       />
     ),
-    [handleTransactionPress, handleTransactionLongPress, hiddenBalance]
+    [handleTransactionPress, hiddenBalance]
   );
 
   // Render footer (loading more indicator)

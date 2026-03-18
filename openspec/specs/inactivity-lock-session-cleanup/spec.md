@@ -1,9 +1,7 @@
 ## Purpose
 
 Ensures the inactivity auto-lock path leaves the wallet in a fully locked state (session key cleared, last-activity reset) so that subsequent unlock requires explicit user action (password or biometric). Prevents the lock→unlock→lock redirect loop on web and extension.
-
 ## Requirements
-
 ### Requirement: Clear session key on inactivity lock
 The system SHALL clear the platform-specific session key cache when the inactivity timeout triggers a wallet lock. On web, this means clearing `sessionStorage`. On extension, this means clearing the key from `chrome.storage.session`. This ensures that `LockPage` cannot auto-unlock with a stale cached key after an inactivity lock.
 
@@ -58,3 +56,20 @@ The `LoadingScreen` component SHALL be wrapped in `React.memo` to prevent re-ren
 - **WHEN** `load()` triggers intermediate `setState` calls in the accounts context
 - **THEN** the `LoadingScreen` component SHALL NOT re-render if its props (`visible`, `title`, `subtitle`, `showTips`, `tipInterval`, `logoSize`, `spinnerSize`) have not changed
 - **THEN** the CSS fade-in animation SHALL NOT restart during the unlock process
+
+### Requirement: Mobile AppState lock trigger
+The AppState listener in `apps/mobile/app/_layout.tsx` SHALL only trigger `lockAccounts()` when the app transitions from `active` to `background`. Transitions to `inactive` (caused by system overlays such as Face ID prompts, Control Center, notifications) SHALL NOT trigger a lock.
+
+#### Scenario: App goes to background
+- **WHEN** AppState changes from `active` to `background`
+- **THEN** `lockAccounts()` SHALL be called
+
+#### Scenario: Face ID system overlay appears
+- **WHEN** AppState changes from `active` to `inactive` due to a Face ID prompt
+- **THEN** `lockAccounts()` SHALL NOT be called
+- **THEN** the app SHALL remain unlocked when returning to `active`
+
+#### Scenario: Control Center or notification appears
+- **WHEN** AppState changes from `active` to `inactive` due to a system overlay
+- **THEN** `lockAccounts()` SHALL NOT be called
+

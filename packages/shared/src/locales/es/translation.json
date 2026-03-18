@@ -416,7 +416,12 @@
       "recover": "Recuperar",
       "skip": "Omitir",
       "invalidSeed": "Seed phrase inválida",
-      "recovery_error": "Error al recuperar la cuenta. Por favor, verifica tu seed phrase e inténtalo de nuevo."
+      "recovery_error": "Error al recuperar la cuenta. Por favor, verifica tu seed phrase e inténtalo de nuevo.",
+      "biometric_title": "Activar {{type}}",
+      "biometric_subtitle": "Desbloqueá tu billetera de forma rápida y segura con autenticación biométrica",
+      "biometric_enable": "ACTIVAR {{type}}",
+      "biometric_skip": "Ahora no",
+      "biometric_error": "Error al activar la autenticación biométrica. Intentá de nuevo."
     },
     "recover": {
       "messageTitle": "Recuperar Cuenta existente",

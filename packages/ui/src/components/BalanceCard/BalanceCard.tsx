@@ -109,6 +109,15 @@ const Container = styled(Box)({
   gap: vs(spacing.sm),
 });
 
+const ContentGroup = styled(Box)({
+  position: 'relative' as const,
+  zIndex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: vs(spacing.xs),
+});
+
 const LogoContainer = styled(Box)({
   position: 'relative' as const,
   zIndex: 1,
@@ -119,7 +128,7 @@ const LogoContainer = styled(Box)({
   justifyContent: 'center',
 });
 
-const NetworkLabel = styled(Box)({
+const NetworkLabel = styled(Box)<{ $visible?: boolean }>(({ $visible = true }) => ({
   position: 'relative' as const,
   zIndex: 1,
   backgroundColor: 'rgba(0, 0, 0, 0.3)',
@@ -128,8 +137,8 @@ const NetworkLabel = styled(Box)({
   paddingTop: vs(spacing.xxs),
   paddingBottom: vs(spacing.xxs),
   borderRadius: ms(borderRadius.sm),
-  marginTop: vs(spacing.xs),
-});
+  opacity: $visible ? 1 : 0,
+}));
 
 const NetworkLabelText = styled(Typography)({
   fontSize: ms(fontSize.xs),
@@ -156,6 +165,7 @@ const BalanceDollars = styled(Typography)({
   fontFamily: fontFamily.sans,
   color: colors.text.balance,
   letterSpacing: letterSpacing.balance,
+  lineHeight: 1,
 });
 
 const BalanceDecimals = styled(Typography)({
@@ -165,6 +175,7 @@ const BalanceDecimals = styled(Typography)({
   color: colors.text.primary,
   letterSpacing: letterSpacing.balance,
   opacity: opacity.faint,
+  lineHeight: 1,
 });
 
 const EyeButton = styled('button')({
@@ -271,7 +282,8 @@ export function BalanceCard({
 
   const gradientCSS = getGradientCSSForBlockchain(blockchain);
   const scalesColor = getScalesColorForBlockchain(blockchain);
-  const networkLabel = showNetworkLabel ? getNetworkLabel(blockchain) : null;
+  // In developer mode, always show network label (including "Mainnet")
+  const networkLabel = showNetworkLabel ? (getNetworkLabel(blockchain) ?? 'Mainnet') : null;
 
   const renderBalance = () => {
     if (hiddenBalance) {
@@ -340,35 +352,33 @@ export function BalanceCard({
         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}
       />
 
-      {/* Blockchain logo */}
-      <LogoContainer>{renderBlockchainLogo(blockchain)}</LogoContainer>
-
-      {/* Network label for non-mainnet */}
-      {networkLabel && (
-        <NetworkLabel>
-          <NetworkLabelText>{networkLabel}</NetworkLabelText>
+      {/* Group 1: Logo + Network tag */}
+      <ContentGroup>
+        <LogoContainer>{renderBlockchainLogo(blockchain)}</LogoContainer>
+        <NetworkLabel $visible={!!networkLabel}>
+          <NetworkLabelText>{networkLabel ?? '\u00A0'}</NetworkLabelText>
         </NetworkLabel>
-      )}
+      </ContentGroup>
 
-      {/* Balance */}
-      {loading ? (
-        <BalanceRow>
-          <SkeletonRect sx={{ width: ms(componentSizes.buttonMinWidthLg), height: ms(fontSize.balance), borderRadius: `${ms(borderRadius.sm)}px` }} />
-        </BalanceRow>
-      ) : (
-        renderBalance()
-      )}
+      {/* Group 2: Balance + Change */}
+      <ContentGroup>
+        {loading ? (
+          <BalanceRow>
+            <SkeletonRect sx={{ width: ms(componentSizes.buttonMinWidthLg), height: ms(fontSize.balance), borderRadius: `${ms(borderRadius.sm)}px` }} />
+          </BalanceRow>
+        ) : (
+          renderBalance()
+        )}
+        {loading ? (
+          <ChangeRow>
+            <SkeletonRect sx={{ width: ms(componentSizes.buttonMinWidth), height: ms(fontSize.sm * 1.3), borderRadius: `${ms(borderRadius.sm)}px` }} />
+          </ChangeRow>
+        ) : (
+          renderChange()
+        )}
+      </ContentGroup>
 
-      {/* 24h change */}
-      {loading ? (
-        <ChangeRow>
-          <SkeletonRect sx={{ width: ms(componentSizes.buttonMinWidth), height: ms(fontSize.sm), borderRadius: `${ms(borderRadius.sm)}px` }} />
-        </ChangeRow>
-      ) : (
-        renderChange()
-      )}
-
-      {/* Pagination dots */}
+      {/* Group 3: Pagination dots */}
       {totalCount > 1 && (
         <Pagination>
           {Array.from({ length: totalCount }).map((_, index) => (

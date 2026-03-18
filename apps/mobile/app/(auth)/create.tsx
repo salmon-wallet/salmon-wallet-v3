@@ -21,7 +21,9 @@ import {
   fontFamilyNative,
   generateMnemonic,
   generateValidationPositions,
+  setStashItem,
   spacing,
+  STASH_KEYS,
   validateMnemonicWords,
 } from '@salmon/shared';
 import {
@@ -357,10 +359,11 @@ export default function CreateWalletScreen() {
   /**
    * Handle validation complete - navigate to password screen
    */
-  const handleValidationComplete = useCallback(() => {
+  const handleValidationComplete = useCallback(async () => {
+    await setStashItem(STASH_KEYS.PENDING_MNEMONIC, mnemonic);
     router.push({
       pathname: '/(auth)/password',
-      params: { mnemonic, isCreate: 'true' },
+      params: { type: 'create' },
     });
   }, [mnemonic]);
 

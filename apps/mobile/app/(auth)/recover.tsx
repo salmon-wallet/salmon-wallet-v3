@@ -17,7 +17,9 @@ import {
   contentPadding,
   fontFamilyNative,
   normalizeMnemonic,
+  setStashItem,
   spacing,
+  STASH_KEYS,
   validateMnemonic,
 } from '@salmon/shared';
 import {
@@ -87,15 +89,14 @@ export default function RecoverWalletScreen() {
   /**
    * Handle next button press - navigate to password screen
    */
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
     if (!isValidSeedPhrase()) return;
 
     const normalized = normalizeMnemonic(seedPhrase);
 
-    // Navigate to password setup screen with mnemonic
+    await setStashItem(STASH_KEYS.PENDING_MNEMONIC, normalized);
     router.push({
       pathname: '/(auth)/password',
-      params: { mnemonic: normalized },
     });
   }, [seedPhrase, isValidSeedPhrase]);
 

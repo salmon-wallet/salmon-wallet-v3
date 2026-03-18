@@ -32,6 +32,13 @@ const BIOMETRIC_KEY_STORAGE = 'salmon_biometric_key';
 const BIOMETRIC_ENABLED_KEY = 'salmon_biometric_enabled';
 
 /**
+ * Flag indicating a biometric key has been stored.
+ * This is a plain (non-protected) key so we can check it
+ * without triggering the biometric prompt.
+ */
+const BIOMETRIC_KEY_EXISTS_FLAG = 'salmon_biometric_key_exists';
+
+/**
  * Prompt message shown during biometric authentication.
  */
 const BIOMETRIC_PROMPT_MESSAGE = 'Authenticate to unlock your wallet';
@@ -189,13 +196,13 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
       const supportedTypes =
         await LocalAuthentication.supportedAuthenticationTypesAsync();
 
-      // Check if we have a stored key
+      // Check if we have a stored key by reading the plain flag
+      // (NOT the protected key itself, which would trigger a biometric prompt)
       let hasStoredKey = false;
       try {
-        const storedKey = await SecureStore.getItemAsync(BIOMETRIC_KEY_STORAGE);
-        hasStoredKey = storedKey !== null;
+        const flag = await SecureStore.getItemAsync(BIOMETRIC_KEY_EXISTS_FLAG);
+        hasStoredKey = flag === 'true';
       } catch {
-        // SecureStore may throw if biometric auth is required but fails
         hasStoredKey = false;
       }
 
@@ -260,12 +267,21 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
           authenticationPrompt: BIOMETRIC_PROMPT_MESSAGE,
         });
 
+        // Set plain flag so we can check existence without triggering biometric
+        await SecureStore.setItemAsync(BIOMETRIC_KEY_EXISTS_FLAG, 'true');
+
         // Update state to reflect stored key
         setState((prev) => ({ ...prev, hasStoredKey: true }));
 
         return true;
-      } catch (error) {
-        console.error('Failed to store key for biometric:', error);
+      } catch (error: unknown) {
+        // User cancellation is expected, not an error
+        const msg = error instanceof Error ? error.message : '';
+        if (msg.includes('canceled') || msg.includes('cancelled')) {
+          console.log('[biometric] User cancelled biometric enrollment');
+        } else {
+          console.error('Failed to store key for biometric:', error);
+        }
         return false;
       }
     },
@@ -283,37 +299,29 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
    */
   const authenticateWithBiometric = useCallback(async (): Promise<string | null> => {
     try {
-      // First, verify biometrics are available
       if (!state.isAvailable) {
         console.warn('Biometric authentication not available');
         return null;
       }
 
-      // Authenticate the user
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: BIOMETRIC_PROMPT_MESSAGE,
-        cancelLabel: 'Cancel',
-        disableDeviceFallback: true, // Don't allow PIN/password fallback
-        fallbackLabel: '', // Hide fallback option
-      });
-
-      if (!result.success) {
-        console.warn('Biometric authentication failed:', result.error);
-        return null;
-      }
-
-      // Retrieve the stored key (this may trigger another biometric prompt
-      // depending on the device, but SecureStore handles it)
+      // SecureStore with requireAuthentication triggers its own biometric prompt
       const storedKey = await SecureStore.getItemAsync(BIOMETRIC_KEY_STORAGE);
 
       if (!storedKey) {
-        console.warn('No stored key found after successful biometric auth');
+        console.warn('No stored key found after biometric auth');
         return null;
       }
 
       return storedKey;
-    } catch (error) {
-      console.error('Biometric authentication error:', error);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : '';
+      if (msg.includes('canceled') || msg.includes('cancelled')) {
+        console.log('[biometric] User cancelled biometric auth');
+      } else {
+        console.error('Biometric authentication error:', error);
+        // Non-cancellation error — key may be invalidated (biometric change on device)
+        await clearBiometricKey();
+      }
       return null;
     }
   }, [state.isAvailable]);
@@ -330,6 +338,7 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
   const clearBiometricKey = useCallback(async (): Promise<void> => {
     try {
       await SecureStore.deleteItemAsync(BIOMETRIC_KEY_STORAGE);
+      await SecureStore.deleteItemAsync(BIOMETRIC_KEY_EXISTS_FLAG);
       setState((prev) => ({ ...prev, hasStoredKey: false }));
     } catch (error) {
       console.error('Failed to clear biometric key:', error);

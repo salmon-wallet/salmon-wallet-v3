@@ -34,6 +34,7 @@ export function SecurityPanel({
   isBiometricAvailable,
   isBiometricEnabled,
   onToggleBiometric,
+  onPasswordChanged,
 }: SecurityPanelProps): React.ReactElement {
   const { t } = useTranslation();
   const [, accountActions] = useAccountsContext();
@@ -63,6 +64,7 @@ export function SecurityPanel({
     try {
       const success = await accountActions.changePassword(currentPassword, newPassword);
       if (success) {
+        await onPasswordChanged?.();
         Alert.alert(
           t('settings.security.title'),
           t('settings.security.password_changed'),
@@ -78,7 +80,7 @@ export function SecurityPanel({
     } finally {
       setLoading(false);
     }
-  }, [currentPassword, newPassword, confirmPassword, passwordValidation.isValid, accountActions, t]);
+  }, [currentPassword, newPassword, confirmPassword, passwordValidation.isValid, accountActions, onPasswordChanged, t]);
 
   return (
     <SettingsScreenLayout title={t('settings.security.title')} onBack={onBack}>

@@ -92,9 +92,7 @@ export async function getSolanaNfts(
 
   // Backend wraps NFTs in { data: [...], pagination: {...} }
   const raw = Array.isArray(data) ? data : data.data;
-  console.log('[DEBUG getSolanaNfts] raw first NFT:', JSON.stringify(raw[0], null, 2));
   const normalized = raw.map((nft) => normalizeBackendNft(nft, publicKey));
-  console.log('[DEBUG getSolanaNfts] normalized first NFT:', JSON.stringify(normalized[0], null, 2));
   return normalized.filter((nft) => nft.media);
 }
 

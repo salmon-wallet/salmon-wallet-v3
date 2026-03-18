@@ -70,6 +70,8 @@ export interface LockScreenOverlayProps {
   onRemoveAllAccounts: () => Promise<void>;
   /** Callback when animation completes after unlock */
   onAnimationComplete?: () => void;
+  /** Height of the header bar (safe area top + header). Gate slides up to this position on unlock. */
+  headerHeight?: number;
   /**
    * Optional biometric configuration. If provided, the component
    * will show biometric unlock UI (Face ID / Touch ID button).

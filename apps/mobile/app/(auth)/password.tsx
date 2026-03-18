@@ -39,16 +39,20 @@ import {
   createAccount,
   fontFamilyNative,
   generateAccountName,
+  getStashItem,
   MIRROR_NETWORKS,
   PASSWORD_CONSTRAINTS,
+  removeStashItem,
   SCAN_NETWORKS,
   spacing,
+  STASH_KEYS,
   useAccountsContext,
   validatePassword,
 } from '@salmon/shared';
+import * as LocalAuthentication from '../../utils/localAuthentication';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Image,
@@ -77,8 +81,20 @@ import {
 
 export default function PasswordScreen() {
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ mnemonic: string; type?: string }>();
+  const params = useLocalSearchParams<{ type?: string }>();
   const [state, actions] = useAccountsContext();
+  const [mnemonic, setMnemonic] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadMnemonic = async () => {
+      const stored = await getStashItem<string>(STASH_KEYS.PENDING_MNEMONIC);
+      if (stored) {
+        setMnemonic(stored);
+        await removeStashItem(STASH_KEYS.PENDING_MNEMONIC);
+      }
+    };
+    void loadMnemonic();
+  }, []);
 
   // Get requiredLock from state - true if password already exists
   const requiredLock = state.requiredLock;
@@ -116,11 +132,11 @@ export default function PasswordScreen() {
   const isFormValid = useCallback((): boolean => {
     if (showSingleInput) {
       // Just need a password to check
-      return password.length > 0 && !!params.mnemonic;
+      return password.length > 0 && !!mnemonic;
     }
     // Need valid password and matching confirmation
-    return passwordValidation.isValid && passwordsMatch && !!params.mnemonic;
-  }, [showSingleInput, password, passwordValidation.isValid, passwordsMatch, params.mnemonic]);
+    return passwordValidation.isValid && passwordsMatch && !!mnemonic;
+  }, [showSingleInput, password, passwordValidation.isValid, passwordsMatch, mnemonic]);
 
   /**
    * Handle back navigation
@@ -164,7 +180,7 @@ export default function PasswordScreen() {
    * Handle form submission - create account and navigate to success
    */
   const handleSubmit = useCallback(async () => {
-    if (!isFormValid() || !params.mnemonic) return;
+    if (!isFormValid() || !mnemonic) return;
 
     Keyboard.dismiss();
 
@@ -208,7 +224,7 @@ export default function PasswordScreen() {
       const t0 = Date.now();
       const { account } = await createAccount({
         name: accountName,
-        mnemonic: params.mnemonic,
+        mnemonic: mnemonic,
         networkIds: [...SCAN_NETWORKS, ...Object.values(MIRROR_NETWORKS)],
         startIndex: 0,
       });
@@ -218,10 +234,21 @@ export default function PasswordScreen() {
       const t1 = Date.now();
       await actions.addAccount(account, password);
       console.log(`[perf] recovery: addAccount (encrypt + storage) ${Date.now() - t1}ms`);
+
+      // Unlock the wallet so no lock screen appears when navigating to the app.
+      // The derived key is already cached in stash from addAccount, so this is fast.
+      await actions.unlockAccounts(password);
       console.log(`[perf] recovery: TOTAL ${Date.now() - t0}ms`);
 
-      // Navigate to success screen
-      router.replace('/(auth)/success');
+      // Check if device supports biometrics for enrollment
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+      if (hasHardware && isEnrolled) {
+        router.replace('/(auth)/biometric');
+      } else {
+        router.replace('/(auth)/success');
+      }
     } catch (err) {
       console.error('Failed to create account:', err);
       setError(
@@ -231,7 +258,7 @@ export default function PasswordScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [isFormValid, params.mnemonic, password, actions, showSingleInput, t, state.counter]);
+  }, [isFormValid, mnemonic, password, actions, showSingleInput, t, state.counter]);
 
   // Error states for inputs
   const showPasswordError =
@@ -281,7 +308,10 @@ export default function PasswordScreen() {
             {/* Header with Step Indicator */}
             <ScreenHeader
               onBack={handleBack}
-              stepIndicator={{ totalSteps: 2, currentStep: 2 }}
+              stepIndicator={{
+                totalSteps: flowType === 'create' ? 3 : 2,
+                currentStep: flowType === 'create' ? 3 : 2,
+              }}
               backDisabled={isLoading || isChecking}
             />
 

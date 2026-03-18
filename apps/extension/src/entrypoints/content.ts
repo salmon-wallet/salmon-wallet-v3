@@ -10,9 +10,9 @@
  */
 
 export default defineContentScript({
-  matches: ['http://*/*', 'https://*/*'],
+  matches: ['https://*/*', 'http://localhost/*', 'http://127.0.0.1/*'],
   runAt: 'document_start',
-  allFrames: true,
+  allFrames: false,
 
   main() {
     // Inject the provider script into the page context

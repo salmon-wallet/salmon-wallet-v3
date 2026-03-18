@@ -1,7 +1,8 @@
 import { borderRadius, colors, fontSize, fontWeight, letterSpacing, componentSizes, ms, s, shadows, spacing, vs, getShortAddress, getAvatarColor, getInitials } from '@salmon/shared';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContentCopySvgIcon, SettingsSvgIcon, WalletSvgIcon } from '../Icon';
@@ -39,10 +40,30 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   avatarUrl,
   accountId,
   style,
+  animateIn,
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [imgError, setImgError] = useState(false);
+
+  // Fade-in animation for header content after unlock
+  const contentOpacity = useSharedValue(animateIn === false ? 0 : 1);
+
+  useEffect(() => {
+    console.log('[DEBUG WalletHeader] animateIn changed:', animateIn, 'current opacity:', contentOpacity.value);
+    if (animateIn === undefined) return;
+    if (animateIn) {
+      console.log('[DEBUG WalletHeader] → animating opacity to 1');
+      contentOpacity.value = withTiming(1, { duration: 200, easing: Easing.out(Easing.cubic) });
+    } else {
+      console.log('[DEBUG WalletHeader] → setting opacity to 0');
+      contentOpacity.value = 0;
+    }
+  }, [animateIn, contentOpacity]);
+
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+  }));
 
   const handleCopyPress = useCallback(() => {
     onCopyAddress?.();
@@ -76,7 +97,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
 
   return (
     <View style={[styles.outerContainer, { paddingTop: safeAreaTop }, style]}>
-      <View style={styles.innerContainer}>
+      <Animated.View style={[styles.innerContainer, animateIn !== undefined && contentAnimatedStyle]}>
         {/* Left side - Avatar/Wallet icon + Account info */}
         <View style={styles.leftSection}>
           {/* Avatar or wallet icon */}
@@ -131,7 +152,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
         >
           <SettingsSvgIcon size={s(30)} color={colors.text.muted} />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </View>
   );
 };

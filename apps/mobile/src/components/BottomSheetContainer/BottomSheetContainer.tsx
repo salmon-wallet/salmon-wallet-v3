@@ -162,7 +162,8 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
   const completeClose = useCallback(() => {
     setIsRendered(false);
     dragY.value = 0;
-  }, [dragY]);
+    backdropOpacity.value = 0;
+  }, [dragY, backdropOpacity]);
 
   // Animate in / out when `visible` changes
   useEffect(() => {
@@ -267,7 +268,10 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
         <View style={styles.overlay}>
           {/* Backdrop */}
           <TouchableWithoutFeedback onPress={handleBackdropPress}>
-            <Reanimated.View style={[styles.backdrop, backdropAnimatedStyle]} />
+            <Reanimated.View
+              style={[styles.backdrop, backdropAnimatedStyle]}
+              pointerEvents={visible ? 'auto' : 'none'}
+            />
           </TouchableWithoutFeedback>
 
           {/* Sheet */}

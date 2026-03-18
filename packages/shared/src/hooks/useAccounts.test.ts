@@ -426,7 +426,7 @@ describe('useAccounts Hook', () => {
 
       const [state] = result.current;
       expect(state.locked).toBe(true);
-      expect(storage.removeStashItem).toHaveBeenCalledWith('password');
+      expect(storage.removeStashItem).toHaveBeenCalledWith('derived_key_cache');
     });
 
     it('should unlock accounts with correct password', async () => {
@@ -480,7 +480,8 @@ describe('useAccounts Hook', () => {
         expect(result.current[0].locked).toBe(false);
       });
 
-      expect(storage.setStashItem).toHaveBeenCalledWith('password', MOCK_PASSWORD);
+      // Password is no longer stored in stash (security fix: only DerivedKeyCache is cached)
+      expect(storage.setStashItem).not.toHaveBeenCalledWith('password', expect.anything());
     });
 
     it('should fail to unlock with incorrect password', async () => {

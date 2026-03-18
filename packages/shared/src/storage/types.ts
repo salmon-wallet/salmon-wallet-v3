@@ -238,6 +238,8 @@ export const STASH_KEYS = {
   DERIVED_KEY: 'derived_key_cache',
   /** Timestamp of last activity (for auto-lock) */
   LAST_ACTIVITY: 'salmon_last_activity',
+  /** Temporary mnemonic transfer between auth screens */
+  PENDING_MNEMONIC: 'pending_mnemonic',
 } as const;
 
 /**

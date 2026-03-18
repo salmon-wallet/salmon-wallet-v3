@@ -133,8 +133,8 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   const gradient = getGradientForBlockchain(blockchain);
   const scalesColor = getScalesColorForBlockchain(blockchain);
 
-  // Get network label for non-mainnet networks (only shown in developer mode)
-  const networkLabel = showNetworkLabel ? getNetworkLabel(blockchain) : null;
+  // Get network label — in developer mode, always show (including "Mainnet")
+  const networkLabel = showNetworkLabel ? (getNetworkLabel(blockchain) ?? 'Mainnet') : null;
 
   // Determine if change is positive
   const isPositive = changePercent >= 0;
@@ -226,7 +226,8 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
   return (
     <LinearGradient
-      colors={gradient.colors}
+      colors={[...gradient.colors, gradient.colors[gradient.colors.length - 1]]}
+      locations={[0, 0.35, 0.75, 1]}
       start={gradient.start}
       end={gradient.end}
       style={[styles.container, style]}
@@ -238,39 +239,39 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         patternHeight={26}
         style={styles.scalesOverlay}
       />
-      {/* Blockchain Logo - Figma: 32x29px (node 1697:3529) */}
-      <View style={styles.logoContainer}>
-        {renderBlockchainLogo(blockchain)}
-      </View>
-
-      {/* Network label for non-mainnet networks (developer mode) */}
-      {networkLabel && (
-        <View style={styles.networkLabelContainer}>
-          <Text style={styles.networkLabelText}>{networkLabel}</Text>
+      {/* Group 1: Logo + Network tag */}
+      <View style={styles.contentGroup}>
+        <View style={styles.logoContainer}>
+          {renderBlockchainLogo(blockchain)}
         </View>
-      )}
-
-      {/* Balance display */}
-      <View style={styles.balanceContainer}>
-        {loading ? (
-          <View style={styles.balanceRow}>
-            <ShimmerRect width={ms(componentSizes.buttonMinWidthLg)} height={ms(fontSize.balance)} />
+        {networkLabel && (
+          <View style={styles.networkLabelContainer}>
+            <Text style={styles.networkLabelText}>{networkLabel}</Text>
           </View>
-        ) : (
-          renderBalance()
         )}
       </View>
 
-      {/* 24h change */}
-      {loading ? (
-        <View style={styles.changeRow}>
-          <ShimmerRect width={ms(componentSizes.buttonMinWidth)} height={ms(fontSize.sm)} />
+      {/* Group 2: Balance + Change */}
+      <View style={styles.contentGroup}>
+        <View style={styles.balanceContainer}>
+          {loading ? (
+            <View style={styles.balanceRow}>
+              <ShimmerRect width={ms(componentSizes.buttonMinWidthLg)} height={ms(fontSize.balance)} />
+            </View>
+          ) : (
+            renderBalance()
+          )}
         </View>
-      ) : (
-        renderChange()
-      )}
+        {loading ? (
+          <View style={styles.changeRow}>
+            <ShimmerRect width={ms(componentSizes.buttonMinWidth)} height={ms(fontSize.sm)} />
+          </View>
+        ) : (
+          renderChange()
+        )}
+      </View>
 
-      {/* Pagination dots */}
+      {/* Group 3: Pagination dots */}
       {totalCount > 1 && (
         <View style={styles.pagination}>
           {Array.from({ length: totalCount }).map((_, index) => (
@@ -317,6 +318,10 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  contentGroup: {
+    alignItems: 'center',
+    gap: vs(spacing.xs),
+  },
   logoContainer: {
     width: s(componentSizes.logoContainer),
     height: vs(componentSizes.logoContainer),
@@ -339,7 +344,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(spacing.xxs),
     borderRadius: ms(borderRadius.sm),
-    marginTop: vs(spacing.xs),
+  },
+  networkLabelHidden: {
+    opacity: 0,
   },
   networkLabelText: {
     fontSize: ms(fontSize.xs),
@@ -419,7 +426,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vs(spacing.paginationGap),
+    marginTop: vs(spacing.sm),
   },
   paginationDot: {
     width: s(spacing.xs),

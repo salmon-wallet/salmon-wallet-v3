@@ -40,7 +40,6 @@ import {
   ms,
   s,
   useAccountsContext,
-  useUserConfig,
   vs,
   // type EthereumNft,
   // type BitcoinOrdinal,
@@ -73,6 +72,7 @@ import {
   type NftDetailData,
   type SubAccount,
 } from '../../../src/components';
+import { useDeveloperMode } from '../../../src/contexts/DeveloperModeContext';
 
 // ============================================================================
 // Types
@@ -169,17 +169,8 @@ export default function CollectiblesScreen() {
   const [accountState] = useAccountsContext();
   const { ready, activeBlockchainAccount, activeAccount } = accountState;
 
-  // Get developer mode state
-  const userConfigAccount = useMemo(() => ({
-    network: {
-      environment: 'solana-mainnet' as const,
-      blockchain: 'solana' as const,
-    },
-  }), []);
-
-  const { developerNetworks } = useUserConfig({
-    activeBlockchainAccount: userConfigAccount,
-  });
+  // Developer mode — shared via context from _layout.tsx (single source of truth)
+  const developerNetworks = useDeveloperMode();
 
   // Get the blockchain account for the NFT currently shown in the detail sheet
   const nftAccount: BlockchainAccount | undefined = useMemo(() => {

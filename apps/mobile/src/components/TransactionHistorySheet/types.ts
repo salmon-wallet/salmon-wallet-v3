@@ -7,7 +7,6 @@
 
 import type { ViewStyle } from 'react-native';
 import type {
-  Transaction,
   TransactionItemPropsBase,
   TransactionHistorySheetPropsBase,
 } from '@salmon/shared';
@@ -29,16 +28,10 @@ export type {
 /**
  * Props for TransactionItem component (React Native)
  */
-export interface TransactionItemProps extends TransactionItemPropsBase<ViewStyle> {
-  /** Long press handler to open detail modal */
-  onLongPressDetail?: (transaction: Transaction) => void;
-}
+export interface TransactionItemProps extends TransactionItemPropsBase<ViewStyle> {}
 
 /**
  * Props for TransactionHistorySheet component (React Native)
  */
 export interface TransactionHistorySheetProps
-  extends TransactionHistorySheetPropsBase<ViewStyle> {
-  /** Callback when a transaction is long pressed (to open detail modal) */
-  onTransactionLongPress?: (transaction: Transaction) => void;
-}
+  extends TransactionHistorySheetPropsBase<ViewStyle> {}

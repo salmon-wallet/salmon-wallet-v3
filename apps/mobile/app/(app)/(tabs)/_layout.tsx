@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import { BlurTargetView } from 'expo-blur';
 import { Tabs, useRouter } from 'expo-router';
@@ -23,7 +23,6 @@ import {
   colors,
   componentSizes,
   getStashItem,
-  STASH_KEYS,
   type SettingsPanelEntry,
   type AddressBookItem,
   type AddressInput,
@@ -39,7 +38,6 @@ import {
 } from '@salmon/shared';
 import {
   GlassTabBar,
-  WalletHeader,
   SettingsSheet,
   WalletSwitcherSheet,
   ScalesBackground,
@@ -66,6 +64,12 @@ import {
 } from '../../../src/components';
 import { useLanguage } from '../../../src/i18n';
 import { useBiometricAuth } from '../../../hooks/useBiometricAuth';
+import { DeveloperModeProvider } from '../../../src/contexts/DeveloperModeContext';
+import { GateContainer } from '../../../src/components/GateContainer';
+import { LockContent } from '../../../src/components/GateContainer/LockContent';
+import { HeaderContent } from '../../../src/components/GateContainer/HeaderContent';
+import type { DerivedKeyCache } from '@salmon/shared';
+import type { GateState, GateExpandedHeader } from '../../../src/components/GateContainer/types';
 
 /**
  * Tab Layout for Salmon Wallet
@@ -86,6 +90,10 @@ export default function TabLayout() {
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [editingContact, setEditingContact] = useState<AddressBookItem | null>(null);
+
+  // Gate expanded header state (reported by SettingsSheet)
+  const [settingsHeaderTitle, setSettingsHeaderTitle] = useState('Settings');
+  const [settingsHeaderBack, setSettingsHeaderBack] = useState<(() => void) | undefined>(undefined);
 
   // Account context
   const [accountState, accountActions] = useAccountsContext();
@@ -146,7 +154,89 @@ export default function TabLayout() {
     enableBiometric,
     setEnableBiometric,
     authenticateWithBiometric,
+    storeKeyForBiometric,
+    clearBiometricKey,
+    refreshState: refreshBiometricState,
   } = useBiometricAuth();
+
+  // Compute gate state
+  const gateState: GateState = accountState.locked
+    ? 'locked'
+    : settingsVisible
+      ? 'settings'
+      : walletSwitcherVisible
+        ? 'wallets'
+        : 'collapsed';
+
+  // Lock handlers (moved from root _layout.tsx)
+  const handleLockUnlock = useCallback(async (password: string): Promise<boolean> => {
+    try {
+      return await accountActions.unlockAccounts(password);
+    } catch (err) {
+      console.error('Unlock failed:', err);
+      return false;
+    }
+  }, [accountActions]);
+
+  const handleLockUnlockWithKey = useCallback(async (keyJson: string): Promise<boolean> => {
+    try {
+      const keyCache: DerivedKeyCache = JSON.parse(keyJson);
+      return await accountActions.unlockWithCachedKey(keyCache);
+    } catch (error) {
+      console.error('Biometric unlock failed:', error);
+      return false;
+    }
+  }, [accountActions]);
+
+  const handleGetDerivedKey = useCallback(async (): Promise<string | null> => {
+    try {
+      const keyCache = await getStashItem<DerivedKeyCache>('derived_key_cache');
+      return keyCache ? JSON.stringify(keyCache) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const handleRemoveAllAccountsFromLock = useCallback(async () => {
+    await accountActions.removeAllAccounts();
+    router.replace('/(auth)');
+  }, [accountActions, router]);
+
+  // Biometric config for LockContent
+  const lockBiometricConfig = useMemo(() => ({
+    state: biometricState,
+    authenticateWithBiometric,
+    storeKeyForBiometric,
+    enableBiometric,
+    refreshState: refreshBiometricState,
+  }), [biometricState, authenticateWithBiometric, storeKeyForBiometric, enableBiometric, refreshBiometricState]);
+
+  // Settings header change handler
+  const handleSettingsHeaderChange = useCallback((title: string, onBack: (() => void) | undefined) => {
+    setSettingsHeaderTitle(title);
+    setSettingsHeaderBack(() => onBack);
+  }, []);
+
+  // Gate expanded header
+  const expandedHeader: GateExpandedHeader | undefined = useMemo(() => {
+    if (gateState === 'settings') {
+      return {
+        title: settingsHeaderTitle,
+        onBack: settingsHeaderBack || null,
+        onClose: () => {
+          setSettingsVisible(false);
+          setSettingsInitialPanels(undefined);
+        },
+      };
+    }
+    if (gateState === 'wallets') {
+      return {
+        title: t('settings.wallets.your_wallets'),
+        onClose: () => setWalletSwitcherVisible(false),
+      };
+    }
+    return undefined;
+  }, [gateState, settingsHeaderTitle, settingsHeaderBack, t]);
 
   // Derived values
   const accountName = activeAccount?.name || 'Account';
@@ -185,6 +275,7 @@ export default function TabLayout() {
         isBiometricAvailable={biometricState.isAvailable && biometricState.isEnrolled}
         isBiometricEnabled={enableBiometric}
         onToggleBiometric={async (enabled: boolean) => { await setEnableBiometric(enabled); }}
+        onPasswordChanged={clearBiometricKey}
       />
     ),
     privateKey: ({ onBack }) => {
@@ -396,7 +487,11 @@ export default function TabLayout() {
       <AccountAddPanel onComplete={onBack} onBack={onBack} />
     ),
     backup: ({ onBack }) => (
-      <BackupPanel onBack={onBack} />
+      <BackupPanel
+        onBack={onBack}
+        biometricAvailable={biometricState.isAvailable && biometricState.hasStoredKey}
+        authenticateWithBiometric={authenticateWithBiometric}
+      />
     ),
     about: ({ onBack }) => (
       <AboutPanel onBack={onBack} />
@@ -500,11 +595,7 @@ export default function TabLayout() {
           style: 'destructive',
           onPress: async () => {
             try {
-              let password: string | undefined;
-              if (requiredLock) {
-                password = await getStashItem<string>(STASH_KEYS.PASSWORD);
-              }
-              await accountActions.removeAccount(currentAccount.id, password);
+              await accountActions.removeAccount(currentAccount.id);
             } catch (error) {
               console.error('Failed to remove wallet:', error);
               Alert.alert(t('general.error'), t('settings.remove_wallet_error'));
@@ -536,6 +627,7 @@ export default function TabLayout() {
       </BlurTargetView>
 
       {/* Tab screens fill the remaining space */}
+      <DeveloperModeProvider value={{ developerNetworks }}>
       <BlurTargetProvider value={blurTargetRef}>
       <Tabs
         tabBar={(props) => <GlassTabBar {...props} />}
@@ -553,46 +645,68 @@ export default function TabLayout() {
         />
       </Tabs>
       </BlurTargetProvider>
+      </DeveloperModeProvider>
 
       <View
         pointerEvents="none"
         style={[styles.topSafeAreaOverlay, { height: insets.top }]}
       />
 
-      {/* Header - Absolutely positioned above content */}
-      <WalletHeader
-        accountName={accountName}
-        address={address}
-        onCopyAddress={handleCopyAddress}
-        onSettingsPress={() => setSettingsVisible(true)}
-        onWalletPress={() => setWalletSwitcherVisible(true)}
-        developerMode={developerNetworks}
-        avatarUrl={activeAccount?.avatar}
-        accountId={activeAccount?.id}
-      />
-
-      {/* Settings Sheet with integrated panel stack */}
-      <SettingsSheet
-        visible={settingsVisible}
-        onClose={handleSettingsClose}
-        panelRegistry={panelRegistry}
-        initialPanels={settingsInitialPanels}
-        developerNetworksEnabled={developerNetworks}
-        onDeveloperNetworksToggle={toggleDeveloperNetworks}
-        onRemoveWallet={handleRemoveWallet}
-        onRemoveAllWallets={handleRemoveAllWallets}
-      />
-
-      {/* Wallet Switcher Sheet */}
-      <WalletSwitcherSheet
-        visible={walletSwitcherVisible}
-        onClose={handleWalletSwitcherClose}
-        accounts={accounts}
-        activeAccountId={accountId ?? ''}
-        onSelectAccount={handleSelectAccount}
-        onAddAccount={handleAddAccount}
-        onEditAccount={handleEditAccount}
-        onDeleteAccount={handleDeleteAccount}
+      {/* Unified Gate — lock screen, header, settings, wallet switcher */}
+      <GateContainer
+        state={gateState}
+        expandedHeader={expandedHeader}
+        onBackdropPress={() => {
+          if (settingsVisible) handleSettingsClose();
+          if (walletSwitcherVisible) handleWalletSwitcherClose();
+        }}
+        lockContent={
+          <LockContent
+            locked={accountState.locked}
+            onUnlock={handleLockUnlock}
+            onUnlockWithKey={handleLockUnlockWithKey}
+            onGetDerivedKey={handleGetDerivedKey}
+            onRemoveAllAccounts={handleRemoveAllAccountsFromLock}
+            biometric={lockBiometricConfig}
+          />
+        }
+        headerContent={
+          <HeaderContent
+            accountName={accountName}
+            address={address}
+            onCopyAddress={handleCopyAddress}
+            onSettingsPress={() => setSettingsVisible(true)}
+            onWalletPress={() => setWalletSwitcherVisible(true)}
+            developerMode={developerNetworks}
+            avatarUrl={activeAccount?.avatar}
+            accountId={activeAccount?.id}
+          />
+        }
+        settingsContent={
+          <SettingsSheet
+            visible={settingsVisible}
+            onClose={handleSettingsClose}
+            panelRegistry={panelRegistry}
+            initialPanels={settingsInitialPanels}
+            developerNetworksEnabled={developerNetworks}
+            onDeveloperNetworksToggle={toggleDeveloperNetworks}
+            onRemoveWallet={handleRemoveWallet}
+            onRemoveAllWallets={handleRemoveAllWallets}
+            onHeaderChange={handleSettingsHeaderChange}
+          />
+        }
+        walletsContent={
+          <WalletSwitcherSheet
+            visible={walletSwitcherVisible}
+            onClose={handleWalletSwitcherClose}
+            accounts={accounts}
+            activeAccountId={accountId ?? ''}
+            onSelectAccount={handleSelectAccount}
+            onAddAccount={handleAddAccount}
+            onEditAccount={handleEditAccount}
+            onDeleteAccount={handleDeleteAccount}
+          />
+        }
       />
     </View>
   );

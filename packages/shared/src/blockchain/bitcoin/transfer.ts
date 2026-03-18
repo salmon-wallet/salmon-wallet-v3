@@ -187,17 +187,7 @@ function buildTransaction(params: {
         nonWitnessUtxo: Buffer.from(utxo.rawTx, 'hex'),
       });
     } else {
-      // Fallback: create a witness UTXO (less secure but works for testing)
-      // In production, rawTx should always be provided by the API
-      const outputScript = bitcoin.address.toOutputScript(sourceAddress, network);
-      psbt.addInput({
-        hash: utxo.txid,
-        index: utxo.vout,
-        witnessUtxo: {
-          script: outputScript,
-          value: BigInt(utxo.satoshis),
-        },
-      });
+      throw new Error(`UTXO ${utxo.txid}:${utxo.vout} missing rawTx: cannot build secure transaction input`);
     }
   }
 
@@ -276,7 +266,7 @@ export async function createTransferTransaction(
   fetchUtxos: FetchUtxosFn = () => Promise.resolve([])
 ): Promise<TransferTransactionResult> {
   const sourceAddress = keyPair.address;
-  const satoshiToSend = Math.floor(amountBtc * SATOSHIS_PER_BTC);
+  const satoshiToSend = Math.round(amountBtc * SATOSHIS_PER_BTC);
 
   // Fetch UTXOs and calculate available balance
   const { inputs, totalAmountAvailable } = await resolveInputs(

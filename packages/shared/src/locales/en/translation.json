@@ -416,7 +416,12 @@
       "recover": "Recover",
       "skip": "Skip",
       "invalidSeed": "Invalid seed phrase",
-      "recovery_error": "Failed to recover account. Please check your seed phrase and try again."
+      "recovery_error": "Failed to recover account. Please check your seed phrase and try again.",
+      "biometric_title": "Enable {{type}}",
+      "biometric_subtitle": "Unlock your wallet quickly and securely with biometric authentication",
+      "biometric_enable": "ENABLE {{type}}",
+      "biometric_skip": "Not now",
+      "biometric_error": "Failed to enable biometric authentication. Please try again."
     },
     "recover": {
       "messageTitle": "Recover Existing Account",

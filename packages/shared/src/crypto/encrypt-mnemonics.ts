@@ -35,12 +35,10 @@ export interface EncryptMnemonicsOptions {
  * 1. Checks for a cached derived key in stash and reuses it if valid.
  * 2. Otherwise derives a new key (caching it if `cacheNewKey` is true) or
  *    uses plain `lock`.
- * 3. Always stores the password in stash.
  *
  * When no password is provided:
  * 1. Checks for a cached derived key and uses it if valid.
- * 2. Falls back to a stashed password.
- * 3. Returns plaintext mnemonics if no encryption material is available.
+ * 2. Returns plaintext mnemonics if no encryption material is available.
  */
 export async function encryptMnemonics(
   mnemonics: Record<string, string>,
@@ -65,20 +63,13 @@ export async function encryptMnemonics(
       lockedMnemonics = { ...vault, isEncrypted: true as const };
     }
 
-    await setStashItem(STASH_KEYS.PASSWORD, password);
     return { vault: lockedMnemonics, requiredLock: true };
   }
 
-  // No explicit password — re-encrypt if wallet was previously encrypted
+  // No explicit password — re-encrypt using cached derived key
   const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
   if (isKeyCacheValid(cachedKey)) {
     const vault = lockWithKey(mnemonics, cachedKey);
-    return { vault: { ...vault, isEncrypted: true as const }, requiredLock: true };
-  }
-
-  const stashedPassword = await getStashItem<string>(STASH_KEYS.PASSWORD);
-  if (stashedPassword) {
-    const vault = await lock(mnemonics, stashedPassword);
     return { vault: { ...vault, isEncrypted: true as const }, requiredLock: true };
   }
 

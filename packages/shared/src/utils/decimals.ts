@@ -102,7 +102,7 @@ export function weiToEthNumber(weiAmount: bigint): number {
  * @returns Amount in satoshis as bigint
  */
 export function btcToSatoshis(btc: number): bigint {
-  return BigInt(Math.floor(btc * SATOSHIS_PER_BTC));
+  return BigInt(Math.round(btc * SATOSHIS_PER_BTC));
 }
 
 /**

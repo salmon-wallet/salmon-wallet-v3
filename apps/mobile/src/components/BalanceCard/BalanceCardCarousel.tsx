@@ -221,8 +221,8 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
     return <SolanaSvgIcon size={iconSize} color={colors.text.primary} />;
   };
 
-  // Get network label if in developer mode
-  const networkLabel = showNetworkLabel ? getNetworkLabel(currentBlockchainId) : null;
+  // Get network label — in developer mode, always show (including "Mainnet")
+  const networkLabel = showNetworkLabel ? (getNetworkLabel(currentBlockchainId) ?? 'Mainnet') : null;
 
   // Render balance with decimal opacity
   const renderBalance = () => {
@@ -249,7 +249,7 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
       <LinearGradient
         colors={[...currentGradient]}
         start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
+        end={{ x: 0.5, y: 1.3 }}
         style={[styles.gradient, { paddingTop: contentPaddingTop }]}
       >
         {/* Scales pattern overlay - color based on current blockchain */}
@@ -261,51 +261,52 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
         />
         <GestureDetector gesture={panGesture}>
           <Animated.View style={[styles.content, animatedContentStyle]}>
-            {/* Logo - Figma: 32x29px */}
-            <View style={styles.logoContainer}>
-              {renderLogo(currentBlockchain?.network.blockchain || 'solana')}
+            {/* Group 1: Logo + Network tag */}
+            <View style={styles.contentGroup}>
+              <View style={styles.logoContainer}>
+                {renderLogo(currentBlockchain?.network.blockchain || 'solana')}
+              </View>
+              {networkLabel && (
+                <View style={styles.networkLabelContainer}>
+                  <Text style={styles.networkLabelText}>{networkLabel}</Text>
+                </View>
+              )}
             </View>
 
-            {/* Network label for non-mainnet networks (developer mode) */}
-            {networkLabel && (
-              <View style={styles.networkLabelContainer}>
-                <Text style={styles.networkLabelText}>{networkLabel}</Text>
+            {/* Group 2: Balance + Change */}
+            <View style={styles.contentGroup}>
+              <View style={styles.balanceContainer}>
+                {renderBalance()}
+                <TouchableOpacity onPress={onToggleVisibility} style={styles.eyeButton}>
+                  <Ionicons
+                    name={hiddenBalance ? 'eye-off' : 'eye'}
+                    size={ms(componentSizes.eyeIcon)}
+                    color={colors.text.muted}
+                  />
+                </TouchableOpacity>
               </View>
-            )}
-
-            {/* Balance with eye icon */}
-            <View style={styles.balanceContainer}>
-              {renderBalance()}
-              <TouchableOpacity onPress={onToggleVisibility} style={styles.eyeButton}>
-                <Ionicons
-                  name={hiddenBalance ? 'eye-off' : 'eye'}
-                  size={ms(componentSizes.eyeIcon)}
-                  color={colors.text.muted}
-                />
-              </TouchableOpacity>
+              {!hiddenBalance && (
+                <View style={styles.changeRow}>
+                  <Text style={[styles.changeText, { color: changeColor }]}>
+                    {showPercentage(changePercent)}
+                  </Text>
+                  <Ionicons
+                    name={changePercent >= 0 ? 'chevron-up' : 'chevron-down'}
+                    size={ms(componentSizes.changeArrowIcon)}
+                    color={changeColor}
+                    style={styles.changeArrow}
+                  />
+                  <Text style={[styles.changeText, { color: changeColor }]}>
+                    ({formatChange(changeAmount)})
+                  </Text>
+                </View>
+              )}
             </View>
 
-            {/* Change percentage */}
-            {!hiddenBalance && (
-              <View style={styles.changeRow}>
-                <Text style={[styles.changeText, { color: changeColor }]}>
-                  {showPercentage(changePercent)}
-                </Text>
-                <Ionicons
-                  name={changePercent >= 0 ? 'chevron-up' : 'chevron-down'}
-                  size={ms(componentSizes.changeArrowIcon)}
-                  color={changeColor}
-                  style={styles.changeArrow}
-                />
-                <Text style={[styles.changeText, { color: changeColor }]}>
-                  ({formatChange(changeAmount)})
-                </Text>
-              </View>
-            )}
           </Animated.View>
         </GestureDetector>
 
-        {/* Pagination dots INSIDE the card */}
+        {/* Pagination dots — fixed, not part of the sliding content */}
         {blockchains.length > 1 && (
           <View style={styles.pagination}>
             {blockchains.map((_, index) => (
@@ -338,10 +339,14 @@ const styles = StyleSheet.create({
   gradient: {
     borderRadius: ms(borderRadius.card),
     paddingHorizontal: s(spacing['2xl']),
-    paddingBottom: vs(spacing['2xl']),
+    paddingBottom: vs(spacing.lg),
     overflow: 'hidden',
   },
   content: {
+    alignItems: 'center',
+    gap: vs(spacing.sm),
+  },
+  contentGroup: {
     alignItems: 'center',
     gap: vs(spacing.xs),
   },
@@ -367,6 +372,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(spacing.xxs),
     borderRadius: ms(borderRadius.sm),
+  },
+  networkLabelHidden: {
+    opacity: 0,
   },
   networkLabelText: {
     fontSize: ms(fontSize.xs),
@@ -438,7 +446,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vs(spacing.paginationGap),
+    marginTop: vs(spacing.lg),
   },
   dot: {
     width: s(spacing.xs),

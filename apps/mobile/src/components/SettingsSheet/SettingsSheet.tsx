@@ -21,7 +21,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TopSheet } from '../TopSheet';
 import { SettingsPanelStack } from '../SettingsPanelStack';
 import { SettingsHeaderContext, type SettingsHeaderState } from '../SettingsHeaderContext';
 import {
@@ -130,6 +129,8 @@ const SETTINGS_SECTIONS: SettingsSection[] = [
 interface SettingsSheetWithPanelsProps extends SettingsSheetProps {
   panelRegistry?: MobilePanelRegistry;
   initialPanels?: SettingsPanelEntry[];
+  /** Reports current header title and back action to parent (GateContainer) */
+  onHeaderChange?: (title: string, onBack: (() => void) | undefined) => void;
 }
 
 // ============================================================================
@@ -145,6 +146,7 @@ export function SettingsSheet({
   onDeveloperNetworksToggle,
   onRemoveWallet,
   onRemoveAllWallets,
+  onHeaderChange,
 }: SettingsSheetWithPanelsProps): React.ReactElement {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -399,6 +401,11 @@ export function SettingsSheet({
     () => ({ setHeaderState: handleHeaderStateChange }),
     [handleHeaderStateChange],
   );
+  // Report header state to parent (GateContainer)
+  useEffect(() => {
+    onHeaderChange?.(currentTitle, currentBackAction ?? undefined);
+  }, [currentTitle, currentBackAction, onHeaderChange]);
+
   useEffect(() => {
     if (!currentPanel || !DYNAMIC_HEADER_SCREENS.has(currentPanel.screen)) {
       headerOverrideOwnerRef.current = null;
@@ -409,61 +416,48 @@ export function SettingsSheet({
 
   return (
     <SettingsHeaderContext.Provider value={headerContextValue}>
-      <TopSheet
-        visible={visible}
-        onClose={onClose}
-        title={currentTitle}
-        onBack={currentBackAction}
-        backAccessibilityLabel={t('actions.back', 'Go back')}
-        fullHeight
-        showHandle={false}
-        style={styles.topSheet}
-        contentStyle={styles.topSheetContent}
-        testID="settings-sheet"
-      >
-        <View style={styles.container}>
-          {/* Base: Settings Menu (panel 0) */}
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={[
-              styles.scrollContent,
-              { paddingBottom: insets.bottom + spacing['5xl'] },
-            ]}
-            scrollEnabled
-            alwaysBounceVertical
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-          >
-            {SETTINGS_SECTIONS.map(renderSection)}
-          </ScrollView>
+      <View style={styles.container}>
+        {/* Base: Settings Menu (panel 0) */}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + spacing['2xl'] },
+          ]}
+          scrollEnabled
+          alwaysBounceVertical
+          showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        >
+          {SETTINGS_SECTIONS.map(renderSection)}
+        </ScrollView>
 
-          {/* Top fade gradient */}
-          <Animated.View
-            style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
-            pointerEvents="none"
-          >
-            <LinearGradient
-              colors={[colors.background.secondary, 'transparent']}
-              style={StyleSheet.absoluteFill}
+        {/* Top fade gradient */}
+        <Animated.View
+          style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+          pointerEvents="none"
+        >
+          <LinearGradient
+            colors={[colors.background.secondary, 'transparent']}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
+
+        {/* Stacked panels overlay */}
+        {hasPanels && panelRegistry && (
+          <View style={styles.panelOverlay}>
+            <SettingsPanelStack
+              panelRegistry={panelRegistry}
+              stack={stack}
+              onNavigate={handlePush}
+              onBack={handlePop}
+              animating={animating}
+              slideDirection={slideDirection}
             />
-          </Animated.View>
-
-          {/* Stacked panels overlay */}
-          {hasPanels && panelRegistry && (
-            <View style={styles.panelOverlay}>
-              <SettingsPanelStack
-                panelRegistry={panelRegistry}
-                stack={stack}
-                onNavigate={handlePush}
-                onBack={handlePop}
-                animating={animating}
-                slideDirection={slideDirection}
-              />
-            </View>
-          )}
-        </View>
-      </TopSheet>
+          </View>
+        )}
+      </View>
     </SettingsHeaderContext.Provider>
   );
 }

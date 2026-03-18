@@ -16,4 +16,6 @@ export interface SecurityPanelPropsMobile extends SecurityPanelPropsBase {
   isBiometricEnabled: boolean;
   /** Callback when user toggles biometric auth */
   onToggleBiometric: (enabled: boolean) => void;
+  /** Callback after password is successfully changed (e.g. to invalidate biometric key) */
+  onPasswordChanged?: () => Promise<void>;
 }

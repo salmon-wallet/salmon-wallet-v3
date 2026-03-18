@@ -11,10 +11,8 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { View, StyleSheet, AppState, type AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
 
-import { LockScreenOverlay } from '../src/components';
 import { I18nProvider } from '../src/i18n';
-import { AccountsProvider, CurrencyProvider, useAccountsContext, getStashItem, type DerivedKeyCache } from '@salmon/shared';
-import { useBiometricAuth } from '../hooks/useBiometricAuth';
+import { AccountsProvider, CurrencyProvider, useAccountsContext, useInactivityTimeout } from '@salmon/shared';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -80,53 +78,18 @@ function RootLayoutNav() {
   const [state, actions] = useAccountsContext();
   const segments = useSegments();
   const navigationState = useRootNavigationState();
-  const biometric = useBiometricAuth();
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+
+  // Inactivity timeout disabled on mobile — lock is handled by AppState (background).
+  // The timeout only makes sense on web/extension where tabs stay open indefinitely.
+  useInactivityTimeout({
+    timeoutMs: 5 * 60 * 1000,
+    onTimeout: () => {},
+    enabled: false,
+  });
 
   // Track if we've done the initial navigation
   const [hasNavigated, setHasNavigated] = useState(false);
-
-  // Unlock handler for the lock screen overlay
-  const handleUnlock = useCallback(async (password: string): Promise<boolean> => {
-    try {
-      const success = await actions.unlockAccounts(password);
-      return success;
-    } catch (err) {
-      console.error('Unlock failed:', err);
-      return false;
-    }
-  }, [actions]);
-
-  // Biometric unlock handler - uses cached derived key to unlock without PBKDF2
-  const handleUnlockWithKey = useCallback(async (keyJson: string): Promise<boolean> => {
-    try {
-      // Parse the cached key from the biometric-stored JSON
-      const keyCache: DerivedKeyCache = JSON.parse(keyJson);
-      // Use the cached key to unlock without expensive PBKDF2 derivation
-      return await actions.unlockWithCachedKey(keyCache);
-    } catch (error) {
-      console.error('Biometric unlock failed:', error);
-      return false;
-    }
-  }, [actions]);
-
-  // Get derived key handler - retrieves the cached key after password unlock
-  // This key is then stored securely for future biometric unlocks
-  const handleGetDerivedKey = useCallback(async (): Promise<string | null> => {
-    try {
-      // The derived key is cached in stash during password unlock
-      const keyCache = await getStashItem<DerivedKeyCache>('derived_key_cache');
-      return keyCache ? JSON.stringify(keyCache) : null;
-    } catch {
-      return null;
-    }
-  }, []);
-
-  // Remove all accounts handler for wallet reset
-  const handleRemoveAllAccounts = useCallback(async () => {
-    await actions.removeAllAccounts();
-    router.replace('/(auth)');
-  }, [actions]);
 
   useEffect(() => {
     // Don't navigate until the navigation state is ready and useAccounts is ready
@@ -156,7 +119,7 @@ function RootLayoutNav() {
       const authScreen = segments.slice(1, 2)[0];
       const isPostCreationScreen = inAuthGroup &&
         typeof authScreen === 'string' &&
-        ['password', 'success', 'derived-accounts'].includes(authScreen);
+        ['password', 'biometric', 'success', 'derived-accounts'].includes(authScreen);
 
       if (!inAppGroup && !hasNavigated && !state.locked && !isPostCreationScreen) {
         // Only auto-navigate to app on initial load when not locked
@@ -167,9 +130,8 @@ function RootLayoutNav() {
   }, [state.ready, state.locked, state.accounts.length, segments, navigationState?.key, hasNavigated]);
 
   // Determine if lock screen should be shown
-  const hasAccounts = state.accounts.length > 0;
-  const shouldShowLockScreen = state.ready && hasAccounts && state.locked;
-
+  // Don't show lock screen during onboarding (auth flow) — the user just created
+  // their account and is still in the setup process (biometric enrollment, success, etc.)
   useEffect(() => {
     if (!state.ready) {
       return;
@@ -179,12 +141,15 @@ function RootLayoutNav() {
       const previousState = appStateRef.current;
       appStateRef.current = nextState;
 
-      const leavingForeground =
-        previousState === 'active' &&
-        (nextState === 'inactive' || nextState === 'background');
+      // Only lock when going to background, NOT inactive.
+      // iOS sets state to 'inactive' for system overlays like Face ID prompts,
+      // Control Center, notifications — locking on inactive causes a loop
+      // when biometric auth is active.
+      const goingToBackground =
+        previousState === 'active' && nextState === 'background';
 
       if (
-        !leavingForeground ||
+        !goingToBackground ||
         !state.requiredLock ||
         state.locked ||
         state.accounts.length === 0
@@ -223,18 +188,6 @@ function RootLayoutNav() {
               }}
             />
           </Stack>
-
-          {/* Lock screen overlay - renders on top of everything */}
-          {hasAccounts && (
-            <LockScreenOverlay
-              locked={shouldShowLockScreen}
-              onUnlock={handleUnlock}
-              onUnlockWithKey={handleUnlockWithKey}
-              onGetDerivedKey={handleGetDerivedKey}
-              onRemoveAllAccounts={handleRemoveAllAccounts}
-              biometric={biometric}
-            />
-          )}
         </View>
       </ThemeProvider>
     </I18nProvider>

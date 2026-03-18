@@ -333,7 +333,7 @@ export default defineBackground(() => {
     } else if (message.data.method === 'set') {
       if (message.data.key) {
         stashedValues.set(message.data.key, message.data.value);
-        if (message.data.key === STASH_KEYS.PASSWORD || message.data.key === STASH_KEYS.LAST_ACTIVITY) {
+        if (message.data.key === STASH_KEYS.DERIVED_KEY || message.data.key === STASH_KEYS.LAST_ACTIVITY) {
           browser.alarms.create('salmon_lock_alarm', { delayInMinutes: 5 });
         }
       }
@@ -405,7 +405,7 @@ export default defineBackground(() => {
   // Alarm listener for session timeout (auto-lock after 5 minutes of inactivity)
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'salmon_lock_alarm') {
-      stashedValues.delete(STASH_KEYS.PASSWORD);
+      stashedValues.delete(STASH_KEYS.DERIVED_KEY);
     }
   });
 

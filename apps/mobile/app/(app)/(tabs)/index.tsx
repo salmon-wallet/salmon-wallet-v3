@@ -46,7 +46,6 @@ import {
   useRefreshOnFocus,
   useCurrencyContext,
   useTransactions,
-  useUserConfig,
   vs,
   getBlockchainFromNetworkId,
   BLOCKCHAIN_TO_COINGECKO,
@@ -79,6 +78,7 @@ import {
   type SubAccount,
   type Transaction,
 } from '../../../src/components';
+import { useDeveloperMode } from '../../../src/contexts/DeveloperModeContext';
 
 
 // Map blockchain to logo URL (outside component to avoid recreation)
@@ -198,8 +198,10 @@ export default function HomeScreen() {
     switchingNetwork,
   } = accountState;
 
-  // User configuration (developer networks toggle)
-  // Build a mock activeBlockchainAccount for useUserConfig when not available
+  // Developer mode — shared via context from _layout.tsx (single source of truth)
+  const developerNetworks = useDeveloperMode();
+
+  // User config account for available networks
   const userConfigAccount = activeBlockchainAccount
     ? {
       network: {
@@ -213,9 +215,6 @@ export default function HomeScreen() {
         blockchain: 'solana',
       },
     };
-  const { developerNetworks } = useUserConfig({
-    activeBlockchainAccount: userConfigAccount,
-  });
 
   // Get available networks filtered by developer mode
   const { allNetworks: availableNetworks } = useAvailableNetworks({
@@ -624,28 +623,24 @@ export default function HomeScreen() {
     setTransactionHistoryVisible(false);
   }, []);
 
+  // Handler for tap on transaction — close history sheet, open detail modal
   const handleTransactionPress = useCallback((transaction: Transaction) => {
-    // Open transaction in Solana Explorer
-    const _explorerUrl = networkId === 'solana-devnet'
-      ? `https://explorer.solana.com/tx/${transaction.id}?cluster=devnet`
-      : `https://explorer.solana.com/tx/${transaction.id}`;
-    // TODO: Open in browser or in-app browser
-  }, [networkId]);
-
-  // Handler for long press on transaction to open detail modal
-  const handleTransactionLongPress = useCallback((transaction: Transaction) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedTransaction(transaction);
-    setDetailModalVisible(true);
+    setTransactionHistoryVisible(false);
+    // Wait for the history sheet Modal to unmount before opening the detail modal
+    setTimeout(() => {
+      setDetailModalVisible(true);
+    }, 350);
   }, []);
 
-  // Handler to close detail modal
+  // Handler to close detail modal — re-open history sheet after
   const handleDetailModalClose = useCallback(() => {
     setDetailModalVisible(false);
-    // Clear selected transaction after animation
     setTimeout(() => {
       setSelectedTransaction(null);
-    }, 300);
+      setTransactionHistoryVisible(true);
+    }, 350);
   }, []);
 
   // Handler to view transaction in explorer (from detail modal)
@@ -795,18 +790,6 @@ export default function HomeScreen() {
             contentContainerStyle={styles.bitcoinContent}
             showsVerticalScrollIndicator={false}
           >
-            {/* Bitcoin Token Item */}
-            {(switchingNetwork || refreshing) ? (
-              <TokenListSkeleton count={1} />
-            ) : bitcoinToken && (
-              <TokenListItem
-                token={bitcoinToken}
-                onPress={handleTokenPress}
-                hiddenBalance={hiddenBalance}
-                blockchain="bitcoin"
-              />
-            )}
-
             {/* Price Chart */}
             <View style={styles.bitcoinSection}>
               <PriceChart
@@ -817,6 +800,17 @@ export default function HomeScreen() {
                 height={180}
               />
             </View>
+
+            {/* Bitcoin Token Item (non-pressable — detail is already shown inline) */}
+            {(switchingNetwork || refreshing) ? (
+              <TokenListSkeleton count={1} />
+            ) : bitcoinToken && (
+              <TokenListItem
+                token={bitcoinToken}
+                hiddenBalance={hiddenBalance}
+                blockchain="bitcoin"
+              />
+            )}
 
             {/* Market Data */}
             <View style={styles.bitcoinSection}>
@@ -909,7 +903,6 @@ export default function HomeScreen() {
         onLoadMore={transactionsLoadMore}
         hiddenBalance={hiddenBalance}
         onTransactionPress={handleTransactionPress}
-        onTransactionLongPress={handleTransactionLongPress}
         error={transactionsError}
         onRetry={transactionsRefresh}
       />
@@ -1002,8 +995,9 @@ const styles = StyleSheet.create({
   bitcoinContent: {
     paddingTop: spacing.sm,
     paddingBottom: vs(componentSizes.tabBarScrollPadding),
+    gap: vs(spacing.md),
   },
   bitcoinSection: {
-    marginTop: spacing.lg,
+    // gap is handled by bitcoinContent container
   },
 });

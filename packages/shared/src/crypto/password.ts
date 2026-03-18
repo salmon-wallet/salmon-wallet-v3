@@ -10,7 +10,7 @@
 
 export const PASSWORD_CONSTRAINTS = {
   MIN_LENGTH: 8,
-  MAX_LENGTH: 20,
+  MAX_LENGTH: 128,
 } as const;
 
 // ============================================================================

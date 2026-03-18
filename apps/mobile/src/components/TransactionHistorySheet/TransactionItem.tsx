@@ -184,7 +184,6 @@ const SourceBadge: React.FC<{ source: string }> = ({ source }) => {
 export const TransactionItem: React.FC<TransactionItemProps> = ({
   transaction,
   onPress,
-  onLongPressDetail,
   hiddenBalance = false,
   style,
 }) => {
@@ -203,21 +202,8 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
   const isSwap = type === 'swap';
 
   const handlePress = useCallback(() => {
-    if (isSwap) {
-      // Toggle expansion for all swaps (to see the route inline)
-      setExpanded(prev => !prev);
-    } else {
-      // Normal press behavior for non-swap transactions
-      onPress?.(transaction);
-    }
-  }, [isSwap, onPress, transaction]);
-
-  const handleLongPress = useCallback(() => {
-    // Long press opens the detail modal via callback
-    if (onLongPressDetail) {
-      onLongPressDetail(transaction);
-    }
-  }, [onLongPressDetail, transaction]);
+    onPress?.(transaction);
+  }, [onPress, transaction]);
 
   // Get description text
   const descriptionText = useMemo(
@@ -346,12 +332,10 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       <TouchableOpacity
         style={styles.container}
         onPress={handlePress}
-        onLongPress={handleLongPress}
-        delayLongPress={400}
         activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityLabel={`${config.label} transaction, ${descriptionText}`}
-        accessibilityHint={isSwap ? 'Tap to expand route details, long press for full details' : 'Long press for full details'}
+        accessibilityHint="Tap to view transaction details"
       >
         {/* Left: Logo/Icon */}
         <View style={styles.logoSection}>

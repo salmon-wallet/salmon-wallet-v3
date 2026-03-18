@@ -1,34 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
-  Modal,
-  TouchableWithoutFeedback,
   TouchableOpacity,
   StyleSheet,
-  Platform,
-  BackHandler,
-  Dimensions,
   Image,
   ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  Easing,
-  runOnJS,
-  interpolate,
-} from 'react-native-reanimated';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
-import { borderWidth, colors, shadows, componentSizes, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress, opacity } from '@salmon/shared';
+import { borderWidth, colors, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
 
-import { ScalesBackground } from '../ScalesBackground';
+import { BottomSheetContainer } from '../BottomSheetContainer';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
 import { AddressCopyRow } from '../TransactionHistorySheet/AddressCopyRow';
@@ -37,21 +22,6 @@ import { PriceImpactBadge } from '../TransactionHistorySheet/PriceImpactBadge';
 import { ConversionRateDisplay } from '../TransactionHistorySheet/ConversionRateDisplay';
 import type { TransactionDetailModalProps } from './types';
 import type { TransactionType, TransactionTokenAmount, NftAttribute } from '../TransactionHistorySheet/types';
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const ANIMATION_DURATION = 300;
-const BACKDROP_OPACITY = 0.8;
-const DRAG_THRESHOLD = 150;
-const SPRING_CONFIG = {
-  damping: 20,
-  stiffness: 200,
-  mass: 0.5,
-};
 
 /**
  * Transaction type display configuration
@@ -339,100 +309,6 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Animation shared values
-  const translateY = useSharedValue(SCREEN_HEIGHT);
-  const backdropOpacity = useSharedValue(0);
-  const dragY = useSharedValue(0);
-  const isDragging = useSharedValue(false);
-
-  // Close handler for worklet
-  const closeSheet = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
-  // Handle visibility changes
-  useEffect(() => {
-    if (visible) {
-      // Reset drag position
-      dragY.value = 0;
-      // Animate sheet up
-      translateY.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-      // Fade in backdrop
-      backdropOpacity.value = withTiming(BACKDROP_OPACITY, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
-    } else {
-      // Animate sheet down
-      translateY.value = withTiming(SCREEN_HEIGHT, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-      // Fade out backdrop
-      backdropOpacity.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.in(Easing.cubic),
-      });
-    }
-  }, [visible, backdropOpacity, dragY, translateY]);
-
-  // Handle Android back button
-  useEffect(() => {
-    if (Platform.OS !== 'android' || !visible) return;
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        onClose();
-        return true;
-      }
-    );
-
-    return () => backHandler.remove();
-  }, [visible, onClose]);
-
-  // Pan gesture for dragging the sheet
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      isDragging.value = true;
-    })
-    .onUpdate((event) => {
-      // Only allow dragging down (positive translationY)
-      if (event.translationY > 0) {
-        dragY.value = event.translationY;
-        // Update backdrop opacity based on drag
-        backdropOpacity.value = interpolate(
-          event.translationY,
-          [0, SCREEN_HEIGHT * 0.5],
-          [BACKDROP_OPACITY, 0]
-        );
-      }
-    })
-    .onEnd((event) => {
-      isDragging.value = false;
-      // If dragged past threshold or with high velocity, close the sheet
-      if (event.translationY > DRAG_THRESHOLD || event.velocityY > 500) {
-        translateY.value = withTiming(SCREEN_HEIGHT, {
-          duration: 200,
-          easing: Easing.out(Easing.cubic),
-        });
-        backdropOpacity.value = withTiming(0, { duration: 200 });
-        runOnJS(closeSheet)();
-      } else {
-        // Snap back to open position
-        dragY.value = withSpring(0, SPRING_CONFIG);
-        backdropOpacity.value = withSpring(BACKDROP_OPACITY, SPRING_CONFIG);
-      }
-    });
-
-  // Handle backdrop press
-  const handleBackdropPress = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
   // Inline hash copy state
   const [hashCopied, setHashCopied] = useState(false);
 
@@ -455,15 +331,6 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
     }
   }, [transaction, onShare]);
 
-  // Animated styles
-  const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value + dragY.value }],
-  }));
-
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
-
   // Get transaction config
   const typeConfig = useMemo(() => {
     if (!transaction) return TRANSACTION_TYPE_CONFIG.unknown;
@@ -475,71 +342,42 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
     return STATUS_CONFIG[transaction.status] || STATUS_CONFIG.completed;
   }, [transaction]);
 
-  if (!visible || !transaction) {
+  if (!transaction) {
     return null;
   }
 
+  // Header content for the BottomSheetContainer drag area
+  const headerContent = (
+    <View style={styles.header}>
+      <View style={[styles.typeIconContainer, { backgroundColor: `${typeConfig.color}20` }]}>
+        <Ionicons name={typeConfig.icon} size={22} color={typeConfig.color} />
+      </View>
+      <View style={styles.headerInfo}>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>{t(TYPE_LABEL_KEYS[transaction.type] ?? TYPE_LABEL_KEYS.unknown, typeConfig.label)}</Text>
+          {transaction.source && (
+            <View style={styles.sourceBadge}>
+              <Text style={styles.sourceText}>{transaction.source}</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.statusRow}>
+          <Ionicons name={statusConfig.icon} size={16} color={statusConfig.color} />
+          <Text style={[styles.statusText, { color: statusConfig.color }]}>
+            {t(STATUS_LABEL_KEYS[transaction.status] ?? '', statusConfig.label)}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+
   return (
-    <Modal
+    <BottomSheetContainer
       visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-      statusBarTranslucent
+      onClose={onClose}
+      headerContent={headerContent}
+      style={[styles.sheetContainer, style]}
     >
-      <GestureHandlerRootView style={styles.gestureRoot}>
-        <View style={styles.overlay}>
-          {/* Backdrop */}
-          <TouchableWithoutFeedback onPress={handleBackdropPress}>
-            <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} />
-          </TouchableWithoutFeedback>
-
-          {/* Sheet Container */}
-          <Animated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
-            {/* Scales Background */}
-            <ScalesBackground />
-
-            {/* Draggable Header Area */}
-            <GestureDetector gesture={panGesture}>
-              <Animated.View style={styles.dragArea}>
-                {/* Drag Handle */}
-                <View style={styles.handleContainer}>
-                  <View style={styles.handle} />
-                </View>
-
-                {/* Header */}
-                <View style={styles.header}>
-                  {/* Type icon */}
-                  <View style={[styles.typeIconContainer, { backgroundColor: `${typeConfig.color}20` }]}>
-                    <Ionicons name={typeConfig.icon} size={22} color={typeConfig.color} />
-                  </View>
-
-                  {/* Title and source */}
-                  <View style={styles.headerInfo}>
-                    <View style={styles.titleRow}>
-                      <Text style={styles.title}>{t(TYPE_LABEL_KEYS[transaction.type] ?? TYPE_LABEL_KEYS.unknown, typeConfig.label)}</Text>
-                      {transaction.source && (
-                        <View style={styles.sourceBadge}>
-                          <Text style={styles.sourceText}>{transaction.source}</Text>
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Status */}
-                    <View style={styles.statusRow}>
-                      <Ionicons
-                        name={statusConfig.icon}
-                        size={16}
-                        color={statusConfig.color}
-                      />
-                      <Text style={[styles.statusText, { color: statusConfig.color }]}>
-                        {t(STATUS_LABEL_KEYS[transaction.status] ?? '', statusConfig.label)}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </Animated.View>
-            </GestureDetector>
 
             {/* Content */}
             <ScrollView
@@ -670,45 +508,6 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 </BlurContainer>
               )}
 
-              {/* Address Section */}
-              {(transaction.outputs.some(t => t.destination) || transaction.inputs.some(t => t.source) || transaction.feePayer) && (
-                <BlurContainer style={styles.section}>
-                  <Text style={styles.sectionTitle}>{t('transactions.detail.addresses', 'Addresses')}</Text>
-                  <View style={styles.addressesContainer}>
-                    {transaction.outputs.map((token, index) =>
-                      token.destination ? (
-                        <AddressCopyRow
-                          key={`to-${index}`}
-                          label="To"
-                          address={token.destination}
-                          truncate="medium"
-                          style={styles.addressRow}
-                        />
-                      ) : null
-                    )}
-                    {transaction.inputs.map((token, index) =>
-                      token.source ? (
-                        <AddressCopyRow
-                          key={`from-${index}`}
-                          label="From"
-                          address={token.source}
-                          truncate="medium"
-                          style={styles.addressRow}
-                        />
-                      ) : null
-                    )}
-                    {transaction.feePayer && (
-                      <AddressCopyRow
-                        label="Fee Payer"
-                        address={transaction.feePayer}
-                        truncate="medium"
-                        style={styles.addressRow}
-                      />
-                    )}
-                  </View>
-                </BlurContainer>
-              )}
-
               {/* NFT Metadata Sections */}
               {transaction.inputs
                 .filter(token => token.isNft)
@@ -721,8 +520,40 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   <NftMetadataSection key={`nft-out-${index}`} token={token} />
                 ))}
 
-              {/* Card 3 — Transaction Info: Fee + Swap Fee + Hash merged */}
+              {/* Card 3 — Addresses + Fee + Hash merged */}
               <BlurContainer style={styles.section}>
+                {/* Addresses (hidden for swaps) */}
+                {transaction.type !== 'swap' && (
+                  <>
+                    {transaction.inputs.map((token, index) =>
+                      token.source ? (
+                        <React.Fragment key={`from-${index}`}>
+                          <AddressCopyRow
+                            label="From"
+                            address={token.source}
+                            truncate="medium"
+                            style={styles.addressRow}
+                          />
+                          <InternalDivider />
+                        </React.Fragment>
+                      ) : null
+                    )}
+                    {transaction.outputs.map((token, index) =>
+                      token.destination ? (
+                        <React.Fragment key={`to-${index}`}>
+                          <AddressCopyRow
+                            label="To"
+                            address={token.destination}
+                            truncate="medium"
+                            style={styles.addressRow}
+                          />
+                          <InternalDivider />
+                        </React.Fragment>
+                      ) : null
+                    )}
+                  </>
+                )}
+
                 {transaction.fee && (
                   <View style={styles.sectionRow}>
                     <Text style={styles.sectionLabel}>{t('transactions.detail.networkFee', 'Network Fee')}</Text>
@@ -772,7 +603,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 <BlurContainer style={styles.section}>
                   <View style={styles.devSectionHeader}>
                     <Ionicons name="code-slash-outline" size={16} color={colors.text.secondary} />
-                    <Text style={styles.sectionTitle}>{t('transactions.detail.developerInfo', 'Developer Info')}</Text>
+                    <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>{t('transactions.detail.developerInfo', 'Developer Info')}</Text>
                   </View>
 
                   {transaction.heliusType && (
@@ -877,10 +708,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 </View>
               )}
             </View>
-          </Animated.View>
-        </View>
-      </GestureHandlerRootView>
-    </Modal>
+    </BottomSheetContainer>
   );
 };
 
@@ -889,46 +717,8 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 // ============================================================================
 
 const styles = StyleSheet.create({
-  gestureRoot: {
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.sheet.backdrop,
-  },
   sheetContainer: {
-    backgroundColor: colors.background.secondary,
-    borderTopLeftRadius: ms(26),
-    borderTopRightRadius: ms(26),
-    borderTopWidth: 0.75,
-    borderTopColor: colors.border.default,
     height: '70%',
-    overflow: 'hidden',
-    // Shadow
-    ...shadows.sheet,
-  },
-  dragArea: {
-    // This area is draggable
-  },
-  handleContainer: {
-    alignItems: 'center',
-    paddingTop: vs(spacing.sm),
-    paddingBottom: vs(spacing.sm),
-  },
-  handle: {
-    width: s(componentSizes.sheetHandleWidth),
-    height: vs(componentSizes.sheetHandleHeight),
-    borderRadius: 75,
-    backgroundColor: colors.sheet.handle,
-    opacity: opacity.faint,
   },
   header: {
     flexDirection: 'row',
@@ -1116,6 +906,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     backgroundColor: 'transparent',
     paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   // NFT metadata section styles
   nftMediaContainer: {

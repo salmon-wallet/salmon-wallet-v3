@@ -16,6 +16,7 @@ import { wordlist } from '@scure/bip39/wordlists/english.js';
 import { BIP32Factory, type BIP32Interface } from 'bip32';
 import * as ecc from '@bitcoinerlab/secp256k1';
 import { Keypair } from '@solana/web3.js';
+import { sha256 } from '@noble/hashes/sha256';
 import HDKey from 'micro-key-producer/slip10.js';
 import { pbkdf2 } from './fastCrypto';
 
@@ -38,7 +39,9 @@ const bip32 = BIP32Factory(ecc);
  *
  * Call `clearSeedCache()` once the mnemonic is no longer needed in memory.
  */
-const seedCache = new Map<string, Buffer>();
+const SEED_CACHE_TTL_MS = 30_000;
+
+const seedCache = new Map<string, { seed: Buffer; expiresAt: number }>();
 
 /**
  * In-flight promise deduplication.
@@ -50,12 +53,18 @@ const seedCache = new Map<string, Buffer>();
  */
 const inflightSeeds = new Map<string, Promise<Buffer>>();
 
+function hashCacheKey(mnemonic: string, passphrase: string): string {
+  const data = new TextEncoder().encode(`${mnemonic}\0${passphrase}`);
+  return Buffer.from(sha256(data)).toString('hex');
+}
+
 /**
  * Clears the in-memory seed cache.
  * Call after unlock/restore completes to minimise sensitive data exposure.
  */
 export function clearSeedCache(): void {
   seedCache.clear();
+  inflightSeeds.clear();
 }
 
 /**
@@ -185,11 +194,12 @@ export async function mnemonicToSeed(
   mnemonic: string,
   passphrase: string = ''
 ): Promise<Buffer> {
-  const cacheKey = `${mnemonic}\0${passphrase}`;
+  const cacheKey = hashCacheKey(mnemonic, passphrase);
 
-  // 1. Return cached seed immediately
+  // 1. Return cached seed if not expired
   const cached = seedCache.get(cacheKey);
-  if (cached) return cached;
+  if (cached && cached.expiresAt > Date.now()) return cached.seed;
+  if (cached) seedCache.delete(cacheKey);
 
   // 2. Deduplicate concurrent calls (e.g. Promise.all in account-factory)
   const inflight = inflightSeeds.get(cacheKey);
@@ -201,7 +211,7 @@ export async function mnemonicToSeed(
 
   try {
     const seed = await promise;
-    seedCache.set(cacheKey, seed);
+    seedCache.set(cacheKey, { seed, expiresAt: Date.now() + SEED_CACHE_TTL_MS });
     return seed;
   } finally {
     inflightSeeds.delete(cacheKey);
@@ -427,8 +437,10 @@ export function generateValidationPositions(
   for (let i = 0; i < count; i++) {
     const sectionStart = i * sectionSize;
     const sectionEnd = (i + 1) * sectionSize;
-    // Random position within this section (1-indexed)
-    const pos = Math.floor(Math.random() * (sectionEnd - sectionStart)) + sectionStart + 1;
+    const range = sectionEnd - sectionStart;
+    const randomBytes = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(randomBytes);
+    const pos = (randomBytes[0] % range) + sectionStart + 1;
     positions.push(pos);
   }
 

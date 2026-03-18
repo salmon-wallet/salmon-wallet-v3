@@ -1,15 +1,10 @@
 /**
  * LockScreenOverlay - Animated lock screen overlay with slide animation
  *
- * This component renders the lock screen as an overlay on top of the app content.
- * The lock screen acts like a curtain/sheet that slides down when locking and
- * slides up when unlocking, revealing the home screen underneath.
- *
- * Features:
- * - Password-based unlock with PBKDF2 key derivation
- * - Optional biometric unlock (Face ID / Touch ID) via injectable BiometricConfig
- * - Slide-down animation when locking (entering)
- * - Slide-up animation when unlocking (exiting)
+ * UX Flow:
+ * 1. If biometric is enabled + key stored → auto-prompt Face ID/Touch ID
+ * 2. If biometric fails/cancelled → show password input as fallback
+ * 3. If biometric not available → show password input directly
  *
  * Animation:
  * - Lock: translateY from -screenHeight to 0 (slide down into view)
@@ -72,8 +67,7 @@ import type { LockScreenOverlayProps } from './types';
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
-// Animation configuration
-const ANIMATION_DURATION = 800; // ms - slower for better visual effect
+const UNLOCK_ANIMATION_DURATION = 600;
 
 // ============================================================================
 // Component
@@ -87,14 +81,12 @@ export function LockScreenOverlay({
   onRemoveAllAccounts,
   onAnimationComplete,
   biometric,
+  headerHeight,
 }: LockScreenOverlayProps) {
-  // Translation hook
   const { t } = useTranslation();
-
-  // Get screen dimensions reactively
   const { height: screenHeight } = useWindowDimensions();
 
-  // Extract biometric properties (with safe defaults when not provided)
+  // Extract biometric properties
   const biometricState = biometric?.state;
   const authenticateWithBiometric = biometric?.authenticateWithBiometric;
   const storeKeyForBiometric = biometric?.storeKeyForBiometric;
@@ -108,20 +100,31 @@ export function LockScreenOverlay({
   const [error, setError] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [isVisible, setIsVisible] = useState(locked);
-  const hasAutoPromptedBiometric = useRef(false);
 
-  // Determine if biometric button should be shown
-  const showBiometricButton =
+  // Whether to show the password fallback UI (hidden when biometric is primary)
+  const [showPasswordFallback, setShowPasswordFallback] = useState(false);
+
+  // Whether biometric state has been determined (async loading complete)
+  const [biometricReady, setBiometricReady] = useState(false);
+
+  // Track if we've already auto-prompted biometric for this lock session
+  const hasAutoPromptedBiometric = useRef(false);
+  // Guard against concurrent biometric attempts
+  const biometricInProgress = useRef(false);
+
+  // Can we use biometric for unlock?
+  const canUseBiometric =
     biometricState?.isAvailable &&
     biometricState?.hasStoredKey &&
     enableBiometric &&
-    !!onUnlockWithKey;
+    !!onUnlockWithKey &&
+    !!authenticateWithBiometric;
 
   // Get the appropriate biometric icon
   const getBiometricIcon = (): IoniconsName => {
     switch (biometricState?.biometricType) {
       case 'facial':
-        return 'scan-outline'; // Face ID style icon
+        return 'scan-outline';
       case 'fingerprint':
         return 'finger-print-outline';
       case 'iris':
@@ -131,7 +134,7 @@ export function LockScreenOverlay({
     }
   };
 
-  // Get biometric label for accessibility
+  // Get biometric label
   const getBiometricLabel = () => {
     switch (biometricState?.biometricType) {
       case 'facial':
@@ -145,38 +148,32 @@ export function LockScreenOverlay({
     }
   };
 
-  // Animation - shared value for Y position
-  // Initialize based on locked state: if locked, start visible (0); if not locked, start off-screen (-screenHeight)
+  // Animation
   const translateY = useSharedValue(locked ? 0 : -screenHeight);
 
-  // Animated style for the overlay
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
 
-  // Handle locked state changes - animate slide down (lock) or slide up (unlock)
+  // -------------------------------------------------------------------------
+  // Lock/Unlock Animation
+  // -------------------------------------------------------------------------
+
   useEffect(() => {
     if (locked) {
-      // Locking - slide DOWN into view (curtain coming down)
-      // First make visible, then animate from off-screen to on-screen
-      if (!isVisible) {
-        setIsVisible(true);
-        setPassword('');
-        setError(null);
-        // Start from above the screen
-        translateY.value = -screenHeight;
-      }
-      // Animate down into view
-      translateY.value = withTiming(0, {
-        duration: ANIMATION_DURATION,
-        easing: Easing.out(Easing.cubic),
-      });
+      // Gate appears instantly — no slide-down animation
+      setIsVisible(true);
+      setPassword('');
+      setError(null);
+      setShowPasswordFallback(false);
+      translateY.value = 0;
     } else if (isVisible) {
-      // Unlocking - slide UP out of view (curtain going up)
+      // Unlock: slide gate up to header position, then hide
+      const targetY = headerHeight ? -(screenHeight - headerHeight) : -screenHeight;
       translateY.value = withTiming(
-        -screenHeight,
+        targetY,
         {
-          duration: ANIMATION_DURATION,
+          duration: UNLOCK_ANIMATION_DURATION,
           easing: Easing.in(Easing.cubic),
         },
         (finished) => {
@@ -189,19 +186,113 @@ export function LockScreenOverlay({
         }
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- isVisible/onAnimationComplete intentionally omitted to avoid re-triggering animations
-  }, [locked, screenHeight, translateY]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locked, screenHeight, headerHeight, translateY]);
 
-  /**
-   * Handle unlock attempt with password validation
-   */
+  // -------------------------------------------------------------------------
+  // Biometric Unlock
+  // -------------------------------------------------------------------------
+
+  const handleBiometricUnlock = useCallback(async () => {
+    if (!onUnlockWithKey || !authenticateWithBiometric) return;
+    if (biometricInProgress.current) return;
+
+    biometricInProgress.current = true;
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const keyJson = await authenticateWithBiometric();
+
+      if (!keyJson) {
+        // User cancelled or auth failed — show password fallback
+        setShowPasswordFallback(true);
+        return;
+      }
+
+      const success = await onUnlockWithKey(keyJson);
+
+      if (!success) {
+        setError(t('lock.biometric_unlock_failed') || 'Biometric unlock failed');
+        setShowPasswordFallback(true);
+      }
+    } catch (err) {
+      console.error('Biometric unlock failed:', err);
+      setError(t('lock.biometric_unlock_failed') || 'Biometric unlock failed');
+      setShowPasswordFallback(true);
+    } finally {
+      setIsLoading(false);
+      biometricInProgress.current = false;
+    }
+  }, [onUnlockWithKey, authenticateWithBiometric, t]);
+
+  // -------------------------------------------------------------------------
+  // Auto-prompt biometric when lock screen appears
+  // -------------------------------------------------------------------------
+
+  // Reset state when unlocked
+  useEffect(() => {
+    if (!locked || !isVisible) {
+      hasAutoPromptedBiometric.current = false;
+      setBiometricReady(false);
+      setShowPasswordFallback(false);
+    }
+  }, [isVisible, locked]);
+
+  // Refresh biometric state when lock screen becomes visible,
+  // then mark biometric as ready so we can decide what to show
+  useEffect(() => {
+    if (!isVisible || !locked) return;
+
+    let cancelled = false;
+
+    const init = async () => {
+      if (refreshBiometricState) {
+        await refreshBiometricState();
+      }
+      if (!cancelled) {
+        setBiometricReady(true);
+      }
+    };
+
+    void init();
+
+    return () => { cancelled = true; };
+  }, [isVisible, locked, refreshBiometricState]);
+
+  // Once biometric state is ready, decide: auto-prompt biometric OR show password
+  useEffect(() => {
+    if (!locked || !isVisible || !biometricReady || hasAutoPromptedBiometric.current) {
+      return;
+    }
+
+    hasAutoPromptedBiometric.current = true;
+
+    if (canUseBiometric) {
+      // Delay to let the lock animation settle before Face ID prompt
+      const timer = setTimeout(() => {
+        void handleBiometricUnlock();
+      }, 400);
+      return () => clearTimeout(timer);
+    } else {
+      // No biometric available — show password immediately
+      setShowPasswordFallback(true);
+    }
+  // canUseBiometric and handleBiometricUnlock are intentionally evaluated only
+  // when biometricReady flips to true. We don't want re-runs on their changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locked, isVisible, biometricReady]);
+
+  // -------------------------------------------------------------------------
+  // Password Unlock
+  // -------------------------------------------------------------------------
+
   const handleUnlock = useCallback(async () => {
     if (!password.trim()) {
       setError(t('lock.enter_password_error'));
       return;
     }
 
-    // Don't show loading screen - let the slide animation be visible
     setIsLoading(true);
     setError(null);
     Keyboard.dismiss();
@@ -212,7 +303,7 @@ export function LockScreenOverlay({
       if (!success) {
         setError(t('lock.wrong_password'));
         setPassword('');
-        setShowLoadingScreen(false); // Hide on error
+        setShowLoadingScreen(false);
       } else {
         // On successful password unlock, store the derived key for biometric
         if (enableBiometric && onGetDerivedKey && storeKeyForBiometric) {
@@ -222,101 +313,30 @@ export function LockScreenOverlay({
               await storeKeyForBiometric(keyJson);
             }
           } catch (keyError) {
-            // Non-critical - biometric storage failed but password unlock succeeded
             console.warn('Failed to store key for biometric:', keyError);
           }
         }
       }
-      // If success, the locked state will change and trigger the animation
-      // Don't hide loading screen on success - the overlay will dismiss
     } catch (err) {
       console.error('Unlock failed:', err);
       setError(t('lock.unlock_failed'));
       setPassword('');
-      setShowLoadingScreen(false); // Hide on error
+      setShowLoadingScreen(false);
     } finally {
       setIsLoading(false);
     }
   }, [password, onUnlock, t, enableBiometric, onGetDerivedKey, storeKeyForBiometric]);
 
-  /**
-   * Handle biometric unlock attempt.
-   * Uses the cached derived key to unlock without PBKDF2 derivation.
-   */
-  const handleBiometricUnlock = useCallback(async () => {
-    if (!onUnlockWithKey || !authenticateWithBiometric) return;
+  // -------------------------------------------------------------------------
+  // Forgot Password
+  // -------------------------------------------------------------------------
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Authenticate with biometrics and get the stored key
-      const keyJson = await authenticateWithBiometric();
-
-      if (!keyJson) {
-        // User cancelled or authentication failed
-        setIsLoading(false);
-        return;
-      }
-
-      // Don't show loading screen - let the slide animation be visible
-      // Unlock using the cached derived key (no PBKDF2 needed)
-      const success = await onUnlockWithKey(keyJson);
-
-      if (!success) {
-        setError(t('lock.biometric_unlock_failed') || 'Biometric unlock failed');
-        setShowLoadingScreen(false);
-      }
-      // If success, the locked state will change and trigger the animation
-    } catch (err) {
-      console.error('Biometric unlock failed:', err);
-      setError(t('lock.biometric_unlock_failed') || 'Biometric unlock failed');
-      setShowLoadingScreen(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onUnlockWithKey, authenticateWithBiometric, t]);
-
-  // Refresh biometric state when component becomes visible
-  useEffect(() => {
-    if (isVisible && refreshBiometricState) {
-      refreshBiometricState();
-    }
-  }, [isVisible, refreshBiometricState]);
-
-  useEffect(() => {
-    if (!locked || !isVisible) {
-      hasAutoPromptedBiometric.current = false;
-    }
-  }, [isVisible, locked]);
-
-  useEffect(() => {
-    if (
-      !locked ||
-      !isVisible ||
-      !showBiometricButton ||
-      isLoading ||
-      hasAutoPromptedBiometric.current
-    ) {
-      return;
-    }
-
-    hasAutoPromptedBiometric.current = true;
-    void handleBiometricUnlock();
-  }, [handleBiometricUnlock, isLoading, isVisible, locked, showBiometricButton]);
-
-  /**
-   * Handle forgot password - shows warning and offers to reset wallet
-   */
   const handleForgotPassword = useCallback(() => {
     Alert.alert(
       t('lock.reset_wallet_title'),
       t('lock.reset_wallet_message'),
       [
-        {
-          text: t('lock.cancel'),
-          style: 'cancel',
-        },
+        { text: t('lock.cancel'), style: 'cancel' },
         {
           text: t('lock.reset_button'),
           style: 'destructive',
@@ -325,17 +345,13 @@ export function LockScreenOverlay({
               t('lock.confirm_title'),
               t('lock.confirm_message'),
               [
-                {
-                  text: t('lock.cancel'),
-                  style: 'cancel',
-                },
+                { text: t('lock.cancel'), style: 'cancel' },
                 {
                   text: t('lock.delete_button'),
                   style: 'destructive',
                   onPress: async () => {
                     try {
                       await onRemoveAllAccounts();
-                      // Navigation will be handled by the parent layout
                     } catch (err) {
                       console.error('Failed to reset wallet:', err);
                       Alert.alert(t('general.error'), t('lock.reset_failed'));
@@ -350,23 +366,26 @@ export function LockScreenOverlay({
     );
   }, [onRemoveAllAccounts, t]);
 
-  /**
-   * Determine input border color based on state
-   */
+  // -------------------------------------------------------------------------
+  // Helpers
+  // -------------------------------------------------------------------------
+
   const getInputBorderColor = () => {
     if (error) return colors.status.error;
     if (isFocused) return colors.accent.primary;
     return colors.input.border;
   };
 
-  // Don't render if not visible
   if (!isVisible) {
     return null;
   }
 
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
+
   return (
     <>
-      {/* Existing overlay content */}
       <Animated.View style={[styles.overlay, animatedStyle]}>
         <LinearGradient
           colors={[colors.background.primary, colors.background.secondary]}
@@ -382,9 +401,8 @@ export function LockScreenOverlay({
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               >
                 <View style={styles.content}>
-                  {/* Logo Section - Figma node 1702:6391 */}
+                  {/* Logo Section */}
                   <View style={styles.logoSection}>
-                    {/* Logo */}
                     <View style={styles.logoContainer}>
                       <Image
                         source={Logo}
@@ -393,100 +411,77 @@ export function LockScreenOverlay({
                       />
                     </View>
 
-                    {/* Welcome Text */}
                     <Text style={styles.welcomeText}>{t('lock.welcome_back')}</Text>
 
-                    {/* Password Input */}
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={[
-                          styles.input,
-                          { borderColor: getInputBorderColor() },
-                        ]}
-                        placeholder={t('lock.enter_password')}
-                        placeholderTextColor={colors.text.secondary}
-                        secureTextEntry
-                        value={password}
-                        onChangeText={(text) => {
-                          setPassword(text);
-                          if (error) setError(null);
-                        }}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => setIsFocused(false)}
-                        onSubmitEditing={handleUnlock}
-                        editable={!isLoading}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        returnKeyType="done"
-                      />
+                    {/* Password Input - only shown as fallback */}
+                    {showPasswordFallback && (
+                      <View style={styles.inputContainer}>
+                        <TextInput
+                          style={[
+                            styles.input,
+                            { borderColor: getInputBorderColor() },
+                          ]}
+                          placeholder={t('lock.enter_password')}
+                          placeholderTextColor={colors.text.secondary}
+                          secureTextEntry
+                          value={password}
+                          onChangeText={(text) => {
+                            setPassword(text);
+                            if (error) setError(null);
+                          }}
+                          onFocus={() => setIsFocused(true)}
+                          onBlur={() => setIsFocused(false)}
+                          onSubmitEditing={handleUnlock}
+                          editable={!isLoading}
+                          autoCapitalize="none"
+                          autoCorrect={false}
+                          returnKeyType="done"
+                        />
 
-                      {/* Error Message */}
-                      {error && (
-                        <Text style={styles.errorText}>{error}</Text>
-                      )}
-                    </View>
+                        {error && (
+                          <Text style={styles.errorText}>{error}</Text>
+                        )}
+                      </View>
+                    )}
                   </View>
 
-                  {/* Button Section - Figma node 1702:6407 */}
-                  <View style={styles.buttonSection}>
-                    {/* Unlock Button */}
-                    <TouchableOpacity
-                      onPress={handleUnlock}
-                      disabled={isLoading || !password.trim()}
-                      activeOpacity={0.8}
-                      style={styles.buttonContainer}
-                    >
-                      <LinearGradient
-                        colors={[...gradients.primary.colors]}
-                        style={[
-                          styles.button,
-                          (isLoading || !password.trim()) && styles.buttonDisabled,
-                        ]}
-                        start={gradients.primary.start}
-                        end={gradients.primary.end}
-                      >
-                        {isLoading ? (
-                          <ActivityIndicator color={colors.text.primary} />
-                        ) : (
-                          <Text style={styles.buttonText}>{t('lock.unlock')}</Text>
-                        )}
-                      </LinearGradient>
-                    </TouchableOpacity>
-
-                    {/* Biometric Unlock Button */}
-                    {showBiometricButton && (
+                  {/* Button Section — only shown when password fallback is active */}
+                  {showPasswordFallback && (
+                    <View style={styles.buttonSection}>
                       <TouchableOpacity
-                        onPress={handleBiometricUnlock}
-                        disabled={isLoading}
-                        activeOpacity={0.7}
-                        style={styles.biometricContainer}
-                        accessibilityLabel={getBiometricLabel()}
-                        accessibilityRole="button"
+                        onPress={handleUnlock}
+                        disabled={isLoading || !password.trim()}
+                        activeOpacity={0.8}
+                        style={styles.buttonContainer}
                       >
-                        <View style={styles.biometricButton}>
-                          <Ionicons
-                            name={getBiometricIcon()}
-                            size={ms(32)}
-                            color={colors.text.primary}
-                          />
-                        </View>
-                        <Text style={styles.biometricText}>
-                          {getBiometricLabel()}
+                        <LinearGradient
+                          colors={[...gradients.primary.colors]}
+                          style={[
+                            styles.button,
+                            (isLoading || !password.trim()) && styles.buttonDisabled,
+                          ]}
+                          start={gradients.primary.start}
+                          end={gradients.primary.end}
+                        >
+                          {isLoading ? (
+                            <ActivityIndicator color={colors.text.primary} />
+                          ) : (
+                            <Text style={styles.buttonText}>{t('lock.unlock')}</Text>
+                          )}
+                        </LinearGradient>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={handleForgotPassword}
+                        disabled={isLoading}
+                        style={styles.forgotPasswordContainer}
+                      >
+                        <Text style={styles.forgotPasswordText}>
+                          {t('lock.forgot_password')}
                         </Text>
                       </TouchableOpacity>
-                    )}
-
-                    {/* Forgot Password Link */}
-                    <TouchableOpacity
-                      onPress={handleForgotPassword}
-                      disabled={isLoading}
-                      style={styles.forgotPasswordContainer}
-                    >
-                      <Text style={styles.forgotPasswordText}>
-                        {t('lock.forgot_password')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                    </View>
+                  )}
                 </View>
               </KeyboardAvoidingView>
             </TouchableWithoutFeedback>
@@ -494,7 +489,6 @@ export function LockScreenOverlay({
         </LinearGradient>
       </Animated.View>
 
-      {/* Loading Screen during unlock */}
       <LoadingScreen
         visible={showLoadingScreen}
         title={t('lock.unlocking') || 'Unlocking Wallet'}
@@ -539,10 +533,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: vs(spacing.lockScreenSectionGap),
   },
-  logoContainer: {
-    // No margin - using gap in parent
-  },
-  // Adjusted: larger logo for better visibility
+  logoContainer: {},
   logo: {
     width: s(componentSizes.lockScreenLogoSize),
     height: s(componentSizes.lockScreenLogoSize),
@@ -592,7 +583,6 @@ const styles = StyleSheet.create({
     borderColor: colors.accent.border,
     alignItems: 'center',
     justifyContent: 'center',
-    // Shadow for button
     ...shadows.button,
   },
   buttonDisabled: {

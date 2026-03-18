@@ -12,8 +12,8 @@ export type BlockchainType = 'solana' | 'bitcoin' | 'ethereum';
 export interface TokenListItemProps {
   /** Token data to display */
   token: Token;
-  /** Callback when token item is pressed */
-  onPress: (token: Token) => void;
+  /** Callback when token item is pressed (omit to render non-pressable) */
+  onPress?: (token: Token) => void;
   /** Whether to hide balance values */
   hiddenBalance?: boolean;
   /** Current blockchain for layout variations (Bitcoin has different layout) */

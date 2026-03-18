@@ -11,7 +11,7 @@ import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
  */
 export interface RequestMessage {
   jsonrpc: '2.0';
-  id: number;
+  id: string;
   method: string;
   params: Record<string, unknown>;
 }
@@ -21,7 +21,7 @@ export interface RequestMessage {
  */
 export interface ResponseMessage {
   jsonrpc: '2.0';
-  id: number;
+  id: string;
   method?: string;
   result?: unknown;
   params?: Record<string, unknown>;
@@ -120,12 +120,10 @@ interface ContentScriptMessageEvent extends CustomEvent<ContentScriptMessageDeta
  */
 export class SolanaProvider extends EventEmitter<SolanaProviderEvents> {
   #publicKey: PublicKey | null = null;
-  #nextRequestId = 1;
 
   constructor() {
     super();
     this.#publicKey = null;
-    this.#nextRequestId = 1;
   }
 
   /**
@@ -198,7 +196,7 @@ export class SolanaProvider extends EventEmitter<SolanaProviderEvents> {
     try {
       return await this.sendMessage({
         jsonrpc: '2.0',
-        id: this.#nextRequestId++,
+        id: crypto.randomUUID(),
         method,
         params,
       });
@@ -336,16 +334,4 @@ export class SolanaProvider extends EventEmitter<SolanaProviderEvents> {
     return { signature: new Uint8Array(signature) };
   };
 
-  /**
-   * Posts a message and forwards the response via window.postMessage
-   * Used for legacy compatibility
-   */
-  postMessage = async (message: RequestMessage): Promise<void> => {
-    try {
-      const detail = await this.sendMessage(message);
-      window.postMessage(detail, '*');
-    } catch (error) {
-      window.postMessage(error, '*');
-    }
-  };
 }

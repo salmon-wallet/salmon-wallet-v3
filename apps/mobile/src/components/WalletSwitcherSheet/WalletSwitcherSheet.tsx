@@ -42,7 +42,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { TopSheet } from '../TopSheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   colors,
   spacing,
@@ -199,6 +199,7 @@ export function WalletSwitcherSheet({
   onDeleteAccount,
 }: WalletSwitcherSheetProps): React.ReactElement {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   // Top fade gradient opacity
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
@@ -351,40 +352,31 @@ export function WalletSwitcherSheet({
   );
 
   return (
-    <TopSheet
-      visible={visible}
-      onClose={onClose}
-      title={t('settings.wallets.your_wallets')}
-      testID="wallet-switcher-sheet"
-      maxHeightPercentage={0.6}
-      contentStyle={styles.content}
-    >
-      <View style={styles.listWrapper}>
-        <FlatList
-          data={accounts}
-          renderItem={renderAccountItem}
-          keyExtractor={keyExtractor}
-          ListFooterComponent={ListFooter}
-          ListEmptyComponent={ListEmpty}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-        />
+    <View style={styles.listWrapper}>
+      <FlatList
+        data={accounts}
+        renderItem={renderAccountItem}
+        keyExtractor={keyExtractor}
+        ListFooterComponent={ListFooter}
+        ListEmptyComponent={ListEmpty}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.listContent, { paddingBottom: spacing.md + insets.top + componentSizes.headerHeight }]}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      />
 
-        {/* Top fade gradient */}
-        <Animated.View
-          style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
-          pointerEvents="none"
-        >
-          <LinearGradient
-            colors={[colors.background.primary, 'transparent']}
-            style={StyleSheet.absoluteFill}
-          />
-        </Animated.View>
-      </View>
-    </TopSheet>
+      {/* Top fade gradient */}
+      <Animated.View
+        style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+        pointerEvents="none"
+      >
+        <LinearGradient
+          colors={[colors.background.primary, 'transparent']}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
+    </View>
   );
 }
 

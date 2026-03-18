@@ -61,6 +61,14 @@ export default function AuthLayout() {
         }}
       />
 
+      {/* Biometric enrollment (optional) */}
+      <Stack.Screen
+        name="biometric"
+        options={{
+          gestureEnabled: false,
+        }}
+      />
+
       {/* Success confirmation */}
       <Stack.Screen
         name="success"

@@ -506,7 +506,6 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       await setStorageItem(STORAGE_KEYS.MNEMONICS, newVault);
 
       // Update stash caches
-      await setStashItem(STASH_KEYS.PASSWORD, newPassword);
       await removeStashItem(STASH_KEYS.DERIVED_KEY);
 
       return true;
@@ -517,8 +516,6 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
 
   const lockAccounts = useCallback(async (): Promise<void> => {
     setLocked(true);
-    await removeStashItem(STASH_KEYS.PASSWORD);
-    // Clear cached derived key for security
     await removeStashItem(STASH_KEYS.DERIVED_KEY);
   }, []);
 
@@ -565,8 +562,6 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
         setLocked(false);
         await updateLastActivity();
 
-        await setStashItem(STASH_KEYS.PASSWORD, password);
-
         return true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Failed to unlock accounts';
@@ -589,9 +584,11 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
   const unlockWithCachedKey = useCallback(
     async (keyCache: DerivedKeyCache): Promise<boolean> => {
       try {
-        // Validate the key cache
-        if (!isKeyCacheValid(keyCache)) {
-          console.warn('Key cache is expired or invalid');
+        // Validate the key cache structure (but NOT expiry).
+        // Biometric-stored keys are permanent — they don't expire.
+        // The TTL check only matters for the in-memory stash (web/extension).
+        if (!keyCache || !keyCache.key || !keyCache.salt) {
+          console.warn('Key cache is invalid');
           return false;
         }
 
@@ -646,9 +643,9 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
           setRequiredLock(true);
 
           let result = false;
-          const password = await getStashItem<string>(STASH_KEYS.PASSWORD);
-          if (password) {
-            result = await unlockAccounts(password);
+          const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
+          if (cachedKey && isKeyCacheValid(cachedKey)) {
+            result = await unlockWithCachedKey(cachedKey);
           }
           if (!result) {
             // Load account metadata even when locked so the lock screen can display
@@ -886,7 +883,6 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
     await removeStorageItem(STORAGE_KEYS.CONNECTION);
 
     // Clear session data including cached key
-    await removeStashItem(STASH_KEYS.PASSWORD);
     await removeStashItem(STASH_KEYS.DERIVED_KEY);
 
     setLocked(false);

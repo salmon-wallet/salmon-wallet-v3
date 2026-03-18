@@ -21,9 +21,11 @@ import { PrimaryButton, SecondaryButton } from '../Button';
 
 interface BackupPanelProps {
   onBack: () => void;
+  biometricAvailable?: boolean;
+  authenticateWithBiometric?: () => Promise<string | null>;
 }
 
-export function BackupPanel({ onBack }: BackupPanelProps) {
+export function BackupPanel({ onBack, biometricAvailable, authenticateWithBiometric }: BackupPanelProps) {
   const { t } = useTranslation();
   const [accountState] = useAccountsContext();
   const { activeAccount } = accountState;
@@ -34,9 +36,13 @@ export function BackupPanel({ onBack }: BackupPanelProps) {
   const mnemonic = useMemo(() => activeAccount?.mnemonic || '', [activeAccount]);
   const words = useMemo(() => mnemonic.split(' ').filter(Boolean), [mnemonic]);
 
-  const handleReveal = useCallback(() => {
+  const handleReveal = useCallback(async () => {
+    if (!showSeedPhrase && biometricAvailable && authenticateWithBiometric) {
+      const result = await authenticateWithBiometric();
+      if (result === null) return;
+    }
     setShowSeedPhrase((prev) => !prev);
-  }, []);
+  }, [showSeedPhrase, biometricAvailable, authenticateWithBiometric]);
 
   const handleCopy = useCallback(async () => {
     if (!showSeedPhrase || !mnemonic) return;

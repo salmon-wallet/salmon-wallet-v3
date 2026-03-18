@@ -787,24 +787,23 @@ export function HomePage(): React.ReactElement {
                 <TopListFade ref={topFadeRef} />
                 {currentBlockchain === 'bitcoin' ? (
                   <TokenSection onScroll={handleTokenListScroll}>
-                    {(switchingNetwork || refreshing) ? (
-                      <TokenListSkeleton count={1} />
-                    ) : bitcoinToken && (
-                      <TokenListItem
-                        token={bitcoinToken}
-                        onPress={handleTokenPress}
-                        hiddenBalance={hiddenBalance}
-                        blockchain="bitcoin"
-                      />
-                    )}
                     <PriceChart
                       data={bitcoinChartData}
                       selectedPeriod={bitcoinChartPeriod}
                       onPeriodChange={setBitcoinChartPeriod}
                       loading={bitcoinDataLoading && bitcoinChartData.length === 0}
                       height={180}
-                      style={{ marginTop: spacing.md, marginLeft: -spacing.lg, marginRight: -spacing.lg }}
+                      style={{ marginLeft: -spacing.lg, marginRight: -spacing.lg }}
                     />
+                    {(switchingNetwork || refreshing) ? (
+                      <TokenListSkeleton count={1} />
+                    ) : bitcoinToken && (
+                      <TokenListItem
+                        token={bitcoinToken}
+                        hiddenBalance={hiddenBalance}
+                        blockchain="bitcoin"
+                      />
+                    )}
                     <TokenMarketData
                       data={bitcoinMarketData}
                       symbol="BTC"

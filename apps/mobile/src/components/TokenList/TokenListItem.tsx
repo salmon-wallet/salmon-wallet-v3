@@ -75,7 +75,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange, tags } = token;
 
   const handlePress = React.useCallback(() => {
-    onPress(token);
+    onPress?.(token);
   }, [onPress, token]);
 
   // Get the label type for coloring the percentage and absolute change
@@ -105,14 +105,18 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
 
   // Bitcoin has a different layout showing price, change, and BTC amount
   if (blockchain === 'bitcoin') {
+    const Wrapper = onPress ? TouchableOpacity : View;
+    const wrapperProps = onPress ? {
+      onPress: handlePress,
+      activeOpacity: 0.7,
+      accessibilityRole: 'button' as const,
+      accessibilityLabel: `${name} token, price ${price}, balance ${uiAmount} ${symbol}`,
+    } : {};
     return (
       <BlurContainer style={[styles.glassWrapper, style]} borderWidth={borderWidth.tokenListItem}>
-        <TouchableOpacity
+        <Wrapper
           style={styles.bitcoinContainer}
-          onPress={handlePress}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel={`${name} token, price ${price}, balance ${uiAmount} ${symbol}`}
+          {...wrapperProps}
         >
           {/* Token Logo */}
           <TokenLogo
@@ -148,7 +152,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
               {displayTokenAmount}
             </Text>
           </View>
-        </TouchableOpacity>
+        </Wrapper>
       </BlurContainer>
     );
   }
