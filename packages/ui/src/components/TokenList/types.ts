@@ -13,7 +13,7 @@ export interface TokenListItemProps {
   /** Token data to display */
   token: Token;
   /** Callback when token item is pressed */
-  onPress: (token: Token) => void;
+  onPress?: (token: Token) => void;
   /** Whether to hide balance values */
   hiddenBalance?: boolean;
   /** Blockchain type for layout variation */

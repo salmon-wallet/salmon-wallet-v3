@@ -198,7 +198,7 @@ export async function createBurnTransaction(
 
   const { data } = await apiClient.post<TransactionResponse>(
     `/v1/${networkId}/nft/${mintAddress}`,
-    {},
+    undefined,
     {
       params: {
         owner: ownerAddress,

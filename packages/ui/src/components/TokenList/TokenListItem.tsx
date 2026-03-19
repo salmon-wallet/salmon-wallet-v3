@@ -222,7 +222,7 @@ export function TokenListItem({
   const { name, symbol, logo, price, uiAmount, usdBalance, last24HoursChange, tags } = token;
 
   const handlePress = useCallback(() => {
-    onPress(token);
+    onPress?.(token);
   }, [onPress, token]);
 
   const percentageChange = last24HoursChange?.perc ?? 0;
@@ -258,10 +258,8 @@ export function TokenListItem({
     return (
       <BlurContainer borderWidth={borderWidth.tokenListItem} style={blurContainerStyle}>
       <BitcoinContainer
-        onClick={handlePress}
         style={style}
         className={className}
-        role="button"
         aria-label={`${name} token, balance ${uiAmount} ${symbol}`}
       >
         {logo ? (

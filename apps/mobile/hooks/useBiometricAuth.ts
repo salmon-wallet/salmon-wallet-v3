@@ -297,6 +297,25 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
    *
    * @returns The stored key JSON if successful, null otherwise
    */
+  /**
+   * Clears the stored biometric key.
+   *
+   * Call this when:
+   * - User logs out
+   * - User resets the wallet
+   * - User disables biometric unlock
+   * - Password is changed (key would be invalid)
+   */
+  const clearBiometricKey = useCallback(async (): Promise<void> => {
+    try {
+      await SecureStore.deleteItemAsync(BIOMETRIC_KEY_STORAGE);
+      await SecureStore.deleteItemAsync(BIOMETRIC_KEY_EXISTS_FLAG);
+      setState((prev) => ({ ...prev, hasStoredKey: false }));
+    } catch (error) {
+      console.error('Failed to clear biometric key:', error);
+    }
+  }, []);
+
   const authenticateWithBiometric = useCallback(async (): Promise<string | null> => {
     try {
       if (!state.isAvailable) {
@@ -324,26 +343,7 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
       }
       return null;
     }
-  }, [state.isAvailable]);
-
-  /**
-   * Clears the stored biometric key.
-   *
-   * Call this when:
-   * - User logs out
-   * - User resets the wallet
-   * - User disables biometric unlock
-   * - Password is changed (key would be invalid)
-   */
-  const clearBiometricKey = useCallback(async (): Promise<void> => {
-    try {
-      await SecureStore.deleteItemAsync(BIOMETRIC_KEY_STORAGE);
-      await SecureStore.deleteItemAsync(BIOMETRIC_KEY_EXISTS_FLAG);
-      setState((prev) => ({ ...prev, hasStoredKey: false }));
-    } catch (error) {
-      console.error('Failed to clear biometric key:', error);
-    }
-  }, []);
+  }, [state.isAvailable, clearBiometricKey]);
 
   /**
    * Sets the user's biometric preference.

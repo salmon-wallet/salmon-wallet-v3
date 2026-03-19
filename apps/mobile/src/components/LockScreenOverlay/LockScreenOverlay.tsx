@@ -12,7 +12,6 @@
  * - Duration: 800ms with cubic easing
  */
 
-import { Ionicons } from '@expo/vector-icons';
 import { Logo } from '@salmon/assets';
 import {
   colors,
@@ -32,7 +31,7 @@ import {
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -64,8 +63,6 @@ import type { LockScreenOverlayProps } from './types';
 // ============================================================================
 // Types
 // ============================================================================
-
-type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const UNLOCK_ANIMATION_DURATION = 600;
 
@@ -119,34 +116,6 @@ export function LockScreenOverlay({
     enableBiometric &&
     !!onUnlockWithKey &&
     !!authenticateWithBiometric;
-
-  // Get the appropriate biometric icon
-  const getBiometricIcon = (): IoniconsName => {
-    switch (biometricState?.biometricType) {
-      case 'facial':
-        return 'scan-outline';
-      case 'fingerprint':
-        return 'finger-print-outline';
-      case 'iris':
-        return 'eye-outline';
-      default:
-        return 'finger-print-outline';
-    }
-  };
-
-  // Get biometric label
-  const getBiometricLabel = () => {
-    switch (biometricState?.biometricType) {
-      case 'facial':
-        return t('lock.use_face_id') || 'Use Face ID';
-      case 'fingerprint':
-        return t('lock.use_touch_id') || 'Use Touch ID';
-      case 'iris':
-        return t('lock.use_iris') || 'Use Iris';
-      default:
-        return t('lock.use_biometric') || 'Use Biometric';
-    }
-  };
 
   // Animation
   const translateY = useSharedValue(locked ? 0 : -screenHeight);

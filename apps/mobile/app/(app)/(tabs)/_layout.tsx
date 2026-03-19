@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import { BlurTargetView } from 'expo-blur';
 import { Tabs, useRouter } from 'expo-router';
@@ -498,7 +498,7 @@ export default function TabLayout() {
     ),
   }), [
     activeAccount, accountActions, accounts, accountId, networkId, allNetworks,
-    biometricState, enableBiometric, setEnableBiometric, authenticateWithBiometric,
+    biometricState, enableBiometric, setEnableBiometric, authenticateWithBiometric, clearBiometricKey,
     currentLanguage, availableLanguages, changeLanguage,
     currency, changeCurrency,
     explorers, explorer, changeExplorer, explorerLoading,
@@ -575,7 +575,7 @@ export default function TabLayout() {
   }, [accountActions, router, t]);
 
   const handleRemoveWallet = useCallback(async () => {
-    const { requiredLock, accounts: accts } = accountState;
+    const { accounts: accts } = accountState;
     const currentAccount = activeAccount;
 
     if (!currentAccount) return;

@@ -39,7 +39,6 @@ import {
   componentSizes,
   shadows,
   s,
-  vs,
 } from '@salmon/shared';
 import type { GateContainerProps, GateState } from './types';
 

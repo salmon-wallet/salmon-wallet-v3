@@ -189,7 +189,7 @@ function AccountListItem({
 // ============================================================================
 
 export function WalletSwitcherSheet({
-  visible,
+  visible: _visible,
   onClose,
   accounts,
   activeAccountId,

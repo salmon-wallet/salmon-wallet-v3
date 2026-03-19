@@ -7,7 +7,7 @@ import { colors } from '@salmon/shared';
 import { useFonts } from 'expo-font';
 import { Stack, router, useSegments, useRootNavigationState } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, AppState, type AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
 
