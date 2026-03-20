@@ -453,6 +453,14 @@ export default function CollectiblesScreen() {
         networkId as SolanaNetworkId,
       );
       setBurnPreview(txResponse);
+
+      if (txResponse.lookupTable) {
+        const solAccount = nftAccount as SolanaAccount;
+        const balance = await solAccount.getCredit();
+        if (balance < txResponse.lookupTable.estimatedRentLamports) {
+          setBurnError('Insufficient SOL balance to cover burn transaction fees.');
+        }
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Burn failed';
       setBurnError(msg);

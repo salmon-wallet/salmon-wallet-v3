@@ -68,12 +68,19 @@ export function NftDetailRoute(): React.ReactElement {
     setBurnError(null);
 
     const ownerAddress = collectibleSolanaAccount.getReceiveAddress();
+    const solAccount = collectibleSolanaAccount;
     createBurnTransaction({
       mintAddress: nft.mint,
       ownerAddress,
     })
-      .then((txResponse) => {
+      .then(async (txResponse) => {
         setBurnPreview(txResponse);
+        if (txResponse.lookupTable) {
+          const balance = await solAccount.getCredit();
+          if (balance < txResponse.lookupTable.estimatedRentLamports) {
+            setBurnError('Insufficient SOL balance to cover burn transaction fees.');
+          }
+        }
       })
       .catch((err) => {
         const message = err instanceof Error ? err.message : 'Burn failed';

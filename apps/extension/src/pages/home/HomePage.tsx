@@ -715,12 +715,19 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
     setBurnError(null);
 
     const ownerAddress = collectibleSolanaAccount.getReceiveAddress();
+    const solAccount = collectibleSolanaAccount;
     createBurnTransaction({
       mintAddress: selectedNft.mint,
       ownerAddress,
     })
-      .then((txResponse) => {
+      .then(async (txResponse) => {
         setBurnPreview(txResponse);
+        if (txResponse.lookupTable) {
+          const balance = await solAccount.getCredit();
+          if (balance < txResponse.lookupTable.estimatedRentLamports) {
+            setBurnError('Insufficient SOL balance to cover burn transaction fees.');
+          }
+        }
       })
       .catch((error) => {
         setBurnError(error instanceof Error ? error.message : 'Burn failed');
