@@ -286,7 +286,7 @@ export default function HomeScreen() {
   } = useTransactions({
     address,
     networkId: getTransactionNetworkId(networkId) as NetworkId,
-    skip: !ready || !activeBlockchainAccount || !transactionHistoryVisible,
+    skip: !ready || !activeBlockchainAccount,
     account: activeBlockchainAccount,
   });
 
@@ -947,7 +947,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingTop: spacing.sm,
+    paddingTop: 0,
     paddingBottom: vs(componentSizes.tabBarScrollPadding),
   },
   balanceCard: {
@@ -993,7 +993,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bitcoinContent: {
-    paddingTop: spacing.sm,
+    paddingTop: 0,
     paddingBottom: vs(componentSizes.tabBarScrollPadding),
     gap: vs(spacing.md),
   },

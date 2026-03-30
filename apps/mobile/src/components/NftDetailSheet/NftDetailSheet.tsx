@@ -54,6 +54,7 @@ import {
 } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
 import { BottomSheetContainer } from '../BottomSheetContainer';
+import { BottomSheetTitleHeader } from '../BottomSheetTitleHeader';
 import { InputAddress } from '../InputAddress';
 import { TransactionSuccessScreen } from '../TransactionSuccessScreen';
 import type { NftDetailSheetProps, NftAttribute } from './types';
@@ -416,37 +417,19 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   ) : null;
 
   const sendHeaderContent = nft ? (
-    <>
-      <View style={styles.stepTitleRow}>
-        <TouchableOpacity
-          style={styles.stepBackButton}
-          onPress={handleBackToDetail}
-          activeOpacity={0.7}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="chevron-back" size={ms(24)} color={colors.text.primary} />
-        </TouchableOpacity>
-        <Text style={styles.stepTitle}>{t('nft.send.title', 'Send NFT')}</Text>
-        <View style={styles.stepTitleSpacer} />
-      </View>
-    </>
+    <BottomSheetTitleHeader
+      title={t('nft.send.title', 'Send NFT')}
+      onBack={handleBackToDetail}
+      backAccessibilityLabel={t('general.back', 'Back')}
+    />
   ) : null;
 
   const burnHeaderContent = nft ? (
-    <>
-      <View style={styles.stepTitleRow}>
-        <TouchableOpacity
-          style={styles.stepBackButton}
-          onPress={handleBackFromBurn}
-          activeOpacity={0.7}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="chevron-back" size={ms(24)} color={colors.text.primary} />
-        </TouchableOpacity>
-        <Text style={styles.stepTitle}>{t('nft.burn.reviewTitle', 'Burn NFT')}</Text>
-        <View style={styles.stepTitleSpacer} />
-      </View>
-    </>
+    <BottomSheetTitleHeader
+      title={t('nft.burn.reviewTitle', 'Burn NFT')}
+      onBack={handleBackFromBurn}
+      backAccessibilityLabel={t('general.back', 'Back')}
+    />
   ) : null;
 
   const headerContent =
@@ -843,28 +826,6 @@ const styles = StyleSheet.create({
     minHeight: '85%',
     maxHeight: '92%',
     overflow: 'hidden',
-  },
-  stepTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: s(spacing.headerPadding),
-    marginBottom: vs(spacing.lg),
-  },
-  stepBackButton: {
-    position: 'absolute',
-    left: s(spacing.headerPadding),
-    zIndex: 1,
-  },
-  stepTitleSpacer: {
-    width: ms(componentSizes.iconSizeMedium),
-  },
-  stepTitle: {
-    fontSize: ms(fontSize['2xl']),
-    fontFamily: fontFamilyNative.bold,
-    color: colors.text.primary,
-    textAlign: 'center',
-    flex: 1,
   },
   nftName: {
     fontSize: ms(fontSize['2xl']),

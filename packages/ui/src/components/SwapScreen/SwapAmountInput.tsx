@@ -34,6 +34,12 @@ import type { SwapAmountInputProps } from './types';
 // Styled Components
 // ============================================================================
 
+const QUICK_FILL_OPTIONS = [
+  { label: '25%', value: 0.25 },
+  { label: '50%', value: 0.5 },
+  { label: 'MAX', value: 1 },
+] as const;
+
 const Container = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
@@ -136,6 +142,12 @@ const InfoRow = styled(Box)({
   justifyContent: 'space-between',
 });
 
+const InfoSection = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing.xxs,
+});
+
 const UsdValue = styled(Typography)({
   fontSize: fontSize.sm,
   fontWeight: fontWeight.bold,
@@ -152,6 +164,34 @@ const AvailableBalance = styled(Typography)({
   color: colors.text.primary,
   letterSpacing: letterSpacing.normal,
   lineHeight: `${fontSize.sm * lineHeight.normal}px`,
+});
+
+const AvailableBalanceAligned = styled(AvailableBalance)({
+  alignSelf: 'flex-end',
+});
+
+const QuickFillButtons = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing.xs,
+});
+
+const QuickFillButton = styled(ButtonBase)({
+  backgroundColor: colors.button.secondaryBackground,
+  borderRadius: borderRadius.sm,
+  padding: `${spacing.xs}px ${spacing.base}px`,
+  transition: `opacity ${duration.fast} ${easing.ease}`,
+  '&:hover': {
+    opacity: opacity.medium,
+  },
+});
+
+const QuickFillText = styled(Typography)({
+  fontSize: fontSize.sm,
+  fontWeight: fontWeight.bold,
+  fontFamily: fontFamily.sans,
+  color: colors.text.primary,
+  textTransform: 'uppercase',
 });
 
 // ============================================================================
@@ -175,6 +215,7 @@ export function SwapAmountInput({
   isLoading = false,
 }: SwapAmountInputProps): React.ReactElement {
   const [{ currency }, { formatPrecise }] = useCurrencyContext();
+  const showQuickFill = editable && availableBalance !== undefined && !!token;
 
   const handleChangeText = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,6 +228,18 @@ export function SwapAmountInput({
       onChangeValue(formatted);
     },
     [onChangeValue]
+  );
+
+  const handleQuickFill = useCallback(
+    (percentage: number) => {
+      if (availableBalance === undefined || !token) return;
+
+      const fillAmount = availableBalance * percentage;
+      const decimals = token.decimals ?? 9;
+      const truncated = Math.floor(fillAmount * 10 ** decimals) / 10 ** decimals;
+      onChangeValue(truncated > 0 ? truncated.toString() : '0');
+    },
+    [availableBalance, token, onChangeValue]
   );
 
   return (
@@ -237,16 +290,33 @@ export function SwapAmountInput({
 
       {/* USD Value and Balance Row */}
       {(usdValue !== undefined || availableBalance !== undefined) && (
-        <InfoRow>
-          <UsdValue>{formatPrecise(usdValue)} {currency.toUpperCase()}</UsdValue>
-          {availableBalance !== undefined && token && (
-            <AvailableBalance>
+        <InfoSection>
+          <InfoRow>
+            <UsdValue>{formatPrecise(usdValue)} {currency.toUpperCase()}</UsdValue>
+            {showQuickFill ? (
+              <QuickFillButtons>
+                {QUICK_FILL_OPTIONS.map((option) => (
+                  <QuickFillButton
+                    key={option.label}
+                    onClick={() => handleQuickFill(option.value)}
+                  >
+                    <QuickFillText>{option.label}</QuickFillText>
+                  </QuickFillButton>
+                ))}
+              </QuickFillButtons>
+            ) : availableBalance !== undefined && token ? (
+              <AvailableBalance>
+                Available: {formatTokenBalance(availableBalance)} {token.symbol}
+              </AvailableBalance>
+            ) : null}
+          </InfoRow>
+          {showQuickFill && availableBalance !== undefined && token && (
+            <AvailableBalanceAligned>
               Available: {formatTokenBalance(availableBalance)} {token.symbol}
-            </AvailableBalance>
+            </AvailableBalanceAligned>
           )}
-        </InfoRow>
+        </InfoSection>
       )}
     </Container>
   );
 }
-

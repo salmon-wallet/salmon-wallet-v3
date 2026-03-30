@@ -75,6 +75,9 @@ export type { ScalesBackgroundProps } from './ScalesBackground';
 export { BlurContainer, BlurTargetProvider } from './BlurContainer';
 export type { BlurContainerProps, BlurTint } from './BlurContainer';
 
+export { BottomSheetTitleHeader } from './BottomSheetTitleHeader';
+export type { BottomSheetTitleHeaderProps } from './BottomSheetTitleHeader';
+
 export { GlassTabBar } from './GlassTabBar';
 export type { GlassTabBarProps, TabConfig } from './GlassTabBar';
 

@@ -2,8 +2,8 @@ import {
   borderWidth,
   colors,
   componentSizes,
+  fontFamilyNative,
   fontSize,
-  fontWeight,
   gradients,
   ms,
   s,
@@ -21,6 +21,9 @@ import {
   ReceiptLongSvgIcon,
 } from '../Icon/SvgIcons';
 import type { ActionButtonRowProps } from './types';
+
+const ACTION_BUTTON_ICON_SIZE = fontSize.lg;
+const ACTION_BUTTON_TEXT_SIZE = fontSize.md;
 
 /**
  * ActionButtonRow component for primary wallet actions
@@ -89,7 +92,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           end={gradients.primaryButton.end}
           style={styles.primaryButton}
         >
-          <CallMadeSvgIcon size={ms(componentSizes.actionButtonIcon)} color={colors.text.balance} />
+          <CallMadeSvgIcon size={ms(ACTION_BUTTON_ICON_SIZE)} color={colors.text.balance} />
           <Text style={styles.primaryButtonText}>{t('actions.send', 'Send')}</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -110,7 +113,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
             accessibilityLabel="Receive tokens"
           >
             <QrCodeScannerSvgIcon
-              size={ms(componentSizes.actionButtonIcon)}
+              size={ms(ACTION_BUTTON_ICON_SIZE)}
               color={receiveDisabled ? colors.button.disabledText : colors.text.balance}
             />
             <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
@@ -136,7 +139,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
             accessibilityLabel="View activity"
           >
             <ReceiptLongSvgIcon
-              size={ms(componentSizes.actionButtonIcon)}
+              size={ms(ACTION_BUTTON_ICON_SIZE)}
               color={activityDisabled ? colors.button.disabledText : colors.text.balance}
             />
             <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
@@ -183,10 +186,10 @@ const styles = StyleSheet.create({
     borderColor: colors.accent.border,
   },
   primaryButtonText: {
-    fontSize: ms(fontSize.actionButton), // 14.5px
-    fontWeight: fontWeight.regular,
+    fontSize: ms(ACTION_BUTTON_TEXT_SIZE),
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.balance,
-    lineHeight: ms(fontSize.actionButton * 1.5), // lineHeight: 1.5
+    lineHeight: ms(ACTION_BUTTON_TEXT_SIZE * 1.35),
   },
   secondaryButton: {
     flex: 1,
@@ -200,10 +203,10 @@ const styles = StyleSheet.create({
     gap: s(spacing.sm), // 8px
   },
   secondaryButtonText: {
-    fontSize: ms(fontSize.actionButton), // 14.5px
-    fontWeight: fontWeight.regular,
+    fontSize: ms(ACTION_BUTTON_TEXT_SIZE),
+    fontFamily: fontFamilyNative.regular,
     color: colors.text.balance,
-    lineHeight: ms(fontSize.actionButton * 1.5), // lineHeight: 1.5
+    lineHeight: ms(ACTION_BUTTON_TEXT_SIZE * 1.35),
   },
   textDisabled: {
     color: colors.button.disabledText,

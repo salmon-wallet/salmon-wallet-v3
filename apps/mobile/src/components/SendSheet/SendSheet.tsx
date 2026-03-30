@@ -1,31 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
-  Text,
-  TouchableOpacity,
   StyleSheet,
   Platform,
   BackHandler,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import {
-  colors,
-  fontSize,
-  fontFamilyNative,
-  ms,
-  vs,
-  s,
   useSendTransaction,
   getTransactionUrl,
   getDefaultExplorer,
   getShortAddress,
-  spacing,
-  componentSizes,
 } from '@salmon/shared';
 import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
+import { BottomSheetTitleHeader } from '../BottomSheetTitleHeader';
 import { StepTokenSelect } from './StepTokenSelect';
 import { StepAddressAmount } from './StepAddressAmount';
 import { StepConfirmation } from './StepConfirmation';
@@ -160,27 +150,12 @@ export const SendSheet: React.FC<SendSheetProps> = ({
   const showBackButton = step !== 'token-select' || skipTokenSelect;
   const showHeader = step !== 'success';
 
-  // Custom header content: title row with optional back button
   const headerContent = (
-    <View style={styles.titleRow}>
-      {showBackButton && (
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleBackPress}
-          activeOpacity={0.7}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons
-            name="chevron-back"
-            size={ms(24)}
-            color={colors.text.primary}
-          />
-        </TouchableOpacity>
-      )}
-      <Text style={styles.title}>Send</Text>
-      {/* Spacer to keep title centred when back button is shown */}
-      {showBackButton && <View style={styles.backButtonSpacer} />}
-    </View>
+    <BottomSheetTitleHeader
+      title="Send"
+      onBack={showBackButton ? handleBackPress : undefined}
+      backAccessibilityLabel={t('general.back', 'Back')}
+    />
   );
 
   return (
@@ -248,29 +223,6 @@ export const SendSheet: React.FC<SendSheetProps> = ({
 // ============================================================================
 
 const styles = StyleSheet.create({
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: s(spacing.headerPadding),
-    marginBottom: vs(spacing.lg),
-  },
-  backButton: {
-    position: 'absolute',
-    left: s(spacing.headerPadding),
-    zIndex: 1,
-  },
-  backButtonSpacer: {
-    width: ms(componentSizes.iconSizeMedium),
-  },
-  title: {
-    fontSize: ms(fontSize['2xl']),
-    fontFamily: fontFamilyNative.bold,
-    color: colors.text.primary,
-    textAlign: 'center',
-    letterSpacing: ms(-0.12, 0.3),
-    flex: 1,
-  },
   content: {
     flex: 1,
   },

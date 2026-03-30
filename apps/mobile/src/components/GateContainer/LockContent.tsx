@@ -76,7 +76,6 @@ export function LockContent({
   locked,
   onUnlock,
   onUnlockWithKey,
-  onGetDerivedKey,
   onRemoveAllAccounts,
   biometric,
 }: LockContentProps) {
@@ -85,7 +84,6 @@ export function LockContent({
   // Extract biometric properties
   const biometricState = biometric?.state;
   const authenticateWithBiometric = biometric?.authenticateWithBiometric;
-  const storeKeyForBiometric = biometric?.storeKeyForBiometric;
   const enableBiometric = biometric?.enableBiometric ?? false;
   const refreshBiometricState = biometric?.refreshState;
 
@@ -113,6 +111,19 @@ export function LockContent({
     enableBiometric &&
     !!onUnlockWithKey &&
     !!authenticateWithBiometric;
+
+  const biometricActionLabel = (() => {
+    switch (biometricState?.biometricType) {
+      case 'facial':
+        return t('lock.use_face_id');
+      case 'fingerprint':
+        return t('lock.use_touch_id');
+      case 'iris':
+        return t('lock.use_iris');
+      default:
+        return t('lock.use_biometric');
+    }
+  })();
 
   // Reset state when unlocked
   useEffect(() => {
@@ -206,17 +217,6 @@ export function LockContent({
         setError(t('lock.wrong_password'));
         setPassword('');
         setShowLoadingScreen(false);
-      } else {
-        if (enableBiometric && onGetDerivedKey && storeKeyForBiometric) {
-          try {
-            const keyJson = await onGetDerivedKey();
-            if (keyJson) {
-              await storeKeyForBiometric(keyJson);
-            }
-          } catch (keyError) {
-            console.warn('Failed to store key for biometric:', keyError);
-          }
-        }
       }
     } catch (err) {
       console.error('Unlock failed:', err);
@@ -226,7 +226,7 @@ export function LockContent({
     } finally {
       setIsLoading(false);
     }
-  }, [password, onUnlock, t, enableBiometric, onGetDerivedKey, storeKeyForBiometric]);
+  }, [password, onUnlock, t]);
 
   // Forgot password
   const handleForgotPassword = useCallback(() => {
@@ -335,6 +335,18 @@ export function LockContent({
                       )}
                     </LinearGradient>
                   </TouchableOpacity>
+
+                  {canUseBiometric && (
+                    <TouchableOpacity
+                      onPress={() => { void handleBiometricUnlock(); }}
+                      disabled={isLoading}
+                      style={styles.secondaryActionContainer}
+                    >
+                      <Text style={styles.secondaryActionText}>
+                        {biometricActionLabel}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
 
                   <TouchableOpacity
                     onPress={handleForgotPassword}
@@ -447,6 +459,16 @@ const styles = StyleSheet.create({
   },
   forgotPasswordContainer: {
     padding: s(spacing.md),
+  },
+  secondaryActionContainer: {
+    padding: s(spacing.md),
+  },
+  secondaryActionText: {
+    color: colors.accent.primary,
+    fontFamily: fontFamilyNative.bold,
+    fontSize: ms(fontSize.md),
+    lineHeight: ms(16 * lineHeight.normal),
+    textAlign: 'center',
   },
   forgotPasswordText: {
     color: colors.text.primary,

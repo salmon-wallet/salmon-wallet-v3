@@ -3,6 +3,7 @@ import {
   borderRadius,
   colors,
   componentSizes,
+  fontFamilyNative,
   fontSize,
   getLabelValue,
   gradients,
@@ -382,7 +383,7 @@ const styles = StyleSheet.create({
   },
   balanceDollars: {
     fontSize: ms(fontSize.balance),
-    fontWeight: fontWeight.semibold,
+    fontFamily: fontFamilyNative.semiBold,
     color: colors.text.balance,
     letterSpacing: letterSpacing.balance,
   },

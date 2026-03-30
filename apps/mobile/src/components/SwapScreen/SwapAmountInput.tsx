@@ -13,6 +13,12 @@ import { TokenLogo } from '../TokenLogo';
 import { BlurContainer } from '../BlurContainer';
 import type { SwapAmountInputProps } from './types';
 
+const QUICK_FILL_OPTIONS = [
+  { label: '25%', value: 0.25 },
+  { label: '50%', value: 0.5 },
+  { label: 'MAX', value: 1 },
+] as const;
+
 /**
  * SwapAmountInput - Input field for swap amounts with token selector
  */
@@ -41,6 +47,20 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
       onChangeValue(formatted);
     },
     [onChangeValue]
+  );
+
+  const showQuickFill = editable && availableBalance !== undefined && !!token;
+
+  const handleQuickFill = useCallback(
+    (percentage: number) => {
+      if (availableBalance === undefined || !token) return;
+
+      const fillAmount = availableBalance * percentage;
+      const decimals = token.decimals ?? 9;
+      const truncated = Math.floor(fillAmount * 10 ** decimals) / 10 ** decimals;
+      onChangeValue(truncated > 0 ? truncated.toString() : '0');
+    },
+    [availableBalance, token, onChangeValue]
   );
 
   return (
@@ -82,10 +102,30 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
 
       {/* USD Value and Balance Row */}
       {(usdValue !== undefined || availableBalance !== undefined) && (
-        <View style={styles.infoRow}>
-          <Text style={styles.usdValue}>{formatPrecise(usdValue)} {currency.toUpperCase()}</Text>
-          {availableBalance !== undefined && token && (
-            <Text style={styles.availableBalance}>
+        <View style={styles.infoSection}>
+          <View style={styles.infoRow}>
+            <Text style={styles.usdValue}>{formatPrecise(usdValue)} {currency.toUpperCase()}</Text>
+            {showQuickFill ? (
+              <View style={styles.quickFillButtons}>
+                {QUICK_FILL_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option.label}
+                    style={styles.quickFillButton}
+                    onPress={() => handleQuickFill(option.value)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.quickFillText}>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : availableBalance !== undefined && token ? (
+              <Text style={styles.availableBalance}>
+                Available: {formatTokenBalance(availableBalance)} {token.symbol}
+              </Text>
+            ) : null}
+          </View>
+          {showQuickFill && availableBalance !== undefined && token && (
+            <Text style={styles.availableBalanceAligned}>
               Available: {formatTokenBalance(availableBalance)} {token.symbol}
             </Text>
           )}
@@ -148,6 +188,9 @@ const styles = StyleSheet.create({
     letterSpacing: letterSpacing.normal,
     lineHeight: ms(fontSize.base * lineHeight.condensed),
   },
+  infoSection: {
+    gap: vs(spacing.xxs),
+  },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -166,6 +209,30 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     letterSpacing: letterSpacing.normal,
     lineHeight: ms(fontSize.sm * lineHeight.normal),
+  },
+  availableBalanceAligned: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.regular,
+    color: colors.text.primary,
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
+    alignSelf: 'flex-end',
+  },
+  quickFillButtons: {
+    flexDirection: 'row',
+    gap: s(spacing.xs),
+  },
+  quickFillButton: {
+    backgroundColor: colors.button.secondaryBackground,
+    borderRadius: ms(borderRadius.sm),
+    paddingHorizontal: s(spacing.base),
+    paddingVertical: vs(spacing.xs),
+  },
+  quickFillText: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.primary,
+    textTransform: 'uppercase',
   },
 });
 

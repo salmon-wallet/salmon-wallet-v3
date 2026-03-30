@@ -74,7 +74,6 @@ export function LockScreenOverlay({
   locked,
   onUnlock,
   onUnlockWithKey,
-  onGetDerivedKey,
   onRemoveAllAccounts,
   onAnimationComplete,
   biometric,
@@ -86,7 +85,6 @@ export function LockScreenOverlay({
   // Extract biometric properties
   const biometricState = biometric?.state;
   const authenticateWithBiometric = biometric?.authenticateWithBiometric;
-  const storeKeyForBiometric = biometric?.storeKeyForBiometric;
   const enableBiometric = biometric?.enableBiometric ?? false;
   const refreshBiometricState = biometric?.refreshState;
 
@@ -116,6 +114,19 @@ export function LockScreenOverlay({
     enableBiometric &&
     !!onUnlockWithKey &&
     !!authenticateWithBiometric;
+
+  const biometricActionLabel = (() => {
+    switch (biometricState?.biometricType) {
+      case 'facial':
+        return t('lock.use_face_id');
+      case 'fingerprint':
+        return t('lock.use_touch_id');
+      case 'iris':
+        return t('lock.use_iris');
+      default:
+        return t('lock.use_biometric');
+    }
+  })();
 
   // Animation
   const translateY = useSharedValue(locked ? 0 : -screenHeight);
@@ -273,18 +284,6 @@ export function LockScreenOverlay({
         setError(t('lock.wrong_password'));
         setPassword('');
         setShowLoadingScreen(false);
-      } else {
-        // On successful password unlock, store the derived key for biometric
-        if (enableBiometric && onGetDerivedKey && storeKeyForBiometric) {
-          try {
-            const keyJson = await onGetDerivedKey();
-            if (keyJson) {
-              await storeKeyForBiometric(keyJson);
-            }
-          } catch (keyError) {
-            console.warn('Failed to store key for biometric:', keyError);
-          }
-        }
       }
     } catch (err) {
       console.error('Unlock failed:', err);
@@ -294,7 +293,7 @@ export function LockScreenOverlay({
     } finally {
       setIsLoading(false);
     }
-  }, [password, onUnlock, t, enableBiometric, onGetDerivedKey, storeKeyForBiometric]);
+  }, [password, onUnlock, t]);
 
   // -------------------------------------------------------------------------
   // Forgot Password
@@ -439,6 +438,18 @@ export function LockScreenOverlay({
                           )}
                         </LinearGradient>
                       </TouchableOpacity>
+
+                      {canUseBiometric && (
+                        <TouchableOpacity
+                          onPress={() => { void handleBiometricUnlock(); }}
+                          disabled={isLoading}
+                          style={styles.secondaryActionContainer}
+                        >
+                          <Text style={styles.secondaryActionText}>
+                            {biometricActionLabel}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
 
                       <TouchableOpacity
                         onPress={handleForgotPassword}
@@ -586,6 +597,16 @@ const styles = StyleSheet.create({
   },
   forgotPasswordContainer: {
     padding: s(spacing.md),
+  },
+  secondaryActionContainer: {
+    padding: s(spacing.md),
+  },
+  secondaryActionText: {
+    color: colors.accent.primary,
+    fontFamily: fontFamilyNative.bold,
+    fontSize: ms(fontSize.md),
+    lineHeight: ms(16 * lineHeight.normal),
+    textAlign: 'center',
   },
   forgotPasswordText: {
     color: colors.text.primary,

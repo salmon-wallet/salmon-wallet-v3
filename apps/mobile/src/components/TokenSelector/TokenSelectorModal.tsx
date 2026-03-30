@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
   type ListRenderItem,
 } from 'react-native';
 import { BlurTargetView } from 'expo-blur';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey, fontSize, fontWeight, } from '@salmon/shared';
 import { BlurContainer, BlurTargetProvider } from '../BlurContainer';
@@ -196,7 +196,7 @@ export function TokenSelectorModal({
         </BlurTargetView>
 
         <BlurTargetProvider value={blurTargetRef}>
-          <SafeAreaView style={styles.container}>
+          <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
             <View style={styles.content}>
               <View style={styles.header}>
                 <Text style={styles.title}>{t('wallet.select_token', 'Select Token')}</Text>
