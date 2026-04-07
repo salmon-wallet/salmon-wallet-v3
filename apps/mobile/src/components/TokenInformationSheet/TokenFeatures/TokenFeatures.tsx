@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   colors,
   ContentLoader,
+  fontFamilyNative,
   Rect,
   spacing,
   borderRadius,
@@ -175,6 +176,7 @@ const styles = StyleSheet.create({
   },
   badgeLabel: {
     fontSize: fontSize.sm,
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium as '500',
   },
 });

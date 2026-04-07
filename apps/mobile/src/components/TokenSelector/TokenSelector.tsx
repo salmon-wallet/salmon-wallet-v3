@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { borderWidth, colors, getShortAddress, borderRadius, spacing, fontSize, fontWeight, opacity, } from '@salmon/shared';
+import { borderWidth, colors, getShortAddress, borderRadius, spacing, fontFamilyNative, fontSize, fontWeight, opacity, } from '@salmon/shared';
 import { TokenSelectorModal } from './TokenSelectorModal';
 import type { TokenSelectorToken, TokenSelectorProps } from './types';
 
@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: fontSize['2xl'],
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
     color: colors.text.primary,
     paddingHorizontal: spacing.md,
@@ -193,6 +194,7 @@ const styles = StyleSheet.create({
   tokenName: {
     color: colors.text.primary,
     fontSize: fontSize.base,
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium,
     padding: 0,
   },

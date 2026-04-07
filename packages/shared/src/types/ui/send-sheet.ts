@@ -65,7 +65,11 @@ export interface StepAddressAmountPropsBase {
   /** Navigate back to token selection */
   onBack: () => void;
   /** Proceed to confirmation */
-  onReview: (address: string, amount: string) => void;
+  onReview: (
+    address: string,
+    amount: string,
+    resolvedRecipientAddress?: string
+  ) => void;
   /** Cancel and close the sheet */
   onCancel: () => void;
 }
@@ -118,8 +122,10 @@ export interface UseSendContactsResult {
 export interface StepConfirmationProps {
   /** Selected token */
   token: SendToken;
-  /** Recipient address */
+  /** Recipient address as entered by the user */
   recipientAddress: string;
+  /** Resolved address used for fee estimation and send execution */
+  resolvedRecipientAddress?: string;
   /** Amount to send (human-readable) */
   amount: string;
   /** Blockchain type */

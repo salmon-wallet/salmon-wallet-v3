@@ -24,6 +24,8 @@ export interface SendTransactionParams {
   token: SendTokenInfo;
   /** Recipient address */
   recipientAddress: string;
+  /** Resolved address to execute against when the recipient is a domain */
+  resolvedRecipientAddress?: string;
   /** Amount in human-readable format */
   amount: number;
 }

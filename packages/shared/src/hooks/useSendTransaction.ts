@@ -90,8 +90,11 @@ export function useSendTransaction({
       setError(null);
 
       try {
+        const effectiveRecipientAddress =
+          params.resolvedRecipientAddress ?? params.recipientAddress;
+
         const result = await account.estimateTransferFee(
-          params.recipientAddress,
+          effectiveRecipientAddress,
           params.token.address,
           params.amount,
         );
@@ -122,8 +125,11 @@ export function useSendTransaction({
       try {
         setStatus('sending');
 
+        const effectiveRecipientAddress =
+          params.resolvedRecipientAddress ?? params.recipientAddress;
+
         const result = await account.transfer(
-          params.recipientAddress,
+          effectiveRecipientAddress,
           params.token.address,
           params.amount,
           // Pass token metadata for Ethereum ERC20/NFT transfers
@@ -152,4 +158,3 @@ export function useSendTransaction({
     reset,
   };
 }
-

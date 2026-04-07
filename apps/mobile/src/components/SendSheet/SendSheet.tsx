@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -52,31 +52,51 @@ export const SendSheet: React.FC<SendSheetProps> = ({
     skipTokenSelect && tokens.length > 0 ? tokens[0] : null
   );
   const [recipientAddress, setRecipientAddress] = useState('');
+  const [resolvedRecipientAddress, setResolvedRecipientAddress] = useState<string | undefined>(undefined);
   const [amount, setAmount] = useState('');
   const [successTxId, setSuccessTxId] = useState<string | null>(null);
+  const previousVisibleRef = useRef(visible);
 
   const { t } = useTranslation();
 
   // Send hook
   const sendHook = useSendTransaction({ account, blockchain });
 
-  // Handle close with state reset
+  const resetFlowState = useCallback(() => {
+    if (skipTokenSelect && tokens.length > 0) {
+      setStep('address-amount');
+      setSelectedToken(tokens[0]);
+    } else {
+      setStep('token-select');
+      setSelectedToken(null);
+    }
+    setRecipientAddress('');
+    setResolvedRecipientAddress(undefined);
+    setAmount('');
+    setSuccessTxId(null);
+    sendHook.reset();
+  }, [sendHook, skipTokenSelect, tokens]);
+
+  // Handle close; state reset is driven by the visible -> false transition so
+  // external closes (for example, on lock) clear the flow too.
   const handleClose = useCallback(() => {
     onClose();
-    setTimeout(() => {
-      if (skipTokenSelect && tokens.length > 0) {
-        setStep('address-amount');
-        setSelectedToken(tokens[0]);
-      } else {
-        setStep('token-select');
-        setSelectedToken(null);
-      }
-      setRecipientAddress('');
-      setAmount('');
-      setSuccessTxId(null);
-      sendHook.reset();
-    }, ANIMATION_DURATION);
-  }, [onClose, sendHook, skipTokenSelect, tokens]);
+  }, [onClose]);
+
+  useEffect(() => {
+    const wasVisible = previousVisibleRef.current;
+    previousVisibleRef.current = visible;
+
+    if (!visible && wasVisible) {
+      const timer = setTimeout(() => {
+        resetFlowState();
+      }, ANIMATION_DURATION);
+
+      return () => clearTimeout(timer);
+    }
+
+    return undefined;
+  }, [visible, resetFlowState]);
 
   const handleSuccessContinue = useCallback(() => {
     if (successTxId) {
@@ -118,8 +138,9 @@ export const SendSheet: React.FC<SendSheetProps> = ({
     setStep('token-select');
   }, []);
 
-  const handleReview = useCallback((address: string, amt: string) => {
+  const handleReview = useCallback((address: string, amt: string, resolvedAddress?: string) => {
     setRecipientAddress(address);
+    setResolvedRecipientAddress(resolvedAddress);
     setAmount(amt);
     setStep('confirmation');
   }, []);
@@ -191,6 +212,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
           <StepConfirmation
             token={selectedToken}
             recipientAddress={recipientAddress}
+            resolvedRecipientAddress={resolvedRecipientAddress}
             amount={amount}
             blockchain={blockchain}
             account={account}

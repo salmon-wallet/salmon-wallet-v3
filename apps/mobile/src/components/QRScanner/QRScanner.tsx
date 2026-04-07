@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Modal, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { colors, spacing, borderRadius, fontSize, fontWeight, } from '@salmon/shared';
+import { colors, spacing, borderRadius, fontFamilyNative, fontSize, fontWeight, } from '@salmon/shared';
 import type { QRScannerProps } from './types';
 
 /**
@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSize.lg,
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
     color: colors.scanner.text,
   },
@@ -108,6 +109,7 @@ const styles = StyleSheet.create({
   },
   messageTitle: {
     fontSize: fontSize.xl,
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
     color: colors.scanner.text,
     marginBottom: spacing.md,
@@ -138,6 +140,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.scanner.text,
     fontSize: fontSize.md,
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
   },
 });

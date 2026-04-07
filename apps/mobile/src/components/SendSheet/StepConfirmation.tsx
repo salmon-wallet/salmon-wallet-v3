@@ -43,6 +43,7 @@ const BUTTON_SHADOW = shadows.button;
 export const StepConfirmation: React.FC<StepConfirmationProps> = ({
   token,
   recipientAddress,
+  resolvedRecipientAddress,
   amount,
   blockchain,
   account,
@@ -55,6 +56,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
   const [copied, setCopied] = useState(false);
 
   const sendHook = useSendTransaction({ account, blockchain });
+  const effectiveRecipientAddress = resolvedRecipientAddress ?? recipientAddress;
 
   // Amount display
   const amountDisplay = useMemo(() => {
@@ -72,6 +74,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
           symbol: token.symbol,
         },
         recipientAddress,
+        resolvedRecipientAddress,
         amount: parseFloat(amount),
       });
       if (result) {
@@ -92,13 +95,14 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
           symbol: token.symbol,
         },
         recipientAddress,
+        resolvedRecipientAddress,
         amount: parseFloat(amount),
       });
       onSuccess(result.txId);
     } catch {
       // Error is captured by the hook's error state
     }
-  }, [sendHook, token, recipientAddress, amount, onSuccess]);
+  }, [sendHook, token, recipientAddress, resolvedRecipientAddress, amount, onSuccess]);
 
   // Handle copy address
   const handleCopy = useCallback(async () => {

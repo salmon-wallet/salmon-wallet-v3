@@ -35,6 +35,7 @@ import {
   borderRadius,
   colors,
   componentSizes,
+  fontFamilyNative,
   fontSize,
   getCoinInfo,
   getMarketChart,
@@ -197,6 +198,17 @@ export default function HomeScreen() {
     pathIndex,
     switchingNetwork,
   } = accountState;
+
+  useEffect(() => {
+    if (!accountState.locked) return;
+
+    setTokenSheetVisible(false);
+    setReceiveSheetVisible(false);
+    setSendSheetVisible(false);
+    setTransactionHistoryVisible(false);
+    setDetailModalVisible(false);
+    setSelectedTransaction(null);
+  }, [accountState.locked]);
 
   // Developer mode — shared via context from _layout.tsx (single source of truth)
   const developerNetworks = useDeveloperMode();
@@ -978,6 +990,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: fontSize.md,
+    fontFamily: fontFamilyNative.medium,
     fontWeight: '500',
     color: colors.text.muted,
     marginBottom: spacing.sm,

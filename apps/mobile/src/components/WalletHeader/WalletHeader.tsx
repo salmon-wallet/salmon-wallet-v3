@@ -1,4 +1,4 @@
-import { borderRadius, colors, fontSize, fontWeight, letterSpacing, componentSizes, ms, s, shadows, spacing, vs, getShortAddress, getAvatarColor, getInitials } from '@salmon/shared';
+import { borderRadius, colors, fontFamilyNative, fontSize, fontWeight, letterSpacing, componentSizes, ms, s, shadows, spacing, vs, getShortAddress, getAvatarColor, getInitials } from '@salmon/shared';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -210,6 +210,7 @@ const styles = StyleSheet.create({
   },
   accountText: {
     fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
     color: colors.text.primary,
     letterSpacing: letterSpacing.header,
@@ -239,6 +240,7 @@ const styles = StyleSheet.create({
   headerAvatarText: {
     color: colors.text.primary,
     fontSize: ms(fontSize.xs),
+    fontFamily: fontFamilyNative.bold,
     fontWeight: fontWeight.bold,
   },
 });

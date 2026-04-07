@@ -423,6 +423,7 @@ export function StepAddressAmount({
     validationState,
     isValidating,
     isValid: isAddressValid,
+    resolvedAddress,
     message: addressMessage,
     messageType: addressMessageType,
   } = useAddressValidation(address, account, {
@@ -470,9 +471,9 @@ export function StepAddressAmount({
   // Handle review press
   const handleReview = useCallback(() => {
     if (isValid) {
-      onReview(address.trim(), amount);
+      onReview(address.trim(), amount, resolvedAddress || undefined);
     }
-  }, [isValid, address, amount, onReview]);
+  }, [isValid, address, amount, onReview, resolvedAddress]);
 
   // Handle input changes
   const handleAddressChange = useCallback(
@@ -687,4 +688,3 @@ export function StepAddressAmount({
     </Container>
   );
 }
-

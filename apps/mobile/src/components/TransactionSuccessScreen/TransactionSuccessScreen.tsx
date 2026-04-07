@@ -167,6 +167,7 @@ const styles = StyleSheet.create({
   checkmark: {
     fontSize: ms(fontSize['5xl']),
     color: colors.text.primary,
+    fontFamily: fontFamilyNative.bold,
     fontWeight: fontWeight.bold,
   },
   textContainer: {

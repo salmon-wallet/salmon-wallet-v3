@@ -351,6 +351,7 @@ const styles = StyleSheet.create({
   },
   networkLabelText: {
     fontSize: ms(fontSize.xs),
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
     color: colors.text.primary,
     textTransform: 'uppercase',
@@ -412,6 +413,7 @@ const styles = StyleSheet.create({
   },
   changeText: {
     fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium,
     letterSpacing: letterSpacing.change,
     lineHeight: ms(fontSize.sm * 1.3),

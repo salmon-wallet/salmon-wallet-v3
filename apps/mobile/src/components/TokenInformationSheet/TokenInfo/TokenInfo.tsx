@@ -256,12 +256,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: fontSize.md,
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold as '600',
     color: colors.text.primary,
     marginBottom: spacing.sm,
   },
   description: {
     fontSize: fontSize.base,
+    fontFamily: fontFamilyNative.regular,
     fontWeight: fontWeight.regular as '400',
     color: colors.text.muted,
     lineHeight: fontSize.base * 1.5,
@@ -278,12 +280,14 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: fontSize.sm,
+    fontFamily: fontFamilyNative.regular,
     fontWeight: fontWeight.regular as '400',
     color: colors.text.secondary,
     marginBottom: spacing.xxs,
   },
   statValue: {
     fontSize: fontSize.md,
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium as '500',
     color: colors.text.primary,
   },
@@ -314,6 +318,7 @@ const styles = StyleSheet.create({
   },
   websiteText: {
     fontSize: fontSize.base,
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium as '500',
     color: colors.accent.primary,
     marginLeft: spacing.sm,

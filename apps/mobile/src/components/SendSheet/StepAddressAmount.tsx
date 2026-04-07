@@ -71,6 +71,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
     validationState,
     isValidating,
     isValid: isAddressValid,
+    resolvedAddress,
     message: addressMessage,
     messageType: addressMessageType,
   } = useAddressValidation(address, account, {
@@ -119,9 +120,9 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   // Handle review press
   const handleReview = useCallback(() => {
     if (isValid) {
-      onReview(address.trim(), amount);
+      onReview(address.trim(), amount, resolvedAddress || undefined);
     }
-  }, [isValid, address, amount, onReview]);
+  }, [isValid, address, amount, onReview, resolvedAddress]);
 
   // Placeholder text based on blockchain
   const addressPlaceholder = useMemo(() => {

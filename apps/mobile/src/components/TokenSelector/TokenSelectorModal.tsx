@@ -16,7 +16,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey, fontSize, fontWeight, } from '@salmon/shared';
+import { useTokenSearch, colors, spacing, borderRadius, ContentLoader, Rect, Circle, getShortAddress, getTokenKey, fontFamilyNative, fontSize, fontWeight, } from '@salmon/shared';
 import { BlurContainer, BlurTargetProvider } from '../BlurContainer';
 import { ScalesBackground } from '../ScalesBackground';
 import { TokenLogo } from '../TokenLogo';
@@ -294,6 +294,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text.primary,
     fontSize: fontSize.lg,
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
     textAlign: 'center',
   },
@@ -343,6 +344,7 @@ const styles = StyleSheet.create({
   tokenName: {
     color: colors.text.primary,
     fontSize: fontSize.md,
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium,
   },
   tokenBalance: {
@@ -360,6 +362,7 @@ const styles = StyleSheet.create({
   networkChipText: {
     color: colors.text.secondary,
     fontSize: fontSize.xs,
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
   },
   featuredContainer: {
@@ -405,6 +408,7 @@ const styles = StyleSheet.create({
   loadMoreText: {
     color: colors.text.primary,
     fontSize: fontSize.md,
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium,
   },
   emptyContainer: {
@@ -427,6 +431,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: colors.text.primary,
     fontSize: fontSize.md,
+    fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
   },
 });

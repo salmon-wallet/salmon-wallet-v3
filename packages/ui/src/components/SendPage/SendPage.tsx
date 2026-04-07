@@ -62,6 +62,7 @@ export function SendPage({
     skipTokenSelect && tokens.length > 0 ? tokens[0] : null
   );
   const [recipientAddress, setRecipientAddress] = useState('');
+  const [resolvedRecipientAddress, setResolvedRecipientAddress] = useState<string | undefined>(undefined);
   const [amount, setAmount] = useState('');
   const [successTxId, setSuccessTxId] = useState<string | null>(null);
 
@@ -80,6 +81,7 @@ export function SendPage({
       setSelectedToken(null);
     }
     setRecipientAddress('');
+    setResolvedRecipientAddress(undefined);
     setAmount('');
     setSuccessTxId(null);
   }, [skipTokenSelect, tokens]);
@@ -100,8 +102,9 @@ export function SendPage({
     setStep('token-select');
   }, []);
 
-  const handleReview = useCallback((address: string, amt: string) => {
+  const handleReview = useCallback((address: string, amt: string, resolvedAddress?: string) => {
     setRecipientAddress(address);
+    setResolvedRecipientAddress(resolvedAddress);
     setAmount(amt);
     setStep('confirmation');
   }, []);
@@ -178,6 +181,7 @@ export function SendPage({
           <StepConfirmation
             token={selectedToken}
             recipientAddress={recipientAddress}
+            resolvedRecipientAddress={resolvedRecipientAddress}
             amount={amount}
             blockchain={blockchain}
             account={account}
@@ -204,4 +208,3 @@ export function SendPage({
     </PageShell>
   );
 }
-

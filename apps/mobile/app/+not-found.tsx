@@ -2,7 +2,7 @@ import { Link, Stack } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
 import { Text, View } from 'react-native';
-import { colors, fontSize, spacing } from '@salmon/shared';
+import { colors, fontFamilyNative, fontSize, spacing } from '@salmon/shared';
 
 export default function NotFoundScreen() {
   return (
@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSize.xl,
+    fontFamily: fontFamilyNative.bold,
     fontWeight: 'bold',
     color: colors.text.primary,
   },

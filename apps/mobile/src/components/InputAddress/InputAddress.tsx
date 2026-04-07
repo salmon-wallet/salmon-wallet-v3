@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: fontSize.base,
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium,
     marginBottom: spacing.sm,
     color: colors.text.primary,

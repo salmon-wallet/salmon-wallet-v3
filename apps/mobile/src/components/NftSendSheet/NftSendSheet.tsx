@@ -378,6 +378,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: ms(fontSize.md),
+    fontFamily: fontFamilyNative.medium,
     fontWeight: fontWeight.medium,
     color: colors.text.balance,
   },
