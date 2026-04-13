@@ -321,8 +321,16 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
         return null;
       }
 
-      // SecureStore with requireAuthentication triggers its own biometric prompt
-      const storedKey = await SecureStore.getItemAsync(BIOMETRIC_KEY_STORAGE);
+      // SecureStore with requireAuthentication triggers its own biometric prompt.
+      // Race against a timeout so the UI never hangs if the native prompt fails to appear
+      // (e.g. app not yet fully active on cold start or background resume).
+      const BIOMETRIC_TIMEOUT_MS = 30_000;
+      const storedKey = await Promise.race([
+        SecureStore.getItemAsync(BIOMETRIC_KEY_STORAGE),
+        new Promise<null>((resolve) =>
+          setTimeout(() => resolve(null), BIOMETRIC_TIMEOUT_MS)
+        ),
+      ]);
 
       if (!storedKey) {
         console.warn('No stored key found after biometric auth');

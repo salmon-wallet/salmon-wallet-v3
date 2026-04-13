@@ -91,14 +91,17 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   testID,
 }) => {
   const [, { formatValue, formatChange }] = useCurrencyContext();
-  const { heroCardTopInset } = useTabChrome();
+  const { heroCardTopInset, topInset } = useTabChrome();
   const [internalIndex, setInternalIndex] = React.useState(0);
   const activeIndex = controlledIndex ?? internalIndex;
 
-  // Calculate offsets for header overlap effect
+  // Calculate offsets for header overlap effect.
+  // On Android the card starts at y=0 (behind status bar) so contentPaddingTop
+  // must include topInset to ensure logo/balance land below the collapsed gate.
+  // On iOS the card starts at y=topInset so no extra offset needed.
   const cardMarginTop = heroCardTopInset;
-  // Content padding pushes content below the header's inner container
-  const contentPaddingTop = componentSizes.headerInnerHeight + spacing.md;
+  const contentPaddingTop =
+    (Platform.OS === 'ios' ? 0 : topInset) + componentSizes.headerInnerHeight + spacing.md;
 
   const translateX = useSharedValue(0);
   const isAnimating = useSharedValue(false);

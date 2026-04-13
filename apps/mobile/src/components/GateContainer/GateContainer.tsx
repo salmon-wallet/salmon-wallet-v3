@@ -67,7 +67,13 @@ export function GateContainer({
   const { height: screenHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const headerHeight = insets.top + componentSizes.headerHeight;
-  const collapsedY = -(screenHeight - headerHeight);
+
+  // On Android with 3-button navigation, useWindowDimensions().height may report
+  // the content-area height (excluding the nav bar) while the gate's rendered
+  // height ('100%') includes the area behind the nav bar. Capture the real height
+  // via onLayout so collapsedY positions the gate correctly on all nav bar modes.
+  const [gateHeight, setGateHeight] = useState(screenHeight);
+  const collapsedY = -(gateHeight - headerHeight);
 
   const prevStateRef = useRef<GateState>(state);
   // Track last expanded content/header so we can keep them visible during close animation
@@ -197,7 +203,10 @@ export function GateContainer({
       )}
 
       {/* The Gate surface */}
-      <Animated.View style={[styles.gate, gateAnimatedStyle]}>
+      <Animated.View
+        style={[styles.gate, gateAnimatedStyle]}
+        onLayout={(e) => setGateHeight(e.nativeEvent.layout.height)}
+      >
         {/* Shared visual surface — solid color, no scales */}
         <View style={styles.surface}>
           {/* Lock content — full screen */}

@@ -8,7 +8,6 @@ import {
   ms,
   s,
   spacing,
-  vs,
 } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
@@ -168,7 +167,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     width: s(componentSizes.actionButtonWidth), // 112px
-    height: vs(componentSizes.actionButtonHeight), // 47px
+    height: ms(componentSizes.actionButtonHeight), // 47px
     borderRadius: ms(componentSizes.actionButtonRadius), // 14px
     overflow: 'hidden',
   },

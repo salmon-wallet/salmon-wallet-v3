@@ -356,6 +356,9 @@
     "reset_failed": "Failed to reset wallet. Please try again.",
     "unlocking": "Unlocking Wallet",
     "use_biometric": "Use Biometrics",
+    "use_face_id": "Use Face ID",
+    "use_touch_id": "Use Touch ID",
+    "use_iris": "Use Iris",
     "biometric_unlock_failed": "Biometric unlock failed"
   },
   "wallet": {

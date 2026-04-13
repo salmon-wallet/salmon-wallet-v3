@@ -33,6 +33,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -183,20 +184,43 @@ export function LockContent({
     }
   }, [onUnlockWithKey, authenticateWithBiometric, t]);
 
-  // Auto-prompt biometric
+  // Auto-prompt biometric — only when app is active to avoid hanging the native prompt
   useEffect(() => {
     if (!locked || !biometricReady || hasAutoPromptedBiometric.current) return;
 
-    hasAutoPromptedBiometric.current = true;
+    if (!canUseBiometric) {
+      hasAutoPromptedBiometric.current = true;
+      setShowPasswordFallback(true);
+      return;
+    }
 
-    if (canUseBiometric) {
-      const timer = setTimeout(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let subscription: ReturnType<typeof AppState.addEventListener> | null = null;
+
+    const prompt = () => {
+      if (hasAutoPromptedBiometric.current) return;
+      hasAutoPromptedBiometric.current = true;
+      timer = setTimeout(() => {
         void handleBiometricUnlock();
       }, 400);
-      return () => clearTimeout(timer);
+    };
+
+    if (AppState.currentState === 'active') {
+      prompt();
     } else {
-      setShowPasswordFallback(true);
+      subscription = AppState.addEventListener('change', (nextState) => {
+        if (nextState === 'active') {
+          subscription?.remove();
+          subscription = null;
+          prompt();
+        }
+      });
     }
+
+    return () => {
+      if (timer !== null) clearTimeout(timer);
+      subscription?.remove();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locked, biometricReady]);
 
