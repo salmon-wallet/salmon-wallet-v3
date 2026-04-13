@@ -48,6 +48,7 @@ import {
   type NetworkEnvironment,
   type ValidationCallbackResult,
 } from '@salmon/shared';
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import {
   CallMadeSvgIcon,
   ContentCopySvgIcon,
@@ -85,6 +86,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   style,
 }) => {
   const { t } = useTranslation();
+  const { bottomInset, spaciousContentBottomPadding } = useBottomSheetChrome();
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [prevMint, setPrevMint] = useState<string | undefined>(undefined);
@@ -469,8 +471,12 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   const renderDetailStep = () => (
     <ScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.scrollViewContent}
+      contentContainerStyle={[
+        styles.scrollViewContent,
+        { paddingBottom: spaciousContentBottomPadding },
+      ]}
       showsVerticalScrollIndicator={false}
+      scrollIndicatorInsets={{ bottom: bottomInset }}
       onScroll={handleScroll}
       scrollEventThrottle={16}
     >
@@ -551,9 +557,13 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
     >
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollViewContent}
+        contentContainerStyle={[
+          styles.scrollViewContent,
+          { paddingBottom: spaciousContentBottomPadding },
+        ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        scrollIndicatorInsets={{ bottom: bottomInset }}
       >
         {renderNftImage()}
 
@@ -639,8 +649,12 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   const renderBurnStep = () => (
     <ScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.scrollViewContent}
+      contentContainerStyle={[
+        styles.scrollViewContent,
+        { paddingBottom: spaciousContentBottomPadding },
+      ]}
       showsVerticalScrollIndicator={false}
+      scrollIndicatorInsets={{ bottom: bottomInset }}
     >
       {renderNftImage()}
 
@@ -853,7 +867,6 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(spacing['4xl']),
     gap: vs(spacing.lg),
   },
   imageContainer: {

@@ -240,15 +240,8 @@ export default function PasswordScreen() {
       await actions.unlockAccounts(password);
       console.log(`[perf] recovery: TOTAL ${Date.now() - t0}ms`);
 
-      // Check if device supports biometrics for enrollment
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-
-      if (hasHardware && isEnrolled) {
-        router.replace('/(auth)/biometric');
-      } else {
-        router.replace('/(auth)/success');
-      }
+      // Navigate to biometric setup (auto-skips to success if unavailable)
+      router.replace('/(auth)/biometric-setup');
     } catch (err) {
       console.error('Failed to create account:', err);
       setError(

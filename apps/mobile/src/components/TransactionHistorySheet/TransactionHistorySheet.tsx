@@ -21,6 +21,7 @@ import {
   fontFamilyNative,
 borderRadius, } from '@salmon/shared';
 
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { TransactionItem } from './TransactionItem';
 import type { TransactionHistorySheetProps, Transaction } from './types';
@@ -157,6 +158,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
 }) => {
   // Top fade gradient opacity (driven by scroll offset)
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
+  const { bottomInset, standardContentBottomPadding } = useBottomSheetChrome();
 
   // Handle transaction press
   const handleTransactionPress = useCallback(
@@ -239,8 +241,12 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
             data={transactions}
             renderItem={renderTransaction}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingBottom: standardContentBottomPadding },
+            ]}
             showsVerticalScrollIndicator={false}
+            scrollIndicatorInsets={{ bottom: bottomInset }}
             onScroll={handleScroll}
             scrollEventThrottle={16}
             onEndReached={handleEndReached}
@@ -271,7 +277,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.headerPadding),
   },
   listContent: {
-    paddingBottom: vs(spacing['3.5xl']),
+    flexGrow: 1,
   },
   // Skeleton styles
   skeletonList: {

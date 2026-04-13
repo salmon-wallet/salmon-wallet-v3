@@ -22,6 +22,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import QRCode from '../QRCode';
@@ -63,6 +64,7 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
   const { width: screenWidth } = useWindowDimensions();
   const [copied, setCopied] = useState(false);
   const { t } = useTranslation();
+  const { spaciousContentBottomPadding } = useBottomSheetChrome();
 
   // Calculate QR size: full width minus padding and border
   const qrSize = screenWidth - (CONTENT_PADDING_HORIZONTAL * 2) - (componentSizes.qrBorderWidth * 2);
@@ -92,7 +94,7 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
       style={[styles.sheetContainer, style]}
     >
       {/* Content */}
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingBottom: spaciousContentBottomPadding }]}>
         {/* QR Code Container */}
         <View style={styles.qrContainer}>
           <QRCode
@@ -147,7 +149,6 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     paddingHorizontal: s(CONTENT_PADDING_HORIZONTAL),
-    paddingBottom: vs(spacing['4xl']),
     gap: vs(componentSizes.receiveContentGap),
   },
   qrContainer: {

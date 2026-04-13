@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BlurContainer } from '../BlurContainer';
 import { GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '../Icon';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 import type { TabConfig } from './types';
 
 const TAB_CONFIG: Record<string, TabConfig> = {
@@ -80,7 +80,7 @@ export function GlassTabBar({
   descriptors: _descriptors,
   navigation,
 }: BottomTabBarProps) {
-  const insets = useSafeAreaInsets();
+  const { tabBarBottomPadding } = useTabChrome();
 
   // Filter and order routes to only show Home, Collectibles, and Swap
   const visibleRoutes = TAB_ORDER
@@ -95,7 +95,7 @@ export function GlassTabBar({
       style={[
         styles.container,
         {
-          paddingBottom: Math.max(insets.bottom, componentSizes.tabBarMinBottomPadding),
+          paddingBottom: tabBarBottomPadding,
         },
       ]}
     >

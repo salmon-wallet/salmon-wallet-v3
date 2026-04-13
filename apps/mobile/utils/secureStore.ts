@@ -3,7 +3,10 @@
 // preference) should reach this code path. Biometric keys are never stored
 // on web because localAuthentication stubs return isAvailable: false.
 
-export async function getItemAsync(key: string): Promise<string | null> {
+export async function getItemAsync(
+  key: string,
+  _options?: Record<string, unknown>
+): Promise<string | null> {
   try {
     return localStorage.getItem(key);
   } catch {
@@ -31,10 +34,15 @@ export async function deleteItemAsync(key: string): Promise<void> {
   }
 }
 
+export function canUseBiometricAuthentication(): boolean {
+  return false;
+}
+
 const SecureStore = {
   getItemAsync,
   setItemAsync,
   deleteItemAsync,
+  canUseBiometricAuthentication,
 };
 
 export default SecureStore;

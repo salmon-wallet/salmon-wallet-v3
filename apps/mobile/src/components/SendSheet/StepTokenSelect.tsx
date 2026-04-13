@@ -27,6 +27,7 @@ import {
   borderRadius,
   spacing,
 } from '@salmon/shared';
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
 import type { StepTokenSelectProps, SendToken } from './types';
@@ -154,6 +155,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
+  const { bottomInset, standardContentBottomPadding } = useBottomSheetChrome();
 
   // All hooks must be called before any early return (Rules of Hooks)
   const verifiedTokens = useMemo(() => {
@@ -232,7 +234,11 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: standardContentBottomPadding },
+          ]}
+          scrollIndicatorInsets={{ bottom: bottomInset }}
           onScroll={handleScroll}
           scrollEventThrottle={16}
           keyboardShouldPersistTaps="handled"
@@ -290,7 +296,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingBottom: vs(spacing['3.5xl']),
     gap: vs(spacing.base),
   },
   topFadeGradient: {

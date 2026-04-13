@@ -18,6 +18,7 @@ import {
   s,
   spacing,
 } from '@salmon/shared';
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { NftCard, NftCardSkeleton } from '../NftCard';
@@ -93,6 +94,7 @@ export const NftSeeAllSheet: React.FC<NftSeeAllSheetProps> = ({
 }) => {
   // Top fade gradient opacity (driven by scroll offset)
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
+  const { bottomInset, spaciousContentBottomPadding } = useBottomSheetChrome();
 
   // Handle scroll to show/hide top fade gradient dynamically
   const handleScroll = useCallback(
@@ -153,8 +155,12 @@ export const NftSeeAllSheet: React.FC<NftSeeAllSheetProps> = ({
           keyExtractor={keyExtractor}
           numColumns={NUM_COLUMNS}
           columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: spaciousContentBottomPadding },
+          ]}
           showsVerticalScrollIndicator={false}
+          scrollIndicatorInsets={{ bottom: bottomInset }}
           onScroll={handleScroll}
           scrollEventThrottle={16}
         />
@@ -196,7 +202,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: HORIZONTAL_PADDING,
-    paddingBottom: vs(spacing['4xl']),
   },
   columnWrapper: {
     justifyContent: 'space-between',

@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, borderRadius, gradients, shadows, componentSizes, fontFamilyNative, vs, s, fontSize, borderWidth, } from '@salmon/shared';
 import { SwapAmountInput } from './SwapAmountInput';
 import { PrimaryButton } from '../Button';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 import type { SwapInputScreenProps } from './types';
 
 /**
@@ -27,9 +28,10 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
   style,
 }) => {
   const { t } = useTranslation();
+  const { floatingBottomOffset, stickyCtaScrollPadding } = useTabChrome();
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, { paddingBottom: stickyCtaScrollPadding }, style]}>
       {/* Input Fields */}
       <View style={styles.inputsContainer}>
         {/* You Send */}
@@ -63,7 +65,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
       </View>
 
       {/* Review Button */}
-      <View style={styles.buttonContainer}>
+      <View style={[styles.buttonContainer, { bottom: floatingBottomOffset }]}>
         {canReview ? (
           <LinearGradient
             colors={gradients.primaryButton.colors}
@@ -100,14 +102,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: s(spacing.headerPadding),
     paddingTop: vs(spacing['3xl'] + spacing['3xl']),
-    paddingBottom: vs(spacing['2xl']),
   },
   inputsContainer: {
     gap: vs(spacing['2xl']),
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: vs(componentSizes.tabBarHeight + spacing.xl),
     left: 0,
     right: 0,
     alignItems: 'center',

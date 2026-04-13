@@ -6,8 +6,9 @@
  * 2. recover - Recover wallet with seed phrase
  * 3. create - Create new wallet (shows seed phrase)
  * 4. password - Set password for wallet encryption
- * 5. success - Success confirmation after wallet creation
- * 6. derived-accounts - Select derived accounts to import
+ * 5. biometric-setup - Optional biometric unlock setup prompt
+ * 6. success - Success confirmation after wallet creation
+ * 7. derived-accounts - Select derived accounts to import
  */
 
 import { Stack } from 'expo-router';
@@ -61,9 +62,9 @@ export default function AuthLayout() {
         }}
       />
 
-      {/* Biometric enrollment (optional) */}
+      {/* Biometric setup prompt */}
       <Stack.Screen
-        name="biometric"
+        name="biometric-setup"
         options={{
           gestureEnabled: false,
         }}

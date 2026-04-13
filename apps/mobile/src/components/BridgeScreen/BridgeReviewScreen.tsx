@@ -5,6 +5,7 @@ import { borderWidth, colors, fontSize, letterSpacing, lineHeight, spacing, bord
 import { SwapDetailRow } from '../SwapScreen/SwapDetailRow';
 import { SwapReviewCard } from '../SwapScreen/SwapReviewCard';
 import { SwapReviewButtons } from '../SwapScreen/SwapReviewButtons';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 import type { BridgeReviewScreenProps } from './types';
 
 /**
@@ -26,9 +27,10 @@ export const BridgeReviewScreen: React.FC<BridgeReviewScreenProps> = ({
   style,
 }) => {
   const { t } = useTranslation();
+  const { floatingBottomOffset } = useTabChrome();
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, { paddingBottom: floatingBottomOffset }, style]}>
       {/* Title */}
       <Text style={styles.title}>{t('bridge.review.title', 'Swap Review')}</Text>
 

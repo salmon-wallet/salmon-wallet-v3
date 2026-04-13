@@ -44,6 +44,7 @@ import {
   gradients,
   shadows,
 } from '@salmon/shared';
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { InputAddress } from '../InputAddress';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import {
@@ -69,6 +70,7 @@ export function NftSendSheet({
   onSuccess,
 }: NftSendSheetProps): React.ReactElement | null {
   const { t } = useTranslation();
+  const { actionRowBottomPadding, compactContentBottomPadding } = useBottomSheetChrome();
   const [address, setAddress] = useState('');
   const [addressValid, setAddressValid] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -161,7 +163,10 @@ export function NftSendSheet({
       >
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: compactContentBottomPadding },
+          ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -212,7 +217,7 @@ export function NftSendSheet({
           )}
         </ScrollView>
 
-        <View style={styles.actions}>
+        <View style={[styles.actions, { paddingBottom: actionRowBottomPadding }]}>
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={handleClose}
@@ -253,7 +258,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(spacing.xl),
     gap: vs(spacing.lg),
   },
   nftName: {
@@ -343,7 +347,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: s(spacing.md),
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(spacing.sheetBottomPadding),
     paddingTop: vs(spacing.md),
   },
   cancelButton: {

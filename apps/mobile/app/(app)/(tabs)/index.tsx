@@ -80,6 +80,7 @@ import {
   type Transaction,
 } from '../../../src/components';
 import { useDeveloperMode } from '../../../src/contexts/DeveloperModeContext';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 
 
 // Map blockchain to logo URL (outside component to avoid recreation)
@@ -148,6 +149,7 @@ function mapBalanceToToken(
 }
 
 export default function HomeScreen() {
+  const { scrollBottomPadding } = useTabChrome();
   const [{ currency }] = useCurrencyContext();
 
   // Top fade gradient opacity - animated based on scroll position
@@ -799,7 +801,7 @@ export default function HomeScreen() {
           // Bitcoin view with chart, about, and market data
           <ScrollView
             style={styles.bitcoinScrollView}
-            contentContainerStyle={styles.bitcoinContent}
+            contentContainerStyle={[styles.bitcoinContent, { paddingBottom: scrollBottomPadding }]}
             showsVerticalScrollIndicator={false}
           >
             {/* Price Chart */}
@@ -853,7 +855,7 @@ export default function HomeScreen() {
             onRefresh={refresh}
             onScroll={handleScroll}
             scrollEventThrottle={16}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={[styles.listContent, { paddingBottom: scrollBottomPadding }]}
             blockchain={getBlockchainFromNetworkId(currentBlockchain)}
           />
         )}

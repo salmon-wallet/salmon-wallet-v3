@@ -6,6 +6,7 @@ import { BlurContainer } from '../BlurContainer';
 import { SwapDetailRow } from './SwapDetailRow';
 import { SwapReviewCard } from './SwapReviewCard';
 import { SwapReviewButtons } from './SwapReviewButtons';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 import type { SwapReviewScreenProps } from './types';
 
 /**
@@ -25,6 +26,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
   style,
 }) => {
   const { t } = useTranslation();
+  const { floatingBottomOffset } = useTabChrome();
   const [, { formatValue }] = useCurrencyContext();
   const formatUsd = (value: number | undefined): string | undefined =>
     value != null ? `~${formatValue(value)}` : undefined;
@@ -46,7 +48,7 @@ export const SwapReviewScreen: React.FC<SwapReviewScreenProps> = ({
     : parseFloat(outAmount || '0') || 0;
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, { paddingBottom: floatingBottomOffset }, style]}>
       {/* Background Pattern - subtle swap graphic */}
       <View style={styles.backgroundPattern}>
         {/* This would be the swap background image from Figma */}
@@ -168,7 +170,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: s(spacing.headerPadding),
     paddingTop: vs(spacing['2xl']),
-    paddingBottom: vs(componentSizes.tabBarHeight + spacing.xl),
   },
   backgroundPattern: {
     position: 'absolute',

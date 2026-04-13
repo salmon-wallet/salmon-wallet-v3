@@ -232,8 +232,8 @@
       "password_mismatch": "Passwords don't match",
       "password_changed": "Password changed successfully",
       "wrong_password": "Current password is incorrect",
-      "biometric_unlock": "Biometric Unlock",
-      "biometric_description": "Use Face ID or Touch ID to unlock your wallet",
+      "biometric_unlock": "Biometrics",
+      "biometric_description": "Use biometrics to unlock your wallet",
       "change_password_button": "Update Password"
     }
   },
@@ -355,10 +355,7 @@
     "unlock_failed": "Failed to unlock wallet. Please try again.",
     "reset_failed": "Failed to reset wallet. Please try again.",
     "unlocking": "Unlocking Wallet",
-    "use_face_id": "Use Face ID",
-    "use_touch_id": "Use Touch ID",
-    "use_iris": "Use Iris",
-    "use_biometric": "Use Biometric",
+    "use_biometric": "Use Biometrics",
     "biometric_unlock_failed": "Biometric unlock failed"
   },
   "wallet": {
@@ -417,11 +414,11 @@
       "skip": "Skip",
       "invalidSeed": "Invalid seed phrase",
       "recovery_error": "Failed to recover account. Please check your seed phrase and try again.",
-      "biometric_title": "Enable {{type}}",
-      "biometric_subtitle": "Unlock your wallet quickly and securely with biometric authentication",
-      "biometric_enable": "ENABLE {{type}}",
-      "biometric_skip": "Not now",
-      "biometric_error": "Failed to enable biometric authentication. Please try again."
+      "biometric_setup_title": "Secure Your Wallet",
+      "biometric_setup_subtitle": "Enable biometric authentication for quick and secure access to your wallet",
+      "biometric_setup_enable": "Enable Biometrics",
+      "biometric_setup_skip": "Maybe Later",
+      "biometric_setup_error": "Failed to enable biometrics. You can set it up later in Settings."
     },
     "recover": {
       "messageTitle": "Recover Existing Account",

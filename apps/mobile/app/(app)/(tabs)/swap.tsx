@@ -20,12 +20,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import {
   colors,
-  componentSizes,
   fontSize,
   getTokenList,
   searchTokens,
@@ -48,6 +46,7 @@ import {
   type SwapQuote,
   type SwapToken,
 } from '../../../src/components';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 
 /**
  * Since SwapQuote now uses the backend structure directly,
@@ -66,7 +65,7 @@ function transformQuoteForUI(
 
 export default function SwapScreenPage() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const { headerChromeHeight } = useTabChrome();
   const router = useRouter();
 
   // Store the current quote from useSwap for execution
@@ -355,7 +354,7 @@ export default function SwapScreenPage() {
   return (
     <View style={styles.container}>
       {/* Swap Content */}
-      <View style={[styles.contentContainer, { marginTop: insets.top + componentSizes.headerHeight }]}>
+      <View style={[styles.contentContainer, { marginTop: headerChromeHeight }]}>
         <SwapScreen
           tokens={swapTokens}
           featuredTokens={featuredTokens}

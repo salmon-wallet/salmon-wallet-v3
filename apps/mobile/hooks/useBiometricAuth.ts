@@ -25,6 +25,7 @@ import * as SecureStore from '../utils/secureStore';
  * Storage key for the biometrically-protected derived key.
  */
 const BIOMETRIC_KEY_STORAGE = 'salmon_biometric_key';
+const BIOMETRIC_KEY_MARKER = 'salmon_biometric_key_marker';
 
 /**
  * Storage key for user's biometric preference.
@@ -51,6 +52,8 @@ const BIOMETRIC_PROMPT_MESSAGE = 'Authenticate to unlock your wallet';
  * State representing the device's biometric capabilities.
  */
 export interface BiometricAuthState {
+  /** Whether the initial capability check has completed */
+  isReady: boolean;
   /** Whether biometric hardware is available on the device */
   isAvailable: boolean;
   /** Whether the user has enrolled biometrics (e.g., registered a fingerprint) */
@@ -169,6 +172,7 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
   // -------------------------------------------------------------------------
 
   const [state, setState] = useState<BiometricAuthState>({
+    isReady: false,
     isAvailable: false,
     isEnrolled: false,
     biometricType: null,
@@ -207,6 +211,7 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
       }
 
       setState({
+        isReady: true,
         isAvailable: hasHardware && isEnrolled,
         isEnrolled,
         biometricType: getBiometricType(supportedTypes),
@@ -215,6 +220,7 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
     } catch (error) {
       console.error('Failed to check biometric capabilities:', error);
       setState({
+        isReady: true,
         isAvailable: false,
         isEnrolled: false,
         biometricType: null,
@@ -266,6 +272,7 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
           // Authentication prompt message
           authenticationPrompt: BIOMETRIC_PROMPT_MESSAGE,
         });
+        await SecureStore.setItemAsync(BIOMETRIC_KEY_MARKER, 'true');
 
         // Set plain flag so we can check existence without triggering biometric
         await SecureStore.setItemAsync(BIOMETRIC_KEY_EXISTS_FLAG, 'true');
@@ -288,15 +295,6 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
     []
   );
 
-  /**
-   * Authenticates with biometrics and retrieves the stored key.
-   *
-   * This triggers the device's biometric prompt. If successful,
-   * returns the stored derived key JSON which can be parsed
-   * and used to decrypt the vault without PBKDF2.
-   *
-   * @returns The stored key JSON if successful, null otherwise
-   */
   /**
    * Clears the stored biometric key.
    *

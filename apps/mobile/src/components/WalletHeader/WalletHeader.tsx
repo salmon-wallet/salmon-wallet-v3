@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContentCopySvgIcon, SettingsSvgIcon, WalletSvgIcon } from '../Icon';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 import type { WalletHeaderProps } from './types';
 
 
@@ -43,7 +43,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   animateIn,
 }) => {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const { headerTopInset } = useTabChrome();
   const [imgError, setImgError] = useState(false);
 
   // Fade-in animation for header content after unlock
@@ -82,12 +82,6 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   // Format: "Account 1 (ABcd...XYZ1)" matching Figma
   const displayText = `${accountName} (${truncatedAddress})`;
 
-  // Calculate top padding:
-  // - iOS: Use safe area inset (for notch/dynamic island)
-  // - Android: Use safe area inset (handles status bar)
-  // - Web: No safe area needed (use 0)
-  const safeAreaTop = Platform.OS === 'web' ? 0 : insets.top;
-
   // Fallback avatar color based on account ID
   const avatarColor = useMemo(
     () => (accountId ? getAvatarColor(accountId) : colors.text.muted),
@@ -96,7 +90,7 @@ export const WalletHeader: React.FC<WalletHeaderProps> = ({
   const initials = useMemo(() => getInitials(accountName), [accountName]);
 
   return (
-    <View style={[styles.outerContainer, { paddingTop: safeAreaTop }, style]}>
+    <View style={[styles.outerContainer, { paddingTop: headerTopInset }, style]}>
       <Animated.View style={[styles.innerContainer, animateIn !== undefined && contentAnimatedStyle]}>
         {/* Left side - Avatar/Wallet icon + Account info */}
         <View style={styles.leftSection}>

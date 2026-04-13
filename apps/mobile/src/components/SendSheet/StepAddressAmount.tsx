@@ -31,6 +31,7 @@ import {
   opacity,
   componentSizes,
 } from '@salmon/shared';
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
 import type { StepAddressAmountProps } from './types';
@@ -59,6 +60,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
 }) => {
   const { t } = useTranslation();
   const [{ currency }, { formatPrecise }] = useCurrencyContext();
+  const { actionRowBottomPadding, compactContentBottomPadding } = useBottomSheetChrome();
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -146,7 +148,10 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
     >
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: compactContentBottomPadding },
+        ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -295,7 +300,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
       </ScrollView>
 
       {/* Bottom Buttons */}
-      <View style={styles.bottomButtons}>
+      <View style={[styles.bottomButtons, { paddingBottom: actionRowBottomPadding }]}>
         <TouchableOpacity
           style={styles.cancelButton}
           onPress={onCancel}
@@ -337,7 +342,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(spacing.xl),
   },
   // Token Card
   tokenCard: {
@@ -517,7 +521,6 @@ const styles = StyleSheet.create({
   bottomButtons: {
     flexDirection: 'row',
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(spacing.sheetBottomPadding),
     paddingTop: vs(spacing.md),
     gap: s(spacing.md),
   },

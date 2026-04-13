@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius, fontSize, fontWeight, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
 import type { TransactionSuccessScreenProps } from '@salmon/shared';
 import { PrimaryButton } from '../Button';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 
 // ============================================================================
 // Component
@@ -32,6 +33,7 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
 }) => {
   const isBridge = !!bridgeDepositAddress;
   const { t } = useTranslation();
+  const { floatingBottomOffset } = useTabChrome();
 
   const circleScale = useSharedValue(0);
   const checkOpacity = useSharedValue(0);
@@ -76,7 +78,7 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: floatingBottomOffset }]}>
       <Animated.View style={[styles.circleOuter, circleStyle]}>
         <Animated.Text style={[styles.checkmark, checkStyle]}>✓</Animated.Text>
       </Animated.View>
@@ -153,7 +155,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(componentSizes.tabBarHeight + spacing.xl),
   },
   circleOuter: {
     width: vs(componentSizes.successCircleSize),

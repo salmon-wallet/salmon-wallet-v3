@@ -25,6 +25,7 @@ import {
   opacity,
   componentSizes,
 } from '@salmon/shared';
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -52,6 +53,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const { actionRowBottomPadding } = useBottomSheetChrome();
   const [estimatedFee, setEstimatedFee] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -175,7 +177,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
       </View>
 
       {/* Bottom Buttons */}
-      <View style={styles.bottomButtons}>
+      <View style={[styles.bottomButtons, { paddingBottom: actionRowBottomPadding }]}>
         <TouchableOpacity
           style={styles.cancelButton}
           onPress={isFailed ? onBack : onCancel}
@@ -282,7 +284,6 @@ const styles = StyleSheet.create({
   bottomButtons: {
     flexDirection: 'row',
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(spacing.sheetBottomPadding),
     paddingTop: vs(spacing.md),
     gap: s(spacing.md),
   },

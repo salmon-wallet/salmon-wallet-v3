@@ -232,8 +232,8 @@
       "password_mismatch": "Las contraseñas no coinciden",
       "password_changed": "Contraseña cambiada exitosamente",
       "wrong_password": "La contraseña actual es incorrecta",
-      "biometric_unlock": "Desbloqueo Biométrico",
-      "biometric_description": "Usar Face ID o Touch ID para desbloquear tu billetera",
+      "biometric_unlock": "Biometría",
+      "biometric_description": "Usar biometría para desbloquear tu billetera",
       "change_password_button": "Actualizar Contraseña"
     }
   },
@@ -355,11 +355,8 @@
     "unlock_failed": "Error al desbloquear la billetera. Por favor, inténtalo de nuevo.",
     "reset_failed": "Error al restablecer la billetera. Por favor, inténtalo de nuevo.",
     "unlocking": "Desbloqueando Wallet",
-    "use_face_id": "Usar Face ID",
-    "use_touch_id": "Usar Touch ID",
-    "use_iris": "Usar Iris",
-    "use_biometric": "Usar Biométrico",
-    "biometric_unlock_failed": "Error al desbloquear con biométrico"
+    "use_biometric": "Usar Biometría",
+    "biometric_unlock_failed": "Error al desbloquear con biometría"
   },
   "wallet": {
     "name_template": "Cuenta Nro {{number}}",
@@ -417,11 +414,11 @@
       "skip": "Omitir",
       "invalidSeed": "Seed phrase inválida",
       "recovery_error": "Error al recuperar la cuenta. Por favor, verifica tu seed phrase e inténtalo de nuevo.",
-      "biometric_title": "Activar {{type}}",
-      "biometric_subtitle": "Desbloqueá tu billetera de forma rápida y segura con autenticación biométrica",
-      "biometric_enable": "ACTIVAR {{type}}",
-      "biometric_skip": "Ahora no",
-      "biometric_error": "Error al activar la autenticación biométrica. Intentá de nuevo."
+      "biometric_setup_title": "Asegurá Tu Billetera",
+      "biometric_setup_subtitle": "Habilitá la autenticación biométrica para un acceso rápido y seguro a tu billetera",
+      "biometric_setup_enable": "Habilitar Biometría",
+      "biometric_setup_skip": "Quizás Después",
+      "biometric_setup_error": "Error al habilitar biometría. Podés configurarlo después en Ajustes."
     },
     "recover": {
       "messageTitle": "Recuperar Cuenta existente",

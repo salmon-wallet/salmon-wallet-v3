@@ -21,7 +21,6 @@ import {
   canonicalNftToSolanaNftData,
   borderRadius,
   colors,
-  componentSizes,
   createBurnTransaction,
   fontFamilyNative,
   fontSize,
@@ -57,7 +56,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   NftCard,
   NftCardSkeleton,
@@ -73,6 +71,7 @@ import {
   type SubAccount,
 } from '../../../src/components';
 import { useDeveloperMode } from '../../../src/contexts/DeveloperModeContext';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 
 // ============================================================================
 // Types
@@ -135,8 +134,7 @@ const GRID_HORIZONTAL_PADDING = s(18);
 // ============================================================================
 
 export default function CollectiblesScreen() {
-  // Safe area insets for header positioning
-  const insets = useSafeAreaInsets();
+  const { headerContentOffset, scrollBottomPadding } = useTabChrome();
 
   // NFT state grouped by section (blockchain + network)
   const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_SECTIONS);
@@ -181,7 +179,7 @@ export default function CollectiblesScreen() {
   }, [activeAccount, detailSheet.sectionKey, sectionIndexes]);
 
   // Calculate header offset for content
-  const headerOffset = insets.top + componentSizes.headerInnerHeight;
+  const headerOffset = headerContentOffset;
 
   // Build sub-account lists per section for the SubAccountSelector
   const sectionSubAccounts = useMemo(() => {
@@ -553,6 +551,7 @@ export default function CollectiblesScreen() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
+          { paddingBottom: scrollBottomPadding },
           { paddingTop: headerOffset + vs(8) },
         ]}
         showsVerticalScrollIndicator={false}
@@ -750,9 +749,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex: 0,
   },
-  scrollContent: {
-    paddingBottom: vs(componentSizes.tabBarScrollPadding),
-  },
+  scrollContent: {},
   pageTitle: {
     fontFamily: fontFamilyNative.semiBold,
     fontSize: ms(fontSize.xl),

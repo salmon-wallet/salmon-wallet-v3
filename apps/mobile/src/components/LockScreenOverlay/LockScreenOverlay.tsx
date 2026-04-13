@@ -128,6 +128,9 @@ export function LockScreenOverlay({
     }
   })();
 
+  // Get biometric label for accessibility
+  const getBiometricLabel = () => t('lock.use_biometric');
+
   // Animation
   const translateY = useSharedValue(locked ? 0 : -screenHeight);
 

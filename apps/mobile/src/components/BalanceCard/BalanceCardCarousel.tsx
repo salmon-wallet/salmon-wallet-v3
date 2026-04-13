@@ -31,7 +31,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 import type { BalanceCardCarouselProps, BlockchainId } from './types';
 
 // Import the SVG icons from Icon component
@@ -91,14 +91,12 @@ export const BalanceCardCarousel: React.FC<BalanceCardCarouselProps> = ({
   testID,
 }) => {
   const [, { formatValue, formatChange }] = useCurrencyContext();
-  const insets = useSafeAreaInsets();
+  const { heroCardTopInset } = useTabChrome();
   const [internalIndex, setInternalIndex] = React.useState(0);
   const activeIndex = controlledIndex ?? internalIndex;
 
   // Calculate offsets for header overlap effect
-  const safeAreaTop = Platform.OS === 'web' ? 0 : insets.top;
-  // Card starts at safe area (same as header), not at device top
-  const cardMarginTop = safeAreaTop;
+  const cardMarginTop = heroCardTopInset;
   // Content padding pushes content below the header's inner container
   const contentPaddingTop = componentSizes.headerInnerHeight + spacing.md;
 

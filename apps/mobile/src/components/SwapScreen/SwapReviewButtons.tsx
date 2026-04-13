@@ -55,7 +55,6 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: 'row',
     gap: s(spacing.md),
-    paddingBottom: vs(spacing['2xl']),
   },
   backButton: {
     flex: 1,

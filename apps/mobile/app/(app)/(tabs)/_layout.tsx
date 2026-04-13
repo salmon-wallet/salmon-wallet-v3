@@ -4,7 +4,6 @@ import { BlurTargetView } from 'expo-blur';
 import { Tabs, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
 
@@ -21,7 +20,6 @@ import {
   SUPPORT_OPTIONS,
   LANGUAGE_NAMES,
   colors,
-  componentSizes,
   getStashItem,
   type SettingsPanelEntry,
   type AddressBookItem,
@@ -70,6 +68,7 @@ import { LockContent } from '../../../src/components/GateContainer/LockContent';
 import { HeaderContent } from '../../../src/components/GateContainer/HeaderContent';
 import type { DerivedKeyCache } from '@salmon/shared';
 import type { GateState, GateExpandedHeader } from '../../../src/components/GateContainer/types';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 
 /**
  * Tab Layout for Salmon Wallet
@@ -80,7 +79,7 @@ import type { GateState, GateExpandedHeader } from '../../../src/components/Gate
 export default function TabLayout() {
   const router = useRouter();
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const { headerChromeHeight, topInset } = useTabChrome();
   const openLink = useOpenLink();
   const blurTargetRef = useRef<View>(null);
 
@@ -623,7 +622,7 @@ export default function TabLayout() {
         />
 
         {/* Layer 3: Scales pattern background - starts below header */}
-        <ScalesBackground topOffset={insets.top + componentSizes.headerHeight} />
+        <ScalesBackground topOffset={headerChromeHeight} />
       </BlurTargetView>
 
       {/* Tab screens fill the remaining space */}
@@ -649,7 +648,7 @@ export default function TabLayout() {
 
       <View
         pointerEvents="none"
-        style={[styles.topSafeAreaOverlay, { height: insets.top }]}
+        style={[styles.topSafeAreaOverlay, { height: topInset }]}
       />
 
       {/* Unified Gate — lock screen, header, settings, wallet switcher */}

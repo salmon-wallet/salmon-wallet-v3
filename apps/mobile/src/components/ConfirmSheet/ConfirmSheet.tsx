@@ -15,6 +15,7 @@ import {
   fontFamilyNative,
   vs,
 } from '@salmon/shared';
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { PrimaryButton } from '../Button/PrimaryButton';
 import { SecondaryButton } from '../Button/SecondaryButton';
@@ -64,6 +65,7 @@ export function ConfirmSheet({
   onConfirm,
 }: ConfirmSheetProps) {
   const { t } = useTranslation();
+  const { compactContentBottomPadding } = useBottomSheetChrome();
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
@@ -134,7 +136,7 @@ export function ConfirmSheet({
       title={<Text style={styles.title}>{title}</Text>}
       style={styles.sheet}
     >
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingBottom: compactContentBottomPadding }]}>
         <Text style={styles.message}>{message}</Text>
 
         {requirePassword && (
@@ -189,7 +191,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: vs(spacing.xl),
   },
   message: {
     color: colors.text.secondary,

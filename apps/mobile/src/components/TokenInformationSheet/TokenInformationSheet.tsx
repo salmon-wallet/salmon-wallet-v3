@@ -20,6 +20,7 @@ import {
   spacing,
 } from '@salmon/shared';
 
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { TokenListItem } from '../TokenList';
 import { PriceChart } from '../PriceChart';
@@ -98,6 +99,7 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
 }) => {
   // Top fade gradient opacity (driven by scroll offset)
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
+  const { bottomInset, standardContentBottomPadding } = useBottomSheetChrome();
 
   // Handle token press (no-op for display purposes)
   const handleTokenPress = useCallback(() => {
@@ -128,8 +130,12 @@ export const TokenInformationSheet: React.FC<TokenInformationSheetProps> = ({
       {/* ScrollView Content */}
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollViewContent}
+        contentContainerStyle={[
+          styles.scrollViewContent,
+          { paddingBottom: standardContentBottomPadding },
+        ]}
         showsVerticalScrollIndicator={false}
+        scrollIndicatorInsets={{ bottom: bottomInset }}
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
@@ -201,7 +207,6 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     paddingHorizontal: s(spacing.headerPadding),
-    paddingBottom: vs(spacing['3.5xl']),
     gap: vs(spacing.lg),
   },
   tokenItemSkeletonContainer: {

@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
 import { RecipientAddressInput } from './RecipientAddressInput';
 import { PrimaryButton, SecondaryButton } from '../Button';
+import { useTabChrome } from '../../../hooks/useTabChrome';
 import type { BridgeRecipientScreenProps } from './types';
 
 /**
@@ -22,10 +23,11 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
   style,
 }) => {
   const { t } = useTranslation();
+  const { floatingBottomOffset, stickyCtaScrollPadding } = useTabChrome();
   const canContinue = isValidAddress && recipientAddress.length > 0;
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, { paddingBottom: stickyCtaScrollPadding }, style]}>
       {/* Title */}
       <Text style={styles.title}>{t('bridge.recipient.title', 'Recipient Address')}</Text>
 
@@ -56,7 +58,7 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
       </View>
 
       {/* Buttons */}
-      <View style={styles.buttonsContainer}>
+      <View style={[styles.buttonsContainer, { bottom: floatingBottomOffset }]}>
         <SecondaryButton
           onPress={onBack}
           style={styles.backButton}
@@ -138,7 +140,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: s(spacing.md),
     position: 'absolute',
-    bottom: vs(componentSizes.tabBarHeight + spacing.xl),
     left: s(spacing.headerPadding),
     right: s(spacing.headerPadding),
   },
