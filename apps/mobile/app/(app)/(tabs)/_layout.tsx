@@ -197,9 +197,10 @@ export default function TabLayout() {
   }, []);
 
   const handleRemoveAllAccountsFromLock = useCallback(async () => {
+    await setEnableBiometric(false);
     await accountActions.removeAllAccounts();
     router.replace('/(auth)');
-  }, [accountActions, router]);
+  }, [accountActions, router, setEnableBiometric]);
 
   // Biometric config for LockContent
   const lockBiometricConfig = useMemo(() => ({
@@ -561,6 +562,7 @@ export default function TabLayout() {
           style: 'destructive',
           onPress: async () => {
             try {
+              await setEnableBiometric(false);
               await accountActions.removeAllAccounts();
               router.replace('/(auth)');
             } catch (error) {
@@ -571,7 +573,7 @@ export default function TabLayout() {
         },
       ]
     );
-  }, [accountActions, router, t]);
+  }, [accountActions, router, setEnableBiometric, t]);
 
   const handleRemoveWallet = useCallback(async () => {
     const { accounts: accts } = accountState;

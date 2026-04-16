@@ -79,6 +79,7 @@ function RootLayoutNav() {
   const segments = useSegments();
   const navigationState = useRootNavigationState();
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+  const lockInFlightRef = useRef(false);
 
   // Inactivity timeout disabled on mobile — lock is handled by AppState (background).
   // The timeout only makes sense on web/extension where tabs stay open indefinitely.
@@ -137,7 +138,23 @@ function RootLayoutNav() {
       return;
     }
 
-    const subscription = AppState.addEventListener('change', (nextState) => {
+    const tryLock = (): void => {
+      if (
+        !state.requiredLock ||
+        state.locked ||
+        state.accounts.length === 0 ||
+        lockInFlightRef.current
+      ) {
+        return;
+      }
+
+      lockInFlightRef.current = true;
+      void actions.lockAccounts().finally(() => {
+        lockInFlightRef.current = false;
+      });
+    };
+
+    const changeSubscription = AppState.addEventListener('change', (nextState) => {
       const previousState = appStateRef.current;
       appStateRef.current = nextState;
 
@@ -146,22 +163,26 @@ function RootLayoutNav() {
       // Control Center, notifications — locking on inactive causes a loop
       // when biometric auth is active.
       const goingToBackground =
-        previousState === 'active' && nextState === 'background';
+        nextState === 'background' &&
+        (previousState === 'active' || previousState === 'inactive');
 
       if (
-        !goingToBackground ||
-        !state.requiredLock ||
-        state.locked ||
-        state.accounts.length === 0
+        !goingToBackground
       ) {
         return;
       }
 
-      void actions.lockAccounts();
+      tryLock();
+    });
+
+    const blurSubscription = AppState.addEventListener('blur', () => {
+      appStateRef.current = 'background';
+      tryLock();
     });
 
     return () => {
-      subscription.remove();
+      changeSubscription.remove();
+      blurSubscription.remove();
     };
   }, [actions, state.accounts.length, state.locked, state.ready, state.requiredLock]);
 

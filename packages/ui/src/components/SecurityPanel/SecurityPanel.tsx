@@ -75,6 +75,7 @@ const SubmitButton = styled(Button)({
 
 export function SecurityPanel({
   onBack,
+  onPasswordChanged,
 }: SecurityPanelProps): React.ReactElement {
   const { t } = useTranslation();
   const [, accountActions] = useAccountsContext();
@@ -105,6 +106,7 @@ export function SecurityPanel({
     try {
       const result = await accountActions.changePassword(currentPassword, newPassword);
       if (result) {
+        await onPasswordChanged?.();
         setSuccess(t('settings.security.password_changed'));
         setCurrentPassword('');
         setNewPassword('');
@@ -117,7 +119,7 @@ export function SecurityPanel({
     } finally {
       setLoading(false);
     }
-  }, [currentPassword, newPassword, confirmPassword, passwordValidation.isValid, accountActions, t]);
+  }, [currentPassword, newPassword, confirmPassword, passwordValidation.isValid, accountActions, onPasswordChanged, t]);
 
   return (
     <SettingsPanelContent title={t('settings.security.title')} onBack={onBack}>

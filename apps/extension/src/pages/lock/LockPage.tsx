@@ -20,7 +20,7 @@ import {
   getStashItem,
   STASH_KEYS,
 } from '@salmon/shared';
-import { getSessionKey, storeSessionKey, clearSessionKey } from '../../utils/sessionKeyCache';
+import { storeSessionKey, clearSessionKey } from '../../utils/sessionKeyCache';
 
 // ============================================================================
 // Types
@@ -141,31 +141,14 @@ export function LockPage({ onUnlock, onUnlockWithCachedKey, onRemoveAllAccounts 
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showLoadingScreen, setShowLoadingScreen] = useState(false);
-  const [isCheckingSessionKey, setIsCheckingSessionKey] = useState(true);
-  const sessionKeyCheckRef = useRef(false);
+  const sessionKeyClearRef = useRef(false);
 
-  // Check for valid session key on mount for instant unlock
   useEffect(() => {
-    if (sessionKeyCheckRef.current) return;
-    sessionKeyCheckRef.current = true;
+    if (sessionKeyClearRef.current) return;
+    sessionKeyClearRef.current = true;
 
-    const checkSessionKey = async () => {
-      try {
-        const sessionKey = await getSessionKey();
-        if (sessionKey) {
-          const success = await onUnlockWithCachedKey(sessionKey);
-          if (success) return;
-          await clearSessionKey();
-        }
-      } catch (error) {
-        console.warn('Failed to check session key:', error);
-      } finally {
-        setIsCheckingSessionKey(false);
-      }
-    };
-
-    checkSessionKey();
-  }, [onUnlockWithCachedKey]);
+    void clearSessionKey();
+  }, []);
 
   const handlePasswordChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -225,17 +208,6 @@ export function LockPage({ onUnlock, onUnlockWithCachedKey, onRemoveAllAccounts 
       setError(t('lock.error.reset_failed', 'Failed to reset wallet. Please try again.'));
     }
   }, [onRemoveAllAccounts, t]);
-
-  // Show minimal splash while checking session key
-  if (isCheckingSessionKey) {
-    return (
-      <Container>
-        <Content>
-          <LogoImage src="/images/Logo.png" alt="Salmon" />
-        </Content>
-      </Container>
-    );
-  }
 
   return (
     <>

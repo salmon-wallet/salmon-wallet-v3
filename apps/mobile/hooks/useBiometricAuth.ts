@@ -307,6 +307,7 @@ export function useBiometricAuth(): UseBiometricAuthReturn {
   const clearBiometricKey = useCallback(async (): Promise<void> => {
     try {
       await SecureStore.deleteItemAsync(BIOMETRIC_KEY_STORAGE);
+      await SecureStore.deleteItemAsync(BIOMETRIC_KEY_MARKER);
       await SecureStore.deleteItemAsync(BIOMETRIC_KEY_EXISTS_FLAG);
       setState((prev) => ({ ...prev, hasStoredKey: false }));
     } catch (error) {

@@ -101,6 +101,7 @@ import IconButton from '@mui/material/IconButton';
 
 // i18n
 import { useLanguage } from '../../i18n';
+import { clearSessionKey } from '../../utils/sessionKeyCache';
 
 // Tab content pages
 import { CollectiblesPage } from '../collectibles/CollectiblesPage';
@@ -589,6 +590,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
    * Confirm removal of all wallets
    */
   const confirmRemoveAllWallets = useCallback(async () => {
+    await clearSessionKey();
     await actions.removeAllAccounts();
   }, [actions]);
 
@@ -1135,7 +1137,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
         />
       );
     },
-    security: ({ onBack }) => <SecurityPanel onBack={onBack} />,
+    security: ({ onBack }) => <SecurityPanel onBack={onBack} onPasswordChanged={clearSessionKey} />,
     accounts: ({ onBack, onNavigate }) => (
       <AccountsPanel
         onBack={onBack}

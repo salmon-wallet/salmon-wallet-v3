@@ -23,6 +23,7 @@ const STASH_KEYS = {
 } as const;
 
 const APPROVAL_STORAGE_KEY = 'salmon_pending_approval';
+const SESSION_KEY_STORAGE_KEY = 'salmon_session_key';
 const APPROVAL_TIMEOUT_MS = 30_000;
 
 interface PendingApproval {
@@ -406,6 +407,7 @@ export default defineBackground(() => {
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'salmon_lock_alarm') {
       stashedValues.delete(STASH_KEYS.DERIVED_KEY);
+      sessionArea.remove(SESSION_KEY_STORAGE_KEY).catch(() => { /* ignore */ });
     }
   });
 

@@ -85,6 +85,7 @@ import {
 
 import { CollectiblesTab } from './CollectiblesTab';
 import { SwapTab } from './SwapTab';
+import { clearSessionKey } from '../../utils/sessionKeyCache';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -648,7 +649,7 @@ export function HomePage(): React.ReactElement {
         />
       );
     },
-    security: ({ onBack }) => <SecurityPanel onBack={onBack} />,
+    security: ({ onBack }) => <SecurityPanel onBack={onBack} onPasswordChanged={clearSessionKey} />,
     accounts: ({ onBack, onNavigate }) => (
       <AccountsPanel
         onBack={onBack}
@@ -725,6 +726,7 @@ export function HomePage(): React.ReactElement {
   }, [actions, activeAccount]);
 
   const confirmRemoveAllWallets = useCallback(async () => {
+    await clearSessionKey();
     await actions.removeAllAccounts();
   }, [actions]);
 

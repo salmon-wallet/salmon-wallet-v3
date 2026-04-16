@@ -515,6 +515,73 @@ describe('useAccounts Hook', () => {
       const [state] = result.current;
       expect(state.locked).toBe(true);
     });
+
+    it('should stay locked on a fresh init after lockAccounts removed the cached derived key', async () => {
+      const mockAccount = createMockAccount();
+      const encryptedData = {
+        isEncrypted: true,
+        nonce: 'test-nonce',
+        salt: 'test-salt',
+        ciphertext: 'encrypted-data',
+        digest: 'sha512' as const,
+        iterations: 210000,
+      };
+
+      const mockKeyCache = {
+        key: [1, 2, 3],
+        salt: 'test-salt',
+        iterations: 210000,
+        digest: 'sha512' as const,
+        expiresAt: Date.now() + 60_000,
+      };
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
+        if (key === 'salmon_accounts') {
+          return Promise.resolve([{
+            id: mockAccount.id,
+            name: mockAccount.name,
+            avatar: mockAccount.avatar,
+            pathIndexes: mockAccount.pathIndexes,
+          }]);
+        }
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
+        if (key === 'salmon_wallets') return Promise.resolve(null);
+        return Promise.resolve(null);
+      });
+
+      stashStore['derived_key_cache'] = mockKeyCache;
+
+      (encryption.isKeyCacheValid as any).mockImplementation((keyCache: unknown) => Boolean(keyCache));
+      (encryption.unlockWithKey as any).mockReturnValue({ [mockAccount.id]: MOCK_MNEMONIC });
+
+      const firstHook = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(firstHook.result.current[0].ready).toBe(true);
+      });
+
+      expect(firstHook.result.current[0].locked).toBe(false);
+      expect(encryption.unlockWithKey).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        await firstHook.result.current[1].lockAccounts();
+      });
+
+      expect(stashStore['derived_key_cache']).toBeUndefined();
+
+      firstHook.unmount();
+
+      const secondHook = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(secondHook.result.current[0].ready).toBe(true);
+      });
+
+      expect(secondHook.result.current[0].locked).toBe(true);
+      expect(encryption.unlockWithKey).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('Account Management', () => {

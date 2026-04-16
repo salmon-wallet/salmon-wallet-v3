@@ -11,7 +11,7 @@ import {
   useAccountsContext, type DerivedKeyCache, getStashItem, STASH_KEYS,
 } from '@salmon/shared';
 import {
-  getSessionKey, storeSessionKey, clearSessionKey,
+  storeSessionKey, clearSessionKey,
 } from '../../utils/sessionKeyCache';
 
 const Container = styled(Box)({
@@ -110,28 +110,14 @@ export function LockPage(): React.ReactElement {
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showLoadingScreen, setShowLoadingScreen] = useState(false);
-  const [isCheckingSessionKey, setIsCheckingSessionKey] = useState(true);
-  const sessionKeyCheckRef = useRef(false);
+  const sessionKeyClearRef = useRef(false);
 
   useEffect(() => {
-    if (sessionKeyCheckRef.current) return;
-    sessionKeyCheckRef.current = true;
+    if (sessionKeyClearRef.current) return;
+    sessionKeyClearRef.current = true;
 
-    (async () => {
-      try {
-        const sessionKey = await getSessionKey();
-        if (sessionKey) {
-          const success = await actions.unlockWithCachedKey(sessionKey);
-          if (success) { navigate('/home', { replace: true }); return; }
-          await clearSessionKey();
-        }
-      } catch (err) {
-        console.warn('Failed to check session key:', err);
-      } finally {
-        setIsCheckingSessionKey(false);
-      }
-    })();
-  }, [actions, navigate]);
+    void clearSessionKey();
+  }, []);
 
   const handlePasswordChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -175,12 +161,6 @@ export function LockPage(): React.ReactElement {
       setError(t('lock.error.reset_failed', 'Failed to reset wallet.'));
     }
   }, [actions, navigate, t]);
-
-  if (isCheckingSessionKey) {
-    return (
-      <Container><Content><LogoImage src="/images/Logo.png" alt="Salmon" /></Content></Container>
-    );
-  }
 
   return (
     <>
