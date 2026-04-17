@@ -11,11 +11,15 @@ import {
   filterSpamNfts,
   getNftSectionTitle,
   INITIAL_NFT_SECTIONS,
+  SOLANA_NETWORKS,
+  getAllNfts,
+  getSolanaNfts,
   type Account,
   type NftData,
   type NftSectionKey,
   type NftSection,
   type NftsBySection,
+  type Nft,
   isSolanaAccount,
 } from '@salmon/shared';
 import { NftCarouselSection } from '@salmon/ui';
@@ -27,6 +31,7 @@ import { NftCarouselSection } from '@salmon/ui';
 interface CollectiblesTabProps {
   activeAccount: Account | undefined;
   developerNetworks: boolean;
+  refreshKey?: number;
   onNftDetailPress?: (nft: NftData) => void;
   onSeeAllPress?: (data: { title: string; blockchain: string; nfts: NftData[] }) => void;
 }
@@ -61,6 +66,7 @@ const EmptyStateText = styled(Typography)({
 export function CollectiblesTab({
   activeAccount,
   developerNetworks,
+  refreshKey = 0,
   onNftDetailPress,
   onSeeAllPress,
 }: CollectiblesTabProps): React.ReactElement {
@@ -108,7 +114,12 @@ export function CollectiblesTab({
           if (!account) continue;
 
           if (!isSolanaAccount(account)) continue;
-          const rawNfts = await account.getAllNfts();
+          const rawNfts: Nft[] = await getAllNfts(
+            SOLANA_NETWORKS[networkId],
+            account.getReceiveAddress(),
+            refreshKey > 0,
+            getSolanaNfts,
+          );
           if (cancelled) return;
 
           const nftDataList: NftData[] = rawNfts
@@ -137,7 +148,7 @@ export function CollectiblesTab({
 
     fetchNfts();
     return () => { cancelled = true; };
-  }, [activeAccount, developerNetworks]);
+  }, [activeAccount, developerNetworks, refreshKey]);
 
   // Visible section keys
   const visibleKeys = useMemo(() => {

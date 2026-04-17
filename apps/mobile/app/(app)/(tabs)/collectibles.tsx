@@ -205,7 +205,7 @@ export default function CollectiblesScreen() {
 
   // Fetch all NFTs in parallel
   const fetchAllNfts = useCallback(
-    async (isRefresh = false) => {
+    async (isRefresh = false, noCache = false) => {
       if (!activeBlockchainAccount || !activeAccount) return;
 
       // Get addresses using per-section selected sub-account index
@@ -240,7 +240,7 @@ export default function CollectiblesScreen() {
       const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] }>[] = [
         // Mainnet fetches (always, if address available)
         (solanaAddress
-          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, false, getSolanaNfts)
+          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, noCache, getSolanaNfts)
           : Promise.resolve([]))
           .then((result) => ({ key: 'solana' as NftSectionKey, result }))
           .catch(() => ({ key: 'solana' as NftSectionKey, result: [] as Nft[] })),
@@ -259,7 +259,7 @@ export default function CollectiblesScreen() {
         fetchPromises.push(
           // Solana Devnet
           (solanaDevnetAddress
-            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, false, getSolanaNfts)
+            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, noCache, getSolanaNfts)
             : Promise.resolve([]))
             .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
             .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] as Nft[] })),
@@ -341,7 +341,7 @@ export default function CollectiblesScreen() {
   // Handle pull-to-refresh
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchAllNfts(true);
+    fetchAllNfts(true, true);
   }, [fetchAllNfts]);
 
   // Handle NFT press - open detail sheet
@@ -411,7 +411,7 @@ export default function CollectiblesScreen() {
   const handleSendSuccess = useCallback((txId: string) => {
     Alert.alert('NFT Sent', `Transaction submitted successfully.\n\nTx: ${txId.slice(0, 20)}...`, [{ text: 'OK' }]);
     // Refresh NFT list
-    fetchAllNfts(true);
+    fetchAllNfts(true, true);
   }, [fetchAllNfts]);
 
   const resetBurnPreview = useCallback(() => {
@@ -480,7 +480,7 @@ export default function CollectiblesScreen() {
       const signature = signatures[signatures.length - 1] ?? '';
 
       setBurnSuccessTxId(signature);
-      fetchAllNfts(true);
+      fetchAllNfts(true, true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Burn failed';
       setBurnError(msg);

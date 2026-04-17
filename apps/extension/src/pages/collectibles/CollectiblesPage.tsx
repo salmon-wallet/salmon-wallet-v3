@@ -52,6 +52,7 @@ import {
 interface CollectiblesPageProps {
   activeAccount: Account | undefined;
   developerNetworks: boolean;
+  refreshKey?: number;
   /** Callback when an NFT is pressed — navigates to detail page */
   onNftDetailPress?: (nft: NftData) => void;
   // /** Callback when "See All" is pressed — navigates to see-all page */
@@ -149,7 +150,13 @@ const SkeletonGrid = styled(Box)({
 // Component
 // ============================================================================
 
-export function CollectiblesPage({ activeAccount, developerNetworks, onNftDetailPress /* , onSeeAllPress */ }: CollectiblesPageProps) {
+export function CollectiblesPage({
+  activeAccount,
+  developerNetworks,
+  refreshKey = 0,
+  onNftDetailPress,
+  /* , onSeeAllPress */
+}: CollectiblesPageProps) {
   const { t } = useTranslation();
   const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_NFT_SECTIONS);
 
@@ -183,7 +190,7 @@ export function CollectiblesPage({ activeAccount, developerNetworks, onNftDetail
       // Build fetch promises - only Solana
       const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] }>[] = [
         (solanaAddress
-          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, false, getSolanaNfts)
+          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, refreshKey > 0, getSolanaNfts)
           : Promise.resolve([]))
           .then((result) => ({ key: 'solana' as NftSectionKey, result }))
           .catch(() => ({ key: 'solana' as NftSectionKey, result: [] as Nft[] })),
@@ -207,7 +214,7 @@ export function CollectiblesPage({ activeAccount, developerNetworks, onNftDetail
 
         fetchPromises.push(
           (solanaDevnetAddress
-            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, false, getSolanaNfts)
+            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, refreshKey > 0, getSolanaNfts)
             : Promise.resolve([]))
             .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
             .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] as Nft[] })),
@@ -263,7 +270,7 @@ export function CollectiblesPage({ activeAccount, developerNetworks, onNftDetail
     };
 
     fetchAllNfts();
-  }, [activeAccount, developerNetworks]);
+  }, [activeAccount, developerNetworks, refreshKey]);
 
   // Derived state (Solana only)
   // const visibleKeys = useMemo(

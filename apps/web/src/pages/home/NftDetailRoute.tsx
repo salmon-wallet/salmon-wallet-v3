@@ -116,7 +116,7 @@ export function NftDetailRoute(): React.ReactElement {
 
   const handleBurnSuccessContinue = useCallback(() => {
     handleBurnBack();
-    navigate('/home');
+    navigate('/home', { state: { refreshCollectibles: true } });
   }, [handleBurnBack, navigate]);
 
   const handleSendSuccess = useCallback(() => {

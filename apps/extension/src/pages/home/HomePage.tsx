@@ -452,6 +452,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
 
   // NFT see-all page state
   const [seeAllData, setSeeAllData] = useState<{ title: string; blockchain: NftBlockchain; nfts: NftData[] } | null>(null);
+  const [collectiblesRefreshKey, setCollectiblesRefreshKey] = useState(0);
 
   // Bitcoin-specific state
   const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
@@ -768,6 +769,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
     handleNftBurnBack();
     setCurrentPage('home');
     setSelectedNft(null);
+    setCollectiblesRefreshKey((prev) => prev + 1);
     refresh();
   }, [handleNftBurnBack, refresh]);
 
@@ -1417,6 +1419,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
             <CollectiblesPage
               activeAccount={activeAccount}
               developerNetworks={developerNetworks}
+              refreshKey={collectiblesRefreshKey}
               onNftDetailPress={handleNftDetailPress}
               // onSeeAllPress={handleSeeAllPress}
             />
