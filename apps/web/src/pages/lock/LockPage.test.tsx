@@ -18,6 +18,18 @@ const mockUnlockWithCachedKey = vi.fn();
 const mockUnlockAccounts = vi.fn();
 const mockRemoveAllAccounts = vi.fn();
 
+function sanitizeDomProps(props: Record<string, unknown>) {
+  const next = { ...props };
+  delete next.loading;
+  delete next.fullWidth;
+  for (const key of Object.keys(next)) {
+    if (key.startsWith('$')) {
+      delete next[key];
+    }
+  }
+  return next;
+}
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (_key: string, fallback?: string) => fallback ?? _key,
@@ -29,9 +41,16 @@ vi.mock('react-router-dom', () => ({
 }));
 
 vi.mock('@salmon/ui', () => ({
-  styled: (Component: keyof JSX.IntrinsicElements | ComponentType<unknown>) => () => Component,
+  styled: (Component: keyof JSX.IntrinsicElements | ComponentType<unknown>) => () => {
+    const StyledComponent = ({ children, ...props }: PropsWithChildren<Record<string, unknown>>) => React.createElement(
+      Component as React.ElementType,
+      sanitizeDomProps(props),
+      children,
+    );
+    return StyledComponent;
+  },
   PrimaryButton: ({ children, ...props }: PropsWithChildren<Record<string, unknown>>) => (
-    <button {...props}>{children}</button>
+    <button {...sanitizeDomProps(props)}>{children}</button>
   ),
   ConfirmDialog: () => null,
   LoadingScreen: () => null,
