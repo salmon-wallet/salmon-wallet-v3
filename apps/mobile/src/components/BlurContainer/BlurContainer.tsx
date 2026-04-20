@@ -19,6 +19,7 @@ const GLASSY_BORDER_STOPS = [
   { offset: 0.8, opacity: 1 },
 ] as const;
 const GLASSY_BORDER_WIDTH = 0.75;
+const ANDROID_BLUR_REDUCTION_FACTOR = 1;
 
 // sqrt(2) / 0.8 — so the 80% stop lands at the far corner (distance sqrt(2) in OBB space)
 const OBB_RADIUS = Math.sqrt(2) / 0.8;
@@ -91,8 +92,6 @@ function GradientBorderOverlay({
   );
 }
 
-const IS_ANDROID = Platform.OS === 'android';
-
 export function BlurContainer({
   children,
   style,
@@ -128,20 +127,15 @@ export function BlurContainer({
       onLayout={useGradientBorder ? handleLayout : undefined}
       pointerEvents={pointerEvents}
     >
-      {IS_ANDROID ? (
-        <View
-          pointerEvents="none"
-          style={[StyleSheet.absoluteFill, { backgroundColor }]}
-        />
-      ) : (
-        <BlurView
-          intensity={blurIntensity}
-          tint={blurTint}
-          blurTarget={blurTarget}
-          pointerEvents="none"
-          style={[StyleSheet.absoluteFill, { backgroundColor }]}
-        />
-      )}
+      <BlurView
+        intensity={blurIntensity}
+        tint={blurTint}
+        blurTarget={blurTarget}
+        blurMethod="dimezisBlurView"
+        blurReductionFactor={Platform.OS === 'android' ? ANDROID_BLUR_REDUCTION_FACTOR : undefined}
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFill, { backgroundColor }]}
+      />
       {useGradientBorder && (
         <GradientBorderOverlay
           width={layout.width}
