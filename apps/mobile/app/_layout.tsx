@@ -175,14 +175,8 @@ function RootLayoutNav() {
       tryLock();
     });
 
-    const blurSubscription = AppState.addEventListener('blur', () => {
-      appStateRef.current = 'background';
-      tryLock();
-    });
-
     return () => {
       changeSubscription.remove();
-      blurSubscription.remove();
     };
   }, [actions, state.accounts.length, state.locked, state.ready, state.requiredLock]);
 
