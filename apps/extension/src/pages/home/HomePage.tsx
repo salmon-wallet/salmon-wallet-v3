@@ -54,8 +54,8 @@ import {
   BLOCKCHAIN_TO_COINGECKO,
   PERIOD_TO_DAYS,
   coinInfoToMarketData,
-  isSolanaAccount,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 import {
   WalletHeader,
   BalanceCardCarousel,

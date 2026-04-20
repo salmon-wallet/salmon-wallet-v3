@@ -16,8 +16,8 @@ import {
   useAccountsContext,
   validatePassword,
   vs,
-  generateAccountName,
 } from '@salmon/shared';
+import { generateAccountName } from '@salmon/shared/utils/account';
 import { styled } from '../../utils/styled';
 import { PrimaryButton } from '../Button';
 import { LoadingScreen } from '../LoadingScreen';

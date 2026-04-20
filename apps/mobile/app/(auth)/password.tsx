@@ -49,7 +49,6 @@ import {
   useAccountsContext,
   validatePassword,
 } from '@salmon/shared';
-import * as LocalAuthentication from '../../utils/localAuthentication';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';

@@ -251,8 +251,6 @@ export function StepConfirmation({
   const [copied, setCopied] = useState(false);
 
   const sendHook = useSendTransaction({ account, blockchain });
-  const effectiveRecipientAddress = resolvedRecipientAddress ?? recipientAddress;
-
   // Amount display
   const amountDisplay = useMemo(() => {
     const numAmount = parseFloat(amount);

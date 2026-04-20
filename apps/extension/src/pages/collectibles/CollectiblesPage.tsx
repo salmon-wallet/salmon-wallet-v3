@@ -34,9 +34,9 @@ import {
   type Nft,
   // type EthereumNft,
   // type BitcoinOrdinal,
-  getAllNfts,
   getSolanaNfts,
 } from '@salmon/shared';
+import { getAll as getAllNfts } from '@salmon/shared/blockchain/solana/nft';
 import {
   // NftCarouselSection,
   // NftCarouselSectionSkeleton,

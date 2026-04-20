@@ -8,8 +8,8 @@ import {
   loadSolanaTransactionApprovalDetails,
   type BlockchainAccount,
   type DAppTransactionRequest,
-  isSolanaAccount,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 
 interface Props {
   origin: string;

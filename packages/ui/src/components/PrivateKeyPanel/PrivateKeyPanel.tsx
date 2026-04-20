@@ -36,8 +36,6 @@ import {
   borderRadius,
   borderWidth,
   useAccounts,
-  buildNetworkListFromAccount,
-  getAccountKeysForNetwork,
   getShortAddress,
   type AccountKeyInfo,
   fontFamily,
@@ -49,6 +47,10 @@ import {
   duration,
   durationMs,
 } from '@salmon/shared';
+import {
+  buildNetworkListFromAccount,
+  getAccountKeysForNetwork,
+} from '@salmon/shared/utils/account';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import type { PrivateKeyPanelProps } from './types';
 

@@ -11,9 +11,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  */
 export function useBottomSheetChrome() {
   const insets = useSafeAreaInsets();
+  const { bottom: bottomInset } = insets;
 
   return useMemo(() => {
-    const bottomInset = insets.bottom;
     const withBottomInset = (padding: number) => bottomInset + padding;
 
     return {
@@ -25,7 +25,7 @@ export function useBottomSheetChrome() {
       spaciousContentBottomPadding: withBottomInset(vs(spacing['4xl'])),
       actionRowBottomPadding: withBottomInset(vs(spacing.sheetBottomPadding)),
     };
-  }, [insets.bottom]);
+  }, [bottomInset, insets]);
 }
 
 export default useBottomSheetChrome;

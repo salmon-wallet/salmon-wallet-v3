@@ -20,7 +20,10 @@ vi.mock('react-i18next', () => ({
 vi.mock('../../utils/styled', () => ({
   styled: (_component: unknown) => () => {
     const React = require('react');
-    return ({ children, ...props }: { children?: React.ReactNode }) => React.createElement('div', props, children);
+    const MockStyledComponent = ({ children, ...props }: { children?: React.ReactNode }) =>
+      React.createElement('div', props, children);
+    MockStyledComponent.displayName = 'MockStyledComponent';
+    return MockStyledComponent;
   },
 }));
 

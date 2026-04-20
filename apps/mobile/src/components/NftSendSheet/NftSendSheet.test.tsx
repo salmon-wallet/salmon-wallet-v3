@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 
 const mockBlurContainer = jest.fn(({ children }: { children?: React.ReactNode }) => (

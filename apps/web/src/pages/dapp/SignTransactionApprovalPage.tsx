@@ -9,8 +9,8 @@ import {
   loadSolanaTransactionApprovalDetails,
   useAccountsContext,
   type DAppTransactionRequest,
-  getActiveSolanaApprovalAccount,
 } from '@salmon/shared';
+import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { onRequest, sendResponse } from '../../utils/walletBridge';
 
 export function SignTransactionApprovalPage(): React.ReactElement {

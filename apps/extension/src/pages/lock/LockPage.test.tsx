@@ -33,7 +33,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('../../utils/styled', () => ({
-  styled: (Component: keyof JSX.IntrinsicElements | ComponentType<unknown>) => () => {
+  styled: (Component: React.ElementType | ComponentType<unknown>) => () => {
     const StyledComponent = ({ children, ...props }: PropsWithChildren<Record<string, unknown>>) => React.createElement(
       Component as React.ElementType,
       sanitizeDomProps(props),

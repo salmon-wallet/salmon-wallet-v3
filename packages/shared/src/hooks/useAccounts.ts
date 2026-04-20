@@ -667,7 +667,7 @@ export function useAccounts(): [UseAccountsState, UseAccountsActions] {
       setError(msg);
       setReady(true);
     });
-  }, [runUpgrades, unlockAccounts, load, loadMetadata]);
+  }, [runUpgrades, unlockAccounts, load, loadMetadata, unlockWithCachedKey]);
 
   // --------------------------------------------------------------------------
   // Computed Values

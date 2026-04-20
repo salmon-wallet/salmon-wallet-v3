@@ -1,7 +1,56 @@
-/**
- * Re-export all UI components from @salmon/ui
- *
- * This file maintains backward compatibility during migration.
- * Extension-specific pages import from here or directly from @salmon/ui.
- */
-export * from '@salmon/ui';
+export {
+  AboutPanel,
+  AccountAddPanel,
+  AccountAvatarPanel,
+  AccountEditPanel,
+  AccountNamePanel,
+  AccountsPanel,
+  ActionButtonRow,
+  AddressAddPanel,
+  AddressBookPanel,
+  AddressEditPanel,
+  BackupPanel,
+  BalanceCardCarousel,
+  ConfirmDialog,
+  CurrencySelector,
+  ExplorerSelector,
+  LanguageSelector,
+  LoadingScreen,
+  NftDetailPage,
+  NftCard,
+  NftCardSkeleton,
+  NftSeeAllPage,
+  NftSendDialog,
+  PriceChart,
+  PrimaryButton,
+  PrivateKeyPanel,
+  ReceiveSheet,
+  ScalesBackground,
+  SecurityPanel,
+  SendPage,
+  SupportSelector,
+  SwapScreen,
+  TokenAbout,
+  TokenDetailPage,
+  TokenList,
+  TokenListItem,
+  TokenListSkeleton,
+  TokenMarketData,
+  TransactionDetailModal,
+  TransactionHistoryPage,
+  TrustedAppsSelector,
+  SolanaSvgIcon,
+  WalletHeader,
+  WalletSwitcherSheet,
+  SettingsPanelStack,
+} from '@salmon/ui';
+
+export type {
+  BridgeEstimateSimple,
+  BridgeExchangeSimple,
+  BridgeTokenSimple,
+  PanelRegistry,
+  ReceiveSheetProps,
+  SwapQuote,
+  SwapToken,
+} from '@salmon/ui';

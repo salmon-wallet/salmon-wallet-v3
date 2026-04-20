@@ -7,8 +7,8 @@ import {
   decodeDAppMessage,
   type BlockchainAccount,
   type DAppSignMessageRequest,
-  isSolanaAccount,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 
 interface Props {
   origin: string;
