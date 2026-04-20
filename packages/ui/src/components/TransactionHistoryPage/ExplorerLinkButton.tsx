@@ -16,6 +16,7 @@ import ButtonBase from '@mui/material/ButtonBase';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import type { PaperProps } from '@mui/material/Paper';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -34,7 +35,6 @@ import {
   spacing,
   duration,
   easing,
-  blur,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
 import type { ExplorerLinkButtonProps } from './types';
@@ -65,11 +65,8 @@ const ButtonText = styled(Typography)({
 
 const StyledMenu = styled(Menu)({
   '& .MuiPaper-root': {
-    backgroundColor: 'rgba(56, 63, 82, 0.20)',
-    backdropFilter: `blur(${blur.lg}px)`,
-    WebkitBackdropFilter: `blur(${blur.lg}px)`,
-    border: `${borderWidth.thin}px solid ${colors.border.default}`,
-    borderRadius: borderRadius.lg,
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
   },
 });
 
@@ -78,6 +75,31 @@ const StyledMenuItem = styled(MenuItem)({
   '&:hover': {
     backgroundColor: colors.background.card,
   },
+});
+
+const BlurMenuPaper = React.forwardRef<HTMLDivElement, PaperProps>(function BlurMenuPaper(
+  { children, className, style, ...props },
+  ref,
+) {
+  return (
+    <div
+      ref={ref}
+      className={className}
+      {...props}
+    >
+      <BlurContainer
+        style={{
+          ...(style as React.CSSProperties | undefined),
+          borderRadius: borderRadius.lg,
+        }}
+        backgroundColor="rgba(56, 63, 82, 0.20)"
+        borderColor={colors.border.default}
+        borderWidth={borderWidth.thin}
+      >
+        {children}
+      </BlurContainer>
+    </div>
+  );
 });
 
 // ============================================================================
@@ -173,6 +195,7 @@ export function ExplorerLinkButton({
           transformOrigin={{ vertical: 'top', horizontal: 'left' }}
           slotProps={{
             paper: {
+              component: BlurMenuPaper,
               sx: { width: anchorEl?.offsetWidth },
             },
           }}
@@ -199,4 +222,3 @@ export function ExplorerLinkButton({
     </>
   );
 }
-
