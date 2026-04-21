@@ -1,0 +1,160 @@
+import React from 'react';
+import { Alert } from 'react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
+jest.mock('expo-image', () => ({
+  Image: () => null,
+}));
+
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: () => null,
+}));
+
+jest.mock('expo-linear-gradient', () => ({
+  LinearGradient: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+}));
+
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 8, right: 0, bottom: 12, left: 0 }),
+}));
+
+jest.mock('@salmon/shared', () => ({
+  colors: {
+    background: { primary: '#000', card: '#111' },
+    text: { primary: '#fff', secondary: '#999', disabled: '#666' },
+    border: { default: '#333' },
+    status: { error: '#f00', success: '#0f0' },
+  },
+  spacing: {
+    xxs: 2,
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    '3xl': 32,
+  },
+  borderRadius: {
+    sm: 8,
+    tokenIcon: 22,
+  },
+  fontSize: {
+    sm: 14,
+    md: 18,
+  },
+  lineHeight: {
+    none: 1,
+    normal: 1.4,
+  },
+  componentSizes: {
+    sheetFadeGradientHeight: 24,
+    headerHeight: 56,
+  },
+  getAvatarColor: () => '#123456',
+  getShortAddress: () => 'Abcd...Wxyz',
+  getInitials: (name: string) => name.slice(0, 2).toUpperCase(),
+  getAccountAddress: (account: { id: string }) => `${account.id}-address`,
+  fontFamilyNative: {
+    bold: 'System',
+    medium: 'System',
+    regular: 'System',
+  },
+  borderWidth: {
+    thin: 1,
+  },
+  opacity: {
+    disabled: 0.5,
+  },
+}));
+
+import { WalletSwitcherSheet } from './WalletSwitcherSheet';
+
+const ACCOUNTS = [
+  { id: 'wallet-1', name: 'Primary Wallet', avatar: null },
+  { id: 'wallet-2', name: 'Trading Wallet', avatar: null },
+] as any;
+
+describe('WalletSwitcherSheet', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('selects a different account and closes the sheet', async () => {
+    const onSelectAccount = jest.fn().mockResolvedValue(undefined);
+    const onClose = jest.fn();
+
+    render(
+      <WalletSwitcherSheet
+        visible
+        onClose={onClose}
+        accounts={ACCOUNTS}
+        activeAccountId="wallet-1"
+        onSelectAccount={onSelectAccount}
+        onAddAccount={jest.fn()}
+      />
+    );
+
+    fireEvent.press(screen.getByLabelText('Trading Wallet'));
+
+    await waitFor(() => {
+      expect(onSelectAccount).toHaveBeenCalledWith('wallet-2');
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the sheet and triggers add account from the footer CTA', () => {
+    const onAddAccount = jest.fn();
+    const onClose = jest.fn();
+
+    render(
+      <WalletSwitcherSheet
+        visible
+        onClose={onClose}
+        accounts={ACCOUNTS}
+        activeAccountId="wallet-1"
+        onSelectAccount={jest.fn().mockResolvedValue(undefined)}
+        onAddAccount={onAddAccount}
+      />
+    );
+
+    fireEvent.press(screen.getByLabelText('settings.wallets.add_new_wallet'));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onAddAccount).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables deletion when only one account remains', () => {
+    const onDeleteAccount = jest.fn();
+
+    render(
+      <WalletSwitcherSheet
+        visible
+        onClose={jest.fn()}
+        accounts={[ACCOUNTS[0]]}
+        activeAccountId="wallet-1"
+        onSelectAccount={jest.fn().mockResolvedValue(undefined)}
+        onAddAccount={jest.fn()}
+        onDeleteAccount={onDeleteAccount}
+      />
+    );
+
+    const deleteButton = screen.getByLabelText('accessibility.delete_account');
+
+    expect(deleteButton.props.accessibilityState).toEqual({ disabled: true });
+
+    fireEvent.press(deleteButton);
+
+    expect(Alert.alert).not.toHaveBeenCalled();
+    expect(onDeleteAccount).not.toHaveBeenCalled();
+  });
+});

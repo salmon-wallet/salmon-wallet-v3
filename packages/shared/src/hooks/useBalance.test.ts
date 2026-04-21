@@ -213,4 +213,99 @@ describe('useBalance', () => {
     expect(result.current.changePercent).toBe(0);
     expect(result.current.error).toBeNull();
   });
+
+  it('loads and transforms Bitcoin balances when the account is detected as bitcoin', async () => {
+    mockIsSolanaAccount.mockReturnValue(false);
+    mockIsBitcoinAccount.mockReturnValue(true);
+
+    const account = {
+      getReceiveAddress: vi.fn().mockReturnValue('bc1qwallet123'),
+      getBalance: vi.fn().mockResolvedValue({
+        usdTotal: 500,
+        last24HoursChange: 25,
+        items: [
+          {
+            mint: '',
+            amount: 10_000_000,
+            decimals: 8,
+            symbol: 'BTC',
+            name: 'Bitcoin',
+            uiAmount: 0.1,
+            price: 50_000,
+            usdBalance: 500,
+            priceChange24h: 5,
+          },
+        ],
+      }),
+    };
+
+    const { result } = renderHook(() =>
+      useBalance({ account: account as any, networkId: 'bitcoin-mainnet' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.tokens).toHaveLength(1);
+    });
+
+    expect(account.getBalance).toHaveBeenCalledTimes(1);
+    expect(result.current.tokens[0]).toMatchObject({
+      address: 'bitcoin',
+      owner: 'bc1qwallet123',
+      symbol: 'BTC',
+      usdBalance: 500,
+      coingeckoId: 'bitcoin',
+    });
+    expect(result.current.usdTotal).toBe(500);
+    expect(result.current.changeAmount).toBe(25);
+    expect(result.current.changePercent).toBeCloseTo((25 / 475) * 100);
+  });
+
+  it('loads and transforms Ethereum balances when the account is detected as ethereum', async () => {
+    mockIsSolanaAccount.mockReturnValue(false);
+    mockIsBitcoinAccount.mockReturnValue(false);
+    mockIsEthereumAccount.mockReturnValue(true);
+
+    const account = {
+      getReceiveAddress: vi.fn().mockReturnValue('0x1234567890123456789012345678901234567890'),
+      getBalance: vi.fn().mockResolvedValue({
+        usdTotal: 210,
+        last24HoursChange: 10,
+        items: [
+          {
+            mint: '',
+            amount: 100_000_000_000_000_000n,
+            decimals: 18,
+            symbol: 'ETH',
+            name: 'Ethereum',
+            uiAmount: 0.1,
+            price: 2_100,
+            usdBalance: 210,
+            priceChange24h: 3,
+          },
+        ],
+      }),
+    };
+
+    const { result } = renderHook(() =>
+      useBalance({ account: account as any, networkId: 'ethereum-mainnet' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.tokens).toHaveLength(1);
+    });
+
+    expect(account.getBalance).toHaveBeenCalledTimes(1);
+    expect(result.current.tokens[0]).toMatchObject({
+      address: 'ethereum',
+      owner: '0x1234567890123456789012345678901234567890',
+      symbol: 'ETH',
+      usdBalance: 210,
+      coingeckoId: 'ethereum',
+    });
+    expect(result.current.usdTotal).toBe(210);
+    expect(result.current.changeAmount).toBe(10);
+    expect(result.current.changePercent).toBeCloseTo((10 / 200) * 100);
+  });
 });
