@@ -5,10 +5,10 @@ import {
 import {
   approveSolanaSignMessage,
   decodeDAppMessage,
-  isSolanaAccount,
   type BlockchainAccount,
   type DAppSignMessageRequest,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 
 interface Props {
   origin: string;

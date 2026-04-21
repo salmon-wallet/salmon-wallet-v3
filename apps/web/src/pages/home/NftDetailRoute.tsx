@@ -9,11 +9,11 @@ import {
   spacing,
   useAccountsContext,
   isSolanaNft,
-  isSolanaAccount,
   createBurnTransaction,
   signAndSendPreparedSolanaTransactions,
   type NftData,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { NftDetailPage, NftSendDialog } from '@salmon/ui';
 
 export function NftDetailRoute(): React.ReactElement {

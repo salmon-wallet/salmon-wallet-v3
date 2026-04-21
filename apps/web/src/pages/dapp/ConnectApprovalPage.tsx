@@ -4,12 +4,12 @@ import {
   DAppConnectApprovalView,
 } from '@salmon/ui';
 import {
-  getActiveSolanaApprovalAccount,
   isSecureOrigin,
   useAccountsContext,
   type DAppConnectApprovalPayload,
   type DAppConnectRequest,
 } from '@salmon/shared';
+import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { onRequest, sendResponse } from '../../utils/walletBridge';
 
 export function ConnectApprovalPage(): React.ReactElement {
