@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { getReachableBackendBaseUrl } from '../test-backend';
 
 // Mock modules BEFORE importing the functions
 vi.mock('axios', () => {
@@ -279,16 +280,25 @@ const KNOWN_MINTS = {
 /**
  * Check if backend is available
  */
-async function isBackendAvailable(): Promise<boolean> {
-  try {
-    const response = await fetch('http://localhost:3000/health', {
-      method: 'GET',
-      signal: AbortSignal.timeout(1000),
-    });
-    return response.ok;
-  } catch {
-    return false;
+const backendBaseUrl = await getReachableBackendBaseUrl();
+const hasExplicitStaticApi =
+  !!process.env.EXPO_PUBLIC_STATIC_API_URL || !!process.env.VITE_STATIC_API_URL;
+
+async function fetchBackendJson<T>(path: string): Promise<T> {
+  if (!backendBaseUrl) {
+    throw new Error('Backend not available');
   }
+
+  const response = await fetch(`${backendBaseUrl}${path}`, {
+    method: 'GET',
+    signal: AbortSignal.timeout(5000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Backend request failed: ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
 }
 
 // ============================================================================
@@ -1107,14 +1117,19 @@ describe('Price Service', () => {
     it(
       'should fetch real Solana prices from backend',
       async () => {
-        const backendAvailable = await isBackendAvailable();
-
-        if (!backendAvailable) {
-          console.log('Skipping backend integration test - backend not available at localhost:3000');
+        if (!backendBaseUrl) {
+          console.log('Skipping backend integration test - backend not available');
+          return;
+        }
+        if (!hasExplicitStaticApi) {
+          console.log('Skipping price integration test - static API URL is not configured');
           return;
         }
 
-        // This test runs only if backend is available
+        mockStaticApiClientGet.mockImplementation(async (path) => ({
+          data: await fetchBackendJson(path as string),
+        }));
+
         const result = await getPricesByPlatform('solana');
 
         expect(result).not.toBeNull();
@@ -1133,12 +1148,18 @@ describe('Price Service', () => {
     it(
       'should fetch real top tokens from backend',
       async () => {
-        const backendAvailable = await isBackendAvailable();
-
-        if (!backendAvailable) {
-          console.log('Skipping backend integration test - backend not available at localhost:3000');
+        if (!backendBaseUrl) {
+          console.log('Skipping backend integration test - backend not available');
           return;
         }
+        if (!hasExplicitStaticApi) {
+          console.log('Skipping price integration test - static API URL is not configured');
+          return;
+        }
+
+        mockStaticApiClientGet.mockImplementation(async (path) => ({
+          data: await fetchBackendJson(path as string),
+        }));
 
         const result = await getTopTokensByPlatform('solana');
 
@@ -1156,12 +1177,18 @@ describe('Price Service', () => {
     it(
       'should fetch real market chart from backend',
       async () => {
-        const backendAvailable = await isBackendAvailable();
-
-        if (!backendAvailable) {
-          console.log('Skipping backend integration test - backend not available at localhost:3000');
+        if (!backendBaseUrl) {
+          console.log('Skipping backend integration test - backend not available');
           return;
         }
+        if (!hasExplicitStaticApi) {
+          console.log('Skipping price integration test - static API URL is not configured');
+          return;
+        }
+
+        mockStaticApiClientGet.mockImplementation(async (path) => ({
+          data: await fetchBackendJson(path as string),
+        }));
 
         const result = await getMarketChart('solana', 7);
 

@@ -6,6 +6,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { createApiClient } from '../../api/client';
+import { getReachableBackendBaseUrl, isBackendAvailable } from '../../api/test-backend';
 import { Keypair, VersionedTransaction, PublicKey, TransactionMessage, TransactionInstruction, SystemProgram } from '@solana/web3.js';
 import {
   getSwapQuote,
@@ -28,7 +30,9 @@ import type { TokenMetadata } from '../../types/token';
 
 const TEST_KEYPAIR = Keypair.generate();
 const TEST_PUBLIC_KEY = TEST_KEYPAIR.publicKey.toBase58();
+const LIVE_TEST_PUBLIC_KEY = '9mpJyg7iEse9rPMP1tdiSdSAYbLJX6nJyGbNkbT3SAd3';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+const backendBaseUrl = await getReachableBackendBaseUrl();
 
 function createMockVersionedTransactionBase64(payer: PublicKey): string {
   const instructions: TransactionInstruction[] = [
@@ -133,15 +137,6 @@ let mockGetTokenList: ReturnType<typeof vi.fn<GetTokenListFn>>;
 // ============================================================================
 // Helper: isBackendAvailable
 // ============================================================================
-
-async function isBackendAvailable(): Promise<boolean> {
-  try {
-    const response = await fetch('http://localhost:3000/health');
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
 
 // ============================================================================
 // Tests: getSwapQuote
@@ -614,24 +609,59 @@ describe('getPriceImpact', () => {
 // Integration Tests (Conditional)
 // ============================================================================
 
-describe.skipIf(!await isBackendAvailable())('Integration: Swap with Backend', () => {
+describe('Integration: Swap with Backend', () => {
   it('should get real swap quote from backend', async () => {
-    // Integration tests need real API functions
-    const { getSwapOrder } = await import('../../api/services/solana');
-    const { getTokenList } = await import('../../api/services/tokens');
+    const liveBackendBaseUrl = backendBaseUrl ?? await getReachableBackendBaseUrl();
+    if (!liveBackendBaseUrl) {
+      console.log('Skipping live swap backend assertions: backend not reachable');
+      return;
+    }
+
+    const liveClient = createApiClient({
+      baseUrl: liveBackendBaseUrl,
+      timeout: 10000,
+    });
+
+    const liveGetSwapOrder: GetSwapOrderFn = async (networkId, requestParams) => {
+      for (let attempt = 1; attempt <= 2; attempt += 1) {
+        try {
+          const { data } = await liveClient.get<SwapOrderResponse>(
+            `/v1/${networkId}/ft/swap/order`,
+            { params: requestParams },
+          );
+          return data;
+        } catch (error: unknown) {
+          if (
+            typeof error === 'object' &&
+            error !== null &&
+            'status' in error &&
+            (error as { status?: number }).status === 404
+          ) {
+            return null;
+          }
+
+          if (attempt === 2) {
+            throw error;
+          }
+        }
+      }
+
+      return null;
+    };
 
     const params: SwapQuoteParams = {
       inputMint: SOL_ADDRESS,
       outputMint: USDC_MINT,
-      amount: 1.0,
-      publicKey: TEST_PUBLIC_KEY,
+      amount: 0.001,
+      publicKey: LIVE_TEST_PUBLIC_KEY,
     };
 
-    const quote = await getSwapQuote('solana-devnet', params, {}, getSwapOrder, getTokenList);
+    const quote = await getSwapQuote('solana-mainnet', params, {}, liveGetSwapOrder);
 
     expect(quote).toBeDefined();
+    expect(quote.networkId).toBe('solana-mainnet');
     expect(quote.custom?.requestId).toBeDefined();
-    expect(quote.input?.contract).toBe(SOL_ADDRESS);
-    expect(quote.output?.contract).toBe(USDC_MINT);
+    expect(quote.custom?.transaction).toBeDefined();
+    expect(quote.output?.amount).toBeDefined();
   });
 });

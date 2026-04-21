@@ -9,6 +9,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import axios from 'axios';
 import { Connection } from '@solana/web3.js';
 import { apiClient } from '../../api/client';
+import { isBackendAvailable } from '../../api/test-backend';
 import {
   getAll,
   getAllPaginated,
@@ -44,15 +45,6 @@ import { SOLANA_NETWORKS } from './factory';
  * Check if backend API is available
  * Returns true if salmon-api is running and accessible
  */
-async function isBackendAvailable(): Promise<boolean> {
-  try {
-    await apiClient.get('/health', { timeout: 2000 });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Check if Helius RPC is available
  */
@@ -783,7 +775,7 @@ describe('NFT Integration Tests (optional)', () => {
   // Known Solana wallet with NFTs (replace with actual test wallet if available)
   const testOwner = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
 
-  it.skip('should fetch real NFTs from Helius if available', async () => {
+  it('should fetch real NFTs from Helius if available', async () => {
     const available = await isHeliusAvailable(network.config.nodeUrl);
     if (!available) {
       console.log('Helius not available, skipping integration test');
@@ -797,7 +789,7 @@ describe('NFT Integration Tests (optional)', () => {
     expect(result.pagination).toBeDefined();
   });
 
-  it.skip('should fetch real NFTs from backend if available', async () => {
+  it('should fetch real NFTs from backend if available', async () => {
     const available = await isBackendAvailable();
     if (!available) {
       console.log('Backend not available, skipping integration test');

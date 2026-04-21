@@ -59,4 +59,29 @@ describe('useBiometricAuth', () => {
     expect(result.current.enableBiometric).toBe(false);
     expect(result.current.state.hasStoredKey).toBe(false);
   });
+
+  it('clears biometric artifacts when secure-store access fails after enrollment changed', async () => {
+    jest.useFakeTimers();
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { result } = renderHook(() => useBiometricAuth());
+
+    await waitFor(() => {
+      expect(result.current.state.isReady).toBe(true);
+    });
+
+    mockGetItemAsync.mockRejectedValueOnce(new Error('Key permanently invalidated'));
+
+    await act(async () => {
+      const storedKey = await result.current.authenticateWithBiometric();
+      expect(storedKey).toBeNull();
+    });
+
+    expect(mockDeleteItemAsync).toHaveBeenCalledWith('salmon_biometric_key');
+    expect(mockDeleteItemAsync).toHaveBeenCalledWith('salmon_biometric_key_marker');
+    expect(mockDeleteItemAsync).toHaveBeenCalledWith('salmon_biometric_key_exists');
+    expect(result.current.state.hasStoredKey).toBe(false);
+    jest.runOnlyPendingTimers();
+    consoleErrorSpy.mockRestore();
+    jest.useRealTimers();
+  });
 });

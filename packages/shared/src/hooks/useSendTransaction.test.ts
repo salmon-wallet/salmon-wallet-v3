@@ -99,4 +99,113 @@ describe('useSendTransaction', () => {
     expect(result.current.status).toBe('success');
     expect(result.current.error).toBeNull();
   });
+
+  it('returns null for fee estimation when account is missing', async () => {
+    const { result } = renderHook(() =>
+      useSendTransaction({
+        account: undefined,
+        blockchain: 'solana',
+      })
+    );
+
+    let feeResult = null;
+
+    await act(async () => {
+      feeResult = await result.current.estimateFee({
+        token: {
+          address: TOKEN_ADDRESS,
+          decimals: 6,
+          symbol: 'USDC',
+        },
+        recipientAddress: RAW_RECIPIENT,
+        amount: AMOUNT,
+      });
+    });
+
+    expect(feeResult).toBeNull();
+    expect(result.current.status).toBe('idle');
+  });
+
+  it('throws when sending without an account', async () => {
+    const { result } = renderHook(() =>
+      useSendTransaction({
+        account: undefined,
+        blockchain: 'solana',
+      })
+    );
+
+    await expect(
+      result.current.sendTransaction({
+        token: {
+          address: TOKEN_ADDRESS,
+          decimals: 6,
+          symbol: 'USDC',
+        },
+        recipientAddress: RAW_RECIPIENT,
+        amount: AMOUNT,
+      })
+    ).rejects.toThrow('No account available');
+  });
+
+  it('sets failed state and preserves error message when transfer fails', async () => {
+    mockAccount.transfer.mockRejectedValueOnce(new Error('insufficient funds'));
+
+    const { result } = renderHook(() =>
+      useSendTransaction({
+        account: mockAccount as any,
+        blockchain: 'solana',
+      })
+    );
+
+    await act(async () => {
+      await expect(
+        result.current.sendTransaction({
+          token: {
+            address: TOKEN_ADDRESS,
+            decimals: 6,
+            symbol: 'USDC',
+          },
+          recipientAddress: RAW_RECIPIENT,
+          amount: AMOUNT,
+        })
+      ).rejects.toThrow('insufficient funds');
+    });
+
+    expect(result.current.status).toBe('failed');
+    expect(result.current.error).toBe('insufficient funds');
+    expect(result.current.isError).toBe(true);
+  });
+
+  it('resets state after an error', async () => {
+    mockAccount.transfer.mockRejectedValueOnce(new Error('boom'));
+
+    const { result } = renderHook(() =>
+      useSendTransaction({
+        account: mockAccount as any,
+        blockchain: 'solana',
+      })
+    );
+
+    await act(async () => {
+      await expect(
+        result.current.sendTransaction({
+          token: {
+            address: TOKEN_ADDRESS,
+            decimals: 6,
+            symbol: 'USDC',
+          },
+          recipientAddress: RAW_RECIPIENT,
+          amount: AMOUNT,
+        })
+      ).rejects.toThrow('boom');
+    });
+
+    act(() => {
+      result.current.reset();
+    });
+
+    expect(result.current.status).toBe('idle');
+    expect(result.current.error).toBeNull();
+    expect(result.current.isError).toBe(false);
+  });
 });

@@ -25,6 +25,10 @@ import {
 } from '../../utils/formatting';
 import * as tokensModule from './tokens';
 import * as priceModule from './price';
+import { isBackendAvailable } from '../test-backend';
+
+const hasExplicitStaticApi =
+  !!process.env.EXPO_PUBLIC_STATIC_API_URL || !!process.env.VITE_STATIC_API_URL;
 
 // ============================================================================
 // Test Data
@@ -934,19 +938,6 @@ describe('createSolBalance', () => {
 // ============================================================================
 
 describe('getWalletBalance', () => {
-  // Helper to check if backend is available
-  async function isBackendAvailable(): Promise<boolean> {
-    try {
-      const response = await fetch('http://localhost:3000/health', {
-        method: 'GET',
-        signal: AbortSignal.timeout(1000),
-      });
-      return response.ok;
-    } catch {
-      return false;
-    }
-  }
-
   describe('with mocked services', () => {
     // Map of token addresses to Jupiter price data (all lowercase)
     // Now returns { usdPrice, priceChange24h } to match the new API format
@@ -1235,11 +1226,14 @@ describe('getWalletBalance', () => {
         const backendAvailable = await isBackendAvailable();
 
         if (!backendAvailable) {
-          console.log('Skipping backend integration test - backend not available at localhost:3000');
+          console.log('Skipping backend integration test - backend not available');
+          return;
+        }
+        if (!hasExplicitStaticApi) {
+          console.log('Skipping balance integration test - static API URL is not configured');
           return;
         }
 
-        // This test runs only if backend is available at localhost:3000
         const solBalance = createSolBalance(1000000000, MOCK_OWNER);
 
         // Use a well-known token like USDC

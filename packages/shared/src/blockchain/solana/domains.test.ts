@@ -526,7 +526,7 @@ describe('Domain Error Handling', () => {
 describe('Domain Integration Tests (optional)', () => {
   const network = SOLANA_NETWORKS['solana-mainnet'];
 
-  it.skip('should resolve real .sol domain if RPC available', async () => {
+  it('should resolve a real .sol domain round-trip if RPC available', async () => {
     const connection = new Connection(network.config.nodeUrl);
     const available = await isRpcAvailable(network.config.nodeUrl);
 
@@ -535,14 +535,22 @@ describe('Domain Integration Tests (optional)', () => {
       return;
     }
 
-    // Test with known .sol domain (bonfida.sol)
-    const result = await resolveSolDomain(connection, 'bonfida.sol');
+    // Resolve a real favorite domain first, then verify forward lookup for the
+    // same live value. This avoids brittle assumptions about historical domains.
+    const publicKey = new PublicKey('HKKp49qGWXd639QsuH7JiLijfVW5UtCVY4s1n2HANwEA');
+    const domain = await getDomain(connection, publicKey);
 
-    expect(result).toBeTruthy();
-    expect(typeof result).toBe('string');
+    if (!domain?.endsWith('.sol')) {
+      console.log('No live .sol favorite domain available, skipping integration test');
+      return;
+    }
+
+    const result = await resolveSolDomain(connection, domain);
+
+    expect(result).toBe(publicKey.toBase58());
   });
 
-  it.skip('should get real domain for public key if RPC available', async () => {
+  it('should get real domain for public key if RPC available', async () => {
     const connection = new Connection(network.config.nodeUrl);
     const available = await isRpcAvailable(network.config.nodeUrl);
 
