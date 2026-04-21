@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { Text } from 'react-native';
 
 const mockSetStringAsync = jest.fn().mockResolvedValue(undefined);
 const mockImpactAsync = jest.fn().mockResolvedValue(undefined);

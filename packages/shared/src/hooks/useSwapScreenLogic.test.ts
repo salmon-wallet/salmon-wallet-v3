@@ -2,8 +2,9 @@
  * @vitest-environment jsdom
  */
 
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SwapToken } from '../types/swap';
 
 vi.mock('../utils/account', () => ({
   getChainDisplayName: vi.fn((chain?: string | null) => {
@@ -16,7 +17,7 @@ vi.mock('../utils/account', () => ({
 
 import { useSwapScreenLogic } from './useSwapScreenLogic';
 
-const SOL = {
+const SOL: SwapToken = {
   address: 'So11111111111111111111111111111111111111112',
   symbol: 'SOL',
   name: 'Solana',
@@ -28,7 +29,7 @@ const SOL = {
   logo: 'https://example.com/sol.png',
 };
 
-const USDC = {
+const USDC: SwapToken = {
   address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
   symbol: 'USDC',
   name: 'USD Coin',
@@ -40,7 +41,7 @@ const USDC = {
   logo: 'https://example.com/usdc.png',
 };
 
-const BTC = {
+const BTC: SwapToken = {
   address: 'BTC',
   symbol: 'BTC',
   name: 'Bitcoin',

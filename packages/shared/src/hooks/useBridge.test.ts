@@ -56,16 +56,17 @@ describe('useBridge', () => {
 
     const { result } = renderHook(() => useBridge());
 
-    let caughtError: Error | null = null;
+    let caughtError: unknown = null;
     await act(async () => {
       try {
         await result.current.getEstimate('sol', 'eth', 0.5);
       } catch (error) {
-        caughtError = error as Error;
+        caughtError = error;
       }
     });
 
-    expect(caughtError?.message).toBe('Minimum bridge amount is 0.75 SOL');
+    expect(caughtError).toBeInstanceOf(Error);
+    expect((caughtError as Error).message).toBe('Minimum bridge amount is 0.75 SOL');
 
     await waitFor(() => {
       expect(result.current.status).toBe('failed');

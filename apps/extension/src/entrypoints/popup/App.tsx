@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   colors,
+  getActiveSolanaApprovalAccount,
   useAccountsContext,
   useInactivityTimeout,
   DerivedKeyCache,
 } from '@salmon/shared';
-import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { LockPage } from '../../pages/lock/LockPage';
 import { HomePage } from '../../pages/home/HomePage';
 import {

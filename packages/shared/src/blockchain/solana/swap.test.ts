@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createApiClient } from '../../api/client';
-import { getReachableBackendBaseUrl, isBackendAvailable } from '../../api/test-backend';
+import { getReachableBackendBaseUrl } from '../../api/test-backend';
 import { Keypair, VersionedTransaction, PublicKey, TransactionMessage, TransactionInstruction, SystemProgram } from '@solana/web3.js';
 import {
   getSwapQuote,

@@ -13,7 +13,6 @@ const mockGetBridgeEstimate = jest.fn();
 const mockCreateBridgeExchange = jest.fn();
 const mockTransfer = jest.fn();
 const mockRefreshBalances = jest.fn();
-let mockSwapScreenProps: any;
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -69,7 +68,6 @@ jest.mock('../../../src/components', () => ({
   SwapScreen: (props: any) => {
     const React = require('react');
     const { Text, TouchableOpacity } = require('react-native');
-    mockSwapScreenProps = props;
     return React.createElement(
       React.Fragment,
       null,
@@ -128,7 +126,6 @@ describe('SwapScreenPage', () => {
     jest.spyOn(Alert, 'alert').mockImplementation((...args: any[]) => {
       mockAlert(...args);
     });
-    mockSwapScreenProps = null;
     mockGetQuote.mockResolvedValue({ custom: { requestId: 'req-1' }, route: 'ok' });
     mockExecuteSwapHook.mockResolvedValue({ status: 'success', txId: 'tx-123' });
     mockGetBridgeAvailableTokens.mockResolvedValue([]);

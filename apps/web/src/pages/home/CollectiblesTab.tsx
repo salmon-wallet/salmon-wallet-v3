@@ -9,8 +9,10 @@ import {
   fontFamily,
   canonicalNftToSolanaNftData,
   filterSpamNfts,
+  getAllNfts,
   getNftSectionTitle,
   INITIAL_NFT_SECTIONS,
+  isSolanaAccount,
   SOLANA_NETWORKS,
   getSolanaNfts,
   type Account,
@@ -20,8 +22,6 @@ import {
   type NftsBySection,
   type Nft,
 } from '@salmon/shared';
-import { isSolanaAccount } from '@salmon/shared/utils/account';
-import { getAll as getAllNfts } from '@salmon/shared/blockchain/solana/nft';
 import { NftCarouselSection } from '@salmon/ui';
 
 // ---------------------------------------------------------------------------

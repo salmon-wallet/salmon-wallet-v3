@@ -6,11 +6,11 @@ import {
 import {
   approveSolanaSignMessage,
   decodeDAppMessage,
+  getActiveSolanaApprovalAccount,
   useAccountsContext,
   type DAppSignMessageApprovalPayload,
   type DAppSignMessageRequest,
 } from '@salmon/shared';
-import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { onRequest, sendResponse } from '../../utils/walletBridge';
 
 export function SignMessageApprovalPage(): React.ReactElement {

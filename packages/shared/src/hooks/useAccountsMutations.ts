@@ -13,7 +13,7 @@ import type {
   EditAccountParams,
   StoredAccount,
 } from '../types/account';
-import type { CustomTokens, TokenInfo, TokenToImport } from '../types/token';
+import type { CustomTokens } from '../types/token';
 import type { TrustedApps } from '../types/trusted-app';
 
 interface UseAccountsMutationsParams {

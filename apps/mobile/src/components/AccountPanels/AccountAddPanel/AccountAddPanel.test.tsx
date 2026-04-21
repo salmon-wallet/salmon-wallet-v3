@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { Text, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { Alert } from 'react-native';
 
 const mockAddAccount = jest.fn();
 const mockScanDerivedAccounts = jest.fn();

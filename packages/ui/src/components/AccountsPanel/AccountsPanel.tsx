@@ -26,12 +26,12 @@ import {
   fontSize,
   fontWeight,
   getAvatarColor,
+  getAccountAddress,
   getShortAddress,
   getInitials,
   useAccountsContext,
   type Account,
 } from '@salmon/shared';
-import { getAccountAddress } from '@salmon/shared/utils/account';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import { ConfirmDialog } from '../ConfirmDialog';
 import type { AccountsPanelProps } from './types';

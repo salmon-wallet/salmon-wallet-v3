@@ -42,18 +42,10 @@ const backendBaseUrl = await getReachableBackendBaseUrl();
 
 const MOCK_NETWORK: SolanaNetwork = {
   id: 'solana-mainnet',
-  blockchain: 'solana',
   name: 'Solana',
-  isTestnet: false,
-  nativeToken: {
-    chainId: 'solana-mainnet:solana',
-    networkId: 'solana-mainnet',
-    tokenId: 'native',
-    type: 'native',
-    symbol: 'SOL',
-    name: 'Solana',
-    decimals: 9,
-    image: '',
+  networkId: 'solana-mainnet',
+  config: {
+    nodeUrl: 'https://api.mainnet-beta.solana.com',
   },
 };
 

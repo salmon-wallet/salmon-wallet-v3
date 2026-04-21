@@ -1,12 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type {
-  AccountTransaction,
-  ApiSwapExecuteResponse,
-  SolanaBalanceItem,
-  SolanaTransaction,
-  SolanaTransactionsResponse,
-} from '../../types/transaction';
-import type { SwapOrderResponse } from '../../types/swap';
+import type { SolanaBalanceItem } from '../../types/transfer';
+import type { SolanaTransaction } from '../../types/transaction';
+import type { ApiSwapExecuteResponse, SwapOrderResponse } from '../../types/swap';
 
 vi.mock('../client', async () => {
   const actual = await vi.importActual<typeof import('../client')>('../client');
@@ -151,7 +146,7 @@ describe('solana service', () => {
       {
         pageToken: 'cursor-0',
         pageSize: 5,
-        type: 'interaction',
+        type: 'UNKNOWN',
       },
     );
 
@@ -161,7 +156,7 @@ describe('solana service', () => {
         params: {
           pageToken: 'cursor-0',
           pageSize: 5,
-          type: 'interaction',
+          type: 'UNKNOWN',
         },
       },
     );
@@ -348,7 +343,7 @@ describe('solana service', () => {
     const result = await getTransactionsByType(
       'solana-mainnet',
       'wallet-1',
-      'interaction',
+      'UNKNOWN',
       20,
     );
 
@@ -358,7 +353,7 @@ describe('solana service', () => {
       {
         params: {
           pageSize: 20,
-          type: 'interaction',
+          type: 'UNKNOWN',
         },
       },
     );
@@ -429,19 +424,23 @@ describe('solana service', () => {
     mockGetSolanaNfts.mockResolvedValueOnce([{ mint: { address: 'nft-1' } }] as never);
 
     await expect(
-      solanaApiFunctions.fetchPrices('solana-mainnet', ['mint-1'], { 'mint-1': 'hint' }),
+      solanaApiFunctions.fetchPrices(
+        'solana-mainnet',
+        ['mint-1'],
+        new Map([['mint-1', { coingeckoId: 'hint' }]]),
+      ),
     ).resolves.toEqual([{ address: 'mint-1', usdPrice: 1 }]);
 
     await expect(
-      solanaApiFunctions.fetchNfts('solana-mainnet', 'wallet-1'),
+      solanaApiFunctions.fetchNfts('solana-mainnet', 'wallet-1', false),
     ).resolves.toEqual([{ mint: { address: 'nft-1' } }]);
 
     expect(mockGetJupiterPrices).toHaveBeenCalledWith(
       ['mint-1'],
       'solana-mainnet',
-      { 'mint-1': 'hint' },
+      new Map([['mint-1', { coingeckoId: 'hint' }]]),
     );
-    expect(mockGetSolanaNfts).toHaveBeenCalledWith('solana-mainnet', 'wallet-1');
+    expect(mockGetSolanaNfts).toHaveBeenCalledWith('solana-mainnet', 'wallet-1', false);
   });
 });
 

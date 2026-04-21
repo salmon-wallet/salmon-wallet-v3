@@ -3,7 +3,6 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react-
 import { Alert, AppState } from 'react-native';
 
 const mockAlert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-const mockDismiss = jest.fn();
 const mockAddEventListener = jest.fn();
 
 jest.mock('react-i18next', () => ({

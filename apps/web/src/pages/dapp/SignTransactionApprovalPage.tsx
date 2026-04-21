@@ -5,12 +5,12 @@ import {
 } from '@salmon/ui';
 import {
   approveSolanaTransactionRequest,
+  getActiveSolanaApprovalAccount,
   getDAppTransactionRequestSummary,
   loadSolanaTransactionApprovalDetails,
   useAccountsContext,
   type DAppTransactionRequest,
 } from '@salmon/shared';
-import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { onRequest, sendResponse } from '../../utils/walletBridge';
 
 export function SignTransactionApprovalPage(): React.ReactElement {

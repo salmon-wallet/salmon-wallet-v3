@@ -7,6 +7,7 @@ import {
   createAccount,
   fontFamily,
   fontSize,
+  generateAccountName,
   MIRROR_NETWORKS,
   ms,
   PASSWORD_CONSTRAINTS,
@@ -17,7 +18,6 @@ import {
   validatePassword,
   vs,
 } from '@salmon/shared';
-import { generateAccountName } from '@salmon/shared/utils/account';
 import { styled } from '../../utils/styled';
 import { PrimaryButton } from '../Button';
 import { LoadingScreen } from '../LoadingScreen';

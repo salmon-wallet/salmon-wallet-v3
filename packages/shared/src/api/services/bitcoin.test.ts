@@ -51,72 +51,75 @@ const mockGetPricesByPlatform = vi.mocked(getPricesByPlatform);
 const backendBaseUrl = await getReachableBackendBaseUrl();
 
 const MOCK_BALANCE: BitcoinBalance = {
-  owner: 'bc1-address',
-  blockchain: 'bitcoin',
-  amount: '364735619',
-  decimals: 8,
-  symbol: 'BTC',
-  name: 'Bitcoin',
-  type: 'native',
-  address: 'btc',
-  coingeckoId: 'bitcoin',
+  confirmed: 364735619,
+  unconfirmed: 0,
+  total: 364735619,
   logo: 'https://assets-cdn.trustwallet.com/blockchains/bitcoin/info/logo.png',
 };
 
 const MOCK_UTXOS: BitcoinUtxo[] = [
   {
-    address: 'bc1-address',
     txid: 'tx-1',
     vout: 0,
-    value: '1000',
-    spent: false,
-  } as BitcoinUtxo,
+    value: 1000,
+    scriptPubKey: '0014deadbeef',
+    height: 123456,
+    confirmations: 12,
+  },
 ];
 
 const MOCK_BITCOIN_TRANSACTIONS: BitcoinTransactionsResponse = {
   transactions: [
     {
-      id: 'tx-1',
-      timestamp: 1710000000,
-      status: 'completed',
-      type: 'receive',
-      inputs: [],
-      outputs: [],
-    } as BitcoinTransaction,
+      txid: 'tx-1',
+      hash: 'hash-1',
+      version: 2,
+      size: 225,
+      vsize: 144,
+      weight: 576,
+      locktime: 0,
+      vin: [],
+      vout: [],
+      confirmations: 7,
+      blocktime: 1710000000,
+    },
   ],
   nextPageToken: 'next-page',
   total: 1,
 };
 
 const MOCK_SINGLE_TRANSACTION: BitcoinTransaction = {
-  id: 'tx-1',
-  timestamp: 1710000000,
-  status: 'completed',
-  type: 'receive',
-  inputs: [],
-  outputs: [],
-} as BitcoinTransaction;
+  txid: 'tx-1',
+  hash: 'hash-1',
+  version: 2,
+  size: 225,
+  vsize: 144,
+  weight: 576,
+  locktime: 0,
+  vin: [],
+  vout: [],
+  confirmations: 7,
+  blocktime: 1710000000,
+};
 
 const MOCK_ACCOUNT_BALANCE_ITEMS: BitcoinBalanceItem[] = [
   {
-    amount: '364735619',
+    amount: 364735619,
     decimals: 8,
     symbol: 'BTC',
     name: 'Bitcoin',
-    type: 'native',
-    address: 'btc',
+    coingeckoId: 'bitcoin',
     logo: 'https://assets-cdn.trustwallet.com/blockchains/bitcoin/info/logo.png',
-  } as BitcoinBalanceItem,
+  },
 ];
 
 const MOCK_ACCOUNT_TRANSACTION: AccountTransaction = {
   id: 'tx-2',
   timestamp: 1710000100,
-  status: 'completed',
   type: 'send',
   inputs: [],
   outputs: [],
-} as AccountTransaction;
+};
 
 const MOCK_ACCOUNT_TRANSACTIONS: AccountTransactionListResponse = {
   items: [MOCK_ACCOUNT_TRANSACTION],
@@ -127,8 +130,8 @@ const MOCK_UTXO_ITEMS: UTXO[] = [
   {
     txid: 'utxo-1',
     vout: 1,
-    value: '2000',
-  } as UTXO,
+    satoshis: 2000,
+  },
 ];
 
 describe('bitcoin service', () => {
@@ -301,7 +304,7 @@ describe('bitcoin service', () => {
     );
     expect(result).toEqual([
       expect.objectContaining({
-        amount: '364735619',
+        amount: 364735619,
         coingeckoId: 'bitcoin',
         uiAmount: 3.64735619,
       }),

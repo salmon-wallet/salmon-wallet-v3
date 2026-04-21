@@ -14,9 +14,7 @@ import { useCallback, useEffect, useState } from 'react';
 import mapValues from 'lodash-es/mapValues';
 
 import {
-  setStorageItem,
   updateLastActivity,
-  STORAGE_KEYS,
 } from '../storage';
 import {
   type DerivedKeyCache,
