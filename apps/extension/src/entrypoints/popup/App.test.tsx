@@ -13,6 +13,7 @@ const mockRemoveAllAccounts = vi.fn();
 const mockUnlockWithCachedKey = vi.fn();
 const mockUseInactivityTimeout = vi.fn();
 const mockClearSessionKey = vi.fn();
+const eventListeners = new Map<string, EventListener>();
 
 vi.mock('@salmon/shared', () => ({
   colors: {
@@ -92,8 +93,15 @@ describe('Extension popup inactivity lock', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    eventListeners.clear();
     mockClearSessionKey.mockResolvedValue(undefined);
     mockLockAccounts.mockResolvedValue(undefined);
+    vi.spyOn(window, 'addEventListener').mockImplementation((type, listener) => {
+      eventListeners.set(type, listener as EventListener);
+    });
+    vi.spyOn(window, 'removeEventListener').mockImplementation((type) => {
+      eventListeners.delete(type);
+    });
 
     vi.stubGlobal('chrome', {
       storage: {
@@ -123,6 +131,19 @@ describe('Extension popup inactivity lock', () => {
 
     expect(onTimeout).toBeTypeOf('function');
     onTimeout?.();
+    await Promise.resolve();
+
+    expect(mockClearSessionKey).toHaveBeenCalledTimes(1);
+    expect(mockLockAccounts).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears session cache and locks accounts when the popup closes', async () => {
+    render(<App />);
+
+    const onPageHide = eventListeners.get('pagehide');
+
+    expect(onPageHide).toBeTypeOf('function');
+    onPageHide?.(new Event('pagehide'));
     await Promise.resolve();
 
     expect(mockClearSessionKey).toHaveBeenCalledTimes(1);

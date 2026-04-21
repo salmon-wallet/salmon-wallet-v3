@@ -204,6 +204,7 @@ function App() {
 
   // When user clicks "Add Account" from HomePage's WalletSwitcherSheet
   const [isAddingAccount, setIsAddingAccount] = useState(false);
+  const closeLockTriggeredRef = useRef(false);
 
   // Set up inactivity timeout for auto-lock
   useInactivityTimeout({
@@ -214,6 +215,31 @@ function App() {
     },
     enabled: ready && !locked && accounts.length > 0 && !justCreated && !isAddingAccount,
   });
+
+  useEffect(() => {
+    if (!ready || locked || accounts.length === 0) {
+      closeLockTriggeredRef.current = false;
+      return;
+    }
+
+    const handleClose = () => {
+      if (closeLockTriggeredRef.current) {
+        return;
+      }
+
+      closeLockTriggeredRef.current = true;
+      void clearSessionKey();
+      void actions.lockAccounts();
+    };
+
+    window.addEventListener('pagehide', handleClose);
+    window.addEventListener('beforeunload', handleClose);
+
+    return () => {
+      window.removeEventListener('pagehide', handleClose);
+      window.removeEventListener('beforeunload', handleClose);
+    };
+  }, [actions, accounts.length, locked, ready]);
 
   // Handler for removing all accounts from lock screen
   const handleRemoveAllAccounts = useCallback(async () => {
