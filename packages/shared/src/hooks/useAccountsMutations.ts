@@ -2,7 +2,6 @@ import { useCallback, type Dispatch, type SetStateAction } from 'react';
 
 import { encryptMnemonics } from '../crypto/encrypt-mnemonics';
 import {
-  removeStorageItem,
   removeStashItem,
   setStorageItem,
   STASH_KEYS,
@@ -15,6 +14,13 @@ import type {
 } from '../types/account';
 import type { CustomTokens } from '../types/token';
 import type { TrustedApps } from '../types/trusted-app';
+import {
+  buildMnemonicMap,
+  clearAccountsStorage,
+  getPreferredNetworkId,
+  persistAccounts,
+  persistActiveSelection,
+} from './useAccountsMutationHelpers';
 
 interface UseAccountsMutationsParams {
   counter: number;
@@ -59,16 +65,7 @@ export function useAccountsMutations({
   getDefaultPathIndex,
 }: UseAccountsMutationsParams): UseAccountsMutationsResult {
   const removeAllAccounts = useCallback(async (): Promise<void> => {
-    await removeStorageItem(STORAGE_KEYS.COUNTER);
-    await removeStorageItem(STORAGE_KEYS.ACCOUNTS);
-    await removeStorageItem(STORAGE_KEYS.MNEMONICS);
-    await removeStorageItem(STORAGE_KEYS.ACCOUNT_ID);
-    await removeStorageItem(STORAGE_KEYS.NETWORK_ID);
-    await removeStorageItem(STORAGE_KEYS.PATH_INDEX);
-    await removeStorageItem(STORAGE_KEYS.TRUSTED_APPS);
-    await removeStorageItem(STORAGE_KEYS.CUSTOM_TOKENS);
-    await removeStorageItem(STORAGE_KEYS.CONNECTION);
-
+    await clearAccountsStorage();
     await removeStashItem(STASH_KEYS.DERIVED_KEY);
 
     setLocked(false);
@@ -97,21 +94,8 @@ export function useAccountsMutations({
       const newCounter = counter + 1;
       const newAccounts = [...accounts, account];
       const newAccountId = account.id;
-
-      const availableNetworks = Object.keys(account.networksAccounts);
-      const newNetworkId =
-        networkId ??
-        (availableNetworks.includes('solana-mainnet')
-          ? 'solana-mainnet'
-          : availableNetworks[0]);
-
-      const newMnemonics = newAccounts.reduce(
-        (mnemonics, { id, mnemonic }) => {
-          mnemonics[id] = mnemonic;
-          return mnemonics;
-        },
-        {} as Record<string, string>
-      );
+      const newNetworkId = getPreferredNetworkId(account, networkId);
+      const newMnemonics = buildMnemonicMap(newAccounts);
 
       setCounter(newCounter);
       setAccounts(newAccounts);
@@ -130,10 +114,8 @@ export function useAccountsMutations({
       }
 
       await setStorageItem(STORAGE_KEYS.COUNTER, newCounter);
-      await setStorageItem(STORAGE_KEYS.ACCOUNTS, newAccounts.map(formatAccountForStorage));
-      await setStorageItem(STORAGE_KEYS.ACCOUNT_ID, newAccountId);
-      await setStorageItem(STORAGE_KEYS.NETWORK_ID, newNetworkId);
-      await setStorageItem(STORAGE_KEYS.PATH_INDEX, 0);
+      await persistAccounts(newAccounts, formatAccountForStorage);
+      await persistActiveSelection(newAccountId, 0, newNetworkId);
     },
     [
       accounts,
@@ -176,7 +158,7 @@ export function useAccountsMutations({
 
       newAccounts[index] = newAccount;
       setAccounts(newAccounts);
-      await setStorageItem(STORAGE_KEYS.ACCOUNTS, newAccounts.map(formatAccountForStorage));
+      await persistAccounts(newAccounts, formatAccountForStorage);
     },
     [accounts, formatAccountForStorage, setAccounts]
   );
@@ -191,14 +173,7 @@ export function useAccountsMutations({
       }
 
       setAccounts(newAccounts);
-
-      const newMnemonics = newAccounts.reduce(
-        (mnemonics, { id, mnemonic }) => {
-          mnemonics[id] = mnemonic;
-          return mnemonics;
-        },
-        {} as Record<string, string>
-      );
+      const newMnemonics = buildMnemonicMap(newAccounts);
 
       if (accountId === targetId) {
         const account = accounts.find(({ id }) => id !== targetId);
@@ -206,12 +181,11 @@ export function useAccountsMutations({
           setAccountId(account.id);
           setPathIndex(networkId ? getDefaultPathIndex(account, networkId) : 0);
 
-          await setStorageItem(STORAGE_KEYS.ACCOUNT_ID, account.id);
-          await setStorageItem(STORAGE_KEYS.PATH_INDEX, 0);
+          await persistActiveSelection(account.id, 0);
         }
       }
 
-      await setStorageItem(STORAGE_KEYS.ACCOUNTS, newAccounts.map(formatAccountForStorage));
+      await persistAccounts(newAccounts, formatAccountForStorage);
 
       const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: false });
       await setStorageItem(STORAGE_KEYS.MNEMONICS, encryptResult.vault);

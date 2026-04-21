@@ -1,45 +1,24 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
 
 import {
-  lock,
-  lockAndGetKey,
-  unlockAndGetKey,
-  unlockWithKey,
   isKeyCacheValid,
-  DEFAULT_ITERATIONS,
-  DEFAULT_DIGEST,
-  type LockedVault,
   type DerivedKeyCache,
 } from '../crypto/encryption';
 import {
-  getStorageItem,
-  getStashItem,
   removeStashItem,
-  setStashItem,
-  setStorageItem,
-  updateLastActivity,
-  STASH_KEYS,
-  STORAGE_KEYS,
 } from '../storage';
 import { migrateLegacyWallets } from '../utils/legacy-migration';
 import type { Account, StoredAccount } from '../types/account';
-
-interface EncryptedMnemonics extends LockedVault {
-  isEncrypted: true;
-}
-
-export type StoredMnemonics = Record<string, string> | EncryptedMnemonics;
-
-export function isEncryptedMnemonics(
-  mnemonics: StoredMnemonics
-): mnemonics is EncryptedMnemonics {
-  return (
-    typeof mnemonics === 'object' &&
-    mnemonics !== null &&
-    'isEncrypted' in mnemonics &&
-    (mnemonics as EncryptedMnemonics).isEncrypted === true
-  );
-}
+import {
+  getStoredMnemonics,
+  changeStoredPassword,
+  finalizeUnlockedAccounts,
+  getEncryptedStoredMnemonics,
+  initializeAccountsSecurity,
+  resolveMnemonicsWithCachedKey,
+  resolveMnemonicsWithPassword,
+} from './useAccountsSecurityHelpers';
+import { STASH_KEYS } from '../storage';
 
 interface UseAccountsSecurityParams {
   setLocked: Dispatch<SetStateAction<boolean>>;
@@ -96,17 +75,12 @@ export function useAccountsSecurity({
 
   const checkPassword = useCallback(async (password: string): Promise<boolean> => {
     try {
-      const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
-      if (!storedMnemonics || !isEncryptedMnemonics(storedMnemonics)) {
+      const storedMnemonics = await getEncryptedStoredMnemonics();
+      if (!storedMnemonics) {
         return true;
       }
 
-      const { keyCache } = await unlockAndGetKey<Record<string, string>>(
-        storedMnemonics,
-        password
-      );
-
-      await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
+      await resolveMnemonicsWithPassword(storedMnemonics, password);
 
       return true;
     } catch {
@@ -116,19 +90,12 @@ export function useAccountsSecurity({
 
   const changePassword = useCallback(async (oldPassword: string, newPassword: string): Promise<boolean> => {
     try {
-      const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
-      if (!storedMnemonics || !isEncryptedMnemonics(storedMnemonics)) {
+      const storedMnemonics = await getEncryptedStoredMnemonics();
+      if (!storedMnemonics) {
         return false;
       }
 
-      const { data: mnemonics } = await unlockAndGetKey<Record<string, string>>(
-        storedMnemonics,
-        oldPassword
-      );
-
-      const newVault = await lock(mnemonics, newPassword);
-      await setStorageItem(STORAGE_KEYS.MNEMONICS, newVault);
-      await removeStashItem(STASH_KEYS.DERIVED_KEY);
+      await changeStoredPassword(storedMnemonics, oldPassword, newPassword);
 
       return true;
     } catch {
@@ -146,36 +113,16 @@ export function useAccountsSecurity({
       try {
         await runUpgrades(password);
 
-        const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
+        const storedMnemonics = await getStoredMnemonics();
         if (!storedMnemonics) {
           setLocked(false);
           return true;
         }
 
-        let mnemonics: Record<string, string>;
-        if (isEncryptedMnemonics(storedMnemonics)) {
-          const { data, keyCache } = await unlockAndGetKey<Record<string, string>>(
-            storedMnemonics,
-            password
-          );
-          mnemonics = data;
-          await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
-
-          if (
-            storedMnemonics.digest !== DEFAULT_DIGEST ||
-            storedMnemonics.iterations !== DEFAULT_ITERATIONS
-          ) {
-            const { vault: newVault, keyCache: newKeyCache } = await lockAndGetKey(mnemonics, password);
-            await setStorageItem(STORAGE_KEYS.MNEMONICS, { ...newVault, isEncrypted: true });
-            await setStashItem(STASH_KEYS.DERIVED_KEY, newKeyCache);
-          }
-        } else {
-          mnemonics = storedMnemonics;
-        }
-
-        await loadAccounts(mnemonics);
-        setLocked(false);
-        await updateLastActivity();
+        const mnemonics = await resolveMnemonicsWithPassword(storedMnemonics, password, {
+          upgradeOutdatedVault: true,
+        });
+        await finalizeUnlockedAccounts(mnemonics, loadAccounts, setLocked);
 
         return true;
       } catch (err) {
@@ -196,23 +143,14 @@ export function useAccountsSecurity({
           return false;
         }
 
-        const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
+        const storedMnemonics = await getStoredMnemonics();
         if (!storedMnemonics) {
           setLocked(false);
           return true;
         }
 
-        let mnemonics: Record<string, string>;
-        if (isEncryptedMnemonics(storedMnemonics)) {
-          mnemonics = unlockWithKey<Record<string, string>>(storedMnemonics, keyCache);
-          await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
-        } else {
-          mnemonics = storedMnemonics;
-        }
-
-        await loadAccounts(mnemonics);
-        setLocked(false);
-        await updateLastActivity();
+        const mnemonics = await resolveMnemonicsWithCachedKey(storedMnemonics, keyCache);
+        await finalizeUnlockedAccounts(mnemonics, loadAccounts, setLocked);
 
         return true;
       } catch (err) {
@@ -228,26 +166,16 @@ export function useAccountsSecurity({
   const initAccounts = useCallback(async (): Promise<void> => {
     try {
       const upgraded = await runUpgrades();
-
-      const storedMnemonics = await getStorageItem<StoredMnemonics>(STORAGE_KEYS.MNEMONICS);
-      if (storedMnemonics) {
-        if (!isEncryptedMnemonics(storedMnemonics)) {
-          await loadAccounts(storedMnemonics);
-          setRequiredLock(false);
-        } else {
-          setRequiredLock(true);
-
-          let result = false;
-          const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
-          if (cachedKey && isKeyCacheValid(cachedKey)) {
-            result = await unlockWithCachedKey(cachedKey);
-          }
-          if (!result) {
-            await loadMetadata();
-            setLocked(true);
-          }
-        }
-      } else if (upgraded) {
+      const hasStoredAccounts = await initializeAccountsSecurity({
+        loadAccounts,
+        loadMetadata,
+        setLoaded,
+        setLocked,
+        setRequiredLock,
+        unlockWithCachedKey,
+        isKeyCacheValidFn: isKeyCacheValid,
+      });
+      if (!hasStoredAccounts && upgraded) {
         setLoaded(true);
       }
 
