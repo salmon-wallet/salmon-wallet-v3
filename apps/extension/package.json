@@ -16,9 +16,9 @@
     "zip:firefox": "wxt zip -b firefox",
     "lint": "eslint src --ext .ts,.tsx",
     "typecheck": "wxt prepare && tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test": "node --no-warnings ../../node_modules/vitest/vitest.mjs run --passWithNoTests",
+    "test:watch": "node --no-warnings ../../node_modules/vitest/vitest.mjs",
+    "test:coverage": "node --no-warnings ../../node_modules/vitest/vitest.mjs run --coverage"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

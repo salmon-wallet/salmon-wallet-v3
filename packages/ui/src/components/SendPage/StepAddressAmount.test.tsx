@@ -50,8 +50,8 @@ vi.mock('@salmon/shared', () => ({
 }));
 
 vi.mock('../../utils/styled', async () => {
-  const emotion = await import('@emotion/styled');
-  return { styled: emotion.default };
+  const actual = await vi.importActual<typeof import('../../utils/styled')>('../../utils/styled');
+  return actual;
 });
 
 vi.mock('../BlurContainer', () => ({

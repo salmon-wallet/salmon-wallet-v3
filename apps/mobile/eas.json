@@ -5,7 +5,7 @@
   },
   "build": {
     "base": {
-      "node": "22.12.0",
+      "node": "22.13.0",
       "pnpm": "9.0.0"
     },
     "local": {
@@ -40,7 +40,10 @@
       "extends": "base",
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_SALMON_ENV": "production"
+        "EXPO_PUBLIC_SALMON_ENV": "production",
+        "NODE_ENV": "production",
+        "EXPO_NO_DOCTOR": "1",
+        "EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK": "1"
       },
       "channel": "production"
     },

@@ -26,7 +26,7 @@ jest.mock('expo-router', () => ({
   }),
 }));
 
-jest.mock('../../../hooks/useTabChrome', () => ({
+jest.mock('../../hooks/useTabChrome', () => ({
   useTabChrome: () => ({ headerChromeHeight: 24 }),
 }));
 
@@ -64,7 +64,7 @@ jest.mock('@salmon/shared', () => ({
   unifiedToSwapToken: (token: any) => token,
 }));
 
-jest.mock('../../../src/components', () => ({
+jest.mock('../../src/components', () => ({
   SwapScreen: (props: any) => {
     const React = require('react');
     const { Text, TouchableOpacity } = require('react-native');
@@ -118,7 +118,7 @@ const { useAccountsContext } = jest.requireMock('@salmon/shared') as {
   useAccountsContext: jest.Mock;
 };
 
-import SwapScreenPage from './swap';
+import SwapScreenPage from '../../app/(app)/(tabs)/swap';
 
 describe('SwapScreenPage', () => {
   beforeEach(() => {

@@ -48,8 +48,11 @@ vi.mock('@salmon/shared', () => ({
     solana: { nfts: [], loading: false, blockchain: 'solana', isTestnet: false },
     'solana-devnet': { nfts: [], loading: false, blockchain: 'solana', networkLabel: 'Devnet', isTestnet: true },
   },
-  getAllNfts: (...args: unknown[]) => mockGetAllNfts(...args),
   getSolanaNfts: vi.fn(),
+}));
+
+vi.mock('@salmon/shared/blockchain/solana/nft', () => ({
+  getAll: (...args: unknown[]) => mockGetAllNfts(...args),
 }));
 
 vi.mock('@/components', () => ({

@@ -127,7 +127,7 @@ const { useLocalSearchParams } = jest.requireMock('expo-router') as {
   useLocalSearchParams: jest.Mock;
 };
 
-import PasswordScreen from './password';
+import PasswordScreen from '../../app/(auth)/password';
 import { Linking } from 'react-native';
 
 describe('PasswordScreen', () => {

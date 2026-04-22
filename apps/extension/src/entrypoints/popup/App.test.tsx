@@ -33,6 +33,9 @@ vi.mock('@salmon/shared', () => ({
     unlockWithCachedKey: mockUnlockWithCachedKey,
   }],
   useInactivityTimeout: (config: unknown) => mockUseInactivityTimeout(config),
+}));
+
+vi.mock('@salmon/shared/utils/account', () => ({
   getActiveSolanaApprovalAccount: () => null,
 }));
 
