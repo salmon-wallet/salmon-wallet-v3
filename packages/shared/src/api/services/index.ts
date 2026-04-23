@@ -67,24 +67,12 @@ export {
 } from './balance';
 
 // ============================================================================
-// Marketplace Service
+// NFT Burn Service
 // ============================================================================
 
 export {
   // Functions
-  createListingTransaction,
-  createUnlistTransaction,
-  createBuyTransaction,
-  createBidTransaction,
-  createCancelBidTransaction,
   createBurnTransaction,
-  getUserListings,
-  getUserBids,
-  getCollectionGroupByFilter,
-  getCollectionById,
-  getCollectionItemsById,
-  getListedByOwner,
-  getBidsByOwner,
 } from './marketplace';
 
 // ============================================================================

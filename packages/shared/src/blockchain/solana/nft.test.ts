@@ -1,14 +1,13 @@
 /**
  * Solana NFT Service Tests
  *
- * Tests for NFT fetching, pagination, collection grouping, and marketplace functions.
+ * Tests for NFT fetching, pagination, and collection grouping.
  * Uses mocked API responses when backend is unavailable, or tests against real backend if available.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import axios from 'axios';
 import { Connection } from '@solana/web3.js';
-import { apiClient } from '../../api/client';
 import { isBackendAvailable } from '../../api/test-backend';
 import {
   getAll,
@@ -29,12 +28,6 @@ import type {
   FetchNftsFromBackendFn,
   FetchNftByAddressFn,
 } from '../../types/nft';
-import {
-  getCollectionById,
-  getCollectionItemsById,
-  getListedByOwner,
-  getBidsByOwner,
-} from '../../api/services/marketplace';
 import { SOLANA_NETWORKS } from './factory';
 
 // ============================================================================
@@ -664,106 +657,6 @@ describe('NFT API Functions', () => {
     });
   });
 
-  describe('getCollectionById', () => {
-    it('should fetch collection by ID', async () => {
-      const collectionId = 'CollectionKey123';
-      const mockCollection = { id: collectionId, name: 'Test Collection' };
-
-      const mockApiGet = vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
-        data: mockCollection,
-      } as any);
-
-      const result = await getCollectionById(network, collectionId);
-
-      expect(mockApiGet).toHaveBeenCalledWith(
-        `/v1/${network.id}/nft/hyperspace/collection/${collectionId}`
-      );
-      expect(result).toEqual(mockCollection);
-    });
-
-    it('should return null on error', async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error('Not found'));
-
-      const result = await getCollectionById(network, 'InvalidId');
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('getCollectionItemsById', () => {
-    it('should fetch collection items with pagination', async () => {
-      const collectionId = 'CollectionKey123';
-      const pageNumber = 1;
-      const mockItems = { items: [mockNft, mockNft2], total: 2 };
-
-      const mockApiGet = vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
-        data: mockItems,
-      } as any);
-
-      const result = await getCollectionItemsById(network, collectionId, pageNumber);
-
-      expect(mockApiGet).toHaveBeenCalledWith(
-        `/v1/${network.id}/nft/hyperspace/collection/${collectionId}/items/${pageNumber}`
-      );
-      expect(result).toEqual(mockItems);
-    });
-
-    it('should return null on error', async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error('Not found'));
-
-      const result = await getCollectionItemsById(network, 'InvalidId', 1);
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('getListedByOwner', () => {
-    it('should fetch listed NFTs by owner', async () => {
-      const ownerAddress = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
-      const mockListed = { items: [mockNft] };
-
-      const mockApiGet = vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
-        data: mockListed,
-      } as any);
-
-      const result = await getListedByOwner(network, ownerAddress);
-
-      expect(mockApiGet).toHaveBeenCalledWith(`/v1/${network.id}/nft/listed/${ownerAddress}`);
-      expect(result).toEqual(mockListed);
-    });
-
-    it('should return null on error', async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error('Not found'));
-
-      const result = await getListedByOwner(network, 'InvalidAddress');
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('getBidsByOwner', () => {
-    it('should fetch bids by owner', async () => {
-      const ownerAddress = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
-      const mockBids = { bids: [{ nft: mockNft, amount: 1000000 }] };
-
-      const mockApiGet = vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
-        data: mockBids,
-      } as any);
-
-      const result = await getBidsByOwner(network, ownerAddress);
-
-      expect(mockApiGet).toHaveBeenCalledWith(`/v1/${network.id}/nft/bids/${ownerAddress}`);
-      expect(result).toEqual(mockBids);
-    });
-
-    it('should return null on error', async () => {
-      vi.spyOn(apiClient, 'get').mockRejectedValueOnce(new Error('Not found'));
-
-      const result = await getBidsByOwner(network, 'InvalidAddress');
-
-      expect(result).toBeNull();
-    });
-  });
 });
 
 // ============================================================================
