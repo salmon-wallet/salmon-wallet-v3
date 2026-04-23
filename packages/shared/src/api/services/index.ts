@@ -244,19 +244,6 @@ export {
 } from './solana-nft';
 
 // ============================================================================
-// Bitcoin Ordinals Service
-// ============================================================================
-
-export {
-  // Types
-  type OrdinalAttribute,
-  type BitcoinOrdinal,
-  // Functions
-  getBitcoinOrdinals,
-  getBitcoinOrdinalById,
-} from './bitcoin-nft';
-
-// ============================================================================
 // Network Service
 // ============================================================================
 

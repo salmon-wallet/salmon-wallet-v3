@@ -28,7 +28,6 @@ import {
   letterSpacing,
   spacing,
   // getEthereumNfts,
-  // getBitcoinOrdinals,
   // ethereumNftToNftData,
   // bitcoinOrdinalToNftData,
   filterSpamNfts,
@@ -249,7 +248,6 @@ export default function CollectiblesScreen() {
         //   .then((result) => ({ key: 'ethereum' as NftSectionKey, result }))
         //   .catch(() => ({ key: 'ethereum' as NftSectionKey, result: [] })),
 
-        // (btcAddress ? getBitcoinOrdinals('bitcoin-mainnet', btcAddress) : Promise.resolve([]))
         //   .then((result) => ({ key: 'bitcoin' as NftSectionKey, result }))
         //   .catch(() => ({ key: 'bitcoin' as NftSectionKey, result: [] })),
       ];

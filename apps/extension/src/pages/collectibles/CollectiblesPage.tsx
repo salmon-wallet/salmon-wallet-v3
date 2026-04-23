@@ -19,7 +19,6 @@ import {
   componentSizes,
   SOLANA_NETWORKS,
   // getEthereumNfts,
-  // getBitcoinOrdinals,
   canonicalNftToSolanaNftData,
   // ethereumNftToNftData,
   // bitcoinOrdinalToNftData,
@@ -199,7 +198,6 @@ export function CollectiblesPage({
         //   .then((result) => ({ key: 'ethereum' as NftSectionKey, result }))
         //   .catch(() => ({ key: 'ethereum' as NftSectionKey, result: [] as EthereumNft[] })),
 
-        // (btcAddress ? getBitcoinOrdinals('bitcoin-mainnet', btcAddress) : Promise.resolve([]))
         //   .then((result) => ({ key: 'bitcoin' as NftSectionKey, result }))
         //   .catch(() => ({ key: 'bitcoin' as NftSectionKey, result: [] as BitcoinOrdinal[] })),
       ];

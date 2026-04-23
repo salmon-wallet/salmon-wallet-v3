@@ -411,7 +411,7 @@ export interface EthereumNft {
 }
 
 // ============================================================================
-// Bitcoin Ordinal types (moved from api/services/bitcoin-nft.ts)
+// Bitcoin Ordinal types
 // ============================================================================
 
 /**

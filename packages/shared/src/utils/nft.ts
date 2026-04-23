@@ -1,6 +1,6 @@
 import type { EthereumNft } from '../api/services/ethereum-nft';
-import type { BitcoinOrdinal } from '../api/services/bitcoin-nft';
 import type { NftAttribute, Nft } from '../types/nft';
+import type { BitcoinOrdinal } from '../types/nft';
 
 export type { NftAttribute };
 
