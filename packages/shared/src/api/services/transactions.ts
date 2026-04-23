@@ -1,11 +1,12 @@
 /**
  * Multi-chain Transaction Service
- * Fetches transaction history for Bitcoin and Ethereum via Ubiquity API
+ * Fetches paginated transaction history for networks served by the
+ * shared `/v1/{networkId}/account/{address}/transactions` backend endpoint.
  *
  * API Endpoints:
  * - GET /v1/{networkId}/account/{address}/transactions - Get paginated transactions
  *
- * Note: Solana transactions are handled separately in solana.ts
+ * Note: Solana transactions are handled separately in `solana.ts`
  */
 
 import { apiClient, ApiError } from '../client';
