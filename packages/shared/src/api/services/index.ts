@@ -221,19 +221,6 @@ export {
 } from './transactions';
 
 // ============================================================================
-// Ethereum NFT Service
-// ============================================================================
-
-export {
-  // Types
-  type EthereumNftAttribute,
-  type EthereumNft,
-  // Functions
-  getEthereumNfts,
-  getEthereumNftById,
-} from './ethereum-nft';
-
-// ============================================================================
 // Solana NFT Service
 // ============================================================================
 

@@ -44,7 +44,6 @@ jest.mock('@salmon/shared', () => ({
   vs: (value: number) => value,
   s: (value: number) => value,
   isSolanaNft: () => true,
-  isEthereumNft: () => false,
   isBitcoinNft: () => false,
   getSatRarityColor: () => '#fff',
   getShortAddress: () => 'Mint...111',

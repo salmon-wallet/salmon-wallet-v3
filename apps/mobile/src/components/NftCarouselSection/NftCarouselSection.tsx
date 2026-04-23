@@ -10,7 +10,7 @@ import {
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamilyNative, fontSize, fontWeight, borderRadius, borderWidth, gradients, shadows, componentSizes, ms, s, vs, spacing, } from '@salmon/shared';
-import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
+import { SolanaSvgIcon, BitcoinSvgIcon } from '../Icon';
 import { BlurContainer } from '../BlurContainer';
 import type { NftCarouselSectionProps, NftBlockchain } from './types';
 import type { NftData } from '../NftCard';
@@ -36,8 +36,6 @@ const getBlockchainIcon = (blockchain: NftBlockchain, size: number = 24) => {
   switch (blockchain) {
     case 'solana':
       return <SolanaSvgIcon size={size} color={colors.text.primary} />;
-    case 'ethereum':
-      return <EthereumSvgIcon size={size} color={colors.text.primary} />;
     case 'bitcoin':
       return <BitcoinSvgIcon size={size} color={colors.text.primary} />;
     default:

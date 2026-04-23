@@ -18,21 +18,15 @@ import {
   fontFamily,
   componentSizes,
   SOLANA_NETWORKS,
-  // getEthereumNfts,
   canonicalNftToSolanaNftData,
-  // ethereumNftToNftData,
-  // bitcoinOrdinalToNftData,
   filterSpamNfts,
   getNftSectionTitle,
-  // getVisibleNftSectionKeys,
   INITIAL_NFT_SECTIONS,
   type Account,
   type NftData,
   type NftSectionKey,
   type NftsBySection,
   type Nft,
-  // type EthereumNft,
-  // type BitcoinOrdinal,
   getSolanaNfts,
 } from '@salmon/shared';
 import { getAll as getAllNfts } from '@salmon/shared/blockchain/solana/nft';
@@ -180,12 +174,6 @@ export function CollectiblesPage({
       const solanaAccount = activeAccount.networksAccounts?.['solana-mainnet']?.[0];
       const solanaAddress = solanaAccount?.getReceiveAddress() ?? '';
 
-      // const ethAccount = activeAccount.networksAccounts?.['ethereum-mainnet']?.[0];
-      // const ethAddress = ethAccount?.getReceiveAddress() ?? '';
-
-      // const btcAccount = activeAccount.networksAccounts?.['bitcoin-mainnet']?.[0];
-      // const btcAddress = btcAccount?.getReceiveAddress() ?? '';
-
       // Build fetch promises - only Solana
       const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] }>[] = [
         (solanaAddress
@@ -194,12 +182,6 @@ export function CollectiblesPage({
           .then((result) => ({ key: 'solana' as NftSectionKey, result }))
           .catch(() => ({ key: 'solana' as NftSectionKey, result: [] as Nft[] })),
 
-        // (ethAddress ? getEthereumNfts('ethereum-mainnet', ethAddress) : Promise.resolve([]))
-        //   .then((result) => ({ key: 'ethereum' as NftSectionKey, result }))
-        //   .catch(() => ({ key: 'ethereum' as NftSectionKey, result: [] as EthereumNft[] })),
-
-        //   .then((result) => ({ key: 'bitcoin' as NftSectionKey, result }))
-        //   .catch(() => ({ key: 'bitcoin' as NftSectionKey, result: [] as BitcoinOrdinal[] })),
       ];
 
       // Add testnet fetches if developer mode is enabled (Solana devnet only)
@@ -207,19 +189,12 @@ export function CollectiblesPage({
         const solanaDevnetAccount = activeAccount.networksAccounts?.['solana-devnet']?.[0];
         const solanaDevnetAddress = solanaDevnetAccount?.getReceiveAddress() ?? '';
 
-        // const sepoliaAccount = activeAccount.networksAccounts?.['ethereum-sepolia']?.[0];
-        // const sepoliaAddress = sepoliaAccount?.getReceiveAddress() ?? '';
-
         fetchPromises.push(
           (solanaDevnetAddress
             ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, refreshKey > 0, getSolanaNfts)
             : Promise.resolve([]))
             .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
             .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] as Nft[] })),
-
-          // (sepoliaAddress ? getEthereumNfts('ethereum-sepolia', sepoliaAddress) : Promise.resolve([]))
-          //   .then((result) => ({ key: 'ethereum-sepolia' as NftSectionKey, result }))
-          //   .catch(() => ({ key: 'ethereum-sepolia' as NftSectionKey, result: [] as EthereumNft[] })),
         );
       }
 
@@ -241,27 +216,11 @@ export function CollectiblesPage({
             loading: false,
           };
         }
-        // } else if (key === 'ethereum' || key === 'ethereum-sepolia') {
-        //   const mapped = (result as EthereumNft[]).map(ethereumNftToNftData);
-        //   newSections[key] = {
-        //     ...section,
-        //     nfts: applyFilter ? filterSpamNfts(mapped) : mapped,
-        //     loading: false,
-        //   };
-        // } else if (key === 'bitcoin') {
-        //   const mapped = (result as BitcoinOrdinal[]).map(bitcoinOrdinalToNftData);
-        //   newSections[key] = {
-        //     ...section,
-        //     nfts: applyFilter ? filterSpamNfts(mapped) : mapped,
-        //     loading: false,
-        //   };
-        // }
       }
 
       // If developer mode is off, ensure testnet sections are empty and not loading
       if (!developerNetworks) {
         newSections['solana-devnet'] = { ...INITIAL_NFT_SECTIONS['solana-devnet'], loading: false };
-        // newSections['ethereum-sepolia'] = { ...INITIAL_NFT_SECTIONS['ethereum-sepolia'], loading: false };
       }
 
       setNftsBySections(newSections);
@@ -271,10 +230,6 @@ export function CollectiblesPage({
   }, [activeAccount, developerNetworks, refreshKey]);
 
   // Derived state (Solana only)
-  // const visibleKeys = useMemo(
-  //   () => getVisibleNftSectionKeys(developerNetworks),
-  //   [developerNetworks],
-  // );
   const visibleKeys = useMemo<NftSectionKey[]>(
     () => developerNetworks ? ['solana', 'solana-devnet'] : ['solana'],
     [developerNetworks],

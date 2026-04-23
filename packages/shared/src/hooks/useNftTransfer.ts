@@ -6,7 +6,6 @@
  * to the appropriate blockchain transfer service.
  *
  * - Solana: transfers SPL token with amount=1 via account.transfer()
- * - Ethereum: transfers ERC721/ERC1155 via account.transfer() with tokenType opts
  * - Bitcoin: not supported (ordinal transfers require special UTXO selection)
  */
 
@@ -15,7 +14,6 @@ import type { BlockchainAccount } from '../types/blockchain';
 import type {
   NftData,
   SolanaNftData,
-  EthereumNftData,
 } from '../utils/nft';
 
 export type NftTransferStatus = 'idle' | 'sending' | 'success' | 'failed';
@@ -56,13 +54,6 @@ export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransfe
         if (nft.blockchain === 'solana') {
           const solanaNft = nft as SolanaNftData;
           result = await account.transfer(recipientAddress, solanaNft.mint, 1);
-        } else if (nft.blockchain === 'ethereum') {
-          const ethNft = nft as EthereumNftData;
-          result = await account.transfer(recipientAddress, ethNft.contractAddress, 1, {
-            tokenId: ethNft.tokenId,
-            tokenType: ethNft.tokenType.toLowerCase() as 'erc721' | 'erc1155',
-            symbol: ethNft.symbol,
-          });
         } else {
           // TODO: Bitcoin ordinal transfers require inscription-aware UTXO selection.
           // QuickNode's Ordinals & Runes API provides ord_getOutput(txid:vout) which
@@ -89,4 +80,3 @@ export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransfe
 
   return { sendNft, status, error, isError: error !== null, reset };
 }
-

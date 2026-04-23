@@ -22,7 +22,7 @@ import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { NftCard, NftCardSkeleton } from '../NftCard';
-import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
+import { SolanaSvgIcon, BitcoinSvgIcon } from '../Icon';
 import type { NftSeeAllSheetProps } from './types';
 import type { NftBlockchain } from '../NftCarouselSection';
 import type { NftData } from '../NftCard';
@@ -39,8 +39,6 @@ const getBlockchainIcon = (blockchain: NftBlockchain, size: number = 24) => {
   switch (blockchain) {
     case 'solana':
       return <SolanaSvgIcon size={size} color={colors.text.primary} />;
-    case 'ethereum':
-      return <EthereumSvgIcon size={size} color={colors.text.primary} />;
     case 'bitcoin':
       return <BitcoinSvgIcon size={size} color={colors.text.primary} />;
     default:

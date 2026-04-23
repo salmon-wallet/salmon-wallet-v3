@@ -13,6 +13,12 @@ const SOLANA_NFT = {
   name: 'Test NFT',
 } as any;
 
+const BITCOIN_NFT = {
+  blockchain: 'bitcoin',
+  mint: 'inscription-1',
+  name: 'Ordinal',
+} as any;
+
 describe('useNftTransfer', () => {
   const account = {
     transfer: vi.fn(),
@@ -51,6 +57,23 @@ describe('useNftTransfer', () => {
     await expect(result.current.sendNft(SOLANA_NFT, 'recipient-address')).rejects.toThrow(
       'No account available'
     );
+  });
+
+  it('rejects unsupported ordinal transfers without calling account.transfer', async () => {
+    const { result } = renderHook(() =>
+      useNftTransfer({
+        account: account as any,
+      })
+    );
+
+    await act(async () => {
+      await expect(
+        result.current.sendNft(BITCOIN_NFT, 'recipient-address')
+      ).rejects.toThrow('Ordinal transfers are not yet supported');
+    });
+
+    expect(account.transfer).not.toHaveBeenCalled();
+    expect(result.current.status).toBe('failed');
   });
 
   it('surfaces transfer failures and allows reset', async () => {

@@ -37,7 +37,6 @@ import {
   fontWeight,
   getNftBlockchainLabel,
   isSolanaNft,
-  isEthereumNft,
   isBitcoinNft,
   lineHeight,
   gradients,
@@ -50,7 +49,6 @@ import { BottomSheetContainer } from '../BottomSheetContainer';
 import {
   BitcoinSvgIcon,
   CallMadeSvgIcon,
-  EthereumSvgIcon,
   SolanaSvgIcon,
 } from '../Icon/SvgIcons';
 
@@ -87,9 +85,6 @@ export function NftSendSheet({
 
     if (nft && isSolanaNft(nft)) {
       return <SolanaSvgIcon size={size} color={color} />;
-    }
-    if (nft && isEthereumNft(nft)) {
-      return <EthereumSvgIcon size={size} color={color} />;
     }
     if (nft && isBitcoinNft(nft)) {
       return <BitcoinSvgIcon size={size} color={color} />;

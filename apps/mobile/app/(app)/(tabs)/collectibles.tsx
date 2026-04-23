@@ -27,9 +27,6 @@ import {
   signAndSendPreparedSolanaTransactions,
   letterSpacing,
   spacing,
-  // getEthereumNfts,
-  // ethereumNftToNftData,
-  // bitcoinOrdinalToNftData,
   filterSpamNfts,
   getAllNfts,
   getNftSectionTitle,
@@ -39,8 +36,6 @@ import {
   s,
   useAccountsContext,
   vs,
-  // type EthereumNft,
-  // type BitcoinOrdinal,
   type BlockchainAccount,
   type Nft,
   type SolanaNetworkId,
@@ -82,13 +77,10 @@ import { useTabChrome } from '../../../hooks/useTabChrome';
 type NftSectionKey =
   | 'solana'
   | 'solana-devnet';
-// | 'ethereum'
-// | 'ethereum-sepolia'
-// | 'bitcoin';
 
 interface NftSection {
   nfts: NftData[];
-  raw: Nft[]; // was: Nft[] | EthereumNft[] | BitcoinOrdinal[]
+  raw: Nft[];
   loading: boolean;
   blockchain: NftBlockchain;
   networkLabel?: string; // e.g., "Devnet", "Sepolia"
@@ -111,17 +103,11 @@ const SECTION_TO_NETWORK = SHARED_SECTION_TO_NETWORK;
 const INITIAL_SECTION_INDEXES: Record<NftSectionKey, number> = {
   'solana': 0,
   'solana-devnet': 0,
-  // 'ethereum': 0,
-  // 'ethereum-sepolia': 0,
-  // 'bitcoin': 0,
 };
 
 const INITIAL_SECTIONS: NftsBySection = {
   solana: { nfts: [], raw: [], loading: true, blockchain: 'solana', isTestnet: false },
   'solana-devnet': { nfts: [], raw: [], loading: false, blockchain: 'solana', networkLabel: 'Devnet', isTestnet: true },
-  // ethereum: { nfts: [], raw: [], loading: true, blockchain: 'ethereum', isTestnet: false },
-  // 'ethereum-sepolia': { nfts: [], raw: [], loading: false, blockchain: 'ethereum', networkLabel: 'Sepolia', isTestnet: true },
-  // bitcoin: { nfts: [], raw: [], loading: true, blockchain: 'bitcoin', isTestnet: false },
 };
 
 // Grid layout constants (matching NftSeeAllSheet pattern)
@@ -230,7 +216,6 @@ export default function CollectiblesScreen() {
           // Also set loading for testnet sections if developer mode is enabled
           ...(developerNetworks && {
             'solana-devnet': { ...prev['solana-devnet'], loading: true },
-            // 'ethereum-sepolia': { ...prev['ethereum-sepolia'], loading: true },
           }),
         }));
       }
@@ -244,12 +229,6 @@ export default function CollectiblesScreen() {
           .then((result) => ({ key: 'solana' as NftSectionKey, result }))
           .catch(() => ({ key: 'solana' as NftSectionKey, result: [] as Nft[] })),
 
-        // (ethAddress ? getEthereumNfts('ethereum-mainnet', ethAddress) : Promise.resolve([]))
-        //   .then((result) => ({ key: 'ethereum' as NftSectionKey, result }))
-        //   .catch(() => ({ key: 'ethereum' as NftSectionKey, result: [] })),
-
-        //   .then((result) => ({ key: 'bitcoin' as NftSectionKey, result }))
-        //   .catch(() => ({ key: 'bitcoin' as NftSectionKey, result: [] })),
       ];
 
       // Add testnet fetches if developer mode is enabled (Solana devnet only)
@@ -262,14 +241,6 @@ export default function CollectiblesScreen() {
             .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
             .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] as Nft[] })),
 
-          // // Ethereum Sepolia (uses its own section index)
-          // (() => {
-          //   const sepoliaAccount = activeAccount.networksAccounts?.['ethereum-sepolia']?.[sectionIndexes['ethereum-sepolia']];
-          //   const sepoliaAddress = sepoliaAccount?.getReceiveAddress() ?? ethAddress;
-          //   return sepoliaAddress ? getEthereumNfts('ethereum-sepolia', sepoliaAddress) : Promise.resolve([]);
-          // })()
-          //   .then((result) => ({ key: 'ethereum-sepolia' as NftSectionKey, result }))
-          //   .catch(() => ({ key: 'ethereum-sepolia' as NftSectionKey, result: [] })),
         );
       }
 
@@ -293,31 +264,11 @@ export default function CollectiblesScreen() {
             loading: false,
           };
         }
-        // } else if (key === 'ethereum' || key === 'ethereum-sepolia') {
-        //   const ethNfts = result as EthereumNft[];
-        //   const mapped = ethNfts.map(ethereumNftToNftData);
-        //   newSections[key] = {
-        //     ...section,
-        //     nfts: applyFilter ? filterSpamNfts(mapped) : mapped,
-        //     raw: ethNfts,
-        //     loading: false,
-        //   };
-        // } else if (key === 'bitcoin') {
-        //   const btcNfts = result as BitcoinOrdinal[];
-        //   const mapped = btcNfts.map(bitcoinOrdinalToNftData);
-        //   newSections[key] = {
-        //     ...section,
-        //     nfts: applyFilter ? filterSpamNfts(mapped) : mapped,
-        //     raw: btcNfts,
-        //     loading: false,
-        //   };
-        // }
       }
 
       // If developer mode is off, ensure testnet sections are empty and not loading
       if (!developerNetworks) {
         newSections['solana-devnet'] = { ...INITIAL_SECTIONS['solana-devnet'], loading: false };
-        // newSections['ethereum-sepolia'] = { ...INITIAL_SECTIONS['ethereum-sepolia'], loading: false };
       }
 
       setNftsBySections(newSections);
@@ -356,21 +307,6 @@ export default function CollectiblesScreen() {
           detailData = canonicalNftToSolanaNftData(rawNft);
         }
       }
-      // } else if (section.blockchain === 'ethereum') {
-      //   const rawNft = (section.raw as EthereumNft[]).find(
-      //     (n) => `${n.contract}:${n.mint}` === nftData.mint
-      //   );
-      //   if (rawNft) {
-      //     detailData = ethereumNftToNftData(rawNft);
-      //   }
-      // } else if (section.blockchain === 'bitcoin') {
-      //   const rawNft = (section.raw as BitcoinOrdinal[]).find(
-      //     (n) => n.inscriptionId === nftData.mint
-      //   );
-      //   if (rawNft) {
-      //     detailData = bitcoinOrdinalToNftData(rawNft);
-      //   }
-      // }
 
       if (detailData) {
         setDetailSheet({
@@ -493,19 +429,14 @@ export default function CollectiblesScreen() {
 
   // Get ordered section keys to display (Solana only)
   const visibleSectionKeys = useMemo<NftSectionKey[]>(() => {
-    // const mainnetKeys: NftSectionKey[] = ['solana', 'ethereum', 'bitcoin'];
-    // const testnetKeys: NftSectionKey[] = ['solana-devnet', 'ethereum-sepolia'];
     if (developerNetworks) {
       return ['solana', 'solana-devnet'];
-      // was: ['solana', 'solana-devnet', 'ethereum', 'ethereum-sepolia', 'bitcoin'];
     }
     return ['solana'];
-    // was: mainnetKeys;
   }, [developerNetworks]);
 
   // Check if Solana section is loading
   const isLoading = nftsBySections.solana.loading;
-  // was: nftsBySections.solana.loading && nftsBySections.ethereum.loading && nftsBySections.bitcoin.loading;
 
   // Check if all visible sections are empty (after loading)
   const isEmpty = useMemo(() => {

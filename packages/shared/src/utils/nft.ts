@@ -1,6 +1,4 @@
-import type { EthereumNft } from '../api/services/ethereum-nft';
-import type { NftAttribute, Nft } from '../types/nft';
-import type { BitcoinOrdinal } from '../types/nft';
+import type { BitcoinOrdinal, NftAttribute, Nft } from '../types/nft';
 
 export type { NftAttribute };
 
@@ -11,7 +9,7 @@ export type { NftAttribute };
 /**
  * Blockchain type for NFTs
  */
-export type NftBlockchain = 'solana' | 'ethereum' | 'bitcoin';
+export type NftBlockchain = 'solana' | 'bitcoin';
 
 /**
  * Base NFT data structure shared across all blockchains
@@ -42,18 +40,6 @@ export interface SolanaNftData extends NftDataBase {
 }
 
 /**
- * Ethereum-specific NFT fields
- */
-export interface EthereumNftData extends NftDataBase {
-  blockchain: 'ethereum';
-  contractAddress: string;
-  tokenId: string;
-  tokenType: 'ERC721' | 'ERC1155';
-  symbol?: string;
-  balance?: number;
-}
-
-/**
  * Bitcoin Ordinal-specific fields
  */
 export interface BitcoinNftData extends NftDataBase {
@@ -70,7 +56,7 @@ export interface BitcoinNftData extends NftDataBase {
 /**
  * Union type for all blockchain NFT types
  */
-export type NftData = SolanaNftData | EthereumNftData | BitcoinNftData;
+export type NftData = SolanaNftData | BitcoinNftData;
 
 /**
  * Simplified NFT data for components that don't need blockchain-specific fields
@@ -146,32 +132,6 @@ export function getNftImageType(nft: NftData): 'svg' | 'gif' | 'static' | null {
   if (isSvgImage(nft.image)) return 'svg';
   if (isAnimatedImage(nft.image)) return 'gif';
   return 'static';
-}
-
-/**
- * Convert Ethereum NFT to NftData format for UI components
- * Includes all Ethereum-specific fields
- *
- * @param nft - Ethereum NFT from API
- * @returns EthereumNftData for UI components
- */
-export function ethereumNftToNftData(nft: EthereumNft): EthereumNftData {
-  return {
-    blockchain: 'ethereum',
-    // Use contract:tokenId as unique identifier
-    mint: `${nft.contract}:${nft.mint}`,
-    name: nft.name,
-    image: nft.media,
-    description: nft.description,
-    collectionName: nft.collection?.name,
-    attributes: nft.extras?.attributes as NftAttribute[],
-    blacklisted: nft.blacklisted ?? false,
-    // Ethereum-specific fields
-    contractAddress: nft.contract,
-    tokenId: nft.mint,
-    tokenType: nft.standard,
-    symbol: nft.symbol,
-  };
 }
 
 /**
@@ -293,13 +253,6 @@ export function isSolanaNft(nft: NftData): nft is SolanaNftData {
 }
 
 /**
- * Type guard to check if NFT is from Ethereum
- */
-export function isEthereumNft(nft: NftData): nft is EthereumNftData {
-  return nft.blockchain === 'ethereum';
-}
-
-/**
  * Type guard to check if NFT is from Bitcoin
  */
 export function isBitcoinNft(nft: NftData): nft is BitcoinNftData {
@@ -313,8 +266,6 @@ export function getNftBlockchainLabel(nft: NftData): string {
   switch (nft.blockchain) {
     case 'solana':
       return 'Solana';
-    case 'ethereum':
-      return 'Ethereum';
     case 'bitcoin':
       return 'Bitcoin Ordinal';
     default:
@@ -353,10 +304,7 @@ export function getSatRarityColor(rarity?: string): string {
  */
 export type NftSectionKey =
   | 'solana'
-  | 'solana-devnet'
-  | 'ethereum'
-  | 'ethereum-sepolia'
-  | 'bitcoin';
+  | 'solana-devnet';
 
 /**
  * State for a single NFT section (one blockchain+network).
@@ -380,9 +328,6 @@ export type NftsBySection = Record<NftSectionKey, NftSection>;
 export const SECTION_TO_NETWORK: Record<NftSectionKey, string> = {
   'solana': 'solana-mainnet',
   'solana-devnet': 'solana-devnet',
-  'ethereum': 'ethereum-mainnet',
-  'ethereum-sepolia': 'ethereum-sepolia',
-  'bitcoin': 'bitcoin-mainnet',
 };
 
 /**
@@ -391,9 +336,6 @@ export const SECTION_TO_NETWORK: Record<NftSectionKey, string> = {
 export const INITIAL_NFT_SECTIONS: NftsBySection = {
   solana: { nfts: [], loading: true, blockchain: 'solana', isTestnet: false },
   'solana-devnet': { nfts: [], loading: false, blockchain: 'solana', networkLabel: 'Devnet', isTestnet: true },
-  ethereum: { nfts: [], loading: true, blockchain: 'ethereum', isTestnet: false },
-  'ethereum-sepolia': { nfts: [], loading: false, blockchain: 'ethereum', networkLabel: 'Sepolia', isTestnet: true },
-  bitcoin: { nfts: [], loading: true, blockchain: 'bitcoin', isTestnet: false },
 };
 
 /**
@@ -402,7 +344,6 @@ export const INITIAL_NFT_SECTIONS: NftsBySection = {
 export function getNftSectionTitle(_sectionKey: NftSectionKey, section: NftSection): string {
   const baseNames: Record<NftBlockchain, string> = {
     solana: 'Solana',
-    ethereum: 'Ethereum',
     bitcoin: 'Bitcoin Ordinals',
   };
   const baseName = baseNames[section.blockchain];
@@ -414,7 +355,7 @@ export function getNftSectionTitle(_sectionKey: NftSectionKey, section: NftSecti
  */
 export function getVisibleNftSectionKeys(developerNetworks: boolean): NftSectionKey[] {
   if (developerNetworks) {
-    return ['solana', 'solana-devnet', 'ethereum', 'ethereum-sepolia', 'bitcoin'];
+    return ['solana', 'solana-devnet'];
   }
-  return ['solana', 'ethereum', 'bitcoin'];
+  return ['solana'];
 }

@@ -359,58 +359,6 @@ export interface NftBid {
 }
 
 // ============================================================================
-// Ethereum NFT types (moved from api/services/ethereum-nft.ts)
-// ============================================================================
-
-/**
- * Ethereum NFT attribute from metadata
- */
-export interface EthereumNftAttribute {
-  trait_type: string;
-  value: string | number;
-}
-
-/**
- * Ethereum NFT data structure (matches backend response)
- */
-export interface EthereumNft {
-  /** Token standard (ERC721 or ERC1155) */
-  standard: 'ERC721' | 'ERC1155';
-  /** Contract address */
-  contract: string;
-  /** Token ID within the contract */
-  mint: string;
-  /** Owner address */
-  owner: string;
-  /** NFT name */
-  name: string;
-  /** NFT description */
-  description?: string;
-  /** Token symbol */
-  symbol?: string;
-  /** Token URI */
-  uri?: string;
-  /** Media/image URL */
-  media?: string;
-  /** Collection info */
-  collection?: {
-    name: string;
-    slug?: string;
-  };
-  /** Extra metadata */
-  extras: {
-    properties?: {
-      tokenType?: string;
-      contractDeployer?: string;
-    };
-    attributes?: EthereumNftAttribute[];
-    creators?: Array<{ address: string; share?: number }>;
-  };
-  /** Whether NFT is blacklisted */
-  blacklisted?: boolean;
-}
-
-// ============================================================================
 // Bitcoin Ordinal types
 // ============================================================================
 

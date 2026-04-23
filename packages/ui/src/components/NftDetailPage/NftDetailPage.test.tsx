@@ -70,7 +70,6 @@ vi.mock('@salmon/shared', () => ({
   getShortAddress: (value: string, size = 6) => `${value.slice(0, size)}...${value.slice(-size)}`,
   gradients: { primaryButtonCSS: 'linear-gradient(#0f0, #0c0)' },
   isBitcoinNft: (nft: { blockchain?: string }) => nft.blockchain === 'bitcoin',
-  isEthereumNft: (nft: { blockchain?: string }) => nft.blockchain === 'ethereum',
   isSolanaNft: (nft: { blockchain?: string }) => nft.blockchain === 'solana',
   letterSpacing: { wider: '0.08em' },
   lineHeight: { normal: 1.4 },

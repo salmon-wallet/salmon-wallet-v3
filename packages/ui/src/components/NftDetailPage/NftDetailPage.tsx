@@ -9,15 +9,12 @@
  * blockchain-specific details, and Send/Burn action buttons.
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
-import IconButton from '@mui/material/IconButton';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckIcon from '@mui/icons-material/Check';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
@@ -30,10 +27,8 @@ import {
   borderRadius,
   fontSize,
   isSolanaNft,
-  isEthereumNft,
   isBitcoinNft,
   getSatRarityColor,
-  getShortAddress,
   shadowsCSS,
   formatRawAmount,
   letterSpacing,
@@ -41,7 +36,6 @@ import {
   opacity,
   componentSizes,
   duration,
-  durationMs,
   easing,
   blur,
   borderWidth,
@@ -163,13 +157,6 @@ const DetailValue = styled(Typography)({
   color: colors.text.primary,
 });
 
-const DetailValueWithCopy = styled(Box)({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: spacing.xs,
-});
-
 const RarityBadge = styled(Box)({
   paddingLeft: spacing.sm,
   paddingRight: spacing.sm,
@@ -273,19 +260,12 @@ export function NftDetailPage({
     onBurnSuccessContinue?.();
   }, [onBurnSuccessContinue]);
 
-  const [copiedField, setCopiedField] = useState<string | null>(null);
   const lutInfo = burnPreview?.lookupTable;
   const isBurnReviewStep = burnStep === 'review';
   const isBurnSuccessStep = burnStep === 'success';
   const burnBusyLabel = burnPreview
     ? t('nft.burn.submitting', 'Burning NFT...')
     : t('nft.burn.preparing', 'Preparing burn...');
-
-  const handleCopy = useCallback((text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(text);
-    setTimeout(() => setCopiedField(null), durationMs.feedbackShort);
-  }, []);
 
   const renderBlockchainDetails = useCallback(() => {
     if (isSolanaNft(nft)) {
@@ -313,44 +293,6 @@ export function NftDetailPage({
             <DetailRow>
               <DetailLabel>Royalties</DetailLabel>
               <DetailValue>{(nft.royaltyBps / 100).toFixed(2)}%</DetailValue>
-            </DetailRow>
-          )}
-        </>
-      );
-    }
-
-    if (isEthereumNft(nft)) {
-      return (
-        <>
-          <DetailRow>
-            <DetailLabel>Token Type</DetailLabel>
-            <DetailValue>{nft.tokenType}</DetailValue>
-          </DetailRow>
-          <DetailRow>
-            <DetailLabel>Contract</DetailLabel>
-            <DetailValueWithCopy>
-              <DetailValue>{getShortAddress(nft.contractAddress, 6)}</DetailValue>
-              <IconButton
-                size="small"
-                onClick={() => handleCopy(nft.contractAddress)}
-                sx={{ padding: `${spacing.xxs}px` }}
-              >
-                {copiedField === nft.contractAddress ? (
-                  <CheckIcon sx={{ fontSize: fontSize.base, color: colors.status.success }} />
-                ) : (
-                  <ContentCopyIcon sx={{ fontSize: fontSize.base, color: colors.text.secondary }} />
-                )}
-              </IconButton>
-            </DetailValueWithCopy>
-          </DetailRow>
-          <DetailRow>
-            <DetailLabel>Token ID</DetailLabel>
-            <DetailValue>{getShortAddress(nft.tokenId, 6)}</DetailValue>
-          </DetailRow>
-          {nft.balance !== undefined && nft.balance > 1 && (
-            <DetailRow>
-              <DetailLabel>Balance</DetailLabel>
-              <DetailValue>{nft.balance}</DetailValue>
             </DetailRow>
           )}
         </>
@@ -387,7 +329,7 @@ export function NftDetailPage({
     }
 
     return null;
-  }, [nft, handleCopy, copiedField]);
+  }, [nft]);
 
   const renderAttribute = useCallback((attribute: NftAttribute, index: number) => {
     return (

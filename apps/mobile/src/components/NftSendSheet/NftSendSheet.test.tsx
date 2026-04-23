@@ -45,7 +45,6 @@ jest.mock('@salmon/shared', () => ({
   fontWeight: { semibold: '600', medium: '500' },
   getNftBlockchainLabel: () => 'Solana',
   isSolanaNft: () => true,
-  isEthereumNft: () => false,
   isBitcoinNft: () => false,
   lineHeight: { normal: 1.4 },
   gradients: { primaryButton: { colors: ['#0f0'], start: { x: 0, y: 0 }, end: { x: 1, y: 1 } } },

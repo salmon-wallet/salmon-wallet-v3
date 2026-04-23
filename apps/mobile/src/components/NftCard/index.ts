@@ -8,6 +8,5 @@ export type {
   NftBlockchain,
   NftAttribute,
   SolanaNftData,
-  EthereumNftData,
   BitcoinNftData,
 } from './types';

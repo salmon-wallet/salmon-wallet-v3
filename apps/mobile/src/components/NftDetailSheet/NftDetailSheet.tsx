@@ -30,7 +30,6 @@ import {
   vs,
   s,
   isSolanaNft,
-  isEthereumNft,
   isBitcoinNft,
   getSatRarityColor,
   getShortAddress,
@@ -50,7 +49,6 @@ import {
 import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import {
   CallMadeSvgIcon,
-  ContentCopySvgIcon,
 } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
 import { BottomSheetContainer } from '../BottomSheetContainer';
@@ -297,36 +295,6 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('nft.detail.royalties', 'Royalties')}</Text>
               <Text style={styles.detailValue}>{(nft.royaltyBps / 100).toFixed(2)}%</Text>
-            </View>
-          )}
-        </>
-      );
-    }
-
-    if (isEthereumNft(nft)) {
-      return (
-        <>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>{t('nft.detail.tokenType', 'Token Type')}</Text>
-            <Text style={styles.detailValue}>{nft.tokenType}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>{t('nft.detail.contract', 'Contract')}</Text>
-            <View style={styles.detailValueWithCopy}>
-              <Text style={styles.detailValue}>{getShortAddress(nft.contractAddress, 6)}</Text>
-              <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <ContentCopySvgIcon size={ms(14)} color={colors.text.secondary} />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>{t('nft.detail.tokenId', 'Token ID')}</Text>
-            <Text style={styles.detailValue}>{getShortAddress(nft.tokenId, 6)}</Text>
-          </View>
-          {nft.balance !== undefined && nft.balance > 1 && (
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('nft.detail.balance', 'Balance')}</Text>
-              <Text style={styles.detailValue}>{nft.balance}</Text>
             </View>
           )}
         </>

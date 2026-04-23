@@ -8,7 +8,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { colors, spacing, fontFamily, type NftBlockchain, fontSize, fontWeight, componentSizes } from '@salmon/shared';
 import { NftCard } from '../NftCard';
-import { SolanaSvgIcon, BitcoinSvgIcon, EthereumSvgIcon } from '../Icon';
+import { SolanaSvgIcon, BitcoinSvgIcon } from '../Icon';
 import { NftCarouselSectionSkeleton } from './NftCarouselSectionSkeleton';
 import type { NftCarouselSectionProps } from './types';
 
@@ -68,8 +68,6 @@ function getBlockchainIcon(blockchain: NftBlockchain) {
   switch (blockchain) {
     case 'solana':
       return <SolanaSvgIcon sx={{ width: componentSizes.iconSizeMedium, height: componentSizes.iconSizeMedium, color: colors.text.primary }} />;
-    case 'ethereum':
-      return <EthereumSvgIcon sx={{ width: componentSizes.iconSizeMedium, height: componentSizes.iconSizeMedium }} />;
     case 'bitcoin':
       return <BitcoinSvgIcon sx={{ width: componentSizes.iconSizeMedium, height: componentSizes.iconSizeMedium }} />;
   }

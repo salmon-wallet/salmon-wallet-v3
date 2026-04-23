@@ -8,7 +8,6 @@ export type {
   NftData,
   NftDataSimple,
   SolanaNftData,
-  EthereumNftData,
   BitcoinNftData,
 } from '@salmon/shared';
 

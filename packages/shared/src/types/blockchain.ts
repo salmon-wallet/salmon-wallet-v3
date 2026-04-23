@@ -73,8 +73,7 @@ export type BitcoinNetworkId = 'bitcoin-mainnet' | 'bitcoin-testnet';
 /**
  * Ethereum network identifier.
  *
- * Previously defined inline in api/services/ethereum-nft.ts as
- * `EthereumNftNetworkId`.
+ * Ethereum account network identifier.
  */
 export type EthereumNetworkId = 'ethereum-mainnet' | 'ethereum-sepolia';
 
