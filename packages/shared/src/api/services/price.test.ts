@@ -406,23 +406,23 @@ describe('Price Service', () => {
       expect(result![0]).toHaveProperty('perc24HoursChange');
     });
 
-    it('should handle eclipse platform', async () => {
-      const mockEclipsePrices: TokenPrice[] = [
+    it('should handle ethereum platform', async () => {
+      const mockEthereumPrices: TokenPrice[] = [
         {
-          id: 'eclipse-token',
-          symbol: 'ecl',
-          name: 'Eclipse',
-          usdPrice: 5.0,
+          id: 'ethereum',
+          symbol: 'eth',
+          name: 'Ethereum',
+          usdPrice: 3000,
           perc24HoursChange: 1.5,
         },
       ];
 
-      mockStaticApiClientGet.mockResolvedValueOnce({ data: mockEclipsePrices });
+      mockStaticApiClientGet.mockResolvedValueOnce({ data: mockEthereumPrices });
 
-      const result = await getPricesByPlatform('eclipse');
+      const result = await getPricesByPlatform('ethereum');
 
-      expect(result).toEqual(mockEclipsePrices);
-      expect(mockStaticApiClientGet).toHaveBeenCalledWith('/v1/coins/eclipse');
+      expect(result).toEqual(mockEthereumPrices);
+      expect(mockStaticApiClientGet).toHaveBeenCalledWith('/v1/coins/ethereum');
     });
   });
 

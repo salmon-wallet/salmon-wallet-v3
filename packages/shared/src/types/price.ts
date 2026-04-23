@@ -203,4 +203,4 @@ export interface JupiterApiPriceData {
 /**
  * Platform identifier for price queries.
  */
-export type PricePlatform = 'solana' | 'bitcoin' | 'ethereum' | 'eclipse';
+export type PricePlatform = 'solana' | 'bitcoin' | 'ethereum';

@@ -79,7 +79,7 @@ describe('swap utils', () => {
 
     it('handles unsupported or missing network values consistently', () => {
       expect(getChainFromNetwork('bsc')).toBeNull();
-      expect(getChainFromNetwork(undefined, 'NEAR')).toBeNull();
+      expect(getChainFromNetwork(undefined, 'DOGE')).toBeNull();
       expect(getChainFromNetwork(undefined, undefined)).toBe('solana');
     });
 
