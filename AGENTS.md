@@ -1,6 +1,28 @@
 # AGENTS.md instructions for salmon-wallet-v3
 
 <INSTRUCTIONS>
+## Architecture
+
+This repo is a monorepo with ownership split by runtime and reuse level.
+
+Main ownership model:
+
+- `packages/shared` for logic and contracts shared by mobile, web, and extension
+- `packages/ui` for shared React DOM components used by web and extension
+- `apps/mobile` for React Native and mobile-only flows
+- `apps/web` for web-specific app shell and browser wiring
+- `apps/extension` for extension-specific entrypoints and pages
+
+Read `docs/ARCHITECTURE.md` before making structural decisions.
+
+## Placement rules
+
+- Put cross-platform services, hooks, blockchain logic, semantic types, storage, and shared config in `packages/shared`.
+- Put shared DOM components in `packages/ui`, not in `packages/shared`.
+- Keep React Native code in `apps/mobile`.
+- Keep browser-only and extension-only runtime code in the owning app.
+- Prefer existing shared contracts over duplicating types or service wrappers in an app.
+
 ## Skills
 A skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used in this workspace. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.
 
@@ -44,4 +66,9 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - Before adding new E2E coverage, check whether `../salmon-api` already covers the behavior well enough to avoid redundant tests.
 - E2E tests that depend on backend availability should skip when the backend is unreachable or not running.
 - If the backend is reachable but the behavior is wrong, the test must fail rather than skip.
+
+## Folder guidance
+
+- Add local `AGENTS.md` or `CLAUDE.md` rules only in folders with real ownership boundaries or platform-specific constraints.
+- Prefer package-level or app-level guidance over file-by-file instruction clutter.
 </INSTRUCTIONS>
