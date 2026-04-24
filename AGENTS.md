@@ -22,6 +22,7 @@ Read `docs/ARCHITECTURE.md` before making structural decisions.
 - Keep React Native code in `apps/mobile`.
 - Keep browser-only and extension-only runtime code in the owning app.
 - Prefer existing shared contracts over duplicating types or service wrappers in an app.
+- Preserve future-facing Ethereum surface unless removal is explicitly requested.
 
 ## Skills
 A skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used in this workspace. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.
@@ -32,6 +33,8 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - mobile-component-scaffold: Create or modify React Native components in `apps/mobile`, including app-local mobile UI and mobile implementations of shared semantic contracts. Use only when the task explicitly targets `apps/mobile`, React Native, Expo, native UI files, or mobile implementation work. (file: .agent/skills/mobile-component-scaffold/SKILL.md)
 - mobile-test-authoring: Write or audit Jest tests for React Native components and mobile UI behavior in `apps/mobile`. Use only when the task explicitly targets `apps/mobile`, React Native, Expo, or RN-specific test work. (file: .agent/skills/mobile-test-authoring/SKILL.md)
 - salmon-repo-rules: Resolve code placement, package ownership, shared-vs-app boundaries, public exports, and architectural conventions in the Salmon Wallet monorepo. (file: .agent/skills/salmon-repo-rules/SKILL.md)
+- salmon-monorepo-rules: Resolve package ownership, shared-vs-app boundaries, and placement decisions in salmon-wallet-v3. Use when deciding whether code belongs in `packages/shared`, `packages/ui`, `apps/mobile`, `apps/web`, or `apps/extension`. (file: .codex/skills/salmon-monorepo-rules/SKILL.md)
+- salmon-monorepo-safe-change: Safely modify or clean salmon-wallet-v3 without breaking active shared contracts. Use for consumer-sensitive refactors, shared API/hook changes, or cleanup that must be verified across apps and backend contracts. (file: .codex/skills/salmon-monorepo-safe-change/SKILL.md)
 - shared-test-authoring: Write or update tests for code in `packages/shared`, including hooks, API services, utilities, blockchain logic, crypto, and config. (file: .agent/skills/shared-test-authoring/SKILL.md)
 - ui-component-scaffold: Create or modify shared React DOM components in `packages/ui`, including DOM-only components and cross-platform contract + DOM implementation flows. (file: .agent/skills/ui-component-scaffold/SKILL.md)
 - ui-test-authoring: Write or audit tests for shared React DOM components in `packages/ui`. (file: .agent/skills/ui-test-authoring/SKILL.md)
@@ -71,4 +74,9 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 
 - Add local `AGENTS.md` or `CLAUDE.md` rules only in folders with real ownership boundaries or platform-specific constraints.
 - Prefer package-level or app-level guidance over file-by-file instruction clutter.
+
+## Documentation rules
+
+- Put durable repo docs in `docs/`.
+- Keep docs responsibility-oriented. Prefer ownership and package-boundary guidance over file-by-file inventories unless the task explicitly asks for file-level documentation.
 </INSTRUCTIONS>
