@@ -219,7 +219,8 @@ export async function getMirrorNetworkId(networkId: string): Promise<string | un
  * sequential (as required by BIP-44 gap semantics).
  *
  * @param mnemonic         - BIP-39 mnemonic phrase.
- * @param networkIds       - Networks to scan (already filtered to SCAN_NETWORKS).
+ * @param networkIds       - Networks to scan (already filtered to backend-enabled
+ *                           networks via `getScanNetworks()`).
  * @param getBalance       - Callback: resolves to human-readable native balance.
  *                           Defaults to `getAccountBalance`.
  * @param isCancelled      - Optional callback checked before each index derivation.

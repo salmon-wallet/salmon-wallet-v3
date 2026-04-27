@@ -40,7 +40,12 @@ export function getBlockchainFromNetworkId(networkId: string): BlockchainType {
 }
 
 /**
- * Returns true if the given blockchain family is enabled.
+ * Returns true if the given blockchain family is enabled by the legacy local
+ * defaults.
+ *
+ * @deprecated The backend network catalog is the runtime source of truth.
+ * Prefer `isBackendNetworkEnabled` from `api/services/network` (async) for
+ * any gate that runs in production code paths.
  *
  * @param chain - Blockchain type to check (e.g. 'solana', 'bitcoin', 'ethereum')
  */
@@ -49,10 +54,12 @@ export function isBlockchainEnabled(chain: BlockchainType): boolean {
 }
 
 /**
- * Returns true if the given network belongs to an enabled blockchain.
+ * Returns true if the given network belongs to an enabled blockchain according
+ * to the legacy local defaults.
  *
- * Determines the blockchain family from the network ID prefix
- * (e.g. 'ethereum-mainnet' -> 'ethereum') and checks ENABLED_BLOCKCHAINS.
+ * @deprecated The backend network catalog is the runtime source of truth.
+ * Prefer `isBackendNetworkEnabled` from `api/services/network` (async) for
+ * any gate that runs in production code paths.
  *
  * @param networkId - Network identifier (e.g. 'solana-mainnet', 'ethereum-sepolia')
  */
