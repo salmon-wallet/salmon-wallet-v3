@@ -13,7 +13,7 @@ vi.mock('../client', async () => {
 });
 
 import { apiClient } from '../client';
-import { createBurnTransaction } from './marketplace';
+import { createBurnTransaction } from './nft-burn';
 
 const mockApiClientPost = vi.mocked(apiClient.post);
 

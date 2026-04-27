@@ -23,7 +23,6 @@ export {
   // Functions
   getPricesByPlatform,
   getPricesByIds,
-  getTopTokensByPlatform,
   getSolanaTokenPrice,
   getMarketChart,
   getCoinInfo,
@@ -73,7 +72,7 @@ export {
 export {
   // Functions
   createBurnTransaction,
-} from './marketplace';
+} from './nft-burn';
 
 // ============================================================================
 // Bitcoin Service
@@ -151,28 +150,12 @@ export {
 } from './dapp';
 
 // ============================================================================
-// Switch Service (Feature Flags)
-// ============================================================================
-
-export {
-  // Functions
-  getSwitches,
-  getSwitch,
-  isNetworkEnabled,
-  getSwitchMap,
-  getEnabledNetworks,
-  clearSwitchesCache,
-} from './switch';
-
-// ============================================================================
 // Bridge Service
 // ============================================================================
 
 export {
   // Functions
-  getBridgeSupportedTokens,
   getBridgeAvailableTokens,
-  getBridgeFeaturedTokens,
   getBridgeEstimatedAmount,
   getBridgeMinimalAmount,
   createBridgeExchange,

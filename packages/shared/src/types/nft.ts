@@ -203,7 +203,7 @@ export interface GetNftsOptions {
 }
 
 // ============================================================================
-// Marketplace types (moved from api/services/marketplace.ts)
+// NFT burn transaction types
 // ============================================================================
 
 /**
