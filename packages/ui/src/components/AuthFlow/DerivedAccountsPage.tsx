@@ -8,9 +8,9 @@ import {
   fetchAndMergeNetworkConfigs,
   fontFamily,
   getMirrorNetworkId,
+  getScanNetworks,
   getShortAddress,
   NETWORK_DISPLAY,
-  SCAN_NETWORKS,
   scanDerivedAccounts,
   spacing,
   type BlockchainAccount,
@@ -158,8 +158,11 @@ export function DerivedAccountsPage({
       await fetchAndMergeNetworkConfigs();
       if (cancelled) return;
 
+      const scanNetworks = await getScanNetworks();
+      if (cancelled) return;
+
       const networkIds = Object.keys(activeAccount.networksAccounts).filter((id) =>
-        SCAN_NETWORKS.includes(id),
+        scanNetworks.includes(id),
       );
 
       const results = await scanDerivedAccounts(
@@ -212,7 +215,7 @@ export function DerivedAccountsPage({
       for (const account of selectedAccounts) {
         newDerivedAccounts.push(account.account);
 
-        const mirrorNetworkId = getMirrorNetworkId(account.networkId);
+        const mirrorNetworkId = await getMirrorNetworkId(account.networkId);
         if (mirrorNetworkId && activeAccount.networksAccounts[mirrorNetworkId]) {
           try {
             const mirrorAccount = await deriveBlockchainAccount(

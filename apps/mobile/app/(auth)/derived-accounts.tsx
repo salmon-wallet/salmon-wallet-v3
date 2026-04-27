@@ -25,10 +25,10 @@ import {
   contentPadding,
   deriveBlockchainAccount,
   fontFamilyNative,
+  getScanNetworks,
   getShortAddress,
   spacing,
   useAccountsContext,
-  SCAN_NETWORKS,
   NETWORK_DISPLAY,
   scanDerivedAccounts,
   getMirrorNetworkId,
@@ -99,8 +99,9 @@ export default function DerivedAccountsScreen() {
       setLoading(true);
 
       // Only scan networks that produce unique keypairs
+      const scanNetworks = await getScanNetworks();
       const networkIds = Object.keys(activeAccount.networksAccounts)
-        .filter((id) => SCAN_NETWORKS.includes(id));
+        .filter((id) => scanNetworks.includes(id));
 
       const results = await scanDerivedAccounts(mnemonic, networkIds);
 
@@ -158,7 +159,7 @@ export default function DerivedAccountsScreen() {
         newDerivedAccounts.push(acc.account);
 
         // Auto-create mirror account for devnet/sepolia
-        const mirrorNetworkId = getMirrorNetworkId(acc.networkId);
+        const mirrorNetworkId = await getMirrorNetworkId(acc.networkId);
         if (mirrorNetworkId && activeAccount.networksAccounts[mirrorNetworkId]) {
           try {
             const mirrorAccount = await deriveBlockchainAccount(

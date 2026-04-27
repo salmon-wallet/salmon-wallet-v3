@@ -1,10 +1,9 @@
 /**
- * Blockchain feature-flag configuration.
+ * Legacy local blockchain defaults.
  *
- * Controls which blockchain families are active across the wallet.
- * Disabled blockchains will not have accounts created or networks scanned.
- *
- * To re-enable Ethereum, add 'ethereum' to the ENABLED_BLOCKCHAINS array.
+ * Backend `/v1/networks` is the runtime source of truth for enablement.
+ * This module only keeps local helpers/defaults for static typing and
+ * last-resort config composition.
  *
  * @module config/blockchains
  */
@@ -16,13 +15,7 @@ import type { BlockchainType } from '../types/blockchain';
 // ============================================================================
 
 /**
- * Blockchains currently enabled in the wallet.
- *
- * This is the single source of truth for which blockchain families are active.
- * Account creation, derived-account scanning, and network visibility all
- * consult this array.
- *
- * To enable/disable a blockchain, add or remove it from this array.
+ * Legacy local blockchain defaults used when composing static config.
  */
 export const ENABLED_BLOCKCHAINS: readonly BlockchainType[] = [
   'solana',

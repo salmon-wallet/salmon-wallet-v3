@@ -10,7 +10,7 @@
  */
 
 import { apiClient } from '../client';
-import type { Network } from '../../types/blockchain';
+import type { BlockchainType, NetworkCatalogEntry } from '../../types/blockchain';
 
 // ============================================================================
 // Cache
@@ -20,7 +20,7 @@ import type { Network } from '../../types/blockchain';
  * Promise-based cache for networks data
  * Cached for the lifetime of the application (until error or manual clear)
  */
-let networksPromise: Promise<Network[]> | null = null;
+let networksPromise: Promise<NetworkCatalogEntry[]> | null = null;
 
 // ============================================================================
 // Network Service Functions
@@ -35,13 +35,13 @@ let networksPromise: Promise<Network[]> | null = null;
  * @returns Promise resolving to array of networks
  * @throws ApiError if the request fails
  */
-export async function getNetworks(): Promise<Network[]> {
+export async function getNetworks(): Promise<NetworkCatalogEntry[]> {
   if (networksPromise) {
     return networksPromise;
   }
 
   networksPromise = apiClient
-    .get<Network[]>('/v1/networks')
+    .get<NetworkCatalogEntry[]>('/v1/networks')
     .then(({ data }) => data);
 
   try {
@@ -59,9 +59,31 @@ export async function getNetworks(): Promise<Network[]> {
  * @param id - The network identifier to look up
  * @returns The network configuration or undefined if not found
  */
-export async function getNetwork(id: string): Promise<Network | undefined> {
+export async function getNetwork(id: string): Promise<NetworkCatalogEntry | undefined> {
   const networks = await getNetworks();
   return networks.find((network) => network.id === id);
+}
+
+export async function getEnabledNetworkIds(): Promise<string[]> {
+  const networks = await getNetworks();
+  return networks
+    .filter((network) => network.enabled)
+    .map((network) => network.id);
+}
+
+export async function getEnabledBlockchains(
+): Promise<BlockchainType[]> {
+  const enabledIds = await getEnabledNetworkIds();
+  return [...new Set(
+    enabledIds.map((networkId) => networkId.split('-')[0] as BlockchainType)
+  )];
+}
+
+export async function isBackendNetworkEnabled(
+  networkId: string
+): Promise<boolean> {
+  const network = await getNetwork(networkId);
+  return network?.enabled ?? false;
 }
 
 /**

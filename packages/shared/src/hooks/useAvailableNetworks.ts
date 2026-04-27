@@ -14,9 +14,15 @@ import { useUserConfig, type UseUserConfigParams } from './useUserConfig';
 import { SOLANA_NETWORKS } from '../blockchain/solana/networks';
 import { BITCOIN_NETWORKS } from '../blockchain/bitcoin/networks';
 import { ETHEREUM_NETWORKS } from '../blockchain/ethereum/networks';
-import type { AnyNetwork, NetworksByBlockchain } from '../types/blockchain';
-import { MAINNET_NETWORK_IDS, filterNetworks } from '../utils/network';
-import { isBlockchainEnabled } from '../config/blockchains';
+import type {
+  AnyNetwork,
+  BitcoinNetwork,
+  EthereumNetwork,
+  NetworkCatalogEntry,
+  NetworksByBlockchain,
+  SolanaNetwork,
+} from '../types/blockchain';
+import { MAINNET_NETWORK_IDS, sortNetworks } from '../utils/network';
 import { getNetworks } from '../api/services/network';
 
 /**
@@ -72,15 +78,15 @@ export async function fetchAndMergeNetworkConfigs(): Promise<boolean> {
 
       const chain = blockchain?.toLowerCase();
       if (chain === 'solana' && SOLANA_NETWORKS[id]) {
-        if (cfg.nodeUrl) {
+        if ('nodeUrl' in cfg && cfg.nodeUrl) {
           SOLANA_NETWORKS[id].config.nodeUrl = cfg.nodeUrl as string;
         }
       } else if (chain === 'ethereum' && ETHEREUM_NETWORKS[id]) {
-        if (cfg.rpcUrl) {
+        if ('rpcUrl' in cfg && cfg.rpcUrl) {
           ETHEREUM_NETWORKS[id].config.rpcUrl = cfg.rpcUrl as string;
         }
       } else if (chain === 'bitcoin' && BITCOIN_NETWORKS[id]) {
-        if (cfg.apiUrl) {
+        if ('apiUrl' in cfg && cfg.apiUrl) {
           BITCOIN_NETWORKS[id].config.apiUrl = cfg.apiUrl as string;
         }
       }
@@ -90,6 +96,69 @@ export async function fetchAndMergeNetworkConfigs(): Promise<boolean> {
     return false;
   }
 }
+
+const filterVisibleNetworks = <T extends { id: string }>(
+  networks: T[],
+  developerNetworks: boolean,
+  mainnetIds: string[],
+  order: string[]
+): T[] => {
+  const visible = developerNetworks
+    ? networks
+    : networks.filter((network) => mainnetIds.includes(network.id));
+
+  return sortNetworks(visible, order);
+};
+
+const mergeSolanaNetwork = (net: NetworkCatalogEntry): SolanaNetwork | null => {
+  const local = SOLANA_NETWORKS[net.id];
+  if (!local) return null;
+
+  return {
+    ...local,
+    id: net.id as SolanaNetwork['id'],
+    networkId: net.id as SolanaNetwork['networkId'],
+    name: net.name || local.name,
+    config: {
+      ...local.config,
+      ...(net.config || {}),
+    },
+  };
+};
+
+const mergeBitcoinNetwork = (net: NetworkCatalogEntry): BitcoinNetwork | null => {
+  const local = BITCOIN_NETWORKS[net.id];
+  if (!local) return null;
+
+  return {
+    ...local,
+    id: net.id as BitcoinNetwork['id'],
+    networkId: net.id as BitcoinNetwork['networkId'],
+    name: net.name || local.name,
+    environment: net.environment as BitcoinNetwork['environment'],
+    config: {
+      ...local.config,
+      ...(net.config || {}),
+    },
+  };
+};
+
+const mergeEthereumNetwork = (net: NetworkCatalogEntry): EthereumNetwork | null => {
+  const local = ETHEREUM_NETWORKS[net.id];
+  if (!local) return null;
+
+  return {
+    ...local,
+    id: net.id as EthereumNetwork['id'],
+    networkId: net.id as EthereumNetwork['networkId'],
+    name: net.name || local.name,
+    environment: net.environment as EthereumNetwork['environment'],
+    config: {
+      ...local.config,
+      ...(net.config || {}),
+    },
+  };
+};
 
 // ============================================================================
 // Hook Implementation
@@ -121,39 +190,67 @@ export function useAvailableNetworks(
   const { developerNetworks: configDeveloperNetworks, isLoading } = useUserConfig(params);
   const developerNetworks = params.developerNetworks ?? configDeveloperNetworks;
   const [apiMerged, setApiMerged] = useState(false);
+  const [apiNetworks, setApiNetworks] = useState<NetworkCatalogEntry[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     fetchAndMergeNetworkConfigs()
-      .then((_success) => {
-        if (!cancelled) setApiMerged(true);
+      .then(async (success) => {
+        if (success) {
+          const networks = await getNetworks();
+          if (!cancelled) {
+            setApiNetworks(networks);
+          }
+        }
+        if (!cancelled) {
+          setApiMerged(true);
+        }
       });
     return () => { cancelled = true; };
   }, []);
 
   const networks = useMemo<NetworksByBlockchain>(() => {
+    const enabledApiNetworks = apiNetworks.filter((network) => network.enabled);
+
+    if (apiNetworks.length > 0) {
+      return {
+        solana: filterVisibleNetworks(
+          enabledApiNetworks
+            .filter((network) => network.blockchain === 'solana')
+            .map(mergeSolanaNetwork)
+            .filter((network): network is SolanaNetwork => !!network),
+          developerNetworks,
+          MAINNET_NETWORK_IDS.solana,
+          NETWORK_ORDER.solana
+        ),
+        bitcoin: filterVisibleNetworks(
+          enabledApiNetworks
+            .filter((network) => network.blockchain === 'bitcoin')
+            .map(mergeBitcoinNetwork)
+            .filter((network): network is BitcoinNetwork => !!network),
+          developerNetworks,
+          MAINNET_NETWORK_IDS.bitcoin,
+          NETWORK_ORDER.bitcoin
+        ),
+        ethereum: filterVisibleNetworks(
+          enabledApiNetworks
+            .filter((network) => network.blockchain === 'ethereum')
+            .map(mergeEthereumNetwork)
+            .filter((network): network is EthereumNetwork => !!network),
+          developerNetworks,
+          MAINNET_NETWORK_IDS.ethereum,
+          NETWORK_ORDER.ethereum
+        ),
+      };
+    }
+
     return {
-      solana: isBlockchainEnabled('solana') ? filterNetworks(
-        SOLANA_NETWORKS,
-        MAINNET_NETWORK_IDS.solana,
-        developerNetworks,
-        NETWORK_ORDER.solana
-      ) : [],
-      bitcoin: isBlockchainEnabled('bitcoin') ? filterNetworks(
-        BITCOIN_NETWORKS,
-        MAINNET_NETWORK_IDS.bitcoin,
-        developerNetworks,
-        NETWORK_ORDER.bitcoin
-      ) : [],
-      ethereum: isBlockchainEnabled('ethereum') ? filterNetworks(
-        ETHEREUM_NETWORKS,
-        MAINNET_NETWORK_IDS.ethereum,
-        developerNetworks,
-        NETWORK_ORDER.ethereum
-      ) : [],
+      solana: [],
+      bitcoin: [],
+      ethereum: [],
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- apiMerged is an intentional cache-invalidation signal after fetchAndMergeNetworkConfigs completes
-  }, [developerNetworks, apiMerged]);
+  }, [developerNetworks, apiMerged, apiNetworks]);
 
   const allNetworks = useMemo<AnyNetwork[]>(() => {
     return [
@@ -171,4 +268,3 @@ export function useAvailableNetworks(
     networksReady: apiMerged,
   };
 }
-

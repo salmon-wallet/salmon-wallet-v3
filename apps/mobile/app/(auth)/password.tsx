@@ -39,11 +39,11 @@ import {
   createAccount,
   fontFamilyNative,
   generateAccountName,
+  getMirrorNetworks,
+  getScanNetworks,
   getStashItem,
-  MIRROR_NETWORKS,
   PASSWORD_CONSTRAINTS,
   removeStashItem,
-  SCAN_NETWORKS,
   spacing,
   STASH_KEYS,
   useAccountsContext,
@@ -221,10 +221,12 @@ export default function PasswordScreen() {
       // Derives accounts for ALL networks (mainnet + devnet/testnet)
       // This ensures accounts are ready when user enables developer mode later
       const t0 = Date.now();
+      const scanNetworks = await getScanNetworks();
+      const mirrorNetworks = await getMirrorNetworks();
       const { account } = await createAccount({
         name: accountName,
         mnemonic: mnemonic,
-        networkIds: [...SCAN_NETWORKS, ...Object.values(MIRROR_NETWORKS)],
+        networkIds: [...scanNetworks, ...Object.values(mirrorNetworks)],
         startIndex: 0,
       });
       console.log(`[perf] recovery: createAccount ${Date.now() - t0}ms`);

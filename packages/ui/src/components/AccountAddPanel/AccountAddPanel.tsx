@@ -32,7 +32,7 @@ import {
   normalizeMnemonic,
   createAccount,
   NETWORK_DISPLAY,
-  SCAN_NETWORKS,
+  getScanNetworks,
   type AccountAddStep,
   type DerivedAccountInfo,
   opacity,
@@ -140,9 +140,10 @@ export function AccountAddPanel({
     setStep('derive-scan');
     setScanning(true);
     try {
+      const scanNetworks = await getScanNetworks();
       const results = await scanDerivedAccounts(
         activeAccount.mnemonic,
-        [...SCAN_NETWORKS],
+        scanNetworks,
       );
       setDerivedAccounts(results);
     } catch {
@@ -184,10 +185,11 @@ export function AccountAddPanel({
     try {
       const mnemonic = selectedDerived ? (activeAccount?.mnemonic || '') : seedPhrase;
       const startIndex = selectedDerived ? selectedDerived.index : 0;
+      const scanNetworks = await getScanNetworks();
       const { account } = await createAccount({
         name,
         mnemonic,
-        networkIds: [...SCAN_NETWORKS],
+        networkIds: scanNetworks,
         startIndex,
       });
       await accountActions.addAccount(account);

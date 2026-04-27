@@ -15,7 +15,8 @@ import { BitcoinAccount } from '../blockchain/bitcoin';
 import { EthereumAccount } from '../blockchain/ethereum';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { SATOSHIS_PER_BTC, WEI_PER_ETH_BIGINT } from './decimals';
-import { isNetworkEnabled } from '../config/blockchains';
+import { getEnabledNetworkIds } from '../api/services/network';
+import { fetchAndMergeNetworkConfigs } from '../hooks/useAvailableNetworks';
 
 // ============================================================================
 // Constants
@@ -30,25 +31,25 @@ export const GAP_LIMIT = 20;
 
 /**
  * Mainnet networks to scan and create accounts for.
- * Filtered by ENABLED_BLOCKCHAINS in config/blockchains.ts.
+ * Backend catalog decides which of these candidates are actually enabled.
  */
-export const SCAN_NETWORKS: readonly string[] = ([
+const SCAN_NETWORK_CANDIDATES: readonly string[] = [
   'solana-mainnet',
   'bitcoin-mainnet',
   'ethereum-mainnet',
-] as const).filter(isNetworkEnabled);
+] as const;
 
 /**
  * Networks that share keypairs with a mainnet (devnets / testnets).
  * When importing a mainnet account, also derive and import its mirror.
- * Filtered by ENABLED_BLOCKCHAINS in config/blockchains.ts.
+ * Backend catalog decides which pairs are actually available.
  */
-export const MIRROR_NETWORKS: Record<string, string> = Object.fromEntries(
+const MIRROR_NETWORK_CANDIDATES: Record<string, string> = Object.fromEntries(
   Object.entries({
     'solana-mainnet': 'solana-devnet',
     'bitcoin-mainnet': 'bitcoin-testnet',
     'ethereum-mainnet': 'ethereum-sepolia',
-  } as Record<string, string>).filter(([source]) => isNetworkEnabled(source)),
+  } as Record<string, string>),
 );
 
 /**
@@ -174,8 +175,27 @@ export function formatDerivedAccountBalance(balance: number, symbol: string): st
  *
  * @param networkId - Source network ID.
  */
-export function getMirrorNetworkId(networkId: string): string | undefined {
-  return MIRROR_NETWORKS[networkId];
+export async function getScanNetworks(): Promise<string[]> {
+  await fetchAndMergeNetworkConfigs();
+  const enabledNetworkIds = new Set(await getEnabledNetworkIds());
+
+  return SCAN_NETWORK_CANDIDATES.filter((networkId) => enabledNetworkIds.has(networkId));
+}
+
+export async function getMirrorNetworks(): Promise<Record<string, string>> {
+  await fetchAndMergeNetworkConfigs();
+  const enabledNetworkIds = new Set(await getEnabledNetworkIds());
+
+  return Object.fromEntries(
+    Object.entries(MIRROR_NETWORK_CANDIDATES).filter(([source, target]) => (
+      enabledNetworkIds.has(source) && enabledNetworkIds.has(target)
+    ))
+  );
+}
+
+export async function getMirrorNetworkId(networkId: string): Promise<string | undefined> {
+  const mirrors = await getMirrorNetworks();
+  return mirrors[networkId];
 }
 
 // ============================================================================

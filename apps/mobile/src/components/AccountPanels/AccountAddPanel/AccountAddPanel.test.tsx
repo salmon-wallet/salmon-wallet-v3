@@ -44,12 +44,12 @@ jest.mock('@salmon/shared', () => ({
     },
     { addAccount: mockAddAccount },
   ],
+  getScanNetworks: jest.fn().mockResolvedValue(['solana-mainnet']),
   scanDerivedAccounts: (...args: unknown[]) => mockScanDerivedAccounts(...args),
   validateMnemonic: (value: string) => value === 'valid seed phrase',
   normalizeMnemonic: (value: string) => value.trim().replace(/\s+/g, ' '),
   createAccount: (...args: unknown[]) => mockCreateAccount(...args),
   NETWORK_DISPLAY: { 'solana-mainnet': { blockchain: 'solana' } },
-  SCAN_NETWORKS: ['solana-mainnet'],
 }));
 
 jest.mock('../../SettingsScreenLayout', () => ({

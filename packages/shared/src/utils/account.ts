@@ -14,7 +14,9 @@ import { ethereumApiFunctions } from '../api/services/ethereum';
 import type { BlockchainAccount, BlockchainType } from '../types/blockchain';
 import type { Account } from '../types/account';
 import type { AccountKeyInfo } from '../types/settings';
-import { isNetworkEnabled, getBlockchainFromNetworkId } from '../config/blockchains';
+import { getBlockchainFromNetworkId } from '../config/blockchains';
+import { isBackendNetworkEnabled } from '../api/services/network';
+import { fetchAndMergeNetworkConfigs } from '../hooks/useAvailableNetworks';
 
 // Re-export for backward compatibility — canonical definition is in config/blockchains
 export { getBlockchainFromNetworkId } from '../config/blockchains';
@@ -137,8 +139,10 @@ export async function createBlockchainAccountForNetwork(
   mnemonic: string,
   index: number
 ): Promise<BlockchainAccount | null> {
-  // Gate on the blockchain feature flag — skip disabled chains
-  if (!isNetworkEnabled(networkId)) {
+  await fetchAndMergeNetworkConfigs();
+
+  // Backend network catalog is the source of truth.
+  if (!(await isBackendNetworkEnabled(networkId))) {
     console.warn(`Blockchain disabled for network: ${networkId}`);
     return null;
   }

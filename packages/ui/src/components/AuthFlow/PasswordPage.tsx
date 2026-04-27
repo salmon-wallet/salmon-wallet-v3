@@ -7,11 +7,11 @@ import {
   createAccount,
   fontFamily,
   fontSize,
-  MIRROR_NETWORKS,
+  getMirrorNetworks,
+  getScanNetworks,
   ms,
   PASSWORD_CONSTRAINTS,
   s,
-  SCAN_NETWORKS,
   spacing,
   useAccountsContext,
   validatePassword,
@@ -184,10 +184,12 @@ export function PasswordPage({
 
     try {
       const accountName = generateAccountName(state.counter, t('wallet.name_template'));
+      const scanNetworks = await getScanNetworks();
+      const mirrorNetworks = await getMirrorNetworks();
       const { account } = await createAccount({
         name: accountName,
         mnemonic,
-        networkIds: [...SCAN_NETWORKS, ...Object.values(MIRROR_NETWORKS)],
+        networkIds: [...scanNetworks, ...Object.values(mirrorNetworks)],
         startIndex: 0,
       });
 

@@ -268,24 +268,22 @@ export type { MigrationDeps, MigrationResult } from './legacy-migration';
 // Price constants & helpers
 export { BLOCKCHAIN_TO_COINGECKO, PERIOD_TO_DAYS, coinInfoToMarketData } from './price-constants';
 
-// Blockchain feature-flag configuration
-// NOTE: isNetworkEnabled is intentionally not re-exported here to avoid
-// colliding with the async isNetworkEnabled in api/services/switch.ts.
-// Import directly from '../config/blockchains' when needed.
+// Legacy local blockchain config helpers.
+// Backend `/v1/networks` is the runtime source of truth for enablement.
 export { ENABLED_BLOCKCHAINS, isBlockchainEnabled } from '../config/blockchains';
 
 // Derived-accounts scanning utilities (shared between mobile and extension)
 export {
   // Constants
   GAP_LIMIT,
-  SCAN_NETWORKS,
-  MIRROR_NETWORKS,
   NETWORK_DISPLAY,
   // Types
   type NetworkDisplayInfo,
   type DerivedAccountInfo,
   // Functions
   getAccountBalance,
+  getScanNetworks,
+  getMirrorNetworks,
   formatDerivedAccountBalance,
   getMirrorNetworkId,
   scanDerivedAccounts,
