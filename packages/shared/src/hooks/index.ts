@@ -90,6 +90,9 @@ export type {
   UseBridgeResult,
 } from './useBridge';
 
+export { useDAppMetadata } from './useDAppMetadata';
+export type { UseDAppMetadataResult } from './useDAppMetadata';
+
 // Multi-chain tokens hook (for unified swap/bridge)
 export {
   useMultiChainTokens,

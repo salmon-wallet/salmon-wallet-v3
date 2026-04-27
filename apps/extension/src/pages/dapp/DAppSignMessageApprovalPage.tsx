@@ -5,6 +5,7 @@ import {
 import {
   approveSolanaSignMessage,
   decodeDAppMessage,
+  useDAppMetadata,
   type BlockchainAccount,
   type DAppSignMessageRequest,
 } from '@salmon/shared';
@@ -24,6 +25,7 @@ export function DAppSignMessageApprovalPage({
   onDismiss,
 }: Props): React.ReactElement {
   const [loading, setLoading] = useState(false);
+  const { metadata } = useDAppMetadata(origin);
 
   const messageData = useMemo(() => {
     const data = request.params?.data;
@@ -75,6 +77,8 @@ export function DAppSignMessageApprovalPage({
   return (
     <DAppSignMessageApprovalView
       origin={origin}
+      appName={metadata?.name}
+      appIcon={metadata?.icon}
       messageText={messageData?.text ?? ''}
       disabled={!account || !messageData}
       loading={loading}

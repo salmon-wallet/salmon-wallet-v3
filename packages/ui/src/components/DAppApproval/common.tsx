@@ -121,6 +121,37 @@ export const Value = styled(Typography)({
   wordBreak: 'break-all',
 });
 
+export const AppIdentityRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing.md,
+  marginBottom: spacing.sm,
+});
+
+export const AppIdentityIcon = styled('img')({
+  width: 40,
+  height: 40,
+  borderRadius: borderRadius.md,
+  objectFit: 'cover',
+  flexShrink: 0,
+  border: `1px solid ${colors.border.subtle}`,
+  backgroundColor: colors.interactive.surface,
+});
+
+export const AppIdentityText = styled(Box)({
+  minWidth: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing.xs / 2,
+});
+
+export const AppIdentityName = styled(Typography)({
+  fontSize: fontSize.md,
+  fontWeight: fontWeight.semibold,
+  color: colors.text.primary,
+  wordBreak: 'break-word',
+});
+
 export const MonoValue = styled(Typography)({
   fontSize: fontSize.sm,
   color: colors.text.secondary,

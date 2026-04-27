@@ -5,6 +5,10 @@ import { formatOrigin, fontFamily, fontSize, spacing } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import {
   ButtonsContainer,
+  AppIdentityIcon,
+  AppIdentityName,
+  AppIdentityRow,
+  AppIdentityText,
   Card,
   Container,
   Content,
@@ -13,6 +17,7 @@ import {
   Label,
   LogoWrap,
   LogoImage,
+  MonoValue,
   ScrollArea,
   Subtitle,
   Title,
@@ -24,6 +29,8 @@ const MessageBox = Box;
 
 export function DAppSignMessageApprovalView({
   origin,
+  appName,
+  appIcon,
   messageText,
   disabled = false,
   loading = false,
@@ -31,6 +38,8 @@ export function DAppSignMessageApprovalView({
   onReject,
 }: DAppSignMessageApprovalViewProps): React.ReactElement {
   const { t } = useTranslation();
+  const displayOrigin = formatOrigin(origin);
+  const hasIdentity = !!appName || !!appIcon;
 
   return (
     <Container>
@@ -51,7 +60,17 @@ export function DAppSignMessageApprovalView({
         <ScrollArea>
           <Card>
             <Label>{t('dapp.requesting_site', 'Requesting site')}</Label>
-            <Value sx={{ fontSize: 20 }}>{formatOrigin(origin)}</Value>
+            {hasIdentity ? (
+              <AppIdentityRow>
+                {appIcon ? <AppIdentityIcon src={appIcon} alt={appName || displayOrigin} /> : null}
+                <AppIdentityText>
+                  {appName ? <AppIdentityName>{appName}</AppIdentityName> : null}
+                  <MonoValue sx={{ marginTop: 0 }}>{displayOrigin}</MonoValue>
+                </AppIdentityText>
+              </AppIdentityRow>
+            ) : (
+              <Value sx={{ fontSize: 20 }}>{displayOrigin}</Value>
+            )}
             <FooterNote sx={{ marginTop: 1.5 }}>
               {t(
                 'dapp.sign_message_hint',

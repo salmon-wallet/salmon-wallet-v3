@@ -9,6 +9,10 @@ import {
 } from '@salmon/shared';
 import { PrimaryButton, SecondaryButton } from '../Button';
 import {
+  AppIdentityIcon,
+  AppIdentityName,
+  AppIdentityRow,
+  AppIdentityText,
   ButtonsContainer,
   Card,
   Container,
@@ -18,6 +22,7 @@ import {
   Label,
   LogoWrap,
   LogoImage,
+  MonoValue,
   ScrollArea,
   Subtitle,
   SummaryGrid,
@@ -31,6 +36,8 @@ import type { DAppTransactionApprovalViewProps } from './types';
 
 export function DAppTransactionApprovalView({
   origin,
+  appName,
+  appIcon,
   requestSummary,
   feeSol,
   instructionCount,
@@ -43,6 +50,8 @@ export function DAppTransactionApprovalView({
   onReject,
 }: DAppTransactionApprovalViewProps): React.ReactElement {
   const { t } = useTranslation();
+  const displayOrigin = formatOrigin(origin);
+  const hasIdentity = !!appName || !!appIcon;
 
   return (
     <Container>
@@ -63,7 +72,17 @@ export function DAppTransactionApprovalView({
         <ScrollArea>
           <Card>
             <Label>{t('dapp.requesting_site', 'Requesting site')}</Label>
-            <Value sx={{ fontSize: 20 }}>{formatOrigin(origin)}</Value>
+            {hasIdentity ? (
+              <AppIdentityRow>
+                {appIcon ? <AppIdentityIcon src={appIcon} alt={appName || displayOrigin} /> : null}
+                <AppIdentityText>
+                  {appName ? <AppIdentityName>{appName}</AppIdentityName> : null}
+                  <MonoValue sx={{ marginTop: 0 }}>{displayOrigin}</MonoValue>
+                </AppIdentityText>
+              </AppIdentityRow>
+            ) : (
+              <Value sx={{ fontSize: 20 }}>{displayOrigin}</Value>
+            )}
             <FooterNote sx={{ marginTop: 1.5 }}>
               {t(
                 'dapp.transaction_risk_hint',

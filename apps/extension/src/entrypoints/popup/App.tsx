@@ -4,6 +4,7 @@ import {
   useAccountsContext,
   useInactivityTimeout,
   DerivedKeyCache,
+  type TrustedApp,
 } from '@salmon/shared';
 import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { LockPage } from '../../pages/lock/LockPage';
@@ -336,7 +337,7 @@ function App() {
 
   // dApp connect approval
   const handleDAppApprove = useCallback(
-    async (origin: string) => {
+    async (origin: string, app?: TrustedApp) => {
       const solanaApprovalAccount = getActiveSolanaApprovalAccount(
         activeAccount,
         activeBlockchainAccount,
@@ -346,7 +347,7 @@ function App() {
         throw new Error('Solana account not available');
       }
 
-      await actions.addTrustedApp(origin, undefined, solanaApprovalAccount.network.id);
+      await actions.addTrustedApp(origin, app, solanaApprovalAccount.network.id);
     },
     [actions, activeAccount, activeBlockchainAccount, pathIndex]
   );

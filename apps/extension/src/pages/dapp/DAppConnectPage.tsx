@@ -2,6 +2,10 @@ import React, { useCallback, useState } from 'react';
 import {
   DAppConnectApprovalView,
 } from '@salmon/ui';
+import {
+  useDAppMetadata,
+  type TrustedApp,
+} from '@salmon/shared';
 import type {
   DAppConnectRequest,
 } from '@salmon/shared';
@@ -11,7 +15,7 @@ interface DAppConnectPageProps {
   request: DAppConnectRequest;
   address: string;
   networkId: string | null;
-  onApprove: (origin: string) => Promise<void>;
+  onApprove: (origin: string, app?: TrustedApp) => Promise<void>;
   onDeny: () => void;
   onDismiss: () => void;
 }
@@ -26,11 +30,15 @@ export function DAppConnectPage({
   onDismiss,
 }: DAppConnectPageProps): React.ReactElement {
   const [loading, setLoading] = useState(false);
+  const { metadata } = useDAppMetadata(origin);
 
   const handleApprove = useCallback(async () => {
     setLoading(true);
     try {
-      await onApprove(origin);
+      await onApprove(
+        origin,
+        metadata ? { name: metadata.name, icon: metadata.icon } : undefined
+      );
       if (typeof chrome !== 'undefined' && chrome.runtime) {
         chrome.runtime.sendMessage({
           channel: 'salmon_extension_background_channel',
@@ -57,7 +65,7 @@ export function DAppConnectPage({
     } finally {
       setLoading(false);
     }
-  }, [address, onApprove, onDismiss, origin, request.id]);
+  }, [address, metadata, onApprove, onDismiss, origin, request.id]);
 
   const handleReject = useCallback(() => {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -76,6 +84,8 @@ export function DAppConnectPage({
   return (
     <DAppConnectApprovalView
       origin={origin}
+      appName={metadata?.name}
+      appIcon={metadata?.icon}
       address={address}
       disabled={!address || !networkId}
       loading={loading}
