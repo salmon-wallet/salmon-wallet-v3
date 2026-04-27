@@ -38,16 +38,12 @@ import { useState, useCallback } from 'react';
 import {
   getBridgeEstimatedAmount,
   getBridgeMinimalAmount,
-  getBridgeSupportedTokens,
   getBridgeAvailableTokens,
-  getBridgeFeaturedTokens,
   createBridgeExchange,
   getBridgeTransaction,
 } from '../api/services/bridge';
 import type {
-  BridgeToken,
   BridgeAvailableToken,
-  BridgeFeaturedToken,
   BridgeExchange,
   BridgeTransaction,
   BridgeOperationStatus,
@@ -71,12 +67,8 @@ export interface UseBridgeParams {
  */
 export interface UseBridgeResult {
   // Token operations
-  /** Get supported tokens for bridging */
-  getSupportedTokens: (network: string) => Promise<BridgeToken[] | null>;
   /** Get available destination tokens for a source token */
   getAvailableTokens: (symbol: string) => Promise<BridgeAvailableToken[] | null>;
-  /** Get featured destination tokens for a source token */
-  getFeaturedTokens: (symbol: string) => Promise<BridgeFeaturedToken[] | null>;
 
   // Estimate operations
   /** Get bridge estimate and minimum amount */
@@ -98,12 +90,8 @@ export interface UseBridgeResult {
   getTransactionStatus: (id: string) => Promise<BridgeTransaction | null>;
 
   // State
-  /** Current supported tokens */
-  supportedTokens: BridgeToken[] | null;
   /** Current available tokens */
   availableTokens: BridgeAvailableToken[] | null;
-  /** Current featured tokens */
-  featuredTokens: BridgeFeaturedToken[] | null;
   /** Current estimate result */
   estimate: BridgeEstimate | null;
   /** Created exchange details */
@@ -161,9 +149,7 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
   const [error, setError] = useState<string | null>(null);
 
   // Token state
-  const [supportedTokens, setSupportedTokens] = useState<BridgeToken[] | null>(null);
   const [availableTokens, setAvailableTokens] = useState<BridgeAvailableToken[] | null>(null);
-  const [featuredTokens, setFeaturedTokens] = useState<BridgeFeaturedToken[] | null>(null);
 
   // Estimate state
   const [estimate, setEstimate] = useState<BridgeEstimate | null>(null);
@@ -180,37 +166,11 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
   const reset = useCallback(() => {
     setStatus('idle');
     setError(null);
-    setSupportedTokens(null);
     setAvailableTokens(null);
-    setFeaturedTokens(null);
     setEstimate(null);
     setExchange(null);
     setTransaction(null);
   }, []);
-
-  /**
-   * Get supported tokens for a network
-   */
-  const getSupportedTokens = useCallback(
-    async (network: string): Promise<BridgeToken[] | null> => {
-      setStatus('loading-tokens');
-      setError(null);
-
-      try {
-        const tokens = await getBridgeSupportedTokens(network);
-        setSupportedTokens(tokens);
-        setStatus('idle');
-        return tokens;
-      } catch (err) {
-        console.error('[useBridge] Failed to get supported tokens:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load supported tokens';
-        setError(errorMessage);
-        setStatus('failed');
-        return null;
-      }
-    },
-    []
-  );
 
   /**
    * Get available destination tokens for a source token
@@ -228,30 +188,6 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
       } catch (err) {
         console.error('[useBridge] Failed to get available tokens:', err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to load available tokens';
-        setError(errorMessage);
-        setStatus('failed');
-        return null;
-      }
-    },
-    []
-  );
-
-  /**
-   * Get featured destination tokens for a source token
-   */
-  const getFeaturedTokens = useCallback(
-    async (symbol: string): Promise<BridgeFeaturedToken[] | null> => {
-      setStatus('loading-tokens');
-      setError(null);
-
-      try {
-        const tokens = await getBridgeFeaturedTokens(symbol);
-        setFeaturedTokens(tokens);
-        setStatus('idle');
-        return tokens;
-      } catch (err) {
-        console.error('[useBridge] Failed to get featured tokens:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load featured tokens';
         setError(errorMessage);
         setStatus('failed');
         return null;
@@ -393,9 +329,7 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
 
   return {
     // Token operations
-    getSupportedTokens,
     getAvailableTokens,
-    getFeaturedTokens,
 
     // Estimate operations
     getEstimate,
@@ -407,9 +341,7 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
     getTransactionStatus,
 
     // State
-    supportedTokens,
     availableTokens,
-    featuredTokens,
     estimate,
     exchange,
     transaction,
@@ -419,4 +351,3 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
     reset,
   };
 }
-

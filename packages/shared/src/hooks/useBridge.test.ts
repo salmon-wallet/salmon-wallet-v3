@@ -8,9 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../api/services/bridge', () => ({
   getBridgeEstimatedAmount: vi.fn(),
   getBridgeMinimalAmount: vi.fn(),
-  getBridgeSupportedTokens: vi.fn(),
   getBridgeAvailableTokens: vi.fn(),
-  getBridgeFeaturedTokens: vi.fn(),
   createBridgeExchange: vi.fn(),
   getBridgeTransaction: vi.fn(),
 }));
@@ -19,33 +17,18 @@ import { useBridge } from './useBridge';
 import {
   getBridgeEstimatedAmount,
   getBridgeMinimalAmount,
-  getBridgeSupportedTokens,
   createBridgeExchange,
   getBridgeTransaction,
 } from '../api/services/bridge';
 
 const mockGetBridgeEstimatedAmount = vi.mocked(getBridgeEstimatedAmount);
 const mockGetBridgeMinimalAmount = vi.mocked(getBridgeMinimalAmount);
-const mockGetBridgeSupportedTokens = vi.mocked(getBridgeSupportedTokens);
 const mockCreateBridgeExchange = vi.mocked(createBridgeExchange);
 const mockGetBridgeTransaction = vi.mocked(getBridgeTransaction);
 
 describe('useBridge', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('loads supported tokens and stores them in hook state', async () => {
-    mockGetBridgeSupportedTokens.mockResolvedValueOnce([{ symbol: 'SOL', name: 'Solana' }] as any);
-    const { result } = renderHook(() => useBridge());
-
-    await act(async () => {
-      await result.current.getSupportedTokens('solana-mainnet');
-    });
-
-    expect(result.current.supportedTokens).toEqual([{ symbol: 'SOL', name: 'Solana' }]);
-    expect(result.current.status).toBe('idle');
-    expect(result.current.error).toBeNull();
   });
 
   it('maps estimate failures to a user friendly minimum amount message', async () => {
