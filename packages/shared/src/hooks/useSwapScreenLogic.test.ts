@@ -642,5 +642,37 @@ describe('useSwapScreenLogic', () => {
 
       expect(result.current.outputTokens.map((t) => t.symbol)).toContain('BTC');
     });
+
+    it('keeps L2 tokens like USDC on Base when their parent chain is enabled', async () => {
+      const networkModule = await import('../api/services/network');
+      vi.mocked(networkModule.getEnabledNetworkIds).mockResolvedValueOnce([
+        'solana-mainnet',
+        'ethereum-mainnet',
+      ]);
+
+      const props = createProps({
+        initialInToken: SOL,
+        tokens: [SOL],
+        featuredTokens: [SOL],
+        jupiterTokens: [SOL],
+        onGetAvailableTokens: vi.fn().mockResolvedValue([
+          { symbol: 'USDC', name: 'USD Coin (Base)', network: 'base', chain: 'ethereum', logo: 'usdc.png' },
+        ]),
+      });
+
+      const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
+        initialProps: props,
+      });
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      const usdc = result.current.outputTokens.find((t) => t.symbol === 'USDC');
+      expect(usdc).toBeDefined();
+      expect(usdc?.chain).toBe('ethereum');
+      expect(usdc?.networkId).toBe('base');
+    });
   });
 });
