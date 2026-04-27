@@ -526,4 +526,121 @@ describe('useSwapScreenLogic', () => {
 
     expect(result.current.step).toBe('input');
   });
+
+  describe('bridge token filtering by enabled chain', () => {
+    it('keeps native cross-chain tokens (network=null) when their chain is enabled', async () => {
+      const networkModule = await import('../api/services/network');
+      vi.mocked(networkModule.getEnabledNetworkIds).mockResolvedValueOnce([
+        'solana-mainnet',
+        'bitcoin-mainnet',
+      ]);
+
+      const props = createProps({
+        initialInToken: SOL,
+        tokens: [SOL],
+        featuredTokens: [SOL],
+        jupiterTokens: [SOL],
+        onGetAvailableTokens: vi.fn().mockResolvedValue([
+          { symbol: 'BTC', name: 'Bitcoin', network: null, chain: 'bitcoin', logo: 'btc.png' },
+          { symbol: 'ETH', name: 'Ethereum', network: null, chain: 'ethereum', logo: 'eth.png' },
+        ]),
+      });
+
+      const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
+        initialProps: props,
+      });
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      const symbols = result.current.outputTokens.map((t) => t.symbol);
+      expect(symbols).toContain('BTC');
+      expect(symbols).not.toContain('ETH');
+    });
+
+    it('falls back to symbol inference when backend omits the chain field', async () => {
+      const networkModule = await import('../api/services/network');
+      vi.mocked(networkModule.getEnabledNetworkIds).mockResolvedValueOnce([
+        'solana-mainnet',
+        'bitcoin-mainnet',
+      ]);
+
+      const props = createProps({
+        initialInToken: SOL,
+        tokens: [SOL],
+        featuredTokens: [SOL],
+        jupiterTokens: [SOL],
+        onGetAvailableTokens: vi.fn().mockResolvedValue([
+          { symbol: 'BTC', name: 'Bitcoin', network: null, logo: 'btc.png' },
+        ]),
+      });
+
+      const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
+        initialProps: props,
+      });
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(result.current.outputTokens.map((t) => t.symbol)).toContain('BTC');
+    });
+
+    it('drops tokens whose chain is not in the enabled set', async () => {
+      const networkModule = await import('../api/services/network');
+      vi.mocked(networkModule.getEnabledNetworkIds).mockResolvedValueOnce([
+        'solana-mainnet',
+      ]);
+
+      const props = createProps({
+        initialInToken: SOL,
+        tokens: [SOL],
+        featuredTokens: [SOL],
+        jupiterTokens: [SOL],
+        onGetAvailableTokens: vi.fn().mockResolvedValue([
+          { symbol: 'BTC', name: 'Bitcoin', network: null, chain: 'bitcoin', logo: 'btc.png' },
+        ]),
+      });
+
+      const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
+        initialProps: props,
+      });
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(result.current.outputTokens.map((t) => t.symbol)).not.toContain('BTC');
+    });
+
+    it('keeps every token when no networks are enabled (catalog still loading)', async () => {
+      const networkModule = await import('../api/services/network');
+      vi.mocked(networkModule.getEnabledNetworkIds).mockResolvedValueOnce([]);
+
+      const props = createProps({
+        initialInToken: SOL,
+        tokens: [SOL],
+        featuredTokens: [SOL],
+        jupiterTokens: [SOL],
+        onGetAvailableTokens: vi.fn().mockResolvedValue([
+          { symbol: 'BTC', name: 'Bitcoin', network: null, chain: 'bitcoin', logo: 'btc.png' },
+        ]),
+      });
+
+      const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
+        initialProps: props,
+      });
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(result.current.outputTokens.map((t) => t.symbol)).toContain('BTC');
+    });
+  });
 });
