@@ -52,3 +52,7 @@ android/
 *.apk
 *.aab
 *.ipa
+
+# Playwright runtime testing artifacts (snapshots, screenshots, profiles, console logs)
+.playwright/
+.playwright-cli/
