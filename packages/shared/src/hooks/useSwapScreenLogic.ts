@@ -338,13 +338,21 @@ export function useSwapScreenLogic<StyleType = unknown>({
     const loadBridgeTokens = async () => {
       setIsLoadingBridgeTokens(true);
       try {
-        const enabledNetworkIds = new Set(await getEnabledNetworkIds());
+        const enabledNetworkIds = await getEnabledNetworkIds();
+        // Backend resolves a canonical chain on each token (e.g. "bitcoin"),
+        // so filter at the chain level — native cross-chain tokens carry
+        // network=null but still expose a chain.
+        const enabledChains = new Set(
+          enabledNetworkIds.map((id) => id.split('-')[0]),
+        );
         const available = await onGetAvailableTokens(inToken.symbol);
         const bridgeOutputTokens: SwapToken[] = [];
         for (const t of available) {
-          const chain = getChainFromNetwork(t.network, t.symbol);
+          // Prefer the chain field provided by the backend resource; fall
+          // back to inference for older backends that did not expose it.
+          const chain = t.chain ?? getChainFromNetwork(t.network ?? undefined, t.symbol);
           if (!chain) continue;
-          if (enabledNetworkIds.size > 0 && (!t.network || !enabledNetworkIds.has(t.network))) continue;
+          if (enabledChains.size > 0 && !enabledChains.has(chain)) continue;
           bridgeOutputTokens.push({
             address: t.symbol,
             symbol: t.symbol,
@@ -352,7 +360,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
             decimals: KNOWN_DECIMALS[t.symbol.toLowerCase()] ?? 8,
             logo: t.logo || NATIVE_TOKEN_LOGOS[t.symbol.toLowerCase()],
             chain,
-            networkId: t.network,
+            networkId: t.network ?? undefined,
           });
         }
         setAvailableOutTokens(bridgeOutputTokens);
