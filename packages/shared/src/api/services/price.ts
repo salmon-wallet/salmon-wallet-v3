@@ -6,7 +6,6 @@
  *
  * API Endpoints:
  * - GET /v1/coins/{platform} - Get all coin prices for a platform (static API)
- * - GET /v1/top-tokens - Get top tokens by market activity
  * - GET /v1/{networkId}/ft/price/{mintAddress} - Get specific token price (Jupiter Price API v3)
  * - GET /v1/chart/{coinId} - Get market chart data (price history)
  * - GET /v1/coin/{coinId} - Get detailed coin info
@@ -17,7 +16,6 @@ import { SmartCache } from '../../utils/cache';
 import type { SolanaNetworkId } from '../../types/blockchain';
 import type {
   TokenPrice,
-  TopToken,
   MarketChartData,
   CoinInfo,
   PricePlatform,
@@ -82,26 +80,6 @@ export async function getPricesByIds(
 
   const idSet = new Set(ids.map((id) => id.toLowerCase()));
   return allPrices.filter((price) => idSet.has(price.id.toLowerCase()));
-}
-
-/**
- * Get top tokens by market activity
- *
- * Endpoint: GET /v1/top-tokens
- *
- * @param platform - Platform to filter by
- * @returns Array of top tokens
- */
-export async function getTopTokensByPlatform(platform: PricePlatform): Promise<TopToken[]> {
-  try {
-    const { data } = await apiClient.get<TopToken[]>('/v1/top-tokens', {
-      params: { platform },
-    });
-    return data || [];
-  } catch (error) {
-    console.error(`[PriceService] Failed to fetch top tokens for ${platform}:`, error);
-    return [];
-  }
 }
 
 /**

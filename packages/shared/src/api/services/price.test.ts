@@ -62,7 +62,6 @@ vi.mock('../client', () => {
 import {
   getPricesByPlatform,
   getPricesByIds,
-  getTopTokensByPlatform,
   getSolanaTokenPrice,
   getMarketChart,
   getCoinInfo,
@@ -72,7 +71,6 @@ import {
 } from './price';
 import type {
   TokenPrice,
-  TopToken,
   MarketChartData,
   CoinInfo,
 } from '../../types/price';
@@ -167,39 +165,6 @@ const MOCK_ETHEREUM_PRICES: TokenPrice[] = [
     perc24HoursChange: 3.2,
     market_cap: 300000000000,
     market_cap_rank: 2,
-  },
-];
-
-/**
- * Mock TopToken data
- */
-const MOCK_TOP_TOKENS: TopToken[] = [
-  {
-    id: 'So11111111111111111111111111111111111111112',
-    symbol: 'SOL',
-    name: 'Wrapped SOL',
-    logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
-    address: 'So11111111111111111111111111111111111111112',
-    decimals: 9,
-    price: 100.5,
-    priceChange24h: 5.2,
-    volume24h: 2500000000,
-    marketCap: 45000000000,
-    tags: ['verified', 'strict'],
-    coingeckoId: 'solana',
-  },
-  {
-    id: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-    symbol: 'USDC',
-    name: 'USD Coin',
-    icon: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png',
-    address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-    decimals: 6,
-    price: 1.0,
-    priceChange24h: 0.01,
-    volume24h: 5000000000,
-    marketCap: 25000000000,
-    coingeckoId: 'usd-coin',
   },
 ];
 
@@ -507,96 +472,6 @@ describe('Price Service', () => {
 
       expect(result).toHaveLength(1);
       expect(result![0].id).toBe('solana');
-    });
-  });
-
-  // ==========================================================================
-  // getTopTokensByPlatform Tests
-  // ==========================================================================
-
-  describe('getTopTokensByPlatform', () => {
-    it('should fetch top tokens for solana', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: MOCK_TOP_TOKENS });
-
-      const result = await getTopTokensByPlatform('solana');
-
-      expect(result).toEqual(MOCK_TOP_TOKENS);
-      expect(mockApiClientGet).toHaveBeenCalledWith('/v1/top-tokens', {
-        params: { platform: 'solana' },
-      });
-    });
-
-    it('should fetch top tokens for ethereum', async () => {
-      const mockEthTopTokens: TopToken[] = [
-        {
-          id: 'ethereum',
-          symbol: 'ETH',
-          name: 'Ethereum',
-          price: 2500.0,
-          priceChange24h: 3.2,
-          volume24h: 15000000000,
-          marketCap: 300000000000,
-        },
-      ];
-
-      mockApiClientGet.mockResolvedValueOnce({ data: mockEthTopTokens });
-
-      const result = await getTopTokensByPlatform('ethereum');
-
-      expect(result).toEqual(mockEthTopTokens);
-      expect(mockApiClientGet).toHaveBeenCalledWith('/v1/top-tokens', {
-        params: { platform: 'ethereum' },
-      });
-    });
-
-    it('should return empty array on API error', async () => {
-      mockApiClientGet.mockRejectedValueOnce(new Error('API error'));
-
-      const result = await getTopTokensByPlatform('solana');
-
-      expect(result).toEqual([]);
-    });
-
-    it('should return empty array when API returns null', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: null });
-
-      const result = await getTopTokensByPlatform('solana');
-
-      expect(result).toEqual([]);
-    });
-
-    it('should verify returned token structure', async () => {
-      mockApiClientGet.mockResolvedValueOnce({ data: MOCK_TOP_TOKENS });
-
-      const result = await getTopTokensByPlatform('solana');
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toHaveProperty('id');
-      expect(result[0]).toHaveProperty('symbol');
-      expect(result[0]).toHaveProperty('name');
-      expect(result[0]).toHaveProperty('price');
-      expect(result[0]).toHaveProperty('address');
-    });
-
-    it('should handle tokens with optional fields', async () => {
-      const tokensWithOptionals: TopToken[] = [
-        {
-          id: 'token1',
-          symbol: 'TK1',
-          name: 'Token 1',
-          logo: 'https://example.com/logo.png',
-          decimals: 9,
-          tags: ['verified'],
-        },
-      ];
-
-      mockApiClientGet.mockResolvedValueOnce({ data: tokensWithOptionals });
-
-      const result = await getTopTokensByPlatform('solana');
-
-      expect(result[0].logo).toBe('https://example.com/logo.png');
-      expect(result[0].decimals).toBe(9);
-      expect(result[0].tags).toEqual(['verified']);
     });
   });
 
@@ -1146,35 +1021,6 @@ describe('Price Service', () => {
     );
 
     it(
-      'should fetch real top tokens from backend',
-      async () => {
-        if (!backendBaseUrl) {
-          console.log('Skipping backend integration test - backend not available');
-          return;
-        }
-        if (!hasExplicitStaticApi) {
-          console.log('Skipping price integration test - static API URL is not configured');
-          return;
-        }
-
-        mockStaticApiClientGet.mockImplementation(async (path) => ({
-          data: await fetchBackendJson(path as string),
-        }));
-
-        const result = await getTopTokensByPlatform('solana');
-
-        expect(result).not.toBeNull();
-        expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBeGreaterThan(0);
-
-        // Verify structure
-        expect(result[0]).toHaveProperty('symbol');
-        expect(result[0]).toHaveProperty('name');
-      },
-      10000
-    );
-
-    it(
       'should fetch real market chart from backend',
       async () => {
         if (!backendBaseUrl) {
@@ -1236,15 +1082,6 @@ describe('Price Service', () => {
       const result = await getMarketChart('solana');
 
       expect(result).toBeNull();
-    });
-
-    it('should handle rate limit errors', async () => {
-      const rateLimitError = new ApiError('Rate limit exceeded', 429, 'RATE_LIMIT');
-      mockApiClientGet.mockRejectedValueOnce(rateLimitError);
-
-      const result = await getTopTokensByPlatform('solana');
-
-      expect(result).toEqual([]);
     });
 
     it('should handle server errors (500)', async () => {
