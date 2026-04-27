@@ -102,6 +102,7 @@ export default function SwapScreenPage() {
     getAvailableTokens: getBridgeAvailableTokens,
     getEstimate: getBridgeEstimate,
     createExchange: createBridgeExchange,
+    getTransactionStatus: getBridgeTransactionStatus,
     reset: resetBridge,
   } = useBridge();
 
@@ -320,6 +321,20 @@ export default function SwapScreenPage() {
     }
   }, [createBridgeExchange]);
 
+  const handleGetBridgeTransactionStatus = useCallback(async (id: string) => {
+    try {
+      const transaction = await getBridgeTransactionStatus(id);
+      if (!transaction) return null;
+      return {
+        status: transaction.status,
+        payoutTxId: transaction.payoutHash,
+      };
+    } catch (error) {
+      console.error('Failed to get bridge transaction status:', error);
+      return null;
+    }
+  }, [getBridgeTransactionStatus]);
+
   const handleSendDeposit = useCallback(async (
     depositAddress: string,
     tokenAddress: string,
@@ -373,6 +388,7 @@ export default function SwapScreenPage() {
           onGetAvailableTokens={handleGetAvailableTokens}
           onGetBridgeEstimate={handleGetBridgeEstimate}
           onCreateBridgeExchange={handleCreateBridgeExchange}
+          onGetBridgeTransactionStatus={handleGetBridgeTransactionStatus}
           onSendDeposit={handleSendDeposit}
           onBridgeSuccess={handleBridgeSuccess}
           onBridgeError={handleBridgeError}

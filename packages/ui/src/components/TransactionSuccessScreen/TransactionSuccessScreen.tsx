@@ -146,6 +146,8 @@ export function TransactionSuccessScreen({
   bridgeAmountOut,
   bridgeExchangeId,
   bridgeDepositTxId,
+  bridgeStatus,
+  bridgePayoutTxId,
 }: TransactionSuccessScreenProps): React.ReactElement {
   const { t } = useTranslation();
   const isBridge = !!bridgeDepositAddress;
@@ -192,6 +194,18 @@ export function TransactionSuccessScreen({
                   {bridgeDepositTxId.slice(0, 8)}...{bridgeDepositTxId.slice(-8)}
                 </ExplorerLink>
               </BridgeValue>
+            </>
+          )}
+          {bridgeStatus && (
+            <>
+              <BridgeLabel>{t('bridge.currentStatus', 'Current status')}</BridgeLabel>
+              <BridgeValue>{bridgeStatus}</BridgeValue>
+            </>
+          )}
+          {bridgePayoutTxId && (
+            <>
+              <BridgeLabel>{t('bridge.payoutTxId', 'Payout Transaction')}</BridgeLabel>
+              <BridgeValue>{bridgePayoutTxId}</BridgeValue>
             </>
           )}
           {bridgeExchangeId && (

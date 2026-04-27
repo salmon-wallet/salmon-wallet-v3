@@ -15,6 +15,10 @@ vi.mock('../utils/account', () => ({
   }),
 }));
 
+vi.mock('../api/services/network', () => ({
+  getEnabledNetworkIds: vi.fn().mockResolvedValue([]),
+}));
+
 import { useSwapScreenLogic } from './useSwapScreenLogic';
 
 const SOL: SwapToken = {
@@ -72,10 +76,17 @@ const BRIDGE_AVAILABLE_TOKENS = [
 const BRIDGE_EXCHANGE = {
   id: 'bridge-1',
   depositAddress: 'bridge-deposit-address',
-  amountTo: '0.000021',
-  amountFrom: '1',
-  currencyFrom: 'SOL',
-  currencyTo: 'BTC',
+  amountIn: 1,
+  amountOut: 0.000021,
+  symbolIn: 'SOL',
+  symbolOut: 'BTC',
+  addressTo: 'btc-recipient',
+  status: 'waiting',
+} as any;
+
+const BRIDGE_TRANSACTION = {
+  status: 'confirming',
+  payoutTxId: 'btc-payout-hash',
 } as any;
 
 const QUOTE = {
@@ -101,6 +112,7 @@ function createProps(overrides: Record<string, unknown> = {}) {
     onGetAvailableTokens: undefined,
     onGetBridgeEstimate: vi.fn().mockResolvedValue(BRIDGE_ESTIMATE),
     onCreateBridgeExchange: vi.fn().mockResolvedValue(BRIDGE_EXCHANGE),
+    onGetBridgeTransactionStatus: vi.fn().mockResolvedValue(BRIDGE_TRANSACTION),
     onBridgeSuccess: vi.fn(),
     onBridgeError: vi.fn(),
     onSendDeposit: vi.fn().mockResolvedValue({ txId: 'deposit-tx-1' }),
@@ -302,6 +314,8 @@ describe('useSwapScreenLogic', () => {
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(500);
+      await Promise.resolve();
+      await Promise.resolve();
     });
 
     expect(props.onGetBridgeEstimate).toHaveBeenCalledTimes(1);
@@ -325,6 +339,58 @@ describe('useSwapScreenLogic', () => {
 
     expect(result.current.step).toBe('recipient');
     expect(result.current.addressError).toBe('Invalid Bitcoin address');
+  });
+
+  it('tracks bridge transaction status after exchange creation', async () => {
+    vi.useFakeTimers();
+
+    const props = createProps({
+      initialInToken: SOL,
+      tokens: [SOL],
+      featuredTokens: [SOL],
+      jupiterTokens: [SOL, USDC],
+      onGetAvailableTokens: vi.fn().mockResolvedValue(BRIDGE_AVAILABLE_TOKENS),
+    });
+
+    const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
+      initialProps: props,
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    act(() => {
+      result.current.handleOutTokenSelect(BTC);
+      result.current.setInAmount('1');
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    act(() => {
+      result.current.handleReview();
+      result.current.setRecipientAddress('bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh');
+    });
+
+    act(() => {
+      result.current.handleContinueToReview();
+    });
+
+    await act(async () => {
+      await result.current.handleConfirmBridge();
+    });
+
+    expect(props.onCreateBridgeExchange).toHaveBeenCalledTimes(1);
+    expect(props.onSendDeposit).toHaveBeenCalledTimes(1);
+    expect(props.onGetBridgeTransactionStatus).toHaveBeenCalledWith('bridge-1');
+    expect(result.current.bridgeTransaction).toEqual(BRIDGE_TRANSACTION);
+    expect(result.current.successExchange).toEqual(BRIDGE_EXCHANGE);
+    expect(result.current.depositTxId).toBe('deposit-tx-1');
+    expect(result.current.step).toBe('success');
   });
 
   it('confirms a bridge, sends the deposit transaction, and stores success state', async () => {
@@ -356,6 +422,8 @@ describe('useSwapScreenLogic', () => {
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(500);
+      await Promise.resolve();
+      await Promise.resolve();
     });
 
     expect(props.onGetBridgeEstimate).toHaveBeenCalledTimes(1);
@@ -426,6 +494,8 @@ describe('useSwapScreenLogic', () => {
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(500);
+      await Promise.resolve();
+      await Promise.resolve();
     });
 
     expect(props.onGetBridgeEstimate).toHaveBeenCalledTimes(1);

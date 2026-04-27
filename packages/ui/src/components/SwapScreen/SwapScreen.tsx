@@ -113,6 +113,8 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
           bridgeAmountOut={logic.successExchange ? `${logic.successExchange.amountOut} ${logic.outToken?.symbol ?? ''}` : undefined}
           bridgeExchangeId={logic.successExchange?.id}
           bridgeDepositTxId={logic.depositTxId ?? undefined}
+          bridgeStatus={logic.bridgeTransaction?.status ?? logic.successExchange?.status}
+          bridgePayoutTxId={logic.bridgeTransaction?.payoutTxId}
         />
       )}
 
@@ -139,4 +141,3 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
     </Container>
   );
 }
-

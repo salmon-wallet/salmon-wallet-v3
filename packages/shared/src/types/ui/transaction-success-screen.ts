@@ -22,4 +22,8 @@ export interface TransactionSuccessScreenProps {
   bridgeExchangeId?: string;
   /** Bridge deposit transaction ID (on-chain tx signature) */
   bridgeDepositTxId?: string;
+  /** Bridge status from provider */
+  bridgeStatus?: string;
+  /** Bridge payout transaction hash */
+  bridgePayoutTxId?: string;
 }

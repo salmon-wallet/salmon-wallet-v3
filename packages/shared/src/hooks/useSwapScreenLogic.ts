@@ -13,6 +13,7 @@ import type {
   SwapChainType,
   BridgeEstimateSimple,
   BridgeExchangeSimple,
+  BridgeTransactionSimple,
 } from '../types/swap';
 import type { TokenSelectorToken } from '../types/ui/token-selector';
 import type {
@@ -23,8 +24,7 @@ import type {
 import { getSwapMode, validateAddress, getChainFromNetwork, toStealthExNetwork } from '../utils/swap';
 import { getChainDisplayName } from '../utils/account';
 import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
-import { isBlockchainEnabled } from '../config/blockchains';
-import type { BlockchainType } from '../types/blockchain';
+import { getEnabledNetworkIds } from '../api/services/network';
 
 // ============================================================================
 // Constants
@@ -174,6 +174,7 @@ export interface UseSwapScreenLogicResult {
   successTxId: string | null;
   successExchange: BridgeExchangeSimple | null;
   depositTxId: string | null;
+  bridgeTransaction: BridgeTransactionSimple | null;
 
   // Computed
   swapMode: 'jupiter' | 'stealthex' | null;
@@ -239,6 +240,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onGetAvailableTokens,
   onGetBridgeEstimate,
   onCreateBridgeExchange,
+  onGetBridgeTransactionStatus,
   onBridgeSuccess,
   onBridgeError,
   onSendDeposit,
@@ -266,6 +268,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   const [successTxId, setSuccessTxId] = useState<string | null>(null);
   const [successExchange, setSuccessExchange] = useState<BridgeExchangeSimple | null>(null);
   const [depositTxId, setDepositTxId] = useState<string | null>(null);
+  const [bridgeTransaction, setBridgeTransaction] = useState<BridgeTransactionSimple | null>(null);
   const [showInTokenModal, setShowInTokenModal] = useState(false);
   const [showOutTokenModal, setShowOutTokenModal] = useState(false);
   const [isLoadingBridgeTokens, setIsLoadingBridgeTokens] = useState(false);
@@ -335,11 +338,13 @@ export function useSwapScreenLogic<StyleType = unknown>({
     const loadBridgeTokens = async () => {
       setIsLoadingBridgeTokens(true);
       try {
+        const enabledNetworkIds = new Set(await getEnabledNetworkIds());
         const available = await onGetAvailableTokens(inToken.symbol);
         const bridgeOutputTokens: SwapToken[] = [];
         for (const t of available) {
           const chain = getChainFromNetwork(t.network, t.symbol);
-          if (!chain || !isBlockchainEnabled(chain as BlockchainType)) continue;
+          if (!chain) continue;
+          if (enabledNetworkIds.size > 0 && (!t.network || !enabledNetworkIds.has(t.network))) continue;
           bridgeOutputTokens.push({
             address: t.symbol,
             symbol: t.symbol,
@@ -375,6 +380,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setOutAmount('');
     setQuote(null);
     setBridgeEstimate(null);
+    setBridgeTransaction(null);
     setQuoteError(null);
 
     if (!inToken || !outToken || !inAmount || parseFloat(inAmount) <= 0) return;
@@ -547,6 +553,12 @@ export function useSwapScreenLogic<StyleType = unknown>({
           );
           setDepositTxId(txId);
         }
+        if (onGetBridgeTransactionStatus) {
+          const transaction = await onGetBridgeTransactionStatus(exchange.id);
+          setBridgeTransaction(transaction);
+        } else {
+          setBridgeTransaction({ status: exchange.status });
+        }
         setSuccessExchange(exchange);
         setStep('success');
         void onRefreshBalances?.();
@@ -565,7 +577,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onBridgeSuccess, onBridgeError, onRefreshBalances]);
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeError, onRefreshBalances]);
 
   const handleRefreshQuote = useCallback(async () => {
     if (isLoadingQuote || isLoadingEstimate) return;
@@ -632,6 +644,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setSuccessTxId(null);
     setSuccessExchange(null);
     setDepositTxId(null);
+    setBridgeTransaction(null);
     onRefreshBalances?.();
     onNavigateHome?.();
   }, [onRefreshBalances, onNavigateHome]);
@@ -814,6 +827,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     successTxId,
     successExchange,
     depositTxId,
+    bridgeTransaction,
 
     swapMode,
     inUsdValue,

@@ -73,6 +73,7 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
     getAvailableTokens: getBridgeAvailableTokens,
     getEstimate: getBridgeEstimate,
     createExchange: createBridgeExchange,
+    getTransactionStatus: getBridgeTransactionStatus,
     reset: resetBridge,
   } = useBridge();
 
@@ -219,6 +220,15 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
     };
   }, [createBridgeExchange]);
 
+  const handleGetBridgeTransactionStatus = useCallback(async (id: string) => {
+    const result = await getBridgeTransactionStatus(id);
+    if (!result) return null;
+    return {
+      status: result.status,
+      payoutTxId: result.payoutHash,
+    };
+  }, [getBridgeTransactionStatus]);
+
   const handleSendDeposit = useCallback(async (
     depositAddress: string,
     tokenAddress: string,
@@ -254,6 +264,7 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
         onGetAvailableTokens={handleGetAvailableTokens}
         onGetBridgeEstimate={handleGetBridgeEstimate}
         onCreateBridgeExchange={handleCreateBridgeExchange}
+        onGetBridgeTransactionStatus={handleGetBridgeTransactionStatus}
         onSendDeposit={handleSendDeposit}
         onBridgeSuccess={handleBridgeSuccess}
         onBridgeError={handleBridgeError}

@@ -93,6 +93,7 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
     getAvailableTokens: getBridgeAvailableTokens,
     getEstimate: getBridgeEstimate,
     createExchange: createBridgeExchange,
+    getTransactionStatus: getBridgeTransactionStatus,
     reset: resetBridge,
   } = useBridge();
 
@@ -273,6 +274,19 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
     }
   }, [createBridgeExchange]);
 
+  const handleGetBridgeTransactionStatus = useCallback(async (id: string) => {
+    try {
+      const transaction = await getBridgeTransactionStatus(id);
+      if (!transaction) return null;
+      return {
+        status: transaction.status,
+        payoutTxId: transaction.payoutHash,
+      };
+    } catch {
+      return null;
+    }
+  }, [getBridgeTransactionStatus]);
+
   const handleSendDeposit = useCallback(async (
     depositAddress: string,
     tokenAddress: string,
@@ -318,6 +332,7 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
         onGetAvailableTokens={handleGetAvailableTokens}
         onGetBridgeEstimate={handleGetBridgeEstimate}
         onCreateBridgeExchange={handleCreateBridgeExchange}
+        onGetBridgeTransactionStatus={handleGetBridgeTransactionStatus}
         onSendDeposit={handleSendDeposit}
         onBridgeSuccess={handleBridgeSuccess}
         onBridgeError={handleBridgeError}

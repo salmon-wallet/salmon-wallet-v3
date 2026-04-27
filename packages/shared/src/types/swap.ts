@@ -393,6 +393,16 @@ export interface BridgeExchangeSimple {
   status: string;
 }
 
+/**
+ * Bridge transaction status (simplified)
+ */
+export interface BridgeTransactionSimple {
+  /** Current exchange status */
+  status: string;
+  /** Optional payout transaction hash */
+  payoutTxId?: string;
+}
+
 // ============================================================================
 // Component Props (Generic - use with platform-specific style types)
 // ============================================================================
@@ -576,6 +586,8 @@ export interface SwapScreenProps<StyleType> {
     networkIn?: string,
     networkOut?: string
   ) => Promise<BridgeExchangeSimple | null>;
+  /** Callback to get bridge transaction status */
+  onGetBridgeTransactionStatus?: (id: string) => Promise<BridgeTransactionSimple | null>;
   /** Callback when bridge succeeds */
   onBridgeSuccess?: (exchange: BridgeExchangeSimple) => void;
   /** Callback when bridge fails */
