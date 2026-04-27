@@ -2,8 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
   BridgeAvailableToken,
   BridgeExchange,
-  BridgeFeaturedToken,
-  BridgeToken,
   BridgeTransaction,
 } from '../../types/bridge';
 
@@ -24,9 +22,7 @@ import {
   createBridgeExchange,
   getBridgeAvailableTokens,
   getBridgeEstimatedAmount,
-  getBridgeFeaturedTokens,
   getBridgeMinimalAmount,
-  getBridgeSupportedTokens,
   getBridgeTransaction,
 } from './bridge';
 
@@ -66,17 +62,8 @@ async function getReachableBackendBaseUrl(): Promise<string | null> {
   return null;
 }
 
-const MOCK_SUPPORTED_TOKENS: BridgeToken[] = [
-  { symbol: 'SOL', name: 'Solana', network: 'SOLANA', enabled: true },
-  { symbol: 'BTC', name: 'Bitcoin', network: 'BITCOIN', enabled: true },
-];
-
 const MOCK_AVAILABLE_TOKENS: BridgeAvailableToken[] = [
   { symbol: 'BTC', name: 'Bitcoin', network: 'BITCOIN', available: true },
-];
-
-const MOCK_FEATURED_TOKENS: BridgeFeaturedToken[] = [
-  { symbol: 'BTC', name: 'Bitcoin', network: 'BITCOIN', rank: 1 },
 ];
 
 const MOCK_EXCHANGE: BridgeExchange = {
@@ -104,17 +91,6 @@ describe('bridge service', () => {
     vi.clearAllMocks();
   });
 
-  it('fetches supported bridge tokens for a network', async () => {
-    mockApiClientGet.mockResolvedValueOnce({ data: MOCK_SUPPORTED_TOKENS });
-
-    const result = await getBridgeSupportedTokens('solana');
-
-    expect(mockApiClientGet).toHaveBeenCalledWith('/v1/bridge/supported', {
-      params: { network: 'solana' },
-    });
-    expect(result).toEqual(MOCK_SUPPORTED_TOKENS);
-  });
-
   it('lowercases the source symbol for available bridge tokens', async () => {
     mockApiClientGet.mockResolvedValueOnce({ data: MOCK_AVAILABLE_TOKENS });
 
@@ -124,17 +100,6 @@ describe('bridge service', () => {
       params: { symbol: 'sol' },
     });
     expect(result).toEqual(MOCK_AVAILABLE_TOKENS);
-  });
-
-  it('lowercases the source symbol for featured bridge tokens', async () => {
-    mockApiClientGet.mockResolvedValueOnce({ data: MOCK_FEATURED_TOKENS });
-
-    const result = await getBridgeFeaturedTokens('SOL');
-
-    expect(mockApiClientGet).toHaveBeenCalledWith('/v1/bridge/featured', {
-      params: { symbol: 'sol' },
-    });
-    expect(result).toEqual(MOCK_FEATURED_TOKENS);
   });
 
   it('includes optional network filters when fetching bridge estimates', async () => {
@@ -218,14 +183,6 @@ describe('bridge service', () => {
     expect(result).toEqual(MOCK_TRANSACTION);
   });
 
-  it('wraps supported token failures with bridge-specific context', async () => {
-    mockApiClientGet.mockRejectedValueOnce(new Error('boom'));
-
-    await expect(getBridgeSupportedTokens('solana')).rejects.toThrow(
-      'Bridge fetch supported tokens failed: boom',
-    );
-  });
-
   it('wraps exchange creation failures with bridge-specific context', async () => {
     mockApiClientGet.mockRejectedValueOnce(new Error('exchange down'));
 
@@ -239,7 +196,7 @@ const backendBaseUrl = await getReachableBackendBaseUrl();
 
 describe('bridge service integration', () => {
   it(
-    'reads the live supported bridge token endpoint from salmon-api',
+    'reads the live bridge transaction endpoint contract from salmon-api',
     async () => {
       if (!backendBaseUrl) {
         console.log('Skipping live bridge integration assertions: backend not reachable');
@@ -251,19 +208,45 @@ describe('bridge service integration', () => {
         timeout: 10000,
       });
 
-      const response = await client.get<BridgeToken[]>('/v1/bridge/supported', {
-        params: { network: 'solana' },
+      // StealthEX enforces a dynamic minimum per pair that drifts with market
+      // conditions. Query it first so the integration test stays valid as the
+      // min amount changes. Apply a 50% safety buffer to absorb sub-second
+      // fluctuations between the minimal query and the exchange call.
+      const minimalResponse = await client.get<{ min_amount: string }>('/v1/bridge/minimal', {
+        params: { symbolIn: 'sol', symbolOut: 'btc' },
+      });
+
+      const minAmount = Number(minimalResponse.data?.min_amount);
+      if (!Number.isFinite(minAmount) || minAmount <= 0) {
+        throw new Error(
+          `Invalid min_amount from /v1/bridge/minimal: ${minimalResponse.data?.min_amount}`,
+        );
+      }
+
+      const safeAmount = Number((minAmount * 1.5).toFixed(8));
+
+      const exchangeResponse = await client.get<BridgeExchange>('/v1/bridge/exchange', {
+        params: {
+          symbolIn: 'sol',
+          symbolOut: 'btc',
+          amount: safeAmount,
+          addressTo: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+          networkIn: 'SOLANA',
+          networkOut: 'BITCOIN',
+        },
+      });
+
+      expect(exchangeResponse.status).toBe(200);
+      expect(exchangeResponse.data.id).toBeTruthy();
+
+      const response = await client.get<BridgeTransaction>('/v1/bridge/transaction', {
+        params: { id: exchangeResponse.data.id },
       });
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.data)).toBe(true);
-      expect(response.data.length).toBeGreaterThan(0);
-
-      for (const token of response.data) {
-        expect(token.symbol).toBeTruthy();
-        expect(token.name).toBeTruthy();
-      }
+      expect(response.data.id).toBe(exchangeResponse.data.id);
+      expect(response.data.status).toBeTruthy();
     },
-    15000,
+    20000,
   );
 });

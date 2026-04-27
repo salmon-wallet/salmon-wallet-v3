@@ -448,6 +448,61 @@ describe('solana service integration', () => {
   const walletAddress = '9mpJyg7iEse9rPMP1tdiSdSAYbLJX6nJyGbNkbT3SAd3';
 
   it(
+    'reads live solana balance data from salmon-api and preserves adapter invariants',
+    async () => {
+      const liveBackendBaseUrl = backendBaseUrl ?? await getReachableBackendBaseUrl();
+      if (!liveBackendBaseUrl) {
+        console.log('Skipping live solana balance integration assertions: backend not reachable');
+        return;
+      }
+
+      mockGet.mockImplementation(async (path, config) => {
+        const url = new URL(`${liveBackendBaseUrl}${path as string}`);
+        const params = config?.params as Record<string, string | number> | undefined;
+        if (params) {
+          for (const [key, value] of Object.entries(params)) {
+            url.searchParams.set(key, String(value));
+          }
+        }
+
+        const response = await fetchWithRetry(url.toString());
+
+        if (!response.ok) {
+          throw new ApiError(`HTTP ${response.status}`, response.status);
+        }
+
+        return await response.json() as SolanaBalanceItem[];
+      });
+
+      // Metadata enrichment is covered by dedicated tokens tests; keep the
+      // balance integration focused on the live balance shape.
+      mockGetTokenMetadataByMints.mockResolvedValue([]);
+
+      const result = await fetchSolanaAccountBalance('solana-mainnet', walletAddress);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          amount: expect.anything(),
+          decimals: expect.any(Number),
+          symbol: expect.any(String),
+          uiAmount: expect.any(Number),
+        }),
+      );
+
+      const nativeSol = result.find((item) => !item.mint);
+      expect(nativeSol).toEqual(
+        expect.objectContaining({
+          symbol: 'SOL',
+          coingeckoId: 'solana',
+        }),
+      );
+    },
+    20000,
+  );
+
+  it(
     'reads live solana transaction history from salmon-api',
     async () => {
       const liveBackendBaseUrl = backendBaseUrl ?? await getReachableBackendBaseUrl();

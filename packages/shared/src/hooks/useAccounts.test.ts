@@ -122,6 +122,48 @@ vi.mock('../blockchain/ethereum', () => ({
   },
 }));
 
+vi.mock('../api/services/network', () => ({
+  getNetworks: vi.fn().mockResolvedValue([
+    { id: 'solana-mainnet', blockchain: 'solana', enabled: true, config: {} },
+    { id: 'solana-devnet', blockchain: 'solana', enabled: true, config: {} },
+    { id: 'bitcoin-mainnet', blockchain: 'bitcoin', enabled: true, config: {} },
+    { id: 'bitcoin-testnet', blockchain: 'bitcoin', enabled: true, config: {} },
+    { id: 'ethereum-mainnet', blockchain: 'ethereum', enabled: true, config: {} },
+    { id: 'ethereum-sepolia', blockchain: 'ethereum', enabled: true, config: {} },
+  ]),
+  isBackendNetworkEnabled: vi.fn().mockResolvedValue(true),
+  getEnabledNetworkIds: vi.fn().mockResolvedValue([
+    'solana-mainnet',
+    'solana-devnet',
+    'bitcoin-mainnet',
+    'bitcoin-testnet',
+    'ethereum-mainnet',
+    'ethereum-sepolia',
+  ]),
+}));
+
+vi.mock('./useAvailableNetworks', () => ({
+  fetchAndMergeNetworkConfigs: vi.fn().mockResolvedValue(true),
+}));
+
+vi.mock('../utils/account', async () => {
+  const actual = await vi.importActual<typeof import('../utils/account')>('../utils/account');
+  return {
+    ...actual,
+    createBlockchainAccountForNetwork: vi.fn(async (networkId: string) => {
+      if (networkId.startsWith('solana')) {
+        return {
+          path: "m/44'/501'/0'/0'",
+          index: 0,
+          network: { id: networkId, name: networkId, blockchain: 'SOLANA' },
+          getReceiveAddress: () => 'TestAddress111111111111111111111111111111',
+        };
+      }
+      return null;
+    }),
+  };
+});
+
 vi.mock('axios', () => {
   const mockInstance = {
     get: vi.fn(),
