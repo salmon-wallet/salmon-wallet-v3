@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-nft-pages Specification
+
+## Purpose
+
+Define the web app's NFT browsing flow: a CollectiblesTab inside HomePage that fetches NFTs per blockchain on the active account and renders one `NftCarouselSection` per chain, plus `/nft/all` and `/nft/:mint` routes that read NFT data from `react-router-dom` location state, render shared `NftSeeAllPage`/`NftDetailPage` components, support send/burn actions, fall back gracefully on deep links, and use `navigate(-1)` for back navigation.
+
+## Requirements
 
 ### Requirement: CollectiblesTab fetches and displays NFTs by blockchain
 The CollectiblesTab (rendered inside HomePage's collectibles tab) SHALL fetch NFTs for each blockchain the active account has, using `activeAccount.networksAccounts`, and render one NftCarouselSection per blockchain.

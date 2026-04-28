@@ -1,4 +1,10 @@
-## ADDED Requirements
+# balance-refresh-on-focus Specification
+
+## Purpose
+
+Define when and how wallet balances refresh in response to user-visible state changes. The extension calls `refresh()` after successful sends and dApp transaction/message approvals (but not after deny or connect). Both mobile and extension auto-refresh on app/tab focus, gated by a 60-second cache TTL. The extension exposes a manual refresh button in `WalletHeader`; mobile keeps pull-to-refresh. The shared `useRefreshOnFocus` hook is implemented via the `.native.ts` / `.web.ts` split.
+
+## Requirements
 
 ### Requirement: Extension refreshes balance after successful send
 The extension SHALL call the balance `refresh()` function after a successful token transfer, matching mobile's existing behavior. This applies to both regular token sends via `SendPage` and NFT sends via `NftSendDialog`.

@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-font-size-tokens Specification
+
+## Purpose
+
+Add the `title`, `iconMd`, and `iconLg` font size tokens needed by web UI components to `packages/shared/src/theme/typography.ts`, preserve existing values, and forbid hardcoded numeric `fontSize` properties anywhere in `packages/ui/src/` so every component references a `fontSize.*` token.
+
+## Requirements
 
 ### Requirement: fontSize tokens cover all web UI needs
 The `fontSize` object in `packages/shared/src/theme/typography.ts` SHALL include tokens for every font size used in `packages/ui` components. The following tokens SHALL be added: `title` (22), `iconMd` (28), `iconLg` (40).

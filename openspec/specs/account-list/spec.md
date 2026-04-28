@@ -1,4 +1,10 @@
-## ADDED Requirements
+# account-list Specification
+
+## Purpose
+
+Define the accounts settings page (`AccountsPage`) shared by mobile and extension. It lists every stored account with avatar, name, and active-network address, marks the active account, and exposes the account-level actions: switch, edit, delete (guarded against deleting the last account), and add. The page reuses the existing `useAccountsContext()` actions (`changeAccount`, `removeAccount`) and shared base prop types so both platforms render the same surface.
+
+## Requirements
 
 ### Requirement: Dedicated accounts page in settings
 The system SHALL provide a dedicated settings page (`AccountsPage`) that displays all stored accounts in a scrollable list. Each list item SHALL show the account avatar, account name, and a truncated address. The currently active account SHALL be visually distinguished.

@@ -1,36 +1,57 @@
-## Overview
+# developer-networks-toggle-sync Specification
 
-When the user toggles "Developer Networks" in Settings, the carousel pagination dots and network list must update immediately — without requiring a swipe or page reload.
+## Purpose
+
+Make the Developer Networks settings toggle update the home carousel and network list within the same React render cycle. `useAvailableNetworks` SHALL accept an optional `developerNetworks` override so HomePage callers can pass their own `useUserConfig` value, while non-HomePage callers and the result shape stay backward compatible.
 
 ## Requirements
 
-### REQ-1: Optional `developerNetworks` override in `useAvailableNetworks`
+### Requirement: Optional developerNetworks override in useAvailableNetworks
 
-- The hook's params interface MUST accept an optional `developerNetworks?: boolean` field
-- When provided, the hook MUST use this value instead of the one from its internal `useUserConfig`
-- When omitted, the hook MUST fall back to the internal `useUserConfig` value (existing behavior)
-- The internal `useUserConfig` call MUST remain (React hook rules — cannot conditionally call hooks)
+The `useAvailableNetworks` params interface SHALL accept an optional `developerNetworks?: boolean` field. When provided, the hook MUST use this value instead of the one from its internal `useUserConfig`. When omitted, the hook MUST fall back to the internal `useUserConfig` value (existing behavior). The internal `useUserConfig` call MUST remain because React hook rules forbid conditional hook calls.
 
-### REQ-2: HomePage callers pass the override
+#### Scenario: Override provided
 
-- `apps/web/src/pages/home/HomePage.tsx` MUST pass `developerNetworks` from its own `useUserConfig` to `useAvailableNetworks`
-- `apps/extension/src/pages/home/HomePage.tsx` MUST do the same
-- `apps/mobile/app/(app)/(tabs)/index.tsx` MUST do the same
+- **WHEN** a caller passes `useAvailableNetworks({ developerNetworks: true })`
+- **THEN** the hook SHALL use `true` regardless of the internal `useUserConfig` value
 
-### REQ-3: Non-HomePage callers unchanged
+#### Scenario: Override omitted
 
-- `packages/shared/src/hooks/useSendContacts.ts` — no change
-- `apps/mobile/.../settings/address-book.tsx` — no change
-- `apps/mobile/.../settings/address-book-add.tsx` — no change
-- `apps/mobile/.../settings/address-book-edit.tsx` — no change
-- `apps/mobile/.../settings/network.tsx` — no change
+- **WHEN** a caller invokes `useAvailableNetworks()` with no `developerNetworks` field
+- **THEN** the hook SHALL fall back to the value returned by its internal `useUserConfig`
 
-### REQ-4: Return type backward compatible
+### Requirement: HomePage callers pass the override
 
-- `UseAvailableNetworksResult.developerNetworks` MUST remain in the return type
-- The returned value MUST reflect the effective value (override ?? internal)
+`apps/web/src/pages/home/HomePage.tsx`, `apps/extension/src/pages/home/HomePage.tsx`, and `apps/mobile/app/(app)/(tabs)/index.tsx` SHALL pass `developerNetworks` from their own `useUserConfig` to `useAvailableNetworks`.
 
-### REQ-5: Immediate UI update
+#### Scenario: HomePage forwards developerNetworks
 
-- After toggling developer networks in Settings, the carousel dot count MUST change within the same React render cycle (no swipe, no page reload required)
-- The `allNetworks` array MUST grow/shrink immediately when `developerNetworks` changes
+- **WHEN** any of the three HomePage entry points renders
+- **THEN** it SHALL read `developerNetworks` from its own `useUserConfig` and pass it as the `developerNetworks` param to `useAvailableNetworks`
+
+### Requirement: Non-HomePage callers unchanged
+
+The following call sites SHALL NOT change: `packages/shared/src/hooks/useSendContacts.ts`, `apps/mobile/.../settings/address-book.tsx`, `apps/mobile/.../settings/address-book-add.tsx`, `apps/mobile/.../settings/address-book-edit.tsx`, and `apps/mobile/.../settings/network.tsx`.
+
+#### Scenario: Non-HomePage call sites untouched
+
+- **WHEN** reviewing the listed non-HomePage callers
+- **THEN** their invocation of `useAvailableNetworks` SHALL be identical to the pre-change call
+
+### Requirement: Return type backward compatible
+
+`UseAvailableNetworksResult.developerNetworks` SHALL remain in the return type, and the returned value MUST reflect the effective value (`override ?? internal`).
+
+#### Scenario: Returned developerNetworks reflects effective value
+
+- **WHEN** a caller passes `developerNetworks: true` while internal `useUserConfig` resolves to `false`
+- **THEN** `UseAvailableNetworksResult.developerNetworks` SHALL be `true`
+
+### Requirement: Immediate UI update
+
+After toggling developer networks in Settings, the carousel dot count MUST change within the same React render cycle (no swipe, no page reload required), and the `allNetworks` array MUST grow or shrink immediately when `developerNetworks` changes.
+
+#### Scenario: Carousel updates without reload
+
+- **WHEN** the user toggles Developer Networks in Settings
+- **THEN** the carousel pagination dot count and `allNetworks` array SHALL update within the same React render cycle without requiring a swipe or page reload

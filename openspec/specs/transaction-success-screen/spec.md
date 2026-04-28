@@ -1,4 +1,10 @@
-## ADDED Requirements
+# transaction-success-screen Specification
+
+## Purpose
+
+Define a unified `TransactionSuccessScreen` shown after send and swap transactions complete on mobile and extension. The screen SHALL animate a checkmark, display a transaction-specific summary, conditionally surface a "View on Explorer" link via `getTransactionUrl`, return the user home via Continue, and route every visible string through i18n. Mobile additionally fires success haptics on mount, and `SendStep` SHALL include `'success'` so send flows can transition to it.
+
+## Requirements
 
 ### Requirement: Unified transaction success screen displays after successful transaction
 

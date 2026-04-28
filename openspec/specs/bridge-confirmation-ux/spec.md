@@ -1,4 +1,10 @@
-## ADDED Requirements
+# bridge-confirmation-ux Specification
+
+## Purpose
+
+Define the post-confirmation UX for cross-chain bridge exchanges: the backend SHALL return camelCase exchange fields, exactly one success notification SHALL fire, and the in-app success screen SHALL surface the deposit address, amounts, and exchange ID so the user has the information they need to track an off-chain bridge.
+
+## Requirements
 
 ### Requirement: Backend exchange response uses camelCase fields
 The backend `createExchange` endpoint SHALL apply the `bridge-exchange-resource` decorator and return camelCase field names matching the frontend `BridgeExchange` type (`payinAddress`, `payoutAddress`, `amountExpectedFrom`, `amountExpectedTo`, `currencyFrom`, `currencyTo`).

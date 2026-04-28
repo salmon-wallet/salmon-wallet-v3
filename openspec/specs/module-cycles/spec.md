@@ -1,4 +1,10 @@
-## ADDED Requirements
+# module-cycles Specification
+
+## Purpose
+
+Eliminate circular imports in the `packages/shared` module graph that surface as Metro "Require cycle" warnings and runtime `undefined` constants. Platform files (`.native.ts`, `.web.ts`) SHALL import shared constants from `.shared.ts` modules, blockchain network constants SHALL be importable without forming a cycle with their `*Account` classes, and existing barrel paths SHALL keep resolving for public consumers.
+
+## Requirements
 
 ### Requirement: No require cycles in Metro bundle
 

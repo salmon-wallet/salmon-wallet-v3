@@ -1,4 +1,10 @@
-## ADDED Requirements
+# devnet-balance-display Specification
+
+## Purpose
+
+Ensure devnet/testnet accounts render a usable balance UI even when price APIs return no data: blockchain `getBalance()` methods SHALL return `usdTotal: 0` and `last24HoursChange: 0` instead of omitting the fields, BalanceCard SHALL render `$0.00` / `0.00%`, and token lists SHALL show devnet tokens or the empty state with the correct devnet address in the header.
+
+## Requirements
 
 ### Requirement: getBalance MUST return numeric usdTotal when prices are unavailable
 The `getBalance()` method in `SolanaAccount` (`packages/shared/src/blockchain/solana/SolanaAccount.ts`), `BitcoinAccount` (`packages/shared/src/blockchain/bitcoin/BitcoinAccount.ts`), and `EthereumAccount` (`packages/shared/src/blockchain/ethereum/EthereumAccount.ts`) SHALL return `usdTotal: 0` and `last24HoursChange: 0` when price APIs (Jupiter, CoinGecko) return no data. The method MUST NOT omit `usdTotal` from the response object.

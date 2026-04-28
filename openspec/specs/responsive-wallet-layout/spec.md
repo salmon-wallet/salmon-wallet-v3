@@ -1,4 +1,10 @@
-## ADDED Requirements
+# responsive-wallet-layout Specification
+
+## Purpose
+
+Define the responsive layout primitives the web wallet relies on: a `WalletLayout` wrapper that centres content at 500px max-width, a `PageShell` that opts into the same max-width without breaking extension usage, and viewport-clamped sizing for `BaseSheetDialog`, `BaseDialog`, `TokenSelectorModal`, `TransactionDetailModal`, and `NftCarouselSection` so the wallet renders correctly across mobile-to-desktop browser viewports.
+
+## Requirements
 
 ### Requirement: WalletLayout wrapper component
 `packages/ui` SHALL export a `WalletLayout` component that provides a centered container with `max-width: 500px`, `width: 100%`, `min-height: 100vh`, and `margin: 0 auto`. It MUST use `colors.background.primary` as the background color.

@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-viewport-layout Specification
+
+## Purpose
+
+Lock every web app page to the viewport: page root containers SHALL use `height: 100vh` with `overflow: hidden` (SettingsPage exempted because PageShell drives its own scroll), `WalletLayout` SHALL enforce `100vh`/`overflow: hidden` on its outer container with `100%` on the inner container, and pages with variable-height content SHALL scroll internally via `overflowY: auto` plus `minHeight: 0` on the relevant flex child.
+
+## Requirements
 
 ### Requirement: Web screens MUST be viewport-locked
 All web app page containers (`apps/web`) SHALL use `height: '100vh'` and `overflow: 'hidden'` on their root Container styled component. Pages MUST NOT use `minHeight: '100vh'` on root containers (except SettingsPage which intentionally allows page-level scroll via PageShell `fullHeight={false}`).

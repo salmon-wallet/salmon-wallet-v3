@@ -1,4 +1,10 @@
-## ADDED Requirements
+# bridge-network-symbol-mapping Specification
+
+## Purpose
+
+Thread per-token network identifiers (e.g. `sol`, `eth`) through the bridge stack so StealthEx receives qualified currency symbols (`usdcsol` instead of bare `usdc`). The backend service, controller, frontend API, `useBridge` hook, swap screen logic, and per-app swap pages SHALL all accept and forward optional `networkIn`/`networkOut` parameters.
+
+## Requirements
 
 ### Requirement: Backend resolves StealthEx qualified symbols from network param
 

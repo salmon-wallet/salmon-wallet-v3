@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-app-scaffold Specification
+
+## Purpose
+
+Stand up the `apps/web` workspace package as a Vite + React 19 app that mirrors the extension's runtime: react-native and react-native-fast-crypto stubs, Buffer/global polyfills, web-platform storage and stash initialization, the same provider hierarchy as extension, i18next with browser detection, `VITE_*` environment variables, and turbo task graph integration so shared and ui packages build before web.
+
+## Requirements
 
 ### Requirement: apps/web workspace package exists
 The monorepo SHALL contain an `apps/web` workspace package (`@salmon/web`) with `package.json`, `tsconfig.json`, `vite.config.ts`, and `index.html`. It MUST use Vite as its build tool with `@vitejs/plugin-react`.

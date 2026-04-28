@@ -1,4 +1,10 @@
-## ADDED Requirements
+# swap-quote-countdown Specification
+
+## Purpose
+
+Define the 10-second quote-validity countdown the swap review step shows for both Jupiter and StealthEx flows. `useSwapScreenLogic` SHALL start the countdown when the review step is entered, pause during confirmation, clear on leaving review, expose `swapConfirmLabel` and a unified `handleConfirmOrRefresh` callback, guard the refresh path against duplicate fetches, and let review screens pass an optional `confirmLabel` through to `SwapReviewButtons`.
+
+## Requirements
 
 ### Requirement: Countdown starts when review step is entered
 The `useSwapScreenLogic` hook (packages/shared) SHALL start a 10-second countdown when `step` transitions to `'review'` and `isConfirming` is false. The countdown SHALL decrement by 1 each second and stop at 0.

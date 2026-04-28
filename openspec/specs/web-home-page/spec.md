@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-home-page Specification
+
+## Purpose
+
+Wire the web HomePage to render the shared `@salmon/ui` building blocks (`WalletHeader`, `BalanceCardCarousel`, `ActionButtonRow`, `TokenList`, `WalletSwitcherSheet`, `SettingsSheet`) against real account/balance state and route navigation. The page SHALL surface Home/Collectibles/Swap tabs, drive network and account switching through `useAccountsContext`, and consult `useUserConfig().developerNetworks` to gate testnet networks and unverified tokens.
+
+## Requirements
 
 ### Requirement: HomePage displays wallet header with account info
 The HomePage SHALL render WalletHeader from `@salmon/ui` with the active account name, address (from `activeBlockchainAccount.getReceiveAddress()`), avatar, and refresh button wired to `useBalance().refresh`.

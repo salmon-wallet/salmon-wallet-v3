@@ -1,4 +1,10 @@
-## ADDED Requirements
+# legacy-migration-util Specification
+
+## Purpose
+
+Provide a `migrateLegacyWallets()` utility in `packages/shared/src/utils/legacy-migration.ts` that migrates v2 wallet storage to v3 format, supports password-protected and plain mnemonic vaults, and co-locates its `invertBy`/`getNetworks` helpers as private functions instead of leaving them inside `useAccounts.ts`.
+
+## Requirements
 
 ### Requirement: Legacy wallet migration utility
 

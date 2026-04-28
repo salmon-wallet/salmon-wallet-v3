@@ -1,4 +1,10 @@
-## ADDED Requirements
+# mnemonic-encryption-helper Specification
+
+## Purpose
+
+Provide an `encryptMnemonics()` helper in `packages/shared/src/crypto/encrypt-mnemonics.ts` that selects the best available key source (cached derived key, explicit password, stashed password, or unencrypted fallback) and returns both the resulting vault and the `requiredLock` flag callers need to update React state.
+
+## Requirements
 
 ### Requirement: Mnemonic encryption helper
 
