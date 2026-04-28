@@ -32,7 +32,10 @@ import { getEnabledNetworkIds } from '../api/services/network';
 
 const MIN_SWAP_USD = 1;
 const QUOTE_DEBOUNCE_MS = 500;
-const QUOTE_COUNTDOWN_SECONDS = 10;
+// Jupiter quotes are valid for ~30s on mainnet but Stealthex bridges drift
+// faster, so 15s gives the user a full read of the review screen without
+// firing a stale-quote refresh in the middle of confirming.
+const QUOTE_COUNTDOWN_SECONDS = 15;
 
 function getSwapTokenKey(token: SwapToken | null | undefined): string | null {
   if (!token) return null;
