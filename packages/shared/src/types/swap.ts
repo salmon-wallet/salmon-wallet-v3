@@ -351,6 +351,8 @@ export interface BridgeTokenSimple {
   logo?: string;
   /** Network/chain this token is on */
   network?: string;
+  /** Canonical chain (e.g. "bitcoin", "ethereum") provided by the backend resource */
+  chain?: SwapChainType;
   /** User's balance of this token */
   balance?: number;
   /** USD price per token */
