@@ -97,12 +97,14 @@ export async function getSolanaTokenPrice(
   networkId: SolanaNetworkId = 'solana-mainnet',
   coingeckoId?: string
 ): Promise<JupiterApiPriceData | null> {
-  // Step 1: Try backend (Jupiter proxy)
+  // Step 1: Try backend (Jupiter proxy). Backend returns 200 with
+  // `{ usdPrice: null }` when Jupiter has no quote for the token, so treat
+  // null/undefined the same way and fall through to CoinGecko.
   try {
-    const { data } = await apiClient.get<{ usdPrice?: number; priceChange24h?: number | null }>(
+    const { data } = await apiClient.get<{ usdPrice?: number | null; priceChange24h?: number | null }>(
       `/v1/${networkId}/ft/price/${mintAddress}`
     );
-    if (data?.usdPrice !== undefined) {
+    if (data?.usdPrice != null) {
       return {
         usdPrice: data.usdPrice,
         priceChange24h: data.priceChange24h ?? null,
