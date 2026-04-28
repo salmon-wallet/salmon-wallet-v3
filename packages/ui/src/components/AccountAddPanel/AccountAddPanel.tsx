@@ -119,7 +119,7 @@ export function AccountAddPanel({
 }: AccountAddPanelProps): React.ReactElement {
   const { t } = useTranslation();
   const [accountState, accountActions] = useAccountsContext();
-  const { accounts, activeAccount } = accountState;
+  const { activeAccount, counter } = accountState;
 
   const [step, setStep] = useState<AccountAddStep>('select-method');
   const [derivedAccounts, setDerivedAccounts] = useState<DerivedAccountInfo[]>([]);
@@ -130,8 +130,8 @@ export function AccountAddPanel({
   const [loading, setLoading] = useState(false);
 
   const defaultName = useMemo(
-    () => t('settings.account_add.default_name', { number: accounts.length + 1 }),
-    [accounts.length, t],
+    () => t('settings.account_add.default_name', { number: counter + 1 }),
+    [counter, t],
   );
   const [accountName, setAccountName] = useState('');
 

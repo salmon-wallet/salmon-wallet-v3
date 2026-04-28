@@ -178,10 +178,11 @@ export function useAccountsMutations({
       if (accountId === targetId) {
         const account = accounts.find(({ id }) => id !== targetId);
         if (account) {
+          const nextPathIndex = networkId ? getDefaultPathIndex(account, networkId) : 0;
           setAccountId(account.id);
-          setPathIndex(networkId ? getDefaultPathIndex(account, networkId) : 0);
+          setPathIndex(nextPathIndex);
 
-          await persistActiveSelection(account.id, 0);
+          await persistActiveSelection(account.id, nextPathIndex);
         }
       }
 
