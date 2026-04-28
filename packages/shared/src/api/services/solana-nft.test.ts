@@ -87,7 +87,7 @@ describe('solana-nft service', () => {
 describe.skipIf(!backendBaseUrl)('solana-nft service integration', () => {
   const testOwner = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
 
-  it('reads the live owner NFT endpoint contract from salmon-api and preserves normalization invariants', async () => {
+  it('reads the live owner NFT endpoint contract from salmon-api and preserves normalization invariants', { timeout: 30000 }, async () => {
     const client = createApiClient({
       baseUrl: backendBaseUrl!,
       timeout: 15000,
