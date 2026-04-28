@@ -349,8 +349,8 @@ export interface BridgeTokenSimple {
   name: string;
   /** Token logo URL */
   logo?: string;
-  /** Network/chain this token is on */
-  network?: string;
+  /** Network/chain this token is on (may be null for native cross-chain tokens) */
+  network?: string | null;
   /** Canonical chain (e.g. "bitcoin", "ethereum") provided by the backend resource */
   chain?: SwapChainType;
   /** User's balance of this token */
