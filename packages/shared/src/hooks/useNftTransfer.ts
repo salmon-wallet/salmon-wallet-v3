@@ -20,6 +20,13 @@ export type NftTransferStatus = 'idle' | 'sending' | 'success' | 'failed';
 
 export interface UseNftTransferParams {
   account: BlockchainAccount | undefined;
+  /**
+   * Optional callback fired after a transfer completes successfully. Consumers
+   * should wire this to refetch the NFT list so the UI does not display the
+   * sent NFT until the indexer (Helius DAS, ~10–30s) catches up. Without a
+   * refetch, the list will look stale right after the user confirms the send.
+   */
+  onTransferSuccess?: (nft: NftData, txId: string) => void;
 }
 
 export interface UseNftTransferResult {
@@ -30,7 +37,7 @@ export interface UseNftTransferResult {
   reset: () => void;
 }
 
-export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransferResult {
+export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferParams): UseNftTransferResult {
   const [status, setStatus] = useState<NftTransferStatus>('idle');
   const [error, setError] = useState<string | null>(null);
 
@@ -66,6 +73,7 @@ export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransfe
         }
 
         setStatus('success');
+        onTransferSuccess?.(nft, result.txId);
         return result;
       } catch (err) {
         console.error('[useNftTransfer] Transfer failed:', err);
