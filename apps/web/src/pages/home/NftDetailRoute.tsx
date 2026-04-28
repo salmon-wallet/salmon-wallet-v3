@@ -121,7 +121,7 @@ export function NftDetailRoute(): React.ReactElement {
 
   const handleSendSuccess = useCallback(() => {
     setNftSendVisible(false);
-    navigate('/home');
+    navigate('/home', { state: { refreshCollectibles: true } });
   }, [navigate]);
 
   // Deep link fallback — no NFT data in location state

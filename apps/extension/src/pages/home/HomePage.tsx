@@ -1236,6 +1236,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
                   setNftSendDialogVisible(false);
                   setCurrentPage('home');
                   setSelectedNft(null);
+                  setCollectiblesRefreshKey((prev) => prev + 1);
                   refresh();
                 }}
               />
