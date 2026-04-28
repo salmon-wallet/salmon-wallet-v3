@@ -1,8 +1,8 @@
 import { PublicKey, VersionedTransaction } from '@solana/web3.js';
 import type { Commitment } from '@solana/web3.js';
 import type {
-  MarketplacePreparedTransaction,
-  MarketplaceTransactionResponse,
+  PreparedNftTransaction,
+  PreparedNftTransactionResponse,
 } from '../../types/nft';
 import type { SolanaAccount } from './SolanaAccount';
 
@@ -294,8 +294,8 @@ async function confirmSignatureBySubscription(
 }
 
 export function getPreparedSolanaTransactions(
-  response: MarketplaceTransactionResponse
-): MarketplacePreparedTransaction[] {
+  response: PreparedNftTransactionResponse
+): PreparedNftTransaction[] {
   if (response.transactions && response.transactions.length > 0) {
     return response.transactions;
   }
@@ -309,7 +309,7 @@ export function getPreparedSolanaTransactions(
 
 export async function signAndSendPreparedSolanaTransactions(
   account: SolanaAccount,
-  response: MarketplaceTransactionResponse,
+  response: PreparedNftTransactionResponse,
   options: SignAndSendPreparedSolanaTransactionsOptions = {}
 ): Promise<string[]> {
   const preparedTransactions = getPreparedSolanaTransactions(response);

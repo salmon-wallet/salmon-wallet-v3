@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { MarketplaceTransactionResponse } from '@salmon/shared';
+import type { PreparedNftTransactionResponse } from '@salmon/shared';
 import type { NftData } from '../NftCard/types';
 
 // Re-export for convenience
@@ -26,7 +26,7 @@ export interface NftDetailPageProps {
   /** Burn flow step shown inside the detail page */
   burnStep?: 'idle' | 'review' | 'success';
   /** Prepared burn transaction flow metadata */
-  burnPreview?: MarketplaceTransactionResponse | null;
+  burnPreview?: PreparedNftTransactionResponse | null;
   /** Whether the burn preview is being prepared or executed */
   burnPreparing?: boolean;
   /** Optional burn preparation error */

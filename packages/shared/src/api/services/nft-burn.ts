@@ -11,7 +11,7 @@ import { apiClient } from '../client';
 import type { SolanaNetworkId } from '../../types/blockchain';
 import type {
   BurnNftParams,
-  MarketplaceTransactionResponse as TransactionResponse,
+  PreparedNftTransactionResponse as TransactionResponse,
 } from '../../types/nft';
 
 /**

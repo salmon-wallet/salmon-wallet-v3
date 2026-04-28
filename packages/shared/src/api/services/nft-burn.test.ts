@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { MarketplaceTransactionResponse } from '../../types/nft';
+import type { PreparedNftTransactionResponse } from '../../types/nft';
 
 vi.mock('../client', async () => {
   const actual = await vi.importActual<typeof import('../client')>('../client');
@@ -17,12 +17,12 @@ import { createBurnTransaction } from './nft-burn';
 
 const mockApiClientPost = vi.mocked(apiClient.post);
 
-const MOCK_TRANSACTION: MarketplaceTransactionResponse = {
+const MOCK_TRANSACTION: PreparedNftTransactionResponse = {
   transaction: 'base64-serialized-transaction',
   message: 'ready',
 };
 
-const MOCK_MULTI_STEP_TRANSACTION: MarketplaceTransactionResponse = {
+const MOCK_MULTI_STEP_TRANSACTION: PreparedNftTransactionResponse = {
   transactions: [
     {
       transaction: 'base64-step-1',

@@ -25,7 +25,7 @@ import {
   getPreparedSolanaTransactions,
   signAndSendPreparedSolanaTransactions,
 } from '../prepared-transactions';
-import type { MarketplaceTransactionResponse } from '../../../types/nft';
+import type { PreparedNftTransactionResponse } from '../../../types/nft';
 
 describe('prepared-transactions', () => {
   const deserializeMock = vi.mocked(VersionedTransaction.deserialize);
@@ -48,13 +48,13 @@ describe('prepared-transactions', () => {
   });
 
   it('returns prepared transactions from multi-step and single-step responses', () => {
-    const multiStep: MarketplaceTransactionResponse = {
+    const multiStep: PreparedNftTransactionResponse = {
       transactions: [
         { transaction: 'step-1', step: 'lookup_table_create' },
         { transaction: 'step-2', step: 'burn' },
       ],
     };
-    const singleStep: MarketplaceTransactionResponse = {
+    const singleStep: PreparedNftTransactionResponse = {
       transaction: 'single-step',
     };
 
@@ -210,7 +210,7 @@ describe('prepared-transactions', () => {
       getConnection: vi.fn().mockResolvedValue(connection),
     };
 
-    const response: MarketplaceTransactionResponse = {
+    const response: PreparedNftTransactionResponse = {
       transactions: [
         {
           transaction: Buffer.from('lookup-extend').toString('base64'),
@@ -292,7 +292,7 @@ describe('prepared-transactions', () => {
       getConnection: vi.fn().mockResolvedValue(connection),
     };
 
-    const response: MarketplaceTransactionResponse = {
+    const response: PreparedNftTransactionResponse = {
       transactions: [
         {
           transaction: Buffer.from('lookup-extend').toString('base64'),

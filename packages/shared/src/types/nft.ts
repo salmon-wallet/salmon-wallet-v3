@@ -275,7 +275,7 @@ export interface BurnNftParams {
 /**
  * Response containing a serialized transaction
  */
-export interface MarketplacePreparedTransaction {
+export interface PreparedNftTransaction {
   /** Base64 encoded serialized transaction */
   transaction: string;
   /** Optional flow step identifier */
@@ -288,7 +288,7 @@ export interface MarketplacePreparedTransaction {
   message?: string;
 }
 
-export interface MarketplaceLookupTableInfo {
+export interface NftLookupTableInfo {
   /** Whether this burn requires a lookup table flow */
   required: boolean;
   /** Rent-exempt amount locked in the LUT account */
@@ -301,13 +301,13 @@ export interface MarketplaceLookupTableInfo {
   extendTransactionCount: number;
 }
 
-export interface MarketplaceTransactionResponse {
+export interface PreparedNftTransactionResponse {
   /** Base64 encoded serialized transaction */
   transaction?: string;
   /** Optional multi-step transaction flow */
-  transactions?: MarketplacePreparedTransaction[];
+  transactions?: PreparedNftTransaction[];
   /** Optional lookup table metadata for multi-step flows */
-  lookupTable?: MarketplaceLookupTableInfo;
+  lookupTable?: NftLookupTableInfo;
   /** Optional message or instruction */
   message?: string;
 }
