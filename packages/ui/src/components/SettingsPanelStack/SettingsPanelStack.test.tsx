@@ -2,8 +2,16 @@
  * @vitest-environment jsdom
  */
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+afterEach(cleanup);
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -12,21 +20,19 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@salmon/shared', () => {
-  const { useState, useCallback } = require('react');
+  type StackEntry = { screen: string; props?: unknown };
   const useSettingsPanelStack = () => {
-    const [stack, setStack] = useState<Array<{ screen: string; props?: any }>>(
+    const [stack, setStack] = React.useState<StackEntry[]>([]);
+    const push = React.useCallback(
+      (screen: string, props?: unknown) =>
+        setStack((p) => [...p, { screen, props }]),
       [],
     );
-    const push = useCallback(
-      (screen: string, props?: any) =>
-        setStack((p: any) => [...p, { screen, props }]),
+    const pop = React.useCallback(
+      () => setStack((p) => (p.length ? p.slice(0, -1) : p)),
       [],
     );
-    const pop = useCallback(
-      () => setStack((p: any) => (p.length ? p.slice(0, -1) : p)),
-      [],
-    );
-    const reset = useCallback(() => setStack([]), []);
+    const reset = React.useCallback(() => setStack([]), []);
     return {
       stack,
       push,
@@ -109,13 +115,13 @@ describe('SettingsPanelStack — menu routing', () => {
     const btn = screen.getByRole('button', { name: label });
     fireEvent.click(btn);
     await waitFor(() => {
-      expect(screen.getByTestId(expectedTestId)).toBeInTheDocument();
+      expect(screen.getByTestId(expectedTestId)).toBeTruthy();
     });
     const otherIds = cases
       .map(([, id]) => id)
       .filter((id) => id !== expectedTestId);
     for (const id of otherIds) {
-      expect(screen.queryByTestId(id)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(id)).toBeNull();
     }
   });
 });

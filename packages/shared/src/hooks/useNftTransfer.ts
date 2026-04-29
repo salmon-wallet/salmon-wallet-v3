@@ -83,7 +83,7 @@ export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferPar
         throw err;
       }
     },
-    [account],
+    [account, onTransferSuccess],
   );
 
   return { sendNft, status, error, isError: error !== null, reset };

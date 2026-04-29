@@ -511,6 +511,10 @@ describe('solana service integration', () => {
   it(
     'reads live solana transaction history from salmon-api',
     async () => {
+      if (!walletAddress) {
+        console.log('Skipping live solana transaction integration: SALMON_TEST_LIVE_WALLET not set');
+        return;
+      }
       const liveBackendBaseUrl = backendBaseUrl ?? await getReachableBackendBaseUrl();
       if (!liveBackendBaseUrl) {
         console.log('Skipping live solana transaction integration assertions: backend not reachable');
@@ -558,6 +562,10 @@ describe('solana service integration', () => {
   it(
     'reads a live solana transaction detail from salmon-api',
     async () => {
+      if (!walletAddress) {
+        console.log('Skipping live solana transaction detail integration: SALMON_TEST_LIVE_WALLET not set');
+        return;
+      }
       const liveBackendBaseUrl = backendBaseUrl ?? await getReachableBackendBaseUrl();
       if (!liveBackendBaseUrl) {
         console.log('Skipping live solana transaction detail assertions: backend not reachable');
@@ -597,6 +605,10 @@ describe('solana service integration', () => {
   it(
     'reads a live solana swap quote from salmon-api',
     async () => {
+      if (!walletAddress) {
+        console.log('Skipping live solana swap quote integration: SALMON_TEST_LIVE_WALLET not set');
+        return;
+      }
       const liveBackendBaseUrl = backendBaseUrl ?? await getReachableBackendBaseUrl();
       if (!liveBackendBaseUrl) {
         console.log('Skipping live solana swap quote assertions: backend not reachable');
