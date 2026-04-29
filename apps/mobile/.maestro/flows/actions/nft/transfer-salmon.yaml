@@ -1,0 +1,30 @@
+appId: io.salmonwallet.app
+---
+# Send Salmon Logo NFT from Wallet B → Wallet A.
+- runFlow: ../../../subflows/onboard-walletB.yaml
+- takeScreenshot: screenshots/actions/nft/nft-walletB-home
+- tapOn: "Collectibles"
+- extendedWaitUntil:
+    visible: "My Collectibles"
+    timeout: 15000
+- takeScreenshot: screenshots/actions/nft/nft-walletB-collectibles
+- tapOn: "NFT: Salmon Logo"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: screenshots/actions/nft/nft-detail-salmon
+- tapOn: "Send NFT"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: screenshots/actions/nft/nft-send-form
+- tapOn:
+    id: "input-address-input"
+- inputText: ${SALMON_TEST_WALLET_A_ADDR}
+- tapOn: "Recipient"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: "nft-send-confirm-btn"
+- extendedWaitUntil:
+    visible: "NFT sent"
+    timeout: 90000
+- takeScreenshot: screenshots/actions/nft/nft-sent

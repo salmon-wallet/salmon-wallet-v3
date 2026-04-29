@@ -1,0 +1,37 @@
+appId: io.salmonwallet.app
+---
+# Recover Wallet B — fresh install path. Caller must launchApp/clearState first.
+- assertVisible: "Salmon"
+- assertVisible:
+    text: "RECOVER ACCOUNT"
+- tapOn:
+    text: "RECOVER ACCOUNT"
+- extendedWaitUntil:
+    visible:
+      id: "recover-seed-input"
+    timeout: 30000
+- tapOn:
+    id: "recover-seed-input"
+- inputText: ${SALMON_TEST_SEED_B}
+# Dismiss keyboard by tapping the title.
+- tapOn: "Recover Existing Account"
+- extendedWaitUntil:
+    visible:
+      text: "NEXT"
+    timeout: 10000
+- tapOn:
+    text: "NEXT"
+- extendedWaitUntil:
+    visible:
+      id: "password-input"
+    timeout: 30000
+- tapOn:
+    id: "password-input"
+- inputText: ${SALMON_TEST_PASSWORD}
+- tapOn: "Choose a Password"
+- tapOn:
+    id: "password-confirm-input"
+- inputText: ${SALMON_TEST_PASSWORD}
+- tapOn: "Choose a Password"
+- tapOn:
+    text: "RECOVER ACCOUNT"

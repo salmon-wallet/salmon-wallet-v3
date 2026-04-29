@@ -1,0 +1,27 @@
+appId: io.salmonwallet.app
+---
+# Reveal private key. PK MUST NOT be screenshotted.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- runFlow: ../../../subflows/open-settings.yaml
+- tapOn: "Private Key"
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertVisible: "Select Network"
+# Tap Solana Mainnet row by coord (composite a11y group)
+- tapOn:
+    point: "50%,23%"
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertVisible: "Private Key"
+- assertVisible: "DERIVATION PATH"
+# Tap Reveal by coord (composite a11y group)
+- tapOn:
+    point: "50%,35%"
+- waitForAnimationToEnd:
+    timeout: 4000
+# Do NOT screenshot revealed PK. Verify reveal by absence of "Tap to Reveal".
+- assertNotVisible: "Tap to Reveal"
+- tapOn: "DONE"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible: "Settings"

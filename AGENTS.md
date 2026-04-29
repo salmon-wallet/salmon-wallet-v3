@@ -80,7 +80,7 @@ home for its platform's integration tests.
 |---|---|---|
 | `apps/extension` | `apps/extension/.playwright/` | Playwright (chromium + extension load) |
 | `apps/web` | `apps/web/.playwright/` | Playwright (chromium against the web dev server) |
-| `apps/mobile` | `apps/mobile/.maestro/` | Maestro (iOS Simulator / Android emulator) — coming later |
+| `apps/mobile` | `apps/mobile/.maestro/` | Maestro (iOS Simulator / Android emulator) |
 
 Rules:
 
@@ -97,6 +97,29 @@ Rules:
 - Cross-app code (e.g. shared selectors, fixture builders) belongs in
   `packages/shared` or `packages/ui` only when more than one suite needs
   it. Otherwise keep it inside the suite.
+
+### Maestro working-directory rule
+
+Maestro resolves `takeScreenshot` paths relative to the directory the
+CLI is invoked from, not relative to the flow YAML. The Salmon flows
+use `screenshots/<smoke|actions>/...`, which means Maestro must be run
+from `apps/mobile/.maestro/`. Running it from anywhere else creates a
+stray `.maestro/screenshots/` folder at that cwd, polluting the tree
+that Maestro auto-generates around the binary.
+
+Defenses already in place:
+
+- `apps/*/.maestro/.env.test`, `apps/*/.maestro/screenshots/`,
+  `apps/*/.maestro/snapshots/`, `apps/*/.maestro/reports/` are
+  gitignored.
+- `/.maestro/` (a stray top-level directory) and
+  `**/.maestro/screenshots/` (any nested `.maestro/screenshots/` from
+  bad cwd) are also gitignored, so a wrong-cwd run will not leak files
+  into git.
+
+If you see a `.maestro/` directory anywhere outside `apps/mobile/`, it
+is residue from a wrong-cwd invocation — delete it and re-run from
+`apps/mobile/.maestro/`.
 
 ## Folder guidance
 

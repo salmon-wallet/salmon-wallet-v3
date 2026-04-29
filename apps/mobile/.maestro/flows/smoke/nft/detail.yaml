@@ -1,0 +1,17 @@
+appId: io.salmonwallet.app
+---
+# Walk Collectibles → open Mindfolk NFT detail → close.
+# Wallet A holds Mindfolk; Salmon Logo lives in Wallet B and is exercised by
+# actions/nft/transfer-salmon.yaml.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- tapOn: "Collectibles"
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: "My Collectibles"
+- tapOn: "NFT: Mindfolk Founder #5154"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: screenshots/smoke/nft/detail-mindfolk
+- runFlow: ../../../subflows/dismiss-bottom-sheet.yaml
+- assertVisible: "My Collectibles"
+- tapOn: "Home"
