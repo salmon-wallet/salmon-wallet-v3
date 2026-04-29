@@ -30,7 +30,9 @@ import type { TokenMetadata } from '../../types/token';
 
 const TEST_KEYPAIR = Keypair.generate();
 const TEST_PUBLIC_KEY = TEST_KEYPAIR.publicKey.toBase58();
-const LIVE_TEST_PUBLIC_KEY = '9mpJyg7iEse9rPMP1tdiSdSAYbLJX6nJyGbNkbT3SAd3';
+// Live integration wallet — set SALMON_TEST_LIVE_WALLET to a Solana address
+// with on-chain balance/history. Tests that need it skip when unset.
+const LIVE_TEST_PUBLIC_KEY = process.env.SALMON_TEST_LIVE_WALLET ?? '';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const backendBaseUrl = await getReachableBackendBaseUrl();
 
@@ -611,6 +613,10 @@ describe('getPriceImpact', () => {
 
 describe('Integration: Swap with Backend', () => {
   it('should get real swap quote from backend', async () => {
+    if (!LIVE_TEST_PUBLIC_KEY) {
+      console.log('Skipping live swap backend: SALMON_TEST_LIVE_WALLET not set');
+      return;
+    }
     const liveBackendBaseUrl = backendBaseUrl ?? await getReachableBackendBaseUrl();
     if (!liveBackendBaseUrl) {
       console.log('Skipping live swap backend assertions: backend not reachable');

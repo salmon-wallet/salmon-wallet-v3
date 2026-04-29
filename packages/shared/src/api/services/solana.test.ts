@@ -445,11 +445,17 @@ describe('solana service', () => {
 });
 
 describe('solana service integration', () => {
-  const walletAddress = '9mpJyg7iEse9rPMP1tdiSdSAYbLJX6nJyGbNkbT3SAd3';
+  // Live integration wallet — set SALMON_TEST_LIVE_WALLET to a Solana address
+  // with on-chain balance/history. Tests skip when unset.
+  const walletAddress = process.env.SALMON_TEST_LIVE_WALLET ?? '';
 
   it(
     'reads live solana balance data from salmon-api and preserves adapter invariants',
     async () => {
+      if (!walletAddress) {
+        console.log('Skipping live solana balance integration: SALMON_TEST_LIVE_WALLET not set');
+        return;
+      }
       const liveBackendBaseUrl = backendBaseUrl ?? await getReachableBackendBaseUrl();
       if (!liveBackendBaseUrl) {
         console.log('Skipping live solana balance integration assertions: backend not reachable');
