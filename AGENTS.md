@@ -70,6 +70,34 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - E2E tests that depend on backend availability should skip when the backend is unreachable or not running.
 - If the backend is reachable but the behavior is wrong, the test must fail rather than skip.
 
+## End-to-end test suites — per-app ownership
+
+E2E suites live next to the app they exercise. Each is a self-contained
+Node ESM driver — no central runner. Treat each suite as the canonical
+home for its platform's integration tests.
+
+| App | Suite | Tool |
+|---|---|---|
+| `apps/extension` | `apps/extension/.playwright/` | Playwright (chromium + extension load) |
+| `apps/web` | `apps/web/.playwright/` | Playwright (chromium against the web dev server) |
+| `apps/mobile` | `apps/mobile/.maestro/` | Maestro (iOS Simulator / Android emulator) — coming later |
+
+Rules:
+
+- Do not create a top-level `.playwright/` or `.maestro/`. Tests must live
+  under their owning app.
+- Each suite has its own `README.md` and `AGENTS.md` describing setup,
+  conventions, and known failure modes. Read those before extending the
+  suite.
+- Secrets stay in `<suite>/.env.test` (gitignored). Commit a
+  `.env.test.example` so collaborators know which keys to populate.
+- Suite-local outputs (`screenshots/`, `snapshots/`, `reports/`,
+  `profiles/`, `fixtures/`) are gitignored — only `scripts/` and docs
+  ship.
+- Cross-app code (e.g. shared selectors, fixture builders) belongs in
+  `packages/shared` or `packages/ui` only when more than one suite needs
+  it. Otherwise keep it inside the suite.
+
 ## Folder guidance
 
 - Add local `AGENTS.md` or `CLAUDE.md` rules only in folders with real ownership boundaries or platform-specific constraints.

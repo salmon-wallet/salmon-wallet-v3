@@ -53,6 +53,16 @@ android/
 *.aab
 *.ipa
 
-# Playwright runtime testing artifacts (snapshots, screenshots, profiles, console logs)
-.playwright/
+# Per-app Playwright test suites — track scripts + docs, ignore runtime + secrets
+apps/*/.playwright/.env.test
+apps/*/.playwright/profiles/
+apps/*/.playwright/screenshots/
+apps/*/.playwright/snapshots/
+apps/*/.playwright/reports/
+apps/*/.playwright/fixtures/
+
+# `playwright-cli` skill auto-generated artifacts (per-cwd, unrelated to per-app suites above)
 .playwright-cli/
+**/.playwright-cli/
+
+.maestro/screenshots/

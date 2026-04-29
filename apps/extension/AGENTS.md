@@ -15,3 +15,7 @@
 ## Testing
 
 - Add or update extension tests when extension-specific behavior or entrypoint contracts change.
+- Browser-extension end-to-end tests live in `.playwright/` (Playwright +
+  bundled chromium with the built extension loaded). See
+  `.playwright/README.md` for setup and `.playwright/AGENTS.md` for
+  conventions agents must follow when extending the suite.
