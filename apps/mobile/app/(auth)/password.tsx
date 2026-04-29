@@ -294,7 +294,7 @@ export default function PasswordScreen() {
     <>
       <StatusBar style="light" />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView
             style={styles.keyboardView}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -334,6 +334,7 @@ export default function PasswordScreen() {
               {/* Password Input */}
               <View style={styles.inputContainer}>
                 <PasswordInput
+                  testID="password-input"
                   value={password}
                   onChangeText={handlePasswordChange}
                   placeholder={
@@ -364,6 +365,7 @@ export default function PasswordScreen() {
               {!showSingleInput && (
                 <View style={styles.inputContainer}>
                   <PasswordInput
+                    testID="password-confirm-input"
                     value={confirmPassword}
                     onChangeText={handleConfirmPasswordChange}
                     placeholder={t('wallet.create.passwordRepeat') || 'Repeat password'}

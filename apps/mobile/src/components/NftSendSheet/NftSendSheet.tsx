@@ -231,6 +231,7 @@ export function NftSendSheet({
 
           {!isBitcoin && (
             <TouchableOpacity
+              testID="nft-send-confirm-btn"
               style={[styles.primaryButton, !canConfirm && styles.primaryButtonDisabled]}
               onPress={handleConfirm}
               disabled={!canConfirm}
