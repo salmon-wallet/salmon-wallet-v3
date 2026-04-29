@@ -1,6 +1,6 @@
 // Phase 1 bootstrap: launch extension, open popup, capture initial state.
 // Verifies infrastructure works before running the full Phase 1 walkthrough.
-import { launch, capture, tapConsole, sleep } from './lib.mjs';
+import { launch, capture, tapConsole, sleep, fixturesRoot } from './lib.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -32,8 +32,9 @@ const state = {
   sideErrors,
   swUrl: sw.url(),
 };
+fs.mkdirSync(fixturesRoot, { recursive: true });
 fs.writeFileSync(
-  path.join(process.cwd(), '.playwright/scripts/state.json'),
+  path.join(fixturesRoot, 'last-bootstrap.json'),
   JSON.stringify(state, null, 2),
 );
 

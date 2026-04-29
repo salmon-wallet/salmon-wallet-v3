@@ -3,7 +3,7 @@
 import {
   launch, capture, tapConsole, sleep,
   openPopup, unlockOrRecover, waitHome, clickBack,
-  reportsRoot, repoRoot,
+  reportsRoot, fixturesRoot,
 } from './lib.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
