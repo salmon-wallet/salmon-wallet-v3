@@ -52,6 +52,7 @@ export function AddressAddPanel({
         {t('settings.addressbook.label', 'Label')}
       </Text>
       <TextInput
+        testID="address-add-label-input"
         style={styles.textInput}
         value={form.label}
         onChangeText={form.setLabel}
@@ -83,6 +84,7 @@ export function AddressAddPanel({
 
       {/* Save Button */}
       <TouchableOpacity
+        testID="address-add-save-btn"
         style={[styles.saveButton, !form.canSave && styles.saveButtonDisabled]}
         onPress={handleSave}
         disabled={!form.canSave}

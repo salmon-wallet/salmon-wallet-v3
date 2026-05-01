@@ -1,4 +1,10 @@
-## ADDED Requirements
+# env-build-config Specification
+
+## Purpose
+
+Define how extension and mobile builds resolve their environment: the extension SHALL pass the WXT `ConfigEnv.mode` to Vite's `loadEnv` and ship per-environment `.env.*` files plus matching build scripts, mobile EAS profiles SHALL set `EXPO_PUBLIC_SALMON_ENV` and let `packages/shared/src/api/config.ts` resolve API URLs from its internal map, and the shared config SHALL keep `'local'` as the default fallback with the Helius API key available in every environment.
+
+## Requirements
 
 ### Requirement: Extension build resolves correct environment
 The extension build system (`apps/extension/wxt.config.ts`) SHALL use the WXT-provided `ConfigEnv.mode` parameter when calling Vite's `loadEnv()` instead of hardcoding `'development'`. This ensures `.env.[mode]` files are loaded correctly based on the build command.

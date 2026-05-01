@@ -80,7 +80,7 @@ describe('RootLayout mobile lock lifecycle', () => {
     ]);
   });
 
-  it('subscribes to Android blur so lock cannot be skipped when the app loses focus without backgrounding', async () => {
+  it('only subscribes to app state changes, not Android blur events from in-app modals', async () => {
     const addEventListenerSpy = jest
       .spyOn(AppState, 'addEventListener')
       .mockImplementation((eventType: any, listener: any) => {
@@ -95,10 +95,10 @@ describe('RootLayout mobile lock lifecycle', () => {
       expect(addEventListenerSpy).toHaveBeenCalledWith('change', expect.any(Function));
     });
 
-    expect(addEventListenerSpy).toHaveBeenCalledWith('blur', expect.any(Function));
+    expect(addEventListenerSpy).not.toHaveBeenCalledWith('blur', expect.any(Function));
   });
 
-  it('locks on repeated Android blur/background cycles without needing the app state change every time', async () => {
+  it('does not lock on Android blur events triggered by in-app overlays like bottom sheets', async () => {
     jest
       .spyOn(AppState, 'addEventListener')
       .mockImplementation((eventType: any, listener: any) => {
@@ -112,18 +112,43 @@ describe('RootLayout mobile lock lifecycle', () => {
     render(<RootLayout />);
 
     await waitFor(() => {
-      expect(listeners.blur).toHaveLength(1);
       expect(listeners.change).toHaveLength(1);
     });
 
-    listeners.blur[0]();
+    expect(listeners.blur).toBeUndefined();
     await Promise.resolve();
+
+    expect(mockLockAccounts).not.toHaveBeenCalled();
+  });
+
+  it('locks on repeated active to background cycles', async () => {
+    jest
+      .spyOn(AppState, 'addEventListener')
+      .mockImplementation((eventType: any, listener: any) => {
+        listeners[eventType] ??= [];
+        listeners[eventType].push(listener);
+        return { remove: jest.fn() } as any;
+      });
+
+    mockLockAccounts.mockResolvedValue(undefined);
+
+    render(<RootLayout />);
+
+    await waitFor(() => {
+      expect(listeners.change).toHaveLength(1);
+    });
 
     listeners.change[0]('active');
-    listeners.blur[0]();
-    await Promise.resolve();
+    listeners.change[0]('background');
+    await waitFor(() => {
+      expect(mockLockAccounts).toHaveBeenCalledTimes(1);
+    });
 
-    expect(mockLockAccounts).toHaveBeenCalledTimes(2);
+    listeners.change[0]('active');
+    listeners.change[0]('background');
+    await waitFor(() => {
+      expect(mockLockAccounts).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('does not lock on iOS-style inactive transitions alone', async () => {

@@ -5,11 +5,12 @@ import {
 } from '@salmon/ui';
 import {
   isSecureOrigin,
+  useDAppMetadata,
   useAccountsContext,
   type DAppConnectApprovalPayload,
   type DAppConnectRequest,
-  getActiveSolanaApprovalAccount,
 } from '@salmon/shared';
+import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { onRequest, sendResponse } from '../../utils/walletBridge';
 
 export function ConnectApprovalPage(): React.ReactElement {
@@ -19,6 +20,7 @@ export function ConnectApprovalPage(): React.ReactElement {
   const [state, actions] = useAccountsContext();
   const [request, setRequest] = useState<DAppConnectRequest | null>(null);
   const [loading, setLoading] = useState(false);
+  const { metadata } = useDAppMetadata(origin);
 
   useEffect(() => {
     const unsubscribe = onRequest((incoming) => {
@@ -44,7 +46,11 @@ export function ConnectApprovalPage(): React.ReactElement {
 
     setLoading(true);
     try {
-      await actions.addTrustedApp(origin, undefined, solanaAccount.network.id);
+      await actions.addTrustedApp(
+        origin,
+        metadata ? { name: metadata.name, icon: metadata.icon } : undefined,
+        solanaAccount.network.id
+      );
       const payload: DAppConnectApprovalPayload = {
         publicKey: solanaAccount.getReceiveAddress(),
       };
@@ -64,7 +70,7 @@ export function ConnectApprovalPage(): React.ReactElement {
     } finally {
       setLoading(false);
     }
-  }, [actions, origin, request, requestId, solanaAccount]);
+  }, [actions, metadata, origin, request, requestId, solanaAccount]);
 
   const handleReject = useCallback(() => {
     sendResponse({ requestId, approved: false, error: 'User rejected the request' });
@@ -74,6 +80,8 @@ export function ConnectApprovalPage(): React.ReactElement {
   return (
     <DAppConnectApprovalView
       origin={origin}
+      appName={metadata?.name}
+      appIcon={metadata?.icon}
       address={solanaAccount?.getReceiveAddress()}
       disabled={!solanaAccount || !request}
       loading={loading}

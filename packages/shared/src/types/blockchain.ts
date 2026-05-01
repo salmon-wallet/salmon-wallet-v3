@@ -12,6 +12,7 @@
 import type { SolanaAccount } from '../blockchain/solana';
 import type { BitcoinAccount } from '../blockchain/bitcoin';
 import type { EthereumAccount } from '../blockchain/ethereum';
+import type { NetworkCapabilities } from './settings';
 
 /**
  * Supported blockchain identifiers.
@@ -59,7 +60,7 @@ export interface NetworksByBlockchain {
  * Solana network identifier.
  *
  * Previously defined in api/services/solana.ts and duplicated as local
- * `NetworkId` in api/services/tokens.ts, marketplace.ts, and price.ts.
+ * `NetworkId` in api/services/tokens.ts, nft-burn.ts, and price.ts.
  */
 export type SolanaNetworkId = 'solana-mainnet' | 'solana-devnet';
 
@@ -73,8 +74,7 @@ export type BitcoinNetworkId = 'bitcoin-mainnet' | 'bitcoin-testnet';
 /**
  * Ethereum network identifier.
  *
- * Previously defined inline in api/services/ethereum-nft.ts as
- * `EthereumNftNetworkId`.
+ * Ethereum account network identifier.
  */
 export type EthereumNetworkId = 'ethereum-mainnet' | 'ethereum-sepolia';
 
@@ -194,16 +194,52 @@ export type EthereumEnvironment = 'mainnet' | 'sepolia';
  *
  * Previously defined in api/client.ts.
  */
-export interface Network {
+export interface NetworkCatalogBase {
   id: string;
   name: string;
-  blockchain: string;
-  environment: string;
+  blockchain: BlockchainType;
   icon?: string;
   currency?: {
     symbol: string;
     decimals: number;
   };
+  enabled: boolean;
+  sections: NetworkCapabilities['sections'];
+}
+
+export interface SolanaNetworkCatalogEntry extends NetworkCatalogBase {
+  id: SolanaNetworkId;
+  blockchain: 'solana';
+  environment: 'mainnet' | 'devnet';
+  config: SolanaNetworkConfig;
+}
+
+export interface BitcoinNetworkCatalogEntry extends NetworkCatalogBase {
+  id: BitcoinNetworkId;
+  blockchain: 'bitcoin';
+  environment: BitcoinEnvironment;
+  config: {
+    apiUrl?: string;
+  };
+}
+
+export interface EthereumNetworkCatalogEntry extends NetworkCatalogBase {
+  id: EthereumNetworkId;
+  blockchain: 'ethereum';
+  environment: EthereumEnvironment;
+  config: EthereumNetworkConfig;
+}
+
+export type NetworkCatalogEntry =
+  | SolanaNetworkCatalogEntry
+  | BitcoinNetworkCatalogEntry
+  | EthereumNetworkCatalogEntry;
+
+/**
+ * @deprecated Use `NetworkCatalogEntry` instead.
+ */
+export interface Network extends NetworkCatalogBase {
+  environment: string;
   config: Record<string, unknown>;
   [key: string]: unknown;
 }

@@ -1,4 +1,10 @@
-## ADDED Requirements
+# blockchain-switch-skeleton Specification
+
+## Purpose
+
+Define how the blockchain carousel on the HomePage stays in sync with the persisted `networkId`. The active carousel index must reflect the network restored from storage on mount and update whenever `networkId` or `allNetworks` changes from outside the carousel (e.g., settings actions, developer-networks toggle), so the visible card always matches the wallet's selected network.
+
+## Requirements
 
 ### Requirement: Carousel index MUST sync with persisted networkId on mount
 On all platforms (web, extension, mobile), the HomePage SHALL synchronize `activeBlockchainIndex` with the persisted `networkId` when the component mounts and when `networkId` or `allNetworks` changes. If `networkId` maps to an index in `allNetworks` that differs from the current `activeBlockchainIndex`, the carousel index SHALL be updated to match.

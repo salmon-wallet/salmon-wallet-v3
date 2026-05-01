@@ -1,10 +1,9 @@
 /**
- * Blockchain feature-flag configuration.
+ * Legacy local blockchain defaults.
  *
- * Controls which blockchain families are active across the wallet.
- * Disabled blockchains will not have accounts created or networks scanned.
- *
- * To re-enable Ethereum, add 'ethereum' to the ENABLED_BLOCKCHAINS array.
+ * Backend `/v1/networks` is the runtime source of truth for enablement.
+ * This module only keeps local helpers/defaults for static typing and
+ * last-resort config composition.
  *
  * @module config/blockchains
  */
@@ -16,13 +15,7 @@ import type { BlockchainType } from '../types/blockchain';
 // ============================================================================
 
 /**
- * Blockchains currently enabled in the wallet.
- *
- * This is the single source of truth for which blockchain families are active.
- * Account creation, derived-account scanning, and network visibility all
- * consult this array.
- *
- * To enable/disable a blockchain, add or remove it from this array.
+ * Legacy local blockchain defaults used when composing static config.
  */
 export const ENABLED_BLOCKCHAINS: readonly BlockchainType[] = [
   'solana',
@@ -47,7 +40,12 @@ export function getBlockchainFromNetworkId(networkId: string): BlockchainType {
 }
 
 /**
- * Returns true if the given blockchain family is enabled.
+ * Returns true if the given blockchain family is enabled by the legacy local
+ * defaults.
+ *
+ * @deprecated The backend network catalog is the runtime source of truth.
+ * Prefer `isBackendNetworkEnabled` from `api/services/network` (async) for
+ * any gate that runs in production code paths.
  *
  * @param chain - Blockchain type to check (e.g. 'solana', 'bitcoin', 'ethereum')
  */
@@ -56,10 +54,12 @@ export function isBlockchainEnabled(chain: BlockchainType): boolean {
 }
 
 /**
- * Returns true if the given network belongs to an enabled blockchain.
+ * Returns true if the given network belongs to an enabled blockchain according
+ * to the legacy local defaults.
  *
- * Determines the blockchain family from the network ID prefix
- * (e.g. 'ethereum-mainnet' -> 'ethereum') and checks ENABLED_BLOCKCHAINS.
+ * @deprecated The backend network catalog is the runtime source of truth.
+ * Prefer `isBackendNetworkEnabled` from `api/services/network` (async) for
+ * any gate that runs in production code paths.
  *
  * @param networkId - Network identifier (e.g. 'solana-mainnet', 'ethereum-sepolia')
  */

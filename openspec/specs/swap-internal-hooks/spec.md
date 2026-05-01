@@ -1,4 +1,10 @@
-## ADDED Requirements
+# swap-internal-hooks Specification
+
+## Purpose
+
+Decompose `useSwapScreenLogic` into co-located sub-hooks: `useCountdownTimer` for the quote refresh countdown, `useQuoteManager` for debounced Jupiter/StealthEx quote fetching with reset semantics on token change, and `useTokenSync` for keeping `inToken`/`outToken` aligned with upstream token list updates via the existing `findMatchingToken`/`hasTokenSnapshotChanged` helpers.
+
+## Requirements
 
 ### Requirement: Countdown timer sub-hook
 

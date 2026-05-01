@@ -184,6 +184,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
             validationState === 'valid' && styles.inputContainerSuccess,
           ]}>
             <TextInput
+              testID="send-recipient-input"
               style={styles.textInput}
               placeholder={addressPlaceholder}
               placeholderTextColor={colors.text.secondary}
@@ -272,6 +273,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
           <Text style={styles.fieldLabel}>{t('token.send.amountLabel', 'Amount')}</Text>
           <BlurContainer style={styles.amountInputContainer}>
             <TextInput
+              testID="send-amount-input"
               style={styles.amountInput}
               placeholder="0"
               placeholderTextColor={colors.text.secondary}

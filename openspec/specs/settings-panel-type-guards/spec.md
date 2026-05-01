@@ -1,4 +1,10 @@
-## ADDED Requirements
+# settings-panel-type-guards Specification
+
+## Purpose
+
+Tighten the settings panel stack so `SettingsItem.id` is a union of valid `SettingsScreen` values plus non-panel action IDs (eliminating the `as SettingsScreen` cast in `handleItemClick`) and so missing entries in `panelRegistry` log a `console.warn` and render nothing instead of crashing.
+
+## Requirements
 
 ### Requirement: Type-safe SettingsItem IDs
 

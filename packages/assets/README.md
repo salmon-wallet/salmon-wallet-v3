@@ -74,7 +74,7 @@ Assets are organized into the following categories:
 - **Settings**: Settings and profile related icons
 - **Security**: Lock, visibility toggle icons
 - **Controls**: Toggles, pagination, UI controls
-- **Networks**: Blockchain network logos (NEAR, Solana, etc.)
+- **Networks**: Blockchain network logos (Bitcoin, Ethereum, Solana, etc.)
 - **Features**: Feature-specific icons (bridge, swap, etc.)
 - **External**: Third-party service logos
 - **Masks**: Background masks and decorative images

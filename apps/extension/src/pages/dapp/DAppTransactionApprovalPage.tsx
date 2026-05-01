@@ -6,10 +6,11 @@ import {
   approveSolanaTransactionRequest,
   getDAppTransactionRequestSummary,
   loadSolanaTransactionApprovalDetails,
+  useDAppMetadata,
   type BlockchainAccount,
   type DAppTransactionRequest,
-  isSolanaAccount,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 
 interface Props {
   origin: string;
@@ -27,6 +28,7 @@ export function DAppTransactionApprovalPage({
   onDismiss,
 }: Props): React.ReactElement {
   const [loading, setLoading] = useState(false);
+  const { metadata } = useDAppMetadata(origin);
   const [parsingError, setParsingError] = useState<string | null>(null);
   const [feeLamports, setFeeLamports] = useState<number | null>(null);
   const [instructionCount, setInstructionCount] = useState<number | null>(null);
@@ -112,6 +114,8 @@ export function DAppTransactionApprovalPage({
   return (
     <DAppTransactionApprovalView
       origin={origin}
+      appName={metadata?.name}
+      appIcon={metadata?.icon}
       requestSummary={getDAppTransactionRequestSummary(request.method)}
       feeSol={feeSol}
       instructionCount={instructionCount}

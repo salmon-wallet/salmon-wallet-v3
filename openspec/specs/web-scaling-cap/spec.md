@@ -1,7 +1,13 @@
-## ADDED Requirements
+# web-scaling-cap Specification
+
+## Purpose
+
+Cap the reference dimensions used by web scaling helpers (`s`, `vs`, `ms`, `mvs` in `scaling.ts`) so a 1440px browser window produces wallet-sized scale factors instead of ~3.27x, preserve the lazy-init dimensions cache, leave extension popup behavior unchanged, and default `WalletLayout`'s max-width to a column comparable to the extension popup viewport.
+
+## Requirements
 
 ### Requirement: Web scaling functions must use capped dimensions
-The web implementation of `s()`, `vs()`, `ms()`, `mvs()` in `scaling.ts` must use a fixed reference width and height that matches the wallet container size, not the full browser viewport.
+The web implementation of `s()`, `vs()`, `ms()`, `mvs()` in `scaling.ts` MUST use a fixed reference width and height that matches the wallet container size, not the full browser viewport.
 
 #### Scenario: Web app renders in a wide browser window
 - **WHEN** the web app is opened in a browser with `window.innerWidth` of 1440px
@@ -16,7 +22,7 @@ The web implementation of `s()`, `vs()`, `ms()`, `mvs()` in `scaling.ts` must us
 - **THEN** the capped dimensions are cached for subsequent calls (existing lazy-init behavior preserved)
 
 ### Requirement: WalletLayout default maxWidth matches mobile viewport
-The `WalletLayout` component must default to a `maxWidth` that produces a column width similar to the extension popup viewport.
+The `WalletLayout` component MUST default to a `maxWidth` that produces a column width similar to the extension popup viewport.
 
 #### Scenario: Web app renders with default WalletLayout
 - **WHEN** the web app renders `WalletLayout` without a custom `maxWidth` prop

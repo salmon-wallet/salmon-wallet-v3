@@ -176,7 +176,6 @@ export type {
   NftBlockchain,
   NftAttribute,
   SolanaNftData,
-  EthereumNftData,
   BitcoinNftData,
 } from './NftCard';
 

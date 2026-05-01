@@ -1,0 +1,69 @@
+appId: io.salmonwallet.app
+---
+# Recover Wallet A → add Account 2 → remove Account 2. Full account
+# lifecycle on a clean install.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+# Open WalletSwitcher
+- tapOn: "Switch wallet account"
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible: "Your Wallets"
+- assertVisible: "Add New Account"
+- takeScreenshot: screenshots/actions/account/wallets-before-add
+# Add Account 2
+- tapOn: "Add New Account"
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertVisible: "Add Account"
+# Tap "Create New Account" row by coord
+- tapOn:
+    point: "50%,19%"
+- extendedWaitUntil:
+    notVisible: "Scanning for accounts"
+    timeout: 60000
+# Select first derived row (Solana) — checkbox at left ~10%, row y ~22%
+- tapOn:
+    point: "10%,22%"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Confirm"
+    timeout: 15000
+# Confirm
+- tapOn:
+    point: "50%,27%"
+- waitForAnimationToEnd:
+    timeout: 8000
+# Confirm auto-closes to Home; Account 2 becomes active. Re-open switcher.
+- tapOn:
+    point: "92%,11%"
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn: "Switch wallet account"
+- extendedWaitUntil:
+    visible: "Your Wallets"
+    timeout: 5000
+- assertVisible: "Account 2"
+- takeScreenshot: screenshots/actions/account/account-2-added
+# Trash icon on Account 2 row (~85%, ~24% on iPhone 17 Pro Max)
+- tapOn:
+    point: "85%,24%"
+- extendedWaitUntil:
+    visible: "Delete Account?"
+    timeout: 5000
+- assertVisible: "Yes, remove"
+- tapOn: "Yes, remove"
+- waitForAnimationToEnd:
+    timeout: 5000
+# Re-open switcher to verify Account 2 gone
+- runFlow:
+    when:
+      notVisible: "Your Wallets"
+    commands:
+      - tapOn: "Switch wallet account"
+      - waitForAnimationToEnd:
+          timeout: 3000
+- assertVisible: "Your Wallets"
+- assertNotVisible: "Account 2"
+- takeScreenshot: screenshots/actions/account/account-2-removed

@@ -39,17 +39,16 @@ import {
   createAccount,
   fontFamilyNative,
   generateAccountName,
+  getMirrorNetworks,
+  getScanNetworks,
   getStashItem,
-  MIRROR_NETWORKS,
   PASSWORD_CONSTRAINTS,
   removeStashItem,
-  SCAN_NETWORKS,
   spacing,
   STASH_KEYS,
   useAccountsContext,
   validatePassword,
 } from '@salmon/shared';
-import * as LocalAuthentication from '../../utils/localAuthentication';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -222,10 +221,12 @@ export default function PasswordScreen() {
       // Derives accounts for ALL networks (mainnet + devnet/testnet)
       // This ensures accounts are ready when user enables developer mode later
       const t0 = Date.now();
+      const scanNetworks = await getScanNetworks();
+      const mirrorNetworks = await getMirrorNetworks();
       const { account } = await createAccount({
         name: accountName,
         mnemonic: mnemonic,
-        networkIds: [...SCAN_NETWORKS, ...Object.values(MIRROR_NETWORKS)],
+        networkIds: [...scanNetworks, ...Object.values(mirrorNetworks)],
         startIndex: 0,
       });
       console.log(`[perf] recovery: createAccount ${Date.now() - t0}ms`);
@@ -293,7 +294,7 @@ export default function PasswordScreen() {
     <>
       <StatusBar style="light" />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView
             style={styles.keyboardView}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -333,6 +334,7 @@ export default function PasswordScreen() {
               {/* Password Input */}
               <View style={styles.inputContainer}>
                 <PasswordInput
+                  testID="password-input"
                   value={password}
                   onChangeText={handlePasswordChange}
                   placeholder={
@@ -363,6 +365,7 @@ export default function PasswordScreen() {
               {!showSingleInput && (
                 <View style={styles.inputContainer}>
                   <PasswordInput
+                    testID="password-confirm-input"
                     value={confirmPassword}
                     onChangeText={handleConfirmPasswordChange}
                     placeholder={t('wallet.create.passwordRepeat') || 'Repeat password'}

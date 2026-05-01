@@ -6,7 +6,6 @@
  *
  * API Endpoints:
  * - GET /v1/coins/{platform} - Get all coin prices for a platform (static API)
- * - GET /v1/top-tokens - Get top tokens by market activity
  * - GET /v1/{networkId}/ft/price/{mintAddress} - Get specific token price (Jupiter Price API v3)
  * - GET /v1/chart/{coinId} - Get market chart data (price history)
  * - GET /v1/coin/{coinId} - Get detailed coin info
@@ -17,7 +16,6 @@ import { SmartCache } from '../../utils/cache';
 import type { SolanaNetworkId } from '../../types/blockchain';
 import type {
   TokenPrice,
-  TopToken,
   MarketChartData,
   CoinInfo,
   PricePlatform,
@@ -85,26 +83,6 @@ export async function getPricesByIds(
 }
 
 /**
- * Get top tokens by market activity
- *
- * Endpoint: GET /v1/top-tokens
- *
- * @param platform - Platform to filter by
- * @returns Array of top tokens
- */
-export async function getTopTokensByPlatform(platform: PricePlatform): Promise<TopToken[]> {
-  try {
-    const { data } = await apiClient.get<TopToken[]>('/v1/top-tokens', {
-      params: { platform },
-    });
-    return data || [];
-  } catch (error) {
-    console.error(`[PriceService] Failed to fetch top tokens for ${platform}:`, error);
-    return [];
-  }
-}
-
-/**
  * Get price for a specific Solana token from Jupiter Price API v3
  * Uses backend endpoint with caching and rate limiting
  *
@@ -119,12 +97,14 @@ export async function getSolanaTokenPrice(
   networkId: SolanaNetworkId = 'solana-mainnet',
   coingeckoId?: string
 ): Promise<JupiterApiPriceData | null> {
-  // Step 1: Try backend (Jupiter proxy)
+  // Step 1: Try backend (Jupiter proxy). Backend returns 200 with
+  // `{ usdPrice: null }` when Jupiter has no quote for the token, so treat
+  // null/undefined the same way and fall through to CoinGecko.
   try {
-    const { data } = await apiClient.get<{ usdPrice?: number; priceChange24h?: number | null }>(
+    const { data } = await apiClient.get<{ usdPrice?: number | null; priceChange24h?: number | null }>(
       `/v1/${networkId}/ft/price/${mintAddress}`
     );
-    if (data?.usdPrice !== undefined) {
+    if (data?.usdPrice != null) {
       return {
         usdPrice: data.usdPrice,
         priceChange24h: data.priceChange24h ?? null,

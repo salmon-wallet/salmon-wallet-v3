@@ -6,11 +6,12 @@ import {
 import {
   approveSolanaSignMessage,
   decodeDAppMessage,
+  useDAppMetadata,
   useAccountsContext,
   type DAppSignMessageApprovalPayload,
   type DAppSignMessageRequest,
-  getActiveSolanaApprovalAccount,
 } from '@salmon/shared';
+import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { onRequest, sendResponse } from '../../utils/walletBridge';
 
 export function SignMessageApprovalPage(): React.ReactElement {
@@ -20,6 +21,7 @@ export function SignMessageApprovalPage(): React.ReactElement {
   const [state] = useAccountsContext();
   const [request, setRequest] = useState<DAppSignMessageRequest | null>(null);
   const [loading, setLoading] = useState(false);
+  const { metadata } = useDAppMetadata(origin);
 
   useEffect(() => {
     const unsubscribe = onRequest((incoming) => {
@@ -84,6 +86,8 @@ export function SignMessageApprovalPage(): React.ReactElement {
   return (
     <DAppSignMessageApprovalView
       origin={origin}
+      appName={metadata?.name}
+      appIcon={metadata?.icon}
       messageText={messageData?.text ?? ''}
       disabled={!solanaAccount || !messageData}
       loading={loading}

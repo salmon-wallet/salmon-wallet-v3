@@ -1,4 +1,10 @@
-## ADDED Requirements
+# shared-ui-package Specification
+
+## Purpose
+
+Establish the `@salmon/ui` workspace package as the home for shared React DOM + MUI components reused by extension and web. The package SHALL extract every chrome-free component from `apps/extension/src/components/`, share the `styled` helper, force `fontSize` and spacing through `@salmon/shared` design tokens, and migrate extension imports to `@salmon/ui` without duplicating component code.
+
+## Requirements
 
 ### Requirement: packages/ui workspace package exists
 The monorepo SHALL contain a `packages/ui` workspace package (`@salmon/ui`) with its own `package.json`, `tsconfig.json`, and barrel exports. It MUST declare `react`, `@mui/material`, `@emotion/react`, `@emotion/styled`, and `@salmon/shared` as dependencies or peer dependencies.

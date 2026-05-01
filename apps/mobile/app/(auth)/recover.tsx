@@ -112,7 +112,7 @@ export default function RecoverWalletScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <KeyboardAvoidingView
           style={styles.keyboardView}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -145,6 +145,7 @@ export default function RecoverWalletScreen() {
             {/* Seed Phrase Input */}
             <View style={styles.inputContainer}>
               <TextInput
+                testID="recover-seed-input"
                 style={[
                   styles.textarea,
                   { borderColor: getInputBorderColor() },

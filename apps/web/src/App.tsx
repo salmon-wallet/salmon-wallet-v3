@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { WalletLayout } from '@salmon/ui';
 import { useAccountsContext, useInactivityTimeout } from '@salmon/shared';
@@ -7,6 +7,7 @@ import { clearSessionKey } from './utils/sessionKeyCache';
 
 function InactivityGuard({ children }: { children: React.ReactNode }) {
   const [state, actions] = useAccountsContext();
+  const closeLockTriggeredRef = useRef(false);
 
   useInactivityTimeout({
     timeoutMs: 5 * 60 * 1000,
@@ -16,6 +17,31 @@ function InactivityGuard({ children }: { children: React.ReactNode }) {
     },
     enabled: state.ready && !state.locked && state.accounts.length > 0,
   });
+
+  useEffect(() => {
+    if (!state.ready || state.locked || state.accounts.length === 0) {
+      closeLockTriggeredRef.current = false;
+      return;
+    }
+
+    const handleClose = () => {
+      if (closeLockTriggeredRef.current) {
+        return;
+      }
+
+      closeLockTriggeredRef.current = true;
+      void clearSessionKey();
+      void actions.lockAccounts();
+    };
+
+    window.addEventListener('pagehide', handleClose);
+    window.addEventListener('beforeunload', handleClose);
+
+    return () => {
+      window.removeEventListener('pagehide', handleClose);
+      window.removeEventListener('beforeunload', handleClose);
+    };
+  }, [actions, state.accounts.length, state.locked, state.ready]);
 
   return <>{children}</>;
 }

@@ -115,7 +115,6 @@ export const KNOWN_DECIMALS: Record<string, number> = {
   sol: 9,
   usdc: 6,
   usdt: 6,
-  near: 24,
 };
 
 /** Fallback logos for native/popular tokens when APIs don't return images */

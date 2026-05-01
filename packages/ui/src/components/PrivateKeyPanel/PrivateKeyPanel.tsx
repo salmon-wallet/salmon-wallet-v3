@@ -35,9 +35,7 @@ import {
   spacing,
   borderRadius,
   borderWidth,
-  useAccounts,
-  buildNetworkListFromAccount,
-  getAccountKeysForNetwork,
+  useAccountsContext,
   getShortAddress,
   type AccountKeyInfo,
   fontFamily,
@@ -49,6 +47,10 @@ import {
   duration,
   durationMs,
 } from '@salmon/shared';
+import {
+  buildNetworkListFromAccount,
+  getAccountKeysForNetwork,
+} from '@salmon/shared/utils/account';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import type { PrivateKeyPanelProps } from './types';
 
@@ -198,7 +200,7 @@ const ChevronIcon = styled(ChevronRightIcon)({
 
 export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactElement {
   const { t } = useTranslation();
-  const [state] = useAccounts();
+  const [state] = useAccountsContext();
   const { activeAccount } = state;
 
   const [selectedNetworkId, setSelectedNetworkId] = useState<string | null>(null);

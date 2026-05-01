@@ -1,4 +1,10 @@
-## ADDED Requirements
+# wallet-standard-registration Specification
+
+## Purpose
+
+Register the Salmon web app as a discoverable wallet via the wallet-standard event protocol. Registration SHALL dispatch `wallet-standard:register-wallet`, listen for `wallet-standard:app-ready` from late-arriving dApps, run only once across StrictMode mounts, and avoid impersonating a dApp host so that third-party wallet extensions (Phantom, Backpack, OKX, etc.) keep working without console errors.
+
+## Requirements
 
 ### Requirement: Web wallet registers via wallet-standard protocol
 The web app (`apps/web`) SHALL register itself as a discoverable wallet using the wallet-standard event protocol. Registration MUST dispatch a `wallet-standard:register-wallet` event and listen for `wallet-standard:app-ready` events from late-arriving dApps.

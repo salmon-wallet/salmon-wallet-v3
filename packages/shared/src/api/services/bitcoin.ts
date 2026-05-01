@@ -52,6 +52,11 @@ export type {
  *
  * Endpoint: GET /v1/{networkId}/account/{address}/balance?include=logo
  *
+ * Backend note:
+ * - The documented type here is BitcoinBalance
+ * - The live backend may also return BitcoinBalanceItem[] for the native BTC asset
+ * - This service normalizes both shapes into a BitcoinBalance result
+ *
  * @param networkId - Bitcoin network identifier
  * @param address - Bitcoin address
  * @returns Balance data with logo, or null if not found
@@ -61,12 +66,34 @@ export async function getBitcoinBalance(
   address: string
 ): Promise<BitcoinBalance | null> {
   try {
-    const { data } = await apiClient.get<BitcoinBalance>(
+    const { data } = await apiClient.get<BitcoinBalance | BitcoinBalanceItem[]>(
       `/v1/${networkId}/account/${address}/balance`,
       {
         params: { include: 'logo' },
       }
     );
+
+    if (Array.isArray(data)) {
+      const nativeBalance = data[0];
+      if (!nativeBalance) {
+        return {
+          confirmed: 0,
+          unconfirmed: 0,
+          total: 0,
+          logo: null,
+        };
+      }
+
+      const total = Number(nativeBalance.amount || 0);
+
+      return {
+        confirmed: total,
+        unconfirmed: 0,
+        total,
+        logo: nativeBalance.logo || null,
+      };
+    }
+
     return data;
   } catch (error) {
     if (error instanceof ApiError && error.isNotFound()) {
@@ -152,6 +179,10 @@ export async function getBitcoinTransactions(
  * Get a single transaction by ID
  *
  * Endpoint: GET /v1/{networkId}/account/{address}/transactions/{txId}
+ *
+ * Backend note:
+ * - The live transaction detail endpoint returns a transaction object keyed by `id`
+ * - Unlike paginated transaction history items, it does not guarantee a `signature` field
  *
  * @param networkId - Bitcoin network identifier
  * @param address - Bitcoin address

@@ -122,6 +122,48 @@ vi.mock('../blockchain/ethereum', () => ({
   },
 }));
 
+vi.mock('../api/services/network', () => ({
+  getNetworks: vi.fn().mockResolvedValue([
+    { id: 'solana-mainnet', blockchain: 'solana', enabled: true, config: {} },
+    { id: 'solana-devnet', blockchain: 'solana', enabled: true, config: {} },
+    { id: 'bitcoin-mainnet', blockchain: 'bitcoin', enabled: true, config: {} },
+    { id: 'bitcoin-testnet', blockchain: 'bitcoin', enabled: true, config: {} },
+    { id: 'ethereum-mainnet', blockchain: 'ethereum', enabled: true, config: {} },
+    { id: 'ethereum-sepolia', blockchain: 'ethereum', enabled: true, config: {} },
+  ]),
+  isBackendNetworkEnabled: vi.fn().mockResolvedValue(true),
+  getEnabledNetworkIds: vi.fn().mockResolvedValue([
+    'solana-mainnet',
+    'solana-devnet',
+    'bitcoin-mainnet',
+    'bitcoin-testnet',
+    'ethereum-mainnet',
+    'ethereum-sepolia',
+  ]),
+}));
+
+vi.mock('./useAvailableNetworks', () => ({
+  fetchAndMergeNetworkConfigs: vi.fn().mockResolvedValue(true),
+}));
+
+vi.mock('../utils/account', async () => {
+  const actual = await vi.importActual<typeof import('../utils/account')>('../utils/account');
+  return {
+    ...actual,
+    createBlockchainAccountForNetwork: vi.fn(async (networkId: string) => {
+      if (networkId.startsWith('solana')) {
+        return {
+          path: "m/44'/501'/0'/0'",
+          index: 0,
+          network: { id: networkId, name: networkId, blockchain: 'SOLANA' },
+          getReceiveAddress: () => 'TestAddress111111111111111111111111111111',
+        };
+      }
+      return null;
+    }),
+  };
+});
+
 vi.mock('axios', () => {
   const mockInstance = {
     get: vi.fn(),
@@ -582,6 +624,124 @@ describe('useAccounts Hook', () => {
       expect(secondHook.result.current[0].locked).toBe(true);
       expect(encryption.unlockWithKey).toHaveBeenCalledTimes(1);
     });
+
+    it('should clear the cached derived key after changing the password', async () => {
+      const encryptedData = {
+        isEncrypted: true,
+        nonce: 'test-nonce',
+        salt: 'test-salt',
+        ciphertext: 'encrypted-data',
+        digest: 'sha512' as const,
+        iterations: 210000,
+      };
+
+      const decryptedMnemonics = { [MOCK_ACCOUNT_ID]: MOCK_MNEMONIC };
+      const newVault = {
+        isEncrypted: true,
+        nonce: 'new-nonce',
+        salt: 'new-salt',
+        ciphertext: 'new-encrypted-data',
+        digest: 'sha512' as const,
+        iterations: 210000,
+      };
+
+      stashStore['derived_key_cache'] = {
+        key: [1, 2, 3],
+        salt: 'old-salt',
+        iterations: 210000,
+        digest: 'sha512' as const,
+        expiresAt: Date.now() + 60_000,
+      };
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
+        if (key === 'salmon_wallets') return Promise.resolve(null);
+        return Promise.resolve(null);
+      });
+      (encryption.unlockAndGetKey as any).mockResolvedValue({
+        data: decryptedMnemonics,
+        keyCache: {
+          key: [1, 2, 3],
+          salt: 'old-salt',
+          iterations: 210000,
+          digest: 'sha512' as const,
+          expiresAt: Date.now() + 60_000,
+        },
+      });
+      (encryption.lock as any).mockResolvedValue(newVault);
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      await act(async () => {
+        const changed = await result.current[1].changePassword(
+          MOCK_PASSWORD,
+          'NewSecurePassword456!'
+        );
+        expect(changed).toBe(true);
+      });
+
+      expect(encryption.unlockAndGetKey).toHaveBeenCalledWith(encryptedData, MOCK_PASSWORD);
+      expect(encryption.lock).toHaveBeenCalledWith(
+        decryptedMnemonics,
+        'NewSecurePassword456!'
+      );
+      expect(storage.setStorageItem).toHaveBeenCalledWith('salmon_mnemonics', newVault);
+      expect(storage.removeStashItem).toHaveBeenCalledWith('derived_key_cache');
+      expect(stashStore['derived_key_cache']).toBeUndefined();
+    });
+
+    it('should ignore an invalid cached key on init and remain locked with metadata loaded', async () => {
+      const mockAccount = createMockAccount();
+      const storedAccounts = [{
+        id: mockAccount.id,
+        name: mockAccount.name,
+        avatar: mockAccount.avatar,
+        pathIndexes: mockAccount.pathIndexes,
+      }];
+
+      const encryptedData = {
+        isEncrypted: true,
+        nonce: 'test-nonce',
+        salt: 'test-salt',
+        ciphertext: 'encrypted-data',
+      };
+
+      stashStore['derived_key_cache'] = {
+        key: [1, 2, 3],
+        salt: 'stale-salt',
+        iterations: 210000,
+        digest: 'sha512' as const,
+        expiresAt: Date.now() - 1,
+      };
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_mnemonics') return Promise.resolve(encryptedData);
+        if (key === 'salmon_accounts') return Promise.resolve(storedAccounts);
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount.id);
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
+        if (key === 'salmon_account_counter') return Promise.resolve(1);
+        if (key === 'salmon_wallets') return Promise.resolve(null);
+        return Promise.resolve(null);
+      });
+      (encryption.isKeyCacheValid as any).mockReturnValue(false);
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      expect(encryption.unlockWithKey).not.toHaveBeenCalled();
+      expect(result.current[0].locked).toBe(true);
+      expect(result.current[0].requiredLock).toBe(true);
+      expect(result.current[0].accounts).toHaveLength(1);
+      expect(result.current[0].accounts[0].mnemonic).toBe('');
+      expect(result.current[0].accounts[0].networksAccounts).toEqual({});
+    });
   });
 
   describe('Account Management', () => {
@@ -875,6 +1035,45 @@ describe('useAccounts Hook', () => {
       expect(state.requiredLock).toBe(false);
       expect(storage.removeStorageItem).toHaveBeenCalledWith('salmon_mnemonics');
       expect(storage.removeStorageItem).toHaveBeenCalledWith('salmon_accounts');
+    });
+
+    it('should clear the cached derived key when removing all accounts', async () => {
+      const mockAccount = createMockAccount();
+
+      stashStore['derived_key_cache'] = {
+        key: [1, 2, 3],
+        salt: 'test-salt',
+        iterations: 210000,
+        digest: 'sha512' as const,
+        expiresAt: Date.now() + 60_000,
+      };
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_accounts') return Promise.resolve([{
+          id: mockAccount.id,
+          name: mockAccount.name,
+          avatar: mockAccount.avatar,
+          pathIndexes: mockAccount.pathIndexes,
+        }]);
+        if (key === 'salmon_mnemonics') return Promise.resolve({ [mockAccount.id]: MOCK_MNEMONIC });
+        return Promise.resolve(null);
+      });
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current[1].removeAllAccounts();
+      });
+
+      expect(storage.removeStashItem).toHaveBeenCalledWith('derived_key_cache');
+      expect(stashStore['derived_key_cache']).toBeUndefined();
+      expect(result.current[0].accounts).toEqual([]);
+      expect(result.current[0].accountId).toBeNull();
+      expect(result.current[0].networkId).toBeNull();
     });
   });
 

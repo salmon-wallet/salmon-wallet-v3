@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-swap-bridge Specification
+
+## Purpose
+
+Wire the web HomePage's swap tab to the shared `SwapScreen` from `@salmon/ui`, backed by `useSwap` for same-chain quotes/execute, `useBridge` for cross-chain estimates and exchange creation, and `useBalance().tokens` for token selection. After a successful swap or bridge, the tab SHALL switch back to home and refresh balances.
+
+## Requirements
 
 ### Requirement: SwapTab renders SwapScreen with real data
 The SwapTab (rendered inside HomePage's swap tab) SHALL render SwapScreen from `@salmon/ui` wired with `useSwap()` for quote/execute and `useBalance().tokens` for token selection.

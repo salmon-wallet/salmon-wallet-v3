@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-dapp-connection Specification
+
+## Purpose
+
+Define how the web app exposes Salmon to dApps via the wallet-standard protocol and approves their requests. Salmon SHALL register through `@wallet-standard/base` advertising Solana mainnet/devnet, implement the connect/disconnect/events plus Solana sign features, surface approval popups at `/dapp/connect`, `/dapp/sign-message`, `/dapp/sign-transaction`, exchange responses over per-request `BroadcastChannel` instances, validate origins (auto-approving trusted apps for connect), and only stay discoverable while the web app tab is open.
+
+## Requirements
 
 ### Requirement: Salmon registers as a wallet-standard wallet
 The web app SHALL register Salmon as a discoverable wallet using the `@wallet-standard/base` `registerWallet` API. The registration MUST expose the wallet name "Salmon", an icon, and supported chains (`solana:mainnet`, `solana:devnet`).

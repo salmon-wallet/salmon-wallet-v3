@@ -6,7 +6,6 @@
  * to the appropriate blockchain transfer service.
  *
  * - Solana: transfers SPL token with amount=1 via account.transfer()
- * - Ethereum: transfers ERC721/ERC1155 via account.transfer() with tokenType opts
  * - Bitcoin: not supported (ordinal transfers require special UTXO selection)
  */
 
@@ -15,13 +14,19 @@ import type { BlockchainAccount } from '../types/blockchain';
 import type {
   NftData,
   SolanaNftData,
-  EthereumNftData,
 } from '../utils/nft';
 
 export type NftTransferStatus = 'idle' | 'sending' | 'success' | 'failed';
 
 export interface UseNftTransferParams {
   account: BlockchainAccount | undefined;
+  /**
+   * Optional callback fired after a transfer completes successfully. Consumers
+   * should wire this to refetch the NFT list so the UI does not display the
+   * sent NFT until the indexer (Helius DAS, ~10–30s) catches up. Without a
+   * refetch, the list will look stale right after the user confirms the send.
+   */
+  onTransferSuccess?: (nft: NftData, txId: string) => void;
 }
 
 export interface UseNftTransferResult {
@@ -32,7 +37,7 @@ export interface UseNftTransferResult {
   reset: () => void;
 }
 
-export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransferResult {
+export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferParams): UseNftTransferResult {
   const [status, setStatus] = useState<NftTransferStatus>('idle');
   const [error, setError] = useState<string | null>(null);
 
@@ -56,13 +61,6 @@ export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransfe
         if (nft.blockchain === 'solana') {
           const solanaNft = nft as SolanaNftData;
           result = await account.transfer(recipientAddress, solanaNft.mint, 1);
-        } else if (nft.blockchain === 'ethereum') {
-          const ethNft = nft as EthereumNftData;
-          result = await account.transfer(recipientAddress, ethNft.contractAddress, 1, {
-            tokenId: ethNft.tokenId,
-            tokenType: ethNft.tokenType.toLowerCase() as 'erc721' | 'erc1155',
-            symbol: ethNft.symbol,
-          });
         } else {
           // TODO: Bitcoin ordinal transfers require inscription-aware UTXO selection.
           // QuickNode's Ordinals & Runes API provides ord_getOutput(txid:vout) which
@@ -75,6 +73,7 @@ export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransfe
         }
 
         setStatus('success');
+        onTransferSuccess?.(nft, result.txId);
         return result;
       } catch (err) {
         console.error('[useNftTransfer] Transfer failed:', err);
@@ -84,9 +83,8 @@ export function useNftTransfer({ account }: UseNftTransferParams): UseNftTransfe
         throw err;
       }
     },
-    [account],
+    [account, onTransferSuccess],
   );
 
   return { sendNft, status, error, isError: error !== null, reset };
 }
-

@@ -110,6 +110,10 @@ export async function getSolanaTransactions(
  *
  * Endpoint: GET /v1/{networkId}/account/{address}/transactions/{txId}
  *
+ * Backend note:
+ * - Paginated transaction history items usually include both `id` and `signature`
+ * - The live transaction detail endpoint is keyed by `id` and does not always include `signature`
+ *
  * @param networkId - Solana network identifier
  * @param address - Solana wallet address
  * @param signature - Transaction signature

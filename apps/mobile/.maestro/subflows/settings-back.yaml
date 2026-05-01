@@ -1,0 +1,7 @@
+appId: io.salmonwallet.app
+---
+# Tap back chevron in settings sheet header (top-left).
+- tapOn:
+    point: "8%,11%"
+- waitForAnimationToEnd:
+    timeout: 2000

@@ -1,7 +1,7 @@
 import type { ViewStyle } from 'react-native';
 import type {
   BlockchainAccount,
-  MarketplaceTransactionResponse,
+  PreparedNftTransactionResponse,
 } from '@salmon/shared';
 import type { NftData } from '../NftCard/types';
 
@@ -30,7 +30,7 @@ export interface NftDetailSheetProps {
   /** Callback fired after a successful send flow is acknowledged */
   onSendSuccess?: (txId: string) => void;
   /** Prepared burn transaction flow metadata */
-  burnPreview?: MarketplaceTransactionResponse | null;
+  burnPreview?: PreparedNftTransactionResponse | null;
   /** Whether the burn preview is being prepared or the burn is being submitted */
   burnPreparing?: boolean;
   /** Successful burn transaction ID */

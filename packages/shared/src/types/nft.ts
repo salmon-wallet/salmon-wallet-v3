@@ -203,7 +203,7 @@ export interface GetNftsOptions {
 }
 
 // ============================================================================
-// Marketplace types (moved from api/services/marketplace.ts)
+// NFT burn transaction types
 // ============================================================================
 
 /**
@@ -275,7 +275,7 @@ export interface BurnNftParams {
 /**
  * Response containing a serialized transaction
  */
-export interface MarketplacePreparedTransaction {
+export interface PreparedNftTransaction {
   /** Base64 encoded serialized transaction */
   transaction: string;
   /** Optional flow step identifier */
@@ -288,7 +288,7 @@ export interface MarketplacePreparedTransaction {
   message?: string;
 }
 
-export interface MarketplaceLookupTableInfo {
+export interface NftLookupTableInfo {
   /** Whether this burn requires a lookup table flow */
   required: boolean;
   /** Rent-exempt amount locked in the LUT account */
@@ -301,13 +301,13 @@ export interface MarketplaceLookupTableInfo {
   extendTransactionCount: number;
 }
 
-export interface MarketplaceTransactionResponse {
+export interface PreparedNftTransactionResponse {
   /** Base64 encoded serialized transaction */
   transaction?: string;
   /** Optional multi-step transaction flow */
-  transactions?: MarketplacePreparedTransaction[];
+  transactions?: PreparedNftTransaction[];
   /** Optional lookup table metadata for multi-step flows */
-  lookupTable?: MarketplaceLookupTableInfo;
+  lookupTable?: NftLookupTableInfo;
   /** Optional message or instruction */
   message?: string;
 }
@@ -359,59 +359,7 @@ export interface NftBid {
 }
 
 // ============================================================================
-// Ethereum NFT types (moved from api/services/ethereum-nft.ts)
-// ============================================================================
-
-/**
- * Ethereum NFT attribute from metadata
- */
-export interface EthereumNftAttribute {
-  trait_type: string;
-  value: string | number;
-}
-
-/**
- * Ethereum NFT data structure (matches backend response)
- */
-export interface EthereumNft {
-  /** Token standard (ERC721 or ERC1155) */
-  standard: 'ERC721' | 'ERC1155';
-  /** Contract address */
-  contract: string;
-  /** Token ID within the contract */
-  mint: string;
-  /** Owner address */
-  owner: string;
-  /** NFT name */
-  name: string;
-  /** NFT description */
-  description?: string;
-  /** Token symbol */
-  symbol?: string;
-  /** Token URI */
-  uri?: string;
-  /** Media/image URL */
-  media?: string;
-  /** Collection info */
-  collection?: {
-    name: string;
-    slug?: string;
-  };
-  /** Extra metadata */
-  extras: {
-    properties?: {
-      tokenType?: string;
-      contractDeployer?: string;
-    };
-    attributes?: EthereumNftAttribute[];
-    creators?: Array<{ address: string; share?: number }>;
-  };
-  /** Whether NFT is blacklisted */
-  blacklisted?: boolean;
-}
-
-// ============================================================================
-// Bitcoin Ordinal types (moved from api/services/bitcoin-nft.ts)
+// Bitcoin Ordinal types
 // ============================================================================
 
 /**

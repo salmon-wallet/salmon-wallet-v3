@@ -12,8 +12,8 @@ import {
   createBurnTransaction,
   signAndSendPreparedSolanaTransactions,
   type NftData,
-  isSolanaAccount,
 } from '@salmon/shared';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { NftDetailPage, NftSendDialog } from '@salmon/ui';
 
 export function NftDetailRoute(): React.ReactElement {
@@ -121,7 +121,7 @@ export function NftDetailRoute(): React.ReactElement {
 
   const handleSendSuccess = useCallback(() => {
     setNftSendVisible(false);
-    navigate('/home');
+    navigate('/home', { state: { refreshCollectibles: true } });
   }, [navigate]);
 
   // Deep link fallback — no NFT data in location state

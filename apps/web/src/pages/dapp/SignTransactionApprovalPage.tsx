@@ -7,10 +7,11 @@ import {
   approveSolanaTransactionRequest,
   getDAppTransactionRequestSummary,
   loadSolanaTransactionApprovalDetails,
+  useDAppMetadata,
   useAccountsContext,
   type DAppTransactionRequest,
-  getActiveSolanaApprovalAccount,
 } from '@salmon/shared';
+import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
 import { onRequest, sendResponse } from '../../utils/walletBridge';
 
 export function SignTransactionApprovalPage(): React.ReactElement {
@@ -20,6 +21,7 @@ export function SignTransactionApprovalPage(): React.ReactElement {
   const [state] = useAccountsContext();
   const [request, setRequest] = useState<DAppTransactionRequest | null>(null);
   const [loading, setLoading] = useState(false);
+  const { metadata } = useDAppMetadata(origin);
   const [parsingError, setParsingError] = useState<string | null>(null);
   const [feeLamports, setFeeLamports] = useState<number | null>(null);
   const [instructionCount, setInstructionCount] = useState<number | null>(null);
@@ -124,6 +126,8 @@ export function SignTransactionApprovalPage(): React.ReactElement {
   return (
     <DAppTransactionApprovalView
       origin={origin}
+      appName={metadata?.name}
+      appIcon={metadata?.icon}
       requestSummary={request ? getDAppTransactionRequestSummary(request.method) : 'signTransaction'}
       feeSol={feeSol}
       instructionCount={instructionCount}

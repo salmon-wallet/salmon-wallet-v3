@@ -1,15 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createApiClient } from '../client';
+import { getReachableBackendBaseUrl } from '../test-backend';
 
-vi.mock('../client', () => ({
-  apiClient: {
-    get: vi.fn(),
-  },
-}));
+vi.mock('../client', async () => {
+  const actual = await vi.importActual<typeof import('../client')>('../client');
+
+  return {
+    ...actual,
+    apiClient: {
+      get: vi.fn(),
+    },
+  };
+});
 
 import { apiClient } from '../client';
 import { getSolanaNfts } from './solana-nft';
 
 const mockApiClientGet = vi.mocked(apiClient.get);
+
+const backendBaseUrl = await getReachableBackendBaseUrl();
 
 describe('solana-nft service', () => {
   beforeEach(() => {
@@ -72,5 +81,56 @@ describe('solana-nft service', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0]?.mint.address).toBe('Mint111');
+  });
+});
+
+describe.skipIf(!backendBaseUrl)('solana-nft service integration', () => {
+  const testOwner = 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK';
+
+  it('reads the live owner NFT endpoint contract from salmon-api and preserves normalization invariants', { timeout: 30000 }, async () => {
+    const client = createApiClient({
+      baseUrl: backendBaseUrl!,
+      timeout: 15000,
+    });
+
+    const response = await client.get('/v1/solana-mainnet/nft', {
+      params: { publicKey: testOwner, noCache: true },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(
+      expect.objectContaining({
+        data: expect.any(Array),
+        pagination: expect.any(Object),
+      }),
+    );
+
+    mockApiClientGet.mockImplementation(async (path, config) => {
+      const url = new URL(`${backendBaseUrl!}${path as string}`);
+      const params = config?.params as Record<string, string | boolean> | undefined;
+      if (params) {
+        for (const [key, value] of Object.entries(params)) {
+          url.searchParams.set(key, String(value));
+        }
+      }
+
+      const liveResponse = await fetch(url.toString(), {
+        method: 'GET',
+        signal: AbortSignal.timeout(15000),
+      });
+
+      return {
+        data: await liveResponse.json(),
+      } as { data: unknown };
+    });
+
+    const nfts = await getSolanaNfts('solana-mainnet', testOwner, true);
+
+    expect(Array.isArray(nfts)).toBe(true);
+    for (const nft of nfts) {
+      expect(nft.owner).toBeTruthy();
+      expect(nft.mint.address).toBeTruthy();
+      expect(nft.media).toBeTruthy();
+    }
   });
 });

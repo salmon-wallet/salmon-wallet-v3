@@ -17,9 +17,9 @@ const STICKY_CTA_SCROLL_GAP = spacing['2xl'];
  */
 export function useTabChrome() {
   const insets = useSafeAreaInsets();
+  const { top: topInset, bottom: bottomInset } = insets;
 
   return useMemo(() => {
-    const topInset = insets.top;
     const headerTopInset = topInset;
     const headerChromeHeight = headerTopInset + componentSizes.headerHeight;
     const headerContentOffset = headerTopInset + componentSizes.headerInnerHeight;
@@ -29,7 +29,7 @@ export function useTabChrome() {
     const heroCardTopInset = Platform.OS === 'ios' ? topInset : 0;
 
     const tabBarBottomPadding =
-      Math.max(insets.bottom, componentSizes.tabBarMinBottomPadding) +
+      Math.max(bottomInset, componentSizes.tabBarMinBottomPadding) +
       vs(TAB_BAR_EXTRA_BOTTOM_GAP);
     const tabBarTotalHeight =
       vs(TAB_BAR_TOP_PADDING) + vs(TAB_BAR_CONTENT_HEIGHT) + tabBarBottomPadding;
@@ -53,7 +53,7 @@ export function useTabChrome() {
         tabBarTotalHeight + vs(spacing['3xl'])
       ),
     };
-  }, [insets.bottom, insets.top]);
+  }, [bottomInset, insets, topInset]);
 }
 
 export default useTabChrome;

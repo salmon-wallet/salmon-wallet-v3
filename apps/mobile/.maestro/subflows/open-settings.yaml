@@ -1,0 +1,8 @@
+appId: io.salmonwallet.app
+---
+# Assumes Home (Switch wallet account chip visible). Opens the Settings sheet.
+- assertVisible: "Switch wallet account"
+- tapOn: "Open settings"
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 5000

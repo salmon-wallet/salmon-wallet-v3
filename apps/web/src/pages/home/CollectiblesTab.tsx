@@ -12,7 +12,6 @@ import {
   getNftSectionTitle,
   INITIAL_NFT_SECTIONS,
   SOLANA_NETWORKS,
-  getAllNfts,
   getSolanaNfts,
   type Account,
   type NftData,
@@ -20,8 +19,9 @@ import {
   type NftSection,
   type NftsBySection,
   type Nft,
-  isSolanaAccount,
 } from '@salmon/shared';
+import { getAll as getAllNfts } from '@salmon/shared/blockchain/solana/nft';
+import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { NftCarouselSection } from '@salmon/ui';
 
 // ---------------------------------------------------------------------------

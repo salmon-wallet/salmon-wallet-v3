@@ -133,7 +133,7 @@ const ForgotPasswordButton = styled('button')({
 // Component
 // ============================================================================
 
-export function LockPage({ onUnlock, onUnlockWithCachedKey, onRemoveAllAccounts }: LockPageProps) {
+export function LockPage({ onUnlock, onUnlockWithCachedKey: _onUnlockWithCachedKey, onRemoveAllAccounts }: LockPageProps) {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);

@@ -23,7 +23,6 @@ export {
   // Functions
   getPricesByPlatform,
   getPricesByIds,
-  getTopTokensByPlatform,
   getSolanaTokenPrice,
   getMarketChart,
   getCoinInfo,
@@ -67,25 +66,13 @@ export {
 } from './balance';
 
 // ============================================================================
-// Marketplace Service
+// NFT Burn Service
 // ============================================================================
 
 export {
   // Functions
-  createListingTransaction,
-  createUnlistTransaction,
-  createBuyTransaction,
-  createBidTransaction,
-  createCancelBidTransaction,
   createBurnTransaction,
-  getUserListings,
-  getUserBids,
-  getCollectionGroupByFilter,
-  getCollectionById,
-  getCollectionItemsById,
-  getListedByOwner,
-  getBidsByOwner,
-} from './marketplace';
+} from './nft-burn';
 
 // ============================================================================
 // Bitcoin Service
@@ -163,28 +150,12 @@ export {
 } from './dapp';
 
 // ============================================================================
-// Switch Service (Feature Flags)
-// ============================================================================
-
-export {
-  // Functions
-  getSwitches,
-  getSwitch,
-  isNetworkEnabled,
-  getSwitchMap,
-  getEnabledNetworks,
-  clearSwitchesCache,
-} from './switch';
-
-// ============================================================================
 // Bridge Service
 // ============================================================================
 
 export {
   // Functions
-  getBridgeSupportedTokens,
   getBridgeAvailableTokens,
-  getBridgeFeaturedTokens,
   getBridgeEstimatedAmount,
   getBridgeMinimalAmount,
   createBridgeExchange,
@@ -221,19 +192,6 @@ export {
 } from './transactions';
 
 // ============================================================================
-// Ethereum NFT Service
-// ============================================================================
-
-export {
-  // Types
-  type EthereumNftAttribute,
-  type EthereumNft,
-  // Functions
-  getEthereumNfts,
-  getEthereumNftById,
-} from './ethereum-nft';
-
-// ============================================================================
 // Solana NFT Service
 // ============================================================================
 
@@ -242,19 +200,6 @@ export {
   getSolanaNfts,
   getSolanaNftByAddress,
 } from './solana-nft';
-
-// ============================================================================
-// Bitcoin Ordinals Service
-// ============================================================================
-
-export {
-  // Types
-  type OrdinalAttribute,
-  type BitcoinOrdinal,
-  // Functions
-  getBitcoinOrdinals,
-  getBitcoinOrdinalById,
-} from './bitcoin-nft';
 
 // ============================================================================
 // Network Service

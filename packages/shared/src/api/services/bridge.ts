@@ -5,9 +5,7 @@
  * Provides cross-chain bridge functionality for token swaps between networks.
  *
  * API Endpoints:
- * - GET /v1/bridge/supported - Get supported tokens for bridging
  * - GET /v1/bridge/available - Get available tokens to bridge to from a given symbol
- * - GET /v1/bridge/featured - Get featured/popular bridge pairs for a token
  * - GET /v1/bridge/estimate - Get estimated output amount for a bridge swap
  * - GET /v1/bridge/minimal - Get minimum amount required for a bridge swap
  * - GET /v1/bridge/exchange - Create a new bridge exchange transaction
@@ -16,9 +14,7 @@
 
 import { apiClient } from '../client';
 import type {
-  BridgeToken,
   BridgeAvailableToken,
-  BridgeFeaturedToken,
   BridgeEstimateResponse,
   BridgeMinimalResponse,
   BridgeExchange,
@@ -28,28 +24,6 @@ import type {
 // ============================================================================
 // Bridge Service Functions
 // ============================================================================
-
-/**
- * Get all supported tokens for bridging on a network
- *
- * Endpoint: GET /v1/bridge/supported
- *
- * @param network - Network identifier (e.g., 'solana', 'ethereum')
- * @returns Array of supported bridge tokens or null if unavailable
- */
-export async function getBridgeSupportedTokens(
-  network: string
-): Promise<BridgeToken[] | null> {
-  try {
-    const { data } = await apiClient.get<BridgeToken[]>('/v1/bridge/supported', {
-      params: { network },
-    });
-    return data ?? null;
-  } catch (error) {
-    console.error('[BridgeService] Failed to fetch supported tokens:', error);
-    throw new Error(`Bridge fetch supported tokens failed: ${error instanceof Error ? error.message : error}`);
-  }
-}
 
 /**
  * Get available tokens that can be received when bridging from a specific token
@@ -70,28 +44,6 @@ export async function getBridgeAvailableTokens(
   } catch (error) {
     console.error('[BridgeService] Failed to fetch available tokens:', error);
     throw new Error(`Bridge fetch available tokens failed: ${error instanceof Error ? error.message : error}`);
-  }
-}
-
-/**
- * Get featured/popular bridge pairs for a specific token
- *
- * Endpoint: GET /v1/bridge/featured
- *
- * @param symbol - Token symbol to get featured pairs for
- * @returns Array of featured tokens or null if unavailable
- */
-export async function getBridgeFeaturedTokens(
-  symbol: string
-): Promise<BridgeFeaturedToken[] | null> {
-  try {
-    const { data } = await apiClient.get<BridgeFeaturedToken[]>('/v1/bridge/featured', {
-      params: { symbol: symbol.toLowerCase() },
-    });
-    return data ?? null;
-  } catch (error) {
-    console.error('[BridgeService] Failed to fetch featured tokens:', error);
-    throw new Error(`Bridge fetch featured tokens failed: ${error instanceof Error ? error.message : error}`);
   }
 }
 

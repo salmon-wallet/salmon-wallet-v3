@@ -1,5 +1,7 @@
 export interface DAppConnectApprovalViewProps {
   origin: string;
+  appName?: string;
+  appIcon?: string;
   address?: string;
   disabled?: boolean;
   loading?: boolean;
@@ -10,6 +12,8 @@ export interface DAppConnectApprovalViewProps {
 
 export interface DAppSignMessageApprovalViewProps {
   origin: string;
+  appName?: string;
+  appIcon?: string;
   messageText: string;
   disabled?: boolean;
   loading?: boolean;
@@ -19,6 +23,8 @@ export interface DAppSignMessageApprovalViewProps {
 
 export interface DAppTransactionApprovalViewProps {
   origin: string;
+  appName?: string;
+  appIcon?: string;
   requestSummary: string;
   feeSol: string | null;
   instructionCount: number | null;

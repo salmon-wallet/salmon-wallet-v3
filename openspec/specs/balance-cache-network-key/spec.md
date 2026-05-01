@@ -1,4 +1,10 @@
-## ADDED Requirements
+# balance-cache-network-key Specification
+
+## Purpose
+
+Define the cache-key contract for `useBalance` so balances stay correctly partitioned per network. The hook keys its cache by `${address}:${networkId}` and invalidates the fetch effect when `networkId` changes, preventing stale mainnet data from leaking into devnet (and vice versa) when the same address is reused across networks.
+
+## Requirements
 
 ### Requirement: useBalance cache MUST include networkId in cache key
 

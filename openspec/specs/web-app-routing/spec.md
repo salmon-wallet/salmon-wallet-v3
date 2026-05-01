@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-app-routing Specification
+
+## Purpose
+
+Define the web app's React Router 7 routing layer: `createBrowserRouter` with a dedicated `router.tsx`, an `AuthGuard` that redirects based on wallet state, the full set of public auth routes, protected wallet/settings routes, a `/lock` route, root-path redirect, and inactivity auto-lock backed by `useInactivityTimeout` from `@salmon/shared`.
+
+## Requirements
 
 ### Requirement: React Router with createBrowserRouter
 The web app SHALL use `react-router-dom` v7 with `createBrowserRouter` and `RouterProvider`. Routes MUST be defined in a dedicated `router.tsx` file.

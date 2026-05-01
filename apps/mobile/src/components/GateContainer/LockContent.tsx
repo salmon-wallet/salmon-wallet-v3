@@ -298,7 +298,7 @@ export function LockContent({
     <>
       <StatusBar style="light" />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView
             style={styles.keyboardView}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -313,6 +313,7 @@ export function LockContent({
                 {showPasswordFallback && (
                   <View style={styles.inputContainer}>
                     <TextInput
+                      testID="lock-password-input"
                       style={[styles.input, { borderColor: getInputBorderColor() }]}
                       placeholder={t('lock.enter_password')}
                       placeholderTextColor={colors.text.secondary}

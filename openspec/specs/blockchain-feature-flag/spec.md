@@ -1,80 +1,97 @@
-## ADDED Requirements
+# blockchain-feature-flag Specification
 
-### Requirement: Centralized enabled-blockchains configuration
-The system SHALL expose an `ENABLED_BLOCKCHAINS` constant of type `readonly BlockchainType[]` in `packages/shared/src/config/blockchains.ts`. This constant SHALL be the single source of truth for which blockchain families are active across the entire wallet. Initially it SHALL contain `['solana', 'bitcoin']` (Ethereum excluded).
+## Purpose
 
-**Package:** `packages/shared`
+Define how the wallet decides which blockchain families and networks are active at runtime. The backend network catalog (`/v1/networks`) is the single source of truth for enablement. Local config in `packages/shared/src/config/blockchains.ts` only retains legacy defaults used for static typing and last-resort composition; it does NOT gate runtime behavior. All gating points consult the backend through async helpers in `packages/shared/src/api/services/network.ts`.
 
-#### Scenario: Default configuration excludes Ethereum
-- **WHEN** the wallet is built with the default configuration
-- **THEN** `ENABLED_BLOCKCHAINS` contains `'solana'` and `'bitcoin'`
-- **AND** `ENABLED_BLOCKCHAINS` does NOT contain `'ethereum'`
+## Requirements
 
-#### Scenario: Re-enabling Ethereum requires a single-line change
-- **WHEN** a developer adds `'ethereum'` to the `ENABLED_BLOCKCHAINS` array
-- **THEN** all Ethereum functionality is restored without any other code changes
+### Requirement: Backend network catalog is the runtime source of truth
 
-### Requirement: Helper predicate for checking blockchain status
-The system SHALL export an `isBlockchainEnabled(chain: BlockchainType): boolean` function from the same module. This function SHALL return `true` if and only if the given chain is present in `ENABLED_BLOCKCHAINS`.
+The backend SHALL expose a `/v1/networks` endpoint returning a list of `NetworkCatalogEntry` objects with at least `{ id, blockchain, enabled, config }`. The wallet SHALL treat this response as the authoritative answer to "is network X active right now". The wallet SHALL NOT depend on a local static array to decide whether a network is enabled at runtime.
 
 **Package:** `packages/shared`
 
-#### Scenario: Checking an enabled blockchain
-- **WHEN** `isBlockchainEnabled('solana')` is called
-- **THEN** it returns `true`
+#### Scenario: Backend reports network as enabled
 
-#### Scenario: Checking a disabled blockchain
-- **WHEN** `isBlockchainEnabled('ethereum')` is called with Ethereum excluded from `ENABLED_BLOCKCHAINS`
-- **THEN** it returns `false`
+- **WHEN** the backend returns `{ id: 'solana-mainnet', enabled: true }` for `solana-mainnet`
+- **THEN** `await isBackendNetworkEnabled('solana-mainnet')` resolves to `true`
 
-### Requirement: Helper predicate for checking network status
-The system SHALL export an `isNetworkEnabled(networkId: string): boolean` function from the same module. This function SHALL determine the blockchain family from the network ID (using `getBlockchainFromNetworkId`) and return `true` if and only if that blockchain is in `ENABLED_BLOCKCHAINS`.
+#### Scenario: Backend reports network as disabled
 
-**Package:** `packages/shared`
+- **WHEN** the backend returns `{ id: 'ethereum-mainnet', enabled: false }` for `ethereum-mainnet`
+- **THEN** `await isBackendNetworkEnabled('ethereum-mainnet')` resolves to `false`
 
-#### Scenario: Checking a network belonging to an enabled blockchain
-- **WHEN** `isNetworkEnabled('solana-mainnet')` is called
-- **THEN** it returns `true`
+#### Scenario: Backend omits a network entirely
 
-#### Scenario: Checking a network belonging to a disabled blockchain
-- **WHEN** `isNetworkEnabled('ethereum-mainnet')` is called with Ethereum disabled
-- **THEN** it returns `false`
+- **WHEN** `ethereum-sepolia` is not present in the `/v1/networks` response
+- **THEN** `await isBackendNetworkEnabled('ethereum-sepolia')` resolves to `false`
 
-### Requirement: Account factory gates creation on enabled blockchains
-The `createBlockchainAccountForNetwork` function in `packages/shared/src/utils/account.ts` SHALL check `isNetworkEnabled(networkId)` before creating an account. If the network belongs to a disabled blockchain, the function SHALL return `null` (same as an unknown network) and log a warning.
+### Requirement: Async gate in the account factory
+
+The `createBlockchainAccountForNetwork` function in `packages/shared/src/utils/account.ts` SHALL await `fetchAndMergeNetworkConfigs()` to populate the in-memory network maps and SHALL await `isBackendNetworkEnabled(networkId)` before creating an account. If the backend reports the network as disabled (or absent), the function SHALL return `null` and log a warning. The function MUST NOT consult the local `ENABLED_BLOCKCHAINS` array as the gate.
 
 **Package:** `packages/shared`
 
-#### Scenario: Creating an account for an enabled network succeeds
-- **WHEN** `createBlockchainAccountForNetwork('solana-mainnet', mnemonic, 0)` is called
+#### Scenario: Creating an account for a backend-enabled network succeeds
+
+- **WHEN** the backend reports `solana-mainnet` as enabled
+- **AND** `createBlockchainAccountForNetwork('solana-mainnet', mnemonic, 0)` is called
 - **THEN** it returns a valid `SolanaAccount` instance
 
-#### Scenario: Creating an account for a disabled network returns null
-- **WHEN** `createBlockchainAccountForNetwork('ethereum-mainnet', mnemonic, 0)` is called with Ethereum disabled
+#### Scenario: Creating an account for a backend-disabled network returns null
+
+- **WHEN** the backend reports `ethereum-mainnet` as disabled
+- **AND** `createBlockchainAccountForNetwork('ethereum-mainnet', mnemonic, 0)` is called
 - **THEN** it returns `null`
 - **AND** a warning is logged indicating the blockchain is disabled
 
-### Requirement: Derived-account scanning skips disabled blockchains
-The `SCAN_NETWORKS` array in `packages/shared/src/utils/derived-accounts.ts` SHALL be filtered at module load time to exclude networks belonging to disabled blockchains. The `MIRROR_NETWORKS` record SHALL similarly exclude entries whose source or target network belongs to a disabled blockchain.
+### Requirement: Async helpers for derived-account scanning
+
+The system SHALL expose async helpers in `packages/shared/src/utils/derived-accounts.ts` that filter scan and mirror network candidates by the backend catalog at call time:
+
+- `getScanNetworks(): Promise<string[]>` SHALL return the subset of `SCAN_NETWORK_CANDIDATES` that the backend currently reports as enabled.
+- `getMirrorNetworks(): Promise<Record<string, string>>` SHALL return only mirror entries whose source AND target are both backend-enabled.
+- `getMirrorNetworkId(networkId: string): Promise<string | undefined>` SHALL resolve to the mirror network for the given source if both source and target are backend-enabled, otherwise `undefined`.
+
+The legacy synchronous constants `SCAN_NETWORKS` and `MIRROR_NETWORKS` MUST NOT be exported from the public surface.
 
 **Package:** `packages/shared`
 
-#### Scenario: Scanning only includes enabled networks
-- **WHEN** Ethereum is disabled
-- **THEN** `SCAN_NETWORKS` contains `'solana-mainnet'`, `'bitcoin-mainnet'`, and `'bitcoin-testnet'`
-- **AND** `SCAN_NETWORKS` does NOT contain `'ethereum-mainnet'`
+#### Scenario: Scanning only includes backend-enabled networks
 
-#### Scenario: Mirror networks exclude disabled chains
-- **WHEN** Ethereum is disabled
-- **THEN** `MIRROR_NETWORKS` contains the `'solana-mainnet' -> 'solana-devnet'` mapping
-- **AND** `MIRROR_NETWORKS` does NOT contain the `'ethereum-mainnet' -> 'ethereum-sepolia'` mapping
+- **WHEN** the backend reports `solana-mainnet`, `bitcoin-mainnet`, `bitcoin-testnet` as enabled
+- **AND** the backend does not report any Ethereum network as enabled
+- **THEN** `await getScanNetworks()` resolves to a list containing the Solana and Bitcoin networks
+- **AND** the resolved list does NOT contain any Ethereum network ID
 
-### Requirement: No UI changes required
-The system SHALL NOT require any changes to mobile or extension UI code. All Ethereum UI surfaces (balance cards, send flows, network selectors, NFT sections) naturally disappear when no Ethereum accounts exist. The feature flag operates entirely at the shared-logic layer.
+#### Scenario: Mirror networks exclude pairs whose target is backend-disabled
 
-**Package:** `apps/mobile`, `apps/extension` (no changes)
+- **WHEN** the backend reports `solana-mainnet` and `solana-devnet` as enabled
+- **AND** the backend reports no Ethereum network as enabled
+- **THEN** `await getMirrorNetworks()` resolves to a record containing `'solana-mainnet' -> 'solana-devnet'`
+- **AND** the resolved record does NOT contain any Ethereum mirror entry
 
-#### Scenario: UI hides Ethereum when no accounts exist
-- **WHEN** Ethereum is disabled via the feature flag
-- **AND** no Ethereum accounts are created
-- **THEN** the wallet UI does not display Ethereum balance cards, send options, or network selectors
+### Requirement: Local config is legacy defaults only
+
+The `ENABLED_BLOCKCHAINS` constant and the `isBlockchainEnabled` / `isNetworkEnabled` helpers in `packages/shared/src/config/blockchains.ts` SHALL be treated as legacy local defaults. They MAY be used for static typing or last-resort composition but MUST NOT be the runtime gate. New code SHOULD prefer the async backend helpers.
+
+**Package:** `packages/shared`
+
+#### Scenario: Legacy helpers do not gate runtime account creation
+
+- **WHEN** `ENABLED_BLOCKCHAINS` is mutated locally to exclude a blockchain
+- **AND** the backend continues to report that blockchain's network as enabled
+- **THEN** `createBlockchainAccountForNetwork` still creates an account for that network
+
+### Requirement: UI surfaces follow backend enablement transparently
+
+The system SHALL NOT require platform-specific UI code changes to add or remove a blockchain. UI surfaces (balance cards, send flows, network selectors, NFT sections) SHALL be driven by the accounts that exist for the user, which in turn follow the backend network catalog through the async gate above.
+
+**Package:** `apps/mobile`, `apps/extension`, `apps/web`
+
+#### Scenario: UI hides a blockchain when the backend disables all of its networks
+
+- **WHEN** the backend reports every Ethereum network as disabled
+- **AND** the user has no pre-existing Ethereum accounts
+- **THEN** no Ethereum balance cards, send options, or network selectors render in the wallet UI

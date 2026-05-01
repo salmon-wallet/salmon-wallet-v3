@@ -1,0 +1,22 @@
+appId: io.salmonwallet.app
+---
+# expo-dev-launcher intercepts after clearState/launch. Load JS bundle, then dismiss any
+# auto-shown dev menu before yielding to caller.
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn:
+          text: "Salmon Wallet"
+          below: "DEVELOPMENT SERVERS"
+      # Bundle download takes 5-30s on cold launch.
+      - waitForAnimationToEnd:
+          timeout: 60000
+- runFlow:
+    when:
+      visible: "Fast refresh"
+    commands:
+      - tapOn: "Close"
+- extendedWaitUntil:
+    visible: "Welcome"
+    timeout: 60000

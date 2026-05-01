@@ -1,0 +1,38 @@
+appId: io.salmonwallet.app
+---
+# Swap USDC → BONK ($1.5). Walks UI through the quote step and stops
+# before confirming so the on-chain swap is never fired by the suite.
+# Authorize a real swap manually (tap the Swap button) when needed.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- tapOn: "Swap"
+- waitForAnimationToEnd:
+    timeout: 5000
+# Initial pair defaults to BTC (not in wallet) — change to USDC
+- tapOn:
+    point: "82%,25%"
+- waitForAnimationToEnd:
+    timeout: 4000
+- tapOn:
+    text: "USD Coin, .* USDC"
+- waitForAnimationToEnd:
+    timeout: 4000
+# Pick receive token (BONK)
+- tapOn:
+    point: "82%,42%"
+- waitForAnimationToEnd:
+    timeout: 4000
+- tapOn: "Search..."
+- inputText: "Bonk"
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 3000
+# First Bonk row sits at ~22% once the keyboard is dismissed.
+- tapOn:
+    point: "50%,22%"
+- waitForAnimationToEnd:
+    timeout: 4000
+- tapOn: "Enter an amount"
+- inputText: "1.5"
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: screenshots/actions/swap/swap-form

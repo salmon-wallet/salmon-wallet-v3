@@ -32,7 +32,7 @@ import {
   normalizeMnemonic,
   createAccount,
   NETWORK_DISPLAY,
-  SCAN_NETWORKS,
+  getScanNetworks,
   type AccountAddStep,
   type DerivedAccountInfo,
   opacity,
@@ -119,7 +119,7 @@ export function AccountAddPanel({
 }: AccountAddPanelProps): React.ReactElement {
   const { t } = useTranslation();
   const [accountState, accountActions] = useAccountsContext();
-  const { accounts, activeAccount } = accountState;
+  const { activeAccount, counter } = accountState;
 
   const [step, setStep] = useState<AccountAddStep>('select-method');
   const [derivedAccounts, setDerivedAccounts] = useState<DerivedAccountInfo[]>([]);
@@ -130,8 +130,8 @@ export function AccountAddPanel({
   const [loading, setLoading] = useState(false);
 
   const defaultName = useMemo(
-    () => t('settings.account_add.default_name', { number: accounts.length + 1 }),
-    [accounts.length, t],
+    () => t('settings.account_add.default_name', { number: counter + 1 }),
+    [counter, t],
   );
   const [accountName, setAccountName] = useState('');
 
@@ -140,9 +140,10 @@ export function AccountAddPanel({
     setStep('derive-scan');
     setScanning(true);
     try {
+      const scanNetworks = await getScanNetworks();
       const results = await scanDerivedAccounts(
         activeAccount.mnemonic,
-        [...SCAN_NETWORKS],
+        scanNetworks,
       );
       setDerivedAccounts(results);
     } catch {
@@ -184,10 +185,11 @@ export function AccountAddPanel({
     try {
       const mnemonic = selectedDerived ? (activeAccount?.mnemonic || '') : seedPhrase;
       const startIndex = selectedDerived ? selectedDerived.index : 0;
+      const scanNetworks = await getScanNetworks();
       const { account } = await createAccount({
         name,
         mnemonic,
-        networkIds: [...SCAN_NETWORKS],
+        networkIds: scanNetworks,
         startIndex,
       });
       await accountActions.addAccount(account);

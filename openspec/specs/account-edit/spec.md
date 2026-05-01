@@ -1,4 +1,10 @@
-## ADDED Requirements
+# account-edit Specification
+
+## Purpose
+
+Define the account edit experience: a single page that groups the editable aspects of an account (name, avatar, seed phrase backup, private key export) and routes the user to the existing flows for each. Edits use the shared `editAccount` action from `useAccountsContext()` so name and avatar updates propagate across mobile and extension; sensitive surfaces (seed phrase, private key) remain gated behind password verification.
+
+## Requirements
 
 ### Requirement: Account edit page with grouped sections
 The system SHALL provide an `AccountEditPage` that displays editable sections for a specific account: name, avatar, seed phrase backup, and private key export. Each section SHALL navigate to its respective sub-page or reveal inline content.

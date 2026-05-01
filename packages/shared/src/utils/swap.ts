@@ -47,7 +47,7 @@ export function getSwapMode(
 /**
  * Infers a SwapChainType from a network name string and/or token symbol.
  *
- * StealthEX returns `network: null` for mainnet tokens (BTC, ETH, NEAR),
+ * StealthEX returns `network: null` for some mainnet tokens (BTC, ETH),
  * so we also check the symbol to correctly identify the chain.
  * Returns null for tokens on unsupported chains.
  */
@@ -68,7 +68,7 @@ export function getChainFromNetwork(network?: string | null, symbol?: string): S
   if (n.includes('btc') || n.includes('bitcoin')) return 'bitcoin';
   if (n.includes('eth') || n.includes('ethereum') || n === 'base') return 'ethereum';
   if (n.includes('sol') || n.includes('solana')) return 'solana';
-  // bsc, mainnet (for tokens like nearbsc, near) → unsupported
+  // bsc, tron, and other unsupported networks stay out of wallet swap routing.
   return null;
 }
 

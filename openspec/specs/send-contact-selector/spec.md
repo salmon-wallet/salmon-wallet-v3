@@ -1,4 +1,10 @@
-## ADDED Requirements
+# send-contact-selector Specification
+
+## Purpose
+
+Surface address-book contacts and the user's other wallets directly inside the send flow's recipient step on both mobile and extension. A shared `useSendContacts` hook composes existing context hooks to filter both lists by active network and exclude the sender, while StepAddressAmount renders "My Wallets" and "Address Book" sections that auto-fill the recipient input on tap, with all section labels routed through i18n.
+
+## Requirements
 
 ### Requirement: Shared hook provides filtered contacts and own wallets for send flow
 The `useSendContacts` hook in `packages/shared/src/hooks/useSendContacts.ts` SHALL compose `useAddressbook`, `useAccountsContext`, and `useAvailableNetworks` to produce two filtered lists: address book contacts matching the active network (excluding the sender) and the user's other wallet addresses on the same network (excluding the sender).

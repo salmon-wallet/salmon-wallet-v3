@@ -24,7 +24,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyIcon from '@mui/icons-material/Key';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius, borderWidth, useAccounts, fontFamily, fontSize, fontWeight, letterSpacing, opacity, componentSizes, duration, durationMs } from '@salmon/shared';
+import { colors, spacing, borderRadius, borderWidth, useAccountsContext, fontFamily, fontSize, fontWeight, letterSpacing, opacity, componentSizes, duration, durationMs } from '@salmon/shared';
 import { SettingsPanelContent } from '../SettingsPanelContent';
 import type { BackupPanelProps } from './types';
 
@@ -152,7 +152,7 @@ const SectionLabel = styled(Typography)({
 
 export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
   const { t } = useTranslation();
-  const [state] = useAccounts();
+  const [state] = useAccountsContext();
   const { activeAccount } = state;
 
   const [seedPhraseVisible, setSeedPhraseVisible] = useState(false);

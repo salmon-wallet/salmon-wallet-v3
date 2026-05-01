@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-spacing-tokens Specification
+
+## Purpose
+
+Add the `3.5xl` spacing token (value 30) to `packages/shared/src/theme/spacing.ts` and forbid hardcoded numeric spacing values (padding, margin, gap, positional offsets used as spacing) inside `packages/ui/src/` so every spacing reference uses a `spacing.*` token.
+
+## Requirements
 
 ### Requirement: spacing tokens cover all web UI needs
 The `spacing` object in `packages/shared/src/theme/spacing.ts` SHALL include a token `3.5xl` with value 30.

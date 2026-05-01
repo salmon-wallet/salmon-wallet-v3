@@ -1,0 +1,7 @@
+appId: io.salmonwallet.app
+---
+# Tap close (X) in settings sheet header (top-right).
+- tapOn:
+    point: "92%,11%"
+- waitForAnimationToEnd:
+    timeout: 2000

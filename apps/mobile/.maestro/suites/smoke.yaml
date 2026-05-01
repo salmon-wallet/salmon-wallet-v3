@@ -1,0 +1,33 @@
+appId: io.salmonwallet.app
+---
+# Smoke suite — read-only walks across the app.
+# Each leaf flow is self-contained: it onboards Wallet A from a clean
+# install, walks the surface under test, and asserts the expected UI.
+# Safe to re-run; idempotent. The recovery prelude is intentionally
+# repeated per leaf so individual flows can also run stand-alone.
+- runFlow: ../flows/smoke/auth/recover-account.yaml
+- runFlow: ../flows/smoke/auth/create-account.yaml
+- runFlow: ../flows/smoke/auth/unlock.yaml
+# Home + tabs + sheets
+- runFlow: ../flows/smoke/home/balance-display.yaml
+- runFlow: ../flows/smoke/home/tab-navigation.yaml
+- runFlow: ../flows/smoke/home/blockchain-switcher.yaml
+- runFlow: ../flows/smoke/receive/sheet.yaml
+- runFlow: ../flows/smoke/activity/list.yaml
+- runFlow: ../flows/smoke/nft/detail.yaml
+# Mobile-specific surfaces
+- runFlow: ../flows/smoke/mobile/wallet-switcher.yaml
+- runFlow: ../flows/smoke/mobile/keyboard-send.yaml
+- runFlow: ../flows/smoke/mobile/lock-overlay.yaml
+# Settings panels
+- runFlow: ../flows/smoke/settings/accounts.yaml
+- runFlow: ../flows/smoke/settings/profile-picture.yaml
+- runFlow: ../flows/smoke/settings/security.yaml
+- runFlow: ../flows/smoke/settings/language.yaml
+- runFlow: ../flows/smoke/settings/currency.yaml
+- runFlow: ../flows/smoke/settings/explorer.yaml
+- runFlow: ../flows/smoke/settings/address-book.yaml
+- runFlow: ../flows/smoke/settings/trusted-apps.yaml
+- runFlow: ../flows/smoke/settings/developer-networks.yaml
+- runFlow: ../flows/smoke/settings/help.yaml
+- runFlow: ../flows/smoke/settings/about.yaml

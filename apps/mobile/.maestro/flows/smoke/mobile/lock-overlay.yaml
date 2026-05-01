@@ -1,0 +1,23 @@
+appId: io.salmonwallet.app
+---
+# Probe lock-screen overlay. Recover, stop+launch to re-encrypt, then unlock.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- launchApp:
+    stopApp: true
+- runFlow:
+    when:
+      visible: "Fast refresh"
+    commands:
+      - tapOn: "Close"
+- extendedWaitUntil:
+    visible: "Welcome back"
+    timeout: 60000
+- takeScreenshot: screenshots/smoke/mobile/lock-overlay
+- tapOn:
+    id: "lock-password-input"
+- inputText: ${SALMON_TEST_PASSWORD}
+- tapOn: "Unlock"
+- extendedWaitUntil:
+    visible: "Switch wallet account"
+    timeout: 30000
+- takeScreenshot: screenshots/smoke/mobile/lock-unlocked

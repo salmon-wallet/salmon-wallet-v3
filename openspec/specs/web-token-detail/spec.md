@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-token-detail Specification
+
+## Purpose
+
+Render the web `/token/:address` route via the shared `TokenDetailPage` with live data: token info from `useBalance().tokens`, price chart data from `getMarketChart()` (re-fetched on period change, suppressed when no `coingeckoId`), market data via `getCoinInfo()` and `coinInfoToMarketData()`, deep-link support, and `/home` as the back target.
+
+## Requirements
 
 ### Requirement: TokenDetailRoute renders TokenDetailPage with live data
 The TokenDetailRoute SHALL find the token by URL param `:address` in `useBalance().tokens`, then render TokenDetailPage from `@salmon/ui` with chart data and market data fetched from CoinGecko API.

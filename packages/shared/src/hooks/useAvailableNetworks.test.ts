@@ -5,9 +5,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useAvailableNetworks } from './useAvailableNetworks';
 import * as useUserConfigModule from './useUserConfig';
+import * as networkService from '../api/services/network';
 import type { ActiveBlockchainAccount } from '../types/account';
 
 // ============================================================================
@@ -16,6 +17,10 @@ import type { ActiveBlockchainAccount } from '../types/account';
 
 vi.mock('./useUserConfig', () => ({
   useUserConfig: vi.fn(),
+}));
+
+vi.mock('../api/services/network', () => ({
+  getNetworks: vi.fn(),
 }));
 
 vi.mock('../blockchain/solana/networks', () => ({
@@ -113,6 +118,62 @@ const mockActiveAccount: ActiveBlockchainAccount = {
 describe('useAvailableNetworks Hook', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(networkService.getNetworks).mockResolvedValue([
+      {
+        id: 'solana-mainnet',
+        name: 'Solana',
+        blockchain: 'solana',
+        environment: 'mainnet',
+        config: { nodeUrl: 'https://rpc.solana.example' },
+        enabled: true,
+        sections: {} as never,
+      },
+      {
+        id: 'solana-devnet',
+        name: 'Solana Devnet',
+        blockchain: 'solana',
+        environment: 'devnet',
+        config: { nodeUrl: 'https://rpc.solana-devnet.example' },
+        enabled: true,
+        sections: {} as never,
+      },
+      {
+        id: 'bitcoin-mainnet',
+        name: 'Bitcoin',
+        blockchain: 'bitcoin',
+        environment: 'mainnet',
+        config: { apiUrl: 'https://btc.example' },
+        enabled: true,
+        sections: {} as never,
+      },
+      {
+        id: 'bitcoin-testnet',
+        name: 'Bitcoin Testnet',
+        blockchain: 'bitcoin',
+        environment: 'testnet',
+        config: { apiUrl: 'https://btc-testnet.example' },
+        enabled: true,
+        sections: {} as never,
+      },
+      {
+        id: 'ethereum-mainnet',
+        name: 'Ethereum',
+        blockchain: 'ethereum',
+        environment: 'mainnet',
+        config: { rpcUrl: 'https://eth.example', chainId: 1 },
+        enabled: true,
+        sections: {} as never,
+      },
+      {
+        id: 'ethereum-sepolia',
+        name: 'Ethereum Sepolia',
+        blockchain: 'ethereum',
+        environment: 'sepolia',
+        config: { rpcUrl: 'https://eth-sepolia.example', chainId: 11155111 },
+        enabled: true,
+        sections: {} as never,
+      },
+    ]);
   });
 
   afterEach(() => {
@@ -144,8 +205,10 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.solana).toHaveLength(1);
-      expect(result.current.networks.solana[0].id).toBe('solana-mainnet');
+      return waitFor(() => {
+        expect(result.current.networks.solana).toHaveLength(1);
+        expect(result.current.networks.solana[0].id).toBe('solana-mainnet');
+      });
     });
 
     it('should NOT return devnet or testnet for Solana', () => {
@@ -153,9 +216,11 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      const networkIds = result.current.networks.solana.map(n => n.id);
-      expect(networkIds).not.toContain('solana-devnet');
-      expect(networkIds).not.toContain('testnet');
+      return waitFor(() => {
+        const networkIds = result.current.networks.solana.map(n => n.id);
+        expect(networkIds).not.toContain('solana-devnet');
+        expect(networkIds).not.toContain('testnet');
+      });
     });
 
     it('should return only mainnet networks for Bitcoin (mainnet)', () => {
@@ -163,8 +228,10 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.bitcoin).toHaveLength(1);
-      expect(result.current.networks.bitcoin[0].environment).toBe('mainnet');
+      return waitFor(() => {
+        expect(result.current.networks.bitcoin).toHaveLength(1);
+        expect(result.current.networks.bitcoin[0].environment).toBe('mainnet');
+      });
     });
 
     it('should NOT return regtest for Bitcoin', () => {
@@ -172,8 +239,10 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      const environments = result.current.networks.bitcoin.map(n => n.environment);
-      expect(environments).not.toContain('regtest');
+      return waitFor(() => {
+        const environments = result.current.networks.bitcoin.map(n => n.environment);
+        expect(environments).not.toContain('regtest');
+      });
     });
 
     it('should return only mainnet networks for Ethereum (mainnet)', () => {
@@ -181,8 +250,10 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.ethereum).toHaveLength(1);
-      expect(result.current.networks.ethereum[0].environment).toBe('mainnet');
+      return waitFor(() => {
+        expect(result.current.networks.ethereum).toHaveLength(1);
+        expect(result.current.networks.ethereum[0].environment).toBe('mainnet');
+      });
     });
 
     it('should NOT return sepolia for Ethereum', () => {
@@ -190,8 +261,10 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      const environments = result.current.networks.ethereum.map(n => n.environment);
-      expect(environments).not.toContain('sepolia');
+      return waitFor(() => {
+        const environments = result.current.networks.ethereum.map(n => n.environment);
+        expect(environments).not.toContain('sepolia');
+      });
     });
   });
 
@@ -220,10 +293,12 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.solana).toHaveLength(2);
-      const networkIds = result.current.networks.solana.map(n => n.id);
-      expect(networkIds).toContain('solana-mainnet');
-      expect(networkIds).toContain('solana-devnet');
+      return waitFor(() => {
+        expect(result.current.networks.solana).toHaveLength(2);
+        const networkIds = result.current.networks.solana.map(n => n.id);
+        expect(networkIds).toContain('solana-mainnet');
+        expect(networkIds).toContain('solana-devnet');
+      });
     });
 
     it('should return all Bitcoin networks (mainnet, testnet)', () => {
@@ -231,10 +306,12 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.bitcoin).toHaveLength(2);
-      const environments = result.current.networks.bitcoin.map(n => n.environment);
-      expect(environments).toContain('mainnet');
-      expect(environments).toContain('testnet');
+      return waitFor(() => {
+        expect(result.current.networks.bitcoin).toHaveLength(2);
+        const environments = result.current.networks.bitcoin.map(n => n.environment);
+        expect(environments).toContain('mainnet');
+        expect(environments).toContain('testnet');
+      });
     });
 
     it('should return all Ethereum networks (mainnet, sepolia)', () => {
@@ -242,10 +319,12 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      expect(result.current.networks.ethereum).toHaveLength(2);
-      const environments = result.current.networks.ethereum.map(n => n.environment);
-      expect(environments).toContain('mainnet');
-      expect(environments).toContain('sepolia');
+      return waitFor(() => {
+        expect(result.current.networks.ethereum).toHaveLength(2);
+        const environments = result.current.networks.ethereum.map(n => n.environment);
+        expect(environments).toContain('mainnet');
+        expect(environments).toContain('sepolia');
+      });
     });
   });
 
@@ -272,13 +351,15 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      const expectedCount =
-        result.current.networks.solana.length +
-        result.current.networks.bitcoin.length +
-        result.current.networks.ethereum.length;
+      return waitFor(() => {
+        const expectedCount =
+          result.current.networks.solana.length +
+          result.current.networks.bitcoin.length +
+          result.current.networks.ethereum.length;
 
-      expect(result.current.allNetworks).toHaveLength(expectedCount);
-      expect(result.current.allNetworks.length).toBe(6); // 2 + 2 + 2
+        expect(result.current.allNetworks).toHaveLength(expectedCount);
+        expect(result.current.allNetworks.length).toBe(6); // 2 + 2 + 2
+      });
     });
 
     it('should contain flat list of only mainnet networks when developerNetworks is FALSE', () => {
@@ -303,13 +384,15 @@ describe('useAvailableNetworks Hook', () => {
         useAvailableNetworks({ activeBlockchainAccount: mockActiveAccount })
       );
 
-      const expectedCount =
-        result.current.networks.solana.length +
-        result.current.networks.bitcoin.length +
-        result.current.networks.ethereum.length;
+      return waitFor(() => {
+        const expectedCount =
+          result.current.networks.solana.length +
+          result.current.networks.bitcoin.length +
+          result.current.networks.ethereum.length;
 
-      expect(result.current.allNetworks).toHaveLength(expectedCount);
-      expect(result.current.allNetworks.length).toBe(3); // 1 + 1 + 1
+        expect(result.current.allNetworks).toHaveLength(expectedCount);
+        expect(result.current.allNetworks.length).toBe(3); // 1 + 1 + 1
+      });
     });
   });
 

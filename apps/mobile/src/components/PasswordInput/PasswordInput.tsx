@@ -14,6 +14,7 @@ interface PasswordInputProps {
   editable?: boolean;
   autoFocus?: boolean;
   onSubmitEditing?: () => void;
+  testID?: string;
 }
 
 export function PasswordInput({
@@ -24,6 +25,7 @@ export function PasswordInput({
   editable = true,
   autoFocus,
   onSubmitEditing,
+  testID,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -38,6 +40,7 @@ export function PasswordInput({
     <View style={styles.container}>
       <View style={[styles.inputWrapper, { borderColor: getBorderColor() }]}>
         <TextInput
+          testID={testID}
           style={styles.input}
           value={value}
           onChangeText={onChangeText}

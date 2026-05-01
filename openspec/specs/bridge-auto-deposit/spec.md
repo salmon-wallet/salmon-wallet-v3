@@ -1,4 +1,10 @@
-## ADDED Requirements
+# bridge-auto-deposit Specification
+
+## Purpose
+
+Define the auto-deposit step that completes a bridge after a StealthEx exchange is created. The wallet must transfer the input tokens to the exchange's `depositAddress` using the active blockchain account, surface failures (e.g., insufficient gas) instead of falsely succeeding, and expose the deposit transaction ID on the success screen. The `SwapScreenProps.onSendDeposit` callback is the shared contract every platform implements via `activeBlockchainAccount.transfer()`.
+
+## Requirements
 
 ### Requirement: Wallet sends deposit to StealthEx after exchange creation
 

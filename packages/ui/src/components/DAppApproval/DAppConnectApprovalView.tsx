@@ -9,6 +9,10 @@ import {
 import { PrimaryButton, SecondaryButton } from '../Button';
 import {
   ButtonsContainer,
+  AppIdentityIcon,
+  AppIdentityName,
+  AppIdentityRow,
+  AppIdentityText,
   Card,
   Container,
   Content,
@@ -27,6 +31,8 @@ import type { DAppConnectApprovalViewProps } from './types';
 
 export function DAppConnectApprovalView({
   origin,
+  appName,
+  appIcon,
   address,
   disabled = false,
   loading = false,
@@ -37,6 +43,7 @@ export function DAppConnectApprovalView({
   const { t } = useTranslation();
   const displayOrigin = formatOrigin(origin);
   const shortAddress = address ? getShortAddress(address, 4) ?? '' : '';
+  const hasIdentity = !!appName || !!appIcon;
 
   return (
     <Container>
@@ -54,7 +61,17 @@ export function DAppConnectApprovalView({
         <ScrollArea>
           <Card>
             <Label>{t('dapp.requesting_site', 'Requesting site')}</Label>
-            <Value sx={{ fontSize: 20 }}>{displayOrigin}</Value>
+            {hasIdentity ? (
+              <AppIdentityRow>
+                {appIcon ? <AppIdentityIcon src={appIcon} alt={appName || displayOrigin} /> : null}
+                <AppIdentityText>
+                  {appName ? <AppIdentityName>{appName}</AppIdentityName> : null}
+                  <MonoValue sx={{ marginTop: 0 }}>{displayOrigin}</MonoValue>
+                </AppIdentityText>
+              </AppIdentityRow>
+            ) : (
+              <Value sx={{ fontSize: 20 }}>{displayOrigin}</Value>
+            )}
             <FooterNote sx={{ marginTop: 1.5 }}>
               {t(
                 'dapp.connect_permissions_hint',

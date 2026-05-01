@@ -1,0 +1,17 @@
+appId: io.salmonwallet.app
+---
+# Probe wallet switcher sheet (top bar tap on account name).
+# Note: WalletSwitcherSheet uses GateContainer panel (not BottomSheetContainer),
+# so drag-to-dismiss does NOT work. Close via top-right X.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- assertVisible: "Switch wallet account"
+- tapOn: "Switch wallet account"
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible: "Your Wallets"
+- takeScreenshot: screenshots/smoke/mobile/wallet-switcher
+- tapOn:
+    point: "92%,11%"
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible: "Switch wallet account"

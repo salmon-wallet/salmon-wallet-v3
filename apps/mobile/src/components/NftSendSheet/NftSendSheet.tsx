@@ -18,7 +18,6 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
-import { BlurView } from 'expo-blur';
 import {
   colors,
   fontSize,
@@ -38,7 +37,6 @@ import {
   fontWeight,
   getNftBlockchainLabel,
   isSolanaNft,
-  isEthereumNft,
   isBitcoinNft,
   lineHeight,
   gradients,
@@ -46,11 +44,11 @@ import {
 } from '@salmon/shared';
 import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { InputAddress } from '../InputAddress';
+import { BlurContainer } from '../BlurContainer';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import {
   BitcoinSvgIcon,
   CallMadeSvgIcon,
-  EthereumSvgIcon,
   SolanaSvgIcon,
 } from '../Icon/SvgIcons';
 
@@ -87,9 +85,6 @@ export function NftSendSheet({
 
     if (nft && isSolanaNft(nft)) {
       return <SolanaSvgIcon size={size} color={color} />;
-    }
-    if (nft && isEthereumNft(nft)) {
-      return <EthereumSvgIcon size={size} color={color} />;
     }
     if (nft && isBitcoinNft(nft)) {
       return <BitcoinSvgIcon size={size} color={color} />;
@@ -139,12 +134,16 @@ export function NftSendSheet({
         {nft.name}
       </Text>
       <View style={styles.blockchainBadgeContainer}>
-        <BlurView intensity={10} tint="dark" style={styles.blockchainBadge}>
+        <BlurContainer
+          blurIntensity={10}
+          blurTint="dark"
+          style={styles.blockchainBadge}
+        >
           <View style={styles.blockchainBadgeContent}>
             {getBlockchainIcon()}
             <Text style={styles.blockchainLabel}>{getNftBlockchainLabel(nft)}</Text>
           </View>
-        </BlurView>
+        </BlurContainer>
       </View>
     </>
   );
@@ -180,7 +179,11 @@ export function NftSendSheet({
             />
           </View>
 
-          <BlurView intensity={10} tint="dark" style={styles.sectionContainer}>
+          <BlurContainer
+            blurIntensity={10}
+            blurTint="dark"
+            style={styles.sectionContainer}
+          >
             <View style={styles.sectionContent}>
               <Text style={styles.sectionTitle}>{t('nft.send.title', 'Send NFT')}</Text>
               {nft.collectionName && (
@@ -207,7 +210,7 @@ export function NftSendSheet({
                 </>
               )}
             </View>
-          </BlurView>
+          </BlurContainer>
 
           {loading && (
             <View style={styles.loadingContainer}>
@@ -228,6 +231,7 @@ export function NftSendSheet({
 
           {!isBitcoin && (
             <TouchableOpacity
+              testID="nft-send-confirm-btn"
               style={[styles.primaryButton, !canConfirm && styles.primaryButtonDisabled]}
               onPress={handleConfirm}
               disabled={!canConfirm}

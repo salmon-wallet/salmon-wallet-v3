@@ -1,0 +1,14 @@
+appId: io.salmonwallet.app
+---
+# Three tabs in tab bar: Home, Collectibles, Swap.
+# Settings is NOT a tab — accessed via gear icon (Open settings).
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- tapOn: "Home"
+- takeScreenshot: screenshots/smoke/home/tab-home
+- tapOn: "Collectibles"
+- takeScreenshot: screenshots/smoke/home/tab-collectibles
+- tapOn: "Swap"
+- takeScreenshot: screenshots/smoke/home/tab-swap
+- tapOn: "Home"
+- assertVisible: "Switch wallet account"
+- takeScreenshot: screenshots/smoke/home/tab-home-back

@@ -1,4 +1,10 @@
-## ADDED Requirements
+# web-send-flow Specification
+
+## Purpose
+
+Wire the web `/send` route to the shared `SendPage` from `@salmon/ui`, fed by `useBalance` tokens, the active `BlockchainAccount`, and a blockchain type derived from `networkId`. The route SHALL navigate home on success, return to `/home` on back, and pass `useUserConfig().developerNetworks` as `showUnverifiedTokens` so developer mode can select unverified tokens.
+
+## Requirements
 
 ### Requirement: SendRoute renders SendPage with real data
 The SendRoute SHALL render SendPage from `@salmon/ui` wired with tokens from `useBalance()`, the active `BlockchainAccount`, and the current blockchain type derived from `networkId`.

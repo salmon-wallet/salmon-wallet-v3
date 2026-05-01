@@ -67,8 +67,10 @@ export interface BridgeAvailableToken {
   symbol: string;
   /** Token name */
   name: string;
-  /** Network/chain identifier */
-  network?: string;
+  /** Network/chain identifier from upstream provider (e.g. "base", null for native cross-chain). */
+  network?: string | null;
+  /** Canonical lowercase chain identifier resolved by the backend (e.g. "bitcoin", "ethereum", "solana"). */
+  chain?: string | null;
   /** Token logo URL (returned as "logo" by StealthEX API) */
   logo?: string;
   /** Whether this pair is currently available */

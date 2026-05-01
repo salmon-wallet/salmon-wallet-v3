@@ -56,6 +56,7 @@ export function AccountNamePanel({
     >
       <View style={styles.inputContainer}>
         <TextInput
+          testID="account-name-input"
           style={[styles.input, error ? styles.inputError : undefined]}
           value={name}
           onChangeText={handleChangeText}
@@ -74,7 +75,7 @@ export function AccountNamePanel({
       </Text>
 
       <View style={styles.buttonContainer}>
-        <PrimaryButton onPress={handleSave}>
+        <PrimaryButton testID="account-name-save-btn" onPress={handleSave}>
           {t('actions.save')}
         </PrimaryButton>
       </View>

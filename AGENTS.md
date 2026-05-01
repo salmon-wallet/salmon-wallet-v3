@@ -1,21 +1,46 @@
-# AGENTS.md instructions for /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos
+# AGENTS.md instructions for salmon-wallet-v3
 
 <INSTRUCTIONS>
+## Architecture
+
+This repo is a monorepo with ownership split by runtime and reuse level.
+
+Main ownership model:
+
+- `packages/shared` for logic and contracts shared by mobile, web, and extension
+- `packages/ui` for shared React DOM components used by web and extension
+- `apps/mobile` for React Native and mobile-only flows
+- `apps/web` for web-specific app shell and browser wiring
+- `apps/extension` for extension-specific entrypoints and pages
+
+Read `docs/ARCHITECTURE.md` before making structural decisions.
+
+## Placement rules
+
+- Put cross-platform services, hooks, blockchain logic, semantic types, storage, and shared config in `packages/shared`.
+- Put shared DOM components in `packages/ui`, not in `packages/shared`.
+- Keep React Native code in `apps/mobile`.
+- Keep browser-only and extension-only runtime code in the owning app.
+- Prefer existing shared contracts over duplicating types or service wrappers in an app.
+- Preserve future-facing Ethereum surface unless removal is explicitly requested.
+
 ## Skills
 A skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used in this workspace. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.
 
 ### Available skills
-- api-service-authoring: Create or modify shared API services in `packages/shared/src/api/services`, including caching, rate limiting, DI adapters, and service audits. Use for new endpoints, API integrations, shared HTTP/data-fetching logic, or service consistency reviews. (file: /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos/.agent/skills/api-service-authoring/SKILL.md)
-- i18n-authoring: Add, update, remove, or audit user-facing translations in Salmon Wallet. Use whenever visible copy changes, new translation keys are needed, or hardcoded UI strings must be replaced with i18n. (file: /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos/.agent/skills/i18n-authoring/SKILL.md)
-- mobile-component-scaffold: Create or modify React Native components in `apps/mobile`, including app-local mobile UI and mobile implementations of shared semantic contracts. Use only when the task explicitly targets `apps/mobile`, React Native, Expo, native UI files, or mobile implementation work. (file: /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos/.agent/skills/mobile-component-scaffold/SKILL.md)
-- mobile-test-authoring: Write or audit Jest tests for React Native components and mobile UI behavior in `apps/mobile`. Use only when the task explicitly targets `apps/mobile`, React Native, Expo, or RN-specific test work. (file: /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos/.agent/skills/mobile-test-authoring/SKILL.md)
-- salmon-repo-rules: Resolve code placement, package ownership, shared-vs-app boundaries, public exports, and architectural conventions in the Salmon Wallet monorepo. (file: /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos/.agent/skills/salmon-repo-rules/SKILL.md)
-- shared-test-authoring: Write or update tests for code in `packages/shared`, including hooks, API services, utilities, blockchain logic, crypto, and config. (file: /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos/.agent/skills/shared-test-authoring/SKILL.md)
-- ui-component-scaffold: Create or modify shared React DOM components in `packages/ui`, including DOM-only components and cross-platform contract + DOM implementation flows. (file: /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos/.agent/skills/ui-component-scaffold/SKILL.md)
-- ui-test-authoring: Write or audit tests for shared React DOM components in `packages/ui`. (file: /Users/lucamazzarello_/conductor/workspaces/salmon-wallet-v3/lagos/.agent/skills/ui-test-authoring/SKILL.md)
-- find-skills: Helps users discover and install agent skills when they ask questions like "how do I do X", "find a skill for X", "is there a skill that can...", or express interest in extending capabilities. (file: /Users/lucamazzarello_/.agents/skills/find-skills/SKILL.md)
-- skill-creator: Guide for creating effective skills. Use when creating a new skill or updating an existing skill that extends Codex's capabilities with specialized knowledge, workflows, or tool integrations. (file: /Users/lucamazzarello_/.codex/skills/.system/skill-creator/SKILL.md)
-- skill-installer: Install Codex skills into `$CODEX_HOME/skills` from a curated list or a GitHub repo path. (file: /Users/lucamazzarello_/.codex/skills/.system/skill-installer/SKILL.md)
+- api-service-authoring: Create or modify shared API services in `packages/shared/src/api/services`, including caching, rate limiting, DI adapters, and service audits. Use for new endpoints, API integrations, shared HTTP/data-fetching logic, or service consistency reviews. (file: .agent/skills/api-service-authoring/SKILL.md)
+- i18n-authoring: Add, update, remove, or audit user-facing translations in Salmon Wallet. Use whenever visible copy changes, new translation keys are needed, or hardcoded UI strings must be replaced with i18n. (file: .agent/skills/i18n-authoring/SKILL.md)
+- mobile-component-scaffold: Create or modify React Native components in `apps/mobile`, including app-local mobile UI and mobile implementations of shared semantic contracts. Use only when the task explicitly targets `apps/mobile`, React Native, Expo, native UI files, or mobile implementation work. (file: .agent/skills/mobile-component-scaffold/SKILL.md)
+- mobile-test-authoring: Write or audit Jest tests for React Native components and mobile UI behavior in `apps/mobile`. Use only when the task explicitly targets `apps/mobile`, React Native, Expo, or RN-specific test work. (file: .agent/skills/mobile-test-authoring/SKILL.md)
+- salmon-repo-rules: Resolve code placement, package ownership, shared-vs-app boundaries, public exports, and architectural conventions in the Salmon Wallet monorepo. (file: .agent/skills/salmon-repo-rules/SKILL.md)
+- salmon-monorepo-rules: Resolve package ownership, shared-vs-app boundaries, and placement decisions in salmon-wallet-v3. Use when deciding whether code belongs in `packages/shared`, `packages/ui`, `apps/mobile`, `apps/web`, or `apps/extension`. (file: .codex/skills/salmon-monorepo-rules/SKILL.md)
+- salmon-monorepo-safe-change: Safely modify or clean salmon-wallet-v3 without breaking active shared contracts. Use for consumer-sensitive refactors, shared API/hook changes, or cleanup that must be verified across apps and backend contracts. (file: .codex/skills/salmon-monorepo-safe-change/SKILL.md)
+- shared-test-authoring: Write or update tests for code in `packages/shared`, including hooks, API services, utilities, blockchain logic, crypto, and config. (file: .agent/skills/shared-test-authoring/SKILL.md)
+- ui-component-scaffold: Create or modify shared React DOM components in `packages/ui`, including DOM-only components and cross-platform contract + DOM implementation flows. (file: .agent/skills/ui-component-scaffold/SKILL.md)
+- ui-test-authoring: Write or audit tests for shared React DOM components in `packages/ui`. (file: .agent/skills/ui-test-authoring/SKILL.md)
+- find-skills: Helps users discover and install agent skills when they ask questions like "how do I do X", "find a skill for X", "is there a skill that can...", or express interest in extending capabilities. (file: ~/.agents/skills/find-skills/SKILL.md)
+- skill-creator: Guide for creating effective skills. Use when creating a new skill or updating an existing skill that extends Codex's capabilities with specialized knowledge, workflows, or tool integrations. (file: ~/.codex/skills/.system/skill-creator/SKILL.md)
+- skill-installer: Install Codex skills into `$CODEX_HOME/skills` from a curated list or a GitHub repo path. (file: ~/.codex/skills/.system/skill-installer/SKILL.md)
 
 ### How to use skills
 - Discovery: The list above is the skills available in this workspace for Codex. Skill bodies live on disk at the listed paths.
@@ -35,4 +60,74 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
   - Avoid deep reference-chasing: prefer opening only files directly linked from `SKILL.md` unless you're blocked.
   - When variants exist, pick only the relevant reference file(s) and note that choice.
 - Safety and fallback: If a skill can't be applied cleanly, state the issue, pick the next-best approach, and continue.
+
+## Testing preferences
+- Prioritize functional tests over UI/UX tests.
+- Add UI/UX tests only when a visible behavior should work differently and the failure is user-relevant.
+- Prefer unit and integration coverage for business logic in this repo before adding E2E coverage.
+- When endpoint behavior matters, E2E tests may target the backend running in Docker from the sibling repo `../salmon-api`.
+- Before adding new E2E coverage, check whether `../salmon-api` already covers the behavior well enough to avoid redundant tests.
+- E2E tests that depend on backend availability should skip when the backend is unreachable or not running.
+- If the backend is reachable but the behavior is wrong, the test must fail rather than skip.
+
+## End-to-end test suites — per-app ownership
+
+E2E suites live next to the app they exercise. Each is a self-contained
+Node ESM driver — no central runner. Treat each suite as the canonical
+home for its platform's integration tests.
+
+| App | Suite | Tool |
+|---|---|---|
+| `apps/extension` | `apps/extension/.playwright/` | Playwright (chromium + extension load) |
+| `apps/web` | `apps/web/.playwright/` | Playwright (chromium against the web dev server) |
+| `apps/mobile` | `apps/mobile/.maestro/` | Maestro (iOS Simulator / Android emulator) |
+
+Rules:
+
+- Do not create a top-level `.playwright/` or `.maestro/`. Tests must live
+  under their owning app.
+- Each suite has its own `README.md` and `AGENTS.md` describing setup,
+  conventions, and known failure modes. Read those before extending the
+  suite.
+- Secrets stay in `<suite>/.env.test` (gitignored). Commit a
+  `.env.test.example` so collaborators know which keys to populate.
+- Suite-local outputs (`screenshots/`, `snapshots/`, `reports/`,
+  `profiles/`, `fixtures/`) are gitignored — only `scripts/` and docs
+  ship.
+- Cross-app code (e.g. shared selectors, fixture builders) belongs in
+  `packages/shared` or `packages/ui` only when more than one suite needs
+  it. Otherwise keep it inside the suite.
+
+### Maestro working-directory rule
+
+Maestro resolves `takeScreenshot` paths relative to the directory the
+CLI is invoked from, not relative to the flow YAML. The Salmon flows
+use `screenshots/<smoke|actions>/...`, which means Maestro must be run
+from `apps/mobile/.maestro/`. Running it from anywhere else creates a
+stray `.maestro/screenshots/` folder at that cwd, polluting the tree
+that Maestro auto-generates around the binary.
+
+Defenses already in place:
+
+- `apps/*/.maestro/.env.test`, `apps/*/.maestro/screenshots/`,
+  `apps/*/.maestro/snapshots/`, `apps/*/.maestro/reports/` are
+  gitignored.
+- `/.maestro/` (a stray top-level directory) and
+  `**/.maestro/screenshots/` (any nested `.maestro/screenshots/` from
+  bad cwd) are also gitignored, so a wrong-cwd run will not leak files
+  into git.
+
+If you see a `.maestro/` directory anywhere outside `apps/mobile/`, it
+is residue from a wrong-cwd invocation — delete it and re-run from
+`apps/mobile/.maestro/`.
+
+## Folder guidance
+
+- Add local `AGENTS.md` or `CLAUDE.md` rules only in folders with real ownership boundaries or platform-specific constraints.
+- Prefer package-level or app-level guidance over file-by-file instruction clutter.
+
+## Documentation rules
+
+- Put durable repo docs in `docs/`.
+- Keep docs responsibility-oriented. Prefer ownership and package-boundary guidance over file-by-file inventories unless the task explicitly asks for file-level documentation.
 </INSTRUCTIONS>

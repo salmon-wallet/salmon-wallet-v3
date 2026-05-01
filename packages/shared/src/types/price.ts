@@ -47,38 +47,6 @@ export interface TokenPrice {
   image?: string;
 }
 
-/**
- * Top token data with trading metrics.
- */
-export interface TopToken {
-  /** Token address or ID */
-  id: string;
-  /** Token symbol */
-  symbol: string;
-  /** Token name */
-  name: string;
-  /** Token logo URL */
-  logo?: string;
-  /** Token icon URL (alternative) */
-  icon?: string;
-  /** Token address */
-  address?: string;
-  /** Token decimals */
-  decimals?: number;
-  /** Current price in USD */
-  price?: number;
-  /** 24h price change percentage */
-  priceChange24h?: number;
-  /** 24h trading volume */
-  volume24h?: number;
-  /** Market cap */
-  marketCap?: number;
-  /** Tags for categorization */
-  tags?: string[];
-  /** CoinGecko ID */
-  coingeckoId?: string | null;
-}
-
 // ============================================================================
 // Chart & market data
 // ============================================================================
@@ -203,4 +171,4 @@ export interface JupiterApiPriceData {
 /**
  * Platform identifier for price queries.
  */
-export type PricePlatform = 'solana' | 'bitcoin' | 'ethereum' | 'eclipse';
+export type PricePlatform = 'solana' | 'bitcoin' | 'ethereum';

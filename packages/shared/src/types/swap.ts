@@ -349,8 +349,10 @@ export interface BridgeTokenSimple {
   name: string;
   /** Token logo URL */
   logo?: string;
-  /** Network/chain this token is on */
-  network?: string;
+  /** Network/chain this token is on (may be null for native cross-chain tokens) */
+  network?: string | null;
+  /** Canonical chain (e.g. "bitcoin", "ethereum") provided by the backend resource */
+  chain?: SwapChainType;
   /** User's balance of this token */
   balance?: number;
   /** USD price per token */
@@ -391,6 +393,16 @@ export interface BridgeExchangeSimple {
   addressTo: string;
   /** Exchange status */
   status: string;
+}
+
+/**
+ * Bridge transaction status (simplified)
+ */
+export interface BridgeTransactionSimple {
+  /** Current exchange status */
+  status: string;
+  /** Optional payout transaction hash */
+  payoutTxId?: string;
 }
 
 // ============================================================================
@@ -576,6 +588,8 @@ export interface SwapScreenProps<StyleType> {
     networkIn?: string,
     networkOut?: string
   ) => Promise<BridgeExchangeSimple | null>;
+  /** Callback to get bridge transaction status */
+  onGetBridgeTransactionStatus?: (id: string) => Promise<BridgeTransactionSimple | null>;
   /** Callback when bridge succeeds */
   onBridgeSuccess?: (exchange: BridgeExchangeSimple) => void;
   /** Callback when bridge fails */

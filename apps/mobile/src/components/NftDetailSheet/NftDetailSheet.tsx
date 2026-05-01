@@ -14,11 +14,10 @@ import {
   BackHandler,
   Dimensions,
 } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import {
   colors,
   fontSize,
@@ -31,7 +30,6 @@ import {
   vs,
   s,
   isSolanaNft,
-  isEthereumNft,
   isBitcoinNft,
   getSatRarityColor,
   getShortAddress,
@@ -51,7 +49,6 @@ import {
 import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import {
   CallMadeSvgIcon,
-  ContentCopySvgIcon,
 } from '../Icon/SvgIcons';
 import { BlurContainer } from '../BlurContainer';
 import { BottomSheetContainer } from '../BottomSheetContainer';
@@ -304,36 +301,6 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       );
     }
 
-    if (isEthereumNft(nft)) {
-      return (
-        <>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>{t('nft.detail.tokenType', 'Token Type')}</Text>
-            <Text style={styles.detailValue}>{nft.tokenType}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>{t('nft.detail.contract', 'Contract')}</Text>
-            <View style={styles.detailValueWithCopy}>
-              <Text style={styles.detailValue}>{getShortAddress(nft.contractAddress, 6)}</Text>
-              <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <ContentCopySvgIcon size={ms(14)} color={colors.text.secondary} />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>{t('nft.detail.tokenId', 'Token ID')}</Text>
-            <Text style={styles.detailValue}>{getShortAddress(nft.tokenId, 6)}</Text>
-          </View>
-          {nft.balance !== undefined && nft.balance > 1 && (
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('nft.detail.balance', 'Balance')}</Text>
-              <Text style={styles.detailValue}>{nft.balance}</Text>
-            </View>
-          )}
-        </>
-      );
-    }
-
     if (isBitcoinNft(nft)) {
       return (
         <>
@@ -483,31 +450,43 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       {renderNftImage()}
 
       {nft.description && (
-        <BlurView intensity={10} tint="dark" style={styles.sectionContainer}>
+        <BlurContainer
+          blurIntensity={10}
+          blurTint="dark"
+          style={styles.sectionContainer}
+        >
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>{t('nft.detail.description', 'Description')}</Text>
             <Text style={styles.descriptionText}>{nft.description}</Text>
           </View>
-        </BlurView>
+        </BlurContainer>
       )}
 
       {nft.attributes && nft.attributes.length > 0 && (
-        <BlurView intensity={10} tint="dark" style={styles.sectionContainer}>
+        <BlurContainer
+          blurIntensity={10}
+          blurTint="dark"
+          style={styles.sectionContainer}
+        >
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>{t('nft.detail.attributes', 'Attributes')}</Text>
             <View style={styles.attributesGrid}>
               {nft.attributes.map(renderAttribute)}
             </View>
           </View>
-        </BlurView>
+        </BlurContainer>
       )}
 
-      <BlurView intensity={10} tint="dark" style={styles.sectionContainer}>
+      <BlurContainer
+        blurIntensity={10}
+        blurTint="dark"
+        style={styles.sectionContainer}
+      >
         <View style={styles.sectionContent}>
           <Text style={styles.sectionTitle}>{t('nft.detail.details', 'Details')}</Text>
           {renderBlockchainDetails()}
         </View>
-      </BlurView>
+      </BlurContainer>
 
       <View style={styles.actionButtonsContainer}>
         <TouchableOpacity
@@ -567,7 +546,11 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
       >
         {renderNftImage()}
 
-        <BlurView intensity={10} tint="dark" style={styles.sectionContainer}>
+        <BlurContainer
+          blurIntensity={10}
+          blurTint="dark"
+          style={styles.sectionContainer}
+        >
           <View style={styles.sectionContent}>
             {nft.collectionName && (
               <Text style={styles.collectionName} numberOfLines={1}>
@@ -593,7 +576,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               </>
             )}
           </View>
-        </BlurView>
+        </BlurContainer>
 
         {sending && (
           <View style={styles.loadingContainer}>
@@ -658,7 +641,11 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
     >
       {renderNftImage()}
 
-      <BlurView intensity={32} tint="dark" style={styles.sectionContainer}>
+      <BlurContainer
+        blurIntensity={32}
+        blurTint="dark"
+        style={styles.sectionContainer}
+      >
         <View style={styles.sectionContent}>
           <Text style={styles.sectionTitle}>{t('nft.burn.reviewTitle', 'Burn NFT')}</Text>
           <Text style={styles.descriptionText}>
@@ -668,10 +655,14 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             )}
           </Text>
         </View>
-      </BlurView>
+      </BlurContainer>
 
       {lutInfo && (
-        <BlurView intensity={32} tint="dark" style={styles.sectionContainer}>
+        <BlurContainer
+          blurIntensity={32}
+          blurTint="dark"
+          style={styles.sectionContainer}
+        >
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>{t('nft.burn.lutTitle', 'Temporary lookup table required')}</Text>
             <Text style={styles.descriptionText}>
@@ -703,7 +694,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
               )}
             </Text>
           </View>
-        </BlurView>
+        </BlurContainer>
       )}
 
       {burnPreparing && (

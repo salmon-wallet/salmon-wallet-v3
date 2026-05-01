@@ -417,13 +417,13 @@ export interface AddressBookEditBaseProps {
 }
 
 // ============================================================================
-// Feature flag types (from backend GET /v1/switches)
+// Network capability types (from backend GET /v1/networks)
 // ============================================================================
 
 /**
- * Feature flags within a section
+ * Capability flags within a network section.
  */
-export interface SwitchSectionFeatures {
+export interface NetworkSectionFeatures {
   send?: boolean;
   receive?: boolean;
   list_tokens?: boolean;
@@ -432,25 +432,23 @@ export interface SwitchSectionFeatures {
 }
 
 /**
- * A section within a network's switch configuration
+ * A capability section within a network catalog entry.
  */
-export interface SwitchSection {
+export interface NetworkSection {
   active: boolean;
-  features?: SwitchSectionFeatures;
+  features?: NetworkSectionFeatures;
   [key: string]: unknown;
 }
 
 /**
- * Feature switch configuration for a single network.
- *
- * Backend returns a Record<networkId, NetworkSwitch>.
+ * Capability configuration embedded in a single backend network entry.
  */
-export interface NetworkSwitch {
+export interface NetworkCapabilities {
   enable: boolean;
   sections: {
-    overview: SwitchSection;
-    token_detail: SwitchSection;
-    collectibles: SwitchSection;
+    overview: NetworkSection;
+    token_detail: NetworkSection;
+    collectibles: NetworkSection;
     swap: { active: boolean };
     exchange: { active: boolean };
     transactions: { active: boolean };
@@ -458,11 +456,31 @@ export interface NetworkSwitch {
 }
 
 /**
- * Response from the switches API endpoint: object keyed by network ID.
+ * @deprecated Legacy alias kept for internal compatibility during cleanup.
  */
-export type SwitchesResponse = Record<string, NetworkSwitch>;
+export type NetworkSwitch = NetworkCapabilities;
 
 /**
- * Map of network IDs to their enabled state for quick lookup
+ * @deprecated Legacy alias kept for internal compatibility during cleanup.
  */
-export type SwitchMap = Record<string, boolean>;
+export interface SwitchSectionFeatures extends NetworkSectionFeatures {}
+
+/**
+ * @deprecated Legacy alias kept for internal compatibility during cleanup.
+ */
+export interface SwitchSection extends NetworkSection {}
+
+/**
+ * @deprecated Legacy alias kept for internal compatibility during cleanup.
+ */
+export type SwitchesResponse = Record<string, NetworkCapabilities>;
+
+/**
+ * Enabled-state lookup derived from the backend network catalog.
+ */
+export type NetworkEnabledMap = Record<string, boolean>;
+
+/**
+ * @deprecated Legacy alias kept for internal compatibility during cleanup.
+ */
+export type SwitchMap = NetworkEnabledMap;

@@ -1,0 +1,23 @@
+appId: io.salmonwallet.app
+---
+# Reveal seed phrase. Words MUST NOT be screenshotted — assert via hierarchy.
+# Finding: no password prompt observed on Wallet A (derived key cached in stash).
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- runFlow: ../../../subflows/open-settings.yaml
+- tapOn: "Backup Seed Phrase"
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertVisible: "Backup Seed Phrase"
+# Tap "Tap to Reveal" by coord (composite a11y group)
+- tapOn:
+    point: "50%,55%"
+- waitForAnimationToEnd:
+    timeout: 4000
+# Verify reveal happened by absence of "Tap to Reveal" placeholder.
+# Do NOT screenshot revealed words and do NOT pin seed-word literals here —
+# matching specific words would leak parts of SALMON_TEST_SEED_A into version control.
+- assertNotVisible: "Tap to Reveal"
+- tapOn: "DONE"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible: "Settings"

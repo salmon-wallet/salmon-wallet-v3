@@ -1,4 +1,10 @@
-## ADDED Requirements
+# bridge-recipient-autofill Specification
+
+## Purpose
+
+Pre-fill the bridge recipient address input with the user's own address on the target chain so cross-chain swaps default to self-bridging while keeping the field editable and gated by the existing `validateAddress` helper.
+
+## Requirements
 
 ### Requirement: Recipient address pre-filled with user's own address
 When the bridge recipient screen opens, the address input SHALL be pre-populated with the user's own address for the target chain.
