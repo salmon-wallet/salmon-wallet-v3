@@ -111,4 +111,48 @@ describe('transaction utils', () => {
     );
     expect(getTransactionDescription('interaction', [], [])).toBe('Contract interaction');
   });
+
+  it('passes through swapRoute from the backend SolanaTransaction unchanged', () => {
+    const swapRoute = {
+      hops: [
+        {
+          dex: 'JUPITER',
+          percent: 100,
+          inputToken: { symbol: 'SOL', amount: '1000000000', decimals: 9 },
+          outputToken: { symbol: 'USDC', amount: '120000000', decimals: 6 },
+        },
+      ],
+      inputAmount: '1000000000',
+      outputAmount: '120000000',
+      conversionRate: { fromSymbol: 'SOL', toSymbol: 'USDC', rate: '120.000000' },
+    };
+
+    const tx = transformSolanaTransaction({
+      id: 'sig-2',
+      signature: 'sig-2',
+      timestamp: 100,
+      status: 'completed',
+      type: 'swap',
+      inputs: [],
+      outputs: [],
+      swapRoute,
+    } as any);
+
+    expect(tx.swapRoute).toBe(swapRoute);
+    expect(tx.swapRoute?.conversionRate?.rate).toBe('120.000000');
+  });
+
+  it('leaves swapRoute undefined when the backend does not provide it', () => {
+    const tx = transformSolanaTransaction({
+      id: 'sig-3',
+      signature: 'sig-3',
+      timestamp: 100,
+      status: 'completed',
+      type: 'send',
+      inputs: [],
+      outputs: [],
+    } as any);
+
+    expect(tx.swapRoute).toBeUndefined();
+  });
 });
