@@ -492,6 +492,8 @@ export interface SolanaTransaction {
   events?: Record<string, unknown>;
   /** Original Helius transaction type (uppercase) */
   heliusType?: string;
+  /** Swap route — populated server-side for SWAP transactions */
+  swapRoute?: SwapRoute;
 }
 
 /**

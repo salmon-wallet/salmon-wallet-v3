@@ -31,7 +31,6 @@ export default defineConfig(({ mode }) => {
         VITE_API_PORT: env.VITE_API_PORT ?? '',
         VITE_API_URL: env.VITE_API_URL ?? '',
         VITE_STATIC_API_URL: env.VITE_STATIC_API_URL ?? '',
-        VITE_HELIUS_API_KEY: env.VITE_HELIUS_API_KEY ?? '',
         VITE_ENABLE_TESTNET: env.VITE_ENABLE_TESTNET ?? 'false',
         NODE_ENV: mode === 'production' ? 'production' : (process.env.NODE_ENV ?? 'development'),
       }),
