@@ -166,8 +166,8 @@ describe('PasswordScreen', () => {
       expect(mockGetStashItem).toHaveBeenCalled();
     });
 
-    fireEvent.changeText(screen.getByPlaceholderText('wallet.create.passwordNew'), 'strong-pass');
-    fireEvent.changeText(screen.getByPlaceholderText('wallet.create.passwordRepeat'), 'strong-pass');
+    fireEvent.changeText(screen.getByPlaceholderText('wallet.create.passwordNew'), 'pw-fixture-valid');
+    fireEvent.changeText(screen.getByPlaceholderText('wallet.create.passwordRepeat'), 'pw-fixture-valid');
 
     fireEvent.press(screen.getByText('wallet.recover_wallet'));
 
@@ -185,8 +185,8 @@ describe('PasswordScreen', () => {
       );
     });
 
-    expect(mockAddAccount).toHaveBeenCalledWith({ id: 'account-1' }, 'strong-pass');
-    expect(mockUnlockAccounts).toHaveBeenCalledWith('strong-pass');
+    expect(mockAddAccount).toHaveBeenCalledWith({ id: 'account-1' }, 'pw-fixture-valid');
+    expect(mockUnlockAccounts).toHaveBeenCalledWith('pw-fixture-valid');
     expect(mockReplace).toHaveBeenCalledWith('/(auth)/biometric-setup');
   });
 
@@ -208,11 +208,11 @@ describe('PasswordScreen', () => {
       expect(mockGetStashItem).toHaveBeenCalled();
     });
 
-    fireEvent.changeText(screen.getByPlaceholderText('wallet.create.enter_your_password'), 'bad-pass');
+    fireEvent.changeText(screen.getByPlaceholderText('wallet.create.enter_your_password'), 'pw-fixture-invalid');
     fireEvent.press(screen.getByText('wallet.create_wallet'));
 
     await waitFor(() => {
-      expect(mockCheckPassword).toHaveBeenCalledWith('bad-pass');
+      expect(mockCheckPassword).toHaveBeenCalledWith('pw-fixture-invalid');
     });
 
     expect(screen.getByText('wallet.create.invalid_password')).toBeTruthy();
