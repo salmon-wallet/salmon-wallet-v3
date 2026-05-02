@@ -14,3 +14,7 @@
 ## Testing
 
 - Add or update web tests when web-only routing or browser-specific behavior changes.
+- Web end-to-end tests live in `.playwright/` (Playwright + bundled
+  chromium against the web dev server). See `.playwright/README.md` for
+  setup and `.playwright/AGENTS.md` for conventions agents must follow
+  when extending the suite.

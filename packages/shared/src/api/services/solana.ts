@@ -8,7 +8,7 @@
  * - GET /v1/{networkId}/ft/swap/order - Get swap quote
  * - POST /v1/{networkId}/ft/swap/execute - Execute swap
  *
- * Note: Token list endpoints (verified, top, batch, search) are in tokens.ts
+ * Note: Token list endpoints (verified, batch, search) are in tokens.ts
  */
 
 import { get, apiClient, ApiError } from '../client';

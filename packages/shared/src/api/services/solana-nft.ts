@@ -2,6 +2,10 @@
  * Solana NFT API Service
  *
  * Provides API-based NFT fetching for Solana wallets via the Salmon backend.
+ *
+ * Runtime data sourcing — see `packages/shared/src/blockchain/solana/nft.ts`
+ * (module header). Salmon-api routes DAS calls through Triton with a Helius
+ * fallback; the `helius-` prefix here is shape-only (canonical mapper).
  */
 
 import { apiClient } from '../client';

@@ -2,17 +2,21 @@
  * API Services
  *
  * Core adapter services for connecting to the Salmon backend API.
- * Migrated from salmon-wallet-v2/src/adapter/services/
  *
- * Services:
- * - Price Service: Token prices, charts, coin info
- * - Token Service: Token lists, metadata, search
- * - Balance Service: Wallet balances, portfolio calculations
- *
- * All services implement multi-tier fallback patterns:
- * 1. Salmon Backend API (primary, fastest)
- * 2. Jupiter Aggregator (fallback for tokens)
- * 3. CDN sources (last resort)
+ * Services re-exported from this barrel:
+ * - Price Service (./price)
+ * - Exchange Rates Service (./exchangeRates)
+ * - Token Service (./tokens)
+ * - Balance Service (./balance)
+ * - NFT Burn Service (./nft-burn)
+ * - Bitcoin Service (./bitcoin)
+ * - Solana Service (./solana)
+ * - DApp Service (./dapp)
+ * - Bridge Service (./bridge)
+ * - Ethereum Service (./ethereum)
+ * - Multi-chain Transaction Service (./transactions)
+ * - Solana NFT Service (./solana-nft)
+ * - Network Service (./network)
  */
 
 // ============================================================================
@@ -208,5 +212,8 @@ export {
   // Functions
   getNetworks,
   getNetwork,
+  getEnabledNetworkIds,
+  getEnabledBlockchains,
+  isBackendNetworkEnabled,
   clearNetworksCache,
 } from './network';
