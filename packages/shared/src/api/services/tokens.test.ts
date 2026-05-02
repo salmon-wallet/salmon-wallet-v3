@@ -34,7 +34,6 @@ import {
   normalizeBackendTokens,
   normalizeJupiterTokens,
   getTokenList,
-  getFeaturedTokenList,
   getTokenMetadataByMints,
   searchTokens,
   getTokenByAddress,
@@ -612,61 +611,6 @@ describe('Token Service - Pure Functions', () => {
         const source = getTokenListSource();
 
         expect(source).toBe('backend');
-      });
-    });
-
-    // ========================================================================
-    // getFeaturedTokenList() Tests
-    // ========================================================================
-    describe('getFeaturedTokenList', () => {
-      it('should return top tokens from backend', async () => {
-        const topTokens = mockBackendTokens.slice(0, 5);
-        mockApiClientGet.mockResolvedValueOnce({ data: topTokens });
-
-        const result = await getFeaturedTokenList('solana-mainnet');
-
-        expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBeLessThanOrEqual(5);
-      });
-
-      it('should verify tokens are properly normalized', async () => {
-        const topTokens = mockBackendTokens.slice(0, 2);
-        mockApiClientGet.mockResolvedValueOnce({ data: topTokens });
-
-        const result = await getFeaturedTokenList('solana-mainnet');
-
-        expect(result.length).toBeGreaterThan(0);
-        expect(result[0]).toHaveProperty('symbol');
-        expect(result[0]).toHaveProperty('name');
-        expect(result[0]).toHaveProperty('decimals');
-        expect(result[0]).toHaveProperty('address');
-        expect(result[0]).toHaveProperty('logo');
-        expect(result[0]).toHaveProperty('tags');
-      });
-
-      it('should return empty array on error', async () => {
-        mockApiClientGet.mockRejectedValueOnce(new Error('Backend error'));
-
-        const result = await getFeaturedTokenList('solana-mainnet');
-
-        expect(result).toEqual([]);
-      });
-
-      it('should handle tokens without logo/icon', async () => {
-        const tokensNoLogo = [
-          {
-            symbol: 'NOLOGO',
-            name: 'No Logo Token',
-            decimals: 9,
-            address: 'NoLogo123',
-          },
-        ];
-        mockApiClientGet.mockResolvedValueOnce({ data: tokensNoLogo });
-
-        const result = await getFeaturedTokenList('solana-mainnet');
-
-        expect(result.length).toBeGreaterThan(0);
-        expect(result[0].logo).toBeUndefined();
       });
     });
 

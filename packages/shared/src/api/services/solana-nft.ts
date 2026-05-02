@@ -2,12 +2,16 @@
  * Solana NFT API Service
  *
  * Provides API-based NFT fetching for Solana wallets via the Salmon backend.
+ *
+ * Runtime data sourcing — see `packages/shared/src/blockchain/solana/nft.ts`
+ * (module header). Salmon-api routes DAS calls through Triton with a Helius
+ * fallback; the `helius-` prefix here is shape-only (canonical mapper).
  */
 
 import { apiClient } from '../client';
 import { normalizeIpfsUrl } from '../../utils';
 import { nftImageOverrides } from '../../blockchain/solana/nft-image-overrides';
-import type { Nft } from '../../types/nft';
+import type { Nft, NftPaginatedResponse, NftPagination, GetNftsOptions } from '../../types/nft';
 
 // ============================================================================
 // Backend response normalization
@@ -105,4 +109,42 @@ export async function getSolanaNftByAddress(
   );
   if (!data) return null;
   return normalizeBackendNft(data, '');
+}
+
+/**
+ * Paginated NFT list. The backend supports `limit` + `offset` query params and
+ * returns `{ data: BackendNft[], pagination: NftPagination }`. We normalize the
+ * NFT shape and pass pagination through unchanged.
+ */
+export async function getSolanaNftsPaginated(
+  networkId: string,
+  publicKey: string,
+  options: GetNftsOptions = {}
+): Promise<NftPaginatedResponse> {
+  const limit = Math.min(Math.max(1, options.limit ?? 50), 100);
+  const offset = Math.max(0, options.offset ?? 0);
+  const noCache = options.noCache ?? false;
+
+  const { data } = await apiClient.get<{
+    data: BackendNft[];
+    pagination?: NftPagination;
+  }>(`/v1/${networkId}/nft`, {
+    params: { publicKey, noCache, limit, offset },
+    timeout: 15000,
+  });
+
+  const raw = Array.isArray(data) ? data : data.data;
+  const normalized = raw
+    .map((nft) => normalizeBackendNft(nft, publicKey))
+    .filter((nft) => nft.media);
+
+  const pagination: NftPagination = data.pagination ?? {
+    total: normalized.length,
+    limit,
+    offset,
+    hasMore: false,
+    nextOffset: null,
+  };
+
+  return { data: normalized, pagination };
 }

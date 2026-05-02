@@ -45,7 +45,6 @@ export type {
 export {
   getAll as getAllNfts,
   getAllPaginated as getAllNftsPaginated,
-  getAllFromHeliusDirect,
   getAllGroupedByCollection,
   getNftByAddress,
   getCollections,

@@ -185,6 +185,12 @@ export type FetchNftsFromBackendFn = (
   noCache: boolean
 ) => Promise<Nft[]>;
 
+export type FetchNftsFromBackendPaginatedFn = (
+  networkId: string,
+  publicKey: string,
+  options: GetNftsOptions
+) => Promise<NftPaginatedResponse>;
+
 export type FetchNftByAddressFn = (
   networkId: string,
   mintAddress: string

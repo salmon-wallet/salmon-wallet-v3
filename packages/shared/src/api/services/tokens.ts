@@ -10,7 +10,6 @@
  * API Endpoints:
  * - GET /v1/{networkId}/ft/verified - Get verified token list
  * - GET /v1/{networkId}/ft/batch?mints={mints} - Batch fetch token metadata
- * - GET /v1/{networkId}/ft/top?interval=24h&limit=5 - Get featured/top tokens
  * - GET /v1/{networkId}/ft/search?query={query} - Search tokens
  *
  * External Fallback Endpoints:
@@ -247,40 +246,6 @@ export async function getTokenList(
 }
 
 /**
- * Get featured/top tokens by trading activity
- *
- * Endpoint: GET /v1/{networkId}/ft/top?interval=24h&limit=5
- *
- * @param networkId - Network identifier
- * @returns Array of featured token metadata
- */
-export async function getFeaturedTokenList(
-  networkId: SolanaNetworkId = 'solana-mainnet'
-): Promise<TokenMetadata[]> {
-  try {
-    const { data } = await apiClient.get<BackendToken[]>(
-      `/v1/${networkId}/ft/top?interval=24h&limit=5`
-    );
-
-    if (data && Array.isArray(data)) {
-      return data.map((token) => ({
-        symbol: token.symbol,
-        name: token.name,
-        decimals: token.decimals,
-        logo: normalizeIpfsUrl(token.logo || token.icon),
-        address: token.address || token.id || '',
-        coingeckoId: token.coingeckoId || undefined,
-        tags: token.tags || [],
-      }));
-    }
-    return [];
-  } catch (error) {
-    console.error('[TokenService] Failed to get featured tokens:', error);
-    return [];
-  }
-}
-
-/**
  * Fetch token metadata only for specific mint addresses
  * Uses batch endpoint which is more efficient than fetching all tokens
  *
@@ -367,15 +332,8 @@ export async function getVerifiedTokens(
     const { data } = await apiClient.get<BackendToken[]>(`/v1/${networkId}/ft/verified`);
     return normalizeBackendTokens(data);
   } catch {
-    console.warn('[TokenService] Verified tokens endpoint unavailable, using fallback...');
-
-    // Fallback: use featured tokens
-    try {
-      return await getFeaturedTokenList(networkId);
-    } catch {
-      console.warn('[TokenService] Fallback failed, returning empty list');
-      return [];
-    }
+    console.warn('[TokenService] Verified tokens endpoint unavailable, returning empty list');
+    return [];
   }
 }
 

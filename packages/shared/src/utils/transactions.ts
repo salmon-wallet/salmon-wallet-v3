@@ -190,6 +190,7 @@ export function transformSolanaTransaction(tx: SolanaTransaction): Transaction {
     description: tx.description,
     source: tx.source,
     heliusType: tx.heliusType,
+    swapRoute: tx.swapRoute,
   };
 }
 
