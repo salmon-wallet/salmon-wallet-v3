@@ -47,7 +47,6 @@ export {
 export {
   // Functions
   getTokenList,
-  getFeaturedTokenList,
   getTokenMetadataByMints,
   getVerifiedTokens,
   searchTokens,
