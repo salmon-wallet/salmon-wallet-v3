@@ -54,7 +54,7 @@ describe('blinks registry', () => {
       expect(isHostTrusted('@dial.to')).toBe(false);
     });
 
-    it('rejects leading whitespace', () => {
+    it('accepts known host with leading whitespace (trimmed to trusted value)', () => {
       expect(isHostTrusted(' dial.to')).toBe(true);
     });
 
@@ -62,7 +62,7 @@ describe('blinks registry', () => {
       expect(isHostTrusted('[::1]')).toBe(false);
     });
 
-    it('rejects trailing whitespace', () => {
+    it('accepts known host with trailing whitespace (trimmed to trusted value)', () => {
       expect(isHostTrusted('dial.to ')).toBe(true);
     });
   });

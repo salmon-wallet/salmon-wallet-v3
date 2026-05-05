@@ -63,9 +63,9 @@ function extractHost(entry: unknown): string | null {
 
   try {
     if (candidate.includes('://')) {
-      return new URL(candidate).hostname.toLowerCase();
+      return new URL(candidate).hostname.normalize('NFKC').toLowerCase();
     }
-    return candidate.toLowerCase();
+    return candidate.normalize('NFKC').toLowerCase();
   } catch {
     return null;
   }
