@@ -54,6 +54,7 @@ describe('action-client URL guards', () => {
 
   it('rejects solana-action: URLs as not_https', async () => {
     const fetch = vi.fn();
+    // new URL parses protocol as 'solana-action:' with empty hostname; rejected by the protocol check, not by registry
     await expect(
       fetchActionMetadata('solana-action:https://dial.to/x', { fetch }),
     ).rejects.toMatchObject({ code: 'not_https' });
@@ -139,6 +140,41 @@ describe('action-client size cap', () => {
     await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
       code: 'oversize_response',
     });
+  });
+
+  it('rejects when content-length is negative', async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      new Response('{}', {
+        status: 200,
+        headers: { 'content-length': '-1', 'content-type': 'application/json' },
+      }),
+    );
+    await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
+      code: 'oversize_response',
+    });
+  });
+
+  it('aborts the underlying fetch when streamed body exceeds the cap', async () => {
+    const big = 'x'.repeat(70 * 1024);
+    let capturedSignal: AbortSignal | undefined;
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(big));
+        controller.close();
+      },
+    });
+    const fetch: typeof globalThis.fetch = vi.fn(
+      (_url, init?: RequestInit) => {
+        capturedSignal = init?.signal ?? undefined;
+        return Promise.resolve(
+          new Response(stream, { status: 200, headers: { 'content-type': 'application/json' } }),
+        );
+      },
+    ) as unknown as typeof globalThis.fetch;
+    await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
+      code: 'oversize_response',
+    });
+    expect(capturedSignal?.aborted).toBe(true);
   });
 
   it('rejects when streamed body exceeds 64 KiB without content-length', async () => {

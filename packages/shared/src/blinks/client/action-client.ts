@@ -38,7 +38,6 @@ export type ActionClientErrorCode =
 export interface ActionClientOptions {
   fetch?: typeof globalThis.fetch;
   timeoutMs?: number;
-  now?: () => number;
 }
 
 export class ActionClientError extends Error {
@@ -69,11 +68,12 @@ function validateUrl(raw: string): URL {
   return parsed;
 }
 
-async function readCappedText(res: Response): Promise<string> {
+async function readCappedText(res: Response, controller: AbortController): Promise<string> {
+  // Pre-check is an optimization. Real defense is the streaming cap below — never trust Content-Length.
   const cl = res.headers.get('content-length');
   if (cl != null && cl !== '') {
     const n = Number(cl);
-    if (Number.isFinite(n) && n > MAX_RESPONSE_BYTES) {
+    if (Number.isFinite(n) && (n < 0 || n > MAX_RESPONSE_BYTES)) {
       throw new ActionClientError({ code: 'oversize_response', message: `content-length ${n}` });
     }
   }
@@ -81,6 +81,7 @@ async function readCappedText(res: Response): Promise<string> {
   if (!reader) {
     const text = await res.text();
     if (text.length > MAX_RESPONSE_BYTES) {
+      controller.abort();
       throw new ActionClientError({ code: 'oversize_response' });
     }
     return text;
@@ -95,11 +96,8 @@ async function readCappedText(res: Response): Promise<string> {
     if (value) {
       total += value.byteLength;
       if (total > MAX_RESPONSE_BYTES) {
-        try {
-          await reader.cancel();
-        } catch {
-          /* swallow */
-        }
+        await reader.cancel().catch(() => {});
+        controller.abort();
         throw new ActionClientError({ code: 'oversize_response' });
       }
       out += decoder.decode(value, { stream: true });
@@ -136,7 +134,7 @@ async function fetchAndReadJson({ parsed, init, fetchImpl, timeoutMs }: FetchAct
     if (!res.ok) {
       throw new ActionClientError({ code: 'http_error', message: `status ${res.status}` });
     }
-    const text = await readCappedText(res);
+    const text = await readCappedText(res, controller);
     try {
       return JSON.parse(text);
     } catch (e) {
