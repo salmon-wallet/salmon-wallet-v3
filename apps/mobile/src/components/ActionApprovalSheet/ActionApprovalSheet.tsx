@@ -160,7 +160,17 @@ export function ActionApprovalSheet(props: ActionApprovalSheetProps) {
         {error ? (
           <View style={styles.errorBanner} accessibilityRole="alert">
             <Text style={styles.errorText}>
-              {t('blinks.approval.error.generic')}
+              {(() => {
+                // Map the error code to its dedicated i18n key when defined.
+                // i18next returns '' for missing keys when `defaultValue: ''`
+                // is passed; in that case we fall back to the generic
+                // approval-error string.
+                const errorKey = `blinks.approval.error.${error.code}`;
+                const translated = t(errorKey, { defaultValue: '' });
+                return translated !== ''
+                  ? translated
+                  : t('blinks.approval.error.generic');
+              })()}
             </Text>
             {error.message ? (
               <Text style={styles.errorSubText}>{error.message}</Text>

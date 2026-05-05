@@ -118,7 +118,7 @@ jest.mock('@salmon/shared', () => ({
 }));
 
 const mockInspectSigStatus = jest.fn();
-jest.mock('../../app/blink-approval-sign', () => ({
+jest.mock('../../src/blinks', () => ({
   signAndSubmitActionTransaction: (...a: unknown[]) => mockSignAndSubmit(...a),
   inspectTransactionSigStatus: (...a: unknown[]) => mockInspectSigStatus(...a),
 }));
@@ -197,7 +197,9 @@ describe('BlinkApprovalScreen', () => {
     );
     render(<BlinkApprovalScreen />);
     await waitFor(() => {
-      expect(screen.getByText('blinks.approval.error.generic')).toBeTruthy();
+      // The error code is mapped to its dedicated i18n key; the test mock
+      // for `t` returns the key as-is.
+      expect(screen.getByText('blinks.approval.error.http_error')).toBeTruthy();
     });
   });
 

@@ -50,8 +50,14 @@
         "cross_host_redirect": "The blink tried to redirect to another host.",
         "oversize_response": "The blink response was too large.",
         "submit_failed": "Failed to submit the transaction.",
-        "no_account": "No active wallet account."
+        "no_account": "No active wallet account.",
+        "v0_feepayer_mismatch": "The transaction's fee payer doesn't match your wallet."
       }
+    },
+    "success": {
+      "title": "Action approved",
+      "subtitle": "The transaction was submitted to the network.",
+      "done": "Done"
     }
   },
   "general": {

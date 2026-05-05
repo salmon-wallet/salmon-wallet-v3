@@ -6,12 +6,18 @@
  *        recentBlockhash mutation). For unsigned transactions, the route
  *        sets feePayer to the active wallet pubkey and refreshes the
  *        blockhash via `getLatestBlockhash('finalized')`.
+ *   v0 feePayer guard — for versioned (V0) transactions the publisher
+ *        encodes the fee payer at `message.staticAccountKeys[0]`. This
+ *        module refuses to sign any V0 tx whose fee-payer slot does not
+ *        equal the active wallet's pubkey, on both unsigned and partial-
+ *        signed paths. Throws `Error('v0_feepayer_mismatch')`.
  *
- * This module is split out from `blink-approval.tsx` so the route can be
+ * This module is split out of `apps/mobile/app/` so the route can be
  * tested without pulling `@solana/web3.js` into Jest. The route mocks this
  * module; this module's invariants are covered by simulator tests in
- * `@salmon/shared/blinks/simulate` (signature verification, ALT resolution)
- * and by component tests for the approval UX.
+ * `@salmon/shared/blinks/simulate` (signature verification, ALT resolution),
+ * by component tests for the approval UX, and by the unit tests in
+ * `./__tests__/sign-and-submit.test.ts`.
  */
 import {
   Connection,
@@ -65,6 +71,11 @@ export function inspectTransactionSigStatus(
  * `feePayer` and `recentBlockhash` fields are NEVER mutated; the local
  * signer's signature is added in-place. For unsigned txs, the route sets
  * `feePayer` to the active wallet pubkey and refreshes blockhash.
+ *
+ * For V0 transactions, asserts `staticAccountKeys[0]` (the encoded fee
+ * payer) equals the active wallet pubkey on BOTH unsigned and partial-
+ * signed paths. Mismatch throws `Error('v0_feepayer_mismatch')` BEFORE
+ * any signing happens.
  */
 export async function signAndSubmitActionTransaction(
   input: SignSubmitInput,
@@ -83,6 +94,14 @@ export async function signAndSubmitActionTransaction(
   }
 
   if (versioned) {
+    // V0 fee-payer guard — applies to BOTH unsigned and partial-signed paths.
+    // The publisher encodes the fee payer at staticAccountKeys[0]; if that
+    // slot doesn't match the active wallet, refuse to sign.
+    const feePayerKey = versioned.message.staticAccountKeys[0];
+    if (!feePayerKey || !feePayerKey.equals(input.account.publicKey)) {
+      throw new Error('v0_feepayer_mismatch');
+    }
+
     if (!input.partialSigned) {
       // Unsigned versioned tx — refresh blockhash on the message before
       // signing. We can't change feePayer of a versioned message after the

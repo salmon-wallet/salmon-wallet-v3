@@ -50,8 +50,14 @@
         "cross_host_redirect": "El blink intentó redirigir a otro host.",
         "oversize_response": "La respuesta del blink fue demasiado grande.",
         "submit_failed": "Error al enviar la transacción.",
-        "no_account": "No hay cuenta activa."
+        "no_account": "No hay cuenta activa.",
+        "v0_feepayer_mismatch": "El pagador de comisiones no coincide con tu wallet."
       }
+    },
+    "success": {
+      "title": "Acción aprobada",
+      "subtitle": "La transacción fue enviada a la red.",
+      "done": "Listo"
     }
   },
   "general": {

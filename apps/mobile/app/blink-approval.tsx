@@ -31,7 +31,7 @@ import {
   vs,
 } from '@salmon/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
@@ -43,7 +43,7 @@ import {
 import {
   inspectTransactionSigStatus,
   signAndSubmitActionTransaction,
-} from './blink-approval-sign';
+} from '../src/blinks';
 
 interface BlinkApprovalPayload {
   path?: string;
@@ -95,6 +95,17 @@ export default function BlinkApprovalScreen() {
     null,
   );
   const [submitting, setSubmitting] = useState(false);
+
+  // Mounted ref guards setState calls in async paths (handleApprove) so the
+  // component never updates state after unmount (prevents leaks if the user
+  // navigates away mid-submit).
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -196,10 +207,18 @@ export default function BlinkApprovalScreen() {
         params: { signature: res.signature, host },
       });
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : 'submit_failed';
-      setError({ code: 'submit_failed', message });
+      const rawMessage = e instanceof Error ? e.message : 'submit_failed';
+      // Guarded errors raised by the sign helper (e.g. `v0_feepayer_mismatch`)
+      // encode the code in `error.message`. Surface those as the error code so
+      // the approval banner can map them to a translated string. Fall back to
+      // `submit_failed` for everything else.
+      const code =
+        e instanceof Error && /^[a-z0-9_]+$/.test(e.message)
+          ? e.message
+          : 'submit_failed';
+      if (mountedRef.current) setError({ code, message: rawMessage });
     } finally {
-      setSubmitting(false);
+      if (mountedRef.current) setSubmitting(false);
     }
   };
 
@@ -218,6 +237,11 @@ export default function BlinkApprovalScreen() {
 
   return (
     <ActionApprovalSheet
+      // Force remount when the transaction bytes change so that the inner
+      // "I understand the risk" toggle (gated behind simulationError) is
+      // reset to false on every new tx — defense against re-using a prior
+      // acknowledgement on a different transaction.
+      key={transaction?.serializedBase64 ?? 'empty'}
       loading={loading || submitting}
       error={error ?? undefined}
       metadata={

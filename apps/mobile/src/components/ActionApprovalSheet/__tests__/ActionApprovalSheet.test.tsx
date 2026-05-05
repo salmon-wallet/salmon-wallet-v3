@@ -7,7 +7,34 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 jest.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, opts?: { defaultValue?: string }) => {
+      // Mirror the i18next-with-defaultValue contract for tests:
+      // unknown keys return the provided defaultValue (typically '').
+      // Known keys (the ones our component reads) return the key string.
+      const known = new Set([
+        'blinks.approval.error.generic',
+        'blinks.approval.error.http_error',
+        'blinks.approval.error.timeout',
+        'blinks.approval.error.invalid_response',
+        'blinks.approval.error.submit_failed',
+        'blinks.approval.error.no_account',
+        'blinks.approval.error.untrusted_host',
+        'blinks.approval.error.not_https',
+        'blinks.approval.error.cross_host_redirect',
+        'blinks.approval.error.oversize_response',
+        'blinks.approval.error.v0_feepayer_mismatch',
+        'blinks.approval.simulation.failed',
+        'blinks.approval.simulation.unknown_amount',
+        'blinks.approval.partial_signed',
+        'blinks.approval.risk_acknowledge',
+        'blinks.approval.approve',
+        'blinks.approval.cancel',
+      ]);
+      if (known.has(key)) return key;
+      return opts?.defaultValue ?? key;
+    },
+  }),
 }));
 
 jest.mock('@salmon/shared', () => ({
@@ -250,5 +277,66 @@ describe('ActionApprovalSheet', () => {
       />,
     );
     expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(true);
+  });
+
+  it('maps known error code to dedicated i18n key (v0_feepayer_mismatch)', () => {
+    render(
+      <ActionApprovalSheet
+        loading={false}
+        metadata={baseMetadata}
+        error={{ code: 'v0_feepayer_mismatch' }}
+        onApprove={jest.fn()}
+        onCancel={jest.fn()}
+      />,
+    );
+    expect(
+      screen.getByText('blinks.approval.error.v0_feepayer_mismatch'),
+    ).toBeTruthy();
+  });
+
+  it('falls back to generic key for unknown error codes', () => {
+    render(
+      <ActionApprovalSheet
+        loading={false}
+        metadata={baseMetadata}
+        error={{ code: 'totally_unknown_code' }}
+        onApprove={jest.fn()}
+        onCancel={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('blinks.approval.error.generic')).toBeTruthy();
+  });
+
+  it('resets risk acknowledgement when key changes (new tx → toggle clears)', () => {
+    // Wrap in a parent so the `key` prop actually triggers a remount of the
+    // child between renders (a top-level rerender from testing-library
+    // preserves the root identity, masking the key change).
+    const onApprove = jest.fn();
+    const Wrapper = ({ txKey }: { txKey: string }) => (
+      <ActionApprovalSheet
+        key={txKey}
+        loading={false}
+        metadata={baseMetadata}
+        transaction={{ serializedBase64: txKey }}
+        simulationError={{ code: 'simulation_failed' }}
+        onApprove={onApprove}
+        onCancel={jest.fn()}
+      />
+    );
+
+    const { rerender } = render(<Wrapper txKey="tx-A" />);
+
+    // Acknowledge risk on tx-A → Approve enabled.
+    fireEvent(screen.getByTestId('approval-risk-toggle'), 'valueChange', true);
+    expect(
+      screen.getByTestId('approval-approve').props.accessibilityState?.disabled,
+    ).toBe(false);
+
+    // New tx (different key) → child remounts → toggle resets to false →
+    // Approve disabled again.
+    rerender(<Wrapper txKey="tx-B" />);
+    expect(
+      screen.getByTestId('approval-approve').props.accessibilityState?.disabled,
+    ).toBe(true);
   });
 });
