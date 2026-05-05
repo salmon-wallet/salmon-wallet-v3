@@ -193,9 +193,6 @@ export {
   USDC_ADDRESS,
   LAMPORTS_PER_SOL,
   // Functions
-  decorateBalanceList,
-  decorateBalancePrices,
-  calculate24HoursChange,
   createSolBalance,
   // Bigint helpers
   isZeroBalance,
@@ -257,9 +254,6 @@ export {
   SECTION_TO_NETWORK,
   INITIAL_NFT_SECTIONS,
 } from './nft';
-
-// NFT spam filter
-export { isSpamNft, filterSpamNfts } from './nft-spam-filter';
 
 // Legacy migration (v2 -> v3)
 export { migrateLegacyWallets } from './legacy-migration';

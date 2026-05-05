@@ -27,7 +27,6 @@ import {
   signAndSendPreparedSolanaTransactions,
   letterSpacing,
   spacing,
-  filterSpamNfts,
   getAllNfts,
   getNftSectionTitle,
   getShortAddress,
@@ -220,11 +219,13 @@ export default function CollectiblesScreen() {
         }));
       }
 
-      // Build fetch promises - Solana only
+      // Build fetch promises - Solana only. Developer mode opts the BE
+      // out of its blacklisted / spamScore>0 filter via ?includeSpam=true.
+      const nftOpts = { includeSpam: !!developerNetworks };
       const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] }>[] = [
         // Mainnet fetches (always, if address available)
         (solanaAddress
-          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, noCache, getSolanaNfts)
+          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, noCache, getSolanaNfts, nftOpts)
           : Promise.resolve([]))
           .then((result) => ({ key: 'solana' as NftSectionKey, result }))
           .catch(() => ({ key: 'solana' as NftSectionKey, result: [] as Nft[] })),
@@ -236,7 +237,7 @@ export default function CollectiblesScreen() {
         fetchPromises.push(
           // Solana Devnet
           (solanaDevnetAddress
-            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, noCache, getSolanaNfts)
+            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, noCache, getSolanaNfts, nftOpts)
             : Promise.resolve([]))
             .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
             .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] as Nft[] })),
@@ -252,14 +253,13 @@ export default function CollectiblesScreen() {
 
       for (const { key, result } of results) {
         const section = newSections[key];
-        const applyFilter = !developerNetworks;
 
         if (key === 'solana' || key === 'solana-devnet') {
           const solanaNfts = result as Nft[];
           const mapped = solanaNfts.map(canonicalNftToSolanaNftData);
           newSections[key] = {
             ...section,
-            nfts: applyFilter ? filterSpamNfts(mapped) : mapped,
+            nfts: mapped,
             raw: solanaNfts,
             loading: false,
           };

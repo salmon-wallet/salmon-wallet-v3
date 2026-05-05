@@ -25,7 +25,6 @@ import type {
   BroadcastTransactionRequest,
   BroadcastTransactionResponse,
   FetchBitcoinBalanceFn,
-  FetchBitcoinPricesFn,
   FetchBitcoinRecentTransactionsFn,
   FetchBitcoinTransactionFn,
   FetchUtxosFn,
@@ -34,7 +33,6 @@ import type {
 } from '../../types/transfer';
 import { removeDecimals } from '../../utils/decimals';
 import { apiClient, ApiError, get } from '../client';
-import { getPricesByPlatform } from './price';
 
 // Re-export types for backwards compatibility
 export type {
@@ -272,8 +270,11 @@ export const broadcastTransaction: BroadcastTransactionFn = async (networkId, ad
 
 export const fetchBitcoinAccountBalance: FetchBitcoinBalanceFn = async (
   networkId: string,
-  address: string
+  address: string,
 ): Promise<BitcoinBalanceItem[]> => {
+  // The salmon-api balance resource already sets `coingeckoId: 'bitcoin'`
+  // for the native BTC item via `NATIVE_COINGECKO_ID`, so the FE only needs
+  // to fill in `uiAmount` (derived from `amount`/`decimals`).
   const data = await get<BitcoinBalanceItem[]>(
     `/v1/${networkId}/account/${address}/balance`,
     { params: { include: 'logo' } },
@@ -282,14 +283,7 @@ export const fetchBitcoinAccountBalance: FetchBitcoinBalanceFn = async (
   return data.map((token) => ({
     ...token,
     uiAmount: removeDecimals(token.amount, token.decimals),
-    coingeckoId: 'bitcoin',
   }));
-};
-
-export const fetchBitcoinAccountPrices: FetchBitcoinPricesFn = async (
-  platform: string
-) => {
-  return getPricesByPlatform(platform as Parameters<typeof getPricesByPlatform>[0]);
 };
 
 export const fetchBitcoinAccountTransaction: FetchBitcoinTransactionFn = async (
@@ -332,7 +326,6 @@ export const fetchBitcoinAccountRecentTransactions: FetchBitcoinRecentTransactio
  */
 export const bitcoinApiFunctions: BitcoinAccountApiFunctions = {
   fetchBalance: fetchBitcoinAccountBalance,
-  fetchPrices: fetchBitcoinAccountPrices,
   fetchTransaction: fetchBitcoinAccountTransaction,
   fetchRecentTransactions: fetchBitcoinAccountRecentTransactions,
   fetchUtxos,

@@ -150,7 +150,7 @@ describe('getSwapQuote', () => {
     mockGetTokenList = vi.fn<GetTokenListFn>().mockResolvedValue(MOCK_TOKEN_LIST);
   });
 
-  it('should get swap quote with correct parameters', async () => {
+  it('sends uiAmount by default and lets the BE resolve decimals from the catalog', async () => {
     const params: SwapQuoteParams = {
       inputMint: SOL_ADDRESS,
       outputMint: USDC_MINT,
@@ -164,22 +164,21 @@ describe('getSwapQuote', () => {
     expect(quote).toBeDefined();
     expect(quote.networkId).toBe('solana-mainnet');
     expect(quote.custom?.requestId).toBe('test-request-id-123');
-    expect(quote.input?.amount).toBe('1000000000');
-    expect(quote.output?.amount).toBe('5000000');
-
     expect(mockGetSwapOrder).toHaveBeenCalledWith(
       'solana-mainnet',
       expect.objectContaining({
         inputMint: SOL_ADDRESS,
         outputMint: USDC_MINT,
-        amount: '1000000000',
+        uiAmount: '1',
         publicKey: TEST_PUBLIC_KEY,
         slippageBps: 50,
       })
     );
+    expect(mockGetSwapOrder.mock.calls[0]![1]).not.toHaveProperty('amount');
+    expect(mockGetTokenList).not.toHaveBeenCalled();
   });
 
-  it('should convert human-readable amount to raw amount using decimals', async () => {
+  it('forwards a fractional uiAmount unchanged when no inputDecimals is provided', async () => {
     const params: SwapQuoteParams = {
       inputMint: SOL_ADDRESS,
       outputMint: USDC_MINT,
@@ -192,12 +191,13 @@ describe('getSwapQuote', () => {
     expect(mockGetSwapOrder).toHaveBeenCalledWith(
       'solana-mainnet',
       expect.objectContaining({
-        amount: '1500000000',
+        uiAmount: '1.5',
       })
     );
+    expect(mockGetTokenList).not.toHaveBeenCalled();
   });
 
-  it('should use provided decimals instead of fetching token list', async () => {
+  it('sends raw amount (and skips uiAmount) when the caller provides inputDecimals', async () => {
     const params: SwapQuoteParams = {
       inputMint: SOL_ADDRESS,
       outputMint: USDC_MINT,
@@ -208,6 +208,11 @@ describe('getSwapQuote', () => {
     await getSwapQuote('solana-mainnet', params, { inputDecimals: 9 }, mockGetSwapOrder, mockGetTokenList);
 
     expect(mockGetTokenList).not.toHaveBeenCalled();
+    expect(mockGetSwapOrder).toHaveBeenCalledWith(
+      'solana-mainnet',
+      expect.objectContaining({ amount: '1000000000' })
+    );
+    expect(mockGetSwapOrder.mock.calls[0]![1]).not.toHaveProperty('uiAmount');
   });
 
   it('should normalize user public key to SOL_ADDRESS for native SOL', async () => {
@@ -300,7 +305,7 @@ describe('getSwapQuote', () => {
     );
   });
 
-  it('should default to 9 decimals if token not found in list', async () => {
+  it('forwards uiAmount for unknown mints — BE owns the catalog lookup', async () => {
     mockGetTokenList.mockResolvedValue([]);
 
     const params: SwapQuoteParams = {
@@ -312,10 +317,12 @@ describe('getSwapQuote', () => {
 
     await getSwapQuote('solana-mainnet', params, {}, mockGetSwapOrder, mockGetTokenList);
 
+    expect(mockGetTokenList).not.toHaveBeenCalled();
     expect(mockGetSwapOrder).toHaveBeenCalledWith(
       'solana-mainnet',
       expect.objectContaining({
-        amount: '1000000000',
+        uiAmount: '1',
+        inputMint: 'unknown-token-mint',
       })
     );
   });

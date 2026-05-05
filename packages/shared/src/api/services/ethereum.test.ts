@@ -104,6 +104,11 @@ describe('getERC20TokenBalances', () => {
     vi.restoreAllMocks();
   });
 
+  // Note: GET /v1/<networkId>/account/<address>/tokens is forward-compat
+  // for the Ethereum slice. The salmon-api backend does NOT yet expose
+  // this endpoint — getSalmonApiTokenBalances falls back to Ethplorer in
+  // production. The mock-based cases below cover the FE mapping logic
+  // for the day the BE ships the route.
   it('should fetch tokens from Salmon API successfully', async () => {
     // Mock successful Salmon API response
     vi.spyOn(clientModule, 'get').mockResolvedValue(MOCK_SALMON_API_RESPONSE);
@@ -309,6 +314,10 @@ describe('getTokenMetadataBatch', () => {
     vi.restoreAllMocks();
   });
 
+  // Note: GET /v1/<networkId>/tokens/metadata is forward-compat for the
+  // Ethereum slice. The salmon-api backend does not yet expose this
+  // endpoint — getTokenMetadataBatch swallows the rejection and tokens
+  // fall back to on-chain metadata in production.
   it('should fetch metadata for multiple tokens', async () => {
     const mockMetadataResponse = [
       {

@@ -16,10 +16,6 @@ vi.mock('../client', async () => {
   };
 });
 
-vi.mock('./balance', () => ({
-  getJupiterPrices: vi.fn(),
-}));
-
 vi.mock('./tokens', () => ({
   getTokenMetadataByMints: vi.fn(),
 }));
@@ -30,7 +26,6 @@ vi.mock('./solana-nft', () => ({
 
 import { ApiError, apiClient, get } from '../client';
 import { getReachableBackendBaseUrl } from '../test-backend';
-import { getJupiterPrices } from './balance';
 import { getSolanaNfts } from './solana-nft';
 import {
   executeSwapApi,
@@ -48,7 +43,6 @@ import { getTokenMetadataByMints } from './tokens';
 const mockApiClientGet = vi.mocked(apiClient.get);
 const mockApiClientPost = vi.mocked(apiClient.post);
 const mockGet = vi.mocked(get);
-const mockGetJupiterPrices = vi.mocked(getJupiterPrices);
 const mockGetTokenMetadataByMints = vi.mocked(getTokenMetadataByMints);
 const mockGetSolanaNfts = vi.mocked(getSolanaNfts);
 const backendBaseUrl = await getReachableBackendBaseUrl();
@@ -359,7 +353,7 @@ describe('solana service', () => {
     );
   });
 
-  it('enriches solana balances with token metadata and computed ui amounts', async () => {
+  it('passes BE balance items through, computing only uiAmount', async () => {
     mockGet.mockResolvedValueOnce([
       {
         amount: 1000000000,
@@ -372,29 +366,13 @@ describe('solana service', () => {
         amount: 2500000,
         decimals: 6,
         mint: 'mint-1',
-        symbol: 'OLD',
-        name: 'Old Token',
-        logo: 'old-logo',
-        coingeckoId: 'old-token',
-      },
-      {
-        amount: 0,
-        decimals: 6,
-        mint: 'mint-2',
-        symbol: 'ZERO',
-      },
-    ] as SolanaBalanceItem[]);
-
-    mockGetTokenMetadataByMints.mockResolvedValueOnce([
-      {
-        address: 'mint-1',
         symbol: 'NEW',
         name: 'New Token',
         logo: 'new-logo',
         coingeckoId: 'new-token',
         tags: ['verified'],
       },
-    ] as never);
+    ] as SolanaBalanceItem[]);
 
     const result = await fetchSolanaAccountBalance('solana-mainnet', 'wallet-1');
 
@@ -402,7 +380,7 @@ describe('solana service', () => {
       '/v1/solana-mainnet/account/wallet-1/balance',
       { params: { include: 'logo' } },
     );
-    expect(mockGetTokenMetadataByMints).toHaveBeenCalledWith(['mint-1', 'mint-2'], 'solana-mainnet');
+    expect(mockGetTokenMetadataByMints).not.toHaveBeenCalled();
     expect(result).toEqual([
       expect.objectContaining({
         symbol: 'SOL',
@@ -414,32 +392,30 @@ describe('solana service', () => {
         name: 'New Token',
         logo: 'new-logo',
         coingeckoId: 'new-token',
+        tags: ['verified'],
         uiAmount: 2.5,
       }),
     ]);
   });
 
-  it('wires solana api functions to the expected dependencies', async () => {
-    mockGetJupiterPrices.mockResolvedValueOnce([{ address: 'mint-1', usdPrice: 1 }] as never);
-    mockGetSolanaNfts.mockResolvedValueOnce([{ mint: { address: 'nft-1' } }] as never);
+  it('opts the BE into surfacing unknown-only-tagged tokens via includeSpam', async () => {
+    mockGet.mockResolvedValueOnce([] as SolanaBalanceItem[]);
 
-    await expect(
-      solanaApiFunctions.fetchPrices(
-        'solana-mainnet',
-        ['mint-1'],
-        new Map([['mint-1', { coingeckoId: 'hint' }]]),
-      ),
-    ).resolves.toEqual([{ address: 'mint-1', usdPrice: 1 }]);
+    await fetchSolanaAccountBalance('solana-mainnet', 'wallet-1', { includeSpam: true });
+
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/solana-mainnet/account/wallet-1/balance',
+      { params: { include: 'logo', includeSpam: 'true' } },
+    );
+  });
+
+  it('wires solana api functions to the expected dependencies', async () => {
+    mockGetSolanaNfts.mockResolvedValueOnce([{ mint: { address: 'nft-1' } }] as never);
 
     await expect(
       solanaApiFunctions.fetchNfts('solana-mainnet', 'wallet-1', false),
     ).resolves.toEqual([{ mint: { address: 'nft-1' } }]);
 
-    expect(mockGetJupiterPrices).toHaveBeenCalledWith(
-      ['mint-1'],
-      'solana-mainnet',
-      new Map([['mint-1', { coingeckoId: 'hint' }]]),
-    );
     expect(mockGetSolanaNfts).toHaveBeenCalledWith('solana-mainnet', 'wallet-1', false);
   });
 });

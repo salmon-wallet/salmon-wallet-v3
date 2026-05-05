@@ -42,9 +42,10 @@ export async function getAll(
   network: SolanaNetwork,
   publicKey: string,
   noCache = false,
-  fetchNftsFromBackend: FetchNftsFromBackendFn = () => Promise.resolve([])
+  fetchNftsFromBackend: FetchNftsFromBackendFn = () => Promise.resolve([]),
+  opts: { includeSpam?: boolean } = {}
 ): Promise<Nft[]> {
-  return fetchNftsFromBackend(network.id, publicKey, noCache);
+  return fetchNftsFromBackend(network.id, publicKey, noCache, opts);
 }
 
 /**

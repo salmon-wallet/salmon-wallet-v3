@@ -37,7 +37,6 @@ vi.mock('@salmon/shared', () => ({
   spacing: { lg: 16, '2xl': 24, md: 12, sm: 8 },
   fontFamily: { sans: 'sans-serif' },
   canonicalNftToSolanaNftData: (...args: unknown[]) => mockCanonicalNftToSolanaNftData(...args),
-  filterSpamNfts: (nfts: unknown[]) => nfts,
   getNftSectionTitle: () => 'Solana',
   INITIAL_NFT_SECTIONS: {
     solana: { nfts: [], loading: false, blockchain: 'solana', isTestnet: false },

@@ -107,7 +107,7 @@ describe('useBridge', () => {
       currencyTo: 'eth',
       payinAddress: 'deposit',
       payoutAddress: '0xrecipient',
-      status: 'finished',
+      status: 'success',
     } as any);
 
     const { result } = renderHook(() => useBridge());
@@ -116,7 +116,7 @@ describe('useBridge', () => {
       await result.current.getTransactionStatus('bridge-1');
     });
 
-    expect(result.current.transaction?.status).toBe('finished');
+    expect(result.current.transaction?.status).toBe('success');
     expect(result.current.status).toBe('success');
 
     act(() => {

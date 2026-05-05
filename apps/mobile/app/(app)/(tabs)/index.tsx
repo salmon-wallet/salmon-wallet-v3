@@ -271,6 +271,9 @@ export default function HomeScreen() {
     account: activeBlockchainAccount,
     networkId: (networkId ?? undefined) as NetworkId | undefined,
     skip: !ready || !activeBlockchainAccount,
+    // Surface unverified tokens only in developer mode; BE filters
+    // unknown-only-tagged SPL entries by default.
+    includeSpam: developerNetworks,
   });
 
   // Refresh balance when app returns from background (if cache is stale)
@@ -364,38 +367,9 @@ export default function HomeScreen() {
     return activeBalance?.network.blockchain || 'solana';
   }, [activeBlockchainIndex, blockchainBalances]);
 
-  // Map balance tokens to TokenList format, filtering out spam/unknown tokens
-  const tokenListItems = useMemo(() => {
-    return tokens
-      .filter((token) => {
-        // Tag-based spam filtering only applies to Solana (Jupiter tags)
-        // ETH and BTC tokens don't have a tag system
-        if (!currentBlockchain.startsWith('solana')) {
-          return true;
-        }
-
-        // Check if token has meaningful tags (not just "unknown")
-        const hasMeaningfulTags =
-          token.tags &&
-          token.tags.length > 0 &&
-          token.tags.some((tag) => tag !== 'unknown');
-
-        // Always show tokens with known tags (verified, community, etc.)
-        if (hasMeaningfulTags) return true;
-
-        // Filter out unknown tokens unless developer mode is enabled
-        // Unknown tokens are those with:
-        // - No tags at all
-        // - Only "unknown" tag (from Jupiter API for unverified tokens)
-        if (!developerNetworks) {
-          return false;
-        }
-
-        // Developer mode: show all tokens including unknown ones
-        return true;
-      })
-      .map(mapBalanceToToken);
-  }, [tokens, developerNetworks, currentBlockchain]);
+  // BE drops unknown-only-tagged SPL tokens by default; developer mode opts
+  // in via `includeSpam` on `useBalance` above. Trust the BE list as-is.
+  const tokenListItems = useMemo(() => tokens.map(mapBalanceToToken), [tokens]);
 
   // Compute sub-accounts for the current network (for path index switching)
   const subAccounts = useMemo((): SubAccount[] => {

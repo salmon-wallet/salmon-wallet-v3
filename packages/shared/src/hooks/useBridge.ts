@@ -305,13 +305,16 @@ export function useBridge(_params?: UseBridgeParams): UseBridgeResult {
 
         setTransaction(tx);
 
-        // Update status based on transaction status
-        if (tx.status === 'finished') {
+        // Backend normalizes upstream StealthEX statuses into a closed set
+        // before responding (bridge-aggregator spec, "Status normalization"):
+        // 'inProgress' | 'success' | 'fail' | 'refunded' | 'unknown'.
+        if (tx.status === 'success') {
           setStatus('success');
-        } else if (tx.status === 'failed' || tx.status === 'refunded') {
+        } else if (tx.status === 'fail' || tx.status === 'refunded') {
           setStatus('failed');
           setError(`Bridge transaction ${tx.status}`);
         } else {
+          // 'inProgress' or 'unknown' — keep polling.
           setStatus('idle');
         }
 

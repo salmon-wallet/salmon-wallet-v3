@@ -76,7 +76,7 @@ describe('getAll', () => {
 
     const result = await getAll(network, owner, true, fetcher);
 
-    expect(fetcher).toHaveBeenCalledWith(network.id, owner, true);
+    expect(fetcher).toHaveBeenCalledWith(network.id, owner, true, {});
     expect(result[0].name).toBe('A');
   });
 

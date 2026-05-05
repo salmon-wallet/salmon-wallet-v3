@@ -52,6 +52,12 @@ export interface UseBalanceParams {
   networkId?: NetworkId;
   /** Whether to skip initial fetch */
   skip?: boolean;
+  /**
+   * Whether to ask the BE to surface unverified / unknown-only-tagged tokens.
+   * Apps wire this from their developer-mode user setting; default `false`
+   * matches the BE default that filters spam server-side.
+   */
+  includeSpam?: boolean;
 }
 
 /**
@@ -118,6 +124,7 @@ export function useBalance({
   account,
   networkId = 'solana-mainnet',
   skip = false,
+  includeSpam = false,
 }: UseBalanceParams): UseBalanceResult {
   const [balance, setBalance] = useState<WalletBalance | null>(null);
   const [loading, setLoading] = useState(false);
@@ -186,7 +193,7 @@ export function useBalance({
   const fetchSolanaBalance = useCallback(
     async (solanaAccount: SolanaAccount): Promise<WalletBalance> => {
       try {
-        const solanaWalletBalance = await solanaAccount.getBalance();
+        const solanaWalletBalance = await solanaAccount.getBalance({ includeSpam });
 
         const items: TokenBalanceWithPrice[] = solanaWalletBalance.items.map((item) => ({
           mint: item.mint || 'solana',
@@ -235,7 +242,7 @@ export function useBalance({
         };
       }
     },
-    []
+    [includeSpam]
   );
 
   /**
@@ -245,7 +252,8 @@ export function useBalance({
   const fetchBitcoinBalance = useCallback(
     async (bitcoinAccount: BitcoinAccount): Promise<WalletBalance> => {
       try {
-        // Fetch Bitcoin wallet balance (includes price data via decorateBalancePrices internally)
+        // Fetch Bitcoin wallet balance (price data attached server-side
+        // by salmon-api `multichain/price-enrichers/bitcoin-price-enricher`).
         const bitcoinWalletBalance = await bitcoinAccount.getBalance();
 
         // Transform BitcoinBalanceItem[] to TokenBalanceWithPrice[]

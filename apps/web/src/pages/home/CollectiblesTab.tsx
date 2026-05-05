@@ -8,7 +8,6 @@ import {
   spacing,
   fontFamily,
   canonicalNftToSolanaNftData,
-  filterSpamNfts,
   getNftSectionTitle,
   INITIAL_NFT_SECTIONS,
   SOLANA_NETWORKS,
@@ -119,20 +118,18 @@ export function CollectiblesTab({
             account.getReceiveAddress(),
             refreshKey > 0,
             getSolanaNfts,
+            // BE drops blacklisted / spamScore>0 entries by default;
+            // developer mode opts in via ?includeSpam=true.
+            { includeSpam: !!developerNetworks },
           );
           if (cancelled) return;
 
           const nftDataList: NftData[] = rawNfts
             .map((nft) => canonicalNftToSolanaNftData(nft));
 
-          // Filter spam on mainnet only (not in dev mode)
-          const filtered = key === 'solana' && !developerNetworks
-            ? filterSpamNfts(nftDataList)
-            : nftDataList;
-
           setNftsBySections((prev) => ({
             ...prev,
-            [key]: { nfts: filtered, loading: false },
+            [key]: { nfts: nftDataList, loading: false },
           }));
         } catch (error) {
           console.error(`Failed to fetch NFTs for ${key}:`, error);

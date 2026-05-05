@@ -26,14 +26,12 @@ import {
   validateDestinationAccount as validateDestination,
   type ValidationResult,
 } from './validation';
-import type { JupiterApiPriceData } from '../../types/price';
-import { decorateBalancePrices, SOL_CONSTANTS } from '../../utils/balance';
+import { SOL_CONSTANTS } from '../../utils/balance';
 import type { SolanaNetwork } from '../../types/blockchain';
 import type { SolanaWalletBalance } from '../../types/balance';
 import type { SolanaBalanceItem } from '../../types/transfer';
 import type {
   FetchSolanaBalanceFn,
-  FetchSolanaPricesFn,
   FetchSolanaTransactionFn,
   FetchSolanaTransactionsFn,
 } from '../../types/transfer';
@@ -60,8 +58,6 @@ export interface SolanaAccountOptions {
   keyPair: Keypair;
   /** Function to fetch token balances (DI) */
   fetchBalance: FetchSolanaBalanceFn;
-  /** Function to fetch token prices (DI) */
-  fetchPrices: FetchSolanaPricesFn;
   /** Function to fetch a single transaction (DI) */
   fetchTransaction: FetchSolanaTransactionFn;
   /** Function to fetch transactions list (DI) */
@@ -112,8 +108,6 @@ export class SolanaAccount {
   private connectionNodeUrl: string | null = null;
   /** Injected function to fetch token balances */
   private fetchBalanceFn: FetchSolanaBalanceFn;
-  /** Injected function to fetch token prices */
-  private fetchPricesFn: FetchSolanaPricesFn;
   /** Injected function to fetch a single transaction */
   private fetchTransactionFn: FetchSolanaTransactionFn;
   /** Injected function to fetch transactions list */
@@ -133,7 +127,6 @@ export class SolanaAccount {
     this.keyPair = options.keyPair;
     this.publicKey = options.keyPair.publicKey;
     this.fetchBalanceFn = options.fetchBalance;
-    this.fetchPricesFn = options.fetchPrices;
     this.fetchTransactionFn = options.fetchTransaction;
     this.fetchTransactionsFn = options.fetchTransactions;
     this.fetchNftsFn = options.fetchNfts;
@@ -186,33 +179,21 @@ export class SolanaAccount {
   // ==========================================================================
 
   /**
-   * Fetches the raw Solana balance items from the backend API.
+   * Fetches the Solana balance items from the backend API. Items
+   * already carry `price`, `usdBalance`, and `priceChange24h` when the
+   * salmon-api `multichain/price-enrichers/solana-price-enricher` has a
+   * Jupiter quote for the asset.
    */
-  private async fetchSolanaBalance(): Promise<SolanaBalanceItem[]> {
-    return this.fetchBalanceFn(this.network.id, this.publicKey.toBase58());
+  private async fetchSolanaBalance(
+    opts?: { includeSpam?: boolean },
+  ): Promise<SolanaBalanceItem[]> {
+    return this.fetchBalanceFn(this.network.id, this.publicKey.toBase58(), opts);
   }
 
   /**
-   * Gets Solana prices from Jupiter via the DI function.
-   *
-   * @param addresses - Token mint addresses to fetch prices for
-   * @param hints - Optional map of address -> { coingeckoId } for CoinGecko fallback
-   * @returns Map of address -> Jupiter price data
-   */
-  private async getPrices(
-    addresses: string[],
-    hints?: Map<string, { coingeckoId?: string }>
-  ): Promise<Map<string, JupiterApiPriceData>> {
-    try {
-      return await this.fetchPricesFn(this.network.id, addresses, hints);
-    } catch (e) {
-      console.warn('Could not get Solana prices', (e as Error).message);
-      return new Map();
-    }
-  }
-
-  /**
-   * Helper to calculate 24h change from balances.
+   * Reduces priced items into the portfolio 24h delta. Items without
+   * `priceChange24h` contribute their USD balance unchanged (so a
+   * partially-priced wallet still produces a meaningful number).
    */
   private calculateLast24HoursChange(
     balances: SolanaBalanceItem[],
@@ -222,7 +203,7 @@ export class SolanaAccount {
 
     let previousTotal = 0;
     balances.forEach((balance) => {
-      if (balance.usdBalance && balance.priceChange24h !== undefined) {
+      if (balance.usdBalance && balance.priceChange24h !== undefined && balance.priceChange24h !== null) {
         const priceChangeFactor = 1 + balance.priceChange24h / 100;
         const previousBalance = balance.usdBalance / priceChangeFactor;
         previousTotal += previousBalance;
@@ -235,63 +216,34 @@ export class SolanaAccount {
   }
 
   /**
-   * Gets the complete wallet balance with USD values and price info.
-   * Uses injected DI functions to fetch balance and prices from the backend.
-   *
-   * @returns Promise resolving to wallet balance object
+   * Returns the complete wallet balance. The salmon-api `/balance`
+   * endpoint already attaches USD pricing per item via the multichain
+   * `price-enrichers` plug-point, so this method only sorts the items
+   * (SOL first, then by USD desc) and computes the portfolio totals.
    */
-  async getBalance(): Promise<SolanaWalletBalance> {
-    const solanaBalance = await this.fetchSolanaBalance();
-
-    // Extract all addresses for Jupiter price fetching
-    const addresses = solanaBalance.map((b) => b.mint || SOL_CONSTANTS.ADDRESS);
-
-    // Build hints map so CoinGecko fallback can use coingeckoId
-    const hints = new Map<string, { coingeckoId?: string }>();
-    solanaBalance.forEach((b) => {
-      if (b.coingeckoId) {
-        const addr = (b.mint || SOL_CONSTANTS.ADDRESS).toLowerCase();
-        hints.set(addr, { coingeckoId: b.coingeckoId });
-      }
-    });
-
-    const jupiterPrices = await this.getPrices(addresses, hints);
-
-    const balances = decorateBalancePrices(
-      solanaBalance.map((b) => ({
-        mint: b.mint || SOL_CONSTANTS.ADDRESS,
-        owner: this.publicKey.toBase58(),
-        amount: b.amount,
-        decimals: b.decimals,
-        uiAmount: b.uiAmount || b.amount / Math.pow(10, b.decimals),
-        symbol: b.symbol,
-        name: b.name,
-        logo: b.logo || undefined,
-        address: b.mint || SOL_CONSTANTS.ADDRESS,
-        coingeckoId: b.coingeckoId,
-        tags: b.tags,
-      })),
-      null,
-      jupiterPrices
-    ) as SolanaBalanceItem[];
+  async getBalance(opts?: { includeSpam?: boolean }): Promise<SolanaWalletBalance> {
+    const items = await this.fetchSolanaBalance(opts);
 
     // Sort: SOL first, then by usdBalance descending
-    balances.sort((a, b) => {
-      if (a.mint === SOL_CONSTANTS.ADDRESS) return -1;
-      if (b.mint === SOL_CONSTANTS.ADDRESS) return 1;
+    items.sort((a, b) => {
+      const aIsSol = !a.mint || a.mint === SOL_CONSTANTS.ADDRESS;
+      const bIsSol = !b.mint || b.mint === SOL_CONSTANTS.ADDRESS;
+      if (aIsSol) return -1;
+      if (bIsSol) return 1;
       return (b.usdBalance || 0) - (a.usdBalance || 0);
     });
 
-    if (jupiterPrices && jupiterPrices.size > 0) {
-      const usdTotal = balances.reduce(
-        (currentValue, next) => (next.usdBalance || 0) + currentValue,
-        0
-      );
-      const last24HoursChange = this.calculateLast24HoursChange(balances, usdTotal);
-      return { usdTotal, last24HoursChange, items: balances };
+    const hasAnyPrice = items.some((item) => item.usdBalance !== undefined);
+    if (!hasAnyPrice) {
+      return { usdTotal: 0, last24HoursChange: 0, items };
     }
 
-    return { usdTotal: 0, last24HoursChange: 0, items: balances };
+    const usdTotal = items.reduce(
+      (currentValue, next) => (next.usdBalance || 0) + currentValue,
+      0
+    );
+    const last24HoursChange = this.calculateLast24HoursChange(items, usdTotal);
+    return { usdTotal, last24HoursChange, items };
   }
 
   /**

@@ -32,21 +32,17 @@ vi.mock('../client', () => {
 // Now import the functions AFTER mocking
 import {
   normalizeBackendTokens,
-  normalizeJupiterTokens,
   getTokenList,
   getTokenMetadataByMints,
   searchTokens,
   getTokenByAddress,
   clearTokenListCache,
-  getTokenListSource,
 } from './tokens';
 import { normalizeIpfsUrl } from '../../utils/url';
 import { apiClient } from '../client';
-import axios from 'axios';
 
-// Get access to the mocked functions
+// Get access to the mocked function
 const mockApiClientGet = vi.mocked(apiClient.get);
-const mockAxiosGet = vi.mocked(axios.get);
 
 // ============================================================================
 // Test Data
@@ -244,21 +240,21 @@ describe('Token Service - Pure Functions', () => {
       const token = mockBackendTokens[1]; // Has icon field, no logo
       const result = normalizeBackendTokens([token]);
 
-      expect(result[0].logo).toBe('https://ipfs.io/ipfs/QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM');
+      // FE passes through whatever the BE catalog endpoints emit; gateway
+      // normalization is owned server-side by `solana-ft-batch-resource`
+      // and `solana-ft-resource`.
+      expect(result[0].logo).toBe(token.icon);
     });
 
-    it('should normalize IPFS URLs in logo field', () => {
-      const token = mockBackendTokens[1]; // Has IPFS icon
-      const result = normalizeBackendTokens([token]);
+    it('should pass logo URLs through unchanged (BE owns IPFS gateway normalization)', () => {
+      const ipfsToken = mockBackendTokens[1]; // ipfs:// in icon
+      const arweaveToken = mockBackendTokens[2]; // ar:// in logo
 
-      expect(result[0].logo).toBe('https://ipfs.io/ipfs/QmXfzKRvjZz3u5JRgC4v5mGVbm9ahrUiB4DgzHBsnWbTMM');
-    });
+      const ipfsResult = normalizeBackendTokens([ipfsToken]);
+      const arweaveResult = normalizeBackendTokens([arweaveToken]);
 
-    it('should normalize Arweave URLs in logo field', () => {
-      const token = mockBackendTokens[2]; // Has Arweave logo
-      const result = normalizeBackendTokens([token]);
-
-      expect(result[0].logo).toBe('https://arweave.net/abc123def456');
+      expect(ipfsResult[0].logo).toBe(ipfsToken.icon);
+      expect(arweaveResult[0].logo).toBe(arweaveToken.logo);
     });
 
     it('should prefer address over id field', () => {
@@ -326,182 +322,6 @@ describe('Token Service - Pure Functions', () => {
       const result = normalizeBackendTokens([tokenNoAddress]);
 
       expect(result[0].address).toBe('');
-    });
-  });
-
-  // ==========================================================================
-  // normalizeJupiterTokens Tests
-  // ==========================================================================
-
-  describe('normalizeJupiterTokens', () => {
-    it('should normalize an empty array', () => {
-      const result = normalizeJupiterTokens([]);
-      expect(result).toEqual([]);
-    });
-
-    it('should transform Jupiter tokens to TokenMetadata format', () => {
-      const result = normalizeJupiterTokens(mockJupiterTokens);
-
-      expect(result).toHaveLength(4);
-      expect(result[0]).toEqual({
-        symbol: 'SOL',
-        name: 'Wrapped SOL',
-        decimals: 9,
-        logo: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
-        address: 'So11111111111111111111111111111111111111112',
-        chainId: 101,
-        coingeckoId: 'solana',
-        tags: ['verified', 'strict'],
-      });
-    });
-
-    it('should normalize IPFS URLs in logoURI field', () => {
-      const token = mockJupiterTokens[1]; // Has IPFS logoURI
-      const result = normalizeJupiterTokens([token]);
-
-      expect(result[0].logo).toBe('https://ipfs.io/ipfs/QmUsdt123456789');
-    });
-
-    it('should normalize Arweave URLs in logoURI field', () => {
-      const token = mockJupiterTokens[2]; // Has Arweave logoURI
-      const result = normalizeJupiterTokens([token]);
-
-      expect(result[0].logo).toBe('https://arweave.net/orca123');
-    });
-
-    it('should extract coingeckoId from extensions', () => {
-      const token = mockJupiterTokens[0]; // Has coingeckoId in extensions
-      const result = normalizeJupiterTokens([token]);
-
-      expect(result[0].coingeckoId).toBe('solana');
-    });
-
-    it('should handle missing logoURI as undefined', () => {
-      const token = mockJupiterTokens[3]; // No logoURI
-      const result = normalizeJupiterTokens([token]);
-
-      expect(result[0].logo).toBeUndefined();
-    });
-
-    it('should handle missing tags as empty array', () => {
-      const tokenWithoutTags = {
-        symbol: 'TEST',
-        name: 'Test Token',
-        decimals: 9,
-        address: 'Test123456789',
-      };
-      const result = normalizeJupiterTokens([tokenWithoutTags]);
-
-      expect(result[0].tags).toEqual([]);
-    });
-
-    it('should handle missing extensions as undefined coingeckoId', () => {
-      const tokenNoExtensions = {
-        symbol: 'NOEXT',
-        name: 'No Extensions',
-        decimals: 6,
-        address: 'NoExt123456789',
-      };
-      const result = normalizeJupiterTokens([tokenNoExtensions]);
-
-      expect(result[0].coingeckoId).toBeUndefined();
-    });
-
-    it('should handle empty extensions object', () => {
-      const token = mockJupiterTokens[2]; // Has empty extensions
-      const result = normalizeJupiterTokens([token]);
-
-      expect(result[0].coingeckoId).toBeUndefined();
-    });
-
-    it('should preserve optional fields when present', () => {
-      const token = mockJupiterTokens[0]; // Has all optional fields
-      const result = normalizeJupiterTokens([token]);
-
-      expect(result[0].chainId).toBe(101);
-      expect(result[0].coingeckoId).toBe('solana');
-      expect(result[0].tags).toEqual(['verified', 'strict']);
-    });
-
-    it('should handle missing optional fields', () => {
-      const tokenMinimal = {
-        symbol: 'MIN',
-        name: 'Minimal Token',
-        decimals: 6,
-        address: 'Min123456789',
-      };
-      const result = normalizeJupiterTokens([tokenMinimal]);
-
-      expect(result[0].chainId).toBeUndefined();
-      expect(result[0].coingeckoId).toBeUndefined();
-      expect(result[0].tags).toEqual([]);
-    });
-
-    it('should preserve HTTP/HTTPS logoURIs', () => {
-      const token = mockJupiterTokens[0]; // Has HTTPS logoURI
-      const result = normalizeJupiterTokens([token]);
-
-      expect(result[0].logo).toBe('https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png');
-    });
-
-    it('should ignore non-coingeckoId properties in extensions', () => {
-      const token = mockJupiterTokens[0]; // Has website in extensions
-      const result = normalizeJupiterTokens([token]);
-
-      expect(result[0]).not.toHaveProperty('website');
-      expect(result[0].coingeckoId).toBe('solana');
-    });
-  });
-
-  // ==========================================================================
-  // Integration Tests
-  // ==========================================================================
-
-  describe('Integration: Backend and Jupiter normalization consistency', () => {
-    it('should produce compatible TokenMetadata format from both sources', () => {
-      const backendResult = normalizeBackendTokens(mockBackendTokens);
-      const jupiterResult = normalizeJupiterTokens(mockJupiterTokens);
-
-      // Both should have the same structure
-      expect(backendResult[0]).toHaveProperty('symbol');
-      expect(backendResult[0]).toHaveProperty('name');
-      expect(backendResult[0]).toHaveProperty('decimals');
-      expect(backendResult[0]).toHaveProperty('logo');
-      expect(backendResult[0]).toHaveProperty('address');
-      expect(backendResult[0]).toHaveProperty('tags');
-
-      expect(jupiterResult[0]).toHaveProperty('symbol');
-      expect(jupiterResult[0]).toHaveProperty('name');
-      expect(jupiterResult[0]).toHaveProperty('decimals');
-      expect(jupiterResult[0]).toHaveProperty('logo');
-      expect(jupiterResult[0]).toHaveProperty('address');
-      expect(jupiterResult[0]).toHaveProperty('tags');
-    });
-
-    it('should handle mixed array of tokens correctly', () => {
-      const mixedBackend = mockBackendTokens.slice(0, 2);
-      const mixedJupiter = mockJupiterTokens.slice(0, 2);
-
-      const backendResult = normalizeBackendTokens(mixedBackend);
-      const jupiterResult = normalizeJupiterTokens(mixedJupiter);
-
-      expect(backendResult).toHaveLength(2);
-      expect(jupiterResult).toHaveLength(2);
-
-      // Both should have properly normalized logos
-      backendResult.forEach(token => {
-        expect(token.logo === undefined || typeof token.logo === 'string').toBe(true);
-        if (token.logo) {
-          expect(token.logo.startsWith('http')).toBe(true);
-        }
-      });
-
-      jupiterResult.forEach(token => {
-        expect(token.logo === undefined || typeof token.logo === 'string').toBe(true);
-        if (token.logo) {
-          expect(token.logo.startsWith('http')).toBe(true);
-        }
-      });
     });
   });
 
@@ -583,14 +403,10 @@ describe('Token Service - Pure Functions', () => {
         expect(testTokens[0].tags).toContain('verified');
       });
 
-      it('should fallback to Jupiter when backend fails', async () => {
+      it('should propagate the error when the backend verified endpoint fails', async () => {
         mockApiClientGet.mockRejectedValueOnce(new Error('Backend unavailable'));
-        mockAxiosGet.mockResolvedValueOnce({ data: mockJupiterTokens });
 
-        const result = await getTokenList('solana-mainnet');
-
-        expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBeGreaterThan(0);
+        await expect(getTokenList('solana-mainnet')).rejects.toThrow('Backend unavailable');
       });
 
       it('should cache results and return from cache on second call', async () => {
@@ -604,14 +420,6 @@ describe('Token Service - Pure Functions', () => {
         expect(mockApiClientGet).toHaveBeenCalledTimes(1);
       });
 
-      it('should return source backend when using backend', async () => {
-        mockApiClientGet.mockResolvedValueOnce({ data: mockBackendTokens });
-
-        await getTokenList('solana-mainnet');
-        const source = getTokenListSource();
-
-        expect(source).toBe('backend');
-      });
     });
 
     // ========================================================================
@@ -668,11 +476,9 @@ describe('Token Service - Pure Functions', () => {
         const mints = [KNOWN_ADDRESSES.SOL, KNOWN_ADDRESSES.SOL, KNOWN_ADDRESSES.USDC];
         const responseTokens = [mockBackendTokens[0], mockBackendTokens[1]];
 
-        mockApiClientGet.mockImplementation((url: string) => {
-          // Check that the URL only contains unique mints
-          const urlMints = url.split('mints=')[1]?.split(',') || [];
-          const uniqueCount = new Set(urlMints).size;
-          expect(uniqueCount).toBe(urlMints.length);
+        mockApiClientGet.mockImplementation((_url: unknown, config?: any) => {
+          const urlMints = String(config?.params?.mints ?? '').split(',').filter(Boolean);
+          expect(new Set(urlMints).size).toBe(urlMints.length);
           return Promise.resolve({ data: responseTokens });
         });
 
@@ -681,15 +487,14 @@ describe('Token Service - Pure Functions', () => {
         expect(Array.isArray(result)).toBe(true);
       });
 
-      it('should fallback to Jupiter when backend fails', async () => {
+      it('returns an empty array for the chunk when the backend rejects it', async () => {
         const mints = [KNOWN_ADDRESSES.SOL];
 
         mockApiClientGet.mockRejectedValueOnce(new Error('Backend error'));
-        mockAxiosGet.mockResolvedValueOnce({ data: mockJupiterTokens });
 
         const result = await getTokenMetadataByMints(mints, 'solana-mainnet');
 
-        expect(Array.isArray(result)).toBe(true);
+        expect(result).toEqual([]);
       });
     });
 
@@ -728,29 +533,17 @@ describe('Token Service - Pure Functions', () => {
         expect(result.length).toBeGreaterThan(0);
       });
 
-      it('should properly encode query parameters', async () => {
+      it('should pass the query through axios params (not raw URL)', async () => {
         const query = 'test token';
 
-        mockApiClientGet.mockImplementation((url: string) => {
-          expect(url).toContain(encodeURIComponent(query));
+        mockApiClientGet.mockImplementation((_url: unknown, config?: any) => {
+          expect(config?.params?.query).toBe(query);
           return Promise.resolve({ data: [] });
         });
 
         await searchTokens(query, 'solana-mainnet');
 
         expect(mockApiClientGet).toHaveBeenCalled();
-      });
-
-      it('should fallback to local search when backend fails', async () => {
-        const query = 'SOL';
-
-        mockApiClientGet
-          .mockRejectedValueOnce(new Error('Search endpoint error'))
-          .mockResolvedValueOnce({ data: mockBackendTokens });
-
-        const result = await searchTokens(query, 'solana-mainnet');
-
-        expect(Array.isArray(result)).toBe(true);
       });
 
       it('should match tokens by name, symbol, or address', async () => {
@@ -763,22 +556,12 @@ describe('Token Service - Pure Functions', () => {
         expect(Array.isArray(result)).toBe(true);
       });
 
-      it('should limit local search results to 50', async () => {
-        const query = 'test';
-        const manyTokens = Array.from({ length: 100 }, (_, i) => ({
-          symbol: `TEST${i}`,
-          name: `Test Token ${i}`,
-          decimals: 9,
-          address: `Test${i}`,
-        }));
+      it('returns an empty array when the search endpoint fails', async () => {
+        mockApiClientGet.mockRejectedValueOnce(new Error('Search error'));
 
-        mockApiClientGet
-          .mockRejectedValueOnce(new Error('Search error'))
-          .mockResolvedValueOnce({ data: manyTokens });
+        const result = await searchTokens('SOL', 'solana-mainnet');
 
-        const result = await searchTokens(query, 'solana-mainnet');
-
-        expect(result.length).toBeLessThanOrEqual(50);
+        expect(result).toEqual([]);
       });
     });
 
@@ -826,44 +609,23 @@ describe('Token Service - Pure Functions', () => {
     // Cache Management Tests
     // ========================================================================
     describe('Cache Management', () => {
-      it('clearTokenListCache should clear the cache', async () => {
-        mockApiClientGet.mockResolvedValueOnce({ data: mockBackendTokens });
+      it('clearTokenListCache forces the next call to refetch from the backend', async () => {
+        mockApiClientGet.mockResolvedValue({ data: mockBackendTokens });
 
         await getTokenList('solana-mainnet');
-        const sourceBefore = getTokenListSource();
-
         clearTokenListCache();
-        const sourceAfter = getTokenListSource();
-
-        expect(sourceBefore).toBe('backend');
-        expect(sourceAfter).toBeNull();
-      });
-
-      it('getTokenListSource should return null when cache is empty', () => {
-        clearTokenListCache();
-        const source = getTokenListSource();
-        expect(source).toBeNull();
-      });
-
-      it('getTokenListSource should return source after fetching tokens', async () => {
-        mockApiClientGet.mockResolvedValueOnce({ data: mockBackendTokens });
-
         await getTokenList('solana-mainnet');
-        const source = getTokenListSource();
 
-        expect(source).toBe('backend');
+        expect(mockApiClientGet).toHaveBeenCalledTimes(2);
       });
 
       it('should cache results for 5 minutes', async () => {
         mockApiClientGet.mockResolvedValueOnce({ data: mockBackendTokens });
 
         const result1 = await getTokenList('solana-mainnet');
-
-        // Second call should use cache
         const result2 = await getTokenList('solana-mainnet');
 
         expect(result1).toEqual(result2);
-        // Should only call backend once
         expect(mockApiClientGet).toHaveBeenCalledTimes(1);
       });
     });

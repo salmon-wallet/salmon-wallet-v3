@@ -33,6 +33,7 @@ export function SendRoute(): React.ReactElement {
     account: activeBlockchainAccount,
     networkId: networkId as NetworkId | undefined,
     skip: !ready || !activeBlockchainAccount,
+    includeSpam: !!developerNetworks,
   });
 
   const blockchain = useMemo(() => {
@@ -41,34 +42,25 @@ export function SendRoute(): React.ReactElement {
     return getBlockchainFromNetworkId(parts[0] || 'solana');
   }, [networkId]);
 
+  // BE filters unknown-only-tagged SPL tokens; developer mode opts in
+  // via `includeSpam` on `useBalance` above.
   const formattedTokens: SendToken[] = useMemo(() => {
-    const chain = networkId?.split('-')[0] || 'solana';
-    return tokens
-      .filter((token) => {
-        if (!chain.startsWith('solana')) return true;
-        const hasMeaningfulTags =
-          token.tags &&
-          token.tags.length > 0 &&
-          token.tags.some((tag: string) => tag !== 'unknown');
-        if (hasMeaningfulTags) return true;
-        return !!developerNetworks;
-      })
-      .map((token) => ({
-        address: token.address,
-        name: token.name,
-        symbol: token.symbol,
-        logo: token.logo ?? undefined,
-        price: token.price,
-        uiAmount: token.uiAmount,
-        usdBalance: token.usdBalance,
-        last24HoursChange: token.priceChange24h !== undefined
-          ? { perc: token.priceChange24h }
-          : undefined,
-        tags: token.tags,
-        coingeckoId: token.coingeckoId,
-        decimals: token.decimals,
-      }));
-  }, [tokens, developerNetworks, networkId]);
+    return tokens.map((token) => ({
+      address: token.address,
+      name: token.name,
+      symbol: token.symbol,
+      logo: token.logo ?? undefined,
+      price: token.price,
+      uiAmount: token.uiAmount,
+      usdBalance: token.usdBalance,
+      last24HoursChange: token.priceChange24h !== undefined
+        ? { perc: token.priceChange24h }
+        : undefined,
+      tags: token.tags,
+      coingeckoId: token.coingeckoId,
+      decimals: token.decimals,
+    }));
+  }, [tokens]);
 
   const handleBack = useCallback(() => navigate('/home'), [navigate]);
   const handleSuccess = useCallback(() => navigate('/home'), [navigate]);

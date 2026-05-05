@@ -83,7 +83,9 @@ const MOCK_TRANSACTION: BridgeTransaction = {
   currencyTo: 'btc',
   payinAddress: 'deposit-address',
   payoutAddress: 'destination-address',
-  status: 'waiting',
+  // BridgeTransactionStatus is a closed enum; salmon-api normalizes
+  // upstream StealthEX `waiting` into `inProgress` before the FE sees it.
+  status: 'inProgress',
 };
 
 describe('bridge service', () => {

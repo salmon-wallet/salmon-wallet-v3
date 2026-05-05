@@ -56,6 +56,7 @@ import {
   coinInfoToMarketData,
 } from '@salmon/shared';
 import { isSolanaAccount } from '@salmon/shared/utils/account';
+import { sessionArea } from '../../utils/storageCompat';
 import {
   WalletHeader,
   BalanceCardCarousel,
@@ -111,6 +112,15 @@ import { SwapPage } from '../swap/SwapPage';
  * Active tab within the main app view
  */
 type ActiveTab = 'home' | 'collectibles' | 'swap';
+
+// Persist activeTab across popup close/reopen. The MV3 popup unmounts on
+// blur, so without persistence pressing the back arrow on an NFT detail
+// can land the user on Home even though they came from Collectibles —
+// because the popup remounts with the default tab between actions.
+const ACTIVE_TAB_STORAGE_KEY = 'salmon.popup.activeTab';
+
+const isActiveTab = (value: unknown): value is ActiveTab =>
+  value === 'home' || value === 'collectibles' || value === 'swap';
 
 /**
  * Available page views within HomePage
@@ -360,8 +370,28 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
     developerNetworks,
   });
 
-  // Active tab state
-  const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  // Active tab state. Hydrated from storage.session on mount so the popup
+  // closing/reopening between an NFT detail tap and the back arrow does
+  // not silently snap the user back to Home.
+  const [activeTab, setActiveTabState] = useState<ActiveTab>('home');
+
+  useEffect(() => {
+    let cancelled = false;
+    sessionArea.get(ACTIVE_TAB_STORAGE_KEY).then((stored) => {
+      if (cancelled) return;
+      const value = stored?.[ACTIVE_TAB_STORAGE_KEY];
+      if (isActiveTab(value)) {
+        setActiveTabState(value);
+      }
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  const setActiveTab = useCallback((tab: ActiveTab) => {
+    setActiveTabState(tab);
+    sessionArea.set({ [ACTIVE_TAB_STORAGE_KEY]: tab }).catch(() => {});
+  }, []);
+
   const [activeBlockchainIndex, setActiveBlockchainIndex] = useState(0);
 
   // Current page view state for navigation
@@ -500,6 +530,8 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
     account: activeBlockchainAccount,
     networkId: networkId as NetworkId | undefined,
     skip: !ready || !activeBlockchainAccount || !networksReady,
+    // BE filters unknown-only-tagged SPL tokens by default; opt in via developer mode.
+    includeSpam: !!developerNetworks,
   });
 
   // Refresh balance when extension regains focus (if cache is stale)
@@ -845,37 +877,25 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
   }, [activeBlockchainIndex, blockchainBalances]);
 
   // Transform tokens to match TokenList expected format, filtering spam in non-dev mode
+  // BE handles spam/unknown filtering via the `includeSpam` query passed
+  // to useBalance above. The FE just maps to the TokenList shape.
   const formattedTokens = useMemo(() => {
-    return tokens
-      .filter((token) => {
-        // Tag-based spam filtering only applies to Solana (Jupiter tags)
-        if (!currentBlockchain.startsWith('solana')) return true;
-
-        const hasMeaningfulTags =
-          token.tags &&
-          token.tags.length > 0 &&
-          token.tags.some((tag) => tag !== 'unknown');
-        if (hasMeaningfulTags) return true;
-
-        // Hide unknown tokens unless developer mode is enabled
-        return !!developerNetworks;
-      })
-      .map((token) => ({
-        address: token.address,
-        name: token.name,
-        symbol: token.symbol,
-        logo: token.logo ?? undefined,
-        price: token.price,
-        uiAmount: token.uiAmount,
-        usdBalance: token.usdBalance,
-        last24HoursChange: token.priceChange24h !== undefined
-          ? { perc: token.priceChange24h }
-          : undefined,
-        tags: token.tags,
-        coingeckoId: token.coingeckoId,
-        decimals: token.decimals,
-      }));
-  }, [tokens, developerNetworks, currentBlockchain]);
+    return tokens.map((token) => ({
+      address: token.address,
+      name: token.name,
+      symbol: token.symbol,
+      logo: token.logo ?? undefined,
+      price: token.price,
+      uiAmount: token.uiAmount,
+      usdBalance: token.usdBalance,
+      last24HoursChange: token.priceChange24h !== undefined
+        ? { perc: token.priceChange24h }
+        : undefined,
+      tags: token.tags,
+      coingeckoId: token.coingeckoId,
+      decimals: token.decimals,
+    }));
+  }, [tokens]);
 
   // Load Bitcoin chart data when on Bitcoin mainnet or period changes
   useEffect(() => {

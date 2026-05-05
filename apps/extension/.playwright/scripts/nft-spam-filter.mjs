@@ -1,6 +1,8 @@
 // Wipe profile, recover Wallet B, toggle dev mode, compare NFT lists in both
-// modes. Validates that Salmon's spam filter (filterSpamNfts) hides scam
-// cNFTs when developerNetworks is OFF and reveals them when ON.
+// modes. Validates the spam-filter contract end-to-end: salmon-api hides
+// scam cNFTs by default and surfaces them only when the FE passes
+// `?includeSpam=true` (driven by developerNetworks). The FE no longer runs
+// its own filter — the BE owns spam policy now.
 import { launch, capture, sleep, openPopup, SECRETS, profileDir } from './lib.mjs';
 import fs from 'node:fs';
 

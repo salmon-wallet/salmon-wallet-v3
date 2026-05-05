@@ -1,9 +1,7 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import type { BIP32Interface } from 'bip32';
-import type { TokenPrice } from '../../types/price';
 import type { FeeEstimateResult } from '../../types/send';
 import type { ValidationResult, AddressType } from '../../types/validation';
-import { decorateBalancePrices } from '../../utils/balance';
 import { satoshisToBtc, btcToSatoshis } from '../../utils/decimals';
 import { getShortAddress } from '../../utils/address';
 import { sendBitcoin, estimateBitcoinFee } from './transfer';
@@ -15,7 +13,6 @@ import type {
   AccountTransactionListResponse,
   SigningKeyPair,
   FetchBitcoinBalanceFn,
-  FetchBitcoinPricesFn,
   FetchBitcoinTransactionFn,
   FetchBitcoinRecentTransactionsFn,
   FetchUtxosFn,
@@ -63,8 +60,6 @@ export interface BitcoinAccountOptions {
   node?: BIP32Interface;
   /** Function to fetch balance from the API */
   fetchBalance: FetchBitcoinBalanceFn;
-  /** Function to fetch prices */
-  fetchPrices: FetchBitcoinPricesFn;
   /** Function to fetch a single transaction */
   fetchTransaction: FetchBitcoinTransactionFn;
   /** Function to fetch recent transactions */
@@ -116,7 +111,6 @@ export class BitcoinAccount {
   private readonly node?: BIP32Interface;
 
   private readonly fetchBalanceFn: FetchBitcoinBalanceFn;
-  private readonly fetchPricesFn: FetchBitcoinPricesFn;
   private readonly fetchTransactionFn: FetchBitcoinTransactionFn;
   private readonly fetchRecentTransactionsFn: FetchBitcoinRecentTransactionsFn;
   private readonly fetchUtxosFn: FetchUtxosFn;
@@ -135,7 +129,6 @@ export class BitcoinAccount {
     this.address = options.keyPair.address;
     this.node = options.node;
     this.fetchBalanceFn = options.fetchBalance;
-    this.fetchPricesFn = options.fetchPrices;
     this.fetchTransactionFn = options.fetchTransaction;
     this.fetchRecentTransactionsFn = options.fetchRecentTransactions;
     this.fetchUtxosFn = options.fetchUtxos;
@@ -272,25 +265,9 @@ export class BitcoinAccount {
   }
 
   /**
-   * Gets Bitcoin prices from the price service.
-   *
-   * @returns Token prices or null if unavailable
-   */
-  private async getPrices(): Promise<TokenPrice[] | null> {
-    try {
-      return await this.fetchPricesFn('bitcoin');
-    } catch (e) {
-      console.warn('Could not get Bitcoin prices', (e as Error).message);
-      return null;
-    }
-  }
-
-  /**
-   * Helper to calculate 24h change from balances.
-   *
-   * @param balances - Balances with price info
-   * @param usdTotal - Current total USD value
-   * @returns 24h change amount
+   * Reduces priced items into the portfolio 24h delta. Items without
+   * `priceChange24h` contribute their USD balance unchanged so a
+   * partially-priced wallet still produces a meaningful number.
    */
   private calculateLast24HoursChange(
     balances: BitcoinBalanceItem[],
@@ -303,7 +280,7 @@ export class BitcoinAccount {
     let previousTotal = 0;
 
     balances.forEach((balance) => {
-      if (balance.usdBalance && balance.priceChange24h !== undefined) {
+      if (balance.usdBalance && balance.priceChange24h !== undefined && balance.priceChange24h !== null) {
         const priceChangeFactor = 1 + balance.priceChange24h / 100;
         const previousBalance = balance.usdBalance / priceChangeFactor;
         previousTotal += previousBalance;
@@ -330,41 +307,25 @@ export class BitcoinAccount {
   }
 
   /**
-   * Gets the complete wallet balance with USD values and price info.
-   *
-   * @returns Promise resolving to wallet balance object
+   * Returns the complete wallet balance. The salmon-api `/balance`
+   * endpoint already attaches USD pricing per item via the multichain
+   * `price-enrichers` plug-point, so this method only computes the
+   * portfolio totals client-side.
    */
   async getBalance(): Promise<BitcoinWalletBalance> {
-    const bitcoinBalance = await this.fetchBitcoinBalance();
-    const prices = await this.getPrices();
+    const items = await this.fetchBitcoinBalance();
 
-    // Use the shared decorator to add price info
-    const balances = decorateBalancePrices(
-      bitcoinBalance.map((b) => ({
-        mint: b.mint || 'bitcoin',
-        owner: this.address,
-        amount: b.amount,
-        decimals: b.decimals,
-        uiAmount: b.uiAmount || b.amount / Math.pow(10, b.decimals),
-        symbol: b.symbol,
-        name: b.name,
-        logo: b.logo || undefined,
-        address: b.mint || 'bitcoin',
-        coingeckoId: b.coingeckoId,
-      })),
-      prices
-    ) as BitcoinBalanceItem[];
-
-    if (prices) {
-      const usdTotal = balances.reduce(
-        (currentValue, next) => (next.usdBalance || 0) + currentValue,
-        0
-      );
-      const last24HoursChange = this.calculateLast24HoursChange(balances, usdTotal);
-      return { usdTotal, last24HoursChange, items: balances };
+    const hasAnyPrice = items.some((item) => item.usdBalance !== undefined);
+    if (!hasAnyPrice) {
+      return { usdTotal: 0, last24HoursChange: 0, items };
     }
 
-    return { usdTotal: 0, last24HoursChange: 0, items: balances };
+    const usdTotal = items.reduce(
+      (currentValue, next) => (next.usdBalance || 0) + currentValue,
+      0
+    );
+    const last24HoursChange = this.calculateLast24HoursChange(items, usdTotal);
+    return { usdTotal, last24HoursChange, items };
   }
 
   // ============================================================================

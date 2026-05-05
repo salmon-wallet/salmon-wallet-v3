@@ -9,8 +9,6 @@
  */
 
 import { apiClient } from '../client';
-import { normalizeIpfsUrl } from '../../utils';
-import { nftImageOverrides } from '../../blockchain/solana/nft-image-overrides';
 import type { Nft, NftPaginatedResponse, NftPagination, GetNftsOptions } from '../../types/nft';
 
 // ============================================================================
@@ -43,6 +41,8 @@ interface BackendNft {
   };
   extensions?: Array<{ extension: string; state: Record<string, unknown> }>;
   blacklisted?: boolean;
+  spamScore?: number;
+  spamReasons?: string[];
 }
 
 function normalizeBackendNft(raw: BackendNft, owner: string): Nft {
@@ -64,7 +64,7 @@ function normalizeBackendNft(raw: BackendNft, owner: string): Nft {
       : null,
     edition: null,
     tokenStandard: null,
-    media: normalizeIpfsUrl(nftImageOverrides[raw.mint]) ?? normalizeIpfsUrl(raw.media) ?? null,
+    media: raw.media ?? null,
     description: raw.description ?? '',
     compressed: false,
     extras: {
@@ -74,6 +74,8 @@ function normalizeBackendNft(raw: BackendNft, owner: string): Nft {
     },
     extensions: raw.extensions ?? [],
     blacklisted: raw.blacklisted,
+    spamScore: raw.spamScore,
+    spamReasons: raw.spamReasons,
   };
 }
 
@@ -84,17 +86,23 @@ function normalizeBackendNft(raw: BackendNft, owner: string): Nft {
 export async function getSolanaNfts(
   networkId: string,
   publicKey: string,
-  noCache: boolean
+  noCache: boolean,
+  opts: { includeSpam?: boolean } = {},
 ): Promise<Nft[]> {
+  const params: Record<string, string | boolean> = { publicKey, noCache };
+  if (opts.includeSpam) {
+    params.includeSpam = 'true';
+  }
+
   const { data } = await apiClient.get<{ data: BackendNft[] } | BackendNft[]>(
     `/v1/${networkId}/nft`,
     {
-      params: { publicKey, noCache },
+      params,
       timeout: 15000,
     }
   );
 
-  // Backend wraps NFTs in { data: [...], pagination: {...} }
+  // Backend already drops blacklisted / spamScore>0 NFTs unless `?includeSpam=true`.
   const raw = Array.isArray(data) ? data : data.data;
   const normalized = raw.map((nft) => normalizeBackendNft(nft, publicKey));
   return normalized.filter((nft) => nft.media);
@@ -119,17 +127,24 @@ export async function getSolanaNftByAddress(
 export async function getSolanaNftsPaginated(
   networkId: string,
   publicKey: string,
-  options: GetNftsOptions = {}
+  options: GetNftsOptions & { includeSpam?: boolean } = {}
 ): Promise<NftPaginatedResponse> {
   const limit = Math.min(Math.max(1, options.limit ?? 50), 100);
   const offset = Math.max(0, options.offset ?? 0);
   const noCache = options.noCache ?? false;
 
+  const params: Record<string, string | number | boolean> = {
+    publicKey, noCache, limit, offset,
+  };
+  if (options.includeSpam) {
+    params.includeSpam = 'true';
+  }
+
   const { data } = await apiClient.get<{
     data: BackendNft[];
     pagination?: NftPagination;
   }>(`/v1/${networkId}/nft`, {
-    params: { publicKey, noCache, limit, offset },
+    params,
     timeout: 15000,
   });
 

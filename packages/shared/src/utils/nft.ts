@@ -23,6 +23,10 @@ export interface NftDataBase {
   attributes?: NftAttribute[];
   blockchain: NftBlockchain;
   blacklisted?: boolean;
+  /** Server-emitted spam score (count of triggered heuristics, 0 = clean). */
+  spamScore?: number;
+  /** Server-emitted heuristic codes that fired. */
+  spamReasons?: string[];
 }
 
 /**
@@ -184,6 +188,8 @@ export interface SolanaNftFromHelius {
   updateAuthorityAddress?: string | null;
   sellerFeeBasisPoints?: number;
   blacklisted?: boolean;
+  spamScore?: number;
+  spamReasons?: string[];
   extras?: {
     attributes?: Array<{ trait_type: string; value: string | number }>;
     properties?: Record<string, unknown>;
@@ -208,6 +214,8 @@ export function solanaNftToNftData(nft: SolanaNftFromHelius): SolanaNftData {
     collectionName: nft.collection?.name,
     attributes: nft.extras?.attributes as NftAttribute[],
     blacklisted: nft.blacklisted ?? false,
+    spamScore: nft.spamScore,
+    spamReasons: nft.spamReasons,
     // Solana-specific fields
     compressed: nft.compressed,
     tokenStandard: nft.tokenStandard,
@@ -235,6 +243,8 @@ export function canonicalNftToSolanaNftData(nft: Nft): SolanaNftData {
     collectionName: nft.collection?.name || undefined,
     attributes: nft.extras?.attributes,
     blacklisted: nft.blacklisted ?? false,
+    spamScore: nft.spamScore,
+    spamReasons: nft.spamReasons,
     compressed: nft.compressed,
     tokenStandard: nft.tokenStandard || undefined,
     collectionKey: nft.collection?.key,

@@ -23,13 +23,8 @@ vi.mock('../client', async () => {
   };
 });
 
-vi.mock('./price', () => ({
-  getPricesByPlatform: vi.fn(),
-}));
-
 import { ApiError, apiClient, get } from '../client';
 import { getReachableBackendBaseUrl } from '../test-backend';
-import { getPricesByPlatform } from './price';
 import {
   bitcoinApiFunctions,
   broadcastBitcoinTransaction,
@@ -47,7 +42,6 @@ import {
 const mockApiClientGet = vi.mocked(apiClient.get);
 const mockApiClientPost = vi.mocked(apiClient.post);
 const mockGet = vi.mocked(get);
-const mockGetPricesByPlatform = vi.mocked(getPricesByPlatform);
 const backendBaseUrl = await getReachableBackendBaseUrl();
 
 const MOCK_BALANCE: BitcoinBalance = {
@@ -309,15 +303,6 @@ describe('bitcoin service', () => {
         uiAmount: 3.64735619,
       }),
     ]);
-  });
-
-  it('delegates bitcoin account prices to the shared price service', async () => {
-    mockGetPricesByPlatform.mockResolvedValueOnce([{ id: 'bitcoin', usdPrice: 1 }] as never);
-
-    const result = await bitcoinApiFunctions.fetchPrices('bitcoin');
-
-    expect(mockGetPricesByPlatform).toHaveBeenCalledWith('bitcoin');
-    expect(result).toEqual([{ id: 'bitcoin', usdPrice: 1 }]);
   });
 
   it('fetches a bitcoin account transaction through the generic get helper', async () => {

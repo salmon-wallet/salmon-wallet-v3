@@ -75,6 +75,22 @@ export interface BridgeAvailableToken {
   logo?: string;
   /** Whether this pair is currently available */
   available?: boolean;
+  /** Whether the deposit address requires an extra id (memo/tag/destination tag). */
+  has_extra_id?: boolean;
+  /** Human-readable label for the extra id field, when present. */
+  extra_id?: string | null;
+  /** Provider-supplied warnings about depositing this token (e.g. min-confirmations notices). */
+  warnings_from?: string[] | null;
+  /** Provider-supplied warnings about receiving this token. */
+  warnings_to?: string[] | null;
+  /** Regex used by upstream to validate destination addresses for this token, when supplied. */
+  validation_address?: string | null;
+  /** Regex used by upstream to validate the extra id for this token, when supplied. */
+  validation_extra?: string | null;
+  /** Address explorer template URL (e.g. "https://blockstream.info/address/{}"). */
+  address_explorer?: string | null;
+  /** Transaction explorer template URL. */
+  tx_explorer?: string | null;
 }
 
 /**
@@ -148,18 +164,21 @@ export interface BridgeExchange {
 }
 
 /**
- * Possible bridge transaction statuses
+ * Possible bridge transaction statuses.
+ *
+ * The backend (`bridge-aggregator` capability, "Status normalization"
+ * table) normalizes upstream StealthEX values into this closed set
+ * before the FE ever sees them: `waiting | confirming | exchanging
+ * | sending | verifying` -> `'inProgress'`, `finished` -> `'success'`,
+ * `failed` -> `'fail'`, `refunded` -> `'refunded'`, anything else ->
+ * `'unknown'`.
  */
 export type BridgeTransactionStatus =
-  | 'waiting'
-  | 'confirming'
-  | 'exchanging'
-  | 'sending'
-  | 'finished'
-  | 'failed'
+  | 'inProgress'
+  | 'success'
+  | 'fail'
   | 'refunded'
-  | 'overdue'
-  | 'hold';
+  | 'unknown';
 
 /**
  * Bridge transaction status response

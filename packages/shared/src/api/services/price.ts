@@ -1,25 +1,25 @@
 /**
  * Price Service
- * Migrated from salmon-wallet-v2/src/adapter/services/price-service.js
  *
- * Provides price data for tokens across different platforms.
+ * Cross-platform price data backed by the static-API CoinGecko mirror,
+ * plus market chart and coin info endpoints. Solana per-mint pricing
+ * lives in `balance.ts:getJupiterPrices` (single batch call to
+ * `/v1/<networkId>/ft/price/batch`); this module does not own that
+ * endpoint.
  *
- * API Endpoints:
- * - GET /v1/coins/{platform} - Get all coin prices for a platform (static API)
- * - GET /v1/{networkId}/ft/price/{mintAddress} - Get specific token price (Jupiter Price API v3)
- * - GET /v1/chart/{coinId} - Get market chart data (price history)
- * - GET /v1/coin/{coinId} - Get detailed coin info
+ * API endpoints used here:
+ * - GET /v1/coins/{platform} - All coin prices for a platform (static API)
+ * - GET /v1/chart/{coinId}   - Market chart data (price history)
+ * - GET /v1/coin/{coinId}    - Detailed coin info
  */
 
 import { apiClient, staticApiClient } from '../client';
 import { SmartCache } from '../../utils/cache';
-import type { SolanaNetworkId } from '../../types/blockchain';
 import type {
   TokenPrice,
   MarketChartData,
   CoinInfo,
   PricePlatform,
-  JupiterApiPriceData,
 } from '../../types/price';
 
 // ============================================================================
@@ -83,55 +83,6 @@ export async function getPricesByIds(
 }
 
 /**
- * Get price for a specific Solana token from Jupiter Price API v3
- * Uses backend endpoint with caching and rate limiting
- *
- * Endpoint: GET /v1/{networkId}/ft/price/{mintAddress}
- *
- * @param mintAddress - Solana token mint address
- * @param networkId - Network ID (default: 'solana-mainnet')
- * @returns Price data with usdPrice and priceChange24h, or null if not found
- */
-export async function getSolanaTokenPrice(
-  mintAddress: string,
-  networkId: SolanaNetworkId = 'solana-mainnet',
-  coingeckoId?: string
-): Promise<JupiterApiPriceData | null> {
-  // Step 1: Try backend (Jupiter proxy). Backend returns 200 with
-  // `{ usdPrice: null }` when Jupiter has no quote for the token, so treat
-  // null/undefined the same way and fall through to CoinGecko.
-  try {
-    const { data } = await apiClient.get<{ usdPrice?: number | null; priceChange24h?: number | null }>(
-      `/v1/${networkId}/ft/price/${mintAddress}`
-    );
-    if (data?.usdPrice != null) {
-      return {
-        usdPrice: data.usdPrice,
-        priceChange24h: data.priceChange24h ?? null,
-      };
-    }
-  } catch {
-    // Backend failed — fall through to CoinGecko
-  }
-
-  // Step 2: CoinGecko fallback (always attempted if backend didn't return a price)
-  try {
-    const lookupKey = coingeckoId || mintAddress;
-    const fallback = await findTokenPrice(lookupKey, 'solana');
-    if (fallback) {
-      return {
-        usdPrice: fallback.usdPrice,
-        priceChange24h: fallback.perc24HoursChange,
-      };
-    }
-  } catch {
-    // CoinGecko also failed
-  }
-
-  return null;
-}
-
-/**
  * Get market chart data for a coin (price history)
  *
  * Endpoint: GET /v1/chart/{coinId}
@@ -179,36 +130,6 @@ export async function getCoinInfo(
     console.error(`[PriceService] Failed to fetch coin info for ${coinId}:`, error);
     return null;
   }
-}
-
-/**
- * Find price data for a token by address or symbol
- *
- * @param addressOrSymbol - Token address or symbol to search for
- * @param platform - Platform to search in
- * @returns Token price or null if not found
- */
-export async function findTokenPrice(
-  addressOrSymbol: string,
-  platform: PricePlatform = 'solana'
-): Promise<TokenPrice | null> {
-  const prices = await getPricesByPlatform(platform);
-
-  if (!prices) {
-    return null;
-  }
-
-  const searchLower = addressOrSymbol.toLowerCase();
-
-  // Search by ID first (which might be address)
-  let found = prices.find((p) => p.id.toLowerCase() === searchLower);
-
-  // Then by symbol
-  if (!found) {
-    found = prices.find((p) => p.symbol.toLowerCase() === searchLower);
-  }
-
-  return found ?? null;
 }
 
 /**

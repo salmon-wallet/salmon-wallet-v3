@@ -47,7 +47,6 @@ function createAccount() {
     path: "m/44'/501'/0'/0'",
     keyPair: Keypair.generate(),
     fetchBalance: vi.fn(),
-    fetchPrices: vi.fn(),
     fetchTransaction: vi.fn(),
     fetchTransactions: vi.fn(),
     fetchNfts: vi.fn(),

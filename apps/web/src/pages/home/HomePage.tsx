@@ -93,6 +93,21 @@ import { clearSessionKey } from '../../utils/sessionKeyCache';
 
 type ActiveTab = 'home' | 'collectibles' | 'swap';
 
+const TAB_HASHES: Record<ActiveTab, string> = {
+  home: '',
+  collectibles: '#collectibles',
+  swap: '#swap',
+};
+
+// Persist the active tab in the URL hash so navigating to /nft/:mint or
+// /token/:address and pressing the back arrow lands the user on the same
+// tab they came from (browser history restores `#collectibles`/`#swap`).
+const tabFromHash = (hash: string): ActiveTab => {
+  if (hash === '#collectibles') return 'collectibles';
+  if (hash === '#swap') return 'swap';
+  return 'home';
+};
+
 // Network ID → BlockchainId mapping for carousel theming
 const NETWORK_TO_BLOCKCHAIN: Record<string, BlockchainId> = {
   'solana-mainnet': 'solana',
@@ -288,8 +303,22 @@ export function HomePage(): React.ReactElement {
   }), [availableNetworks]);
   const [{ contacts }, { addContact, editContact: editAddressBookContact, removeContact }] = useAddressbook({ networkAdapter });
 
-  // Tab & UI state
-  const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  // Tab & UI state. activeTab mirrors `location.hash` so browser back/forward
+  // restores the user's tab when returning from /nft/:mint or /token/:address.
+  const [activeTab, setActiveTabState] = useState<ActiveTab>(() => tabFromHash(location.hash));
+
+  useEffect(() => {
+    const next = tabFromHash(location.hash);
+    setActiveTabState((prev) => (prev === next ? prev : next));
+  }, [location.hash]);
+
+  const setActiveTab = useCallback((tab: ActiveTab) => {
+    setActiveTabState(tab);
+    const targetHash = TAB_HASHES[tab];
+    if (location.hash !== targetHash) {
+      navigate({ pathname: location.pathname, hash: targetHash }, { replace: true });
+    }
+  }, [navigate, location.hash, location.pathname]);
   const [activeBlockchainIndex, setActiveBlockchainIndex] = useState(0);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [settingsInitialPanels, setSettingsInitialPanels] = useState<SettingsPanelEntry[] | undefined>(undefined);
@@ -363,6 +392,8 @@ export function HomePage(): React.ReactElement {
     account: activeBlockchainAccount,
     networkId: networkId as NetworkId | undefined,
     skip: !ready || !activeBlockchainAccount || !networksReady,
+    // BE filters unknown-only-tagged SPL tokens by default; opt in via developer mode.
+    includeSpam: !!developerNetworks,
   });
 
   useRefreshOnFocus({ onFocus: refresh, lastUpdated, enabled: !!activeBlockchainAccount });
@@ -413,29 +444,23 @@ export function HomePage(): React.ReactElement {
     return active?.network.blockchain || 'solana';
   }, [activeBlockchainIndex, blockchainBalances]);
 
-  // Format tokens for TokenList
+  // BE handles spam/unknown filtering via the `includeSpam` query passed
+  // to useBalance above. The FE just maps to the TokenList shape.
   const formattedTokens = useMemo(() => {
-    return tokens
-      .filter((token) => {
-        if (!currentBlockchain.startsWith('solana')) return true;
-        const hasMeaningfulTags = token.tags && token.tags.length > 0 && token.tags.some((tag) => tag !== 'unknown');
-        if (hasMeaningfulTags) return true;
-        return !!developerNetworks;
-      })
-      .map((token) => ({
-        address: token.address,
-        name: token.name,
-        symbol: token.symbol,
-        logo: token.logo ?? undefined,
-        price: token.price,
-        uiAmount: token.uiAmount,
-        usdBalance: token.usdBalance,
-        last24HoursChange: token.priceChange24h !== undefined ? { perc: token.priceChange24h } : undefined,
-        tags: token.tags,
-        coingeckoId: token.coingeckoId,
-        decimals: token.decimals,
-      }));
-  }, [tokens, developerNetworks, currentBlockchain]);
+    return tokens.map((token) => ({
+      address: token.address,
+      name: token.name,
+      symbol: token.symbol,
+      logo: token.logo ?? undefined,
+      price: token.price,
+      uiAmount: token.uiAmount,
+      usdBalance: token.usdBalance,
+      last24HoursChange: token.priceChange24h !== undefined ? { perc: token.priceChange24h } : undefined,
+      tags: token.tags,
+      coingeckoId: token.coingeckoId,
+      decimals: token.decimals,
+    }));
+  }, [tokens]);
 
   // Bitcoin chart data
   useEffect(() => {

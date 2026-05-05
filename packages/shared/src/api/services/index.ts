@@ -27,10 +27,8 @@ export {
   // Functions
   getPricesByPlatform,
   getPricesByIds,
-  getSolanaTokenPrice,
   getMarketChart,
   getCoinInfo,
-  findTokenPrice,
   clearPriceCache,
   getPriceCacheStatus,
 } from './price';
@@ -56,17 +54,7 @@ export {
   searchTokens,
   getTokenByAddress,
   clearTokenListCache,
-  getTokenListSource,
 } from './tokens';
-
-// ============================================================================
-// Balance Service
-// ============================================================================
-
-export {
-  // Functions (async, makes network calls)
-  getWalletBalance,
-} from './balance';
 
 // ============================================================================
 // NFT Burn Service
@@ -103,7 +91,6 @@ export {
   broadcastTransaction,
   // DI adapters (account)
   fetchBitcoinAccountBalance,
-  fetchBitcoinAccountPrices,
   fetchBitcoinAccountTransaction,
   fetchBitcoinAccountRecentTransactions,
   bitcoinApiFunctions,

@@ -10,7 +10,6 @@ import type { Account } from '../types/account';
 import type { NftAvatarItem } from '../types/ui/avatar-picker';
 import type { Nft } from '../types/nft';
 import { isSolanaAccount } from '../utils/account';
-import { filterSpamNfts } from '../utils/nft-spam-filter';
 
 // ============================================================================
 // Types
@@ -78,7 +77,9 @@ export function useAvatarNfts({ account, enabled }: UseAvatarNftsParams): UseAva
           blockchain: 'solana' as const,
           blacklisted: nft.blacklisted ?? false,
         }));
-        const filtered = filterSpamNfts(converted).filter((nft) => nft.image);
+        // BE drops blacklisted / spamScore>0 NFTs by default; the avatar
+        // picker stays on that policy (no developer-mode override here).
+        const filtered = converted.filter((nft) => nft.image);
 
         setNfts(
           filtered.map((nft) => ({

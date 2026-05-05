@@ -27,7 +27,6 @@ const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 
 const mockSolanaApiFunctions = {
   fetchBalance: vi.fn().mockResolvedValue([]),
-  fetchPrices: vi.fn().mockResolvedValue(new Map()),
   fetchTransaction: vi.fn().mockResolvedValue(null),
   fetchTransactions: vi.fn().mockResolvedValue({ transactions: [], oldestSignature: null, hasMore: false }),
   fetchNfts: vi.fn().mockResolvedValue([]),
@@ -661,11 +660,12 @@ describe('SolanaAccount.getBalance', () => {
         name: 'Solana',
         uiAmount: 5,
         coingeckoId: 'solana',
+        // Server-side enricher attaches pricing alongside the balance.
+        price: 150,
+        usdBalance: 750,
+        priceChange24h: 2.5,
       },
     ]);
-    const mockFetchPrices = vi.fn().mockResolvedValue(new Map([
-      ['So11111111111111111111111111111111111111112', { usdPrice: 150, priceChange24h: 2.5 }],
-    ]));
 
     const account = await createSolanaAccount({
       network,
@@ -674,7 +674,6 @@ describe('SolanaAccount.getBalance', () => {
       apiFunctions: {
         ...mockSolanaApiFunctions,
         fetchBalance: mockFetchBalance,
-        fetchPrices: mockFetchPrices,
       },
     });
 
@@ -685,8 +684,7 @@ describe('SolanaAccount.getBalance', () => {
     expect(Array.isArray(balance.items)).toBe(true);
     expect(balance.items.length).toBe(1);
     expect(balance.items[0].symbol).toBe('SOL');
-    expect(balance.usdTotal).toBeDefined();
-    expect(typeof balance.usdTotal).toBe('number');
+    expect(balance.usdTotal).toBe(750);
   });
 
   it('should return empty items when DI returns empty', async () => {
@@ -704,6 +702,8 @@ describe('SolanaAccount.getBalance', () => {
   });
 
   it('should handle prices being unavailable', async () => {
+    // Server-side enricher passes items through key-clean when no quote
+    // is available; the client surfaces usdTotal === 0 in that case.
     const mockFetchBalance = vi.fn().mockResolvedValue([
       {
         mint: 'So11111111111111111111111111111111111111112',
@@ -714,7 +714,6 @@ describe('SolanaAccount.getBalance', () => {
         uiAmount: 1.5,
       },
     ]);
-    const mockFetchPrices = vi.fn().mockRejectedValue(new Error('Network error'));
 
     const account = await createSolanaAccount({
       network,
@@ -723,7 +722,6 @@ describe('SolanaAccount.getBalance', () => {
       apiFunctions: {
         ...mockSolanaApiFunctions,
         fetchBalance: mockFetchBalance,
-        fetchPrices: mockFetchPrices,
       },
     });
 

@@ -125,6 +125,10 @@ export interface Nft {
   extensions: Token2022Extension[];
   /** Whether the NFT is blacklisted */
   blacklisted?: boolean;
+  /** Server-emitted spam score (count of triggered heuristics, 0 = clean). */
+  spamScore?: number;
+  /** Server-emitted heuristic codes that fired. */
+  spamReasons?: string[];
   /** Whether the NFT has pending operations */
   pending?: boolean;
   /** Marketplace info (if listed) */
@@ -182,7 +186,8 @@ export interface NftCollectionGroup {
 export type FetchNftsFromBackendFn = (
   networkId: string,
   publicKey: string,
-  noCache: boolean
+  noCache: boolean,
+  opts?: { includeSpam?: boolean }
 ) => Promise<Nft[]>;
 
 export type FetchNftsFromBackendPaginatedFn = (

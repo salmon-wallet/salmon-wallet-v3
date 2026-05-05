@@ -75,48 +75,17 @@ function normalizeTokenAddress(address: string, userPublicKey: string): string {
   return address === userPublicKey ? SOL_ADDRESS : address;
 }
 
-/**
- * Gets the decimals for a token from the token list
- *
- * @param tokenAddress - Token mint address
- * @param networkId - Network identifier
- * @returns Token decimals or 9 for SOL
- */
-async function getTokenDecimals(
-  tokenAddress: string,
-  networkId: SwapNetworkId = 'solana-mainnet',
-  fetchTokenList: GetTokenListFn = () => Promise.resolve([])
-): Promise<number> {
-  // SOL has 9 decimals
-  if (tokenAddress === SOL_ADDRESS) {
-    return 9;
-  }
-
-  try {
-    const tokens = await fetchTokenList(networkId);
-    const token = tokens.find((t: TokenMetadata) => t.address === tokenAddress);
-    return token?.decimals ?? 9;
-  } catch {
-    // Default to 9 decimals if token list lookup fails
-    return 9;
-  }
-}
-
 // ============================================================================
 // Swap Functions
 // ============================================================================
 
 /**
- * Gets a swap quote from the API
+ * Gets a swap quote from the API.
  *
- * Fetches a quote for swapping tokens, including the pre-built transaction
- * that needs to be signed and submitted. This function handles decimal
- * conversion automatically.
- *
- * @param network - Solana network configuration or network ID string
- * @param params - Swap quote parameters (with human-readable amount)
- * @param options - Optional configuration
- * @returns Swap quote with transaction data
+ * Sends the human-readable amount as `uiAmount` and lets salmon-api resolve
+ * decimals from its Jupiter v2 catalog (`solana-ft-controller#order`). When
+ * the caller already knows the decimals it can pass `options.inputDecimals`
+ * to skip the BE lookup and send the raw `amount` directly.
  *
  * @example
  * ```typescript
@@ -125,10 +94,12 @@ async function getTokenDecimals(
  *   {
  *     inputMint: 'So11111111111111111111111111111111111111112', // SOL
  *     outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
- *     amount: 1.5, // 1.5 SOL (human-readable)
+ *     amount: 1.5, // human-readable
  *     publicKey: 'YourPublicKey...',
  *     slippageBps: 50, // 0.5%
- *   }
+ *   },
+ *   {},
+ *   fetchSwapOrder,
  * );
  * ```
  */
@@ -137,7 +108,10 @@ export async function getSwapQuote(
   params: SwapQuoteParams,
   options: GetSwapQuoteOptions = {},
   fetchSwapOrder: GetSwapOrderFn,
-  fetchTokenList: GetTokenListFn = () => Promise.resolve([])
+  // Kept for backwards-compat with apps that still wire a token-list fetcher.
+  // The decimal lookup is now BE-side; callers can drop this arg in callers'
+  // next refactor.
+  _fetchTokenList: GetTokenListFn = () => Promise.resolve([])
 ): Promise<SwapQuote> {
   const networkId = typeof network === 'string' ? network : network.id as SwapNetworkId;
   const { inputMint, outputMint, amount, publicKey, slippageBps, swapMode, dynamicSlippage, priorityLevel } = params;
@@ -146,27 +120,23 @@ export async function getSwapQuote(
   const normalizedInputMint = normalizeTokenAddress(inputMint, publicKey);
   const normalizedOutputMint = normalizeTokenAddress(outputMint, publicKey);
 
-  // Get input token decimals
-  const decimals = options.inputDecimals ?? await getTokenDecimals(
-    normalizedInputMint,
-    networkId,
-    fetchTokenList
-  );
-
-  // Convert amount to raw units (string for API)
-  const rawAmount = applyDecimals(amount, decimals).toString();
-
-  // Build API request parameters
   const apiParams: SwapOrderParams = {
     inputMint: normalizedInputMint,
     outputMint: normalizedOutputMint,
-    amount: rawAmount,
     publicKey,
     slippageBps,
     swapMode,
     dynamicSlippage,
     priorityLevel,
   };
+
+  if (options.inputDecimals !== undefined) {
+    // Caller already knows the decimals — send raw to skip the BE lookup.
+    apiParams.amount = applyDecimals(amount, options.inputDecimals).toString();
+  } else {
+    // Let salmon-api resolve decimals from the Jupiter v2 catalog.
+    apiParams.uiAmount = String(amount);
+  }
 
   const response = await fetchSwapOrder(networkId, apiParams);
 

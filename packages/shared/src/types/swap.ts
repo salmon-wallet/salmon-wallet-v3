@@ -229,15 +229,24 @@ export interface SwapOrderResponse {
 }
 
 /**
- * Parameters for requesting a swap quote from the API
+ * Parameters for requesting a swap quote from the API.
+ *
+ * Exactly one of `amount` (smallest-unit raw string) or `uiAmount`
+ * (human-readable decimal string) must be provided. When `uiAmount` is
+ * sent, salmon-api resolves the input mint's decimals from the Jupiter
+ * v2 catalog server-side. When `amount` is sent, it is forwarded to
+ * Jupiter unchanged (legacy path for callers that already know the
+ * decimals).
  */
 export interface SwapOrderParams {
   /** Input token mint address */
   inputMint: string;
   /** Output token mint address */
   outputMint: string;
-  /** Amount to swap (raw, with decimals) */
-  amount: string;
+  /** Amount to swap (raw, with decimals) — mutually exclusive with `uiAmount` */
+  amount?: string;
+  /** Human-readable amount (e.g. `"1.5"`) — BE resolves decimals via Jupiter v2 */
+  uiAmount?: string;
   /** User's public key */
   publicKey: string;
   /** Slippage tolerance in basis points (optional, default: 50 = 0.5%) */

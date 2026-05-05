@@ -122,19 +122,25 @@ export async function getERC20TokenBalances(
 }
 
 /**
- * Fetch token balances from Salmon API backend
+ * Fetch token balances from Salmon API backend.
+ *
+ * Forward-compat: salmon-api does not expose
+ * `/v1/<networkId>/account/<address>/tokens` yet (Ethereum is scaffolded but
+ * inactive on the backend). This call is expected to 404 in production today;
+ * the caller relies on the Ethplorer fallback. Once the BE ships the endpoint,
+ * the fallback path becomes the secondary.
  *
  * @param address - Wallet address
  * @param networkId - Network identifier
- * @returns Array of detected tokens
+ * @returns Array of detected tokens (empty on 404 — triggers fallback)
  */
 async function getSalmonApiTokenBalances(
   address: string,
   networkId: string
 ): Promise<DetectedERC20Token[]> {
   try {
-    // Call Salmon API endpoint for token balances
-    // The backend uses Alchemy/Moralis to detect all tokens
+    // Forward-compat: BE endpoint not yet served. 404 is the expected path
+    // today and is swallowed by the catch below to trigger Ethplorer.
     const response = await get<SalmonTokenBalance[]>(
       `/v1/${networkId}/account/${address}/tokens`,
       { params: { include: 'logo' } }
@@ -223,7 +229,6 @@ async function getEthplorerTokenBalances(
 // DI Adapter (account)
 // ============================================================================
 
-import { getPricesByPlatform } from './price';
 import type {
   EthereumBalanceItem,
   EthereumAccountApiFunctions,
@@ -244,12 +249,6 @@ export const fetchEthereumAccountBalance: EthereumAccountApiFunctions['fetchBala
     ...token,
     uiAmount: removeDecimals(token.amount, token.decimals),
   }));
-};
-
-export const fetchEthereumAccountPrices: EthereumAccountApiFunctions['fetchPrices'] = async (
-  platform
-) => {
-  return getPricesByPlatform(platform as Parameters<typeof getPricesByPlatform>[0]);
 };
 
 export const fetchEthereumAccountTransaction: EthereumAccountApiFunctions['fetchTransaction'] = async (
@@ -284,7 +283,6 @@ export const fetchEthereumAccountRecentTransactions: EthereumAccountApiFunctions
 
 export const ethereumApiFunctions: EthereumAccountApiFunctions = {
   fetchBalance: fetchEthereumAccountBalance,
-  fetchPrices: fetchEthereumAccountPrices,
   fetchTransaction: fetchEthereumAccountTransaction,
   fetchRecentTransactions: fetchEthereumAccountRecentTransactions,
 };
@@ -314,7 +312,9 @@ export async function getTokenMetadataBatch(
   }
 
   try {
-    // Try Salmon API batch metadata endpoint
+    // Forward-compat: salmon-api does not yet serve
+    // `/v1/<networkId>/tokens/metadata`. Until it does, this call 404s and the
+    // catch returns the empty map, letting callers fall back to on-chain reads.
     const response = await get<Array<{ address: string } & AlchemyTokenMetadata>>(
       `/v1/${networkId}/tokens/metadata`,
       { params: { addresses: addresses.join(',') } }

@@ -1,7 +1,6 @@
 import { JsonRpcProvider, Wallet, isAddress, getAddress } from 'ethers';
 import { ethToWei, weiToEthNumber } from '../../utils/decimals';
 import { getShortAddress } from '../../utils/address';
-import { decorateBalancePrices } from '../../utils/balance';
 import {
   sendTransaction as ethSendTransaction,
   estimateTransferFee as ethEstimateTransferFee,
@@ -15,7 +14,6 @@ import {
   createERC721Token,
   createERC1155Token,
 } from '../../utils/tokens';
-import type { TokenPrice } from '../../types/price';
 import type { FeeEstimateResult } from '../../types/send';
 import type { ValidationResult } from '../../types/validation';
 import type { EthereumAccountBalance, EthereumWalletBalance } from '../../types/balance';
@@ -23,7 +21,6 @@ import type { EthereumBalanceItem } from '../../types/transfer';
 import type { EthereumNetwork } from '../../types/blockchain';
 import type {
   FetchEthereumBalanceFn,
-  FetchEthereumPricesFn,
   FetchEthereumTransactionFn,
   FetchEthereumRecentTransactionsFn,
   AccountTransaction,
@@ -57,8 +54,6 @@ export interface EthereumAccountOptions {
   wallet: Wallet;
   /** Function to fetch token balances (DI) */
   fetchBalance: FetchEthereumBalanceFn;
-  /** Function to fetch token prices (DI) */
-  fetchPrices: FetchEthereumPricesFn;
   /** Function to fetch a single transaction (DI) */
   fetchTransaction: FetchEthereumTransactionFn;
   /** Function to fetch recent transactions (DI) */
@@ -110,8 +105,6 @@ export class EthereumAccount {
 
   /** Injected function to fetch token balances */
   private fetchBalanceFn: FetchEthereumBalanceFn;
-  /** Injected function to fetch token prices */
-  private fetchPricesFn: FetchEthereumPricesFn;
   /** Injected function to fetch a single transaction */
   private fetchTransactionFn: FetchEthereumTransactionFn;
   /** Injected function to fetch recent transactions */
@@ -129,7 +122,6 @@ export class EthereumAccount {
     this.wallet = options.wallet;
     this.publicKey = options.wallet.signingKey.publicKey;
     this.fetchBalanceFn = options.fetchBalance;
-    this.fetchPricesFn = options.fetchPrices;
     this.fetchTransactionFn = options.fetchTransaction;
     this.fetchRecentTransactionsFn = options.fetchRecentTransactions;
   }
@@ -206,28 +198,18 @@ export class EthereumAccount {
   // ==========================================================================
 
   /**
-   * Fetches the raw Ethereum balance items from the backend API.
+   * Fetches the Ethereum balance items from the backend API. Items
+   * carry pricing fields when the salmon-api `multichain/price-enrichers`
+   * has a quote for the asset (Ethereum has no enricher today, so the
+   * passthrough leaves them undefined and `usdTotal` resolves to 0).
    */
   private async fetchEthereumBalance(): Promise<EthereumBalanceItem[]> {
     return this.fetchBalanceFn(this.network.id, this.wallet.address);
   }
 
   /**
-   * Gets Ethereum prices from the price service.
-   *
-   * @returns Token prices or null if unavailable
-   */
-  private async getPrices(): Promise<TokenPrice[] | null> {
-    try {
-      return await this.fetchPricesFn('ethereum');
-    } catch (e) {
-      console.warn('Could not get Ethereum prices', (e as Error).message);
-      return null;
-    }
-  }
-
-  /**
-   * Helper to calculate 24h change from balances.
+   * Reduces priced items into the portfolio 24h delta. Items without
+   * `priceChange24h` contribute their USD balance unchanged.
    */
   private calculateLast24HoursChange(
     balances: EthereumBalanceItem[],
@@ -237,7 +219,7 @@ export class EthereumAccount {
 
     let previousTotal = 0;
     balances.forEach((balance) => {
-      if (balance.usdBalance && balance.priceChange24h !== undefined) {
+      if (balance.usdBalance && balance.priceChange24h !== undefined && balance.priceChange24h !== null) {
         const priceChangeFactor = 1 + balance.priceChange24h / 100;
         const previousBalance = balance.usdBalance / priceChangeFactor;
         previousTotal += previousBalance;
@@ -250,41 +232,23 @@ export class EthereumAccount {
   }
 
   /**
-   * Gets the complete wallet balance with USD values and price info.
-   * Uses injected DI functions to fetch balance and prices from the backend.
-   *
-   * @returns Promise resolving to wallet balance object
+   * Returns the complete wallet balance. Pricing comes from the
+   * salmon-api server-side; the client only sums totals.
    */
   async getBalance(): Promise<EthereumWalletBalance> {
-    const ethereumBalance = await this.fetchEthereumBalance();
-    const prices = await this.getPrices();
+    const items = await this.fetchEthereumBalance();
 
-    const balances = decorateBalancePrices(
-      ethereumBalance.map((b) => ({
-        mint: b.mint || 'ethereum',
-        owner: this.wallet.address,
-        amount: b.amount,
-        decimals: b.decimals,
-        uiAmount: b.uiAmount || b.amount / Math.pow(10, b.decimals),
-        symbol: b.symbol,
-        name: b.name,
-        logo: b.logo || undefined,
-        address: b.mint || 'ethereum',
-        coingeckoId: b.coingeckoId,
-      })),
-      prices
-    ) as EthereumBalanceItem[];
-
-    if (prices) {
-      const usdTotal = balances.reduce(
-        (currentValue, next) => (next.usdBalance || 0) + currentValue,
-        0
-      );
-      const last24HoursChange = this.calculateLast24HoursChange(balances, usdTotal);
-      return { usdTotal, last24HoursChange, items: balances };
+    const hasAnyPrice = items.some((item) => item.usdBalance !== undefined);
+    if (!hasAnyPrice) {
+      return { usdTotal: 0, last24HoursChange: 0, items };
     }
 
-    return { usdTotal: 0, last24HoursChange: 0, items: balances };
+    const usdTotal = items.reduce(
+      (currentValue, next) => (next.usdBalance || 0) + currentValue,
+      0
+    );
+    const last24HoursChange = this.calculateLast24HoursChange(items, usdTotal);
+    return { usdTotal, last24HoursChange, items };
   }
 
   /**

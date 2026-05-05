@@ -107,16 +107,6 @@ export interface UnifiedToken {
 }
 
 // ============================================================================
-// Token list source
-// ============================================================================
-
-/**
- * Token list source for debugging/tracking.
- * Previously defined in api/services/tokens.ts.
- */
-export type TokenListSource = 'backend' | 'jupiter' | 'cdn';
-
-// ============================================================================
 // Ethereum ERC-20 token types (moved from blockchain/ethereum/tokens.ts)
 // ============================================================================
 

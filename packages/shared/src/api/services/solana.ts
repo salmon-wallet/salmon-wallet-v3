@@ -162,9 +162,15 @@ export async function getSwapOrder(
     const queryParams: Record<string, string | number | boolean> = {
       inputMint: params.inputMint,
       outputMint: params.outputMint,
-      amount: params.amount,
       publicKey: params.publicKey,
     };
+
+    if (params.amount !== undefined) {
+      queryParams.amount = params.amount;
+    }
+    if (params.uiAmount !== undefined) {
+      queryParams.uiAmount = params.uiAmount;
+    }
 
     if (params.slippageBps !== undefined) {
       queryParams.slippageBps = params.slippageBps;
@@ -328,58 +334,35 @@ export async function getTransactionsByType(
 // DI adapter (matches BitcoinAccount pattern in bitcoin.ts)
 // ============================================================================
 
-import { getJupiterPrices } from './balance';
-import { getTokenMetadataByMints } from './tokens';
 import { getSolanaNfts } from './solana-nft';
 import { SOL_CONSTANTS } from '../../utils/balance';
 import type { SolanaAccountApiFunctions, SolanaBalanceItem } from '../../types/transfer';
 
 export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'] = async (
   networkId,
-  address
+  address,
+  opts = {},
 ) => {
+  const params: Record<string, string> = { include: 'logo' };
+  if (opts.includeSpam) {
+    params.includeSpam = 'true';
+  }
+
+  // The salmon-api Solana balance provider already merges Jupiter v2 metadata
+  // (logo/name/symbol/coingeckoId/tags), drops zero-amount SPL entries, and
+  // drops `unknown`-only tagged tokens unless `?includeSpam=true`.
   const data = await get<SolanaBalanceItem[]>(
     `/v1/${networkId}/account/${address}/balance`,
-    { params: { include: 'logo' } },
+    { params },
   );
 
-  // Extract mint addresses from non-native tokens for metadata enrichment
-  const mintAddresses = data
-    .filter((token) => token.mint && token.mint !== 'solana')
-    .map((token) => token.mint!);
-
-  // Fetch Jupiter V2 metadata for better logos, names, symbols
-  const metadata = mintAddresses.length > 0
-    ? await getTokenMetadataByMints(mintAddresses, networkId)
-    : [];
-
-  // Create metadata lookup map
-  const metadataMap = new Map(
-    metadata.map((m) => [m.address.toLowerCase(), m])
-  );
-
-  return data
-    .filter((token) => token.amount > 0)
-    .map((token) => {
-      const meta = token.mint ? metadataMap.get(token.mint.toLowerCase()) : undefined;
-      const isNativeSol = !token.mint;
-      return {
-        ...token,
-        // Jupiter metadata wins over Ubiquity when available
-        logo: meta?.logo || token.logo,
-        name: meta?.name || token.name,
-        symbol: meta?.symbol || token.symbol,
-        coingeckoId: meta?.coingeckoId || token.coingeckoId,
-        tags: isNativeSol ? [...SOL_CONSTANTS.TAGS] : meta?.tags,
-        uiAmount: removeDecimals(token.amount, token.decimals),
-      };
-    })
-    .filter((token) => {
-      // Native SOL always passes through
-      if (!token.mint) return true;
-      // SPL tokens must have metadata (name or symbol) to be included
-      return !!token.name || !!token.symbol;
-    });
+  return data.map((token) => ({
+    ...token,
+    // Native SOL inherits the canonical Jupiter tag set so the FE can keep
+    // tag-based UI logic uniform across natives + SPL tokens.
+    tags: token.mint ? token.tags : (token.tags ?? [...SOL_CONSTANTS.TAGS]),
+    uiAmount: removeDecimals(token.amount, token.decimals),
+  }));
 };
 
 /**
@@ -389,9 +372,6 @@ export const fetchSolanaAccountBalance: SolanaAccountApiFunctions['fetchBalance'
  */
 export const solanaApiFunctions: SolanaAccountApiFunctions = {
   fetchBalance: fetchSolanaAccountBalance,
-  fetchPrices: async (networkId, addresses, hints) => {
-    return getJupiterPrices(addresses, networkId, hints);
-  },
   fetchTransaction: getSolanaTransaction,
   fetchTransactions: getSolanaTransactions,
   fetchNfts: getSolanaNfts,

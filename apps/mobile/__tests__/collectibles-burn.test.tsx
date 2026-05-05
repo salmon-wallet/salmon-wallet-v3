@@ -61,7 +61,6 @@ jest.mock('@salmon/shared', () => ({
   signAndSendPreparedSolanaTransactions: (...args: unknown[]) => mockSignAndSendPreparedSolanaTransactions(...args),
   letterSpacing: { wide: 0, wider: 0 },
   spacing: { sm: 8, md: 12, lg: 16, xl: 20, '2xl': 24, headerPadding: 16 },
-  filterSpamNfts: (nfts: unknown[]) => nfts,
   getAllNfts: (...args: unknown[]) => mockGetAllNfts(...args),
   getNftSectionTitle: () => 'Solana',
   getShortAddress: () => 'Owne...r111',

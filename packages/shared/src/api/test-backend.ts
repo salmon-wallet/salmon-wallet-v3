@@ -1,3 +1,16 @@
+/**
+ * Backend reachability helper for live integration tests.
+ *
+ * Tests that consume `getReachableBackendBaseUrl` are dev-machine smoke tests
+ * by design: they run when a local salmon-api is reachable on one of the
+ * candidate URLs and silently skip otherwise. CI does NOT spin up the backend
+ * — that gap is intentional. Schema drift is caught the next time a developer
+ * runs the suite locally against a live backend.
+ *
+ * To force these tests to run, set EXPO_PUBLIC_API_URL / VITE_API_URL /
+ * API_URL (or HOST + PORT) so the candidate list points at a reachable
+ * backend.
+ */
 const DEFAULT_LOCAL_HOST = 'localhost';
 const DEFAULT_RETRY_DELAY_MS = 250;
 

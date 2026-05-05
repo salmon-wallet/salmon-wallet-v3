@@ -42,7 +42,6 @@ vi.mock('@salmon/shared', () => ({
     'solana-devnet': { id: 'solana-devnet' },
   },
   canonicalNftToSolanaNftData: (...args: unknown[]) => mockCanonicalNftToSolanaNftData(...args),
-  filterSpamNfts: (nfts: unknown[]) => nfts,
   getNftSectionTitle: () => 'Solana',
   INITIAL_NFT_SECTIONS: {
     solana: { nfts: [], loading: false, blockchain: 'solana', isTestnet: false },

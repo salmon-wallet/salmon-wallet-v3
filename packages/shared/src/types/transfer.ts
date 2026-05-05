@@ -197,10 +197,6 @@ export type FetchBitcoinBalanceFn = (
   address: string
 ) => Promise<BitcoinBalanceItem[]>;
 
-export type FetchBitcoinPricesFn = (
-  platform: string
-) => Promise<import('./price').TokenPrice[] | null>;
-
 export type FetchBitcoinTransactionFn = (
   networkId: string,
   address: string,
@@ -218,7 +214,6 @@ export type FetchBitcoinRecentTransactionsFn = (
  */
 export interface BitcoinAccountApiFunctions {
   fetchBalance: FetchBitcoinBalanceFn;
-  fetchPrices: FetchBitcoinPricesFn;
   fetchTransaction: FetchBitcoinTransactionFn;
   fetchRecentTransactions: FetchBitcoinRecentTransactionsFn;
   fetchUtxos: FetchUtxosFn;
@@ -400,10 +395,6 @@ export type FetchEthereumBalanceFn = (
   address: string
 ) => Promise<EthereumBalanceItem[]>;
 
-export type FetchEthereumPricesFn = (
-  platform: string
-) => Promise<import('./price').TokenPrice[] | null>;
-
 export type FetchEthereumTransactionFn = (
   networkId: import('./blockchain').EthereumNetworkId,
   address: string,
@@ -421,7 +412,6 @@ export type FetchEthereumRecentTransactionsFn = (
  */
 export interface EthereumAccountApiFunctions {
   fetchBalance: FetchEthereumBalanceFn;
-  fetchPrices: FetchEthereumPricesFn;
   fetchTransaction: FetchEthereumTransactionFn;
   fetchRecentTransactions: FetchEthereumRecentTransactionsFn;
 }
@@ -445,16 +435,16 @@ export interface SolanaBalanceItem {
   priceChange24h?: number;
 }
 
+export interface FetchSolanaBalanceOpts {
+  /** When `true`, asks the BE to skip the `unknown`-tagged token filter. */
+  includeSpam?: boolean;
+}
+
 export type FetchSolanaBalanceFn = (
   networkId: import('./blockchain').SolanaNetworkId,
-  address: string
+  address: string,
+  opts?: FetchSolanaBalanceOpts
 ) => Promise<SolanaBalanceItem[]>;
-
-export type FetchSolanaPricesFn = (
-  networkId: import('./blockchain').SolanaNetworkId,
-  addresses: string[],
-  hints?: Map<string, { coingeckoId?: string }>
-) => Promise<Map<string, import('./price').JupiterApiPriceData>>;
 
 export type FetchSolanaTransactionFn = (
   networkId: import('./blockchain').SolanaNetworkId,
@@ -473,7 +463,6 @@ export type FetchSolanaTransactionsFn = (
  */
 export interface SolanaAccountApiFunctions {
   fetchBalance: FetchSolanaBalanceFn;
-  fetchPrices: FetchSolanaPricesFn;
   fetchTransaction: FetchSolanaTransactionFn;
   fetchTransactions: FetchSolanaTransactionsFn;
   fetchNfts: import('./nft').FetchNftsFromBackendFn;

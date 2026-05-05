@@ -38,7 +38,6 @@ import type { FetchUtxosFn, BroadcastTransactionFn, BitcoinAccountApiFunctions }
 
 const mockApiFunctions: BitcoinAccountApiFunctions = {
   fetchBalance: vi.fn().mockResolvedValue([]),
-  fetchPrices: vi.fn().mockResolvedValue(null),
   fetchTransaction: vi.fn().mockResolvedValue({ id: 'mock-tx' }),
   fetchRecentTransactions: vi.fn().mockResolvedValue({ items: [] }),
   fetchUtxos: vi.fn().mockResolvedValue([]),
