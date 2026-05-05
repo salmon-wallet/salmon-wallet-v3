@@ -56,6 +56,12 @@ describe('ActionGetResponseSchema', () => {
     });
     expect(r.links?.actions[0].label).toBe('Send');
   });
+
+  it('parses a completed response with minimal fields', () => {
+    expect(() =>
+      parseActionGetResponse({ ...validGet, type: 'completed' }),
+    ).not.toThrow();
+  });
 });
 
 describe('ActionParameterSchema', () => {
@@ -115,6 +121,12 @@ describe('ActionPostRequestSchema', () => {
       parseActionPostRequest({ account: validAccount, data: { amount: '1.5' } }),
     ).not.toThrow();
   });
+
+  it('accepts data values as string arrays', () => {
+    expect(() =>
+      parseActionPostRequest({ account: validAccount, data: { tags: ['a', 'b'] } }),
+    ).not.toThrow();
+  });
 });
 
 describe('ActionPostResponseSchema', () => {
@@ -130,9 +142,9 @@ describe('ActionPostResponseSchema', () => {
     ).toThrow();
   });
 
-  it('rejects a transaction longer than 8192 chars', () => {
+  it('rejects a transaction longer than 1700 chars', () => {
     expect(() =>
-      parseActionPostResponse({ transaction: 'A'.repeat(8193).padEnd(8196, '=') }),
+      parseActionPostResponse({ transaction: 'A'.repeat(1700).padEnd(1704, '=') }),
     ).toThrow();
   });
 
@@ -156,6 +168,41 @@ describe('ActionPostResponseSchema', () => {
       message: 'ok',
       links: { next: { type: 'inline', action: validGet } },
     });
-    expect(r.links?.next.type).toBe('inline');
+    // Narrow union: transaction variant has links.next
+    if ('transaction' in r) {
+      expect(r.links?.next.type).toBe('inline');
+    } else {
+      throw new Error('expected transaction variant');
+    }
+  });
+
+  it('parses a post variant response', () => {
+    expect(() =>
+      parseActionPostResponse({ type: 'post', href: '/next-step' }),
+    ).not.toThrow();
+  });
+
+  it('parses an external-link variant response', () => {
+    expect(() =>
+      parseActionPostResponse({
+        type: 'external-link',
+        externalLink: 'https://example.com',
+      }),
+    ).not.toThrow();
+  });
+
+  it('rejects an external-link variant with non-HTTPS URL', () => {
+    expect(() =>
+      parseActionPostResponse({
+        type: 'external-link',
+        externalLink: 'http://example.com',
+      }),
+    ).toThrow();
+  });
+
+  it('rejects a message variant (not yet supported)', () => {
+    expect(() =>
+      parseActionPostResponse({ type: 'message', text: 'foo' }),
+    ).toThrow();
   });
 });
