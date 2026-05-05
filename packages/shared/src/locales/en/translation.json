@@ -13,7 +13,21 @@
   },
   "blinks": {
     "title": "Blinks",
-    "empty_state": "No blinks available"
+    "empty_state": "No blinks available",
+    "detail": {
+      "loading": "Loading…",
+      "continue": "Continue",
+      "error": {
+        "untrusted_host": "This blink's source isn't trusted.",
+        "not_https": "Blink URL must be HTTPS.",
+        "timeout": "The blink took too long to respond.",
+        "invalid_response": "The blink returned an invalid response.",
+        "http_error": "The blink server returned an error.",
+        "cross_host_redirect": "The blink tried to redirect to another host.",
+        "oversize_response": "The blink response was too large.",
+        "generic": "Something went wrong loading this blink."
+      }
+    }
   },
   "general": {
     "home": "Home",

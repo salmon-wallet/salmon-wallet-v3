@@ -63,7 +63,10 @@ describe('BlinksScreen', () => {
     fireEvent.press(screen.getByText('dial.to'));
 
     expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith('/blink-detail?host=dial.to');
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/blink-detail',
+      params: { host: 'dial.to' },
+    });
   });
 
   it('shows the empty state when no trusted hosts are available', () => {

@@ -88,7 +88,7 @@ export function GlassTabBar({
 }: BottomTabBarProps) {
   const { tabBarBottomPadding } = useTabChrome();
 
-  // Filter and order routes to only show Home, Collectibles, and Swap
+  // Filter and order routes to show Home, Collectibles, Swap, and Blinks
   const visibleRoutes = TAB_ORDER
     .map(tabName => state.routes.find(route => route.name === tabName))
     .filter((route): route is typeof state.routes[0] => route !== undefined);
