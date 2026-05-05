@@ -18,11 +18,17 @@
  *   5. Pre-state is fetched in parallel via `getMultipleAccountsInfo`.
  *   6. Diff lamports for SOL; parse SPL Token account data (165 bytes,
  *      mint at offset 0, owner at 32, amount at 64 as u64 LE) for token
- *      amounts. Decimals come from `getParsedAccountInfo` on the mint, with
- *      a best-effort fallback to 0 when the mint cannot be fetched.
+ *      amounts. Decimals come from `getMultipleAccountsInfo` on the mint;
+ *      when unavailable the delta is emitted with `decimals: null` and
+ *      `uiAmountBefore/After: null` (raw delta still reported).
  *   7. On `value.err !== null` → `simulation_failed` with logs preserved.
  *   8. Pre-fetch failures degrade `tokenDeltas` to [] without throwing —
  *      signer SOL delta is best-effort and may also degrade to zeros.
+ *   9. Versioned (V0) txs: ALT entries in `addressTableLookups` are resolved
+ *      via `connection.getAddressLookupTable`. Failure to resolve any ALT
+ *      throws `simulation_failed`/`address_lookup_tables_unresolved` so the
+ *      UI can block (silent degradation would cause false-negative token
+ *      delta detection on Jupiter-style routes).
  */
 import {
   Connection,
@@ -50,7 +56,7 @@ export interface TokenDelta {
   uiAmountBefore: string | null;
   uiAmountAfter: string | null;
   rawAmountDelta: bigint;
-  decimals: number;
+  decimals: number | null;
 }
 
 export interface SimulationResult {
@@ -89,7 +95,6 @@ export class ActionSimulationError extends Error {
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 const TOKEN_2022_PROGRAM_ID = new PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
 const SPL_TOKEN_ACCOUNT_LEN = 165;
-const ZERO_SIG = new Uint8Array(64);
 
 type DecodedTx =
   | { kind: 'versioned'; tx: VersionedTransaction }
@@ -165,13 +170,14 @@ function verifyPartialSignatures(decoded: DecodedTx): boolean {
     return sawPartial;
   }
   const tx = decoded.tx;
-  // `compileMessage` will throw if recentBlockhash / feePayer are missing,
-  // so we guard and treat that as no verifiable partial signatures.
+  // Use `serializeMessage()` — it returns the already-compiled message bytes
+  // that signers actually signed (post `Transaction.from(...)`). It does NOT
+  // recompile/reorder, so we verify against the exact signed payload.
   let messageBytes: Uint8Array;
   try {
-    messageBytes = tx.compileMessage().serialize();
-  } catch {
-    return false;
+    messageBytes = tx.serializeMessage();
+  } catch (e) {
+    throw new ActionSimulationError({ code: 'invalid_partial_signature', cause: e });
   }
   let sawPartial = false;
   for (const { publicKey, signature } of tx.signatures) {
@@ -186,17 +192,83 @@ function verifyPartialSignatures(decoded: DecodedTx): boolean {
 }
 
 /**
- * Returns every static account key referenced by the message, in declaration
- * order. Address-table lookups are NOT resolved — those addresses are simply
- * not represented here, which is fine for the signer + ata diff path: the
- * signer is always a static key, and the wallet only flags ATAs it can
- * resolve from the message.
+ * Returns every account key referenced by the message in the order Solana's
+ * runtime resolves them: static keys first, then ALT writable indexes, then
+ * ALT readonly indexes. For legacy transactions there are no lookup tables.
+ *
+ * If any ALT cannot be resolved (RPC error, missing account, missing state),
+ * throws `simulation_failed` with message `address_lookup_tables_unresolved`
+ * — the UI must block on this rather than silently degrade to false-negatives
+ * in token-delta detection.
  */
-function staticAccountKeys(decoded: DecodedTx): PublicKey[] {
-  if (decoded.kind === 'versioned') {
-    return [...decoded.tx.message.staticAccountKeys];
+async function resolveAccountKeys(
+  decoded: DecodedTx,
+  connection: Connection,
+): Promise<PublicKey[]> {
+  if (decoded.kind === 'legacy') {
+    return decoded.tx.compileMessage().accountKeys;
   }
-  return decoded.tx.compileMessage().accountKeys;
+  const message = decoded.tx.message;
+  const staticKeys = [...message.staticAccountKeys];
+  const lookups = message.addressTableLookups ?? [];
+  if (lookups.length === 0) return staticKeys;
+
+  let fetched: Array<{
+    state: { addresses: PublicKey[] } | null;
+  } | null>;
+  try {
+    fetched = await Promise.all(
+      lookups.map(async (l) => {
+        const resp = await connection.getAddressLookupTable(l.accountKey);
+        const value = (resp as any)?.value ?? null;
+        if (!value) return null;
+        // `value.state` may be `state` directly (AddressLookupTableAccount).
+        const state = (value as any).state ?? null;
+        return state ? { state } : null;
+      }),
+    );
+  } catch (e) {
+    throw new ActionSimulationError({
+      code: 'simulation_failed',
+      message: 'address_lookup_tables_unresolved',
+      cause: e,
+    });
+  }
+
+  const writable: PublicKey[] = [];
+  const readonly: PublicKey[] = [];
+  for (let i = 0; i < lookups.length; i++) {
+    const lookup = lookups[i]!;
+    const entry = fetched[i];
+    if (!entry || !entry.state) {
+      throw new ActionSimulationError({
+        code: 'simulation_failed',
+        message: 'address_lookup_tables_unresolved',
+      });
+    }
+    const addresses = entry.state.addresses;
+    for (const idx of lookup.writableIndexes) {
+      const addr = addresses[idx];
+      if (!addr) {
+        throw new ActionSimulationError({
+          code: 'simulation_failed',
+          message: 'address_lookup_tables_unresolved',
+        });
+      }
+      writable.push(addr);
+    }
+    for (const idx of lookup.readonlyIndexes) {
+      const addr = addresses[idx];
+      if (!addr) {
+        throw new ActionSimulationError({
+          code: 'simulation_failed',
+          message: 'address_lookup_tables_unresolved',
+        });
+      }
+      readonly.push(addr);
+    }
+  }
+  return [...staticKeys, ...writable, ...readonly];
 }
 
 function isTokenProgram(pk: PublicKey): boolean {
@@ -311,7 +383,7 @@ export async function simulateActionTx(input: SimulationInput): Promise<Simulati
   const signer = parsePubkey(input.account);
   const sawPartial = verifyPartialSignatures(decoded);
 
-  const accountKeys = staticAccountKeys(decoded);
+  const accountKeys = await resolveAccountKeys(decoded, input.connection);
   const preState = await fetchPreState(input.connection, accountKeys);
 
   // Run simulation, requesting post-state for every static key.
@@ -345,7 +417,11 @@ export async function simulateActionTx(input: SimulationInput): Promise<Simulati
     typeof value.unitsConsumed === 'number' ? value.unitsConsumed : null;
 
   if (value.err != null) {
-    throw new ActionSimulationError({ code: 'simulation_failed', logs });
+    throw new ActionSimulationError({
+      code: 'simulation_failed',
+      logs,
+      cause: value.err,
+    });
   }
 
   // Map post-state from sim response onto the candidate addresses.
@@ -416,14 +492,15 @@ export async function simulateActionTx(input: SimulationInput): Promise<Simulati
   }
 
   const tokenDeltas: TokenDelta[] = drafts.map((d) => {
-    const decimals = decimalsByMint.get(d.mint.toBase58()) ?? 0;
+    const decimalsResolved = decimalsByMint.get(d.mint.toBase58());
+    const hasDecimals = typeof decimalsResolved === 'number';
     return {
       mint: d.mint.toBase58(),
       owner: d.owner.toBase58(),
-      uiAmountBefore: uiAmount(d.amountBefore, decimals),
-      uiAmountAfter: uiAmount(d.amountAfter, decimals),
+      uiAmountBefore: hasDecimals ? uiAmount(d.amountBefore, decimalsResolved!) : null,
+      uiAmountAfter: hasDecimals ? uiAmount(d.amountAfter, decimalsResolved!) : null,
       rawAmountDelta: d.amountAfter - d.amountBefore,
-      decimals,
+      decimals: hasDecimals ? decimalsResolved! : null,
     };
   });
 

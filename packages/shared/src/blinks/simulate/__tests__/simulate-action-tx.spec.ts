@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import {
+  AddressLookupTableAccount,
   Keypair,
   MessageV0,
   PublicKey,
@@ -97,18 +98,34 @@ interface PreSpec {
   >;
 }
 
+interface AltSpec {
+  // Map ALT key (base58) → resolved addresses (or null/Error to fail)
+  [key: string]: PublicKey[] | null | Error;
+}
+
 function makeMockConnection(opts: {
   pre: PreSpec;
   sim: SimSpec;
   mintDecimals?: Record<string, number>;
+  alts?: AltSpec;
+  mints?: Record<string, number | null>;
 }) {
-  const { pre, sim, mintDecimals = {} } = opts;
+  const { pre, sim, mintDecimals = {}, alts = {}, mints = {} } = opts;
   const getMultipleAccountsInfo = vi.fn(async (keys: PublicKey[]) => {
     return keys.map((k) => {
       const b58 = k.toBase58();
       if (b58 in pre.accounts) {
         const v = pre.accounts[b58];
         return v ?? null;
+      }
+      if (b58 in mints) {
+        const dec = mints[b58];
+        if (dec == null) return null;
+        return {
+          lamports: 1,
+          owner: TOKEN_PROGRAM_ID,
+          data: buildMintData(dec),
+        };
       }
       if (b58 in mintDecimals) {
         return {
@@ -119,6 +136,25 @@ function makeMockConnection(opts: {
       }
       return null;
     });
+  });
+
+  const getAddressLookupTable = vi.fn(async (key: PublicKey) => {
+    const b58 = key.toBase58();
+    if (!(b58 in alts)) return { context: { slot: 1 }, value: null };
+    const v = alts[b58];
+    if (v instanceof Error) throw v;
+    if (v == null) return { context: { slot: 1 }, value: null };
+    const altAccount = new AddressLookupTableAccount({
+      key,
+      state: {
+        deactivationSlot: BigInt('0xffffffffffffffff'),
+        lastExtendedSlot: 0,
+        lastExtendedSlotStartIndex: 0,
+        authority: undefined,
+        addresses: v,
+      },
+    });
+    return { context: { slot: 1 }, value: altAccount };
   });
 
   const simulateTransaction = vi.fn(async (_tx: any, _opts?: any, _includeAccounts?: any) => {
@@ -155,6 +191,7 @@ function makeMockConnection(opts: {
   return {
     getMultipleAccountsInfo,
     simulateTransaction,
+    getAddressLookupTable,
   } as any;
 }
 
@@ -419,6 +456,204 @@ describe('ActionSimulationError', () => {
     expect(err.name).toBe('ActionSimulationError');
     expect(err.code).toBe('simulation_failed');
     expect(err.logs).toEqual(['x']);
+  });
+});
+
+describe('simulateActionTx — address lookup tables (V0)', () => {
+  it('resolves ALT writable indexes and produces token deltas for the looked-up account', async () => {
+    const payer = Keypair.generate();
+    const mint = Keypair.generate().publicKey;
+    const ata = Keypair.generate().publicKey;
+    const altKey = Keypair.generate().publicKey;
+    const otherStatic = Keypair.generate().publicKey;
+
+    // Build a V0 message manually with an addressTableLookup pointing at `ata`.
+    // Static keys: [payer (signer/writable), TOKEN_PROGRAM_ID (readonly programId)]
+    // Lookup writable: [ata]
+    const message = new MessageV0({
+      header: {
+        numRequiredSignatures: 1,
+        numReadonlySignedAccounts: 0,
+        numReadonlyUnsignedAccounts: 1,
+      },
+      staticAccountKeys: [payer.publicKey, otherStatic, TOKEN_PROGRAM_ID],
+      recentBlockhash: FAKE_BLOCKHASH,
+      compiledInstructions: [
+        {
+          programIdIndex: 2,
+          accountKeyIndexes: [0, 3],
+          data: new Uint8Array(),
+        },
+      ],
+      addressTableLookups: [
+        {
+          accountKey: altKey,
+          writableIndexes: [0],
+          readonlyIndexes: [],
+        },
+      ],
+    });
+    const tx = new VersionedTransaction(message);
+
+    const ataKey = ata.toBase58();
+    const mintKey = mint.toBase58();
+
+    const connection = makeMockConnection({
+      pre: {
+        accounts: {
+          [ataKey]: {
+            lamports: 2_039_280,
+            owner: TOKEN_PROGRAM_ID,
+            data: buildTokenAccountData(mint, payer.publicKey, 1_000_000n),
+          },
+        },
+      },
+      sim: {
+        postAccountsByKey: {
+          [ataKey]: {
+            lamports: 2_039_280,
+            owner: TOKEN_PROGRAM_ID.toBase58(),
+            data: [
+              buildTokenAccountData(mint, payer.publicKey, 500_000n).toString('base64'),
+              'base64',
+            ],
+          },
+        },
+      },
+      mintDecimals: { [mintKey]: 6 },
+      alts: { [altKey.toBase58()]: [ata] },
+    });
+
+    const res = await simulateActionTx({
+      serializedTransactionBase64: serialize(tx),
+      account: payer.publicKey.toBase58(),
+      connection,
+    });
+    expect(connection.getAddressLookupTable).toHaveBeenCalled();
+    expect(res.tokenDeltas).toHaveLength(1);
+    const td = res.tokenDeltas[0]!;
+    expect(td.mint).toBe(mintKey);
+    expect(td.rawAmountDelta).toBe(-500_000n);
+  });
+
+  it('throws simulation_failed/address_lookup_tables_unresolved when ALT cannot be fetched', async () => {
+    const payer = Keypair.generate();
+    const altKey = Keypair.generate().publicKey;
+    const otherStatic = Keypair.generate().publicKey;
+    const message = new MessageV0({
+      header: {
+        numRequiredSignatures: 1,
+        numReadonlySignedAccounts: 0,
+        numReadonlyUnsignedAccounts: 1,
+      },
+      staticAccountKeys: [payer.publicKey, otherStatic, TOKEN_PROGRAM_ID],
+      recentBlockhash: FAKE_BLOCKHASH,
+      compiledInstructions: [
+        {
+          programIdIndex: 2,
+          accountKeyIndexes: [0],
+          data: new Uint8Array(),
+        },
+      ],
+      addressTableLookups: [
+        {
+          accountKey: altKey,
+          writableIndexes: [0],
+          readonlyIndexes: [],
+        },
+      ],
+    });
+    const tx = new VersionedTransaction(message);
+
+    const connection = makeMockConnection({
+      pre: { accounts: {} },
+      sim: {},
+      alts: { [altKey.toBase58()]: null }, // not found
+    });
+    await expect(
+      simulateActionTx({
+        serializedTransactionBase64: serialize(tx),
+        account: payer.publicKey.toBase58(),
+        connection,
+      }),
+    ).rejects.toMatchObject({
+      code: 'simulation_failed',
+      message: 'address_lookup_tables_unresolved',
+    });
+  });
+});
+
+describe('simulateActionTx — legacy serializeMessage path', () => {
+  it('verifies a legacy partial-signed tx using the original signed message bytes', async () => {
+    const payer = Keypair.generate();
+    const tx = makeLegacyTx(payer);
+    tx.sign(payer);
+    const connection = makeMockConnection({ pre: { accounts: {} }, sim: {} });
+    const res = await simulateActionTx({
+      serializedTransactionBase64: serialize(tx),
+      account: payer.publicKey.toBase58(),
+      connection,
+    });
+    expect(res.warning).toBe(
+      'transaction was partial-signed; existing signatures verified',
+    );
+  });
+});
+
+describe('simulateActionTx — decimals null fallback', () => {
+  it('returns decimals=null and ui amounts=null when mint info is unavailable', async () => {
+    const payer = Keypair.generate();
+    const mint = Keypair.generate().publicKey;
+    const ata = Keypair.generate().publicKey;
+    const ix = new TransactionInstruction({
+      programId: TOKEN_PROGRAM_ID,
+      keys: [
+        { pubkey: payer.publicKey, isSigner: true, isWritable: true },
+        { pubkey: ata, isSigner: false, isWritable: true },
+      ],
+      data: Buffer.from([]),
+    });
+    const tx = makeVersionedTx(payer, [ix]);
+
+    const ataKey = ata.toBase58();
+    const mintKey = mint.toBase58();
+
+    const connection = makeMockConnection({
+      pre: {
+        accounts: {
+          [ataKey]: {
+            lamports: 2_039_280,
+            owner: TOKEN_PROGRAM_ID,
+            data: buildTokenAccountData(mint, payer.publicKey, 1_000_000n),
+          },
+        },
+      },
+      sim: {
+        postAccountsByKey: {
+          [ataKey]: {
+            lamports: 2_039_280,
+            owner: TOKEN_PROGRAM_ID.toBase58(),
+            data: [
+              buildTokenAccountData(mint, payer.publicKey, 500_000n).toString('base64'),
+              'base64',
+            ],
+          },
+        },
+      },
+      mints: { [mintKey]: null }, // mint fetch returns null
+    });
+
+    const res = await simulateActionTx({
+      serializedTransactionBase64: serialize(tx),
+      account: payer.publicKey.toBase58(),
+      connection,
+    });
+    expect(res.tokenDeltas).toHaveLength(1);
+    const td = res.tokenDeltas[0]!;
+    expect(td.decimals).toBeNull();
+    expect(td.uiAmountBefore).toBeNull();
+    expect(td.uiAmountAfter).toBeNull();
+    expect(td.rawAmountDelta).toBe(-500_000n);
   });
 });
 
