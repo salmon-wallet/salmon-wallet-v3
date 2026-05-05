@@ -29,11 +29,20 @@ env:
 - takeScreenshot: screenshots/actions/blinks/sim-fail-banner
 - assertVisible:
     id: "action-approval-risk-toggle"
-# Approve must be disabled until risk is acknowledged.
+# Approve is disabled until the user acknowledges the simulation error.
+# Prove the gate structurally: the error banner is visible, and tapping
+# the (still-disabled) Approve button must NOT advance to the success surface.
 - assertVisible:
+    id: "action-approval-error-banner"
+- tapOn:
     id: "action-approval-approve"
+- assertNotVisible:
+    id: "blink-success-title"
+# Acknowledge risk → Approve becomes interactive again.
 - tapOn:
     id: "action-approval-risk-toggle"
+- assertVisible:
+    id: "action-approval-approve"
 - takeScreenshot: screenshots/actions/blinks/sim-fail-acknowledged
 - tapOn:
     id: "action-approval-approve"

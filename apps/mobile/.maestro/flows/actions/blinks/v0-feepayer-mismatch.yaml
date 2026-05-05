@@ -31,5 +31,7 @@ env:
     visible:
       id: "action-approval-error-banner"
     timeout: 15000
-- assertVisible: "v0_feepayer_mismatch"
+# Assert structural element (banner) instead of i18n text — survives translation updates.
+- assertVisible:
+    id: "action-approval-error-banner"
 - takeScreenshot: screenshots/actions/blinks/v0-feepayer-mismatch

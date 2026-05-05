@@ -56,14 +56,24 @@ export default function BlinkSuccessScreen() {
     <View style={styles.successWrapper} testID="blink-success-screen">
       {/* Hidden anchors expose stable testIDs for Maestro flows without
           modifying the shared TransactionSuccessScreen component. */}
-      <Text testID="blink-success-title" style={styles.hiddenAnchor}>
+      {/* Hidden testID anchors for Maestro. Update onPress if TransactionSuccessScreen's Done changes. */}
+      <Text
+        testID="blink-success-title"
+        accessible={false}
+        style={styles.hiddenAnchor}
+      >
         {t('blinks.success.title')}
       </Text>
-      <Text testID="blink-success-signature" style={styles.hiddenAnchor}>
+      <Text
+        testID="blink-success-signature"
+        accessible={false}
+        style={styles.hiddenAnchor}
+      >
         {truncated}
       </Text>
       <TouchableOpacity
         testID="blink-success-done"
+        accessible={false}
         accessibilityRole="button"
         onPress={handleDone}
         style={styles.hiddenAnchor}
