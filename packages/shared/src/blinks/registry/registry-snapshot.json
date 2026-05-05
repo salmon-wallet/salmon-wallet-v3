@@ -1,0 +1,9 @@
+{
+  "version": "2026-05-05",
+  "source": "manual-seed",
+  "actions": [
+    { "host": "dial.to" },
+    { "host": "actions.dialect.to" },
+    { "host": "solana.com" }
+  ]
+}
