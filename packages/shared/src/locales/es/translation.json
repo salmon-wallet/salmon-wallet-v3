@@ -27,6 +27,31 @@
         "oversize_response": "La respuesta del blink fue demasiado grande.",
         "generic": "Algo salió mal al cargar este blink."
       }
+    },
+    "approval": {
+      "title": "Aprobar acción",
+      "loading": "Preparando transacción…",
+      "approve": "Aprobar",
+      "cancel": "Cancelar",
+      "risk_acknowledge": "Entiendo el riesgo y quiero continuar",
+      "partial_signed": "La transacción fue firmada parcialmente por el proveedor",
+      "simulation": {
+        "failed": "Simulación fallida",
+        "unknown_amount": "Monto desconocido",
+        "warning_alt": "Algunas cuentas no pudieron resolverse"
+      },
+      "error": {
+        "generic": "Algo salió mal preparando esta transacción.",
+        "untrusted_host": "El origen del blink no es de confianza.",
+        "not_https": "La URL del blink debe usar HTTPS.",
+        "timeout": "El blink tardó demasiado en responder.",
+        "invalid_response": "El blink devolvió una respuesta inválida.",
+        "http_error": "El servidor del blink devolvió un error.",
+        "cross_host_redirect": "El blink intentó redirigir a otro host.",
+        "oversize_response": "La respuesta del blink fue demasiado grande.",
+        "submit_failed": "Error al enviar la transacción.",
+        "no_account": "No hay cuenta activa."
+      }
     }
   },
   "general": {

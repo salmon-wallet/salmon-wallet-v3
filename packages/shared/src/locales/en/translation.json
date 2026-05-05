@@ -27,6 +27,31 @@
         "oversize_response": "The blink response was too large.",
         "generic": "Something went wrong loading this blink."
       }
+    },
+    "approval": {
+      "title": "Approve action",
+      "loading": "Preparing transaction…",
+      "approve": "Approve",
+      "cancel": "Cancel",
+      "risk_acknowledge": "I understand the risk and want to continue",
+      "partial_signed": "Transaction was partially signed by the provider",
+      "simulation": {
+        "failed": "Simulation failed",
+        "unknown_amount": "Amount unknown",
+        "warning_alt": "Some accounts could not be resolved"
+      },
+      "error": {
+        "generic": "Something went wrong preparing this transaction.",
+        "untrusted_host": "This blink's source isn't trusted.",
+        "not_https": "Blink URL must be HTTPS.",
+        "timeout": "The blink took too long to respond.",
+        "invalid_response": "The blink returned an invalid response.",
+        "http_error": "The blink server returned an error.",
+        "cross_host_redirect": "The blink tried to redirect to another host.",
+        "oversize_response": "The blink response was too large.",
+        "submit_failed": "Failed to submit the transaction.",
+        "no_account": "No active wallet account."
+      }
     }
   },
   "general": {
