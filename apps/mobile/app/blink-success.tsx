@@ -19,7 +19,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { TransactionSuccessScreen } from '../src/components/TransactionSuccessScreen';
 
@@ -53,16 +53,44 @@ export default function BlinkSuccessScreen() {
   }
 
   return (
-    <TransactionSuccessScreen
-      title={t('blinks.success.title')}
-      summary={truncated}
-      explorerUrl={null}
-      onContinue={handleDone}
-    />
+    <View style={styles.successWrapper} testID="blink-success-screen">
+      {/* Hidden anchors expose stable testIDs for Maestro flows without
+          modifying the shared TransactionSuccessScreen component. */}
+      <Text testID="blink-success-title" style={styles.hiddenAnchor}>
+        {t('blinks.success.title')}
+      </Text>
+      <Text testID="blink-success-signature" style={styles.hiddenAnchor}>
+        {truncated}
+      </Text>
+      <TouchableOpacity
+        testID="blink-success-done"
+        accessibilityRole="button"
+        onPress={handleDone}
+        style={styles.hiddenAnchor}
+      />
+      <TransactionSuccessScreen
+        title={t('blinks.success.title')}
+        summary={truncated}
+        explorerUrl={null}
+        onContinue={handleDone}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  successWrapper: {
+    flex: 1,
+  },
+  // Anchors are zero-size + transparent so they don't render visibly while
+  // remaining queryable by Maestro via testID. width/height: 0 keeps them
+  // out of the layout flow.
+  hiddenAnchor: {
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    opacity: 0,
+  },
   fallback: {
     flex: 1,
     alignItems: 'center',

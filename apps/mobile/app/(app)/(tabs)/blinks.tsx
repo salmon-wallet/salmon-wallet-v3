@@ -63,11 +63,13 @@ export default function BlinksScreen() {
         </View>
       ) : (
         <FlatList
+          testID="blinks-tab-list"
           data={hosts}
           keyExtractor={(item) => item.host}
           contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
           renderItem={({ item }) => (
             <TouchableOpacity
+              testID={`blinks-tab-row-${item.host}`}
               accessibilityRole="button"
               accessibilityLabel={item.host}
               onPress={() => handlePressHost(item.host)}

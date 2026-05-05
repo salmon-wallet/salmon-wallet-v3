@@ -172,9 +172,9 @@ describe('BlinkDetailScreen', () => {
     render(<BlinkDetailScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('blink-continue')).toBeTruthy();
+      expect(screen.getByTestId('blink-detail-continue')).toBeTruthy();
     });
-    const btn = screen.getByTestId('blink-continue');
+    const btn = screen.getByTestId('blink-detail-continue');
     expect(btn.props.accessibilityState?.disabled).toBe(true);
   });
 
@@ -188,7 +188,7 @@ describe('BlinkDetailScreen', () => {
 
     fireEvent.changeText(screen.getByTestId('param-amount'), '5');
 
-    const btn = screen.getByTestId('blink-continue');
+    const btn = screen.getByTestId('blink-detail-continue');
     await waitFor(() => {
       expect(btn.props.accessibilityState?.disabled).toBe(false);
     });

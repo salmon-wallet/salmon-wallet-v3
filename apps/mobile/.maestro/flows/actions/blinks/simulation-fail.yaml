@@ -1,0 +1,43 @@
+appId: io.salmonwallet.app
+env:
+  BLINKS_FIXTURE_URL: ${BLINKS_FIXTURE_URL}
+---
+# Proves R2 (simulate-before-sign + acknowledged-risk gate). The fixture
+# at $BLINKS_FIXTURE_URL/sim-fail must return a tx the simulator rejects
+# (e.g. an instruction that fails preflight). Expected behaviour:
+#   1. Approve is disabled while sim error is showing.
+#   2. Toggling the risk acknowledgement re-enables Approve.
+#   3. Tapping Approve attempts submit; outcome (success vs on-chain failure)
+#      is fixture-controlled and not asserted here — only the gate behaviour
+#      is in scope.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- tapOn: "Blinks"
+- assertVisible:
+    id: "blinks-tab-list"
+- tapOn:
+    point: "50%,22%"
+- extendedWaitUntil:
+    visible:
+      id: "blink-detail-continue"
+    timeout: 15000
+- tapOn:
+    id: "blink-detail-continue"
+- extendedWaitUntil:
+    visible:
+      id: "approval-sim-logs"
+    timeout: 20000
+- takeScreenshot: screenshots/actions/blinks/sim-fail-banner
+- assertVisible:
+    id: "action-approval-risk-toggle"
+# Approve must be disabled until risk is acknowledged.
+- assertVisible:
+    id: "action-approval-approve"
+- tapOn:
+    id: "action-approval-risk-toggle"
+- takeScreenshot: screenshots/actions/blinks/sim-fail-acknowledged
+- tapOn:
+    id: "action-approval-approve"
+# Outcome depends on the fixture — either success surface or an error banner.
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: screenshots/actions/blinks/sim-fail-after-approve

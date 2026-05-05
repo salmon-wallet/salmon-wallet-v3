@@ -199,13 +199,13 @@ describe('ActionApprovalSheet', () => {
       />,
     );
 
-    const approve = screen.getByTestId('approval-approve');
+    const approve = screen.getByTestId('action-approval-approve');
     expect(approve.props.accessibilityState?.disabled).toBe(true);
 
-    const toggle = screen.getByTestId('approval-risk-toggle');
+    const toggle = screen.getByTestId('action-approval-risk-toggle');
     fireEvent(toggle, 'valueChange', true);
 
-    expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(false);
+    expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(false);
   });
 
   it('does NOT show risk toggle when simulation succeeded', () => {
@@ -219,7 +219,7 @@ describe('ActionApprovalSheet', () => {
         onCancel={jest.fn()}
       />,
     );
-    expect(screen.queryByTestId('approval-risk-toggle')).toBeNull();
+    expect(screen.queryByTestId('action-approval-risk-toggle')).toBeNull();
   });
 
   it('shows simulation error banner with code', () => {
@@ -249,9 +249,9 @@ describe('ActionApprovalSheet', () => {
         onCancel={onCancel}
       />,
     );
-    fireEvent.press(screen.getByTestId('approval-approve'));
+    fireEvent.press(screen.getByTestId('action-approval-approve'));
     expect(onApprove).toHaveBeenCalled();
-    fireEvent.press(screen.getByTestId('approval-cancel'));
+    fireEvent.press(screen.getByTestId('action-approval-cancel'));
     expect(onCancel).toHaveBeenCalled();
   });
 
@@ -264,7 +264,7 @@ describe('ActionApprovalSheet', () => {
         onCancel={jest.fn()}
       />,
     );
-    expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(true);
+    expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(true);
   });
 
   it('disables Approve while loading', () => {
@@ -276,7 +276,7 @@ describe('ActionApprovalSheet', () => {
         onCancel={jest.fn()}
       />,
     );
-    expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(true);
+    expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(true);
   });
 
   it('maps known error code to dedicated i18n key (v0_feepayer_mismatch)', () => {
@@ -327,16 +327,16 @@ describe('ActionApprovalSheet', () => {
     const { rerender } = render(<Wrapper txKey="tx-A" />);
 
     // Acknowledge risk on tx-A → Approve enabled.
-    fireEvent(screen.getByTestId('approval-risk-toggle'), 'valueChange', true);
+    fireEvent(screen.getByTestId('action-approval-risk-toggle'), 'valueChange', true);
     expect(
-      screen.getByTestId('approval-approve').props.accessibilityState?.disabled,
+      screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled,
     ).toBe(false);
 
     // New tx (different key) → child remounts → toggle resets to false →
     // Approve disabled again.
     rerender(<Wrapper txKey="tx-B" />);
     expect(
-      screen.getByTestId('approval-approve').props.accessibilityState?.disabled,
+      screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled,
     ).toBe(true);
   });
 });

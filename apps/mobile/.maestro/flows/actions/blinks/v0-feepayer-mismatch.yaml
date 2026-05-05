@@ -1,0 +1,35 @@
+appId: io.salmonwallet.app
+env:
+  BLINKS_FIXTURE_URL: ${BLINKS_FIXTURE_URL}
+---
+# Edge case from Task 1.3: Action POST returns a v0 transaction whose
+# `staticAccountKeys[0]` is a different pubkey than the active wallet.
+# The sign helper raises `v0_feepayer_mismatch`; the approval banner must
+# render the matching translated string.
+#
+# Fixture: $BLINKS_FIXTURE_URL/v0-feepayer-mismatch must respond with a
+# v0 tx whose feePayer slot is some address other than the test wallet.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- tapOn: "Blinks"
+- assertVisible:
+    id: "blinks-tab-list"
+- tapOn:
+    point: "50%,22%"
+- extendedWaitUntil:
+    visible:
+      id: "blink-detail-continue"
+    timeout: 15000
+- tapOn:
+    id: "blink-detail-continue"
+- extendedWaitUntil:
+    visible:
+      id: "action-approval-approve"
+    timeout: 20000
+- tapOn:
+    id: "action-approval-approve"
+- extendedWaitUntil:
+    visible:
+      id: "action-approval-error-banner"
+    timeout: 15000
+- assertVisible: "v0_feepayer_mismatch"
+- takeScreenshot: screenshots/actions/blinks/v0-feepayer-mismatch

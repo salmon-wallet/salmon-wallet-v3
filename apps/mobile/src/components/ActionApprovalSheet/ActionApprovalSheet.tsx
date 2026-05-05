@@ -158,7 +158,11 @@ export function ActionApprovalSheet(props: ActionApprovalSheetProps) {
         ) : null}
 
         {error ? (
-          <View style={styles.errorBanner} accessibilityRole="alert">
+          <View
+            testID="action-approval-error-banner"
+            style={styles.errorBanner}
+            accessibilityRole="alert"
+          >
             <Text style={styles.errorText}>
               {(() => {
                 // Map the error code to its dedicated i18n key when defined.
@@ -235,7 +239,7 @@ export function ActionApprovalSheet(props: ActionApprovalSheetProps) {
         {simulationError ? (
           <View style={styles.riskRow}>
             <Switch
-              testID="approval-risk-toggle"
+              testID="action-approval-risk-toggle"
               value={riskAcknowledged}
               onValueChange={setRiskAcknowledged}
               accessibilityRole="switch"
@@ -249,7 +253,7 @@ export function ActionApprovalSheet(props: ActionApprovalSheetProps) {
 
       <View style={styles.actions}>
         <TouchableOpacity
-          testID="approval-cancel"
+          testID="action-approval-cancel"
           accessibilityRole="button"
           onPress={onCancel}
           style={[styles.button, styles.cancelButton]}
@@ -257,7 +261,7 @@ export function ActionApprovalSheet(props: ActionApprovalSheetProps) {
           <Text style={styles.cancelText}>{t('blinks.approval.cancel')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          testID="approval-approve"
+          testID="action-approval-approve"
           accessibilityRole="button"
           accessibilityState={{ disabled: approveDisabled }}
           disabled={approveDisabled}

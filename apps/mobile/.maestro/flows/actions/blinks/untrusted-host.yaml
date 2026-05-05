@@ -1,0 +1,15 @@
+appId: io.salmonwallet.app
+---
+# Proves R1 (registry-only enforcement) end-to-end: deep-linking into an
+# off-registry host MUST surface the untrusted-host refusal screen and
+# never reach the approval surface.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- openLink: solana-action:https://evil.example/x
+- extendedWaitUntil:
+    visible:
+      id: "blink-detail-untrusted-host-message"
+    timeout: 15000
+- assertVisible: "blink's source isn't trusted"
+- assertNotVisible:
+    id: "blink-detail-continue"
+- takeScreenshot: screenshots/actions/blinks/untrusted-host

@@ -160,7 +160,7 @@ describe('BlinkApprovalScreen', () => {
     );
 
     render(<BlinkApprovalScreen />);
-    expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(true);
+    expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(true);
 
     await act(async () => {
       resolve({ transaction: FAKE_B64_UNSIGNED });
@@ -178,10 +178,10 @@ describe('BlinkApprovalScreen', () => {
     render(<BlinkApprovalScreen />);
 
     await waitFor(() =>
-      expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(false),
+      expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(false),
     );
 
-    fireEvent.press(screen.getByTestId('approval-approve'));
+    fireEvent.press(screen.getByTestId('action-approval-approve'));
 
     await waitFor(() => expect(mockSignAndSubmit).toHaveBeenCalled());
     const args = mockSignAndSubmit.mock.calls[0][0];
@@ -216,10 +216,10 @@ describe('BlinkApprovalScreen', () => {
     await waitFor(() => {
       expect(screen.getByText('blinks.approval.simulation.failed')).toBeTruthy();
     });
-    expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(true);
+    expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(true);
 
-    fireEvent(screen.getByTestId('approval-risk-toggle'), 'valueChange', true);
-    expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(false);
+    fireEvent(screen.getByTestId('action-approval-risk-toggle'), 'valueChange', true);
+    expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(false);
   });
 
   it('passes partialSigned=true when sim warning indicates partial-sig (R8)', async () => {
@@ -234,10 +234,10 @@ describe('BlinkApprovalScreen', () => {
     render(<BlinkApprovalScreen />);
 
     await waitFor(() =>
-      expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(false),
+      expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(false),
     );
 
-    fireEvent.press(screen.getByTestId('approval-approve'));
+    fireEvent.press(screen.getByTestId('action-approval-approve'));
 
     await waitFor(() => expect(mockSignAndSubmit).toHaveBeenCalled());
     const args = mockSignAndSubmit.mock.calls[0][0];
@@ -254,10 +254,10 @@ describe('BlinkApprovalScreen', () => {
 
     render(<BlinkApprovalScreen />);
     await waitFor(() =>
-      expect(screen.getByTestId('approval-approve').props.accessibilityState?.disabled).toBe(false),
+      expect(screen.getByTestId('action-approval-approve').props.accessibilityState?.disabled).toBe(false),
     );
 
-    fireEvent.press(screen.getByTestId('approval-cancel'));
+    fireEvent.press(screen.getByTestId('action-approval-cancel'));
     expect(mockBack).toHaveBeenCalled();
   });
 });

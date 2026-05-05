@@ -140,7 +140,15 @@ export default function BlinkDetailScreen() {
             <Text style={styles.loadingText}>{t('blinks.detail.loading')}</Text>
           </View>
         ) : errorCode ? (
-          <View style={styles.errorBanner} accessibilityRole="alert">
+          <View
+            testID={
+              errorCode === 'untrusted_host'
+                ? 'blink-detail-untrusted-host-message'
+                : 'blink-detail-error-banner'
+            }
+            style={styles.errorBanner}
+            accessibilityRole="alert"
+          >
             <Text style={styles.errorText}>{t(errorCodeToI18nKey(errorCode))}</Text>
           </View>
         ) : data ? (
@@ -165,7 +173,7 @@ export default function BlinkDetailScreen() {
               </View>
             ) : null}
             <TouchableOpacity
-              testID="blink-continue"
+              testID="blink-detail-continue"
               accessibilityRole="button"
               accessibilityState={{ disabled: continueDisabled }}
               disabled={continueDisabled}
