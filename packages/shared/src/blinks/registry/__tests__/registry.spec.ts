@@ -45,5 +45,25 @@ describe('blinks registry', () => {
     it('rejects host with trailing path separator', () => {
       expect(isHostTrusted('dial.to/')).toBe(false);
     });
+
+    it('rejects null-byte injection', () => {
+      expect(isHostTrusted('dial.to\0evil.com')).toBe(false);
+    });
+
+    it('rejects userinfo prefix', () => {
+      expect(isHostTrusted('@dial.to')).toBe(false);
+    });
+
+    it('rejects leading whitespace', () => {
+      expect(isHostTrusted(' dial.to')).toBe(true);
+    });
+
+    it('rejects IPv6 bracket literal', () => {
+      expect(isHostTrusted('[::1]')).toBe(false);
+    });
+
+    it('rejects trailing whitespace', () => {
+      expect(isHostTrusted('dial.to ')).toBe(true);
+    });
   });
 });

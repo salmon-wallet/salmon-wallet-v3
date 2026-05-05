@@ -53,7 +53,7 @@ function extractHost(entry: unknown): string | null {
   if (!isPlainObject(entry)) return null;
 
   const candidate =
-    (typeof entry.host === 'string' && entry.host) ||
+    (typeof entry.host === 'string' && entry.host.trim()) ||
     (typeof entry.actionUrl === 'string' && entry.actionUrl) ||
     (typeof entry.websiteUrl === 'string' && entry.websiteUrl) ||
     (typeof entry.url === 'string' && entry.url) ||
@@ -111,6 +111,23 @@ async function main(): Promise<void> {
       .filter((h): h is string => typeof h === 'string' && h.length > 0),
   );
 
+  const added = fresh.filter((h) => !prevHosts.has(h));
+  const removed = Array.from(prevHosts).filter((h) => !fresh.includes(h));
+
+  const MAX_HOSTS = 500;
+  if (fresh.length > MAX_HOSTS) {
+    console.error(`Refusing: fresh count ${fresh.length} exceeds safety ceiling ${MAX_HOSTS}.`);
+    process.exit(1);
+  }
+  const MAX_ADDED_PCT = 0.25;
+  const addedPct = added.length / Math.max(prevHosts.size, 1);
+  if (prevHosts.size > 0 && addedPct > MAX_ADDED_PCT) {
+    console.error(
+      `Refusing: ${added.length} new hosts (${(addedPct * 100).toFixed(0)}%) exceeds safe growth threshold. Review manually.`,
+    );
+    process.exit(1);
+  }
+
   const next: Snapshot = {
     version: new Date().toISOString().slice(0, 10),
     source: 'dialect-registry',
@@ -118,9 +135,6 @@ async function main(): Promise<void> {
   };
 
   writeFileSync(SNAPSHOT_PATH, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
-
-  const added = fresh.filter((h) => !prevHosts.has(h));
-  const removed = Array.from(prevHosts).filter((h) => !fresh.includes(h));
   console.log(`Snapshot updated: ${SNAPSHOT_PATH}`);
   console.log(`  before: ${prevHosts.size}`);
   console.log(`  after:  ${fresh.length}`);
