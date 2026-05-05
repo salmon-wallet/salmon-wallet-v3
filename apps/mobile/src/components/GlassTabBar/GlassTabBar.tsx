@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import { BlurContainer } from '../BlurContainer';
-import { GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '../Icon';
+import { BlinksSvgIcon, GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '../Icon';
 import { useTabChrome } from '../../../hooks/useTabChrome';
 import type { TabConfig } from './types';
 
@@ -33,10 +33,16 @@ const TAB_CONFIG: Record<string, TabConfig> = {
     label: 'Swap',
     iconSize: s(26),
   },
+  blinks: {
+    name: 'blinks',
+    icon: BlinksSvgIcon,
+    label: 'Blinks',
+    iconSize: s(26),
+  },
 };
 
 // Order of tabs as they should appear
-const TAB_ORDER = ['index', 'collectibles', 'swap'];
+const TAB_ORDER = ['index', 'collectibles', 'swap', 'blinks'];
 
 interface TabItemProps {
   routeName: string;

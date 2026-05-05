@@ -11,6 +11,10 @@
     "collectibles": "Coleccionables",
     "settings": "Configuracion"
   },
+  "blinks": {
+    "title": "Blinks",
+    "empty_state": "No hay blinks disponibles"
+  },
   "general": {
     "home": "Inicio",
     "usd": "USD",

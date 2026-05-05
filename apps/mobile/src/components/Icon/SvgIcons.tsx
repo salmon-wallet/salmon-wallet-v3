@@ -243,6 +243,24 @@ export const QrCodeScannerSvgIcon: React.FC<SvgIconProps> = ({
 };
 
 /**
+ * Blinks (lightning bolt) icon for Blinks tab
+ * Used in bottom navigation for Solana Actions / Blinks discovery
+ */
+export const BlinksSvgIcon: React.FC<SvgIconProps> = ({
+  size = 24,
+  color = colors.text.primary,
+}) => {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M13 2L4 14H11L10 22L20 10H13L13 2Z"
+        fill={color}
+      />
+    </Svg>
+  );
+};
+
+/**
  * Receipt/activity icon for Activity button action
  * viewBox adjusted to 3 2 18 20 for bolder appearance
  */

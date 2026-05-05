@@ -1,0 +1,135 @@
+/**
+ * BlinksScreen - Solana Actions / Blinks discovery
+ *
+ * Shows trusted hosts from the pinned registry snapshot. Tapping a host
+ * navigates to the blink detail route. Source is restricted to the
+ * trusted-host allowlist; no free-text URL input on this screen
+ * (phishing risk gate R1).
+ */
+
+import {
+  colors,
+  fontFamilyNative,
+  fontSize,
+  letterSpacing,
+  listTrustedHosts,
+  ms,
+  s,
+  spacing,
+  vs,
+} from '@salmon/shared';
+import { useRouter } from 'expo-router';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+import { useTabChrome } from '../../../hooks/useTabChrome';
+
+interface HostRow {
+  host: string;
+}
+
+export default function BlinksScreen() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { headerContentOffset, scrollBottomPadding } = useTabChrome();
+
+  const hosts = useMemo<HostRow[]>(
+    () => listTrustedHosts().map((host) => ({ host })),
+    [],
+  );
+
+  const handlePressHost = (host: string) => {
+    // Detail route is added in a follow-up task; cast keeps the typed-routes
+    // table happy until /blink-detail exists.
+    router.push(`/blink-detail?host=${encodeURIComponent(host)}` as never);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text
+        style={[styles.pageTitle, { marginTop: headerContentOffset + vs(8) }]}
+      >
+        {t('blinks.title')}
+      </Text>
+
+      {hosts.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>{t('blinks.empty_state')}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={hosts}
+          keyExtractor={(item) => item.host}
+          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={item.host}
+              onPress={() => handlePressHost(item.host)}
+              style={styles.row}
+            >
+              <Text style={styles.rowText}>{item.host}</Text>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  pageTitle: {
+    fontFamily: fontFamilyNative.semiBold,
+    fontSize: ms(fontSize.xl),
+    fontWeight: '600',
+    color: colors.text.primary,
+    textAlign: 'center',
+    letterSpacing: letterSpacing.wide,
+    marginBottom: vs(spacing['2xl']),
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingVertical: vs(spacing.lg),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border.subtle,
+  },
+  rowText: {
+    fontFamily: fontFamilyNative.medium,
+    fontSize: ms(fontSize.md),
+    color: colors.text.primary,
+    flex: 1,
+  },
+  chevron: {
+    fontFamily: fontFamilyNative.regular,
+    fontSize: ms(fontSize.lg),
+    color: colors.text.muted,
+    marginLeft: s(spacing.md),
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: vs(48),
+    paddingHorizontal: s(24),
+  },
+  emptyText: {
+    fontFamily: fontFamilyNative.medium,
+    fontSize: ms(fontSize.md),
+    color: colors.text.muted,
+    textAlign: 'center',
+  },
+});

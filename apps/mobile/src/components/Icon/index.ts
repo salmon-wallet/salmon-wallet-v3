@@ -8,6 +8,7 @@ export {
   GridViewSvgIcon,
   HomeSvgIcon,
   SwapSvgIcon,
+  BlinksSvgIcon,
   CallMadeSvgIcon,
   QrCodeScannerSvgIcon,
   ReceiptLongSvgIcon,

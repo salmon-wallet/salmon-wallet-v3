@@ -640,6 +640,7 @@ export default function TabLayout() {
         <Tabs.Screen name="index" options={{ title: 'Home' }} />
         <Tabs.Screen name="collectibles" options={{ title: 'Collectibles' }} />
         <Tabs.Screen name="swap" options={{ title: 'Swap' }} />
+        <Tabs.Screen name="blinks" options={{ title: 'Blinks' }} />
         <Tabs.Screen
           name="settings"
           options={{ href: null, title: 'Settings' }}
