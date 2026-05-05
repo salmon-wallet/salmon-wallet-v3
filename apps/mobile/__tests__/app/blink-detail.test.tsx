@@ -153,6 +153,20 @@ describe('BlinkDetailScreen', () => {
     });
   });
 
+  it.each([
+    'invalid_response',
+    'http_error',
+    'cross_host_redirect',
+    'oversize_response',
+  ])('renders %s error banner', async (code) => {
+    mockFetchActionMetadata.mockRejectedValueOnce(new mockActionClientError(code));
+    render(<BlinkDetailScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText(`blinks.detail.error.${code}`)).toBeTruthy();
+    });
+  });
+
   it('disables Continue while required field is empty', async () => {
     mockFetchActionMetadata.mockResolvedValueOnce(validResponse);
     render(<BlinkDetailScreen />);
@@ -188,5 +202,6 @@ describe('BlinkDetailScreen', () => {
     expect(typeof arg.params.data).toBe('string');
     const parsed = JSON.parse(arg.params.data);
     expect(parsed.values.amount).toBe('5');
+    expect(parsed.host).toBeUndefined();
   });
 });

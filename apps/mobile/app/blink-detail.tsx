@@ -59,14 +59,7 @@ function errorCodeToI18nKey(code: string | undefined): string {
   return 'blinks.detail.error.generic';
 }
 
-interface ActionMetadata {
-  type: 'action' | 'completed';
-  icon: string;
-  title: string;
-  description: string;
-  label: string;
-  links?: { actions: Array<{ label: string; href: string; parameters?: ActionParamFormParameter[] }> };
-}
+type ActionMetadata = blinks.spec.ActionGetResponse;
 
 export default function BlinkDetailScreen() {
   const { t } = useTranslation();
@@ -122,7 +115,6 @@ export default function BlinkDetailScreen() {
   const handleContinue = () => {
     if (continueDisabled || !data || !action) return;
     const payload = {
-      host,
       path,
       action: {
         href: action.href,

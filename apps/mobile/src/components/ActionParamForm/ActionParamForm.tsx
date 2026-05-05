@@ -8,7 +8,8 @@
  * Validation here is a UX nicety, NOT a security boundary. Server-side
  * validation in Phase 3 is authoritative.
  */
-import React, { useMemo } from 'react';
+import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   StyleSheet,
   Switch,
@@ -131,6 +132,7 @@ interface FieldProps {
 }
 
 function TextField({ param, value, setValue, disabled }: FieldProps) {
+  const a11yLabel = param.label ?? param.name;
   const keyboardType =
     param.type === 'number'
       ? ('numeric' as const)
@@ -150,6 +152,7 @@ function TextField({ param, value, setValue, disabled }: FieldProps) {
   return (
     <TextInput
       testID={`param-${param.name}`}
+      accessibilityLabel={a11yLabel}
       value={value}
       onChangeText={setValue}
       editable={!disabled}
@@ -174,6 +177,7 @@ function CheckboxField({ param, value, setValue, disabled }: FieldProps) {
       <ParamLabel param={param} />
       <Switch
         testID={`param-${param.name}`}
+        accessibilityLabel={param.label ?? param.name}
         value={checked}
         onValueChange={(v) => setValue(v ? 'true' : 'false')}
         disabled={disabled}
@@ -183,7 +187,15 @@ function CheckboxField({ param, value, setValue, disabled }: FieldProps) {
 }
 
 function OptionListField({ param, value, setValue, disabled }: FieldProps) {
+  const { t } = useTranslation();
   const options = param.options ?? [];
+  if (options.length === 0) {
+    return (
+      <Text style={styles.optionsWarning}>
+        {t('blinks.detail.error.invalid_response')}
+      </Text>
+    );
+  }
   return (
     <View style={styles.optionsContainer}>
       {options.map((opt) => {
@@ -192,6 +204,7 @@ function OptionListField({ param, value, setValue, disabled }: FieldProps) {
           <TouchableOpacity
             key={opt.value}
             testID={`param-${param.name}-option-${opt.value}`}
+            accessibilityLabel={opt.label}
             disabled={disabled}
             onPress={() => setValue(opt.value)}
             style={[styles.optionPill, selected && styles.optionPillSelected]}
@@ -217,10 +230,8 @@ export function ActionParamForm({
   onChange,
   disabled,
 }: ActionParamFormProps) {
-  const handleChange = useMemo(
-    () => (name: string, next: string) => {
-      onChange({ ...value, [name]: next });
-    },
+  const handleChange = useCallback(
+    (name: string, next: string) => onChange({ ...value, [name]: next }),
     [onChange, value],
   );
 
@@ -328,5 +339,10 @@ const styles = StyleSheet.create({
   },
   optionLabelSelected: {
     color: colors.background.primary,
+  },
+  optionsWarning: {
+    fontFamily: fontFamilyNative.medium,
+    fontSize: ms(fontSize.sm),
+    color: colors.status.error,
   },
 });

@@ -1,6 +1,10 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+
 jest.mock('@salmon/shared', () => ({
   colors: {
     text: { primary: '#fff', muted: '#999', inverse: '#000' },
@@ -11,6 +15,7 @@ jest.mock('@salmon/shared', () => ({
       primaryText: '#000',
       disabledOpacity: 0.5,
     },
+    status: { error: '#f00', errorBackground: '#200' },
   },
   fontFamilyNative: {
     regular: 'System',
@@ -172,6 +177,17 @@ describe('ActionParamForm', () => {
     );
     fireEvent.press(screen.getByTestId('param-lang-option-es'));
     expect(onChange).toHaveBeenCalledWith({ lang: 'es' });
+  });
+
+  it('renders warning when radio options array is empty', () => {
+    render(
+      <ActionParamForm
+        parameters={[{ name: 'tier', type: 'radio', options: [] }]}
+        value={{}}
+        onChange={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('blinks.detail.error.invalid_response')).toBeTruthy();
   });
 
   it('renders a Switch row for type=checkbox', () => {
