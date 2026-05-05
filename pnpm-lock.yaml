@@ -430,6 +430,9 @@ importers:
       '@scure/bip39':
         specifier: ^2.0.1
         version: 2.0.1
+      '@solana/actions-spec':
+        specifier: 2.4.2
+        version: 2.4.2
       '@solana/spl-memo':
         specifier: ^0.2.5
         version: 0.2.5(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))
@@ -2518,6 +2521,9 @@ packages:
 
   '@sinonjs/fake-timers@10.3.0':
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==}
+
+  '@solana/actions-spec@2.4.2':
+    resolution: {integrity: sha512-phdlA+JqIrsWw3rmhDynddv9/ZQONPqzYCpPoxN3VMR/2bECsdPWyBgLQpjqk4hgdn7VWQXWzEJtdeFMKxn78g==}
 
   '@solana/buffer-layout-utils@0.2.0':
     resolution: {integrity: sha512-szG4sxgJGktbuZYDg2FfNmkMi0DYQoVjN2h7ta1W1hPrwzarcFLBq9UpX1UjNXsNpT9dn+chgprtWGioUAr4/g==}
@@ -10462,6 +10468,8 @@ snapshots:
   '@sinonjs/fake-timers@10.3.0':
     dependencies:
       '@sinonjs/commons': 3.0.1
+
+  '@solana/actions-spec@2.4.2': {}
 
   '@solana/buffer-layout-utils@0.2.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)':
     dependencies:
