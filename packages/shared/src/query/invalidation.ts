@@ -36,7 +36,10 @@ export function useInvalidateAfterTx(): (opts: InvalidationOptions) => Promise<v
                   string,
                   Record<string, unknown> | undefined,
                 ];
-                if (head !== prefix) return false;
+                // 'nfts' kind also invalidates single-NFT detail caches
+                const matchesHead =
+                  head === prefix || (kind === 'nfts' && head === 'solana-nft-detail');
+                if (!matchesHead) return false;
                 if (opts.accountId && params?.accountId !== opts.accountId) return false;
                 if (opts.networkId && params?.networkId && params.networkId !== opts.networkId)
                   return false;
