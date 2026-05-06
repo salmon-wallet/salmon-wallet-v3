@@ -40,15 +40,29 @@ export interface ActionClientOptions {
   timeoutMs?: number;
 }
 
+export interface ActionClientErrorDetails {
+  httpStatus?: number;
+  serverError?: string;
+  serverErrorDescription?: string;
+  serverMessage?: string;
+}
+
 export class ActionClientError extends Error {
   readonly code: ActionClientErrorCode;
   readonly cause?: unknown;
+  readonly details?: ActionClientErrorDetails;
 
-  constructor(args: { code: ActionClientErrorCode; message?: string; cause?: unknown }) {
+  constructor(args: {
+    code: ActionClientErrorCode;
+    message?: string;
+    cause?: unknown;
+    details?: ActionClientErrorDetails;
+  }) {
     super(args.message ?? args.code);
     this.name = 'ActionClientError';
     this.code = args.code;
     this.cause = args.cause;
+    this.details = args.details;
   }
 }
 
@@ -107,6 +121,55 @@ async function readCappedText(res: Response, controller: AbortController): Promi
   return out;
 }
 
+/**
+ * Build an `http_error` ActionClientError from a non-2xx response, attempting
+ * to extract structured server-side error info from the body.
+ *
+ * Recognized shapes:
+ *  - `{ error, error_description }` — orchestration errors (e.g. swap 404 no-route).
+ *  - `{ message }` — Action spec ActionError shape (validation/sim/RPC errors).
+ *
+ * Body parsing respects the same 64 KiB cap as the success path. If the body
+ * exceeds the cap, an `oversize_response` error is thrown instead.
+ */
+async function buildHttpError(res: Response, controller: AbortController): Promise<ActionClientError> {
+  const status = res.status;
+  const details: ActionClientErrorDetails = { httpStatus: status };
+  let text = '';
+  try {
+    text = await readCappedText(res, controller);
+  } catch (e) {
+    if (e instanceof ActionClientError && e.code === 'oversize_response') {
+      // Surface oversize as-is; caller treats it as a separate failure mode.
+      return e;
+    }
+    return new ActionClientError({ code: 'http_error', message: `status ${status}`, details });
+  }
+  if (text.length === 0) {
+    return new ActionClientError({ code: 'http_error', message: `status ${status}`, details });
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return new ActionClientError({ code: 'http_error', message: `status ${status}`, details });
+  }
+  if (parsed && typeof parsed === 'object') {
+    const obj = parsed as Record<string, unknown>;
+    const errorDescription = typeof obj.error_description === 'string' ? obj.error_description : undefined;
+    const errorCode = typeof obj.error === 'string' ? obj.error : undefined;
+    const message = typeof obj.message === 'string' ? obj.message : undefined;
+    if (errorCode !== undefined) details.serverError = errorCode;
+    if (errorDescription !== undefined) details.serverErrorDescription = errorDescription;
+    if (message !== undefined) details.serverMessage = message;
+    const userMessage = errorDescription ?? errorCode ?? message;
+    if (userMessage) {
+      return new ActionClientError({ code: 'http_error', message: userMessage, details });
+    }
+  }
+  return new ActionClientError({ code: 'http_error', message: `status ${status}`, details });
+}
+
 interface FetchActionArgs {
   parsed: URL;
   init: RequestInit;
@@ -132,7 +195,7 @@ async function fetchAndReadJson({ parsed, init, fetchImpl, timeoutMs }: FetchAct
       throw new ActionClientError({ code: 'cross_host_redirect', message: `status ${res.status}` });
     }
     if (!res.ok) {
-      throw new ActionClientError({ code: 'http_error', message: `status ${res.status}` });
+      throw await buildHttpError(res, controller);
     }
     const text = await readCappedText(res, controller);
     try {

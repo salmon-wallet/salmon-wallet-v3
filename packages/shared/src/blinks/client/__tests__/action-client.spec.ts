@@ -202,6 +202,90 @@ describe('action-client http errors', () => {
       code: 'http_error',
     });
   });
+
+  it('extracts orchestration error_description from 404 swap no-route body', async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      jsonResponse({ error: 'route_not_found', error_description: 'No route available' }, { status: 404 }),
+    );
+    await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
+      code: 'http_error',
+      message: expect.stringContaining('No route available'),
+      details: {
+        httpStatus: 404,
+        serverError: 'route_not_found',
+        serverErrorDescription: 'No route available',
+      },
+    });
+  });
+
+  it('falls back to error code when error_description is missing', async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      jsonResponse({ error: 'route_not_found' }, { status: 404 }),
+    );
+    await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
+      code: 'http_error',
+      message: expect.stringContaining('route_not_found'),
+      details: { serverError: 'route_not_found' },
+    });
+  });
+
+  it('extracts ActionError message from 400 body', async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      jsonResponse({ message: 'Invalid amount: must be positive' }, { status: 400 }),
+    );
+    await expect(
+      requestActionTransaction({ url: TRUSTED, account: ACCOUNT }, { fetch }),
+    ).rejects.toMatchObject({
+      code: 'http_error',
+      message: expect.stringContaining('Invalid amount: must be positive'),
+      details: {
+        httpStatus: 400,
+        serverMessage: 'Invalid amount: must be positive',
+      },
+    });
+  });
+
+  it('preserves message on 503 RPC unavailable', async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      jsonResponse({ message: 'Solana RPC unavailable' }, { status: 503 }),
+    );
+    await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
+      code: 'http_error',
+      message: expect.stringContaining('Solana RPC unavailable'),
+      details: { httpStatus: 503, serverMessage: 'Solana RPC unavailable' },
+    });
+  });
+
+  it('falls back to status N when 500 body is not JSON', async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response('boom', { status: 500 }));
+    await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
+      code: 'http_error',
+      message: 'status 500',
+      details: { httpStatus: 500 },
+    });
+  });
+
+  it('falls back to status N when 502 body is empty', async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response('', { status: 502 }));
+    await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
+      code: 'http_error',
+      message: 'status 502',
+      details: { httpStatus: 502 },
+    });
+  });
+
+  it('rejects oversized error body as oversize_response', async () => {
+    const big = 'x'.repeat(70 * 1024);
+    const fetch = vi.fn().mockResolvedValue(
+      new Response(big, {
+        status: 500,
+        headers: { 'content-length': String(big.length), 'content-type': 'application/json' },
+      }),
+    );
+    await expect(fetchActionMetadata(TRUSTED, { fetch })).rejects.toMatchObject({
+      code: 'oversize_response',
+    });
+  });
 });
 
 describe('fetchActionMetadata happy + invalid path', () => {
