@@ -18,9 +18,11 @@ const mockGetDappMetadata = vi.mocked(getDappMetadata);
 
 function wrapWithClient() {
   const client = createTestQueryClient();
-  return ({ children }: { children: React.ReactNode }) => (
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryWrapper client={client}>{children}</QueryWrapper>
   );
+  Wrapper.displayName = 'TestWrapper';
+  return Wrapper;
 }
 
 describe('useDAppMetadata', () => {

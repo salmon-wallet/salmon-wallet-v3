@@ -14,9 +14,11 @@ import { createTestQueryClient, QueryWrapper } from '../test-utils/query-wrapper
 
 function makeWrapper() {
   const client = createTestQueryClient();
-  return ({ children }: { children: React.ReactNode }) => (
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryWrapper client={client}>{children}</QueryWrapper>
   );
+  Wrapper.displayName = 'TestWrapper';
+  return Wrapper;
 }
 
 // ============================================================================
