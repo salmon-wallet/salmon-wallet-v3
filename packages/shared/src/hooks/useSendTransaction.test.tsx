@@ -34,6 +34,7 @@ const mockAccount = {
   estimateTransferFee: vi.fn(),
   transfer: vi.fn(),
   getReceiveAddress: () => 'mock-address',
+  getNetworkId: () => 'solana-mainnet',
   network: { networkId: 'solana-mainnet' },
 };
 

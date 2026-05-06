@@ -34,6 +34,7 @@ describe('useNftTransfer', () => {
   const account = {
     transfer: vi.fn(),
     getReceiveAddress: () => 'mock-address',
+    getNetworkId: () => 'solana-mainnet',
     network: { networkId: 'solana-mainnet' },
   };
 
