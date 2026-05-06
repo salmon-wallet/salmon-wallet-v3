@@ -221,6 +221,46 @@ describe('useSwapScreenLogic', () => {
     expect(result.current.inToken?.balance).toBe(5);
   });
 
+  it('uses live in-token balance for validation when tokens prop updates mid-flow', async () => {
+    vi.useFakeTimers();
+
+    // Snapshot at mount: SOL balance = 2. User wants to swap 3 SOL — must fail.
+    const props = createProps({
+      initialInToken: SOL,
+      initialOutToken: USDC,
+    });
+
+    const { result, rerender } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
+      initialProps: props,
+      wrapper: makeWrapper(),
+    });
+
+    act(() => {
+      result.current.setInAmount('3');
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+
+    expect(result.current.reviewWarning).toBe('Insufficient balance');
+    expect(result.current.canReview).toBe(false);
+
+    // Inbound transfer: tokens prop updates to balance = 5 while user is on the
+    // swap screen. Validation must accept 3 immediately on this render — not
+    // wait for the inToken-sync effect to re-run.
+    await act(async () => {
+      rerender({
+        ...props,
+        tokens: [{ ...SOL, balance: 5 }, USDC],
+        featuredTokens: [{ ...SOL, balance: 5 }, USDC],
+        jupiterTokens: [{ ...SOL, balance: 5 }, USDC],
+      });
+    });
+
+    expect(result.current.reviewWarning).toBeNull();
+  });
+
   it('confirms a Solana swap and triggers balance refresh callbacks', async () => {
     vi.useFakeTimers();
 

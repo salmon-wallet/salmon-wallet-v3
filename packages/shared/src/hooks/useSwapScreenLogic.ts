@@ -287,6 +287,16 @@ export function useSwapScreenLogic<StyleType = unknown>({
 
   const swapMode = useMemo(() => getSwapMode(inToken, outToken), [inToken, outToken]);
 
+  // The `inToken` state is captured at selection time; balance can become stale
+  // if funds arrive while the user is on the swap screen. `inTokenLive` re-reads
+  // the matching entry from the reactive `tokens` prop on every render so
+  // balance-dependent validation always uses fresh data. Falls back to the
+  // selected snapshot when no live entry exists (e.g. token not yet in list).
+  const inTokenLive = useMemo(
+    () => (inToken ? findMatchingToken(tokens, inToken) ?? inToken : null),
+    [inToken, tokens],
+  );
+
   const inTokenPrice = tokens.find(t => t.address === inToken?.address)?.usdPrice ?? inToken?.usdPrice;
   const inUsdValue = inTokenPrice && inAmount
     ? parseFloat(inAmount) * inTokenPrice
@@ -301,7 +311,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     !!outToken &&
     !!inAmount &&
     parseFloat(inAmount) > 0 &&
-    parseFloat(inAmount) <= (inToken.balance || 0) &&
+    parseFloat(inAmount) <= (inTokenLive?.balance || 0) &&
     inUsdValue >= MIN_SWAP_USD &&
     !isLoadingQuote &&
     !quoteError &&
@@ -313,7 +323,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     !!outToken &&
     !!inAmount &&
     parseFloat(inAmount) > 0 &&
-    parseFloat(inAmount) <= (inToken.balance || Infinity) &&
+    parseFloat(inAmount) <= (inTokenLive?.balance || Infinity) &&
     !isLoadingEstimate &&
     !quoteError &&
     !!bridgeEstimate &&
@@ -323,7 +333,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
 
   const reviewWarning: string | null = (() => {
     if (!inToken || !inAmount || parseFloat(inAmount) <= 0) return null;
-    if (parseFloat(inAmount) > (inToken.balance || 0)) return 'Insufficient balance';
+    if (parseFloat(inAmount) > (inTokenLive?.balance || 0)) return 'Insufficient balance';
     if (inUsdValue > 0 && inUsdValue < MIN_SWAP_USD) return `Minimum swap amount is $${MIN_SWAP_USD.toFixed(2)} USD`;
     if (quoteError) return quoteError;
     if (quote?.custom?.priceImpact != null && quote.custom.priceImpact > 3)
@@ -799,7 +809,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     name: inToken.name || inToken.symbol,
     logo: inToken.logo,
     network: inToken.networkId,
-    balance: inToken.balance,
+    balance: inTokenLive?.balance ?? inToken.balance,
     usdPrice: inToken.usdPrice,
   } : null;
 
