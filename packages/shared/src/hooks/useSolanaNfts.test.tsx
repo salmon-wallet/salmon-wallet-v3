@@ -127,7 +127,7 @@ describe('useSolanaNfts (react-query)', () => {
 
     const queries = client.getQueryCache().findAll({ queryKey: ['solana-nfts'] });
     expect(queries.length).toBeGreaterThan(0);
-    expect(queries[0]!.options.staleTime).toBe(60_000);
+    expect((queries[0]!.options as { staleTime?: number }).staleTime).toBe(60_000);
   });
 
   it('passes includeSpam through to the API', async () => {

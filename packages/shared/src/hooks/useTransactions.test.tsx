@@ -263,7 +263,7 @@ describe('useTransactions (react-query infinite)', () => {
 
     const queries = client.getQueryCache().findAll({ queryKey: ['transactions'] });
     expect(queries.length).toBeGreaterThan(0);
-    expect(queries[0]!.options.staleTime).toBe(60_000);
+    expect((queries[0]!.options as { staleTime?: number }).staleTime).toBe(60_000);
   });
 
   it('skip=true disables fetching', async () => {

@@ -305,7 +305,7 @@ describe('useBalance (react-query)', () => {
 
     const queries = client.getQueryCache().findAll({ queryKey: ['balance'] });
     expect(queries.length).toBeGreaterThan(0);
-    expect(queries[0]!.options.staleTime).toBe(15_000);
+    expect((queries[0]!.options as { staleTime?: number }).staleTime).toBe(15_000);
   });
 
   it('loads and transforms Ethereum balances when the account is detected as ethereum', async () => {
