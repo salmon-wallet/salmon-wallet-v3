@@ -10,8 +10,7 @@ import {
   useUserConfig,
   useTransactions,
   useAddressbook,
-  getMarketChart,
-  getCoinInfo,
+  useCoinMarketData,
   colors,
   spacing,
   fontSize,
@@ -23,7 +22,6 @@ import {
   type NetworkId,
   type PriceChartPeriod,
   type PriceDataPoint,
-  type CoinInfo,
   type MarketData,
   type Token,
   type NftData,
@@ -448,11 +446,7 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
 
   // Token detail page state
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
-  const [selectedTokenChartData, setSelectedTokenChartData] = useState<PriceDataPoint[]>([]);
-  const [selectedTokenCoinInfo, setSelectedTokenCoinInfo] = useState<CoinInfo | null>(null);
   const [selectedTokenChartPeriod, setSelectedTokenChartPeriod] = useState<PriceChartPeriod>('1M');
-  const [selectedTokenMarketData, setSelectedTokenMarketData] = useState<MarketData | undefined>(undefined);
-  const [selectedTokenLoading, setSelectedTokenLoading] = useState(false);
 
   // NFT detail page state
   const [selectedNft, setSelectedNft] = useState<NftData | null>(null);
@@ -484,10 +478,7 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
   const invalidateAfterTx = useInvalidateAfterTx();
 
   // Bitcoin-specific state
-  const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
-  const [bitcoinCoinInfo, setBitcoinCoinInfo] = useState<CoinInfo | null>(null);
   const [bitcoinChartPeriod, setBitcoinChartPeriod] = useState<PriceChartPeriod>('1M');
-  const [bitcoinDataLoading, setBitcoinDataLoading] = useState(false);
 
   // Filter networks to only include those the user has accounts for
   const allNetworks = useMemo(() => {
@@ -686,9 +677,6 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
   }, []);
 
   const handleTokenPress = useCallback((token: Token) => {
-    setSelectedTokenChartData([]);
-    setSelectedTokenCoinInfo(null);
-    setSelectedTokenMarketData(undefined);
     setSelectedTokenChartPeriod('1M');
     setSelectedToken(token);
     setCurrentPage('tokenDetail');
@@ -885,53 +873,21 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
     }));
   }, [tokens]);
 
-  // Load Bitcoin chart data when on Bitcoin mainnet or period changes
-  useEffect(() => {
-    const loadBitcoinChartData = async () => {
-      if (currentBlockchain !== 'bitcoin') return;
-
-      setBitcoinDataLoading(true);
-      try {
-        const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
-        const days = PERIOD_TO_DAYS[bitcoinChartPeriod];
-        const chartResponse = await getMarketChart(coinId, days, currency);
-
-        if (chartResponse?.prices) {
-          const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
-            timestamp,
-            price,
-          }));
-          setBitcoinChartData(priceData);
-        }
-      } catch (error) {
-        console.error('Failed to load Bitcoin chart data:', error);
-      } finally {
-        setBitcoinDataLoading(false);
-      }
-    };
-
-    loadBitcoinChartData();
-  }, [currentBlockchain, bitcoinChartPeriod, currency]);
-
-  // Load Bitcoin coin info once when on Bitcoin mainnet
-  useEffect(() => {
-    const loadBitcoinCoinInfo = async () => {
-      if (currentBlockchain !== 'bitcoin') return;
-      if (bitcoinCoinInfo) return;
-
-      try {
-        const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
-        const infoResponse = await getCoinInfo(coinId, currency);
-        if (infoResponse) {
-          setBitcoinCoinInfo(infoResponse);
-        }
-      } catch (error) {
-        console.error('Failed to load Bitcoin coin info:', error);
-      }
-    };
-
-    loadBitcoinCoinInfo();
-  }, [currentBlockchain, bitcoinCoinInfo, currency]);
+  // Bitcoin coin info + chart via shared React Query hook
+  const bitcoinCoinId = currentBlockchain === 'bitcoin'
+    ? BLOCKCHAIN_TO_COINGECKO[currentBlockchain]
+    : undefined;
+  const {
+    coinInfo: bitcoinCoinInfo,
+    chartData: bitcoinChartDataRaw,
+    loading: bitcoinDataLoading,
+  } = useCoinMarketData({
+    coinId: bitcoinCoinId,
+    currency,
+    days: PERIOD_TO_DAYS[bitcoinChartPeriod],
+    enabled: currentBlockchain === 'bitcoin',
+  });
+  const bitcoinChartData: PriceDataPoint[] = bitcoinChartDataRaw ?? [];
 
   // Transform CoinInfo to MarketData for TokenMarketData component
   const bitcoinMarketData: MarketData | undefined = useMemo(() => {
@@ -962,58 +918,23 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
     setBitcoinChartPeriod(period);
   }, []);
 
-  // Load selected token chart data when token is selected or period changes
-  useEffect(() => {
-    const loadSelectedTokenChartData = async () => {
-      if (!selectedToken || currentPage !== 'tokenDetail') return;
-
-      const coinId = selectedToken.coingeckoId;
-      if (!coinId) return;
-
-      setSelectedTokenLoading(true);
-      try {
-        const days = PERIOD_TO_DAYS[selectedTokenChartPeriod];
-        const chartResponse = await getMarketChart(coinId, days, currency);
-
-        if (chartResponse?.prices) {
-          const priceData: PriceDataPoint[] = chartResponse.prices.map(([timestamp, price]) => ({
-            timestamp,
-            price,
-          }));
-          setSelectedTokenChartData(priceData);
-        }
-      } catch (error) {
-        console.error('Failed to load token chart data:', error);
-      } finally {
-        setSelectedTokenLoading(false);
-      }
-    };
-
-    loadSelectedTokenChartData();
-  }, [selectedToken, selectedTokenChartPeriod, currentPage, currency]);
-
-  // Load selected token coin info when token is selected
-  useEffect(() => {
-    const loadSelectedTokenCoinInfo = async () => {
-      if (!selectedToken || currentPage !== 'tokenDetail') return;
-
-      const coinId = selectedToken.coingeckoId;
-      if (!coinId) return;
-
-      try {
-        const infoResponse = await getCoinInfo(coinId, currency);
-        if (infoResponse) {
-          setSelectedTokenCoinInfo(infoResponse);
-
-          setSelectedTokenMarketData(coinInfoToMarketData(infoResponse));
-        }
-      } catch (error) {
-        console.error('Failed to load token coin info:', error);
-      }
-    };
-
-    loadSelectedTokenCoinInfo();
-  }, [selectedToken, currentPage, currency]);
+  // Selected token chart + coin info via shared React Query hook
+  const selectedTokenCoinId = selectedToken?.coingeckoId ?? undefined;
+  const {
+    coinInfo: selectedTokenCoinInfo,
+    chartData: selectedTokenChartDataRaw,
+    loading: selectedTokenLoading,
+  } = useCoinMarketData({
+    coinId: selectedTokenCoinId,
+    currency,
+    days: PERIOD_TO_DAYS[selectedTokenChartPeriod],
+    enabled: !!selectedToken && currentPage === 'tokenDetail' && !!selectedTokenCoinId,
+  });
+  const selectedTokenChartData: PriceDataPoint[] = selectedTokenChartDataRaw ?? [];
+  const selectedTokenMarketData: MarketData | undefined = useMemo(
+    () => (selectedTokenCoinInfo ? coinInfoToMarketData(selectedTokenCoinInfo) : undefined),
+    [selectedTokenCoinInfo],
+  );
 
   const accountName = activeAccount?.name || t('home.unnamed_account', 'Account');
 

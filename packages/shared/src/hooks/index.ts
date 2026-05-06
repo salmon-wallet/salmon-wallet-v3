@@ -93,6 +93,28 @@ export type {
 export { useDAppMetadata } from './useDAppMetadata';
 export type { UseDAppMetadataResult } from './useDAppMetadata';
 
+// Coin market data hook (BTC + selected token detail in web/extension)
+export { useCoinMarketData } from './useCoinMarketData';
+export type {
+  UseCoinMarketDataParams,
+  UseCoinMarketDataResult,
+  MarketChartPoint,
+} from './useCoinMarketData';
+
+// Jupiter token list hook (shared between mobile/web/extension swap entries)
+export { useJupiterTokenList } from './useJupiterTokenList';
+export type {
+  UseJupiterTokenListParams,
+  UseJupiterTokenListResult,
+} from './useJupiterTokenList';
+
+// Solana NFT detail hook
+export { useSolanaNftDetail } from './useSolanaNftDetail';
+export type {
+  UseSolanaNftDetailParams,
+  UseSolanaNftDetailResult,
+} from './useSolanaNftDetail';
+
 // Multi-chain tokens hook (for unified swap/bridge)
 export {
   useMultiChainTokens,

@@ -6,6 +6,7 @@ export {
   QueryClient,
   QueryClientProvider,
   useQuery,
+  useQueries,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
