@@ -324,14 +324,13 @@ function PlaceholderPage({
 
 interface HomePageProps {
   onAddAccount: () => void;
-  refreshKey?: number;
 }
 
 /**
  * Home page component displayed when wallet is unlocked.
  * Shows account info and provides access to main wallet features.
  */
-export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePageProps) {
+export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
   const { t } = useTranslation();
   const [state, actions] = useAccountsContext();
   const [{ currency }, { changeCurrency }] = useCurrencyContext();
@@ -534,13 +533,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
   });
 
   // RQ handles refetch-on-focus via QueryClient defaults (refetchOnWindowFocus).
-
-  // Refresh balance after a dApp transaction approval
-  useEffect(() => {
-    if (refreshKey && refreshKey > 0) {
-      refresh();
-    }
-  }, [refreshKey, refresh]);
+  // dApp approval invalidation is fired in App.tsx via useInvalidateAfterTx.
 
   // Clear switching network flag once new data has loaded
   useEffect(() => {

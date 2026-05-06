@@ -3,7 +3,9 @@ import {
   colors,
   useAccountsContext,
   useInactivityTimeout,
+  useInvalidateAfterTx,
   DerivedKeyCache,
+  type NetworkId,
   type TrustedApp,
 } from '@salmon/shared';
 import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
@@ -66,7 +68,8 @@ function LoadingSpinner() {
  */
 function App() {
   const [state, actions] = useAccountsContext();
-  const { ready, locked, accounts, activeAccount, activeBlockchainAccount, pathIndex } = state;
+  const { ready, locked, accounts, activeAccount, activeBlockchainAccount, accountId, networkId, pathIndex } = state;
+  const invalidateAfterTx = useInvalidateAfterTx();
 
   // dApp connection flow (when popup is launched for connect approval)
   const [pendingDAppRequest, setPendingDAppRequest] = useState<{
@@ -187,13 +190,18 @@ function App() {
     }).catch(() => { /* ignore */ });
   }, []);
 
-  // Refresh signal for HomePage after dApp approval
-  const [dappRefreshKey, setDappRefreshKey] = useState(0);
-
+  // After a dApp approval, invalidate balance + transactions for the active account/network
+  // so HomePage re-fetches without a legacy refreshKey prop bridge.
   const dismissApprovalWithRefresh = useCallback((approved: boolean) => {
     dismissApproval();
-    if (approved) setDappRefreshKey((k) => k + 1);
-  }, [dismissApproval]);
+    if (approved && accountId) {
+      void invalidateAfterTx({
+        accountId,
+        networkId: (networkId ?? undefined) as NetworkId | undefined,
+        kinds: ['balance', 'transactions'],
+      });
+    }
+  }, [dismissApproval, invalidateAfterTx, accountId, networkId]);
 
   // Auth flow state
   const [authStep, setAuthStep] = useState<AuthStep>('select');
@@ -501,7 +509,7 @@ function App() {
   }
 
   // Wallet is unlocked
-  return <HomePage onAddAccount={handleAddAccountFromHome} refreshKey={dappRefreshKey} />;
+  return <HomePage onAddAccount={handleAddAccountFromHome} />;
 }
 
 // ============================================================================
