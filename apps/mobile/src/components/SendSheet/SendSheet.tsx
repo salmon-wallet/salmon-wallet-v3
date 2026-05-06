@@ -240,7 +240,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
             summary={`${amount} ${selectedToken.symbol} to ${getShortAddress(recipientAddress) ?? recipientAddress}`}
             explorerUrl={getTransactionUrl(
               blockchain.toUpperCase() as Blockchain,
-              (account as { network: { networkId: string } }).network.networkId as NetworkEnvironment,
+              account.getNetworkId() as NetworkEnvironment,
               getDefaultExplorer(blockchain.toUpperCase() as Blockchain),
               successTxId
             )}

@@ -10,7 +10,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import type { BlockchainAccount, NetworkId } from '../types/blockchain';
+import type { BlockchainAccount } from '../types/blockchain';
 import type {
   NftData,
   SolanaNftData,
@@ -76,7 +76,7 @@ export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferPar
 
         setStatus('success');
         const accountId = account.getReceiveAddress();
-        const networkId = (account as { network?: { networkId?: NetworkId } }).network?.networkId;
+        const networkId = account.getNetworkId();
         invalidateAfterTx({
           accountId,
           networkId,

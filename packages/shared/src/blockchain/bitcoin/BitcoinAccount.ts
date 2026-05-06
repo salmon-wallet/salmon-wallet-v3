@@ -146,6 +146,14 @@ export class BitcoinAccount {
   }
 
   /**
+   * Returns the network ID this account is bound to.
+   * Typed accessor exposed so consumers can avoid casting through `network`.
+   */
+  getNetworkId(): BitcoinNetwork['networkId'] {
+    return this.network.networkId;
+  }
+
+  /**
    * Gets the public key for this account.
    *
    * @returns The account's public key as Uint8Array (33 bytes compressed)

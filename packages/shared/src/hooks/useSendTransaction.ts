@@ -25,7 +25,7 @@
 
 import { useState, useCallback } from 'react';
 
-import type { BlockchainType, BlockchainAccount, NetworkId } from '../types/blockchain';
+import type { BlockchainType, BlockchainAccount } from '../types/blockchain';
 import type {
   SendTransactionParams,
   FeeEstimateResult,
@@ -141,7 +141,7 @@ export function useSendTransaction({
         setStatus('success');
         // Fire-and-forget invalidation; do not block the caller on RQ refetch.
         const accountId = account.getReceiveAddress();
-        const networkId = (account as { network?: { networkId?: NetworkId } }).network?.networkId;
+        const networkId = account.getNetworkId();
         invalidateAfterTx({
           accountId,
           networkId,
