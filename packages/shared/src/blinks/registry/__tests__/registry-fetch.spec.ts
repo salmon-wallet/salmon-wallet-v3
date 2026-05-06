@@ -77,6 +77,16 @@ describe('fetchRegistry', () => {
     ).rejects.toMatchObject({ code: 'invalid_response' });
   });
 
+  it('throws invalid_response when hosts exceeds the size cap', async () => {
+    const hosts = Array.from({ length: 10_001 }, (_, i) => `host${i}.example`);
+    const fetchImpl = vi.fn(async () =>
+      new Response(JSON.stringify({ version: 'v1', hosts }), { status: 200 }),
+    );
+    await expect(
+      fetchRegistry({ apiUrl: 'https://api.test', fetch: fetchImpl }),
+    ).rejects.toMatchObject({ code: 'invalid_response' });
+  });
+
   it('throws invalid_response when body is not JSON', async () => {
     const fetchImpl = vi.fn(async () =>
       new Response('not json', { status: 200 }),

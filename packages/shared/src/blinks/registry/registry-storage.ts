@@ -55,6 +55,11 @@ export async function saveToStorage(data: PersistedRegistry): Promise<void> {
   }
 }
 
+/**
+ * Test-only: drop the persisted registry entry. Not exported via the package
+ * barrel; runtime code never needs to clear the cache (the loader replaces
+ * it on every successful fetch).
+ */
 export async function clearStorage(): Promise<void> {
   if (!isStorageInitialized()) return;
   try {

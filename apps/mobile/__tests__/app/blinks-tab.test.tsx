@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 const mockListTrustedHosts = jest.fn();
+const mockLoadTrustedHostsRegistry = jest.fn();
 const mockPush = jest.fn();
 
 jest.mock('react-i18next', () => ({
@@ -32,6 +33,7 @@ jest.mock('@salmon/shared', () => ({
   fontSize: { md: 16, lg: 18, xl: 20 },
   letterSpacing: { wide: 0 },
   listTrustedHosts: (...args: unknown[]) => mockListTrustedHosts(...args),
+  loadTrustedHostsRegistry: (...args: unknown[]) => mockLoadTrustedHostsRegistry(...args),
   ms: (value: number) => value,
   s: (value: number) => value,
   spacing: { sm: 8, md: 12, lg: 16, xl: 20, '2xl': 24, headerPadding: 16 },
@@ -43,6 +45,7 @@ import BlinksScreen from '../../app/(app)/(tabs)/blinks';
 describe('BlinksScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockLoadTrustedHostsRegistry.mockResolvedValue(undefined);
   });
 
   it('renders one row per trusted host returned by listTrustedHosts', () => {
@@ -75,5 +78,20 @@ describe('BlinksScreen', () => {
     render(<BlinksScreen />);
 
     expect(screen.getByText('blinks.empty_state')).toBeTruthy();
+  });
+
+  it('refreshes the host list after loadTrustedHostsRegistry resolves', async () => {
+    // Cold-start: synchronous snapshot returns only the safety-net fallback,
+    // then the async loader resolves and a re-read returns the full set.
+    mockListTrustedHosts
+      .mockReturnValueOnce(['dial.to'])
+      .mockReturnValue(['dial.to', 'jup.ag', 'tensor.trade']);
+
+    render(<BlinksScreen />);
+
+    expect(mockLoadTrustedHostsRegistry).toHaveBeenCalledTimes(1);
+    // Wait for the effect's promise + setState to flush.
+    await screen.findByText('jup.ag');
+    expect(screen.getByText('tensor.trade')).toBeTruthy();
   });
 });

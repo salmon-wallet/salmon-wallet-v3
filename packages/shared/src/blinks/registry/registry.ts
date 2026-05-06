@@ -77,10 +77,10 @@ export interface LoadRegistryOptions extends RegistryFetchOptions {
 }
 
 export async function loadTrustedHostsRegistry(opts?: LoadRegistryOptions): Promise<void> {
+  if (inflightLoad) return inflightLoad;
   if (!opts?.force && cache && Date.now() - cache.loadedAt < TTL_MS) {
     return;
   }
-  if (inflightLoad) return inflightLoad;
   inflightLoad = doLoad(opts).finally(() => {
     inflightLoad = null;
   });

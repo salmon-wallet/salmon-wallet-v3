@@ -42,11 +42,14 @@ export interface RegistryFetchOptions {
   timeoutMs?: number;
 }
 
+const MAX_HOSTS = 10_000;
+
 function isValidShape(value: unknown): value is RegistryFetchResult {
   if (!value || typeof value !== 'object') return false;
   const v = value as Record<string, unknown>;
   if (typeof v.version !== 'string') return false;
   if (!Array.isArray(v.hosts)) return false;
+  if (v.hosts.length > MAX_HOSTS) return false;
   return v.hosts.every((h) => typeof h === 'string');
 }
 
