@@ -536,7 +536,9 @@ export function useSwapScreenLogic<StyleType = unknown>({
       const result = await onSwap(quote);
       setSuccessTxId(result.txId);
       setStep('success');
-      invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch(() => undefined);
+      invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch((err) => {
+        console.warn('[useSwapScreenLogic] invalidateAfterTx failed:', err);
+      });
       onSuccess?.(result.txId);
     } catch (error) {
       console.error('Swap failed:', error);
@@ -583,7 +585,9 @@ export function useSwapScreenLogic<StyleType = unknown>({
         }
         setSuccessExchange(exchange);
         setStep('success');
-        invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch(() => undefined);
+        invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch((err) => {
+        console.warn('[useSwapScreenLogic] invalidateAfterTx failed:', err);
+      });
         onBridgeSuccess?.(exchange);
       } else {
         throw new Error('Failed to create bridge exchange');

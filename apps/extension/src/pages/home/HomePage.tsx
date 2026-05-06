@@ -778,7 +778,9 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
     setSelectedNft(null);
     invalidateAfterTx({
       kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-    }).catch(() => undefined);
+    }).catch((err) => {
+      console.warn('[HomePage] invalidateAfterTx failed:', err);
+    });
   }, [handleNftBurnBack, invalidateAfterTx]);
 
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
@@ -1167,7 +1169,9 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
                   setSelectedNft(null);
                   invalidateAfterTx({
                     kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-                  }).catch(() => undefined);
+                  }).catch((err) => {
+                    console.warn('[HomePage] invalidateAfterTx failed:', err);
+                  });
                 }}
               />
             </>

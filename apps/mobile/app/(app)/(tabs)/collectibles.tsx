@@ -371,7 +371,9 @@ export default function CollectiblesScreen() {
       invalidateAfterTx({
         accountId: solAccount.getReceiveAddress(),
         kinds: ['balance', 'transactions', 'nfts'],
-      }).catch(() => undefined);
+      }).catch((err) => {
+        console.warn('[collectibles] invalidateAfterTx failed:', err);
+      });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Burn failed';
       setBurnError(msg);

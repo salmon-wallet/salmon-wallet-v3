@@ -120,7 +120,9 @@ export function NftDetailRoute(): React.ReactElement {
     handleBurnBack();
     invalidateAfterTx({
       kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-    }).catch(() => undefined);
+    }).catch((err) => {
+      console.warn('[NftDetailRoute] invalidateAfterTx failed:', err);
+    });
     navigate('/home');
   }, [handleBurnBack, invalidateAfterTx, navigate]);
 
@@ -128,7 +130,9 @@ export function NftDetailRoute(): React.ReactElement {
     setNftSendVisible(false);
     invalidateAfterTx({
       kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-    }).catch(() => undefined);
+    }).catch((err) => {
+      console.warn('[NftDetailRoute] invalidateAfterTx failed:', err);
+    });
     navigate('/home');
   }, [invalidateAfterTx, navigate]);
 

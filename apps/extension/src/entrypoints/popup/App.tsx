@@ -195,10 +195,12 @@ function App() {
   const dismissApprovalWithRefresh = useCallback((approved: boolean) => {
     dismissApproval();
     if (approved && accountId) {
-      void invalidateAfterTx({
+      invalidateAfterTx({
         accountId,
         networkId: (networkId ?? undefined) as NetworkId | undefined,
         kinds: ['balance', 'transactions'],
+      }).catch((err) => {
+        console.warn('[App] invalidateAfterTx failed:', err);
       });
     }
   }, [dismissApproval, invalidateAfterTx, accountId, networkId]);

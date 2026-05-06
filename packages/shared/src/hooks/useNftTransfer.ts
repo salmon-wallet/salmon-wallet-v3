@@ -81,7 +81,9 @@ export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferPar
           accountId,
           networkId,
           kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-        }).catch(() => undefined);
+        }).catch((err) => {
+          console.warn('[useNftTransfer] invalidateAfterTx failed:', err);
+        });
         onTransferSuccess?.(nft, result.txId);
         return result;
       } catch (err) {

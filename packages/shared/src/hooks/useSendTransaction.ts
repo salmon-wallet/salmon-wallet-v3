@@ -146,7 +146,9 @@ export function useSendTransaction({
           accountId,
           networkId,
           kinds: ['balance', 'transactions'],
-        }).catch(() => undefined);
+        }).catch((err) => {
+          console.warn('[useSendTransaction] invalidateAfterTx failed:', err);
+        });
         return result;
       } catch (err) {
         console.error('[useSendTransaction] Transaction failed:', err);
