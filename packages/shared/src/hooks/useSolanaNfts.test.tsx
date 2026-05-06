@@ -112,6 +112,24 @@ describe('useSolanaNfts (react-query)', () => {
     expect(mockGetSolanaNfts).toHaveBeenCalledTimes(2);
   });
 
+  it('configures staleTime to 60s on the underlying RQ query', async () => {
+    mockGetSolanaNfts.mockResolvedValue([sampleNft]);
+
+    const { client, wrapper } = makeWrapper();
+    renderHook(
+      () => useSolanaNfts({ publicKey: 'wallet-stale', networkId: 'solana-mainnet' as any }),
+      { wrapper }
+    );
+
+    await waitFor(() => {
+      expect(mockGetSolanaNfts).toHaveBeenCalled();
+    });
+
+    const queries = client.getQueryCache().findAll({ queryKey: ['solana-nfts'] });
+    expect(queries.length).toBeGreaterThan(0);
+    expect(queries[0]!.options.staleTime).toBe(60_000);
+  });
+
   it('passes includeSpam through to the API', async () => {
     mockGetSolanaNfts.mockResolvedValue([]);
 

@@ -288,6 +288,26 @@ describe('useBalance (react-query)', () => {
     expect(result.current.changePercent).toBeCloseTo((25 / 475) * 100);
   });
 
+  it('configures staleTime to 15s on the underlying RQ query', async () => {
+    const account = {
+      getReceiveAddress: vi.fn().mockReturnValue('wallet-stale'),
+      getBalance: vi.fn().mockResolvedValue({ usdTotal: 1, last24HoursChange: 0, items: [] }),
+    };
+
+    const { client, wrapper } = makeWrapper();
+    renderHook(() => useBalance({ account: account as any, networkId: 'solana-mainnet' }), {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(account.getBalance).toHaveBeenCalled();
+    });
+
+    const queries = client.getQueryCache().findAll({ queryKey: ['balance'] });
+    expect(queries.length).toBeGreaterThan(0);
+    expect(queries[0]!.options.staleTime).toBe(15_000);
+  });
+
   it('loads and transforms Ethereum balances when the account is detected as ethereum', async () => {
     mockIsSolanaAccount.mockReturnValue(false);
     mockIsBitcoinAccount.mockReturnValue(false);

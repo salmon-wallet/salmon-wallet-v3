@@ -241,6 +241,31 @@ describe('useTransactions (react-query infinite)', () => {
     expect(bitcoinAccount.getRecentTransactions).toHaveBeenCalled();
   });
 
+  it('configures staleTime to 60s on the underlying RQ query', async () => {
+    const account = {
+      getRecentTransactions: vi.fn().mockResolvedValue({ data: [{ id: 'tx-stale' }], pageToken: null }),
+    };
+
+    const { client, wrapper } = makeWrapper();
+    renderHook(
+      () =>
+        useTransactions({
+          address: 'wallet-stale',
+          networkId: 'solana-mainnet',
+          account: account as any,
+        }),
+      { wrapper }
+    );
+
+    await waitFor(() => {
+      expect(account.getRecentTransactions).toHaveBeenCalled();
+    });
+
+    const queries = client.getQueryCache().findAll({ queryKey: ['transactions'] });
+    expect(queries.length).toBeGreaterThan(0);
+    expect(queries[0]!.options.staleTime).toBe(60_000);
+  });
+
   it('skip=true disables fetching', async () => {
     const account = {
       getRecentTransactions: vi.fn(),
