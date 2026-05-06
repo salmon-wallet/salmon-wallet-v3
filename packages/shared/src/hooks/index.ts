@@ -161,6 +161,13 @@ export type {
 export { useRefreshOnFocus } from './useRefreshOnFocus';
 export type { UseRefreshOnFocusParams } from './useRefreshOnFocus';
 
+// Solana NFT list hook (shared between mobile, web, extension collectibles screens)
+export { useSolanaNfts } from './useSolanaNfts';
+export type {
+  UseSolanaNftsParams,
+  UseSolanaNftsResult,
+} from './useSolanaNfts';
+
 // Settings panel stack hook
 export { useSettingsPanelStack } from './useSettingsPanelStack';
 export type { UseSettingsPanelStackResult } from './useSettingsPanelStack';
