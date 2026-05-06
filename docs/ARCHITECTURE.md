@@ -1,213 +1,230 @@
-# Arquitectura de Salmon Wallet V3
+# Salmon Wallet V3 Architecture
 
-Este documento describe la arquitectura del monorepo por responsabilidades de carpetas. El objetivo es dejar claro dónde vive cada tipo de código y cómo decidir ownership cuando se agregan features nuevas.
+This document describes the architecture of the monorepo by folder responsibilities. The goal is to make clear where each kind of code lives and how to decide ownership when new features are added.
 
-## Idea General
+## General Idea
 
-El repo sigue una estructura de monorepo con separación por ownership y plataforma:
+The repo follows a monorepo structure with separation by ownership and platform:
 
 - `packages/shared`
-  - lógica compartida entre mobile, web y extension
+  - logic shared between mobile, web, and extension
 - `packages/ui`
-  - componentes React DOM compartidos entre web y extension
+  - shared React DOM components used by web and extension
+- `packages/assets`
+  - shared static assets (icons, images) consumed across apps
 - `apps/mobile`
-  - app React Native y UI mobile-only
+  - React Native app and mobile-only UI
 - `apps/web`
-  - app web
+  - web app
 - `apps/extension`
   - browser extension
 
-Regla central:
+Central rule:
 
-- si algo tiene que funcionar en las tres plataformas, tiende a `packages/shared`
-- si algo es UI DOM compartida solo entre web y extension, tiende a `packages/ui`
-- si depende de APIs nativas, navegación mobile o concerns específicos de una app, se queda en su app
+- if something has to work on all three platforms, it tends toward `packages/shared`
+- if something is shared DOM UI between web and extension only, it tends toward `packages/ui`
+- if it depends on native APIs, mobile navigation, or app-specific concerns, it stays in its app
 
-## Responsabilidades por Carpeta
+## Responsibilities by Folder
 
-### Raíz del repo
+### Repo root
 
 - `apps/`
-  - entrypoints y superficies de cada aplicación
+  - entrypoints and surfaces of each application
 - `packages/`
-  - código compartido y reusable dentro del monorepo
+  - shared and reusable code within the monorepo
 - `docs/`
-  - documentación viva del repo
-- `.agent/` y `.claude/`
-  - workflow y skills de proyecto ya existentes
+  - living documentation of the repo
+- `.agent/` and `.claude/`
+  - existing project workflow and skills
 - `.codex/`
-  - skills repo-locales para Codex
+  - repo-local skills for Codex
 
 ### `packages/shared/`
 
-Es el núcleo lógico del monorepo.
+The logical core of the monorepo.
 
-Responsabilidad:
+Responsibility:
 
-- servicios de API compartidos
-- lógica blockchain
-- hooks reutilizables
-- tipos semánticos
-- storage y configuración
-- utilidades y crypto compartidos
+- shared API services
+- blockchain logic
+- reusable hooks
+- semantic types
+- storage and configuration
+- shared utilities and crypto
 - design tokens
 
-Subcarpetas importantes:
+Important subfolders:
 
 - `packages/shared/src/api/`
-  - clientes HTTP, configuración y servicios compartidos contra backend
+  - HTTP clients, configuration, and shared services against the backend
 - `packages/shared/src/blockchain/`
-  - lógica blockchain por dominio
+  - blockchain logic by domain
+- `packages/shared/src/blinks/`
+  - cross-platform Solana Actions / Blinks namespace (see below)
 - `packages/shared/src/hooks/`
-  - hooks cross-platform
+  - cross-platform hooks
 - `packages/shared/src/theme/`
-  - tokens visuales base
+  - base visual tokens
 - `packages/shared/src/types/`
-  - tipos semánticos compartidos
+  - shared semantic types
 - `packages/shared/src/storage/`
-  - contratos y helpers de persistencia
+  - persistence contracts and helpers
 - `packages/shared/src/utils/`
-  - utilidades realmente compartidas
+  - genuinely shared utilities
 
-No debería contener:
+It should not contain:
 
-- componentes DOM específicos
-- componentes React Native
-- lógica dependiente de una sola app sin reutilización real
+- platform-specific DOM components
+- React Native components
+- logic dependent on a single app with no real reuse
+
+#### `packages/shared/src/blinks/`
+
+Cross-platform Solana Actions / Blinks core, organized into four subfolders:
+
+- `blinks/registry/` — async fetch of the Blinks allowlist from `salmon-api` (`GET /v1/blinks/registry`) with in-memory cache, persistent storage, and a hardcoded fallback when the network is unavailable.
+- `blinks/client/` — `fetchActionMetadata` and `requestActionTransaction` (HTTPS-only, registry-gated, 10s timeout, 64 KiB response cap).
+- `blinks/simulate/` — `simulateActionTx`: mandatory pre-sign simulation with Address Lookup Table resolution and partial-signature verification via `tweetnacl`.
+- `blinks/spec/` — Zod schemas validating Action GET/POST shapes at runtime.
 
 ### `packages/ui/`
 
-Responsabilidad:
+Responsibility:
 
-- componentes React DOM compartidos entre web y extension
-- layouts DOM compartidos
-- utilidades visuales específicas de esa capa
+- React DOM components shared between web and extension
+- shared DOM layouts
+- visual utilities specific to that layer
 
-No debería contener:
+It should not contain:
 
-- lógica de negocio pesada
-- hooks que pertenecen a `packages/shared`
-- código React Native
+- heavy business logic
+- hooks that belong in `packages/shared`
+- React Native code
 
 ### `apps/mobile/`
 
-Responsabilidad:
+Responsibility:
 
-- implementación React Native
-- componentes mobile-only
-- adaptaciones de contratos compartidos a UI nativa
-- navegación y concerns del runtime mobile
+- React Native implementation
+- mobile-only components
+- adaptations of shared contracts to native UI
+- navigation and mobile runtime concerns
 
-No debería contener:
+It should not contain:
 
-- lógica que debería reutilizarse en web y extension
-- componentes DOM
+- logic that should be reused in web and extension
+- DOM components
 
 ### `apps/web/`
 
-Responsabilidad:
+Responsibility:
 
-- shell web
-- routing y providers web
-- páginas y wiring web-specific
-- adaptaciones browser-only
+- web shell
+- routing and web providers
+- pages and web-specific wiring
+- browser-only adaptations
 
 ### `apps/extension/`
 
-Responsabilidad:
+Responsibility:
 
-- shell de browser extension
-- entrypoints de background/content/injected
-- páginas y sheets propias de extension
-- compatibilidad con browser APIs
+- browser extension shell
+- background/content/injected entrypoints
+- pages and sheets specific to the extension
+- compatibility with browser APIs
 
-## Ownership por tipo de cambio
+## Ownership by type of change
 
-### Nuevo endpoint o integración de backend
+### New endpoint or backend integration
 
-- si el consumo es compartido, entra por `packages/shared/src/api/services`
-- si el contrato afecta hooks o tipos, se actualizan en `packages/shared`
-- las apps consumen ese contrato, pero no deberían reinventarlo
+- if the consumer is shared, it goes through `packages/shared/src/api/services`
+- if the contract affects hooks or types, they are updated in `packages/shared`
+- the apps consume that contract but should not reinvent it
 
-### Nueva lógica blockchain
+### New blockchain logic
 
-- si aplica a más de una plataforma, vive en `packages/shared/src/blockchain/<chain>`
-- si es solo wiring visual o interacción de una app, se queda en la app
+- if it applies to more than one platform, it lives in `packages/shared/src/blockchain/<chain>`
+- if it is only visual wiring or app interaction, it stays in the app
 
-### Nuevo hook
+### New hook
 
-- si es cross-platform y semántico, va a `packages/shared/src/hooks`
-- si depende de browser APIs o React Native APIs, debe vivir en la app correspondiente
+- if it is cross-platform and semantic, it goes to `packages/shared/src/hooks`
+- if it depends on browser APIs or React Native APIs, it must live in the corresponding app
 
-### Nuevo componente
+### New component
 
-- si es DOM compartido entre web y extension, va a `packages/ui`
-- si es React Native, va a `apps/mobile`
-- si es específico de una app web/extension, se queda en esa app
+- if it is shared DOM between web and extension, it goes to `packages/ui`
+- if it is React Native, it goes to `apps/mobile`
+- if it is specific to one web/extension app, it stays in that app
 
-## Capas importantes dentro de `packages/shared`
+## Important layers within `packages/shared`
 
 ### `api`
 
-- contrato compartido con backend
-- servicios reutilizables por varias apps
+- shared backend contract
+- services reusable by multiple apps
 
 ### `blockchain`
 
-- lógica por cadena
-- adapters y helpers semánticos del dominio crypto
+- per-chain logic
+- adapters and semantic helpers of the crypto domain
 
-Hoy las carpetas activas visibles son:
+The currently active folders are:
 
 - `bitcoin`
 - `ethereum`
 - `solana`
 
-La intención es mantener la lógica por chain aislada, sin mezclar concerns entre dominios.
+The intent is to keep per-chain logic isolated, without mixing concerns across domains.
+
+### `blinks`
+
+- Solana Actions / Blinks core (registry, client, simulate, spec) consumed by every app surface that renders or executes Blinks.
 
 ### `hooks`
 
-- orquestan estado y comportamiento reutilizable
-- conectan servicios, blockchain logic, storage y tipos
+- orchestrate reusable state and behavior
+- connect services, blockchain logic, storage, and types
 
 ### `theme`
 
-- fuente única de tokens compartidos
-- colores, spacing, typography, sombras y duraciones
+- single source of shared tokens
+- colors, spacing, typography, shadows, and durations
 
 ## Testing
 
-Regla práctica:
+Practical rule:
 
-- lógica compartida: test en `packages/shared`
-- componentes DOM compartidos: test en `packages/ui`
-- UI o integración React Native: test en `apps/mobile`
-- wiring específico web/extension: test en su app cuando realmente agregue valor
+- shared logic: tests in `packages/shared`
+- shared DOM components: tests in `packages/ui`
+- React Native UI or integration: tests in `apps/mobile`
+- web/extension-specific wiring: tests in their app when they really add value
 
-Prioridad:
+Priority:
 
-- unit e integration tests para lógica compartida
-- UI tests solo cuando el comportamiento visible sea importante
-- E2E contra backend solo si no hay cobertura suficiente en `../salmon-api`
+- unit and integration tests for shared logic
+- UI tests only when the visible behavior is important
+- E2E against backend only if there is not enough coverage in `../salmon-api`
 
-## Señales de mala ubicación
+## Misplacement signals
 
-- un componente React Native aparece en `packages/shared` o `packages/ui`
-- un componente DOM compartido empieza a contener lógica de negocio grande
-- un hook compartido usa APIs browser-only o native-only
-- una app duplica contratos que ya existen en `packages/shared`
-- tipos visuales específicos terminan en tipos semánticos compartidos
+- a React Native component appears in `packages/shared` or `packages/ui`
+- a shared DOM component starts to contain large business logic
+- a shared hook uses browser-only or native-only APIs
+- an app duplicates contracts that already exist in `packages/shared`
+- visual types specific to one platform end up in shared semantic types
 
-## Estado actual de diseño
+## Current design state
 
-La separación principal del monorepo está bien:
+The main monorepo separation is sound:
 
-- `packages/shared` como núcleo compartido
-- `packages/ui` como capa DOM compartida
-- apps separadas por runtime
+- `packages/shared` as the shared core
+- `packages/ui` as the shared DOM layer
+- apps separated by runtime
 
-La disciplina importante a preservar es de ownership:
+The important discipline to preserve is ownership:
 
-- shared para contratos y lógica multiplataforma
-- ui para DOM compartido
-- app-local para runtime/platform specifics
+- shared for cross-platform contracts and logic
+- ui for shared DOM
+- app-local for runtime/platform specifics

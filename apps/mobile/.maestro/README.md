@@ -30,6 +30,12 @@ installed.
 │       ├── send/        — on-chain SOL transfer (0.001 SOL)
 │       ├── swap/        — intra-Solana swap quote + execute
 │       ├── nft/         — NFT transfer (Wallet B → Wallet A)
+│       ├── blinks/      — Solana Actions / Blinks scaffolds (manual-only,
+│       │                  see flows/actions/blinks/README.md). Four flows:
+│       │                  happy-path.yaml, simulation-fail.yaml,
+│       │                  untrusted-host.yaml, v0-feepayer-mismatch.yaml.
+│       │                  NOT wired into suites/actions.yaml — require a
+│       │                  fixture server (BLINKS_FIXTURE_URL).
 │       └── reset/       — remove all wallets (DESTRUCTIVE — last)
 ├── suites/             # orchestrators that runFlow children in order
 │   ├── smoke.yaml

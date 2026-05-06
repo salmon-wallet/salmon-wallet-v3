@@ -17,7 +17,7 @@ Read `docs/ARCHITECTURE.md` before making structural decisions.
 
 ## Placement rules
 
-- Put cross-platform services, hooks, blockchain logic, semantic types, storage, and shared config in `packages/shared`.
+- Put cross-platform services, hooks, blockchain logic, semantic types, storage, and shared config in `packages/shared`. Cross-platform Solana Actions / Blinks code lives under `packages/shared/src/blinks` (registry/client/simulate/spec).
 - Put shared DOM components in `packages/ui`, not in `packages/shared`.
 - Keep React Native code in `apps/mobile`.
 - Keep browser-only and extension-only runtime code in the owning app.

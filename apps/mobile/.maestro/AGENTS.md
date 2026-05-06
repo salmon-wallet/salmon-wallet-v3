@@ -39,6 +39,12 @@ home for mobile integration tests.
   for isolation; the suite orchestrator does not de-dup recoveries.
 - **Destructive reset**: `actions/reset/remove-all-wallets.yaml` wipes
   the device. Always last in `suites/actions.yaml`.
+- **Blinks scaffolds**: `flows/actions/blinks/` ships four flows
+  (`happy-path.yaml`, `simulation-fail.yaml`, `untrusted-host.yaml`,
+  `v0-feepayer-mismatch.yaml`) that are intentionally NOT wired into
+  `suites/actions.yaml`. They depend on a fixture server addressed by
+  `BLINKS_FIXTURE_URL`, so they remain manual-only until that fixture
+  is provisioned. See `flows/actions/blinks/README.md` for usage.
 
 ## When extending the suite
 

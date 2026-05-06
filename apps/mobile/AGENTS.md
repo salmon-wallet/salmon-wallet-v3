@@ -12,6 +12,13 @@
 - Reuse `packages/shared` contracts instead of duplicating business logic locally.
 - Do not import DOM-only UI from `packages/ui`.
 
+## Notable surfaces
+
+- Blinks tab — `app/(app)/(tabs)/blinks.tsx`. Three companion screens: `app/blink-detail.tsx`, `app/blink-approval.tsx`, `app/blink-success.tsx`.
+- `src/components/ActionApprovalSheet/` — approval UX with simulation block and R2/R8 risk gates.
+- `src/components/ActionParamForm/` — dynamic param form rendered from the Action spec.
+- `src/blinks/sign-and-submit.ts` — Solana sign + submit helper with V0 fee-payer guard.
+
 ## Testing
 
 - Add or update mobile tests when RN behavior or mobile-only flows change.
