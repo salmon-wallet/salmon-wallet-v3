@@ -25,12 +25,13 @@
 
 import { useState, useCallback } from 'react';
 
-import type { BlockchainType, BlockchainAccount } from '../types/blockchain';
+import type { BlockchainType, BlockchainAccount, NetworkId } from '../types/blockchain';
 import type {
   SendTransactionParams,
   FeeEstimateResult,
   SendTransactionStatus,
 } from '../types/send';
+import { useInvalidateAfterTx } from '../query/invalidation';
 
 // ============================================================================
 // Types
@@ -74,6 +75,7 @@ export function useSendTransaction({
 }: UseSendTransactionParams): UseSendTransactionResult {
   const [status, setStatus] = useState<SendTransactionStatus>('idle');
   const [error, setError] = useState<string | null>(null);
+  const invalidateAfterTx = useInvalidateAfterTx();
 
   const reset = useCallback(() => {
     setStatus('idle');
@@ -137,6 +139,14 @@ export function useSendTransaction({
         );
 
         setStatus('success');
+        // Fire-and-forget invalidation; do not block the caller on RQ refetch.
+        const accountId = account.getReceiveAddress();
+        const networkId = (account as { network?: { networkId?: NetworkId } }).network?.networkId;
+        invalidateAfterTx({
+          accountId,
+          networkId,
+          kinds: ['balance', 'transactions'],
+        }).catch(() => undefined);
         return result;
       } catch (err) {
         console.error('[useSendTransaction] Transaction failed:', err);
@@ -146,7 +156,7 @@ export function useSendTransaction({
         throw err;
       }
     },
-    [account],
+    [account, invalidateAfterTx],
   );
 
   return {

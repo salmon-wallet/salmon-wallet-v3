@@ -10,11 +10,12 @@
  */
 
 import { useState, useCallback } from 'react';
-import type { BlockchainAccount } from '../types/blockchain';
+import type { BlockchainAccount, NetworkId } from '../types/blockchain';
 import type {
   NftData,
   SolanaNftData,
 } from '../utils/nft';
+import { useInvalidateAfterTx } from '../query/invalidation';
 
 export type NftTransferStatus = 'idle' | 'sending' | 'success' | 'failed';
 
@@ -40,6 +41,7 @@ export interface UseNftTransferResult {
 export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferParams): UseNftTransferResult {
   const [status, setStatus] = useState<NftTransferStatus>('idle');
   const [error, setError] = useState<string | null>(null);
+  const invalidateAfterTx = useInvalidateAfterTx();
 
   const reset = useCallback(() => {
     setStatus('idle');
@@ -73,6 +75,13 @@ export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferPar
         }
 
         setStatus('success');
+        const accountId = account.getReceiveAddress();
+        const networkId = (account as { network?: { networkId?: NetworkId } }).network?.networkId;
+        invalidateAfterTx({
+          accountId,
+          networkId,
+          kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+        }).catch(() => undefined);
         onTransferSuccess?.(nft, result.txId);
         return result;
       } catch (err) {
@@ -83,7 +92,7 @@ export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferPar
         throw err;
       }
     },
-    [account, onTransferSuccess],
+    [account, onTransferSuccess, invalidateAfterTx],
   );
 
   return { sendNft, status, error, isError: error !== null, reset };
