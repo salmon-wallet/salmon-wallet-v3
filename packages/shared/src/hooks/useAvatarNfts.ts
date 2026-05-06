@@ -3,13 +3,19 @@
  *
  * Fetches the current account's Solana NFTs for avatar selection.
  * Shared between mobile (AvatarPicker) and extension (AccountAvatarPanel).
+ *
+ * Internals are powered by `@tanstack/react-query` — caching and dedupe are
+ * handled by the QueryClient mounted at app roots. The public return shape is
+ * preserved for backwards compatibility, with an added `refresh()` for parity
+ * with sibling hooks.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { Account } from '../types/account';
 import type { NftAvatarItem } from '../types/ui/avatar-picker';
 import type { Nft } from '../types/nft';
 import { isSolanaAccount } from '../utils/account';
+import { queryKeys } from '../query/keys';
 
 // ============================================================================
 // Types
@@ -31,6 +37,8 @@ export interface UseAvatarNftsResult {
   error: string | null;
   /** Whether an error occurred */
   isError: boolean;
+  /** Manually refetch the NFT list */
+  refresh: () => Promise<void>;
 }
 
 // ============================================================================
@@ -38,68 +46,43 @@ export interface UseAvatarNftsResult {
 // ============================================================================
 
 export function useAvatarNfts({ account, enabled }: UseAvatarNftsParams): UseAvatarNftsResult {
-  const [nfts, setNfts] = useState<NftAvatarItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [fetched, setFetched] = useState(false);
+  const accountId = account?.id ?? '';
+  const isEnabled = !!enabled && !!account && !!accountId;
 
-  // Reset when account changes so NFTs are re-fetched for the new account
-  const prevAccountIdRef = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    const currentId = account?.id;
-    if (currentId !== prevAccountIdRef.current) {
-      prevAccountIdRef.current = currentId;
-      setFetched(false);
-      setNfts([]);
-    }
-  }, [account]);
+  const query = useQuery<NftAvatarItem[], Error>({
+    queryKey: queryKeys.avatarNfts({ accountId }),
+    queryFn: async () => {
+      if (!account) return [];
 
-  useEffect(() => {
-    if (!enabled || fetched || !account) return;
+      const solanaMainnet = account.networksAccounts?.['solana-mainnet'];
+      const solanaAccount = solanaMainnet?.[0];
+      if (!solanaAccount || !isSolanaAccount(solanaAccount)) {
+        return [];
+      }
 
-    const fetchNfts = async () => {
-      setLoading(true);
-      try {
-        const solanaMainnet = account.networksAccounts?.['solana-mainnet'];
-        const solanaAccount = solanaMainnet?.[0];
-        if (!solanaAccount || !isSolanaAccount(solanaAccount)) {
-          setLoading(false);
-          setFetched(true);
-          return;
-        }
+      const raw: Nft[] = await solanaAccount.getAllNfts();
 
-        const raw: Nft[] = await solanaAccount.getAllNfts();
-
-        const converted = raw.map((nft) => ({
+      // BE drops blacklisted / spamScore>0 NFTs by default; the avatar
+      // picker stays on that policy (no developer-mode override here).
+      const items: NftAvatarItem[] = raw
+        .map((nft): NftAvatarItem => ({
           mint: nft.mint.address,
           name: nft.name || 'Unnamed NFT',
           image: nft.media || undefined,
-          blockchain: 'solana' as const,
-          blacklisted: nft.blacklisted ?? false,
-        }));
-        // BE drops blacklisted / spamScore>0 NFTs by default; the avatar
-        // picker stays on that policy (no developer-mode override here).
-        const filtered = converted.filter((nft) => nft.image);
+        }))
+        .filter((item) => !!item.image);
 
-        setNfts(
-          filtered.map((nft) => ({
-            mint: nft.mint,
-            name: nft.name,
-            image: nft.image,
-          })),
-        );
-      } catch (err) {
-        console.error('[useAvatarNfts] Failed to fetch NFTs:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch NFTs');
-      } finally {
-        setLoading(false);
-        setFetched(true);
-      }
-    };
+      return items;
+    },
+    enabled: isEnabled,
+    staleTime: 60_000,
+  });
 
-    fetchNfts();
-  }, [enabled, fetched, account]);
-
-  return { nfts, loading, error, isError: error !== null };
+  return {
+    nfts: query.data ?? [],
+    loading: query.isPending && isEnabled,
+    error: query.error?.message ?? null,
+    isError: query.isError,
+    refresh: () => query.refetch().then(() => undefined),
+  };
 }
-
