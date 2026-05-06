@@ -7,7 +7,6 @@ import {
   useAccountsContext,
   useAvailableNetworks,
   useBalance,
-  useRefreshOnFocus,
   useUserConfig,
   useTransactions,
   useAddressbook,
@@ -524,7 +523,6 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
     loading,
     refreshing,
     refresh,
-    lastUpdated,
     hiddenBalance,
     toggleHidden,
   } = useBalance({
@@ -535,12 +533,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
     includeSpam: !!developerNetworks,
   });
 
-  // Refresh balance when extension regains focus (if cache is stale)
-  useRefreshOnFocus({
-    onFocus: refresh,
-    lastUpdated,
-    enabled: !!activeBlockchainAccount,
-  });
+  // RQ handles refetch-on-focus via QueryClient defaults (refetchOnWindowFocus).
 
   // Refresh balance after a dApp transaction approval
   useEffect(() => {

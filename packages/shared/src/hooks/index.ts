@@ -157,10 +157,6 @@ export type {
   UseAvatarNftsResult,
 } from './useAvatarNfts';
 
-// Refresh on focus hook (platform-split: .native.ts / .web.ts)
-export { useRefreshOnFocus } from './useRefreshOnFocus';
-export type { UseRefreshOnFocusParams } from './useRefreshOnFocus';
-
 // Solana NFT list hook (shared between mobile, web, extension collectibles screens)
 export { useSolanaNfts } from './useSolanaNfts';
 export type {

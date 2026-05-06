@@ -44,7 +44,6 @@ import {
   useAccountsContext,
   useAvailableNetworks,
   useBalance,
-  useRefreshOnFocus,
   useCurrencyContext,
   useTransactions,
   vs,
@@ -264,7 +263,6 @@ export default function HomeScreen() {
     loading,
     refreshing,
     refresh,
-    lastUpdated,
     hiddenBalance,
     toggleHidden,
   } = useBalance({
@@ -276,12 +274,7 @@ export default function HomeScreen() {
     includeSpam: developerNetworks,
   });
 
-  // Refresh balance when app returns from background (if cache is stale)
-  useRefreshOnFocus({
-    onFocus: refresh,
-    lastUpdated,
-    enabled: !!activeBlockchainAccount,
-  });
+  // RQ handles refetch-on-focus via QueryClient defaults (refetchOnWindowFocus).
 
   // Clear switching network flag once new data has loaded
   useEffect(() => {
