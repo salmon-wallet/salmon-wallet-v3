@@ -8,7 +8,6 @@ import {
   useAccountsContext,
   useAvailableNetworks,
   useBalance,
-  useRefreshOnFocus,
   useUserConfig,
   useCurrencyContext,
   useLanguage,
@@ -328,20 +327,12 @@ export function HomePage(): React.ReactElement {
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [editingContact, setEditingContact] = useState<AddressBookItem | null>(null);
-  const [collectiblesRefreshKey, setCollectiblesRefreshKey] = useState(0);
 
   // Open settings if redirected from /settings route
   useEffect(() => {
     if ((location.state as { openSettings?: boolean })?.openSettings) {
       setSettingsVisible(true);
       // Clear the state to avoid re-opening on re-render
-      window.history.replaceState({}, '');
-    }
-  }, [location.state]);
-
-  useEffect(() => {
-    if ((location.state as { refreshCollectibles?: boolean })?.refreshCollectibles) {
-      setCollectiblesRefreshKey((prev) => prev + 1);
       window.history.replaceState({}, '');
     }
   }, [location.state]);
@@ -385,7 +376,6 @@ export function HomePage(): React.ReactElement {
     loading,
     refreshing,
     refresh,
-    lastUpdated,
     hiddenBalance,
     toggleHidden,
   } = useBalance({
@@ -396,7 +386,7 @@ export function HomePage(): React.ReactElement {
     includeSpam: !!developerNetworks,
   });
 
-  useRefreshOnFocus({ onFocus: refresh, lastUpdated, enabled: !!activeBlockchainAccount });
+  // RQ handles refetch-on-focus via QueryClient defaults (refetchOnWindowFocus).
 
   // Clear switching network flag once loaded
   useEffect(() => {
@@ -879,7 +869,6 @@ export function HomePage(): React.ReactElement {
             <CollectiblesTab
               activeAccount={activeAccount}
               developerNetworks={developerNetworks}
-              refreshKey={collectiblesRefreshKey}
               onNftDetailPress={(nft: NftData) => navigate(`/nft/${nft.mint}`, { state: nft })}
               onSeeAllPress={(data) => navigate('/nft/all', { state: data })}
             />
