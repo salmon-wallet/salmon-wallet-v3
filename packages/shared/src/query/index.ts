@@ -1,5 +1,7 @@
 export { createQueryClient } from './query-client';
 export { queryKeys } from './keys';
+export { useInvalidateAfterTx } from './invalidation';
+export type { InvalidationKind, InvalidationOptions } from './invalidation';
 export {
   QueryClient,
   QueryClientProvider,
