@@ -1,21 +1,23 @@
 /**
- * useToken Hook
- * Migrated from salmon-wallet-v2/src/hooks/useToken.js
+ * useToken Hook (React Query backed)
  *
  * Provides token information and balance for a specific token address.
- * Fetches token metadata and balance data, combining them into a unified response.
+ * Looks up balance items first; if not present (and metadata fetch is not
+ * skipped) queries the backend via React Query. Public return shape preserved
+ * from the previous useState/useEffect implementation.
  *
  * @example
  * ```tsx
  * const { token, loading, error } = useToken({
  *   tokenId: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
- *   walletAddress: 'YOUR_WALLET_ADDRESS',
  *   networkId: 'solana-mainnet',
  * });
  * ```
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../query/keys';
 import { getTokenByAddress } from '../api/services/tokens';
 import type { TokenMetadata } from '../types/token';
 import type { SolanaNetworkId } from '../types/blockchain';
@@ -25,185 +27,139 @@ import { TokenBalanceWithPrice } from '../utils/balance';
 // Types
 // ============================================================================
 
-/**
- * Token data combining metadata and balance information
- */
 export interface TokenData extends Partial<TokenMetadata> {
-  /** Token mint address */
   address: string;
-  /** Token symbol (e.g., 'SOL', 'USDC') */
   symbol?: string;
-  /** Token name */
   name?: string;
-  /** Token decimals */
   decimals?: number;
-  /** Token logo URL */
   logo?: string;
-  /** CoinGecko ID for price lookups */
   coingeckoId?: string;
-  /** Token tags for categorization */
   tags?: string[];
-  /** Human-readable balance */
   uiAmount?: number;
-  /** Raw balance amount */
   amount?: string | number;
-  /** Current price in USD */
   price?: number;
-  /** Balance value in USD */
   usdBalance?: number;
-  /** 24h price change percentage */
   priceChange24h?: number;
 }
 
-/**
- * Options for the useToken hook
- */
 export interface UseTokenParams {
-  /** Token mint address to fetch */
   tokenId: string;
-  /** Network identifier */
   networkId?: SolanaNetworkId;
-  /** Optional: Pre-loaded balance items to search from */
   balanceItems?: TokenBalanceWithPrice[];
-  /** Skip fetching metadata (useful when only balance is needed from balanceItems) */
   skipMetadataFetch?: boolean;
 }
 
-/**
- * Return type for the useToken hook
- */
 export interface UseTokenResult {
-  /** Token information (empty object if not found) */
   token: TokenData;
-  /** Whether data has been loaded */
   loaded: boolean;
-  /** Loading state */
   loading: boolean;
-  /** Error if fetch failed */
   error: string | null;
-  /** Whether an error occurred */
   isError: boolean;
-  /** Refetch token data */
   refetch: () => Promise<void>;
 }
 
 // ============================================================================
-// Hook Implementation
+// Hook
 // ============================================================================
 
-/**
- * Hook to fetch and manage token information
- *
- * This hook provides:
- * - Token metadata (symbol, name, decimals, logo)
- * - Balance information if balanceItems are provided
- * - Loading and error states
- * - Refetch capability
- *
- * @param options - Hook configuration options
- * @returns Token data and state
- */
+function findInBalanceItems(
+  tokenId: string,
+  balanceItems?: TokenBalanceWithPrice[],
+): TokenData | null {
+  if (!balanceItems || balanceItems.length === 0) return null;
+  const lowered = tokenId.toLowerCase();
+  const match = balanceItems.find(
+    (item) =>
+      item.address?.toLowerCase() === lowered || item.mint?.toLowerCase() === lowered,
+  );
+  if (!match) return null;
+  return {
+    address: match.address || match.mint,
+    symbol: match.symbol,
+    name: match.name,
+    decimals: match.decimals,
+    logo: match.logo,
+    coingeckoId: match.coingeckoId,
+    tags: match.tags,
+    uiAmount: match.uiAmount,
+    amount: match.amount,
+    price: match.price,
+    usdBalance: match.usdBalance,
+    priceChange24h: match.priceChange24h,
+  };
+}
+
 export function useToken({
   tokenId,
   networkId = 'solana-mainnet',
   balanceItems,
   skipMetadataFetch = false,
 }: UseTokenParams): UseTokenResult {
-  const [token, setToken] = useState<TokenData>({ address: tokenId });
-  const [loaded, setLoaded] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  /**
-   * Fetch token data from balance items or API
-   */
-  const fetchToken = useCallback(async () => {
-    if (!tokenId) {
-      setToken({ address: '' });
-      setLoaded(true);
-      return;
+  const balanceMatch = useMemo(
+    () => (tokenId ? findInBalanceItems(tokenId, balanceItems) : null),
+    [tokenId, balanceItems],
+  );
+
+  // Only fetch metadata if no tokenId-empty, no balance match, and not skipped
+  const shouldFetch = !!tokenId && !balanceMatch && !skipMetadataFetch;
+
+  const query = useQuery({
+    queryKey: tokenId
+      ? queryKeys.token({ tokenId, networkId })
+      : ['token', 'disabled'],
+    queryFn: () => getTokenByAddress(tokenId, networkId),
+    enabled: shouldFetch,
+    staleTime: 60_000,
+  });
+
+  const token: TokenData = useMemo(() => {
+    if (!tokenId) return { address: '' };
+    if (balanceMatch) return balanceMatch;
+    if (query.data) {
+      return {
+        address: query.data.address,
+        symbol: query.data.symbol,
+        name: query.data.name,
+        decimals: query.data.decimals,
+        logo: query.data.logo,
+        coingeckoId: query.data.coingeckoId,
+        tags: query.data.tags,
+      };
     }
+    // No data yet, or skipped, or null result
+    return { address: tokenId };
+  }, [tokenId, balanceMatch, query.data]);
 
-    setLoading(true);
-    setError(null);
+  const error = query.error
+    ? query.error instanceof Error
+      ? query.error.message
+      : 'Failed to fetch token'
+    : null;
 
-    try {
-      // First, try to find token in provided balance items
-      if (balanceItems && balanceItems.length > 0) {
-        const tokenFromBalance = balanceItems.find(
-          (item) =>
-            item.address?.toLowerCase() === tokenId.toLowerCase() ||
-            item.mint?.toLowerCase() === tokenId.toLowerCase()
-        );
+  // 'loaded' = something definitive (no tokenId, balance match, query settled, or fetch skipped).
+  const loaded =
+    !tokenId ||
+    !!balanceMatch ||
+    skipMetadataFetch ||
+    query.isSuccess ||
+    query.isError;
 
-        if (tokenFromBalance) {
-          setToken({
-            address: tokenFromBalance.address || tokenFromBalance.mint,
-            symbol: tokenFromBalance.symbol,
-            name: tokenFromBalance.name,
-            decimals: tokenFromBalance.decimals,
-            logo: tokenFromBalance.logo,
-            coingeckoId: tokenFromBalance.coingeckoId,
-            tags: tokenFromBalance.tags,
-            uiAmount: tokenFromBalance.uiAmount,
-            amount: tokenFromBalance.amount,
-            price: tokenFromBalance.price,
-            usdBalance: tokenFromBalance.usdBalance,
-            priceChange24h: tokenFromBalance.priceChange24h,
-          });
-          setLoaded(true);
-          setLoading(false);
-          return;
-        }
-      }
-
-      // If not found in balance items and metadata fetch is not skipped,
-      // fetch from API
-      if (!skipMetadataFetch) {
-        const metadata = await getTokenByAddress(tokenId, networkId);
-
-        if (metadata) {
-          setToken({
-            address: metadata.address,
-            symbol: metadata.symbol,
-            name: metadata.name,
-            decimals: metadata.decimals,
-            logo: metadata.logo,
-            coingeckoId: metadata.coingeckoId,
-            tags: metadata.tags,
-          });
-        } else {
-          // Token not found, set minimal info
-          setToken({ address: tokenId });
-        }
-      } else {
-        // No balance found and metadata fetch skipped
-        setToken({ address: tokenId });
-      }
-
-      setLoaded(true);
-    } catch (err) {
-      console.error('[useToken] Error fetching token:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch token');
-      setToken({ address: tokenId });
-      setLoaded(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [tokenId, networkId, balanceItems, skipMetadataFetch]);
-
-  // Fetch token on mount and when dependencies change
-  useEffect(() => {
-    fetchToken();
-  }, [fetchToken]);
+  const refetch = useCallback(async () => {
+    if (!tokenId) return;
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.token({ tokenId, networkId }),
+    });
+    await query.refetch();
+  }, [queryClient, tokenId, networkId, query]);
 
   return {
     token,
     loaded,
-    loading,
+    loading: shouldFetch && query.isFetching,
     error,
     isError: error !== null,
-    refetch: fetchToken,
+    refetch,
   };
 }
-
