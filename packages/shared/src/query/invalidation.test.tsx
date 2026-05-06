@@ -124,6 +124,25 @@ describe('useInvalidateAfterTx', () => {
     ).toBe(false);
   });
 
+  it("forces refetch of inactive queries via refetchType: 'all'", async () => {
+    // Regression: tab navigators preserve home screen instances, so refetch
+    // on mount alone never fires after a swap success modal closes. Without
+    // refetchType: 'all', invalidated-but-inactive balance queries stay
+    // stale until full page reload.
+    const client = makeClient();
+    seed(client);
+    const spy = vi.spyOn(client, 'invalidateQueries');
+    const { result } = renderHook(() => useInvalidateAfterTx(), {
+      wrapper: makeWrapper(client),
+    });
+
+    await result.current({ accountId: ACCOUNT_A, kinds: ['balance'] });
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    const callArgs = spy.mock.calls[0]?.[0] as { refetchType?: unknown } | undefined;
+    expect(callArgs?.refetchType).toBe('all');
+  });
+
   it('invalidates multiple kinds in parallel', async () => {
     const client = makeClient();
     seed(client);

@@ -45,6 +45,13 @@ export function useInvalidateAfterTx(): (opts: InvalidationOptions) => Promise<v
                   return false;
                 return true;
               },
+              // Force refetch of inactive queries (e.g. TokenList on a tab
+              // that's not currently focused). Without this, RQ marks the
+              // cache stale but only refetches on next mount — and tab
+              // navigators preserve instances, so the home screen never
+              // remounts when the user returns from the swap success
+              // modal. Result: stale balances until full page reload.
+              refetchType: 'all',
             })
             .then(() => undefined),
         );
