@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '../query/keys';
 import { getDappMetadata } from '../api/services';
 import type { DappMetadata } from '../types/trusted-app';
 
@@ -8,44 +9,22 @@ export interface UseDAppMetadataResult {
 }
 
 export function useDAppMetadata(origin: string): UseDAppMetadataResult {
-  const [metadata, setMetadata] = useState<DappMetadata | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadMetadata() {
-      if (!origin) {
-        setMetadata(null);
-        setLoading(false);
-        return;
-      }
-
-      setMetadata(null);
-      setLoading(true);
-
+  const isEnabled = !!origin;
+  const query = useQuery({
+    queryKey: origin ? queryKeys.dappMetadata({ origin }) : ['dapp-metadata', 'disabled'],
+    queryFn: async () => {
       try {
-        const nextMetadata = await getDappMetadata(origin);
-        if (!cancelled) {
-          setMetadata(nextMetadata);
-        }
+        return await getDappMetadata(origin);
       } catch {
-        if (!cancelled) {
-          setMetadata(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        return null;
       }
-    }
+    },
+    enabled: isEnabled,
+    staleTime: 5 * 60_000,
+  });
 
-    void loadMetadata();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [origin]);
-
-  return { metadata, loading };
+  return {
+    metadata: query.data ?? null,
+    loading: isEnabled && query.isPending,
+  };
 }
