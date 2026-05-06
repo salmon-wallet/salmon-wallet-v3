@@ -61,6 +61,7 @@ jest.mock('@salmon/shared', () => ({
   useInactivityTimeout: jest.fn(),
   createQueryClient: () => ({}),
   QueryClientProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+  loadTrustedHostsRegistry: jest.fn().mockResolvedValue(undefined),
 }));
 
 describe('RootLayout mobile lock lifecycle', () => {

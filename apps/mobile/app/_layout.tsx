@@ -12,7 +12,7 @@ import { View, StyleSheet, AppState, type AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
 
 import { I18nProvider } from '../src/i18n';
-import { AccountsProvider, CurrencyProvider, useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider } from '@salmon/shared';
+import { AccountsProvider, CurrencyProvider, loadTrustedHostsRegistry, useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider } from '@salmon/shared';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -50,6 +50,15 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  // Kick off the blinks trusted-host registry load on app startup. The loader
+  // is idempotent and dedupes concurrent calls — it primes the in-memory
+  // cache from persistent storage immediately, then refreshes from salmon-api
+  // in the background. Failures here are non-fatal: the registry falls back
+  // to its hardcoded safety-net hosts so blinks still resolves offline.
+  useEffect(() => {
+    void loadTrustedHostsRegistry();
+  }, []);
 
   if (!loaded) {
     return null;

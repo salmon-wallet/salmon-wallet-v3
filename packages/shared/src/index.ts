@@ -1,6 +1,11 @@
 export * from './api';
 export * as blinks from './blinks';
-export { listTrustedHosts, isHostTrusted, REGISTRY_VERSION } from './blinks/registry/registry';
+export {
+  listTrustedHosts,
+  isHostTrusted,
+  loadTrustedHostsRegistry,
+  getRegistryVersion,
+} from './blinks/registry/registry';
 export * from './blockchain';
 export * from './config';
 export * from './contexts';
