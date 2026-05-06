@@ -292,7 +292,7 @@ export function SwapAmountInput({
       {(usdValue !== undefined || availableBalance !== undefined) && (
         <InfoSection>
           <InfoRow>
-            <UsdValue>{formatPrecise(usdValue)} {currency.toUpperCase()}</UsdValue>
+            <UsdValue>{formatPrecise(usdValue !== undefined ? Math.floor(usdValue * 100) / 100 : undefined)} {currency.toUpperCase()}</UsdValue>
             {showQuickFill ? (
               <QuickFillButtons>
                 {QUICK_FILL_OPTIONS.map((option) => (

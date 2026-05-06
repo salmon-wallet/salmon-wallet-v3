@@ -32,9 +32,6 @@ import { useInvalidateAfterTx } from '../query/invalidation';
 // ============================================================================
 
 const MIN_SWAP_USD = 1;
-// Half-cent epsilon: tolerates stablecoin peg drift and float rounding so an
-// input that *displays* as $1.00 (e.g. 1 USDC at $0.9998) is not rejected.
-const MIN_SWAP_USD_EPSILON = 0.005;
 const QUOTE_DEBOUNCE_MS = 500;
 // Jupiter quotes are valid for ~30s on mainnet but Stealthex bridges drift
 // faster, so 15s gives the user a full read of the review screen without
@@ -315,7 +312,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     !!inAmount &&
     parseFloat(inAmount) > 0 &&
     parseFloat(inAmount) <= (inTokenLive?.balance || 0) &&
-    inUsdValue >= MIN_SWAP_USD - MIN_SWAP_USD_EPSILON &&
+    inUsdValue >= MIN_SWAP_USD &&
     !isLoadingQuote &&
     !quoteError &&
     !!quote;
@@ -337,7 +334,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   const reviewWarning: string | null = (() => {
     if (!inToken || !inAmount || parseFloat(inAmount) <= 0) return null;
     if (parseFloat(inAmount) > (inTokenLive?.balance || 0)) return 'Insufficient balance';
-    if (inUsdValue > 0 && inUsdValue < MIN_SWAP_USD - MIN_SWAP_USD_EPSILON) return `Minimum swap amount is $${MIN_SWAP_USD.toFixed(2)} USD`;
+    if (inUsdValue > 0 && inUsdValue < MIN_SWAP_USD) return `Minimum swap amount is $${MIN_SWAP_USD.toFixed(2)} USD`;
     if (quoteError) return quoteError;
     if (quote?.custom?.priceImpact != null && quote.custom.priceImpact > 3)
       return 'High price impact! You may receive significantly less than expected.';
