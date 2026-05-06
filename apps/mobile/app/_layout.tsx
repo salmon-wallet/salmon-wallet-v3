@@ -12,7 +12,7 @@ import { View, StyleSheet, AppState, type AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
 
 import { I18nProvider } from '../src/i18n';
-import { AccountsProvider, CurrencyProvider, useAccountsContext, useInactivityTimeout } from '@salmon/shared';
+import { AccountsProvider, CurrencyProvider, useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider } from '@salmon/shared';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -28,6 +28,7 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [queryClient] = useState(() => createQueryClient());
   const [loaded, error] = useFonts({
     DMSansLight: require('@salmon/assets/src/fonts/DMSans-Light.ttf'),
     DMSansRegular: require('@salmon/assets/src/fonts/DMSans-Regular.ttf'),
@@ -55,11 +56,13 @@ export default function RootLayout() {
   }
 
   return (
-    <AccountsProvider>
-      <CurrencyProvider>
-        <RootLayoutNav />
-      </CurrencyProvider>
-    </AccountsProvider>
+    <QueryClientProvider client={queryClient}>
+      <AccountsProvider>
+        <CurrencyProvider>
+          <RootLayoutNav />
+        </CurrencyProvider>
+      </AccountsProvider>
+    </QueryClientProvider>
   );
 }
 

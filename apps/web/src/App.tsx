@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { WalletLayout } from '@salmon/ui';
-import { useAccountsContext, useInactivityTimeout } from '@salmon/shared';
+import { useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider } from '@salmon/shared';
 import { router } from './router';
 import { clearSessionKey } from './utils/sessionKeyCache';
 
@@ -47,11 +47,14 @@ function InactivityGuard({ children }: { children: React.ReactNode }) {
 }
 
 export function App(): React.ReactElement {
+  const [queryClient] = useState(() => createQueryClient());
   return (
-    <WalletLayout>
-      <InactivityGuard>
-        <RouterProvider router={router} />
-      </InactivityGuard>
-    </WalletLayout>
+    <QueryClientProvider client={queryClient}>
+      <WalletLayout>
+        <InactivityGuard>
+          <RouterProvider router={router} />
+        </InactivityGuard>
+      </WalletLayout>
+    </QueryClientProvider>
   );
 }
