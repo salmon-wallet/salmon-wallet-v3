@@ -3,12 +3,12 @@
  */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CollectiblesTab } from './CollectiblesTab';
 
-const mockGetAllNfts = vi.fn();
+const mockUseSolanaNfts = vi.fn();
 const mockCanonicalNftToSolanaNftData = vi.fn();
 
 vi.mock('react-i18next', () => ({
@@ -20,12 +20,15 @@ vi.mock('react-i18next', () => ({
 vi.mock('@salmon/ui', () => ({
   styled: (_component: unknown) => () => {
     const React = require('react');
-    return ({ children, ...props }: { children?: React.ReactNode }) => React.createElement('div', props, children);
+    return ({ children, ...props }: { children?: React.ReactNode }) =>
+      React.createElement('div', props, children);
   },
   NftCarouselSection: ({ title, nfts }: { title: string; nfts: Array<{ name: string }> }) => (
     <div>
       <div>{title}</div>
-      {nfts.map((nft) => <div key={nft.name}>{nft.name}</div>)}
+      {nfts.map((nft) => (
+        <div key={nft.name}>{nft.name}</div>
+      ))}
     </div>
   ),
 }));
@@ -38,17 +41,7 @@ vi.mock('@salmon/shared', () => ({
   fontFamily: { sans: 'sans-serif' },
   canonicalNftToSolanaNftData: (...args: unknown[]) => mockCanonicalNftToSolanaNftData(...args),
   getNftSectionTitle: () => 'Solana',
-  INITIAL_NFT_SECTIONS: {
-    solana: { nfts: [], loading: false, blockchain: 'solana', isTestnet: false },
-    'solana-devnet': { nfts: [], loading: false, blockchain: 'solana', networkLabel: 'Devnet', isTestnet: true },
-  },
-  SOLANA_NETWORKS: {
-    'solana-mainnet': { id: 'solana-mainnet' },
-    'solana-devnet': { id: 'solana-devnet' },
-  },
-  getAllNfts: (...args: unknown[]) => mockGetAllNfts(...args),
-  getSolanaNfts: vi.fn(),
-  isSolanaAccount: () => true,
+  useSolanaNfts: (...args: unknown[]) => mockUseSolanaNfts(...args),
 }));
 
 const mockRawNft = {
@@ -68,7 +61,7 @@ const mockAccount = {
   },
 };
 
-describe('CollectiblesTab burn refresh', () => {
+describe('CollectiblesTab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCanonicalNftToSolanaNftData.mockReturnValue({
@@ -77,36 +70,18 @@ describe('CollectiblesTab burn refresh', () => {
       media: 'https://example.com/nft.png',
       blockchain: 'solana',
     });
-    mockGetAllNfts.mockImplementation(async (_network: unknown, _owner: string, noCache: boolean) => (
-      noCache ? [] : [mockRawNft]
-    ));
+    mockUseSolanaNfts.mockImplementation(({ networkId }: { networkId: string }) => ({
+      nfts: networkId === 'solana-mainnet' ? [mockRawNft] : [],
+      loading: false,
+      error: null,
+      isError: false,
+      refresh: vi.fn(),
+    }));
   });
 
-  it('re-fetches owner NFTs with noCache when refreshKey changes after a burn flow', async () => {
-    const { rerender } = render(
-      <CollectiblesTab
-        activeAccount={mockAccount as any}
-        developerNetworks={false}
-        refreshKey={0}
-      />
-    );
+  it('renders mainnet NFTs from the useSolanaNfts query', async () => {
+    render(<CollectiblesTab activeAccount={mockAccount as any} developerNetworks={false} />);
 
-    await screen.findByText('Burned NFT');
-    expect(mockGetAllNfts).toHaveBeenCalledTimes(1);
-    expect(mockGetAllNfts.mock.calls[0]?.[2]).toBe(false);
-
-    rerender(
-      <CollectiblesTab
-        activeAccount={mockAccount as any}
-        developerNetworks={false}
-        refreshKey={1}
-      />
-    );
-
-    await waitFor(() => {
-      expect(mockGetAllNfts).toHaveBeenCalledTimes(2);
-    });
-
-    expect(mockGetAllNfts.mock.calls[1]?.[2]).toBe(true);
+    expect(await screen.findByText('Burned NFT')).toBeTruthy();
   });
 });
