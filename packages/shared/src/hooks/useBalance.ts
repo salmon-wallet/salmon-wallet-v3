@@ -34,6 +34,7 @@ import { queryKeys } from '../query/keys';
 import {
   type WalletBalance,
   type TokenBalanceWithPrice,
+  SOL_CONSTANTS,
 } from '../utils/balance';
 import { getStorageItem, setStorageItem, STORAGE_KEYS } from '../storage';
 
@@ -84,7 +85,11 @@ async function fetchSolanaBalance(
       symbol: item.symbol,
       name: item.name,
       logo: item.logo || undefined,
-      address: item.mint || 'solana',
+      // Native SOL has no mint; Jupiter/SPL programs identify it by the
+      // wrapped-SOL pubkey. The previous literal 'solana' propagated to
+      // swap requests as outputMint=solana and Jupiter rejected with
+      // "Invalid outputMint" → 404 No route found.
+      address: item.mint || SOL_CONSTANTS.ADDRESS,
       coingeckoId: item.coingeckoId || (!item.mint ? 'solana' : undefined),
       tags: item.tags,
       price: item.price,
