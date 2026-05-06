@@ -8,7 +8,7 @@
  * Content: 3-step send flow (Token Select -> Address & Amount -> Confirmation)
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
 import {
@@ -67,6 +67,17 @@ export function SendPage({
   const [successTxId, setSuccessTxId] = useState<string | null>(null);
 
   const { t } = useTranslation();
+
+  // Live balance for the selected token, derived from the reactive `tokens` prop
+  // every render. RQ-backed parents update this list when funds arrive — passing
+  // it down keeps MAX / quick-fill / amount validation in sync with the latest
+  // on-chain state instead of the snapshot taken when the step opened.
+  const liveSelectedBalance = useMemo(() => {
+    if (!selectedToken) return undefined;
+    const live = tokens.find((tok) => tok.address === selectedToken.address);
+    if (!live) return undefined;
+    return typeof live.uiAmount === 'string' ? parseFloat(live.uiAmount) : live.uiAmount;
+  }, [selectedToken, tokens]);
 
   // Send hook
   const sendHook = useSendTransaction({ account, blockchain });
@@ -169,6 +180,7 @@ export function SendPage({
         {step === 'address-amount' && selectedToken && (
           <StepAddressAmount
             token={selectedToken}
+            liveBalance={liveSelectedBalance}
             blockchain={blockchain}
             account={account}
             onBack={handleBackToTokenSelect}

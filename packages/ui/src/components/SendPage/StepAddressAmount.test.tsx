@@ -153,6 +153,26 @@ describe('StepAddressAmount', () => {
     );
   });
 
+  it('uses liveBalance over snapshot uiAmount for MAX quick fill', () => {
+    // token snapshot says 4 USDC but liveBalance reflects an inbound transfer
+    // of 6 USDC bringing the live total to 10. MAX must fill 10, not 4.
+    render(
+      <StepAddressAmount
+        token={token}
+        liveBalance={10}
+        blockchain="solana"
+        account={account}
+        onBack={vi.fn()}
+        onReview={vi.fn()}
+        onCancel={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'MAX' }));
+
+    expect(screen.getByDisplayValue('10')).toBeTruthy();
+  });
+
   it('keeps review disabled for invalid recipient state', () => {
     render(
       <StepAddressAmount
