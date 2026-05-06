@@ -101,7 +101,6 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
     tokens: multiChainTokens,
     featuredTokens: topTokens,
     loading,
-    refresh: refreshBalances,
   } = useMultiChainTokens({
     activeAccount,
     skip: !ready || !activeAccount,
@@ -336,7 +335,6 @@ export function SwapPage({ onNavigateHome }: SwapPageProps = {}) {
         onSendDeposit={handleSendDeposit}
         onBridgeSuccess={handleBridgeSuccess}
         onBridgeError={handleBridgeError}
-        onRefreshBalances={refreshBalances}
         onNavigateHome={onNavigateHome}
       />
     </Container>

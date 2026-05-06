@@ -111,7 +111,6 @@ export default function SwapScreenPage() {
     tokens: multiChainTokens,
     featuredTokens: topTokens,
     loading,
-    refresh: refreshBalances,
   } = useMultiChainTokens({
     activeAccount,
     skip: !ready || !activeAccount,
@@ -392,7 +391,6 @@ export default function SwapScreenPage() {
           onSendDeposit={handleSendDeposit}
           onBridgeSuccess={handleBridgeSuccess}
           onBridgeError={handleBridgeError}
-          onRefreshBalances={refreshBalances}
           onNavigateHome={handleNavigateHome}
         />
       </View>

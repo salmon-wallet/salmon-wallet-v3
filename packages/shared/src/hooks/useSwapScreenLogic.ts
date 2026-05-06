@@ -25,6 +25,7 @@ import { getSwapMode, validateAddress, getChainFromNetwork, toStealthExNetwork }
 import { getChainDisplayName } from '../utils/account';
 import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
 import { getEnabledNetworkIds } from '../api/services/network';
+import { useInvalidateAfterTx } from '../query/invalidation';
 
 // ============================================================================
 // Constants
@@ -247,11 +248,11 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onBridgeSuccess,
   onBridgeError,
   onSendDeposit,
-  onRefreshBalances,
   // Platform-specific
   onBridgeInitiated: _onBridgeInitiated,
   onNavigateHome,
 }: UseSwapScreenLogicParams<StyleType>): UseSwapScreenLogicResult {
+  const invalidateAfterTx = useInvalidateAfterTx();
   // ── State ──────────────────────────────────────────────────────────────
 
   const [step, setStep] = useState<SwapScreenStep>('input');
@@ -525,7 +526,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
       const result = await onSwap(quote);
       setSuccessTxId(result.txId);
       setStep('success');
-      void onRefreshBalances?.();
+      invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch(() => undefined);
       onSuccess?.(result.txId);
     } catch (error) {
       console.error('Swap failed:', error);
@@ -538,7 +539,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [onError, onRefreshBalances, onSuccess, onSwap, quote]);
+  }, [onError, invalidateAfterTx, onSuccess, onSwap, quote]);
 
   const handleConfirmBridge = useCallback(async () => {
     if (!inToken || !outToken || !inAmount || !recipientAddress || !onCreateBridgeExchange) return;
@@ -572,7 +573,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
         }
         setSuccessExchange(exchange);
         setStep('success');
-        void onRefreshBalances?.();
+        invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch(() => undefined);
         onBridgeSuccess?.(exchange);
       } else {
         throw new Error('Failed to create bridge exchange');
@@ -588,7 +589,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeError, onRefreshBalances]);
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeError, invalidateAfterTx]);
 
   const handleRefreshQuote = useCallback(async () => {
     if (isLoadingQuote || isLoadingEstimate) return;
@@ -656,9 +657,9 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setSuccessExchange(null);
     setDepositTxId(null);
     setBridgeTransaction(null);
-    onRefreshBalances?.();
+    invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch(() => undefined);
     onNavigateHome?.();
-  }, [onRefreshBalances, onNavigateHome]);
+  }, [invalidateAfterTx, onNavigateHome]);
 
   // ── Derived / memoised ─────────────────────────────────────────────────
 

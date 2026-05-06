@@ -607,8 +607,6 @@ export interface SwapScreenProps<StyleType> {
   onSendDeposit?: (depositAddress: string, tokenAddress: string, amount: number) => Promise<{ txId: string }>;
   /** Callback to search bridge source tokens */
   onSearchBridgeTokens?: (query: string) => Promise<BridgeTokenSimple[]>;
-  /** Callback to refresh balances after a transaction */
-  onRefreshBalances?: () => void;
   /** Callback to navigate to home after success */
   onNavigateHome?: () => void;
 }

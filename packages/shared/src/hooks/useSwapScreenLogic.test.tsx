@@ -4,7 +4,18 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import React from 'react';
 import type { SwapToken } from '../types/swap';
+import { createTestQueryClient, QueryWrapper } from '../test-utils/query-wrapper';
+
+function makeWrapper() {
+  const client = createTestQueryClient();
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryWrapper client={client}>{children}</QueryWrapper>
+  );
+  Wrapper.displayName = 'TestWrapper';
+  return Wrapper;
+}
 
 vi.mock('../utils/account', () => ({
   getChainDisplayName: vi.fn((chain?: string | null) => {
@@ -116,7 +127,6 @@ function createProps(overrides: Record<string, unknown> = {}) {
     onBridgeSuccess: vi.fn(),
     onBridgeError: vi.fn(),
     onSendDeposit: vi.fn().mockResolvedValue({ txId: 'deposit-tx-1' }),
-    onRefreshBalances: vi.fn(),
     onNavigateHome: vi.fn(),
     ...overrides,
   } as any;
@@ -141,6 +151,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     act(() => {
@@ -174,6 +185,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     act(() => {
@@ -192,6 +204,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result, rerender } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     expect(result.current.inToken?.balance).toBe(2);
@@ -218,6 +231,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     act(() => {
@@ -238,7 +252,6 @@ describe('useSwapScreenLogic', () => {
     });
 
     expect(props.onSwap).toHaveBeenCalledWith(QUOTE);
-    expect(props.onRefreshBalances).toHaveBeenCalledTimes(1);
     expect(props.onSuccess).toHaveBeenCalledWith('swap-tx-1');
     expect(result.current.step).toBe('success');
     expect(result.current.successTxId).toBe('swap-tx-1');
@@ -254,6 +267,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     act(() => {
@@ -276,7 +290,6 @@ describe('useSwapScreenLogic', () => {
       result.current.handleSuccessContinue();
     });
 
-    expect(props.onRefreshBalances).toHaveBeenCalledTimes(2);
     expect(props.onNavigateHome).toHaveBeenCalledTimes(1);
     expect(result.current.step).toBe('input');
     expect(result.current.inAmount).toBe('');
@@ -298,6 +311,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     await act(async () => {
@@ -354,6 +368,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     await act(async () => {
@@ -406,6 +421,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     await act(async () => {
@@ -456,7 +472,6 @@ describe('useSwapScreenLogic', () => {
       'btc'
     );
     expect(props.onSendDeposit).toHaveBeenCalledWith('bridge-deposit-address', SOL.address, 1);
-    expect(props.onRefreshBalances).toHaveBeenCalledTimes(1);
     expect(props.onBridgeSuccess).toHaveBeenCalledWith(BRIDGE_EXCHANGE);
     expect(result.current.step).toBe('success');
     expect(result.current.depositTxId).toBe('deposit-tx-1');
@@ -478,6 +493,7 @@ describe('useSwapScreenLogic', () => {
 
     const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
       initialProps: props,
+      wrapper: makeWrapper(),
     });
 
     await act(async () => {
@@ -548,6 +564,7 @@ describe('useSwapScreenLogic', () => {
 
       const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
         initialProps: props,
+        wrapper: makeWrapper(),
       });
 
       await act(async () => {
@@ -579,6 +596,7 @@ describe('useSwapScreenLogic', () => {
 
       const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
         initialProps: props,
+        wrapper: makeWrapper(),
       });
 
       await act(async () => {
@@ -607,6 +625,7 @@ describe('useSwapScreenLogic', () => {
 
       const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
         initialProps: props,
+        wrapper: makeWrapper(),
       });
 
       await act(async () => {
@@ -633,6 +652,7 @@ describe('useSwapScreenLogic', () => {
 
       const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
         initialProps: props,
+        wrapper: makeWrapper(),
       });
 
       await act(async () => {
@@ -662,6 +682,7 @@ describe('useSwapScreenLogic', () => {
 
       const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
         initialProps: props,
+        wrapper: makeWrapper(),
       });
 
       await act(async () => {

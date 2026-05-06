@@ -82,7 +82,6 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
     tokens: multiChainTokens,
     featuredTokens: topTokens,
     loading,
-    refresh: refreshBalances,
   } = useMultiChainTokens({
     activeAccount,
     skip: !ready || !activeAccount,
@@ -268,7 +267,6 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
         onSendDeposit={handleSendDeposit}
         onBridgeSuccess={handleBridgeSuccess}
         onBridgeError={handleBridgeError}
-        onRefreshBalances={refreshBalances}
         onNavigateHome={onNavigateHome}
       />
     </Container>
