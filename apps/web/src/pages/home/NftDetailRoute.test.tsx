@@ -46,6 +46,7 @@ vi.mock('@salmon/shared', () => ({
   createBurnTransaction: (...args: unknown[]) => mockCreateBurnTransaction(...args),
   signAndSendPreparedSolanaTransactions: (...args: unknown[]) => mockSignAndSendPreparedSolanaTransactions(...args),
   isSolanaAccount: () => true,
+  useInvalidateAfterTx: () => vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('@salmon/ui', () => ({
@@ -76,7 +77,7 @@ describe('NftDetailRoute burn navigation', () => {
     mockSignAndSendPreparedSolanaTransactions.mockResolvedValue(['sig-111']);
   });
 
-  it('navigates home with a collectibles refresh hint after burn success', async () => {
+  it('navigates home after burn success', async () => {
     render(<NftDetailRoute />);
 
     fireEvent.click(screen.getByText('Prepare Burn'));
@@ -96,8 +97,6 @@ describe('NftDetailRoute burn navigation', () => {
 
     fireEvent.click(screen.getByText('Continue'));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/home', {
-      state: { refreshCollectibles: true },
-    });
+    expect(mockNavigate).toHaveBeenCalledWith('/home');
   });
 });

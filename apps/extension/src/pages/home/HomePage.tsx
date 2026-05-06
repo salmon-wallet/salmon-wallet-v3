@@ -54,6 +54,7 @@ import {
   BLOCKCHAIN_TO_COINGECKO,
   PERIOD_TO_DAYS,
   coinInfoToMarketData,
+  useInvalidateAfterTx,
 } from '@salmon/shared';
 import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { sessionArea } from '../../utils/storageCompat';
@@ -482,7 +483,7 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
 
   // NFT see-all page state
   const [seeAllData, setSeeAllData] = useState<{ title: string; blockchain: NftBlockchain; nfts: NftData[] } | null>(null);
-  const [collectiblesRefreshKey, setCollectiblesRefreshKey] = useState(0);
+  const invalidateAfterTx = useInvalidateAfterTx();
 
   // Bitcoin-specific state
   const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
@@ -801,9 +802,10 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
     handleNftBurnBack();
     setCurrentPage('home');
     setSelectedNft(null);
-    setCollectiblesRefreshKey((prev) => prev + 1);
-    refresh();
-  }, [handleNftBurnBack, refresh]);
+    invalidateAfterTx({
+      kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+    }).catch(() => undefined);
+  }, [handleNftBurnBack, invalidateAfterTx]);
 
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
     setSelectedTokenChartPeriod(period);
@@ -1256,8 +1258,9 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
                   setNftSendDialogVisible(false);
                   setCurrentPage('home');
                   setSelectedNft(null);
-                  setCollectiblesRefreshKey((prev) => prev + 1);
-                  refresh();
+                  invalidateAfterTx({
+                    kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+                  }).catch(() => undefined);
                 }}
               />
             </>
@@ -1440,7 +1443,6 @@ export function HomePage({ onAddAccount: _onAddAccount, refreshKey }: HomePagePr
             <CollectiblesPage
               activeAccount={activeAccount}
               developerNetworks={developerNetworks}
-              refreshKey={collectiblesRefreshKey}
               onNftDetailPress={handleNftDetailPress}
               // onSeeAllPress={handleSeeAllPress}
             />
