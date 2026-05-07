@@ -9,6 +9,24 @@ import {
 } from './encryption';
 import { getStashItem, setStashItem, STASH_KEYS } from '../storage';
 
+/**
+ * Thrown when `encryptMnemonics` is called without a password and without
+ * a valid cached derived key. Callers must surface the failure (and prompt
+ * the user for the password) instead of silently degrading the vault to
+ * plaintext.
+ *
+ * The class `name` is the stable identifier — UI handlers should branch on
+ * `err instanceof EncryptionMaterialMissingError` and translate the user-
+ * facing message via i18n. The english `message` here is for logs only.
+ */
+export class EncryptionMaterialMissingError extends Error {
+  constructor(message = 'Cannot re-encrypt vault: no password and no valid cached key available') {
+    super(message);
+    this.name = 'EncryptionMaterialMissingError';
+    Object.setPrototypeOf(this, EncryptionMaterialMissingError.prototype);
+  }
+}
+
 export interface EncryptMnemonicsResult {
   vault: (LockedVault & { isEncrypted: true }) | Record<string, string>;
   requiredLock: boolean;
@@ -39,7 +57,9 @@ export interface EncryptMnemonicsOptions {
  *
  * When no password is provided:
  * 1. Checks for a cached derived key and uses it if valid.
- * 2. Returns plaintext mnemonics if no encryption material is available.
+ * 2. Throws `EncryptionMaterialMissingError` when no encryption material
+ *    is available — callers must surface the failure (and prompt the user
+ *    for the password) rather than degrade the vault to plaintext.
  */
 export async function encryptMnemonics(
   mnemonics: Record<string, string>,
@@ -76,5 +96,5 @@ export async function encryptMnemonics(
     return { vault: { ...vault, isEncrypted: true as const }, requiredLock: true };
   }
 
-  return { vault: mnemonics, requiredLock: false };
+  throw new EncryptionMaterialMissingError();
 }

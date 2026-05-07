@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('react-native-fast-crypto', () => ({ pbkdf2: null }));
 
-import { encryptMnemonics } from './encrypt-mnemonics';
+import { encryptMnemonics, EncryptionMaterialMissingError } from './encrypt-mnemonics';
 import { lockAndGetKey, KEY_CACHE_TTL, type DerivedKeyCache } from './encryption';
 import { initStash, resetStash, getStashItem, setStashItem, STASH_KEYS } from '../storage';
 
@@ -67,5 +67,31 @@ describe('encryptMnemonics — sliding TTL', () => {
 
     const persisted = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
     expect(persisted?.expiresAt).toBeGreaterThan(Date.now());
+  });
+});
+
+describe('encryptMnemonics — missing material', () => {
+  it('throws EncryptionMaterialMissingError when no password and no cached key', async () => {
+    await expect(encryptMnemonics(TEST_MNEMONICS)).rejects.toBeInstanceOf(
+      EncryptionMaterialMissingError,
+    );
+  });
+
+  it('throws EncryptionMaterialMissingError when no password and cached key has expired', async () => {
+    const { keyCache } = await lockAndGetKey(TEST_MNEMONICS, TEST_PASSWORD, { iterations: 1000 });
+    const expired: DerivedKeyCache = { ...keyCache, expiresAt: Date.now() - 1 };
+    await setStashItem(STASH_KEYS.DERIVED_KEY, expired);
+
+    await expect(encryptMnemonics(TEST_MNEMONICS)).rejects.toBeInstanceOf(
+      EncryptionMaterialMissingError,
+    );
+  });
+
+  it('does not write anything to the stash when it throws', async () => {
+    await expect(encryptMnemonics(TEST_MNEMONICS)).rejects.toBeInstanceOf(
+      EncryptionMaterialMissingError,
+    );
+    const persisted = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
+    expect(persisted).toBeUndefined();
   });
 });
