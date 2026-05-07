@@ -25,6 +25,7 @@ import { getSwapMode, validateAddress, getChainFromNetwork, toStealthExNetwork }
 import { getChainDisplayName } from '../utils/account';
 import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
 import { getEnabledNetworkIds } from '../api/services/network';
+import { useInvalidateAfterTx } from '../query/invalidation';
 
 // ============================================================================
 // Constants
@@ -247,11 +248,11 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onBridgeSuccess,
   onBridgeError,
   onSendDeposit,
-  onRefreshBalances,
   // Platform-specific
   onBridgeInitiated: _onBridgeInitiated,
   onNavigateHome,
 }: UseSwapScreenLogicParams<StyleType>): UseSwapScreenLogicResult {
+  const invalidateAfterTx = useInvalidateAfterTx();
   // ── State ──────────────────────────────────────────────────────────────
 
   const [step, setStep] = useState<SwapScreenStep>('input');
@@ -286,6 +287,16 @@ export function useSwapScreenLogic<StyleType = unknown>({
 
   const swapMode = useMemo(() => getSwapMode(inToken, outToken), [inToken, outToken]);
 
+  // The `inToken` state is captured at selection time; balance can become stale
+  // if funds arrive while the user is on the swap screen. `inTokenLive` re-reads
+  // the matching entry from the reactive `tokens` prop on every render so
+  // balance-dependent validation always uses fresh data. Falls back to the
+  // selected snapshot when no live entry exists (e.g. token not yet in list).
+  const inTokenLive = useMemo(
+    () => (inToken ? findMatchingToken(tokens, inToken) ?? inToken : null),
+    [inToken, tokens],
+  );
+
   const inTokenPrice = tokens.find(t => t.address === inToken?.address)?.usdPrice ?? inToken?.usdPrice;
   const inUsdValue = inTokenPrice && inAmount
     ? parseFloat(inAmount) * inTokenPrice
@@ -300,7 +311,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     !!outToken &&
     !!inAmount &&
     parseFloat(inAmount) > 0 &&
-    parseFloat(inAmount) <= (inToken.balance || 0) &&
+    parseFloat(inAmount) <= (inTokenLive?.balance || 0) &&
     inUsdValue >= MIN_SWAP_USD &&
     !isLoadingQuote &&
     !quoteError &&
@@ -312,7 +323,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     !!outToken &&
     !!inAmount &&
     parseFloat(inAmount) > 0 &&
-    parseFloat(inAmount) <= (inToken.balance || Infinity) &&
+    parseFloat(inAmount) <= (inTokenLive?.balance || Infinity) &&
     !isLoadingEstimate &&
     !quoteError &&
     !!bridgeEstimate &&
@@ -322,7 +333,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
 
   const reviewWarning: string | null = (() => {
     if (!inToken || !inAmount || parseFloat(inAmount) <= 0) return null;
-    if (parseFloat(inAmount) > (inToken.balance || 0)) return 'Insufficient balance';
+    if (parseFloat(inAmount) > (inTokenLive?.balance || 0)) return 'Insufficient balance';
     if (inUsdValue > 0 && inUsdValue < MIN_SWAP_USD) return `Minimum swap amount is $${MIN_SWAP_USD.toFixed(2)} USD`;
     if (quoteError) return quoteError;
     if (quote?.custom?.priceImpact != null && quote.custom.priceImpact > 3)
@@ -525,7 +536,9 @@ export function useSwapScreenLogic<StyleType = unknown>({
       const result = await onSwap(quote);
       setSuccessTxId(result.txId);
       setStep('success');
-      void onRefreshBalances?.();
+      invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch((err) => {
+        console.warn('[useSwapScreenLogic] invalidateAfterTx failed:', err);
+      });
       onSuccess?.(result.txId);
     } catch (error) {
       console.error('Swap failed:', error);
@@ -538,7 +551,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [onError, onRefreshBalances, onSuccess, onSwap, quote]);
+  }, [onError, invalidateAfterTx, onSuccess, onSwap, quote]);
 
   const handleConfirmBridge = useCallback(async () => {
     if (!inToken || !outToken || !inAmount || !recipientAddress || !onCreateBridgeExchange) return;
@@ -572,7 +585,9 @@ export function useSwapScreenLogic<StyleType = unknown>({
         }
         setSuccessExchange(exchange);
         setStep('success');
-        void onRefreshBalances?.();
+        invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch((err) => {
+        console.warn('[useSwapScreenLogic] invalidateAfterTx failed:', err);
+      });
         onBridgeSuccess?.(exchange);
       } else {
         throw new Error('Failed to create bridge exchange');
@@ -588,7 +603,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeError, onRefreshBalances]);
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeError, invalidateAfterTx]);
 
   const handleRefreshQuote = useCallback(async () => {
     if (isLoadingQuote || isLoadingEstimate) return;
@@ -656,9 +671,9 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setSuccessExchange(null);
     setDepositTxId(null);
     setBridgeTransaction(null);
-    onRefreshBalances?.();
+    invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch(() => undefined);
     onNavigateHome?.();
-  }, [onRefreshBalances, onNavigateHome]);
+  }, [invalidateAfterTx, onNavigateHome]);
 
   // ── Derived / memoised ─────────────────────────────────────────────────
 
@@ -798,7 +813,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     name: inToken.name || inToken.symbol,
     logo: inToken.logo,
     network: inToken.networkId,
-    balance: inToken.balance,
+    balance: inTokenLive?.balance ?? inToken.balance,
     usdPrice: inToken.usdPrice,
   } : null;
 

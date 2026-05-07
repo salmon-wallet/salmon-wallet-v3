@@ -4,11 +4,11 @@ import Box from '@mui/material/Box';
 import {
   useAccountsContext,
   useBridge,
+  useJupiterTokenList,
   useMultiChainTokens,
   useSwap,
-  getTokenList,
-  searchTokens,
   mapToSwapToken,
+  searchTokens,
   unifiedToSwapToken,
   type SolanaAccount,
   type SwapNetworkId,
@@ -82,7 +82,6 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
     tokens: multiChainTokens,
     featuredTokens: topTokens,
     loading,
-    refresh: refreshBalances,
   } = useMultiChainTokens({
     activeAccount,
     skip: !ready || !activeAccount,
@@ -92,15 +91,8 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
   const swapTokens: SwapToken[] = useMemo(() => multiChainTokens.map(unifiedToSwapToken), [multiChainTokens]);
   const featuredTokens: SwapToken[] = useMemo(() => topTokens.map(unifiedToSwapToken), [topTokens]);
 
-  // Jupiter token list
-  const [jupiterTokens, setJupiterTokens] = useState<SwapToken[]>([]);
-  useEffect(() => {
-    let cancelled = false;
-    getTokenList(swapNetworkId)
-      .then((list) => { if (!cancelled) setJupiterTokens(list.map((t) => mapToSwapToken(t))); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [swapNetworkId]);
+  // Jupiter token list (shared React Query hook)
+  const { tokens: jupiterTokens } = useJupiterTokenList({ networkId: swapNetworkId });
 
   // Default recipient address (BTC for bridges)
   const defaultRecipientAddress = useMemo(() => {
@@ -268,7 +260,6 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
         onSendDeposit={handleSendDeposit}
         onBridgeSuccess={handleBridgeSuccess}
         onBridgeError={handleBridgeError}
-        onRefreshBalances={refreshBalances}
         onNavigateHome={onNavigateHome}
       />
     </Container>

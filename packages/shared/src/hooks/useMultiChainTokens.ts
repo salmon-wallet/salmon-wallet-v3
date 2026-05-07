@@ -10,14 +10,19 @@
  * - Identifies chain type for each token
  * - Supports automatic swap vs bridge detection
  *
+ * Internally each chain's balance flows through `useBalance`, which is now
+ * a `react-query` query under the hood. The `refresh()` method fans out to
+ * each underlying query's `refetch()`. Loading / refreshing flags derive
+ * from the per-chain query state — no manual refresh-trigger counter.
+ *
  * @module hooks/useMultiChainTokens
  */
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { Account } from '../types/account';
 import type { BlockchainAccount, BlockchainType, NetworkId } from '../types/blockchain';
 import type { UnifiedToken } from '../types/token';
-import { useBalance } from './useBalance';
+import { useBalance, type UseBalanceResult } from './useBalance';
 import { MAINNET_NETWORK_ID } from '../utils/network';
 
 /**
@@ -25,17 +30,6 @@ import { MAINNET_NETWORK_ID } from '../utils/network';
  * Alias of the canonical BlockchainType.
  */
 export type ChainType = BlockchainType;
-
-/**
- * Balance data for a single chain
- */
-interface ChainBalance {
-  chain: ChainType;
-  networkId: string;
-  tokens: UnifiedToken[];
-  loading: boolean;
-  error: string | null;
-}
 
 /**
  * Parameters for the useMultiChainTokens hook
@@ -57,13 +51,17 @@ export interface UseMultiChainTokensResult {
   tokensByChain: Record<ChainType, UnifiedToken[]>;
   /** Whether any chain is still loading */
   loading: boolean;
+  /** Whether any chain is currently refetching (background refresh) */
+  refreshing: boolean;
   /** Whether all chains have loaded */
   ready: boolean;
   /** Errors from any chain */
   errors: Record<ChainType, string | null>;
   /** Whether any chain has errors */
   hasErrors: boolean;
-  /** Refresh all balances */
+  /** Most recent dataUpdatedAt across the underlying queries (or null) */
+  lastUpdated: number | null;
+  /** Refresh all balances by refetching every underlying query */
   refresh: () => Promise<void>;
   /** Get tokens for a specific chain */
   getTokensForChain: (chain: ChainType) => UnifiedToken[];
@@ -79,60 +77,26 @@ export interface UseMultiChainTokensResult {
 const NETWORK_IDS = MAINNET_NETWORK_ID;
 
 // ============================================================================
-// Helper Functions
+// Helpers
 // ============================================================================
 
-
-// ============================================================================
-// Single Chain Balance Hook
-// ============================================================================
-
-/**
- * Hook to fetch balance for a single chain
- */
-function useChainBalance(
-  account: BlockchainAccount | undefined,
-  networkId: string,
+function toUnifiedTokens(
+  state: UseBalanceResult,
   chain: ChainType,
-  skip: boolean,
-  refreshKey: number
-): ChainBalance {
-  const { tokens, loading, error, refresh } = useBalance({
-    account,
-    networkId: networkId as NetworkId,
-    skip: skip || !account,
-  });
-
-  useEffect(() => {
-    if (refreshKey <= 0 || skip || !account) {
-      return;
-    }
-
-    void refresh();
-  }, [account, refresh, refreshKey, skip]);
-
-  const unifiedTokens: UnifiedToken[] = useMemo(() => {
-    return tokens.map((token) => ({
-      symbol: token.symbol || '',
-      name: token.name || token.symbol || '',
-      address: token.address || token.mint || '',
-      decimals: token.decimals || 9,
-      logo: token.logo || undefined,
-      balance: token.uiAmount || 0,
-      usdPrice: token.price,
-      usdBalance: token.usdBalance,
-      chain,
-      networkId,
-    }));
-  }, [tokens, chain, networkId]);
-
-  return {
+  networkId: string
+): UnifiedToken[] {
+  return state.tokens.map((token) => ({
+    symbol: token.symbol || '',
+    name: token.name || token.symbol || '',
+    address: token.address || token.mint || '',
+    decimals: token.decimals || 9,
+    logo: token.logo || undefined,
+    balance: token.uiAmount || 0,
+    usdPrice: token.price,
+    usdBalance: token.usdBalance,
     chain,
     networkId,
-    tokens: unifiedTokens,
-    loading,
-    error,
-  };
+  }));
 }
 
 // ============================================================================
@@ -142,23 +106,14 @@ function useChainBalance(
 /**
  * Hook for fetching and combining tokens from all blockchain accounts.
  *
- * This hook:
  * - Gets blockchain accounts for Solana, Bitcoin, and Ethereum
- * - Fetches balances for each chain with accounts
+ * - Fetches balances for each chain via `useBalance` (react-query under the hood)
  * - Combines all tokens into a unified format
- * - Provides helpers for chain filtering and swap type detection
- *
- * @param params - Hook configuration parameters
- * @returns Combined tokens and utilities
+ * - Provides helpers for chain filtering and swap-type detection
  *
  * @example
  * ```tsx
- * const { tokens, loading, getSwapType } = useMultiChainTokens({
- *   activeAccount,
- * });
- *
- * // tokens contains all tokens from SOL, BTC, ETH
- * // Each token has a 'chain' property to identify its origin
+ * const { tokens, loading, getSwapType } = useMultiChainTokens({ activeAccount });
  * ```
  */
 export function useMultiChainTokens(
@@ -166,10 +121,7 @@ export function useMultiChainTokens(
 ): UseMultiChainTokensResult {
   const { activeAccount, skip = false } = params;
 
-  // State for refresh trigger
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  // Get blockchain accounts for each chain
+  // Resolve per-chain blockchain accounts
   const solanaAccount = useMemo(() => {
     if (!activeAccount?.networksAccounts) return undefined;
     const accounts = activeAccount.networksAccounts[NETWORK_IDS.solana];
@@ -188,93 +140,116 @@ export function useMultiChainTokens(
     return accounts?.find((a) => a !== null) as BlockchainAccount | undefined;
   }, [activeAccount]);
 
-  // Fetch balances for each chain
-  const solanaBalance = useChainBalance(
-    solanaAccount,
-    NETWORK_IDS.solana,
-    'solana',
-    skip,
-    refreshTrigger
+  // Per-chain balance queries
+  const solanaBalance = useBalance({
+    account: solanaAccount,
+    networkId: NETWORK_IDS.solana as NetworkId,
+    skip: skip || !solanaAccount,
+  });
+
+  const bitcoinBalance = useBalance({
+    account: bitcoinAccount,
+    networkId: NETWORK_IDS.bitcoin as NetworkId,
+    skip: skip || !bitcoinAccount,
+  });
+
+  const ethereumBalance = useBalance({
+    account: ethereumAccount,
+    networkId: NETWORK_IDS.ethereum as NetworkId,
+    skip: skip || !ethereumAccount,
+  });
+
+  // Per-chain unified token lists
+  const solanaTokens = useMemo(
+    () => toUnifiedTokens(solanaBalance, 'solana', NETWORK_IDS.solana),
+    [solanaBalance]
+  );
+  const bitcoinTokens = useMemo(
+    () => toUnifiedTokens(bitcoinBalance, 'bitcoin', NETWORK_IDS.bitcoin),
+    [bitcoinBalance]
+  );
+  const ethereumTokens = useMemo(
+    () => toUnifiedTokens(ethereumBalance, 'ethereum', NETWORK_IDS.ethereum),
+    [ethereumBalance]
   );
 
-  const bitcoinBalance = useChainBalance(
-    bitcoinAccount,
-    NETWORK_IDS.bitcoin,
-    'bitcoin',
-    skip,
-    refreshTrigger
-  );
-
-  const ethereumBalance = useChainBalance(
-    ethereumAccount,
-    NETWORK_IDS.ethereum,
-    'ethereum',
-    skip,
-    refreshTrigger
-  );
-
-  // Combine all tokens
+  // Combined token list (filtered + sorted)
   const tokens = useMemo(() => {
     const allTokens: UnifiedToken[] = [
-      ...solanaBalance.tokens,
-      ...bitcoinBalance.tokens,
-      ...ethereumBalance.tokens,
+      ...solanaTokens,
+      ...bitcoinTokens,
+      ...ethereumTokens,
     ].filter((token) => {
       const hasName = !!token.name && token.name !== 'Unknown Token';
       const hasSymbol = !!token.symbol && token.symbol !== 'UNKNOWN';
       return hasName || hasSymbol;
     });
 
-    // Sort by USD balance descending
     return allTokens.sort((a, b) => (b.usdBalance || 0) - (a.usdBalance || 0));
-  }, [solanaBalance.tokens, bitcoinBalance.tokens, ethereumBalance.tokens]);
+  }, [solanaTokens, bitcoinTokens, ethereumTokens]);
 
-  // Tokens grouped by chain
-  const tokensByChain = useMemo(() => {
-    return {
-      solana: solanaBalance.tokens,
-      bitcoin: bitcoinBalance.tokens,
-      ethereum: ethereumBalance.tokens,
-    };
-  }, [solanaBalance.tokens, bitcoinBalance.tokens, ethereumBalance.tokens]);
+  const tokensByChain = useMemo(
+    () => ({
+      solana: solanaTokens,
+      bitcoin: bitcoinTokens,
+      ethereum: ethereumTokens,
+    }),
+    [solanaTokens, bitcoinTokens, ethereumTokens]
+  );
 
-  // Loading state
-  const loading = solanaBalance.loading || bitcoinBalance.loading || ethereumBalance.loading;
+  // Loading = any chain is in initial pending state
+  const loading =
+    solanaBalance.loading || bitcoinBalance.loading || ethereumBalance.loading;
+  // Refreshing = any chain currently refetching in the background
+  const refreshing =
+    solanaBalance.refreshing || bitcoinBalance.refreshing || ethereumBalance.refreshing;
+
   const ready = !loading && tokens.length > 0;
 
-  // Errors
-  const errors = useMemo(() => ({
-    solana: solanaBalance.error,
-    bitcoin: bitcoinBalance.error,
-    ethereum: ethereumBalance.error,
-  }), [solanaBalance.error, bitcoinBalance.error, ethereumBalance.error]);
+  const errors = useMemo(
+    () => ({
+      solana: solanaBalance.error,
+      bitcoin: bitcoinBalance.error,
+      ethereum: ethereumBalance.error,
+    }),
+    [solanaBalance.error, bitcoinBalance.error, ethereumBalance.error]
+  );
 
-  // Featured tokens (top 5 by USD value)
-  const featuredTokens = useMemo(() => {
-    return tokens.slice(0, 5);
-  }, [tokens]);
+  const featuredTokens = useMemo(() => tokens.slice(0, 5), [tokens]);
 
-  // Get tokens for a specific chain
-  const getTokensForChain = useCallback((chain: ChainType) => {
-    return tokensByChain[chain] || [];
-  }, [tokensByChain]);
+  const getTokensForChain = useCallback(
+    (chain: ChainType) => tokensByChain[chain] || [],
+    [tokensByChain]
+  );
 
-  // Refresh all balances
+  const lastUpdated = useMemo(() => {
+    const candidates = [
+      solanaBalance.lastUpdated,
+      bitcoinBalance.lastUpdated,
+      ethereumBalance.lastUpdated,
+    ].filter((v): v is number => typeof v === 'number');
+    return candidates.length > 0 ? Math.max(...candidates) : null;
+  }, [solanaBalance.lastUpdated, bitcoinBalance.lastUpdated, ethereumBalance.lastUpdated]);
+
   const refresh = useCallback(async () => {
-    setRefreshTrigger((prev) => prev + 1);
-    // The useBalance hooks will refresh on next render cycle
-  }, []);
+    await Promise.all([
+      solanaBalance.refresh(),
+      bitcoinBalance.refresh(),
+      ethereumBalance.refresh(),
+    ]);
+  }, [solanaBalance, bitcoinBalance, ethereumBalance]);
 
   return {
     tokens,
     tokensByChain,
     loading,
+    refreshing,
     ready,
     errors,
-    hasErrors: Object.values(errors).some(e => e !== null),
+    hasErrors: Object.values(errors).some((e) => e !== null),
+    lastUpdated,
     refresh,
     getTokensForChain,
     featuredTokens,
   };
 }
-

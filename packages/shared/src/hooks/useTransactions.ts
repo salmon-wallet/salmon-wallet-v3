@@ -5,13 +5,10 @@
  * Supports Solana, Bitcoin, and Ethereum networks.
  * Provides pagination, caching, and transforms API data to UI-friendly format.
  *
- * Features:
- * - Multi-chain support (Solana, Bitcoin, Ethereum)
- * - Automatic pagination with "load more" functionality
- * - 30-second cache TTL for performance
- * - Direct mapping from backend response (already UI-formatted)
- * - Loading and error states
- * - Pull-to-refresh support
+ * Internals are powered by @tanstack/react-query's `useInfiniteQuery` —
+ * caching, dedupe, refetch-on-focus, and invalidation are handled by the
+ * QueryClient mounted at the app root. The public return shape is preserved
+ * for backwards compatibility.
  *
  * @example
  * ```tsx
@@ -25,15 +22,18 @@
  * } = useTransactions({
  *   address: walletAddress,
  *   networkId: 'solana-mainnet', // or 'bitcoin-mainnet', 'ethereum-mainnet', etc.
+ *   account: activeBlockchainAccount,
  * });
  * ```
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { BlockchainAccount, NetworkId } from '../types/blockchain';
 import type { Transaction, TransactionItem } from '../types/transaction';
 import { isSolanaAccount, getBlockchainFromNetworkId } from '../utils/account';
 import { transformSolanaTransaction, transformMultichainTransaction } from '../utils/transactions';
+import { queryKeys } from '../query/keys';
 
 /**
  * Options for the useTransactions hook
@@ -81,11 +81,58 @@ export interface UseTransactionsResult {
 // Constants
 // ============================================================================
 
-/** Cache TTL in milliseconds (30 seconds) */
-const CACHE_TTL = 30 * 1000;
-
 /** Default page size */
 const DEFAULT_PAGE_SIZE = 20;
+
+/** Stale time (60s) — RQ default refetchOnWindowFocus only fires when stale */
+const STALE_TIME_MS = 60 * 1000;
+
+// ============================================================================
+// Pure fetcher
+// ============================================================================
+
+interface TransactionPage {
+  items: Transaction[];
+  nextCursor: string | undefined;
+}
+
+interface FetchPageArgs {
+  account: BlockchainAccount;
+  networkId: NetworkId;
+  pageParam: string | undefined;
+  pageSize: number;
+}
+
+async function fetchTransactionsPage({
+  account,
+  networkId,
+  pageParam,
+  pageSize,
+}: FetchPageArgs): Promise<TransactionPage> {
+  const blockchain = getBlockchainFromNetworkId(networkId);
+
+  if (isSolanaAccount(account)) {
+    const response = await account.getRecentTransactions({
+      nextPageToken: pageParam,
+      pageSize,
+    });
+    return {
+      items: response.data.map(transformSolanaTransaction),
+      nextCursor: response.pageToken,
+    };
+  }
+
+  const response = await account.getRecentTransactions({
+    nextPageToken: pageParam,
+    pageSize,
+  });
+  return {
+    items: response.items.map((tx) =>
+      transformMultichainTransaction(tx as unknown as TransactionItem, blockchain)
+    ),
+    nextCursor: response.nextPageToken,
+  };
+}
 
 // ============================================================================
 // Hook Implementation
@@ -104,148 +151,81 @@ export function useTransactions({
   skip = false,
   account,
 }: UseTransactionsParams): UseTransactionsResult {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
+  const queryClient = useQueryClient();
+  const enabled = !!address && !!account && !skip;
 
-  // Refs for pagination and caching
-  const oldestSignatureRef = useRef<string | undefined>(undefined);
-  const cacheTimestampRef = useRef<number>(0);
-  const fetchedAddressRef = useRef<string | undefined>(undefined);
+  // Use address as accountId for query key (matches existing call sites that
+  // identify wallets by their public address).
+  const queryKey = queryKeys.transactions({
+    accountId: address ?? '',
+    networkId,
+  });
 
-  /**
-   * Fetch transactions from the API
-   */
-  const fetchTransactions = useCallback(
-    async (options: { isLoadMore?: boolean; isRefresh?: boolean } = {}) => {
-      const { isLoadMore = false, isRefresh = false } = options;
+  const query = useInfiniteQuery<
+    TransactionPage,
+    Error,
+    { pages: TransactionPage[]; pageParams: Array<string | undefined> },
+    typeof queryKey,
+    string | undefined
+  >({
+    queryKey,
+    queryFn: ({ pageParam }) =>
+      fetchTransactionsPage({
+        account: account as BlockchainAccount,
+        networkId,
+        pageParam,
+        pageSize,
+      }),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    staleTime: STALE_TIME_MS,
+    enabled,
+  });
 
-      if (!address || skip) {
-        return;
+  const transactions = useMemo<Transaction[]>(() => {
+    if (!query.data) return [];
+    // Dedup by id across pages (preserves first occurrence order).
+    const seen = new Set<string>();
+    const out: Transaction[] = [];
+    for (const page of query.data.pages) {
+      for (const tx of page.items) {
+        if (seen.has(tx.id)) continue;
+        seen.add(tx.id);
+        out.push(tx);
       }
-
-      // Check if we need to reset on address change
-      if (fetchedAddressRef.current !== address) {
-        setTransactions([]);
-        oldestSignatureRef.current = undefined;
-        fetchedAddressRef.current = address;
-      }
-
-      // Check cache validity for initial/refresh loads
-      const now = Date.now();
-      if (!isLoadMore && !isRefresh && now - cacheTimestampRef.current < CACHE_TTL) {
-        return;
-      }
-
-      // Set appropriate loading state
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else if (isRefresh) {
-        setRefreshing(true);
-        // Reset pagination on refresh
-        oldestSignatureRef.current = undefined;
-      } else {
-        setLoading(true);
-      }
-      setError(null);
-
-      try {
-        const blockchain = getBlockchainFromNetworkId(networkId);
-        let newTransactions: Transaction[];
-        let nextPageToken: string | undefined;
-        let hasMorePages: boolean;
-
-        if (!account) {
-          return;
-        }
-
-        if (isSolanaAccount(account)) {
-          // Use SolanaAccount DI method
-          const response = await account.getRecentTransactions({
-            nextPageToken: isLoadMore ? oldestSignatureRef.current : undefined,
-            pageSize,
-          });
-          newTransactions = response.data.map(transformSolanaTransaction);
-          nextPageToken = response.pageToken;
-          hasMorePages = !!response.pageToken;
-        } else {
-          // Use BitcoinAccount/EthereumAccount DI method
-          const response = await account.getRecentTransactions({
-            nextPageToken: isLoadMore ? oldestSignatureRef.current : undefined,
-            pageSize,
-          });
-          // AccountTransaction and TransactionItem share the same backend shape
-          newTransactions = response.items.map(tx => transformMultichainTransaction(tx as unknown as TransactionItem, blockchain));
-          nextPageToken = response.nextPageToken;
-          hasMorePages = !!response.nextPageToken;
-        }
-
-        if (isLoadMore) {
-          // Append to existing transactions
-          setTransactions((prev) => {
-            const existingIds = new Set(prev.map((t) => t.id));
-            const unique = newTransactions.filter((t) => !existingIds.has(t.id));
-            return [...prev, ...unique];
-          });
-        } else {
-          // Replace transactions
-          setTransactions(newTransactions);
-          cacheTimestampRef.current = now;
-        }
-
-        // Update pagination state
-        oldestSignatureRef.current = nextPageToken;
-        setHasMore(hasMorePages);
-      } catch (err) {
-        console.error('[useTransactions] Failed to fetch transactions:', err);
-        setError(
-          err instanceof Error ? err.message : 'Failed to fetch transactions'
-        );
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-        setRefreshing(false);
-      }
-    },
-    [address, networkId, pageSize, skip, account]
-  );
-
-  // Initial fetch
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
-
-  /**
-   * Load more transactions (pagination)
-   */
-  const loadMore = useCallback(async () => {
-    if (!hasMore || loadingMore || loading) {
-      return;
     }
-    await fetchTransactions({ isLoadMore: true });
-  }, [fetchTransactions, hasMore, loadingMore, loading]);
+    return out;
+  }, [query.data]);
 
-  /**
-   * Refresh all transactions
-   */
+  const loadMore = useCallback(async () => {
+    if (!query.hasNextPage || query.isFetchingNextPage || query.isPending) return;
+    await query.fetchNextPage();
+  }, [query]);
+
   const refresh = useCallback(async () => {
-    await fetchTransactions({ isRefresh: true });
-  }, [fetchTransactions]);
+    await queryClient.invalidateQueries({ queryKey });
+  }, [queryClient, queryKey]);
+
+  const errorMessage = query.error
+    ? query.error instanceof Error
+      ? query.error.message
+      : 'Failed to fetch transactions'
+    : null;
+
+  const loading = query.isPending && enabled;
+  const refreshing =
+    query.isFetching && !query.isPending && !query.isFetchingNextPage;
 
   return {
     transactions,
     loading,
-    loadingMore,
+    loadingMore: query.isFetchingNextPage,
     refreshing,
-    error,
-    isError: error !== null,
-    hasMore,
+    error: errorMessage,
+    isError: query.isError,
+    hasMore: !!query.hasNextPage,
     loadMore,
     refresh,
     totalCount: transactions.length,
   };
 }
-

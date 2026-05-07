@@ -4,6 +4,7 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import React from 'react';
 
 vi.mock('../utils/account', () => ({
   isSolanaAccount: vi.fn(),
@@ -22,6 +23,7 @@ vi.mock('../storage', () => ({
 import { useBalance } from './useBalance';
 import { getStorageItem, setStorageItem } from '../storage';
 import { isSolanaAccount, isBitcoinAccount, isEthereumAccount } from '../utils/account';
+import { createTestQueryClient, QueryWrapper } from '../test-utils/query-wrapper';
 
 const mockGetStorageItem = vi.mocked(getStorageItem);
 const mockSetStorageItem = vi.mocked(setStorageItem);
@@ -29,7 +31,15 @@ const mockIsSolanaAccount = vi.mocked(isSolanaAccount);
 const mockIsBitcoinAccount = vi.mocked(isBitcoinAccount);
 const mockIsEthereumAccount = vi.mocked(isEthereumAccount);
 
-describe('useBalance', () => {
+function makeWrapper() {
+  const client = createTestQueryClient();
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryWrapper client={client}>{children}</QueryWrapper>
+  );
+  return { client, wrapper };
+}
+
+describe('useBalance (react-query)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetStorageItem.mockResolvedValue(null as never);
@@ -39,7 +49,7 @@ describe('useBalance', () => {
     mockIsEthereumAccount.mockReturnValue(false);
   });
 
-  it('loads and transforms Solana balances into wallet balance state', async () => {
+  it('fetches and transforms Solana balance on mount', async () => {
     const account = {
       getReceiveAddress: vi.fn().mockReturnValue('wallet-1'),
       getBalance: vi.fn().mockResolvedValue({
@@ -64,8 +74,10 @@ describe('useBalance', () => {
       }),
     };
 
-    const { result } = renderHook(() =>
-      useBalance({ account: account as any, networkId: 'solana-mainnet' })
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useBalance({ account: account as any, networkId: 'solana-mainnet' }),
+      { wrapper }
     );
 
     await waitFor(() => {
@@ -84,101 +96,110 @@ describe('useBalance', () => {
       uiAmount: 2,
       usdBalance: 301,
     });
+    expect(result.current.lastUpdated).not.toBeNull();
   });
 
-  it('uses cached data until refresh is requested', async () => {
-    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+  it('refresh() triggers a refetch', async () => {
     const account = {
       getReceiveAddress: vi.fn().mockReturnValue('wallet-1'),
       getBalance: vi
         .fn()
-        .mockResolvedValueOnce({
-          usdTotal: 100,
-          last24HoursChange: 0,
-          items: [],
-        })
-        .mockResolvedValueOnce({
-          usdTotal: 200,
-          last24HoursChange: 0,
-          items: [],
-        }),
+        .mockResolvedValueOnce({ usdTotal: 100, last24HoursChange: 0, items: [] })
+        .mockResolvedValueOnce({ usdTotal: 200, last24HoursChange: 0, items: [] }),
     };
 
-    const { result, rerender } = renderHook(
-      ({ networkId }) => useBalance({ account: account as any, networkId }),
-      { initialProps: { networkId: 'solana-mainnet' as const } }
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useBalance({ account: account as any, networkId: 'solana-mainnet' }),
+      { wrapper }
     );
 
     await waitFor(() => {
       expect(result.current.usdTotal).toBe(100);
     });
-
-    rerender({ networkId: 'solana-mainnet' as const });
     expect(account.getBalance).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       await result.current.refresh();
     });
 
+    await waitFor(() => {
+      expect(result.current.usdTotal).toBe(200);
+    });
     expect(account.getBalance).toHaveBeenCalledTimes(2);
-    expect(result.current.usdTotal).toBe(200);
-
-    nowSpy.mockRestore();
   });
 
-  it('clears stale balance when account changes and refetches for the new key', async () => {
-    const accountA = {
-      getReceiveAddress: vi.fn().mockReturnValue('wallet-a'),
-      getBalance: vi.fn().mockResolvedValue({
-        usdTotal: 50,
-        last24HoursChange: 0,
-        items: [],
-      }),
-    };
-    const accountB = {
-      getReceiveAddress: vi.fn().mockReturnValue('wallet-b'),
-      getBalance: vi.fn().mockResolvedValue({
-        usdTotal: 75,
-        last24HoursChange: 0,
-        items: [],
-      }),
+  it('two consumers with the same query key share data (single fetch)', async () => {
+    const account = {
+      getReceiveAddress: vi.fn().mockReturnValue('wallet-shared'),
+      getBalance: vi.fn().mockResolvedValue({ usdTotal: 42, last24HoursChange: 0, items: [] }),
     };
 
-    const { result, rerender } = renderHook(
-      ({ account }) => useBalance({ account, networkId: 'solana-mainnet' }),
-      { initialProps: { account: accountA as any } }
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => {
+        const a = useBalance({ account: account as any, networkId: 'solana-mainnet' });
+        const b = useBalance({ account: account as any, networkId: 'solana-mainnet' });
+        return { a, b };
+      },
+      { wrapper }
     );
 
     await waitFor(() => {
-      expect(result.current.usdTotal).toBe(50);
+      expect(result.current.a.usdTotal).toBe(42);
+      expect(result.current.b.usdTotal).toBe(42);
     });
 
-    rerender({ account: accountB as any });
+    expect(account.getBalance).toHaveBeenCalledTimes(1);
+  });
 
-    expect(result.current.balance).toBeNull();
-    expect(result.current.loading).toBe(true);
+  it("refetchOnMount: 'always' refetches when remounted with cached data", async () => {
+    const account = {
+      getReceiveAddress: vi.fn().mockReturnValue('wallet-remount'),
+      getBalance: vi.fn().mockResolvedValue({ usdTotal: 7, last24HoursChange: 0, items: [] }),
+    };
+
+    // Share a single client across mounts so cached data is present on remount
+    const client = createTestQueryClient();
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryWrapper client={client}>{children}</QueryWrapper>
+    );
+
+    const first = renderHook(
+      () => useBalance({ account: account as any, networkId: 'solana-mainnet' }),
+      { wrapper }
+    );
 
     await waitFor(() => {
-      expect(result.current.usdTotal).toBe(75);
+      expect(first.result.current.usdTotal).toBe(7);
+    });
+    expect(account.getBalance).toHaveBeenCalledTimes(1);
+
+    first.unmount();
+
+    const second = renderHook(
+      () => useBalance({ account: account as any, networkId: 'solana-mainnet' }),
+      { wrapper }
+    );
+
+    await waitFor(() => {
+      expect(account.getBalance).toHaveBeenCalledTimes(2);
     });
 
-    expect(accountA.getBalance).toHaveBeenCalledTimes(1);
-    expect(accountB.getBalance).toHaveBeenCalledTimes(1);
+    expect(second.result.current.usdTotal).toBe(7);
   });
 
   it('loads and persists hidden balance preference', async () => {
     mockGetStorageItem.mockResolvedValueOnce(true as never);
     const account = {
       getReceiveAddress: vi.fn().mockReturnValue('wallet-1'),
-      getBalance: vi.fn().mockResolvedValue({
-        usdTotal: 0,
-        last24HoursChange: 0,
-        items: [],
-      }),
+      getBalance: vi.fn().mockResolvedValue({ usdTotal: 0, last24HoursChange: 0, items: [] }),
     };
 
-    const { result } = renderHook(() =>
-      useBalance({ account: account as any, networkId: 'solana-mainnet' })
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useBalance({ account: account as any, networkId: 'solana-mainnet' }),
+      { wrapper }
     );
 
     await waitFor(() => {
@@ -199,8 +220,10 @@ describe('useBalance', () => {
       getBalance: vi.fn().mockRejectedValue(new Error('rpc down')),
     };
 
-    const { result } = renderHook(() =>
-      useBalance({ account: account as any, networkId: 'solana-mainnet' })
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useBalance({ account: account as any, networkId: 'solana-mainnet' }),
+      { wrapper }
     );
 
     await waitFor(() => {
@@ -211,6 +234,8 @@ describe('useBalance', () => {
     expect(result.current.usdTotal).toBe(0);
     expect(result.current.changeAmount).toBe(0);
     expect(result.current.changePercent).toBe(0);
+    // The chain-specific fetcher swallows errors and returns an empty balance,
+    // so the query resolves successfully — error remains null.
     expect(result.current.error).toBeNull();
   });
 
@@ -239,8 +264,10 @@ describe('useBalance', () => {
       }),
     };
 
-    const { result } = renderHook(() =>
-      useBalance({ account: account as any, networkId: 'bitcoin-mainnet' })
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useBalance({ account: account as any, networkId: 'bitcoin-mainnet' }),
+      { wrapper }
     );
 
     await waitFor(() => {
@@ -259,6 +286,26 @@ describe('useBalance', () => {
     expect(result.current.usdTotal).toBe(500);
     expect(result.current.changeAmount).toBe(25);
     expect(result.current.changePercent).toBeCloseTo((25 / 475) * 100);
+  });
+
+  it('configures staleTime to 15s on the underlying RQ query', async () => {
+    const account = {
+      getReceiveAddress: vi.fn().mockReturnValue('wallet-stale'),
+      getBalance: vi.fn().mockResolvedValue({ usdTotal: 1, last24HoursChange: 0, items: [] }),
+    };
+
+    const { client, wrapper } = makeWrapper();
+    renderHook(() => useBalance({ account: account as any, networkId: 'solana-mainnet' }), {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(account.getBalance).toHaveBeenCalled();
+    });
+
+    const queries = client.getQueryCache().findAll({ queryKey: ['balance'] });
+    expect(queries.length).toBeGreaterThan(0);
+    expect((queries[0]!.options as { staleTime?: number }).staleTime).toBe(15_000);
   });
 
   it('loads and transforms Ethereum balances when the account is detected as ethereum', async () => {
@@ -287,8 +334,10 @@ describe('useBalance', () => {
       }),
     };
 
-    const { result } = renderHook(() =>
-      useBalance({ account: account as any, networkId: 'ethereum-mainnet' })
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useBalance({ account: account as any, networkId: 'ethereum-mainnet' }),
+      { wrapper }
     );
 
     await waitFor(() => {

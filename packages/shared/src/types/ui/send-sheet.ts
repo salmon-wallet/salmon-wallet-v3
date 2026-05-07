@@ -56,8 +56,17 @@ export interface StepTokenSelectProps {
  * Props for the address and amount step (base - platform-agnostic)
  */
 export interface StepAddressAmountPropsBase {
-  /** Selected token */
+  /** Selected token (snapshot taken when the step opened — used for symbol, decimals, price, etc.) */
   token: SendToken;
+  /**
+   * Live uiAmount for the selected token, re-read from the parent's reactive
+   * tokens list each render. Falls back to `token.uiAmount` when no live entry
+   * is available (e.g. token was just received and not yet in the list).
+   *
+   * MUST be used for MAX / quick-fill / amount validation so the UI reflects
+   * inbound funds while the user is on this step.
+   */
+  liveBalance?: number;
   /** Blockchain type for address validation */
   blockchain: BlockchainType;
   /** The active blockchain account (provides getConnection/getProvider) */

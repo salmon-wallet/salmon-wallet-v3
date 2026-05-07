@@ -52,6 +52,7 @@ const QUICK_FILL_OPTIONS = [
 
 export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
   token,
+  liveBalance,
   blockchain,
   account,
   onBack,
@@ -80,12 +81,18 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
     debounceMs: 500,
   });
 
-  // Parse balance
+  // Parse balance — prefer the live value passed by the parent (re-read from
+  // the reactive tokens list each render) over the prop snapshot taken when
+  // the step opened. Falls back to token.uiAmount only when no live entry is
+  // available (e.g. the token is not in the latest list yet).
   const tokenBalance = useMemo(() => {
+    if (typeof liveBalance === 'number' && Number.isFinite(liveBalance)) {
+      return liveBalance;
+    }
     return typeof token.uiAmount === 'string'
       ? parseFloat(token.uiAmount)
       : token.uiAmount;
-  }, [token.uiAmount]);
+  }, [liveBalance, token.uiAmount]);
 
   // Fiat conversion
   const fiatDisplay = useMemo(() => {

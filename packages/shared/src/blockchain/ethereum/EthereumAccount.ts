@@ -137,6 +137,14 @@ export class EthereumAccount {
   }
 
   /**
+   * Returns the network ID this account is bound to.
+   * Typed accessor exposed so consumers can avoid casting through `network`.
+   */
+  getNetworkId(): EthereumNetwork['networkId'] {
+    return this.network.networkId;
+  }
+
+  /**
    * Gets the public key for this account.
    *
    * @returns The account's public key (hex string with 0x prefix)

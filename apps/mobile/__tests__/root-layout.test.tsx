@@ -59,6 +59,8 @@ jest.mock('@salmon/shared', () => ({
   CurrencyProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
   useAccountsContext: () => mockUseAccountsContext(),
   useInactivityTimeout: jest.fn(),
+  createQueryClient: () => ({}),
+  QueryClientProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
 }));
 
 describe('RootLayout mobile lock lifecycle', () => {

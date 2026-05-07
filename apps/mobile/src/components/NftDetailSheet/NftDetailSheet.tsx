@@ -419,7 +419,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   const explorerUrl = useMemo(() => {
     if (!successTxId || !nft || !account) return undefined;
 
-    const networkId = (account as { network?: { networkId?: string } }).network?.networkId;
+    const networkId = account.getNetworkId();
     if (!networkId) return undefined;
 
     const blockchain = nft.blockchain.toUpperCase() as Blockchain;

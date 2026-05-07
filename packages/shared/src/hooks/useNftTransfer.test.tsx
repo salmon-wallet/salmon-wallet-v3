@@ -4,8 +4,19 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import React from 'react';
 
 import { useNftTransfer } from './useNftTransfer';
+import { createTestQueryClient, QueryWrapper } from '../test-utils/query-wrapper';
+
+function makeWrapper() {
+  const client = createTestQueryClient();
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryWrapper client={client}>{children}</QueryWrapper>
+  );
+  Wrapper.displayName = 'TestWrapper';
+  return Wrapper;
+}
 
 const SOLANA_NFT = {
   blockchain: 'solana',
@@ -22,6 +33,9 @@ const BITCOIN_NFT = {
 describe('useNftTransfer', () => {
   const account = {
     transfer: vi.fn(),
+    getReceiveAddress: () => 'mock-address',
+    getNetworkId: () => 'solana-mainnet',
+    network: { networkId: 'solana-mainnet' },
   };
 
   beforeEach(() => {
@@ -33,7 +47,8 @@ describe('useNftTransfer', () => {
     const { result } = renderHook(() =>
       useNftTransfer({
         account: account as any,
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     let transferResult;
@@ -51,7 +66,8 @@ describe('useNftTransfer', () => {
     const { result } = renderHook(() =>
       useNftTransfer({
         account: undefined,
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     await expect(result.current.sendNft(SOLANA_NFT, 'recipient-address')).rejects.toThrow(
@@ -63,7 +79,8 @@ describe('useNftTransfer', () => {
     const { result } = renderHook(() =>
       useNftTransfer({
         account: account as any,
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     await act(async () => {
@@ -82,7 +99,8 @@ describe('useNftTransfer', () => {
     const { result } = renderHook(() =>
       useNftTransfer({
         account: account as any,
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     await act(async () => {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -58,6 +58,17 @@ export const SendSheet: React.FC<SendSheetProps> = ({
   const previousVisibleRef = useRef(visible);
 
   const { t } = useTranslation();
+
+  // Live balance for the selected token, derived from the reactive `tokens` prop
+  // every render. RQ-backed parents update this list when funds arrive — passing
+  // it down keeps MAX / quick-fill / amount validation in sync with the latest
+  // on-chain state instead of the snapshot taken when the step opened.
+  const liveSelectedBalance = useMemo(() => {
+    if (!selectedToken) return undefined;
+    const live = tokens.find((tok) => tok.address === selectedToken.address);
+    if (!live) return undefined;
+    return typeof live.uiAmount === 'string' ? parseFloat(live.uiAmount) : live.uiAmount;
+  }, [selectedToken, tokens]);
 
   // Send hook
   const sendHook = useSendTransaction({ account, blockchain });
@@ -200,6 +211,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
         {step === 'address-amount' && selectedToken && (
           <StepAddressAmount
             token={selectedToken}
+            liveBalance={liveSelectedBalance}
             blockchain={blockchain}
             account={account}
             onBack={handleBackToTokenSelect}
@@ -228,7 +240,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
             summary={`${amount} ${selectedToken.symbol} to ${getShortAddress(recipientAddress) ?? recipientAddress}`}
             explorerUrl={getTransactionUrl(
               blockchain.toUpperCase() as Blockchain,
-              (account as { network: { networkId: string } }).network.networkId as NetworkEnvironment,
+              account.getNetworkId() as NetworkEnvironment,
               getDefaultExplorer(blockchain.toUpperCase() as Blockchain),
               successTxId
             )}

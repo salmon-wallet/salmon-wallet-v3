@@ -93,6 +93,28 @@ export type {
 export { useDAppMetadata } from './useDAppMetadata';
 export type { UseDAppMetadataResult } from './useDAppMetadata';
 
+// Coin market data hook (BTC + selected token detail in web/extension)
+export { useCoinMarketData } from './useCoinMarketData';
+export type {
+  UseCoinMarketDataParams,
+  UseCoinMarketDataResult,
+  MarketChartPoint,
+} from './useCoinMarketData';
+
+// Jupiter token list hook (shared between mobile/web/extension swap entries)
+export { useJupiterTokenList } from './useJupiterTokenList';
+export type {
+  UseJupiterTokenListParams,
+  UseJupiterTokenListResult,
+} from './useJupiterTokenList';
+
+// Solana NFT detail hook
+export { useSolanaNftDetail } from './useSolanaNftDetail';
+export type {
+  UseSolanaNftDetailParams,
+  UseSolanaNftDetailResult,
+} from './useSolanaNftDetail';
+
 // Multi-chain tokens hook (for unified swap/bridge)
 export {
   useMultiChainTokens,
@@ -157,9 +179,12 @@ export type {
   UseAvatarNftsResult,
 } from './useAvatarNfts';
 
-// Refresh on focus hook (platform-split: .native.ts / .web.ts)
-export { useRefreshOnFocus } from './useRefreshOnFocus';
-export type { UseRefreshOnFocusParams } from './useRefreshOnFocus';
+// Solana NFT list hook (shared between mobile, web, extension collectibles screens)
+export { useSolanaNfts } from './useSolanaNfts';
+export type {
+  UseSolanaNftsParams,
+  UseSolanaNftsResult,
+} from './useSolanaNfts';
 
 // Settings panel stack hook
 export { useSettingsPanelStack } from './useSettingsPanelStack';

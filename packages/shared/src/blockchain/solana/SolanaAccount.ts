@@ -143,6 +143,14 @@ export class SolanaAccount {
   }
 
   /**
+   * Returns the network ID this account is bound to.
+   * Typed accessor exposed so consumers can avoid casting through `network`.
+   */
+  getNetworkId(): SolanaNetwork['networkId'] {
+    return this.network.networkId;
+  }
+
+  /**
    * Gets or creates a connection to the Solana network.
    * Uses lazy initialization to avoid creating connections until needed.
    * Always uses the latest network configuration from SOLANA_NETWORKS to ensure

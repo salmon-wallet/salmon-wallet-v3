@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '@salmon/ui';
 import Box from '@mui/material/Box';
@@ -9,18 +9,12 @@ import {
   fontFamily,
   canonicalNftToSolanaNftData,
   getNftSectionTitle,
-  INITIAL_NFT_SECTIONS,
-  SOLANA_NETWORKS,
-  getSolanaNfts,
+  useSolanaNfts,
   type Account,
   type NftData,
   type NftSectionKey,
   type NftSection,
-  type NftsBySection,
-  type Nft,
 } from '@salmon/shared';
-import { getAll as getAllNfts } from '@salmon/shared/blockchain/solana/nft';
-import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { NftCarouselSection } from '@salmon/ui';
 
 // ---------------------------------------------------------------------------
@@ -30,7 +24,6 @@ import { NftCarouselSection } from '@salmon/ui';
 interface CollectiblesTabProps {
   activeAccount: Account | undefined;
   developerNetworks: boolean;
-  refreshKey?: number;
   onNftDetailPress?: (nft: NftData) => void;
   onSeeAllPress?: (data: { title: string; blockchain: string; nfts: NftData[] }) => void;
 }
@@ -65,87 +58,48 @@ const EmptyStateText = styled(Typography)({
 export function CollectiblesTab({
   activeAccount,
   developerNetworks,
-  refreshKey = 0,
   onNftDetailPress,
   onSeeAllPress,
 }: CollectiblesTabProps): React.ReactElement {
   const { t } = useTranslation();
-  const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_NFT_SECTIONS);
 
-  // Fetch NFTs when account changes
-  useEffect(() => {
-    if (!activeAccount?.networksAccounts) return;
+  // Resolve owner addresses per section
+  const solanaMainnetAddress = activeAccount?.networksAccounts?.['solana-mainnet']?.[0]?.getReceiveAddress();
+  const solanaDevnetAddress = activeAccount?.networksAccounts?.['solana-devnet']?.[0]?.getReceiveAddress();
+  const includeSpam = !!developerNetworks;
 
-    let cancelled = false;
+  const mainnetQuery = useSolanaNfts({
+    publicKey: solanaMainnetAddress,
+    networkId: 'solana-mainnet',
+    includeSpam,
+  });
+  const devnetQuery = useSolanaNfts({
+    publicKey: solanaDevnetAddress,
+    networkId: 'solana-devnet',
+    includeSpam,
+    enabled: developerNetworks,
+  });
 
-    const fetchNfts = async () => {
-      // Determine which sections to fetch
-      const sectionKeys: NftSectionKey[] = ['solana'];
-      if (developerNetworks && activeAccount.networksAccounts['solana-devnet']) {
-        sectionKeys.push('solana-devnet');
-      }
-
-      // Set loading
-      setNftsBySections((prev) => {
-        const next = { ...prev };
-        for (const key of sectionKeys) {
-          next[key] = { ...next[key], loading: true };
-        }
-        return next;
-      });
-
-      // Fetch for each section
-      for (const key of sectionKeys) {
-        const networkId = key === 'solana' ? 'solana-mainnet' : 'solana-devnet';
-        const accounts = activeAccount.networksAccounts[networkId];
-        if (!accounts || accounts.length === 0) {
-          if (!cancelled) {
-            setNftsBySections((prev) => ({
-              ...prev,
-              [key]: { nfts: [], loading: false },
-            }));
-          }
-          continue;
-        }
-
-        try {
-          const account = accounts[0];
-          if (!account) continue;
-
-          if (!isSolanaAccount(account)) continue;
-          const rawNfts: Nft[] = await getAllNfts(
-            SOLANA_NETWORKS[networkId],
-            account.getReceiveAddress(),
-            refreshKey > 0,
-            getSolanaNfts,
-            // BE drops blacklisted / spamScore>0 entries by default;
-            // developer mode opts in via ?includeSpam=true.
-            { includeSpam: !!developerNetworks },
-          );
-          if (cancelled) return;
-
-          const nftDataList: NftData[] = rawNfts
-            .map((nft) => canonicalNftToSolanaNftData(nft));
-
-          setNftsBySections((prev) => ({
-            ...prev,
-            [key]: { nfts: nftDataList, loading: false },
-          }));
-        } catch (error) {
-          console.error(`Failed to fetch NFTs for ${key}:`, error);
-          if (!cancelled) {
-            setNftsBySections((prev) => ({
-              ...prev,
-              [key]: { nfts: [], loading: false },
-            }));
-          }
-        }
-      }
+  // Build sections from queries
+  const nftsBySections = useMemo<Record<NftSectionKey, NftSection>>(() => {
+    return {
+      solana: {
+        nfts: mainnetQuery.nfts.map((nft) => canonicalNftToSolanaNftData(nft)) as NftData[],
+        loading: mainnetQuery.loading,
+        blockchain: 'solana',
+        isTestnet: false,
+      } as NftSection,
+      'solana-devnet': {
+        nfts: developerNetworks
+          ? (devnetQuery.nfts.map((nft) => canonicalNftToSolanaNftData(nft)) as NftData[])
+          : [],
+        loading: developerNetworks ? devnetQuery.loading : false,
+        blockchain: 'solana',
+        isTestnet: true,
+        networkLabel: 'Devnet',
+      } as NftSection,
     };
-
-    fetchNfts();
-    return () => { cancelled = true; };
-  }, [activeAccount, developerNetworks, refreshKey]);
+  }, [mainnetQuery.nfts, mainnetQuery.loading, devnetQuery.nfts, devnetQuery.loading, developerNetworks]);
 
   // Visible section keys
   const visibleKeys = useMemo(() => {

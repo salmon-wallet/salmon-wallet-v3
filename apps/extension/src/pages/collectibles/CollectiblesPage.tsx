@@ -5,7 +5,7 @@
  * carousel sections (matching mobile's multi-chain approach).
  * Each section has horizontal scrolling with arrow navigation.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
@@ -17,18 +17,14 @@ import {
   borderRadius,
   fontFamily,
   componentSizes,
-  SOLANA_NETWORKS,
   canonicalNftToSolanaNftData,
   getNftSectionTitle,
-  INITIAL_NFT_SECTIONS,
+  useSolanaNfts,
   type Account,
   type NftData,
   type NftSectionKey,
-  type NftsBySection,
-  type Nft,
-  getSolanaNfts,
+  type NftSection,
 } from '@salmon/shared';
-import { getAll as getAllNfts } from '@salmon/shared/blockchain/solana/nft';
 import {
   // NftCarouselSection,
   // NftCarouselSectionSkeleton,
@@ -44,7 +40,6 @@ import {
 interface CollectiblesPageProps {
   activeAccount: Account | undefined;
   developerNetworks: boolean;
-  refreshKey?: number;
   /** Callback when an NFT is pressed — navigates to detail page */
   onNftDetailPress?: (nft: NftData) => void;
   // /** Callback when "See All" is pressed — navigates to see-all page */
@@ -145,89 +140,47 @@ const SkeletonGrid = styled(Box)({
 export function CollectiblesPage({
   activeAccount,
   developerNetworks,
-  refreshKey = 0,
   onNftDetailPress,
   /* , onSeeAllPress */
 }: CollectiblesPageProps) {
   const { t } = useTranslation();
-  const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_NFT_SECTIONS);
 
-  // Fetch all NFTs in parallel (mirroring mobile pattern)
-  useEffect(() => {
-    if (!activeAccount) return;
+  // Resolve owner addresses per section
+  const solanaMainnetAddress = activeAccount?.networksAccounts?.['solana-mainnet']?.[0]?.getReceiveAddress();
+  const solanaDevnetAddress = activeAccount?.networksAccounts?.['solana-devnet']?.[0]?.getReceiveAddress();
+  const includeSpam = !!developerNetworks;
 
-    const fetchAllNfts = async () => {
-      // Reset loading state
-      setNftsBySections((prev) => ({
-        ...prev,
-        solana: { ...prev.solana, loading: true },
-        // ethereum: { ...prev.ethereum, loading: true },
-        // bitcoin: { ...prev.bitcoin, loading: true },
-        ...(developerNetworks && {
-          'solana-devnet': { ...prev['solana-devnet'], loading: true },
-          // 'ethereum-sepolia': { ...prev['ethereum-sepolia'], loading: true },
-        }),
-      }));
+  const mainnetQuery = useSolanaNfts({
+    publicKey: solanaMainnetAddress,
+    networkId: 'solana-mainnet',
+    includeSpam,
+  });
+  const devnetQuery = useSolanaNfts({
+    publicKey: solanaDevnetAddress,
+    networkId: 'solana-devnet',
+    includeSpam,
+    enabled: developerNetworks,
+  });
 
-      // Extract addresses from networksAccounts
-      const solanaAccount = activeAccount.networksAccounts?.['solana-mainnet']?.[0];
-      const solanaAddress = solanaAccount?.getReceiveAddress() ?? '';
-
-      // Build fetch promises - only Solana. Developer mode opts the BE
-      // out of its blacklisted / spamScore>0 filter via `?includeSpam=true`.
-      const nftOpts = { includeSpam: !!developerNetworks };
-      const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] }>[] = [
-        (solanaAddress
-          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, refreshKey > 0, getSolanaNfts, nftOpts)
-          : Promise.resolve([]))
-          .then((result) => ({ key: 'solana' as NftSectionKey, result }))
-          .catch(() => ({ key: 'solana' as NftSectionKey, result: [] as Nft[] })),
-
-      ];
-
-      // Add testnet fetches if developer mode is enabled (Solana devnet only)
-      if (developerNetworks) {
-        const solanaDevnetAccount = activeAccount.networksAccounts?.['solana-devnet']?.[0];
-        const solanaDevnetAddress = solanaDevnetAccount?.getReceiveAddress() ?? '';
-
-        fetchPromises.push(
-          (solanaDevnetAddress
-            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, refreshKey > 0, getSolanaNfts, nftOpts)
-            : Promise.resolve([]))
-            .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
-            .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] as Nft[] })),
-        );
-      }
-
-      // Fetch all in parallel
-      const results = await Promise.all(fetchPromises);
-
-      // Process results
-      const newSections = { ...INITIAL_NFT_SECTIONS };
-
-      for (const { key, result } of results) {
-        const section = newSections[key];
-
-        if (key === 'solana' || key === 'solana-devnet') {
-          const mapped = (result as Nft[]).map(canonicalNftToSolanaNftData);
-          newSections[key] = {
-            ...section,
-            nfts: mapped,
-            loading: false,
-          };
-        }
-      }
-
-      // If developer mode is off, ensure testnet sections are empty and not loading
-      if (!developerNetworks) {
-        newSections['solana-devnet'] = { ...INITIAL_NFT_SECTIONS['solana-devnet'], loading: false };
-      }
-
-      setNftsBySections(newSections);
+  const nftsBySections = useMemo<Record<NftSectionKey, NftSection>>(() => {
+    return {
+      solana: {
+        nfts: mainnetQuery.nfts.map((nft) => canonicalNftToSolanaNftData(nft)) as NftData[],
+        loading: mainnetQuery.loading,
+        blockchain: 'solana',
+        isTestnet: false,
+      } as NftSection,
+      'solana-devnet': {
+        nfts: developerNetworks
+          ? (devnetQuery.nfts.map((nft) => canonicalNftToSolanaNftData(nft)) as NftData[])
+          : [],
+        loading: developerNetworks ? devnetQuery.loading : false,
+        blockchain: 'solana',
+        isTestnet: true,
+        networkLabel: 'Devnet',
+      } as NftSection,
     };
-
-    fetchAllNfts();
-  }, [activeAccount, developerNetworks, refreshKey]);
+  }, [mainnetQuery.nfts, mainnetQuery.loading, devnetQuery.nfts, devnetQuery.loading, developerNetworks]);
 
   // Derived state (Solana only)
   const visibleKeys = useMemo<NftSectionKey[]>(

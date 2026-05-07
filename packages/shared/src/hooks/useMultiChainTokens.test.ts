@@ -234,12 +234,12 @@ describe('useMultiChainTokens', () => {
     );
   });
 
-  it('refreshes balances for chains that have active accounts', async () => {
+  it('refresh() fans out to every underlying useBalance refresh in parallel', async () => {
     const activeAccount = {
       networksAccounts: {
         'solana-mainnet': [solanaAccount],
         'bitcoin-mainnet': [bitcoinAccount],
-        'ethereum-mainnet': [],
+        'ethereum-mainnet': [ethereumAccount],
       },
     };
 
@@ -256,8 +256,7 @@ describe('useMultiChainTokens', () => {
     await waitFor(() => {
       expect(solanaRefresh).toHaveBeenCalledTimes(1);
       expect(bitcoinRefresh).toHaveBeenCalledTimes(1);
+      expect(ethereumRefresh).toHaveBeenCalledTimes(1);
     });
-
-    expect(ethereumRefresh).not.toHaveBeenCalled();
   });
 });

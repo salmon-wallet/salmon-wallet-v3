@@ -26,6 +26,8 @@ vi.mock('@salmon/shared', () => ({
     accounts: [{ id: 'account-1' }],
     activeAccount: null,
     activeBlockchainAccount: null,
+    accountId: 'account-1',
+    networkId: 'solana-mainnet',
     pathIndex: 0,
   }, {
     lockAccounts: mockLockAccounts,
@@ -33,6 +35,7 @@ vi.mock('@salmon/shared', () => ({
     unlockWithCachedKey: mockUnlockWithCachedKey,
   }],
   useInactivityTimeout: (config: unknown) => mockUseInactivityTimeout(config),
+  useInvalidateAfterTx: () => vi.fn(),
 }));
 
 vi.mock('@salmon/shared/utils/account', () => ({

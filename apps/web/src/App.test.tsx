@@ -29,16 +29,23 @@ vi.mock('./utils/sessionKeyCache', () => ({
   clearSessionKey: () => mockClearSessionKey(),
 }));
 
-vi.mock('@salmon/shared', () => ({
-  useAccountsContext: () => [{
-    ready: true,
-    locked: false,
-    accounts: [{ id: 'account-1' }],
-  }, {
-    lockAccounts: mockLockAccounts,
-  }],
-  useInactivityTimeout: (config: unknown) => mockUseInactivityTimeout(config),
-}));
+vi.mock('@salmon/shared', async () => {
+  const { QueryClient, QueryClientProvider } = await import('@tanstack/react-query');
+  return {
+    useAccountsContext: () => [{
+      ready: true,
+      locked: false,
+      accounts: [{ id: 'account-1' }],
+    }, {
+      lockAccounts: mockLockAccounts,
+    }],
+    useInactivityTimeout: (config: unknown) => mockUseInactivityTimeout(config),
+    createQueryClient: () => new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    }),
+    QueryClientProvider,
+  };
+});
 
 describe('Web inactivity lock', () => {
   afterEach(() => {

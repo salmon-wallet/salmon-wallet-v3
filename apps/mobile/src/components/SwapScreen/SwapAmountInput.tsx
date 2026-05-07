@@ -104,7 +104,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
       {(usdValue !== undefined || availableBalance !== undefined) && (
         <View style={styles.infoSection}>
           <View style={styles.infoRow}>
-            <Text style={styles.usdValue}>{formatPrecise(usdValue)} {currency.toUpperCase()}</Text>
+            <Text style={styles.usdValue}>{formatPrecise(usdValue !== undefined ? Math.floor(usdValue * 100) / 100 : undefined)} {currency.toUpperCase()}</Text>
             {showQuickFill ? (
               <View style={styles.quickFillButtons}>
                 {QUICK_FILL_OPTIONS.map((option) => (

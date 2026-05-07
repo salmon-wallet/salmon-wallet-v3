@@ -5,6 +5,7 @@ export * from './contexts';
 export * from './crypto';
 export * from './factories';
 export * from './hooks';
+export * from './query';
 export * from './locales';
 export * from './storage';
 export * from './theme';

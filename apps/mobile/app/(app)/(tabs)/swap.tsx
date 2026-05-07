@@ -25,17 +25,17 @@ import { useRouter } from 'expo-router';
 import {
   colors,
   fontSize,
-  getTokenList,
+  mapToSwapToken,
   searchTokens,
   spacing,
   useAccountsContext,
   useBridge,
+  useJupiterTokenList,
   useMultiChainTokens,
   useSwap,
   type SwapQuote as SharedSwapQuote,
   type SolanaAccount,
   type SwapNetworkId,
-  mapToSwapToken,
   unifiedToSwapToken,
 } from '@salmon/shared';
 import {
@@ -111,7 +111,6 @@ export default function SwapScreenPage() {
     tokens: multiChainTokens,
     featuredTokens: topTokens,
     loading,
-    refresh: refreshBalances,
   } = useMultiChainTokens({
     activeAccount,
     skip: !ready || !activeAccount,
@@ -134,15 +133,8 @@ export default function SwapScreenPage() {
     return btcAccount?.getReceiveAddress() ?? '';
   }, [activeAccount]);
 
-  // Load full Jupiter verified token catalog for Solana output selection
-  const [jupiterTokens, setJupiterTokens] = useState<SwapToken[]>([]);
-  useEffect(() => {
-    let cancelled = false;
-    getTokenList(swapNetworkId).then((list) => {
-      if (!cancelled) setJupiterTokens(list.map((t) => mapToSwapToken(t)));
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [swapNetworkId]);
+  // Full Jupiter verified token catalog (shared React Query hook)
+  const { tokens: jupiterTokens } = useJupiterTokenList({ networkId: swapNetworkId });
 
   // Swap handlers - Now using real useSwap hook
   const handleGetQuote = useCallback(async (
@@ -392,7 +384,6 @@ export default function SwapScreenPage() {
           onSendDeposit={handleSendDeposit}
           onBridgeSuccess={handleBridgeSuccess}
           onBridgeError={handleBridgeError}
-          onRefreshBalances={refreshBalances}
           onNavigateHome={handleNavigateHome}
         />
       </View>

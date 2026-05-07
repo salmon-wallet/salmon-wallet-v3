@@ -5,8 +5,19 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import React from 'react';
 
 import { useSendTransaction } from './useSendTransaction';
+import { createTestQueryClient, QueryWrapper } from '../test-utils/query-wrapper';
+
+function makeWrapper() {
+  const client = createTestQueryClient();
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryWrapper client={client}>{children}</QueryWrapper>
+  );
+  Wrapper.displayName = 'TestWrapper';
+  return Wrapper;
+}
 
 // ============================================================================
 // Test Data
@@ -22,6 +33,9 @@ const TX_RESULT = { txId: 'test-signature' };
 const mockAccount = {
   estimateTransferFee: vi.fn(),
   transfer: vi.fn(),
+  getReceiveAddress: () => 'mock-address',
+  getNetworkId: () => 'solana-mainnet',
+  network: { networkId: 'solana-mainnet' },
 };
 
 // ============================================================================
@@ -40,7 +54,8 @@ describe('useSendTransaction', () => {
       useSendTransaction({
         account: mockAccount as any,
         blockchain: 'solana',
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     let feeResult = null;
@@ -71,7 +86,8 @@ describe('useSendTransaction', () => {
       useSendTransaction({
         account: mockAccount as any,
         blockchain: 'solana',
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     let txResult = null;
@@ -105,7 +121,8 @@ describe('useSendTransaction', () => {
       useSendTransaction({
         account: undefined,
         blockchain: 'solana',
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     let feeResult = null;
@@ -131,7 +148,8 @@ describe('useSendTransaction', () => {
       useSendTransaction({
         account: undefined,
         blockchain: 'solana',
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     await expect(
@@ -154,7 +172,8 @@ describe('useSendTransaction', () => {
       useSendTransaction({
         account: mockAccount as any,
         blockchain: 'solana',
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     await act(async () => {
@@ -183,7 +202,8 @@ describe('useSendTransaction', () => {
       useSendTransaction({
         account: mockAccount as any,
         blockchain: 'solana',
-      })
+      }),
+      { wrapper: makeWrapper() }
     );
 
     await act(async () => {

@@ -8,7 +8,6 @@ import {
   useAccountsContext,
   useAvailableNetworks,
   useBalance,
-  useRefreshOnFocus,
   useUserConfig,
   useCurrencyContext,
   useLanguage,
@@ -21,8 +20,7 @@ import {
   getBlockchainFromNetworkId,
   BLOCKCHAIN_TO_COINGECKO,
   PERIOD_TO_DAYS,
-  getMarketChart,
-  getCoinInfo,
+  useCoinMarketData,
   coinInfoToMarketData,
   SUPPORTED_CURRENCIES,
   CURRENCY_MAP,
@@ -32,7 +30,6 @@ import {
   type NetworkId,
   type PriceChartPeriod,
   type PriceDataPoint,
-  type CoinInfo,
   type MarketData,
   type Token,
   type NftData,
@@ -328,7 +325,6 @@ export function HomePage(): React.ReactElement {
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [editingContact, setEditingContact] = useState<AddressBookItem | null>(null);
-  const [collectiblesRefreshKey, setCollectiblesRefreshKey] = useState(0);
 
   // Open settings if redirected from /settings route
   useEffect(() => {
@@ -339,18 +335,8 @@ export function HomePage(): React.ReactElement {
     }
   }, [location.state]);
 
-  useEffect(() => {
-    if ((location.state as { refreshCollectibles?: boolean })?.refreshCollectibles) {
-      setCollectiblesRefreshKey((prev) => prev + 1);
-      window.history.replaceState({}, '');
-    }
-  }, [location.state]);
-
   // Bitcoin chart state
-  const [bitcoinChartData, setBitcoinChartData] = useState<PriceDataPoint[]>([]);
-  const [bitcoinCoinInfo, setBitcoinCoinInfo] = useState<CoinInfo | null>(null);
   const [bitcoinChartPeriod, setBitcoinChartPeriod] = useState<PriceChartPeriod>('1M');
-  const [bitcoinDataLoading, setBitcoinDataLoading] = useState(false);
 
   // Filter networks to only those the user has accounts for
   const allNetworks = useMemo(() => {
@@ -385,7 +371,6 @@ export function HomePage(): React.ReactElement {
     loading,
     refreshing,
     refresh,
-    lastUpdated,
     hiddenBalance,
     toggleHidden,
   } = useBalance({
@@ -396,7 +381,7 @@ export function HomePage(): React.ReactElement {
     includeSpam: !!developerNetworks,
   });
 
-  useRefreshOnFocus({ onFocus: refresh, lastUpdated, enabled: !!activeBlockchainAccount });
+  // RQ handles refetch-on-focus via QueryClient defaults (refetchOnWindowFocus).
 
   // Clear switching network flag once loaded
   useEffect(() => {
@@ -462,29 +447,21 @@ export function HomePage(): React.ReactElement {
     }));
   }, [tokens]);
 
-  // Bitcoin chart data
-  useEffect(() => {
-    if (currentBlockchain !== 'bitcoin') return;
-    setBitcoinDataLoading(true);
-    const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
-    const days = PERIOD_TO_DAYS[bitcoinChartPeriod];
-    getMarketChart(coinId, days, currency)
-      .then((res) => {
-        if (res?.prices) {
-          setBitcoinChartData(res.prices.map(([ts, price]: [number, number]) => ({ timestamp: ts, price })));
-        }
-      })
-      .catch((e) => console.error('Failed to load Bitcoin chart data:', e))
-      .finally(() => setBitcoinDataLoading(false));
-  }, [currentBlockchain, bitcoinChartPeriod, currency]);
-
-  useEffect(() => {
-    if (currentBlockchain !== 'bitcoin' || bitcoinCoinInfo) return;
-    const coinId = BLOCKCHAIN_TO_COINGECKO[currentBlockchain];
-    getCoinInfo(coinId, currency)
-      .then((info) => { if (info) setBitcoinCoinInfo(info); })
-      .catch((e) => console.error('Failed to load Bitcoin coin info:', e));
-  }, [currentBlockchain, bitcoinCoinInfo, currency]);
+  // Bitcoin coin info + chart data via shared React Query hook
+  const bitcoinCoinId = currentBlockchain === 'bitcoin'
+    ? BLOCKCHAIN_TO_COINGECKO[currentBlockchain]
+    : undefined;
+  const {
+    coinInfo: bitcoinCoinInfo,
+    chartData: bitcoinChartDataRaw,
+    loading: bitcoinDataLoading,
+  } = useCoinMarketData({
+    coinId: bitcoinCoinId,
+    currency,
+    days: PERIOD_TO_DAYS[bitcoinChartPeriod],
+    enabled: currentBlockchain === 'bitcoin',
+  });
+  const bitcoinChartData: PriceDataPoint[] = bitcoinChartDataRaw ?? [];
 
   const bitcoinMarketData: MarketData | undefined = useMemo(() => {
     if (!bitcoinCoinInfo) return undefined;
@@ -879,7 +856,6 @@ export function HomePage(): React.ReactElement {
             <CollectiblesTab
               activeAccount={activeAccount}
               developerNetworks={developerNetworks}
-              refreshKey={collectiblesRefreshKey}
               onNftDetailPress={(nft: NftData) => navigate(`/nft/${nft.mint}`, { state: nft })}
               onSeeAllPress={(data) => navigate('/nft/all', { state: data })}
             />

@@ -53,6 +53,7 @@ vi.mock('@salmon/shared', () => ({
   useSwap: () => mockUseSwap(),
   useMultiChainTokens: () => mockUseMultiChainTokens(),
   getTokenList: (network: string) => mockGetTokenList(network),
+  useJupiterTokenList: () => ({ tokens: [], loading: false, error: null, refresh: vi.fn() }),
   searchTokens: (query: string, network: string) => mockSearchTokens(query, network),
   mapToSwapToken: (token: Record<string, unknown>) => token,
   unifiedToSwapToken: (token: Record<string, unknown>) => token,

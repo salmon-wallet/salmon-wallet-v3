@@ -16,7 +16,6 @@
 
 import {
   SECTION_TO_NETWORK as SHARED_SECTION_TO_NETWORK,
-  SOLANA_NETWORKS,
   SolanaAccount,
   canonicalNftToSolanaNftData,
   borderRadius,
@@ -27,19 +26,19 @@ import {
   signAndSendPreparedSolanaTransactions,
   letterSpacing,
   spacing,
-  getAllNfts,
   getNftSectionTitle,
   getShortAddress,
-  getSolanaNfts,
   ms,
   s,
   useAccountsContext,
+  useInvalidateAfterTx,
+  useSolanaNfts,
   vs,
   type BlockchainAccount,
   type Nft,
   type SolanaNetworkId,
 } from '@salmon/shared';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -86,8 +85,6 @@ interface NftSection {
   isTestnet: boolean;
 }
 
-type NftsBySection = Record<NftSectionKey, NftSection>;
-
 // interface SeeAllSheetState {
 //   visible: boolean;
 //   sectionKey: NftSectionKey | null;
@@ -104,9 +101,9 @@ const INITIAL_SECTION_INDEXES: Record<NftSectionKey, number> = {
   'solana-devnet': 0,
 };
 
-const INITIAL_SECTIONS: NftsBySection = {
-  solana: { nfts: [], raw: [], loading: true, blockchain: 'solana', isTestnet: false },
-  'solana-devnet': { nfts: [], raw: [], loading: false, blockchain: 'solana', networkLabel: 'Devnet', isTestnet: true },
+const SECTION_META: Record<NftSectionKey, { blockchain: NftBlockchain; isTestnet: boolean; networkLabel?: string }> = {
+  solana: { blockchain: 'solana', isTestnet: false },
+  'solana-devnet': { blockchain: 'solana', isTestnet: true, networkLabel: 'Devnet' },
 };
 
 // Grid layout constants (matching NftSeeAllSheet pattern)
@@ -120,11 +117,7 @@ const GRID_HORIZONTAL_PADDING = s(18);
 export default function CollectiblesScreen() {
   const { headerContentOffset, scrollBottomPadding } = useTabChrome();
 
-  // NFT state grouped by section (blockchain + network)
-  const [nftsBySections, setNftsBySections] = useState<NftsBySection>(INITIAL_SECTIONS);
-
   // UI state
-  const [refreshing, setRefreshing] = useState(false);
   // const [seeAllSheet, setSeeAllSheet] = useState<SeeAllSheetState>({
   //   visible: false,
   //   sectionKey: null,
@@ -149,7 +142,7 @@ export default function CollectiblesScreen() {
 
   // Get account context
   const [accountState] = useAccountsContext();
-  const { ready, activeBlockchainAccount, activeAccount } = accountState;
+  const { ready, activeAccount } = accountState;
 
   // Developer mode — shared via context from _layout.tsx (single source of truth)
   const developerNetworks = useDeveloperMode();
@@ -187,111 +180,70 @@ export default function CollectiblesScreen() {
     setSectionIndexes((prev) => ({ ...prev, [sectionKey]: index }));
   }, []);
 
-  // Fetch all NFTs in parallel
-  const fetchAllNfts = useCallback(
-    async (isRefresh = false, noCache = false) => {
-      if (!activeBlockchainAccount || !activeAccount) return;
+  // Resolve owner addresses per section (subject to subaccount selection)
+  const solanaMainnetAddress = useMemo(() => {
+    const acc = activeAccount?.networksAccounts?.['solana-mainnet']?.[sectionIndexes['solana']];
+    return acc?.getReceiveAddress();
+  }, [activeAccount, sectionIndexes]);
 
-      // Get addresses using per-section selected sub-account index
-      const solanaMainnetAccount = activeAccount.networksAccounts?.['solana-mainnet']?.[sectionIndexes['solana']];
-      const solanaAddress = solanaMainnetAccount?.getReceiveAddress() ?? '';
+  const solanaDevnetAddress = useMemo(() => {
+    const acc = activeAccount?.networksAccounts?.['solana-devnet']?.[sectionIndexes['solana-devnet']];
+    return acc?.getReceiveAddress();
+  }, [activeAccount, sectionIndexes]);
 
-      const solanaDevnetAccount = activeAccount.networksAccounts?.['solana-devnet']?.[sectionIndexes['solana-devnet']];
-      const solanaDevnetAddress = solanaDevnetAccount?.getReceiveAddress() ?? '';
+  const includeSpam = !!developerNetworks;
 
-      // const ethAccount = activeAccount.networksAccounts?.['ethereum-mainnet']?.[sectionIndexes['ethereum']];
-      // const ethAddress = ethAccount?.getReceiveAddress() ?? '';
+  // Per-section NFT queries — each section has its own subaccount + network.
+  // Developer mode opts the BE out of its blacklisted / spamScore>0 filter
+  // via ?includeSpam=true.
+  const mainnetQuery = useSolanaNfts({
+    publicKey: ready ? solanaMainnetAddress : undefined,
+    networkId: 'solana-mainnet',
+    includeSpam,
+  });
 
-      // const btcAccount = activeAccount.networksAccounts?.['bitcoin-mainnet']?.[sectionIndexes['bitcoin']];
-      // const btcAddress = btcAccount?.getReceiveAddress() ?? '';
+  const devnetQuery = useSolanaNfts({
+    publicKey: ready && developerNetworks ? solanaDevnetAddress : undefined,
+    networkId: 'solana-devnet',
+    includeSpam,
+    enabled: developerNetworks,
+  });
 
-      // Set loading state for Solana sections
-      if (!isRefresh) {
-        setNftsBySections((prev) => ({
-          ...prev,
-          solana: { ...prev.solana, loading: true },
-          // ethereum: { ...prev.ethereum, loading: true },
-          // bitcoin: { ...prev.bitcoin, loading: true },
-          // Also set loading for testnet sections if developer mode is enabled
-          ...(developerNetworks && {
-            'solana-devnet': { ...prev['solana-devnet'], loading: true },
-          }),
-        }));
-      }
+  // Build sections from queries
+  const nftsBySections = useMemo<Record<NftSectionKey, NftSection>>(() => {
+    return {
+      solana: {
+        nfts: mainnetQuery.nfts.map(canonicalNftToSolanaNftData),
+        raw: mainnetQuery.nfts,
+        loading: mainnetQuery.loading,
+        blockchain: SECTION_META.solana.blockchain,
+        isTestnet: SECTION_META.solana.isTestnet,
+      },
+      'solana-devnet': {
+        nfts: developerNetworks ? devnetQuery.nfts.map(canonicalNftToSolanaNftData) : [],
+        raw: developerNetworks ? devnetQuery.nfts : [],
+        loading: developerNetworks ? devnetQuery.loading : false,
+        blockchain: SECTION_META['solana-devnet'].blockchain,
+        isTestnet: SECTION_META['solana-devnet'].isTestnet,
+        networkLabel: SECTION_META['solana-devnet'].networkLabel,
+      },
+    };
+  }, [mainnetQuery.nfts, mainnetQuery.loading, devnetQuery.nfts, devnetQuery.loading, developerNetworks]);
 
-      // Build fetch promises - Solana only. Developer mode opts the BE
-      // out of its blacklisted / spamScore>0 filter via ?includeSpam=true.
-      const nftOpts = { includeSpam: !!developerNetworks };
-      const fetchPromises: Promise<{ key: NftSectionKey; result: Nft[] }>[] = [
-        // Mainnet fetches (always, if address available)
-        (solanaAddress
-          ? getAllNfts(SOLANA_NETWORKS['solana-mainnet'], solanaAddress, noCache, getSolanaNfts, nftOpts)
-          : Promise.resolve([]))
-          .then((result) => ({ key: 'solana' as NftSectionKey, result }))
-          .catch(() => ({ key: 'solana' as NftSectionKey, result: [] as Nft[] })),
-
-      ];
-
-      // Add testnet fetches if developer mode is enabled (Solana devnet only)
-      if (developerNetworks) {
-        fetchPromises.push(
-          // Solana Devnet
-          (solanaDevnetAddress
-            ? getAllNfts(SOLANA_NETWORKS['solana-devnet'], solanaDevnetAddress, noCache, getSolanaNfts, nftOpts)
-            : Promise.resolve([]))
-            .then((result) => ({ key: 'solana-devnet' as NftSectionKey, result }))
-            .catch(() => ({ key: 'solana-devnet' as NftSectionKey, result: [] as Nft[] })),
-
-        );
-      }
-
-      // Fetch all in parallel
-      const results = await Promise.all(fetchPromises);
-
-      // Process results
-      const newSections = { ...INITIAL_SECTIONS };
-
-      for (const { key, result } of results) {
-        const section = newSections[key];
-
-        if (key === 'solana' || key === 'solana-devnet') {
-          const solanaNfts = result as Nft[];
-          const mapped = solanaNfts.map(canonicalNftToSolanaNftData);
-          newSections[key] = {
-            ...section,
-            nfts: mapped,
-            raw: solanaNfts,
-            loading: false,
-          };
-        }
-      }
-
-      // If developer mode is off, ensure testnet sections are empty and not loading
-      if (!developerNetworks) {
-        newSections['solana-devnet'] = { ...INITIAL_SECTIONS['solana-devnet'], loading: false };
-      }
-
-      setNftsBySections(newSections);
-
-      if (isRefresh) {
-        setRefreshing(false);
-      }
-    },
-    [activeAccount, activeBlockchainAccount, developerNetworks, sectionIndexes]
-  );
-
-  // Fetch on mount and when account/developer mode changes
-  useEffect(() => {
-    if (ready && activeBlockchainAccount && activeAccount) {
-      fetchAllNfts();
-    }
-  }, [ready, activeAccount, activeBlockchainAccount, developerNetworks, fetchAllNfts]);
-
-  // Handle pull-to-refresh
-  const handleRefresh = useCallback(() => {
+  // Pull-to-refresh — refetches both queries. Local boolean drives the
+  // RefreshControl spinner since the hook only exposes initial-load state.
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    fetchAllNfts(true, true);
-  }, [fetchAllNfts]);
+    try {
+      await Promise.all([
+        mainnetQuery.refresh(),
+        developerNetworks ? devnetQuery.refresh() : Promise.resolve(),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [mainnetQuery, devnetQuery, developerNetworks]);
 
   // Handle NFT press - open detail sheet
   const handleNftPress = useCallback(
@@ -345,8 +297,8 @@ export default function CollectiblesScreen() {
   const handleSendSuccess = useCallback((txId: string) => {
     Alert.alert('NFT Sent', `Transaction submitted successfully.\n\nTx: ${txId.slice(0, 20)}...`, [{ text: 'OK' }]);
     // Refresh NFT list
-    fetchAllNfts(true, true);
-  }, [fetchAllNfts]);
+    void handleRefresh();
+  }, [handleRefresh]);
 
   const resetBurnPreview = useCallback(() => {
     setBurnPreview(null);
@@ -401,6 +353,8 @@ export default function CollectiblesScreen() {
     }
   }, [detailSheet.nft, detailSheet.sectionKey, nftAccount]);
 
+  const invalidateAfterTx = useInvalidateAfterTx();
+
   const handleConfirmBurn = useCallback(async () => {
     const nft = detailSheet.nft;
     if (!nft || !nftAccount || !burnPreview) return;
@@ -414,14 +368,19 @@ export default function CollectiblesScreen() {
       const signature = signatures[signatures.length - 1] ?? '';
 
       setBurnSuccessTxId(signature);
-      fetchAllNfts(true, true);
+      invalidateAfterTx({
+        accountId: solAccount.getReceiveAddress(),
+        kinds: ['balance', 'transactions', 'nfts'],
+      }).catch((err) => {
+        console.warn('[collectibles] invalidateAfterTx failed:', err);
+      });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Burn failed';
       setBurnError(msg);
     } finally {
       setBurnExecuting(false);
     }
-  }, [burnPreview, detailSheet.nft, nftAccount, fetchAllNfts]);
+  }, [burnPreview, detailSheet.nft, nftAccount, invalidateAfterTx]);
 
   const handleBurnSuccess = useCallback((_txId: string) => {
     handleDetailSheetClose();

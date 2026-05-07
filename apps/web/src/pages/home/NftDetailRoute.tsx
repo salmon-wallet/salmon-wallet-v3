@@ -8,6 +8,7 @@ import {
   fontSize,
   spacing,
   useAccountsContext,
+  useInvalidateAfterTx,
   isSolanaNft,
   createBurnTransaction,
   signAndSendPreparedSolanaTransactions,
@@ -23,6 +24,7 @@ export function NftDetailRoute(): React.ReactElement {
 
   const [state] = useAccountsContext();
   const { activeAccount } = state;
+  const invalidateAfterTx = useInvalidateAfterTx();
 
   const [nftSendVisible, setNftSendVisible] = useState(false);
   const [burnStep, setBurnStep] = useState<'idle' | 'review' | 'success'>('idle');
@@ -116,13 +118,23 @@ export function NftDetailRoute(): React.ReactElement {
 
   const handleBurnSuccessContinue = useCallback(() => {
     handleBurnBack();
-    navigate('/home', { state: { refreshCollectibles: true } });
-  }, [handleBurnBack, navigate]);
+    invalidateAfterTx({
+      kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+    }).catch((err) => {
+      console.warn('[NftDetailRoute] invalidateAfterTx failed:', err);
+    });
+    navigate('/home');
+  }, [handleBurnBack, invalidateAfterTx, navigate]);
 
   const handleSendSuccess = useCallback(() => {
     setNftSendVisible(false);
-    navigate('/home', { state: { refreshCollectibles: true } });
-  }, [navigate]);
+    invalidateAfterTx({
+      kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+    }).catch((err) => {
+      console.warn('[NftDetailRoute] invalidateAfterTx failed:', err);
+    });
+    navigate('/home');
+  }, [invalidateAfterTx, navigate]);
 
   // Deep link fallback — no NFT data in location state
   if (!nft) {

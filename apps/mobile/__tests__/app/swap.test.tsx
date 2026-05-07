@@ -34,6 +34,7 @@ jest.mock('@salmon/shared', () => ({
   colors: { text: { muted: '#999' } },
   fontSize: { md: 18 },
   getTokenList: jest.fn().mockResolvedValue([{ address: 'mint-sol', symbol: 'SOL', decimals: 9 }]),
+  useJupiterTokenList: () => ({ tokens: [{ address: 'mint-sol', symbol: 'SOL', decimals: 9 }], loading: false, error: null, refresh: jest.fn() }),
   searchTokens: jest.fn().mockResolvedValue([{ address: 'mint-search', symbol: 'SEARCH', decimals: 6 }]),
   spacing: { lg: 16 },
   useAccountsContext: jest.fn(),
