@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { NetworkId } from '../types/blockchain';
+import type { Nft } from '../types/nft';
 
 export type InvalidationKind = 'balance' | 'nfts' | 'avatar-nfts' | 'transactions';
 
@@ -11,6 +12,16 @@ export interface InvalidationOptions {
   networkId?: NetworkId;
   /** Which query kinds to invalidate. */
   kinds: InvalidationKind[];
+  /**
+   * NFT mint addresses (`nft.mint.address`) that the just-confirmed
+   * transaction has moved out of the user's wallet — typically the burned
+   * or transferred NFT. They are filtered out of every cached
+   * `solana-nfts` / `avatar-nfts` list and their `solana-nft-detail`
+   * entries are dropped before invalidation runs, so the UI hides them
+   * instantly even when the DAS provider (Helius/Triton) is still 30–60s
+   * behind.
+   */
+  removedNftMintAddresses?: string[];
 }
 
 const KIND_TO_PREFIX: Record<InvalidationKind, string> = {
@@ -25,6 +36,39 @@ export function useInvalidateAfterTx(): (opts: InvalidationOptions) => Promise<v
 
   return useCallback(
     async (opts) => {
+      // 1. Optimistic NFT removal — runs before invalidation so the UI
+      // updates immediately while the DAS provider catches up.
+      if (opts.removedNftMintAddresses?.length) {
+        const removed = new Set(opts.removedNftMintAddresses);
+        queryClient.setQueriesData<Nft[]>(
+          {
+            predicate: (query) => {
+              const [head, params] = query.queryKey as [
+                string,
+                Record<string, unknown> | undefined,
+              ];
+              if (head !== 'solana-nfts' && head !== 'avatar-nfts') return false;
+              if (opts.accountId && params?.accountId !== opts.accountId) return false;
+              return true;
+            },
+          },
+          (oldData) => {
+            if (!Array.isArray(oldData)) return oldData;
+            return oldData.filter((nft) => !removed.has(nft?.mint?.address));
+          },
+        );
+        queryClient.removeQueries({
+          predicate: (query) => {
+            const [head, params] = query.queryKey as [
+              string,
+              Record<string, unknown> | undefined,
+            ];
+            if (head !== 'solana-nft-detail') return false;
+            return removed.has(params?.mintAddress as string);
+          },
+        });
+      }
+
       const tasks: Promise<void>[] = [];
       for (const kind of opts.kinds) {
         const prefix = KIND_TO_PREFIX[kind];
@@ -61,3 +105,4 @@ export function useInvalidateAfterTx(): (opts: InvalidationOptions) => Promise<v
     [queryClient],
   );
 }
+

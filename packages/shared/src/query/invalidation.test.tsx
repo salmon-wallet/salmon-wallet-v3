@@ -174,4 +174,89 @@ describe('useInvalidateAfterTx', () => {
     ).toBe(true);
     expect(isInvalidated(client, queryKeys.avatarNfts({ accountId: ACCOUNT_A }))).toBe(true);
   });
+
+  describe('removedNftMintAddresses', () => {
+    const MINT_KEEP = 'mint-keep';
+    const MINT_BURN = 'mint-burn';
+
+    function seedNfts(client: QueryClient) {
+      const nft = (mintAddress: string) => ({ mint: { address: mintAddress } });
+      client.setQueryData(
+        queryKeys.solanaNfts({ accountId: ACCOUNT_A, networkId: NETWORK_SOL }),
+        [nft(MINT_KEEP), nft(MINT_BURN)],
+      );
+      client.setQueryData(queryKeys.avatarNfts({ accountId: ACCOUNT_A }), [
+        nft(MINT_BURN),
+        nft(MINT_KEEP),
+      ]);
+      client.setQueryData(
+        queryKeys.solanaNfts({ accountId: ACCOUNT_B, networkId: NETWORK_SOL }),
+        [nft(MINT_BURN)],
+      );
+      client.setQueryData(['solana-nft-detail', { mintAddress: MINT_BURN }], nft(MINT_BURN));
+      client.setQueryData(['solana-nft-detail', { mintAddress: MINT_KEEP }], nft(MINT_KEEP));
+    }
+
+    it('strips the burned NFT from solana-nfts and avatar-nfts caches scoped to the account', async () => {
+      const client = makeClient();
+      seedNfts(client);
+      const { result } = renderHook(() => useInvalidateAfterTx(), {
+        wrapper: makeWrapper(client),
+      });
+
+      await result.current({
+        accountId: ACCOUNT_A,
+        kinds: ['nfts', 'avatar-nfts'],
+        removedNftMintAddresses: [MINT_BURN],
+      });
+
+      const aSolList = client.getQueryData(
+        queryKeys.solanaNfts({ accountId: ACCOUNT_A, networkId: NETWORK_SOL }),
+      ) as Array<{ mint: { address: string } }>;
+      expect(aSolList.map((n) => n.mint.address)).toEqual([MINT_KEEP]);
+
+      const aAvatarList = client.getQueryData(queryKeys.avatarNfts({ accountId: ACCOUNT_A })) as Array<{
+        mint: { address: string };
+      }>;
+      expect(aAvatarList.map((n) => n.mint.address)).toEqual([MINT_KEEP]);
+
+      // Other account's cache is untouched
+      const bSolList = client.getQueryData(
+        queryKeys.solanaNfts({ accountId: ACCOUNT_B, networkId: NETWORK_SOL }),
+      ) as Array<{ mint: { address: string } }>;
+      expect(bSolList.map((n) => n.mint.address)).toEqual([MINT_BURN]);
+    });
+
+    it('removes the matching solana-nft-detail entry and leaves others alone', async () => {
+      const client = makeClient();
+      seedNfts(client);
+      const { result } = renderHook(() => useInvalidateAfterTx(), {
+        wrapper: makeWrapper(client),
+      });
+
+      await result.current({
+        accountId: ACCOUNT_A,
+        kinds: ['nfts'],
+        removedNftMintAddresses: [MINT_BURN],
+      });
+
+      expect(client.getQueryData(['solana-nft-detail', { mintAddress: MINT_BURN }])).toBeUndefined();
+      expect(client.getQueryData(['solana-nft-detail', { mintAddress: MINT_KEEP }])).toBeDefined();
+    });
+
+    it('is a no-op when removedNftMintAddresses is empty or omitted', async () => {
+      const client = makeClient();
+      seedNfts(client);
+      const { result } = renderHook(() => useInvalidateAfterTx(), {
+        wrapper: makeWrapper(client),
+      });
+
+      await result.current({ accountId: ACCOUNT_A, kinds: ['nfts'] });
+
+      const aSolList = client.getQueryData(
+        queryKeys.solanaNfts({ accountId: ACCOUNT_A, networkId: NETWORK_SOL }),
+      ) as Array<{ mint: { address: string } }>;
+      expect(aSolList.map((n) => n.mint.address)).toEqual([MINT_KEEP, MINT_BURN]);
+    });
+  });
 });

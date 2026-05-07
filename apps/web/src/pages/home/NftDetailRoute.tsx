@@ -108,23 +108,25 @@ export function NftDetailRoute(): React.ReactElement {
       setBurnError(null);
       await signAndSendPreparedSolanaTransactions(collectibleSolanaAccount, burnPreview);
       setBurnStep('success');
+      invalidateAfterTx({
+        accountId: collectibleSolanaAccount.getReceiveAddress(),
+        kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+        removedNftMintAddresses: nft.mint ? [nft.mint] : undefined,
+      }).catch((invalidationErr) => {
+        console.warn('[NftDetailRoute] invalidateAfterTx failed:', invalidationErr);
+      });
     } catch (err) {
       console.error('Failed to burn NFT:', err);
       setBurnError(err instanceof Error ? err.message : 'Burn failed');
     } finally {
       setBurnPreparing(false);
     }
-  }, [nft, collectibleSolanaAccount, burnPreview]);
+  }, [nft, collectibleSolanaAccount, burnPreview, invalidateAfterTx]);
 
   const handleBurnSuccessContinue = useCallback(() => {
     handleBurnBack();
-    invalidateAfterTx({
-      kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-    }).catch((err) => {
-      console.warn('[NftDetailRoute] invalidateAfterTx failed:', err);
-    });
     navigate('/home');
-  }, [handleBurnBack, invalidateAfterTx, navigate]);
+  }, [handleBurnBack, navigate]);
 
   const handleSendSuccess = useCallback(() => {
     setNftSendVisible(false);
