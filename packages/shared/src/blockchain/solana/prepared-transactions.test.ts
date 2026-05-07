@@ -24,8 +24,8 @@ import { VersionedTransaction } from '@solana/web3.js';
 import {
   getPreparedSolanaTransactions,
   signAndSendPreparedSolanaTransactions,
-} from '../prepared-transactions';
-import type { PreparedNftTransactionResponse } from '../../../types/nft';
+} from './prepared-transactions';
+import type { PreparedNftTransactionResponse } from '../../types/nft';
 
 describe('prepared-transactions', () => {
   const deserializeMock = vi.mocked(VersionedTransaction.deserialize);
