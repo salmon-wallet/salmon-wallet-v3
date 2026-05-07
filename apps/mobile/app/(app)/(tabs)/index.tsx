@@ -2,7 +2,7 @@
  * HomeScreen - Main wallet overview screen
  *
  * Displays:
- * - WalletHeader: Account name, address, settings navigation
+ * - GateContainer header: Account name, address, settings navigation
  * - BalanceCardCarousel: Swipeable balance cards for multiple blockchains
  * - ActionButtonRow: Send, Receive, Activity buttons
  * - TokenList: List of token holdings
@@ -726,8 +726,8 @@ export default function HomeScreen() {
   ), [loading]);
 
   // Loading state - wait for hook to be ready
-  // Note: If we're on this screen, the LockScreenOverlay has been dismissed,
-  // which means unlock succeeded and accounts should be loaded
+  // Note: If we're on this screen, the GateContainer lock state has been
+  // dismissed, which means unlock succeeded and accounts should be loaded
   if (!ready) {
     return (
       <View style={styles.loadingContainer}>

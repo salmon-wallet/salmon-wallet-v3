@@ -35,6 +35,7 @@ import {
   createAccount,
   getScanNetworks,
   NETWORK_DISPLAY,
+  EncryptionMaterialMissingError,
   type AccountAddStep,
   type DerivedAccountInfo,
 } from '@salmon/shared';
@@ -143,8 +144,12 @@ export function AccountAddPanel({
       });
       await accountActions.addAccount(account);
       onComplete();
-    } catch {
+    } catch (err) {
       setLoading(false);
+      if (err instanceof EncryptionMaterialMissingError) {
+        Alert.alert(t('general.error'), t('settings.account_add.session_expired'));
+        return;
+      }
       Alert.alert(t('general.error'), t('settings.account_add.creation_error'));
     }
   }, [loading, accountName, defaultName, selectedDerived, activeAccount, seedPhrase, accountActions, onComplete, t]);

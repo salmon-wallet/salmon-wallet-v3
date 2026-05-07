@@ -50,6 +50,13 @@ jest.mock('@salmon/shared', () => ({
   normalizeMnemonic: (value: string) => value.trim().replace(/\s+/g, ' '),
   createAccount: (...args: unknown[]) => mockCreateAccount(...args),
   NETWORK_DISPLAY: { 'solana-mainnet': { blockchain: 'solana' } },
+  EncryptionMaterialMissingError: class EncryptionMaterialMissingError extends Error {
+    constructor(message?: string) {
+      super(message ?? 'Cannot re-encrypt vault');
+      this.name = 'EncryptionMaterialMissingError';
+      Object.setPrototypeOf(this, EncryptionMaterialMissingError.prototype);
+    }
+  },
 }));
 
 jest.mock('../../SettingsScreenLayout', () => ({
@@ -159,6 +166,57 @@ describe('AccountAddPanel', () => {
 
     expect(mockAddAccount).toHaveBeenCalledWith({ id: 'account-1' });
     expect(onComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the session_expired alert when addAccount throws EncryptionMaterialMissingError', async () => {
+    const { EncryptionMaterialMissingError } = jest.requireMock('@salmon/shared');
+    mockAddAccount.mockRejectedValueOnce(new EncryptionMaterialMissingError());
+
+    render(<AccountAddPanel onComplete={jest.fn()} onBack={jest.fn()} />);
+    fireEvent.press(screen.getByText('settings.account_add.import_seed'));
+    fireEvent.changeText(
+      screen.getByPlaceholderText('settings.account_add.seed_placeholder'),
+      'valid seed phrase',
+    );
+    fireEvent.press(screen.getByText('actions.continue'));
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Account 3')).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText('settings.account_add.confirm'));
+
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'general.error',
+        'settings.account_add.session_expired',
+      );
+    });
+  });
+
+  it('falls back to the generic creation_error alert when addAccount throws another error', async () => {
+    mockAddAccount.mockRejectedValueOnce(new Error('boom'));
+
+    render(<AccountAddPanel onComplete={jest.fn()} onBack={jest.fn()} />);
+    fireEvent.press(screen.getByText('settings.account_add.import_seed'));
+    fireEvent.changeText(
+      screen.getByPlaceholderText('settings.account_add.seed_placeholder'),
+      'valid seed phrase',
+    );
+    fireEvent.press(screen.getByText('actions.continue'));
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Account 3')).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText('settings.account_add.confirm'));
+
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'general.error',
+        'settings.account_add.creation_error',
+      );
+    });
   });
 
   it('scans derived accounts and creates from selected derivation index', async () => {

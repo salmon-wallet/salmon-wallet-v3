@@ -57,6 +57,7 @@ vi.mock('../crypto/encryption', () => ({
   lockWithKey: vi.fn(),
   lockAndGetKey: vi.fn(),
   isKeyCacheValid: vi.fn(),
+  refreshCachedKey: vi.fn((keyCache) => ({ ...keyCache, expiresAt: Date.now() + 300_000 })),
   DEFAULT_ITERATIONS: 210000,
   DEFAULT_DIGEST: 'sha512',
 }));
@@ -819,6 +820,84 @@ describe('useAccounts Hook', () => {
       expect(storage.setStorageItem).toHaveBeenCalledWith(
         'salmon_mnemonics',
         expect.objectContaining({ isEncrypted: true })
+      );
+    });
+
+    it('aborts addAccount when encryptMnemonics throws and leaves runtime/storage untouched', async () => {
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+      });
+
+      const baselineAccounts = result.current[0].accounts.length;
+      const baselineRequiredLock = result.current[0].requiredLock;
+
+      // Force the next encryptMnemonics call to fail (cached key expired,
+      // no password supplied — exactly the runtime regression we're fixing).
+      const throwingMock = vi.fn().mockRejectedValueOnce(new Error('material missing'));
+      (encryptMnemonics as any).mockImplementationOnce(throwingMock);
+
+      const newAccount = createMockAccount();
+      await act(async () => {
+        await expect(result.current[1].addAccount(newAccount)).rejects.toThrow('material missing');
+      });
+
+      // Runtime state did not advance
+      expect(result.current[0].accounts.length).toBe(baselineAccounts);
+      // Lock requirement was not turned off as a side effect
+      expect(result.current[0].requiredLock).toBe(baselineRequiredLock);
+      // Storage was not written
+      expect(storage.setStorageItem).not.toHaveBeenCalledWith(
+        'salmon_mnemonics',
+        expect.anything(),
+      );
+    });
+
+    it('aborts removeAccount when encryptMnemonics throws and leaves runtime/storage untouched', async () => {
+      const mockAccount1 = createMockAccount();
+      const mockAccount2 = { ...createMockAccount(), id: 'account_throw_remove' };
+
+      (storage.getStorageItem as any).mockImplementation((key: string) => {
+        if (key === 'salmon_accounts') return Promise.resolve([
+          { id: mockAccount1.id, name: mockAccount1.name, avatar: mockAccount1.avatar, pathIndexes: mockAccount1.pathIndexes },
+          { id: mockAccount2.id, name: mockAccount2.name, avatar: mockAccount2.avatar, pathIndexes: mockAccount2.pathIndexes },
+        ]);
+        if (key === 'salmon_mnemonics') return Promise.resolve({
+          [mockAccount1.id]: MOCK_MNEMONIC,
+          [mockAccount2.id]: MOCK_MNEMONIC,
+        });
+        if (key === 'salmon_active_account_id') return Promise.resolve(mockAccount1.id);
+        if (key === 'salmon_active_network_id') return Promise.resolve('solana-mainnet');
+        return Promise.resolve(null);
+      });
+
+      const { result } = renderHook(() => useAccounts());
+
+      await waitFor(() => {
+        expect(result.current[0].ready).toBe(true);
+        expect(result.current[0].accounts).toHaveLength(2);
+      });
+
+      const baselineRequiredLock = result.current[0].requiredLock;
+      vi.mocked(storage.setStorageItem).mockClear();
+
+      (encryptMnemonics as any).mockRejectedValueOnce(new Error('material missing'));
+
+      await act(async () => {
+        await expect(result.current[1].removeAccount(mockAccount1.id)).rejects.toThrow(
+          'material missing',
+        );
+      });
+
+      // Account list unchanged
+      expect(result.current[0].accounts).toHaveLength(2);
+      // Lock requirement preserved
+      expect(result.current[0].requiredLock).toBe(baselineRequiredLock);
+      // Vault never overwritten
+      expect(storage.setStorageItem).not.toHaveBeenCalledWith(
+        'salmon_mnemonics',
+        expect.anything(),
       );
     });
 

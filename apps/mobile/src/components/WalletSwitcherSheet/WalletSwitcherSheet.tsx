@@ -1,28 +1,7 @@
 /**
- * WalletSwitcherSheet - Account selection sheet component
- *
- * A TopSheet-based component that allows users to:
- * - View all their wallet accounts
- * - Switch between accounts
- * - Add new accounts
- *
- * Features:
- * - Slides down from the top of the screen
- * - Shows account name, avatar, and truncated address
- * - Highlights the currently active account with a checkmark
- * - Includes an "Add Account" button at the bottom
- *
- * @example
- * ```tsx
- * <WalletSwitcherSheet
- *   visible={showSwitcher}
- *   onClose={() => setShowSwitcher(false)}
- *   accounts={accounts}
- *   activeAccountId={accountId}
- *   onSelectAccount={handleSelectAccount}
- *   onAddAccount={handleAddAccount}
- * />
- * ```
+ * WalletSwitcherSheet - Account selection content rendered inside the
+ * GateContainer expanded state. Lists accounts (avatar, name, truncated
+ * address), highlights the active one, and exposes an add-account action.
  */
 
 import React, { useCallback, useMemo, useState } from 'react';

@@ -97,20 +97,21 @@ export function useAccountsMutations({
       const newNetworkId = getPreferredNetworkId(account, networkId);
       const newMnemonics = buildMnemonicMap(newAccounts);
 
+      // Re-encrypt first. If we cannot produce an encrypted vault (e.g. the
+      // cached derived key has expired and no password was supplied), abort
+      // before touching any state — runtime and storage stay consistent and
+      // the caller can surface the error to prompt the user for a password.
+      const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: !!password });
+
       setCounter(newCounter);
       setAccounts(newAccounts);
       setAccountId(newAccountId);
       setNetworkId(newNetworkId);
       setPathIndex(getDefaultPathIndex(account, newNetworkId));
 
-      const te0 = Date.now();
-      const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: !!password });
-      console.log(`[perf] addAccount: encryptMnemonics ${Date.now() - te0}ms`);
       await setStorageItem(STORAGE_KEYS.MNEMONICS, encryptResult.vault);
       if (password) {
         setRequiredLock(true);
-      } else if (!encryptResult.requiredLock) {
-        setRequiredLock(false);
       }
 
       await setStorageItem(STORAGE_KEYS.COUNTER, newCounter);
@@ -172,8 +173,14 @@ export function useAccountsMutations({
         return;
       }
 
-      setAccounts(newAccounts);
       const newMnemonics = buildMnemonicMap(newAccounts);
+
+      // Re-encrypt first. If we cannot produce an encrypted vault, abort
+      // before mutating state so runtime, persisted accounts, and the
+      // active selection do not drift apart from storage.
+      const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: false });
+
+      setAccounts(newAccounts);
 
       if (accountId === targetId) {
         const account = accounts.find(({ id }) => id !== targetId);
@@ -188,12 +195,9 @@ export function useAccountsMutations({
 
       await persistAccounts(newAccounts, formatAccountForStorage);
 
-      const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: false });
       await setStorageItem(STORAGE_KEYS.MNEMONICS, encryptResult.vault);
       if (password) {
         setRequiredLock(true);
-      } else if (!encryptResult.requiredLock) {
-        setRequiredLock(false);
       }
     },
     [

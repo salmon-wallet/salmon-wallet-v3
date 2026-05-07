@@ -764,24 +764,26 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
       await signAndSendPreparedSolanaTransactions(solanaAccount, burnPreview);
 
       setBurnStep('success');
+      invalidateAfterTx({
+        accountId: solanaAccount.getReceiveAddress(),
+        kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+        removedNftMintAddresses: selectedNft.mint ? [selectedNft.mint] : undefined,
+      }).catch((err) => {
+        console.warn('[HomePage] invalidateAfterTx failed:', err);
+      });
     } catch (error) {
       console.error('[HomePage] NFT burn failed:', error);
       setBurnError(error instanceof Error ? error.message : 'Burn failed');
     } finally {
       setBurnLoading(false);
     }
-  }, [selectedNft, collectibleSolanaAccount, burnPreview]);
+  }, [selectedNft, collectibleSolanaAccount, burnPreview, invalidateAfterTx]);
 
   const handleNftBurnSuccessContinue = useCallback(() => {
     handleNftBurnBack();
     setCurrentPage('home');
     setSelectedNft(null);
-    invalidateAfterTx({
-      kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-    }).catch((err) => {
-      console.warn('[HomePage] invalidateAfterTx failed:', err);
-    });
-  }, [handleNftBurnBack, invalidateAfterTx]);
+  }, [handleNftBurnBack]);
 
   const handleSelectedTokenChartPeriodChange = useCallback((period: PriceChartPeriod) => {
     setSelectedTokenChartPeriod(period);

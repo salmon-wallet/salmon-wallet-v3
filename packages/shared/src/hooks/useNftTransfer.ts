@@ -77,10 +77,13 @@ export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferPar
         setStatus('success');
         const accountId = account.getReceiveAddress();
         const networkId = account.getNetworkId();
+        const transferredMint =
+          nft.blockchain === 'solana' ? (nft as SolanaNftData).mint : undefined;
         invalidateAfterTx({
           accountId,
           networkId,
           kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+          removedNftMintAddresses: transferredMint ? [transferredMint] : undefined,
         }).catch((err) => {
           console.warn('[useNftTransfer] invalidateAfterTx failed:', err);
         });

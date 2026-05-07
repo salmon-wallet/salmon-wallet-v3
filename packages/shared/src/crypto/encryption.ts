@@ -68,7 +68,7 @@ export interface DerivedKeyCache {
 }
 
 /** Cache expiration time: 5 minutes */
-const KEY_CACHE_TTL = 5 * 60 * 1000;
+export const KEY_CACHE_TTL = 5 * 60 * 1000;
 
 /**
  * Error thrown when decryption fails due to an incorrect password.
@@ -519,6 +519,20 @@ export function lockWithKey<T>(unlocked: T, keyCache: DerivedKeyCache): LockedVa
  */
 export function isKeyCacheValid(keyCache: DerivedKeyCache | null | undefined): keyCache is DerivedKeyCache {
   return !!keyCache && keyCache.expiresAt > Date.now();
+}
+
+/**
+ * Returns a copy of the given cached key with its `expiresAt` reset to
+ * `Date.now() + KEY_CACHE_TTL`. Use this whenever an existing cached key
+ * is consumed during user activity so the lifetime behaves as a sliding
+ * window — the key only expires after a real period of inactivity, which
+ * the inactivity lock already handles by clearing the cache outright.
+ *
+ * The original cache is not mutated; the caller is expected to persist
+ * the returned value back to its store (e.g. the in-memory stash).
+ */
+export function refreshCachedKey(keyCache: DerivedKeyCache): DerivedKeyCache {
+  return { ...keyCache, expiresAt: Date.now() + KEY_CACHE_TTL };
 }
 
 /**

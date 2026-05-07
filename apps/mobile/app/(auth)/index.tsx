@@ -53,7 +53,8 @@ export default function WelcomeScreen() {
   };
 
   /**
-   * Lock accounts and navigate to main app where LockScreenOverlay will show
+   * Lock accounts and navigate to main app where the GateContainer
+   * lock state will show.
    */
   const handleAccessExistingAccount = async () => {
     await actions.lockAccounts();

@@ -69,7 +69,9 @@ const waitForLayout = (): Promise<void> =>
 
   // Receive messages from background
   port.onMessage.addListener((msg) => {
-    console.log('Message from background:', msg);
+    if (import.meta.env.DEV) {
+      console.log('Message from background:', msg);
+    }
 
     if (msg.type === 'CONNECT_REQUEST') {
       // acá podés disparar la UI de aprobación

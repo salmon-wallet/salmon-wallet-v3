@@ -1,33 +1,8 @@
 /**
  * WalletSwitcherSheet Component Exports
  *
- * A TopSheet-based component for switching between wallet accounts.
- * Shows a list of accounts with avatars, names, and addresses,
- * with the ability to select an account or add a new one.
- *
- * @example
- * ```tsx
- * import { WalletSwitcherSheet } from '../components';
- *
- * function HomeScreen() {
- *   const [showSwitcher, setShowSwitcher] = useState(false);
- *   const [{ accounts, accountId }, { changeAccount }] = useAccounts();
- *
- *   return (
- *     <>
- *       <Header onWalletPress={() => setShowSwitcher(true)} />
- *       <WalletSwitcherSheet
- *         visible={showSwitcher}
- *         onClose={() => setShowSwitcher(false)}
- *         accounts={accounts}
- *         activeAccountId={accountId ?? ''}
- *         onSelectAccount={changeAccount}
- *         onAddAccount={() => router.push('/auth')}
- *       />
- *     </>
- *   );
- * }
- * ```
+ * Renders the wallet account list inside the GateContainer expanded
+ * state. Allows selecting an account or adding a new one.
  */
 
 export { WalletSwitcherSheet, default } from './WalletSwitcherSheet';

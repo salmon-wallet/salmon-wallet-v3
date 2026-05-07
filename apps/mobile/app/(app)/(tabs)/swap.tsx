@@ -2,7 +2,7 @@
  * SwapScreen - Unified token swap and bridge interface
  *
  * Displays:
- * - WalletHeader: Account name, address, settings navigation
+ * - GateContainer header: Account name, address, settings navigation
  * - SwapInputScreen: Multi-chain token selection and amount input
  * - SwapReviewScreen: Quote review and confirmation
  *

@@ -33,6 +33,7 @@ import {
   createAccount,
   NETWORK_DISPLAY,
   getScanNetworks,
+  EncryptionMaterialMissingError,
   type AccountAddStep,
   type DerivedAccountInfo,
   opacity,
@@ -127,6 +128,7 @@ export function AccountAddPanel({
   const [scanning, setScanning] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState('');
   const [seedError, setSeedError] = useState('');
+  const [confirmError, setConfirmError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const defaultName = useMemo(
@@ -181,6 +183,7 @@ export function AccountAddPanel({
 
   const handleConfirm = useCallback(async () => {
     const name = accountName.trim() || defaultName;
+    setConfirmError('');
     setLoading(true);
     try {
       const mnemonic = selectedDerived ? (activeAccount?.mnemonic || '') : seedPhrase;
@@ -194,10 +197,15 @@ export function AccountAddPanel({
       });
       await accountActions.addAccount(account);
       onComplete();
-    } catch {
+    } catch (err) {
       setLoading(false);
+      if (err instanceof EncryptionMaterialMissingError) {
+        setConfirmError(t('settings.account_add.session_expired'));
+        return;
+      }
+      setConfirmError(t('settings.account_add.creation_error'));
     }
-  }, [accountName, defaultName, selectedDerived, activeAccount, seedPhrase, accountActions, onComplete]);
+  }, [accountName, defaultName, selectedDerived, activeAccount, seedPhrase, accountActions, onComplete, t]);
 
   const handleStepBack = useCallback(() => {
     if (step === 'set-name') {
@@ -333,7 +341,10 @@ export function AccountAddPanel({
             <StyledTextField
               fullWidth
               value={accountName}
-              onChange={(e) => setAccountName(e.target.value)}
+              onChange={(e) => {
+                setAccountName(e.target.value);
+                if (confirmError) setConfirmError('');
+              }}
               placeholder={t('settings.account_add.set_name_placeholder')}
               autoFocus
               inputProps={{ maxLength: 32 }}
@@ -341,6 +352,11 @@ export function AccountAddPanel({
                 if (e.key === 'Enter') handleConfirm();
               }}
             />
+            {confirmError && (
+              <Typography sx={{ color: colors.status.error, fontSize: fontSize.sm, marginTop: spacing.xs }}>
+                {confirmError}
+              </Typography>
+            )}
             <ConfirmButton
               fullWidth
               variant="contained"
