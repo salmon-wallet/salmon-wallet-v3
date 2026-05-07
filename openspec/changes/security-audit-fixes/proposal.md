@@ -6,6 +6,7 @@ A verified security audit (2026-03-17) identified 2 CRITICAL, 6 HIGH, and 9 MEDI
 
 ### CRITICAL
 - Move mnemonic from Expo Router URL params to in-memory stash in `recover.tsx`, `create.tsx`, and `password.tsx`
+- Remove residual `mnemonic` URL-param branch from `derived-accounts.tsx` (defense-in-depth follow-up surfaced during code audit; current callers already navigate without params, but the branch left a deep-link/feature-creep attack surface)
 - Add biometric authentication gate to `BackupPanel` (matching existing `PrivateKeyPanel` pattern)
 
 ### HIGH
@@ -25,6 +26,7 @@ A verified security audit (2026-03-17) identified 2 CRITICAL, 6 HIGH, and 9 MEDI
 - Fix BTC-to-satoshis float conversion to avoid IEEE 754 precision loss
 - Remove dead `postMessage` method from `SolanaProvider.ts`
 - Use `crypto.randomUUID()` for request IDs in `SolanaProvider.ts`
+- Replace `STASH_KEYS.PASSWORD` example calls in `storage/index.ts` and `storage/stash.ts` JSDoc with `STASH_KEYS.DERIVED_KEY` so the public API documentation stops modeling the now-prohibited pattern
 
 ## Capabilities
 

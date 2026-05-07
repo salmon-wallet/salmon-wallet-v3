@@ -56,6 +56,12 @@ Import and use `useInactivityTimeout` from `@salmon/shared` in the mobile root `
 - Remove dead `postMessage` method from `SolanaProvider.ts`
 - Replace `#nextRequestId` counter with `crypto.randomUUID()` in `SolanaProvider.ts`
 
+### D12: derived-accounts mnemonic param removal (CRITICAL follow-up)
+`apps/mobile/app/(auth)/derived-accounts.tsx` declared `useLocalSearchParams<{ mnemonic: string }>()` and resolved the mnemonic via `params.mnemonic || activeAccount?.mnemonic`. Its only runtime caller (`success.tsx`) navigates without params, so the URL-param branch is dead in practice — but it leaves a deep-link / future-caller attack surface that is identical to the one D1 closed in `recover/create/password`. Drop the import, drop the `params` declaration, and resolve the mnemonic exclusively from the in-memory `activeAccount?.mnemonic`. No new contract is introduced; the screen keeps the same behavior because the active account is already unlocked when this route is reachable.
+
+### D13: Stash JSDoc examples no longer model `STASH_KEYS.PASSWORD`
+`packages/shared/src/storage/index.ts` and `packages/shared/src/storage/stash.ts` have four JSDoc snippets that show `setStashItem(STASH_KEYS.PASSWORD, ...)` / `getStashItem<string>(STASH_KEYS.PASSWORD)` as the canonical usage. After D3 those calls are forbidden in real code, so the doc examples were silently advertising the deprecated pattern. Replace each example with the equivalent shape using `STASH_KEYS.DERIVED_KEY` (the cache that is actually allowed by the spec), keeping the API surface unchanged.
+
 ## Risks / Trade-offs
 
 - **D3 (password removal from stash)**: The `encryptMnemonics` function currently falls back to stashed password when no password argument is provided. After this change, it will fall back to `DerivedKeyCache` and use `lockWithKey()`. If the cache has expired (>5min), the operation will fail and require re-authentication. This is more secure but slightly changes UX for long idle sessions.

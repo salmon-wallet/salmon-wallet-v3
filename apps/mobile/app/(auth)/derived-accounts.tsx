@@ -42,7 +42,7 @@ import {
   ScreenHeader,
   SecondaryButton,
 } from '../../src/components';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -74,7 +74,6 @@ function LoadingSkeleton() {
 // ============================================================================
 
 export default function DerivedAccountsScreen() {
-  const params = useLocalSearchParams<{ mnemonic: string }>();
   const [{ activeAccount }, actions] = useAccountsContext();
 
   // State
@@ -82,8 +81,10 @@ export default function DerivedAccountsScreen() {
   const [importing, setImporting] = useState(false);
   const [accounts, setAccounts] = useState<DerivedAccountInfo[]>([]);
 
-  // Get mnemonic from params or active account
-  const mnemonic = params.mnemonic || activeAccount?.mnemonic;
+  // Mnemonic comes from the unlocked active account in memory; never from
+  // route params, which can be serialized by Expo Router into navigation
+  // state or deep-link URLs.
+  const mnemonic = activeAccount?.mnemonic;
 
   /**
    * Search for derived accounts across scan networks only.

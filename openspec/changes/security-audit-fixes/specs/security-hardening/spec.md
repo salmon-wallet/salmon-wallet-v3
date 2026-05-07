@@ -15,6 +15,10 @@ Sensitive mnemonic data must be transferred between auth screens using in-memory
 - **WHEN** the password screen mounts
 - **THEN** it reads the mnemonic from stash and immediately removes it from stash after reading
 
+#### Scenario: Derived-accounts screen resolves mnemonic from in-memory account
+- **WHEN** the derived-accounts screen mounts
+- **THEN** the mnemonic is resolved exclusively from the unlocked active account in memory, never from `useLocalSearchParams`, even if a deep link or future caller attempts to pass `mnemonic` as a route parameter
+
 ### Requirement: BackupPanel requires biometric authentication before revealing seed phrase
 The backup seed phrase panel must require biometric authentication (or password confirmation if biometrics unavailable) before displaying the mnemonic, matching the security level of PrivateKeyPanel.
 
@@ -36,6 +40,10 @@ The plaintext password must never be stored in the in-memory stash. Only the Der
 #### Scenario: Re-encryption needed during session
 - **WHEN** a mnemonic re-encryption is needed (e.g., adding account)
 - **THEN** the system uses the cached DerivedKeyCache via `lockWithKey()`, not the password
+
+#### Scenario: Stash API documentation models the allowed pattern
+- **WHEN** a developer reads the JSDoc examples in `packages/shared/src/storage/index.ts` or `packages/shared/src/storage/stash.ts`
+- **THEN** the examples reference `STASH_KEYS.DERIVED_KEY` and never `STASH_KEYS.PASSWORD`, so the public API documentation does not advertise the prohibited pattern
 
 ### Requirement: Content script restricted to secure origins
 The extension content script must only inject the wallet provider on HTTPS pages (plus localhost for development). It must not run in iframes.

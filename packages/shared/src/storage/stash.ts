@@ -342,7 +342,7 @@ export class StashNotInitializedError extends Error {
  * @example
  * ```typescript
  * const stash = getStash();
- * const password = await stash.getItem<string>(STASH_KEYS.PASSWORD);
+ * const cachedKey = await stash.getItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
  * ```
  */
 export function getStash(): Stash {
@@ -385,7 +385,7 @@ export function resetStash(): void {
  *
  * @example
  * ```typescript
- * const password = await getStashItem<string>(STASH_KEYS.PASSWORD);
+ * const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
  * ```
  */
 export async function getStashItem<T>(key: string): Promise<T | undefined> {
@@ -402,7 +402,7 @@ export async function getStashItem<T>(key: string): Promise<T | undefined> {
  *
  * @example
  * ```typescript
- * await setStashItem(STASH_KEYS.PASSWORD, 'userPassword123');
+ * await setStashItem(STASH_KEYS.DERIVED_KEY, derivedKeyCache);
  * ```
  */
 export async function setStashItem<T>(key: string, value: T): Promise<void> {

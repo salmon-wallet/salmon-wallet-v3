@@ -36,7 +36,7 @@
  *
  * // Use stash for sensitive session data
  * const stash = getStash();
- * await stash.setItem(STASH_KEYS.PASSWORD, userPassword);
+ * await stash.setItem(STASH_KEYS.DERIVED_KEY, derivedKeyCache);
  * ```
  */
 
