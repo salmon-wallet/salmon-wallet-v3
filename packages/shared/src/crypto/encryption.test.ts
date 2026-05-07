@@ -15,9 +15,13 @@ import {
   lock,
   unlock,
   isValidVault,
+  isKeyCacheValid,
+  refreshCachedKey,
+  KEY_CACHE_TTL,
   IncorrectPasswordError,
   InvalidVaultError,
   KeyDerivationError,
+  type DerivedKeyCache,
 } from './encryption';
 
 // ============================================================================
@@ -211,6 +215,75 @@ describe('Encryption Module', () => {
           kdf: 'pbkdf2',
         })
       ).toBe(false);
+    });
+  });
+
+  describe('isKeyCacheValid', () => {
+    const baseKey: DerivedKeyCache = {
+      key: [1, 2, 3, 4],
+      salt: 's',
+      iterations: 1000,
+      digest: 'sha256',
+      expiresAt: 0,
+    };
+
+    it('returns false for null or undefined caches', () => {
+      expect(isKeyCacheValid(null)).toBe(false);
+      expect(isKeyCacheValid(undefined)).toBe(false);
+    });
+
+    it('returns false when expiresAt is in the past', () => {
+      expect(isKeyCacheValid({ ...baseKey, expiresAt: Date.now() - 1 })).toBe(false);
+    });
+
+    it('returns true when expiresAt is in the future', () => {
+      expect(isKeyCacheValid({ ...baseKey, expiresAt: Date.now() + 1000 })).toBe(true);
+    });
+  });
+
+  describe('refreshCachedKey', () => {
+    const baseKey: DerivedKeyCache = {
+      key: [1, 2, 3, 4],
+      salt: 's',
+      iterations: 1000,
+      digest: 'sha256',
+      expiresAt: Date.now() - 1000,
+    };
+
+    it('returns a new cache with expiresAt = now + KEY_CACHE_TTL', () => {
+      const before = Date.now();
+      const refreshed = refreshCachedKey(baseKey);
+      const after = Date.now();
+
+      expect(refreshed.expiresAt).toBeGreaterThanOrEqual(before + KEY_CACHE_TTL);
+      expect(refreshed.expiresAt).toBeLessThanOrEqual(after + KEY_CACHE_TTL);
+    });
+
+    it('does not mutate the original cache', () => {
+      const original: DerivedKeyCache = { ...baseKey };
+      const originalExpiresAt = original.expiresAt;
+      refreshCachedKey(original);
+      expect(original.expiresAt).toBe(originalExpiresAt);
+    });
+
+    it('preserves key material (key, salt, iterations, digest)', () => {
+      const refreshed = refreshCachedKey(baseKey);
+      expect(refreshed.key).toBe(baseKey.key);
+      expect(refreshed.salt).toBe(baseKey.salt);
+      expect(refreshed.iterations).toBe(baseKey.iterations);
+      expect(refreshed.digest).toBe(baseKey.digest);
+    });
+
+    it('produces a valid cache (isKeyCacheValid returns true after refresh)', () => {
+      const expired: DerivedKeyCache = {
+        key: [1, 2, 3, 4],
+        salt: 's',
+        iterations: 1000,
+        digest: 'sha256',
+        expiresAt: Date.now() - 10_000,
+      };
+      expect(isKeyCacheValid(expired)).toBe(false);
+      expect(isKeyCacheValid(refreshCachedKey(expired))).toBe(true);
     });
   });
 });

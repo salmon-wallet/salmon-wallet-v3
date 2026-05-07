@@ -3,6 +3,7 @@ import {
   lockAndGetKey,
   lockWithKey,
   isKeyCacheValid,
+  refreshCachedKey,
   type LockedVault,
   type DerivedKeyCache,
 } from './encryption';
@@ -54,6 +55,7 @@ export async function encryptMnemonics(
     if (isKeyCacheValid(cachedKey)) {
       const vault = lockWithKey(mnemonics, cachedKey);
       lockedMnemonics = { ...vault, isEncrypted: true as const };
+      await setStashItem(STASH_KEYS.DERIVED_KEY, refreshCachedKey(cachedKey));
     } else if (cacheNewKey) {
       const { vault, keyCache } = await lockAndGetKey(mnemonics, password);
       lockedMnemonics = { ...vault, isEncrypted: true as const };
@@ -70,6 +72,7 @@ export async function encryptMnemonics(
   const cachedKey = await getStashItem<DerivedKeyCache>(STASH_KEYS.DERIVED_KEY);
   if (isKeyCacheValid(cachedKey)) {
     const vault = lockWithKey(mnemonics, cachedKey);
+    await setStashItem(STASH_KEYS.DERIVED_KEY, refreshCachedKey(cachedKey));
     return { vault: { ...vault, isEncrypted: true as const }, requiredLock: true };
   }
 

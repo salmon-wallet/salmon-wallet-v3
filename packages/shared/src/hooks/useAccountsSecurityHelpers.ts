@@ -3,6 +3,7 @@ import {
   lockAndGetKey,
   unlockAndGetKey,
   unlockWithKey,
+  refreshCachedKey,
   DEFAULT_DIGEST,
   DEFAULT_ITERATIONS,
   type DerivedKeyCache,
@@ -85,7 +86,7 @@ export async function resolveMnemonicsWithCachedKey(
   }
 
   const mnemonics = unlockWithKey<Record<string, string>>(storedMnemonics, keyCache);
-  await setStashItem(STASH_KEYS.DERIVED_KEY, keyCache);
+  await setStashItem(STASH_KEYS.DERIVED_KEY, refreshCachedKey(keyCache));
 
   return mnemonics;
 }

@@ -57,6 +57,7 @@ vi.mock('../crypto/encryption', () => ({
   lockWithKey: vi.fn(),
   lockAndGetKey: vi.fn(),
   isKeyCacheValid: vi.fn(),
+  refreshCachedKey: vi.fn((keyCache) => ({ ...keyCache, expiresAt: Date.now() + 300_000 })),
   DEFAULT_ITERATIONS: 210000,
   DEFAULT_DIGEST: 'sha512',
 }));
