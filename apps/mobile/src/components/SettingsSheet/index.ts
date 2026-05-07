@@ -1,8 +1,8 @@
 /**
  * SettingsSheet Component Exports
  *
- * Provides a slide-down settings panel using the TopSheet component
- * with integrated stacking panel navigation via SettingsPanelStack.
+ * Renders settings content inside the GateContainer expanded state,
+ * with stacking sub-panel navigation via SettingsPanelStack.
  */
 
 export { SettingsSheet, default } from './SettingsSheet';

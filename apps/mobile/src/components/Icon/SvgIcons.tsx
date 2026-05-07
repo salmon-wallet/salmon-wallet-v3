@@ -9,7 +9,7 @@ interface SvgIconProps {
 
 /**
  * Wallet icon from Figma assets
- * Used in WalletHeader to indicate wallet selection
+ * Used in HeaderContent to indicate wallet selection
  */
 export const WalletSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
@@ -39,7 +39,7 @@ export const WalletSvgIcon: React.FC<SvgIconProps> = ({
 
 /**
  * Content copy icon from Figma assets
- * Used in WalletHeader for copy address action
+ * Used in HeaderContent for copy address action
  */
 export const ContentCopySvgIcon: React.FC<SvgIconProps> = ({
   size = 24,
@@ -57,7 +57,7 @@ export const ContentCopySvgIcon: React.FC<SvgIconProps> = ({
 
 /**
  * Settings/sliders icon from Figma assets
- * Used in WalletHeader for settings navigation
+ * Used in HeaderContent for settings navigation
  */
 export const SettingsSvgIcon: React.FC<SvgIconProps> = ({
   size = 24,

@@ -1,8 +1,8 @@
 /**
  * SettingsSheet Component Types
  *
- * Type definitions for the SettingsSheet component which provides
- * a slide-down settings panel using the TopSheet component.
+ * Type definitions for the SettingsSheet component, which renders
+ * settings content inside the GateContainer expanded state.
  */
 
 import type { ComponentProps } from 'react';

@@ -1,8 +1,7 @@
 /**
- * SettingsSheet - Slide-down settings panel with stacking sub-panels.
- *
- * Uses TopSheet for the slide-down animation and SettingsPanelStack
- * for horizontal panel transitions when navigating to sub-screens.
+ * SettingsSheet - Settings content rendered inside the GateContainer
+ * expanded state, with horizontal sub-panel transitions handled by
+ * SettingsPanelStack.
  */
 
 import React, { useCallback, useEffect, useMemo } from 'react';

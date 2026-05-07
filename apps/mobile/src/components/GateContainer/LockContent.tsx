@@ -48,7 +48,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoadingScreen } from '../LoadingScreen';
-import type { BiometricConfig } from '../LockScreenOverlay/types';
+import type { BiometricConfig } from './types';
 
 // ============================================================================
 // Props

@@ -85,9 +85,6 @@ export type { GlassTabBarProps, TabConfig } from './GlassTabBar';
 // Sheets & Modals
 // ---------------------------------------------------------------------------
 
-export { TopSheet } from './TopSheet';
-export type { TopSheetProps, TopSheetAnimationConfig, TopSheetRef } from './TopSheet';
-
 export { WalletSwitcherSheet } from './WalletSwitcherSheet';
 export type { WalletSwitcherSheetProps, AccountListItemProps } from './WalletSwitcherSheet';
 
@@ -97,9 +94,6 @@ export type { ReceiveSheetProps } from './ReceiveSheet';
 // ---------------------------------------------------------------------------
 // Home
 // ---------------------------------------------------------------------------
-
-export { WalletHeader } from './WalletHeader';
-export type { WalletHeaderProps } from './WalletHeader';
 
 export { BalanceCard, BalanceCardCarousel } from './BalanceCard';
 export type {
@@ -341,5 +335,3 @@ export type { PrivateKeyPanelProps } from './PrivateKeyPanel';
 export { BackupPanel } from './BackupPanel';
 export { AboutPanel } from './AboutPanel';
 
-export { LockScreenOverlay } from './LockScreenOverlay';
-export type { LockScreenOverlayProps, BiometricConfig, BiometricAuthState } from './LockScreenOverlay';
