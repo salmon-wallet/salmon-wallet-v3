@@ -103,9 +103,7 @@ export function useAccountsMutations({
       setNetworkId(newNetworkId);
       setPathIndex(getDefaultPathIndex(account, newNetworkId));
 
-      const te0 = Date.now();
       const encryptResult = await encryptMnemonics(newMnemonics, password, { cacheNewKey: !!password });
-      console.log(`[perf] addAccount: encryptMnemonics ${Date.now() - te0}ms`);
       await setStorageItem(STORAGE_KEYS.MNEMONICS, encryptResult.vault);
       if (password) {
         setRequiredLock(true);
