@@ -131,18 +131,33 @@ describe('swap utils', () => {
       expect(validateAddress('', 'solana')).toEqual({ valid: false, error: null });
     });
 
-    it('delegates to chain validators and wraps result', () => {
-      // Per-chain address validation has dedicated coverage in
-      // blockchain/{solana,ethereum,bitcoin}/validation.test.ts. Here we
-      // only smoke-test that validateAddress dispatches by chain and
-      // shapes the result correctly.
+    it('validates Solana, Ethereum, and Bitcoin address formats', () => {
       expect(validateAddress('HAgk14JpMQLgt6rVgv7cBQFJWFto5Dqxi472uT3DKpqk', 'solana')).toEqual({
         valid: true,
         error: null,
       });
+      expect(validateAddress('0x742d35Cc6634C0532925a3b844Bc9e7595f35b32', 'ethereum')).toEqual({
+        valid: true,
+        error: null,
+      });
+      expect(validateAddress('bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', 'bitcoin')).toEqual({
+        valid: true,
+        error: null,
+      });
+    });
+
+    it('returns chain-specific validation errors for malformed addresses', () => {
       expect(validateAddress('not-solana', 'solana')).toEqual({
         valid: false,
         error: 'Invalid Solana address',
+      });
+      expect(validateAddress('0x1234', 'ethereum')).toEqual({
+        valid: false,
+        error: 'Invalid Ethereum address',
+      });
+      expect(validateAddress('tb1qinvalid', 'bitcoin')).toEqual({
+        valid: false,
+        error: 'Invalid Bitcoin address',
       });
     });
 
