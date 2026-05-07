@@ -395,7 +395,7 @@ describe('useSwapScreenLogic', () => {
     expect(result.current.addressError).toBe('Invalid Bitcoin address');
   });
 
-  it('tracks bridge transaction status after exchange creation', async () => {
+  it('confirms a bridge end-to-end: estimate → review → deposit → success + status tracking', async () => {
     vi.useFakeTimers();
 
     const props = createProps({
@@ -417,62 +417,6 @@ describe('useSwapScreenLogic', () => {
 
     act(() => {
       result.current.handleOutTokenSelect(BTC);
-      result.current.setInAmount('1');
-    });
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500);
-      await Promise.resolve();
-      await Promise.resolve();
-    });
-
-    act(() => {
-      result.current.handleReview();
-      result.current.setRecipientAddress('bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh');
-    });
-
-    act(() => {
-      result.current.handleContinueToReview();
-    });
-
-    await act(async () => {
-      await result.current.handleConfirmBridge();
-    });
-
-    expect(props.onCreateBridgeExchange).toHaveBeenCalledTimes(1);
-    expect(props.onSendDeposit).toHaveBeenCalledTimes(1);
-    expect(props.onGetBridgeTransactionStatus).toHaveBeenCalledWith('bridge-1');
-    expect(result.current.bridgeTransaction).toEqual(BRIDGE_TRANSACTION);
-    expect(result.current.successExchange).toEqual(BRIDGE_EXCHANGE);
-    expect(result.current.depositTxId).toBe('deposit-tx-1');
-    expect(result.current.step).toBe('success');
-  });
-
-  it('confirms a bridge, sends the deposit transaction, and stores success state', async () => {
-    vi.useFakeTimers();
-
-    const props = createProps({
-      initialInToken: SOL,
-      tokens: [SOL],
-      featuredTokens: [SOL],
-      jupiterTokens: [SOL, USDC],
-      onGetAvailableTokens: vi.fn().mockResolvedValue(BRIDGE_AVAILABLE_TOKENS),
-    });
-
-    const { result } = renderHook((hookProps) => useSwapScreenLogic(hookProps), {
-      initialProps: props,
-      wrapper: makeWrapper(),
-    });
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    act(() => {
-      result.current.handleOutTokenSelect(BTC);
-    });
-
-    act(() => {
       result.current.setInAmount('1');
     });
 
@@ -487,9 +431,6 @@ describe('useSwapScreenLogic', () => {
 
     act(() => {
       result.current.handleReview();
-    });
-
-    act(() => {
       result.current.setRecipientAddress('bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh');
     });
 
@@ -513,9 +454,11 @@ describe('useSwapScreenLogic', () => {
     );
     expect(props.onSendDeposit).toHaveBeenCalledWith('bridge-deposit-address', SOL.address, 1);
     expect(props.onBridgeSuccess).toHaveBeenCalledWith(BRIDGE_EXCHANGE);
-    expect(result.current.step).toBe('success');
-    expect(result.current.depositTxId).toBe('deposit-tx-1');
+    expect(props.onGetBridgeTransactionStatus).toHaveBeenCalledWith('bridge-1');
+    expect(result.current.bridgeTransaction).toEqual(BRIDGE_TRANSACTION);
     expect(result.current.successExchange).toBe(BRIDGE_EXCHANGE);
+    expect(result.current.depositTxId).toBe('deposit-tx-1');
+    expect(result.current.step).toBe('success');
   });
 
   it('returns to input after a bridge failure and reports the error callback', async () => {
