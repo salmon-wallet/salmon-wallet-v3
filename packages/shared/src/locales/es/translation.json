@@ -221,7 +221,8 @@
       "confirm_create": "Crear Cuenta",
       "confirm_import": "Importar Cuenta",
       "confirm": "Confirmar",
-      "creation_error": "Error al crear la cuenta. Por favor, inténtalo de nuevo."
+      "creation_error": "Error al crear la cuenta. Por favor, inténtalo de nuevo.",
+      "session_expired": "Tu sesión expiró. Vuelve a desbloquear la billetera para agregar una cuenta."
     },
     "security": {
       "title": "Seguridad",
