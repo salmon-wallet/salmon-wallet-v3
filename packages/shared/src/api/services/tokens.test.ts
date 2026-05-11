@@ -90,56 +90,6 @@ const mockBackendTokens = [
   },
 ];
 
-/**
- * Sample JupiterToken data for testing
- */
-const mockJupiterTokens = [
-  {
-    symbol: 'SOL',
-    name: 'Wrapped SOL',
-    decimals: 9,
-    logoURI: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
-    address: 'So11111111111111111111111111111111111111112',
-    chainId: 101,
-    tags: ['verified', 'strict'],
-    extensions: {
-      coingeckoId: 'solana',
-      website: 'https://solana.com',
-    },
-  },
-  {
-    symbol: 'USDT',
-    name: 'Tether USD',
-    decimals: 6,
-    logoURI: 'ipfs://QmUsdt123456789',
-    address: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
-    chainId: 101,
-    tags: ['verified'],
-    extensions: {
-      coingeckoId: 'tether',
-    },
-  },
-  {
-    symbol: 'ORCA',
-    name: 'Orca',
-    decimals: 6,
-    logoURI: 'ar://orca123',
-    address: 'orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE',
-    chainId: 101,
-    tags: ['community'],
-    extensions: {},
-  },
-  {
-    symbol: 'SAMO',
-    name: 'Samoyed Coin',
-    decimals: 9,
-    address: '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU',
-    chainId: 101,
-    // No logoURI
-    tags: [],
-  },
-];
-
 // Known test addresses
 const KNOWN_ADDRESSES = {
   SOL: 'So11111111111111111111111111111111111111112',

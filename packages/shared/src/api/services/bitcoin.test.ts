@@ -26,7 +26,6 @@ vi.mock('../client', async () => {
 import { ApiError, apiClient, get } from '../client';
 import { getReachableBackendBaseUrl } from '../test-backend';
 import {
-  bitcoinApiFunctions,
   broadcastBitcoinTransaction,
   broadcastTransaction,
   fetchBitcoinAccountBalance,

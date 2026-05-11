@@ -3,7 +3,7 @@
  * Tests for pure functions in the balance service
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../client', () => ({
   apiClient: { get: vi.fn() },

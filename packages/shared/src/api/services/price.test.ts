@@ -229,13 +229,6 @@ const MOCK_COIN_INFO: CoinInfo = {
   genesisDate: '2020-03-16',
 };
 
-// Known test addresses
-const KNOWN_MINTS = {
-  SOL: 'So11111111111111111111111111111111111111112',
-  USDC: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-  BONK: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-};
-
 // ============================================================================
 // Helper Functions
 // ============================================================================
