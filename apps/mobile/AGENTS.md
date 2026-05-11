@@ -114,3 +114,28 @@ Two options when the receiver wants to verify the binary themselves:
   `bundletool build-apks --bundle=<file.aab> --output=<file.apks> --connected-device`
   then `bundletool install-apks --apks=<file.apks>`. Useful for a quick sanity install
   but does not exercise Play Store resigning, install flow, or rollout gating.
+
+### Out-of-scope items to confirm with the user
+
+These are intentionally not pinned in this document because they depend on team
+conventions, account ownership, or product decisions that can change without code
+changes. Before kicking off a production build, the agent must surface these to the
+user and let them confirm or supply the answer — never assume defaults:
+
+- **Keystore backup location** — where the team keeps the off-EAS copy of the keystore
+  and the matching `credentials.json` (password manager vault, encrypted drive, shared
+  secrets store). Ask before downloading credentials so the artifacts land in the right
+  place and do not get left inside the repo working tree.
+- **Play Console account ownership** — who owns the Play Console listing for
+  `io.salmonwallet.app`, whether the app entry already exists, and who has upload
+  permissions. Ask before producing a `.aab` for the first release on a new track so
+  the binary is not built against the wrong package name or signed for a listing the
+  team cannot upload to.
+- **Service Account JSON for `eas submit`** — once the team is ready to automate
+  submissions, a Google Play Service Account key has to be generated in the Google Cloud
+  Console of the Play account and uploaded via `eas credentials` → Submissions. The
+  agent must not generate or upload this key autonomously; flag the gap to the user when
+  the team asks for automated submission.
+- **Sideload distribution channel** — when building `.apk` for testing or beta, ask the
+  user where the artifact should go (internal bucket, link drop, manual share). The
+  channel changes per team and per release; the agent should not invent one.
