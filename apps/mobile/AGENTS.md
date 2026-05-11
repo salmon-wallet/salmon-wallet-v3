@@ -37,9 +37,16 @@ Pre-build checklist — run in order before `eas build --profile production`:
    means losing the ability to update that listing forever. Keep an out-of-repo backup
    plus a remote backup (password manager, encrypted drive, etc.).
 5. **Resources**: 8+ GB free disk, 8+ GB free RAM. Close heavy apps (IDE, browser, Docker) before a local build.
-6. **Build command**:
-   - `.aab` for Play Store: `cd apps/mobile && eas build --platform android --profile production --local`
-   - `.apk` for sideload: same command with `--profile production-apk`
+6. **Build command** (from `apps/mobile/`):
+   - `.aab` for Play Store: `pnpm build:aab`
+   - `.apk` for sideload: `pnpm build:apk`
+
+   Both scripts wrap `eas build ... --local --output` and name the binary
+   `salmon-wallet-<version>-<YYYY-MM-DD>.{aab,apk}` automatically, where
+   `<version>` is read from `app.json` → `expo.version`. The `versionCode`
+   is assigned by EAS during the build and is not included in the filename;
+   read it from the build output or `keytool -printcert -jarfile <file>`
+   when you need it for handoff.
 
 Post-build:
 
