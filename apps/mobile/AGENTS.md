@@ -65,3 +65,52 @@ Source of truth for env vars:
   EAS Environment with `secret` visibility, never in a committed `.env`.
 - Do not duplicate the same variable across `eas.json` `env` block and `.env.{mode}` —
   pick one source per variable to avoid silent drift.
+
+### Build warnings that are safe to ignore
+
+These appear during `pnpm build:aab` / `pnpm build:apk` and do not block the build:
+
+- `The android project is malformed, project files will be cleared and reinitialized` —
+  EAS regenerates the native folder in its own temp dir; the committed `apps/mobile/android/`
+  is untouched.
+- `ANDROID_NDK_HOME environment variable was not specified` — only matters if the project
+  ships custom C++ native modules; this app does not.
+- `Node.js version in your eas.json does not match` — patch-level differences are fine;
+  EAS Local uses the system Node binary.
+- `NODE_ENV=production ... will make yarn/npm install only production packages` —
+  informational; build-time tooling for Expo lives in `dependencies`, not `devDependencies`.
+- `punycode DeprecationWarning` — Node 22 deprecation surfacing from inside `eas-cli`.
+- `eas-cli@<x> is now available` — cosmetic.
+
+If the build fails with `module not found` after the `NODE_ENV=production` warning, a
+build-time package is misplaced under `devDependencies` — move it to `dependencies` and
+rebuild.
+
+### Handoff metadata
+
+When delivering a built binary to whoever will upload it (tech lead, release manager),
+include these fields:
+
+- App version — from `app.json` → `expo.version` (also part of the filename).
+- versionCode — **the build script cannot know this in advance** because EAS assigns it
+  remotely during the build. Read it from the build log line
+  `Incremented versionCode from N to M` (the `M` value), or extract it after the build
+  with `unzip -p <file.aab> BundleConfig.pb 2>/dev/null` plus `aapt2 dump badging`, and
+  add it to the handoff message manually.
+- File size.
+- Keystore SHA1 — from `keytool -printcert -jarfile <file.aab>`. Lets the receiver verify
+  the binary was signed with the expected keystore before uploading to a store.
+
+### Testing a built `.aab` before handoff
+
+Two options when the receiver wants to verify the binary themselves:
+
+- **Play Console Internal Testing track** (recommended for production-bound builds) — upload
+  to the Internal Testing track, add the tester's Google account, install via Play Store
+  on the device. This mirrors exactly what will reach end users, including Google Play
+  resigning.
+- **Local install via `bundletool`** (no Play Console) — for offline smoke checks on a
+  connected device:
+  `bundletool build-apks --bundle=<file.aab> --output=<file.apks> --connected-device`
+  then `bundletool install-apks --apks=<file.apks>`. Useful for a quick sanity install
+  but does not exercise Play Store resigning, install flow, or rollout gating.
