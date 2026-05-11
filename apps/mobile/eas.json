@@ -40,7 +40,6 @@
       "extends": "base",
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_SALMON_ENV": "production",
         "NODE_ENV": "production",
         "EXPO_NO_DOCTOR": "1",
         "EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK": "1"
