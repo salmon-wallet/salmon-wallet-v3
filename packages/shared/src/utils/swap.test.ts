@@ -161,6 +161,17 @@ describe('swap utils', () => {
       });
     });
 
+    it('rejects BTC P2PKH addresses on the Solana path despite matching the base58 regex', () => {
+      // 34-char base58 starting with `1` — passes the bare regex but
+      // decodes to 25 bytes, not the 32 bytes a Solana pubkey requires.
+      // This was the source of the BTC→SOL bridge regression where the
+      // wallet's BTC address was passed as the SOL payout destination.
+      expect(validateAddress('18cHdEoVGWB6qBMT18UjQuqQi36pPQ6fp5', 'solana')).toEqual({
+        valid: false,
+        error: 'Invalid Solana address',
+      });
+    });
+
     it('falls back to a generic length check for unknown chains', () => {
       expect(validateAddress('short', null)).toEqual({
         valid: false,

@@ -6,6 +6,8 @@
  * @module utils/swap
  */
 
+import { PublicKey } from '@solana/web3.js';
+
 import type { TokenMetadata, UnifiedToken } from '../types/token';
 import type { SwapToken, SwapChainType } from '../types/swap';
 
@@ -141,8 +143,20 @@ export function validateAddress(
   }
 
   if (chain === 'solana') {
-    const isValid = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
-    return { valid: isValid, error: isValid ? null : 'Invalid Solana address' };
+    // Base58 charset + length range is not enough — BTC P2PKH addresses
+    // (e.g. `18cHdEoVGWB6qBMT18UjQuqQi36pPQ6fp5`) match the same regex.
+    // A real Solana pubkey decodes to exactly 32 bytes, which the
+    // `PublicKey` constructor enforces (throws on length mismatch).
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
+      return { valid: false, error: 'Invalid Solana address' };
+    }
+    try {
+      // eslint-disable-next-line no-new
+      new PublicKey(address);
+      return { valid: true, error: null };
+    } catch {
+      return { valid: false, error: 'Invalid Solana address' };
+    }
   }
 
   if (chain === 'ethereum') {

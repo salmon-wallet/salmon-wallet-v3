@@ -35,6 +35,7 @@ import {
   useSwap,
   type SwapQuote as SharedSwapQuote,
   type SolanaAccount,
+  type SwapChainType,
   type SwapNetworkId,
   unifiedToSwapToken,
 } from '@salmon/shared';
@@ -126,11 +127,22 @@ export default function SwapScreenPage() {
     return topTokens.map(unifiedToSwapToken);
   }, [topTokens]);
 
-  // Resolve user's BTC address for bridge recipient pre-fill
-  const defaultRecipientAddress = useMemo(() => {
-    const btcAccounts = activeAccount?.networksAccounts?.['bitcoin-mainnet'];
-    const btcAccount = btcAccounts?.find((a) => a !== null);
-    return btcAccount?.getReceiveAddress() ?? '';
+  // Resolves the wallet's own receive address for the bridge destination
+  // chain. Replaces the prior BTC-hardcoded default, which incorrectly
+  // surfaced the user's BTC address for every cross-chain swap (including
+  // BTC→SOL, which then sent the SOL payout to an address with no Solana
+  // keypair). Memoised so `useSwapScreenLogic`'s auto-fill effect only
+  // re-fires when the underlying account changes.
+  const getReceiveAddressForChain = useCallback((chain: SwapChainType): string => {
+    const networkId =
+      chain === 'solana' ? 'solana-mainnet'
+      : chain === 'bitcoin' ? 'bitcoin-mainnet'
+      : chain === 'ethereum' ? 'ethereum-mainnet'
+      : null;
+    if (!networkId) return '';
+    const accounts = activeAccount?.networksAccounts?.[networkId];
+    const account = accounts?.find((a) => a !== null);
+    return account?.getReceiveAddress() ?? '';
   }, [activeAccount]);
 
   // Full Jupiter verified token catalog (shared React Query hook)
@@ -366,7 +378,7 @@ export default function SwapScreenPage() {
           tokens={swapTokens}
           featuredTokens={featuredTokens}
           jupiterTokens={jupiterTokens}
-          defaultRecipientAddress={defaultRecipientAddress}
+          getReceiveAddressForChain={getReceiveAddressForChain}
           loading={loading}
           onGetQuote={handleGetQuote}
           onSwap={handleSwap}

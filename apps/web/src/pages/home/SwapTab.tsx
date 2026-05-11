@@ -11,6 +11,7 @@ import {
   searchTokens,
   unifiedToSwapToken,
   type SolanaAccount,
+  type SwapChainType,
   type SwapNetworkId,
   type SwapQuote as SharedSwapQuote,
 } from '@salmon/shared';
@@ -94,11 +95,22 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
   // Jupiter token list (shared React Query hook)
   const { tokens: jupiterTokens } = useJupiterTokenList({ networkId: swapNetworkId });
 
-  // Default recipient address (BTC for bridges)
-  const defaultRecipientAddress = useMemo(() => {
-    const btcAccounts = activeAccount?.networksAccounts?.['bitcoin-mainnet'];
-    const btcAccount = btcAccounts?.find((a) => a !== null) as { getReceiveAddress(): string } | undefined;
-    return btcAccount?.getReceiveAddress() ?? '';
+  // Resolves the wallet's own receive address for the bridge destination
+  // chain. Replaces the prior BTC-hardcoded default, which incorrectly
+  // surfaced the user's BTC address for every cross-chain swap (including
+  // BTC→SOL, which then sent the SOL payout to an address with no Solana
+  // keypair). Memoised so `useSwapScreenLogic`'s auto-fill effect only
+  // re-fires when the underlying account changes.
+  const getReceiveAddressForChain = useCallback((chain: SwapChainType): string => {
+    const networkId =
+      chain === 'solana' ? 'solana-mainnet'
+      : chain === 'bitcoin' ? 'bitcoin-mainnet'
+      : chain === 'ethereum' ? 'ethereum-mainnet'
+      : null;
+    if (!networkId) return '';
+    const accounts = activeAccount?.networksAccounts?.[networkId];
+    const account = accounts?.find((a) => a !== null) as { getReceiveAddress(): string } | undefined;
+    return account?.getReceiveAddress() ?? '';
   }, [activeAccount]);
 
   // Bridge tokens
@@ -243,7 +255,7 @@ export function SwapTab({ onNavigateHome }: SwapTabProps): React.ReactElement {
         tokens={swapTokens}
         featuredTokens={featuredTokens}
         jupiterTokens={jupiterTokens}
-        defaultRecipientAddress={defaultRecipientAddress}
+        getReceiveAddressForChain={getReceiveAddressForChain}
         loading={loading}
         onGetQuote={handleGetQuote}
         onSwap={handleSwap}
