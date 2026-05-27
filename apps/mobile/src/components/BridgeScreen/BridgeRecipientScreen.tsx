@@ -1,0 +1,170 @@
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
+import { RecipientAddressInput } from './RecipientAddressInput';
+import { PrimaryButton, SecondaryButton } from '../Button';
+import { useTabChrome } from '../../../hooks/useTabChrome';
+import type { BridgeRecipientScreenProps } from './types';
+
+/**
+ * BridgeRecipientScreen - Second step of bridge flow
+ * Allows user to enter the recipient address for the destination chain
+ */
+export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
+  recipientAddress,
+  onAddressChange,
+  targetChain,
+  onBack,
+  onContinue,
+  isValidAddress,
+  addressError,
+  style,
+}) => {
+  const { t } = useTranslation();
+  const { floatingBottomOffset, stickyCtaScrollPadding } = useTabChrome();
+  const canContinue = isValidAddress && recipientAddress.length > 0;
+
+  return (
+    <View style={[styles.container, { paddingBottom: stickyCtaScrollPadding }, style]}>
+      {/* Title */}
+      <Text style={styles.title}>{t('bridge.recipient.title', 'Recipient Address')}</Text>
+
+      {/* Description */}
+      <Text style={styles.description}>
+        {t('bridge.recipient.description', 'Enter the address where you want to receive your swapped tokens')}
+        {targetChain ? ` on ${targetChain.name}` : ''}.
+      </Text>
+
+      {/* Address Input */}
+      <View style={styles.inputContainer}>
+        <RecipientAddressInput
+          value={recipientAddress}
+          onChangeValue={onAddressChange}
+          targetChain={targetChain}
+          label={t('bridge.recipient.destinationAddress', 'Destination Address')}
+          placeholder={t('bridge.recipient.enterRecipientAddress', 'Enter recipient address')}
+          error={addressError}
+        />
+      </View>
+
+      {/* Info Box */}
+      <View style={styles.infoBox}>
+        <Text style={styles.infoTitle}>{t('bridge.recipient.important', 'Important')}</Text>
+        <Text style={styles.infoText}>
+          {t('bridge.recipient.importantText', 'Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.')}
+        </Text>
+      </View>
+
+      {/* Buttons */}
+      <View style={[styles.buttonsContainer, { bottom: floatingBottomOffset }]}>
+        <SecondaryButton
+          onPress={onBack}
+          style={styles.backButton}
+        >
+          {t('actions.back', 'Back')}
+        </SecondaryButton>
+        <LinearGradient
+          colors={canContinue ? gradients.primaryButton.colors : gradients.disabled.colors}
+          start={gradients.primaryButton.start}
+          end={gradients.primaryButton.end}
+          style={[
+            styles.continueButtonGradient,
+            canContinue && styles.continueButtonGradientActive,
+          ]}
+        >
+          <PrimaryButton
+            onPress={onContinue}
+            disabled={!canContinue}
+            style={styles.continueButton}
+          >
+            {t('bridge.recipient.review', 'Review')}
+          </PrimaryButton>
+        </LinearGradient>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: s(spacing.headerPadding),
+    paddingTop: vs(spacing['2xl']),
+  },
+  title: {
+    fontSize: ms(fontSize['2xl']),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.primary,
+    textAlign: 'center',
+    letterSpacing: letterSpacing.wide,
+    lineHeight: ms(24 * lineHeight.condensed),
+    marginBottom: vs(spacing.md),
+  },
+  description: {
+    fontSize: ms(fontSize.base),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.base * lineHeight.tokenListItem),
+    marginBottom: vs(spacing['2xl']),
+  },
+  inputContainer: {
+    marginBottom: vs(spacing['2xl']),
+  },
+  infoBox: {
+    backgroundColor: colors.background.tokenItem,
+    borderRadius: borderRadius.md,
+    borderWidth: borderWidth.thin,
+    borderColor: colors.border.default,
+    padding: s(spacing.base),
+    marginBottom: vs(spacing['2xl']),
+  },
+  infoTitle: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.status.warning,
+    marginBottom: vs(spacing.xs),
+    letterSpacing: letterSpacing.normal,
+  },
+  infoText: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.secondary,
+    letterSpacing: letterSpacing.normal,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    gap: s(spacing.md),
+    position: 'absolute',
+    left: s(spacing.headerPadding),
+    right: s(spacing.headerPadding),
+  },
+  backButton: {
+    flex: 1,
+    height: vs(componentSizes.buttonHeightCompact),
+    borderWidth: borderWidth.accent,
+    borderColor: colors.accent.border,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.button.cancelBackground,
+  },
+  continueButtonGradient: {
+    flex: 1,
+    borderRadius: borderRadius.lg,
+    borderWidth: borderWidth.accent,
+    borderColor: 'transparent',
+    ...shadows.button,
+  },
+  continueButtonGradientActive: {
+    borderColor: colors.accent.border,
+  },
+  continueButton: {
+    height: vs(componentSizes.buttonHeightCompact),
+    backgroundColor: 'transparent',
+  },
+});
+
+export default BridgeRecipientScreen;

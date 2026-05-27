@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI Component Scaffold"
+  short_description: "Scaffold shared DOM components"
+  default_prompt: "Use $ui-component-scaffold to create or modify a shared React DOM component in packages/ui."

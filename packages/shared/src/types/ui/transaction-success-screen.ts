@@ -1,0 +1,29 @@
+/**
+ * Props for the unified TransactionSuccessScreen component.
+ *
+ * Used by both send and swap flows on mobile and extension.
+ */
+export interface TransactionSuccessScreenProps {
+  /** Screen title (e.g., "Send Complete", "Swap Complete") */
+  title: string;
+  /** Transaction summary (e.g., "5.0 SOL to 7hQ9...xK2f" or "5.0 SOL → 84.65 USDC") */
+  summary: string;
+  /** Pre-built explorer URL for the transaction, null if unavailable */
+  explorerUrl: string | null;
+  /** Callback when user taps "Continue" to navigate home */
+  onContinue: () => void;
+  /** Bridge deposit address (where user must send funds) */
+  bridgeDepositAddress?: string;
+  /** Bridge input amount with symbol (e.g., "33 USDC") */
+  bridgeAmountIn?: string;
+  /** Bridge estimated output with symbol (e.g., "0.00041798 BTC") */
+  bridgeAmountOut?: string;
+  /** Bridge exchange ID for tracking */
+  bridgeExchangeId?: string;
+  /** Bridge deposit transaction ID (on-chain tx signature) */
+  bridgeDepositTxId?: string;
+  /** Bridge status from provider */
+  bridgeStatus?: string;
+  /** Bridge payout transaction hash */
+  bridgePayoutTxId?: string;
+}

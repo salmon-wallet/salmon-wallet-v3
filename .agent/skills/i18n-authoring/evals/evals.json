@@ -1,0 +1,26 @@
+{
+  "skill_name": "i18n-authoring",
+  "evals": [
+    {
+      "id": "new-user-facing-copy",
+      "prompt": "Add a new user-facing warning message to the send flow and wire it through the UI without hardcoded strings.",
+      "expected_output": "Use i18n-authoring, search existing translation namespaces first, update both English and Spanish translation files together, and replace hardcoded UI text with t('key.path').",
+      "files": [
+        "packages/shared/src/locales/en/translation.json",
+        "packages/shared/src/locales/es/translation.json",
+        "packages/shared/src/locales/index.ts"
+      ]
+    },
+    {
+      "id": "translation-audit",
+      "prompt": "Audit the repo for user-facing hardcoded strings and translation keys that may be missing in one locale.",
+      "expected_output": "Produce an audit grouped by severity that checks hardcoded UI copy, en/es key parity, and interpolation correctness.",
+      "files": [
+        "packages/shared/src/locales/en/translation.json",
+        "packages/shared/src/locales/es/translation.json",
+        "packages/ui/src/components/ConfirmDialog/ConfirmDialog.tsx",
+        "apps/mobile/src/components/WalletHeader/WalletHeader.tsx"
+      ]
+    }
+  ]
+}

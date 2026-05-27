@@ -1,0 +1,4 @@
+interface:
+  display_name: "i18n Authoring"
+  short_description: "Manage shared translations"
+  default_prompt: "Use $i18n-authoring to add, update, or audit user-facing translations in Salmon Wallet."

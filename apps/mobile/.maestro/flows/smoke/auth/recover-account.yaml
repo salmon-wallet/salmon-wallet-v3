@@ -1,0 +1,22 @@
+appId: io.salmonwallet.app
+---
+- clearState
+- launchApp
+- runFlow: ../../../subflows/dev-launcher-pass.yaml
+- runFlow: ../../../subflows/recover-walletA.yaml
+# Biometric prompt — simulator has no biometrics by default; auto-skips.
+# If biometrics enrolled, take the "Maybe Later" path.
+- runFlow:
+    when:
+      visible: "Maybe Later"
+    commands:
+      - tapOn: "Maybe Later"
+- extendedWaitUntil:
+    visible: "Congratulations!"
+    timeout: 60000
+- takeScreenshot: screenshots/smoke/auth/recover-success
+- tapOn: "Go to my Account!"
+- extendedWaitUntil:
+    visible: "Switch wallet account"
+    timeout: 30000
+- takeScreenshot: screenshots/smoke/auth/home-after-recover

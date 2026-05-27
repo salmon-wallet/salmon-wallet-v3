@@ -1,0 +1,59 @@
+{
+  "name": "salmon-wallet-v3",
+  "version": "0.9.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",    
+    "build:prod": "turbo run build --filter=@salmon/web",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "mobile": "pnpm --filter @salmon/mobile",
+    "mobile:start": "pnpm --filter @salmon/mobile start",
+    "mobile:ios": "pnpm --filter @salmon/mobile ios",
+    "mobile:android": "pnpm --filter @salmon/mobile android",
+    "web": "pnpm --filter @salmon/web",
+    "web:dev": "pnpm --filter @salmon/web dev",
+    "web:build": "pnpm --filter @salmon/web build",
+    "web:build:staging": "pnpm --filter @salmon/web build:staging",
+    "web:build:prod": "pnpm --filter @salmon/web build:prod",
+    "extension": "pnpm --filter @salmon/extension",
+    "extension:dev": "pnpm --filter @salmon/extension dev",
+    "extension:build": "pnpm --filter @salmon/extension build",
+    "extension:build:staging": "pnpm --filter @salmon/extension build:staging",
+    "extension:build:prod": "pnpm --filter @salmon/extension build:prod",
+    "extension:build:firefox": "pnpm --filter @salmon/extension build:firefox",
+    "extension:build:firefox:staging": "pnpm --filter @salmon/extension build:firefox:staging",
+    "extension:build:firefox:prod": "pnpm --filter @salmon/extension build:firefox:prod",
+    "extension:zip:firefox": "pnpm --filter @salmon/extension zip:firefox",
+    "check:duplicates": "npx jscpd packages/ apps/ --min-lines 5 --min-tokens 50 --format typescript,javascript,tsx,jsx --ignore \"**/node_modules/**,**/coverage/**,**/dist/**,**/*.test.ts,**/*.spec.ts,**/.expo/**\" --reporters console",
+    "check:duplicates:report": "npx jscpd packages/ apps/ --min-lines 5 --min-tokens 50 --format typescript,javascript,tsx,jsx --ignore \"**/node_modules/**,**/coverage/**,**/dist/**,**/*.test.ts,**/*.spec.ts,**/.expo/**\" --reporters html,console --output ./duplication-report"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "patch-package": "^8.0.1",
+    "turbo": "^2.0.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": "^20.19.0 || ^22.12.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@expo/dom-webview": "55.0.5",
+      "@expo/log-box": "55.0.10",
+      "@expo/metro-runtime": "55.0.10",
+      "expo-manifests": "55.0.10",
+      "valibot": ">=1.2.0",
+      "tar": ">=7.5.7"
+    }
+  }
+}

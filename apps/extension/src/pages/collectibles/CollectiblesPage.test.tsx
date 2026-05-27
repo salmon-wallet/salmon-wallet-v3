@@ -1,0 +1,93 @@
+/**
+ * @vitest-environment jsdom
+ */
+
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { CollectiblesPage } from './CollectiblesPage';
+
+const mockUseSolanaNfts = vi.fn();
+const mockCanonicalNftToSolanaNftData = vi.fn();
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (_key: string, fallback?: string) => fallback ?? _key,
+  }),
+}));
+
+vi.mock('../../utils/styled', () => ({
+  styled: (_component: unknown) => () => {
+    const React = require('react');
+    const MockStyledComponent = ({ children, ...props }: { children?: React.ReactNode }) =>
+      React.createElement('div', props, children);
+    MockStyledComponent.displayName = 'MockStyledComponent';
+    return MockStyledComponent;
+  },
+}));
+
+vi.mock('@salmon/shared', () => ({
+  colors: {
+    text: { primary: '#fff', secondary: '#aaa', disabled: '#666' },
+    background: { card: '#111' },
+  },
+  spacing: { sm: 8, md: 12, lg: 16, xl: 24 },
+  fontSize: { sm: 14, base: 16, md: 18, lg: 20 },
+  borderRadius: { lg: 16 },
+  fontFamily: { sans: 'sans-serif' },
+  componentSizes: {},
+  canonicalNftToSolanaNftData: (...args: unknown[]) => mockCanonicalNftToSolanaNftData(...args),
+  getNftSectionTitle: () => 'Solana',
+  useSolanaNfts: (...args: unknown[]) => mockUseSolanaNfts(...args),
+}));
+
+vi.mock('@/components', () => ({
+  NftCard: ({ nft }: { nft: { name: string } }) => <div>{nft.name}</div>,
+  NftCardSkeleton: () => <div>Loading...</div>,
+  SolanaSvgIcon: () => <div />,
+}));
+
+const mockRawNft = {
+  mint: { address: 'Mint111' },
+  owner: 'Owner111',
+  name: 'Burned NFT',
+  media: 'https://example.com/nft.png',
+};
+
+const mockAccount = {
+  networksAccounts: {
+    'solana-mainnet': [
+      {
+        getReceiveAddress: () => 'Owner111',
+      },
+    ],
+  },
+};
+
+describe('CollectiblesPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockCanonicalNftToSolanaNftData.mockReturnValue({
+      mint: 'Mint111',
+      name: 'Burned NFT',
+      media: 'https://example.com/nft.png',
+      blockchain: 'solana',
+    });
+    mockUseSolanaNfts.mockImplementation(({ networkId }: { networkId: string }) => ({
+      nfts: networkId === 'solana-mainnet' ? [mockRawNft] : [],
+      loading: false,
+      error: null,
+      isError: false,
+      refresh: vi.fn(),
+    }));
+  });
+
+  it('renders mainnet NFTs from the useSolanaNfts query', async () => {
+    render(
+      <CollectiblesPage activeAccount={mockAccount as any} developerNetworks={false} />,
+    );
+
+    expect(await screen.findByText('Burned NFT')).toBeTruthy();
+  });
+});

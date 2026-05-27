@@ -1,0 +1,62 @@
+{
+  "name": "@salmon/shared",
+  "version": "0.9.1",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "private": true,
+  "scripts": {
+    "lint": "eslint src --ext .ts,.tsx --ignore-pattern 'src/blockchain/solana/nft-image-overrides.ts'",
+    "typecheck": "tsc --noEmit",
+    "test": "node --no-warnings ../../node_modules/vitest/vitest.mjs run --passWithNoTests",
+    "test:watch": "node --no-warnings ../../node_modules/vitest/vitest.mjs",
+    "test:coverage": "node --no-warnings ../../node_modules/vitest/vitest.mjs run --coverage"
+  },
+  "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.2.0",
+    "@bonfida/spl-name-service": "^3.0.16",
+    "@onsol/tldparser": "^1.0.8",
+    "@scure/bip39": "^2.0.1",
+    "@solana/actions-spec": "2.4.2",
+    "@solana/spl-memo": "^0.2.5",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
+    "@tanstack/react-query": "5.100.9",
+    "ajv": "^8.17.1",
+    "axios": "^1.13.2",
+    "bip32": "^5.0.0",
+    "bitcoinjs-lib": "^7.0.0",
+    "bs58": "^6.0.0",
+    "buffer": "^6.0.3",
+    "date-fns": "^4.1.0",
+    "ethers": "^6.15.0",
+    "i18next": "^25.6.2",
+    "lodash-es": "^4.17.21",
+    "micro-key-producer": "^0.8.2",
+    "react-content-loader": "^7.1.1",
+    "salmon-wallet-standard": "^0.0.6",
+    "tweetnacl": "^1.0.3",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@types/lodash-es": "^4.17.12",
+    "@types/react": "^19.1.8",
+    "@vitest/coverage-v8": "^4.0.18",
+    "jsdom": "^27.4.0",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.18"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-native": ">=0.70.0",
+    "react-native-fast-crypto": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native": {
+      "optional": true
+    },
+    "react-native-fast-crypto": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "skill_name": "mobile-test-authoring",
+  "evals": [
+    {
+      "id": "mobile-button-jest-test",
+      "prompt": "Add a Jest test for PrimaryButton covering press behavior and disabled/loading behavior.",
+      "expected_output": "Use mobile-test-authoring, write a co-located Jest test with @testing-library/react-native, assert press and disabled behavior through RN-visible interactions, and avoid implementation-detail assertions.",
+      "files": [
+        "apps/mobile/src/components/Button/PrimaryButton.tsx",
+        "apps/mobile/src/components/Button/types.ts",
+        "apps/mobile/jest.config.js",
+        "apps/mobile/jest.setup.js"
+      ]
+    },
+    {
+      "id": "mobile-wallet-header-audit",
+      "prompt": "Audit WalletHeader for missing test coverage around copy, settings, wallet switching, and accessibility labels.",
+      "expected_output": "Use mobile-test-authoring to produce an audit that prioritizes callback behavior, accessibility labels, and the mocks required for translation or safe-area dependencies.",
+      "files": [
+        "apps/mobile/src/components/WalletHeader/WalletHeader.tsx",
+        "apps/mobile/src/components/WalletHeader/types.ts",
+        "apps/mobile/jest.config.js"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,433 @@
+/**
+ * WalletSwitcherSheet Component
+ *
+ * A dialog component for selecting and managing wallet accounts.
+ * Displays a list of accounts with avatars, names, addresses,
+ * and action buttons for editing and deleting accounts.
+ */
+
+import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { styled } from '../../utils/styled';
+import Dialog from '@mui/material/Dialog';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
+import CheckIcon from '@mui/icons-material/Check';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  borderWidth,
+  getShortAddress,
+  getAvatarColor,
+  getInitials,
+  fontFamily,
+  fontSize as fontSizeTokens,
+  fontWeight as fontWeightTokens,
+  componentSizes,
+  duration,
+  easing,
+} from '@salmon/shared';
+import { BaseSheetDialog } from '../BaseSheetDialog';
+
+import type { WalletSwitcherSheetProps, AccountListItemProps } from './types';
+
+// ============================================================================
+// Styled Components
+// ============================================================================
+
+const StyledList = styled(List)({
+  padding: `${spacing.sm}px 0`,
+});
+
+const StyledListItem = styled(ListItem)<{ $isActive?: boolean }>(({ $isActive }) => ({
+  padding: `${spacing.md}px ${spacing.xl}px`,
+  cursor: 'pointer',
+  backgroundColor: $isActive ? colors.accent.tint : 'transparent',
+  transition: `background-color ${duration.normal} ${easing.ease}`,
+  '&:hover': {
+    backgroundColor: $isActive
+      ? colors.accent.tintHover
+      : colors.background.card,
+  },
+}));
+
+const AccountAvatar = styled(Avatar)<{ $bgColor: string }>(({ $bgColor }) => ({
+  backgroundColor: $bgColor,
+  width: componentSizes.iconSize2XL,
+  height: componentSizes.iconSize2XL,
+  fontSize: fontSizeTokens.base,
+  fontWeight: fontWeightTokens.semibold,
+  color: colors.text.primary,
+}));
+
+const AccountName = styled('span')({
+  fontSize: fontSizeTokens.base,
+  fontWeight: fontWeightTokens.semibold,
+  color: colors.text.primary,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  display: 'block',
+});
+
+const AccountAddress = styled('span')({
+  fontSize: fontSizeTokens.sm,
+  color: colors.text.secondary,
+  fontFamily: fontFamily.mono,
+  display: 'block',
+});
+
+const ActionButtonsContainer = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing.xs,
+});
+
+const ActionIconButton = styled(IconButton)({
+  padding: spacing.xs,
+  color: colors.text.secondary,
+  '&:hover': {
+    backgroundColor: colors.card.border,
+  },
+});
+
+const DeleteIconButton = styled(IconButton)({
+  padding: spacing.xs,
+  color: colors.status.error,
+  '&:hover': {
+    backgroundColor: colors.status.errorBackground,
+  },
+});
+
+const CheckIconStyled = styled(CheckIcon)({
+  color: colors.accent.primary,
+  marginLeft: spacing.sm,
+});
+
+const AddAccountButton = styled(Button)({
+  width: '100%',
+  padding: `${spacing.md}px ${spacing.xl}px`,
+  justifyContent: 'flex-start',
+  textTransform: 'none',
+  color: colors.accent.primary,
+  fontSize: fontSizeTokens.base,
+  fontWeight: fontWeightTokens.semibold,
+  '&:hover': {
+    backgroundColor: colors.accent.tint,
+  },
+});
+
+// Confirmation Dialog Styles
+const ConfirmDialogPaper = styled(Box)({
+  backgroundColor: colors.background.primary,
+  borderRadius: borderRadius.lg,
+  border: `${borderWidth.thin}px solid ${colors.border.default}`,
+  padding: spacing.xl,
+  textAlign: 'center',
+});
+
+const ConfirmTitle = styled(Typography)({
+  fontSize: fontSizeTokens.md,
+  fontWeight: fontWeightTokens.semibold,
+  color: colors.text.primary,
+  marginBottom: spacing.md,
+});
+
+const ConfirmMessage = styled(Typography)({
+  fontSize: fontSizeTokens.base,
+  color: colors.text.secondary,
+  marginBottom: spacing.xl,
+});
+
+const ConfirmButtonsRow = styled(Box)({
+  display: 'flex',
+  gap: spacing.md,
+  justifyContent: 'center',
+});
+
+const CancelButton = styled(Button)({
+  flex: 1,
+  backgroundColor: colors.button.secondaryBackground,
+  color: colors.button.secondaryText,
+  textTransform: 'none',
+  fontWeight: fontWeightTokens.semibold,
+  padding: `${spacing.sm}px ${spacing.lg}px`,
+  borderRadius: borderRadius.md,
+  '&:hover': {
+    backgroundColor: colors.card.border,
+  },
+});
+
+const DeleteButton = styled(Button)({
+  flex: 1,
+  backgroundColor: colors.status.error,
+  color: colors.text.primary,
+  textTransform: 'none',
+  fontWeight: fontWeightTokens.semibold,
+  padding: `${spacing.sm}px ${spacing.lg}px`,
+  borderRadius: borderRadius.md,
+  '&:hover': {
+    backgroundColor: colors.button.destructiveHover,
+  },
+});
+
+// ============================================================================
+// AccountListItem Component
+// ============================================================================
+
+/**
+ * Individual account row in the wallet switcher list.
+ */
+function AccountListItem({
+  account,
+  isActive,
+  onSelect,
+  onEdit,
+  onDelete,
+}: AccountListItemProps) {
+  const { t } = useTranslation();
+  const avatarColor = useMemo(() => getAvatarColor(account.id), [account.id]);
+  const initials = useMemo(() => getInitials(account.name), [account.name]);
+  const [imgError, setImgError] = useState(false);
+
+  // Get the primary address from the first available network account
+  const address = (() => {
+    const networksAccounts = account.networksAccounts || {};
+    const networkIds = Object.keys(networksAccounts);
+
+    for (const networkId of networkIds) {
+      const accounts = networksAccounts[networkId];
+      if (accounts) {
+        for (const blockchainAccount of accounts) {
+          if (blockchainAccount) {
+            return blockchainAccount.getReceiveAddress();
+          }
+        }
+      }
+    }
+    return undefined;
+  })();
+
+  const truncatedAddress = getShortAddress(address, 6) || '...';
+
+  const handleEditClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      onEdit?.();
+    },
+    [onEdit]
+  );
+
+  const handleDeleteClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      onDelete?.();
+    },
+    [onDelete]
+  );
+
+  return (
+    <StyledListItem $isActive={isActive} onClick={onSelect}>
+      <ListItemAvatar>
+        {account.avatar && !imgError ? (
+          <Avatar
+            src={account.avatar}
+            sx={{ width: componentSizes.iconSize2XL, height: componentSizes.iconSize2XL }}
+            imgProps={{ onError: () => setImgError(true) }}
+          />
+        ) : (
+          <AccountAvatar $bgColor={avatarColor}>{initials}</AccountAvatar>
+        )}
+      </ListItemAvatar>
+      <ListItemText
+        primary={<AccountName>{account.name}</AccountName>}
+        secondary={<AccountAddress>{truncatedAddress}</AccountAddress>}
+        sx={{ marginRight: spacing.lg }}
+      />
+      <ListItemSecondaryAction>
+        <ActionButtonsContainer>
+          {isActive && <CheckIconStyled fontSize="small" />}
+          {onEdit && (
+            <ActionIconButton
+              size="small"
+              onClick={handleEditClick}
+              aria-label={t('accessibility.edit_account')}
+            >
+              <EditIcon fontSize="small" />
+            </ActionIconButton>
+          )}
+          {onDelete && (
+            <DeleteIconButton
+              size="small"
+              onClick={handleDeleteClick}
+              aria-label={t('accessibility.delete_account')}
+            >
+              <DeleteIcon fontSize="small" />
+            </DeleteIconButton>
+          )}
+        </ActionButtonsContainer>
+      </ListItemSecondaryAction>
+    </StyledListItem>
+  );
+}
+
+// ============================================================================
+// WalletSwitcherSheet Component
+// ============================================================================
+
+/**
+ * Dialog for switching between and managing wallet accounts.
+ *
+ * Features:
+ * - List of all accounts with colored avatars and initials
+ * - Truncated addresses (first 6...last 4 characters)
+ * - Active account indicator (checkmark)
+ * - Edit and delete buttons per account
+ * - Add new account button
+ * - Delete confirmation dialog
+ *
+ * @example
+ * ```tsx
+ * <WalletSwitcherSheet
+ *   visible={isOpen}
+ *   onClose={() => setIsOpen(false)}
+ *   accounts={accounts}
+ *   activeAccountId={activeAccount.id}
+ *   onSelectAccount={(id) => changeAccount(id)}
+ *   onAddAccount={() => navigate('/create-account')}
+ *   onEditAccount={(id) => navigate(`/edit-account/${id}`)}
+ *   onDeleteAccount={(id) => removeAccount(id)}
+ * />
+ * ```
+ */
+export function WalletSwitcherSheet({
+  visible,
+  onClose,
+  accounts,
+  activeAccountId,
+  onSelectAccount,
+  onAddAccount,
+  onEditAccount,
+  onDeleteAccount,
+}: WalletSwitcherSheetProps) {
+  const { t } = useTranslation();
+  const [deleteConfirmAccountId, setDeleteConfirmAccountId] = useState<string | null>(null);
+
+  // Find the account being deleted for display in confirmation
+  const accountToDelete = useMemo(
+    () => accounts.find((acc) => acc.id === deleteConfirmAccountId),
+    [accounts, deleteConfirmAccountId]
+  );
+
+  const handleSelectAccount = useCallback(
+    (accountId: string) => {
+      onSelectAccount(accountId);
+      onClose();
+    },
+    [onSelectAccount, onClose]
+  );
+
+  const handleDeleteRequest = useCallback((accountId: string) => {
+    setDeleteConfirmAccountId(accountId);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(() => {
+    if (deleteConfirmAccountId && onDeleteAccount) {
+      onDeleteAccount(deleteConfirmAccountId);
+    }
+    setDeleteConfirmAccountId(null);
+  }, [deleteConfirmAccountId, onDeleteAccount]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteConfirmAccountId(null);
+  }, []);
+
+  const handleAddAccount = useCallback(() => {
+    onAddAccount();
+    onClose();
+  }, [onAddAccount, onClose]);
+
+  return (
+    <>
+      {/* Main Wallet Switcher Dialog */}
+      <BaseSheetDialog
+        visible={visible}
+        onClose={onClose}
+        size="small"
+        colorScheme="dialog"
+        showScalesBackground={false}
+        ariaLabelledBy="wallet-switcher-title"
+      >
+        <BaseSheetDialog.StandardHeader
+          title={t('walletSwitcher.title', 'Your Wallets')}
+        />
+
+        <BaseSheetDialog.Content padding="none">
+          <StyledList>
+            {accounts.map((account) => (
+              <AccountListItem
+                key={account.id}
+                account={account}
+                isActive={account.id === activeAccountId}
+                onSelect={() => handleSelectAccount(account.id)}
+                onEdit={onEditAccount ? () => onEditAccount(account.id) : undefined}
+                onDelete={onDeleteAccount ? () => handleDeleteRequest(account.id) : undefined}
+              />
+            ))}
+          </StyledList>
+
+          <Divider sx={{ borderColor: colors.border.default }} />
+
+          <AddAccountButton
+            startIcon={<AddIcon />}
+            onClick={handleAddAccount}
+          >
+            {t('walletSwitcher.addAccount', 'Add New Account')}
+          </AddAccountButton>
+        </BaseSheetDialog.Content>
+      </BaseSheetDialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteConfirmAccountId !== null}
+        onClose={handleDeleteCancel}
+        PaperComponent={({ children }) => (
+          <ConfirmDialogPaper>{children}</ConfirmDialogPaper>
+        )}
+      >
+        <ConfirmTitle>
+          {t('walletSwitcher.deleteConfirmTitle', 'Delete Account?')}
+        </ConfirmTitle>
+        <ConfirmMessage>
+          {t(
+            'walletSwitcher.deleteConfirmMessage',
+            'Are you sure you want to delete "{{name}}"? This action cannot be undone.',
+            { name: accountToDelete?.name || '' }
+          )}
+        </ConfirmMessage>
+        <ConfirmButtonsRow>
+          <CancelButton onClick={handleDeleteCancel}>
+            {t('common.cancel', 'Cancel')}
+          </CancelButton>
+          <DeleteButton onClick={handleDeleteConfirm}>
+            {t('common.delete', 'Delete')}
+          </DeleteButton>
+        </ConfirmButtonsRow>
+      </Dialog>
+    </>
+  );
+}
+

@@ -1,0 +1,20 @@
+appId: io.salmonwallet.app
+---
+# Onboard Wallet B from a clean install. Lands on Home with
+# "Switch wallet account" visible.
+- clearState
+- launchApp
+- runFlow: ./dev-launcher-pass.yaml
+- runFlow: ./recover-walletB.yaml
+- runFlow:
+    when:
+      visible: "Maybe Later"
+    commands:
+      - tapOn: "Maybe Later"
+- extendedWaitUntil:
+    visible: "Congratulations!"
+    timeout: 60000
+- tapOn: "Go to my Account!"
+- extendedWaitUntil:
+    visible: "Switch wallet account"
+    timeout: 30000

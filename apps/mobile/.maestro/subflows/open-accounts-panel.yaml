@@ -1,0 +1,7 @@
+appId: io.salmonwallet.app
+---
+# Assumes Home. Navigates Settings → Accounts panel.
+- runFlow: ./open-settings.yaml
+- tapOn: "Accounts"
+- waitForAnimationToEnd:
+    timeout: 3000

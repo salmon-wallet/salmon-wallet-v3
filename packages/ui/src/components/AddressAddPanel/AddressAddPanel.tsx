@@ -1,0 +1,150 @@
+/**
+ * AddressAddPanel - Add new contact page
+ */
+
+import React, { useCallback } from 'react';
+import { styled } from '../../utils/styled';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import InputBase from '@mui/material/InputBase';
+import Button from '@mui/material/Button';
+import { useTranslation } from 'react-i18next';
+import {
+  colors,
+  spacing,
+  fontFamily,
+  fontWeight,
+  useAddressBookForm,
+  borderRadius,
+  borderWidth,
+  fontSize,
+  opacity,
+} from '@salmon/shared';
+import { SettingsPanelContent } from '../SettingsPanelContent';
+import { InputAddress } from '../InputAddress';
+import type { AddressAddPanelProps } from './types';
+
+// ============================================================================
+// Styled Components
+// ============================================================================
+
+const FieldLabel = styled(Typography)({
+  color: colors.text.secondary,
+  fontSize: fontSize.base,
+  fontWeight: fontWeight.medium,
+  fontFamily: fontFamily.sans,
+  marginBottom: spacing.sm,
+  marginTop: spacing.lg,
+});
+
+const StyledInput = styled(InputBase)({
+  width: '100%',
+  backgroundColor: colors.input.background,
+  borderRadius: borderRadius.lg,
+  border: `${borderWidth.thin}px solid ${colors.input.border}`,
+  padding: `${spacing.sm}px ${spacing.lg}px`,
+  color: colors.text.primary,
+  fontFamily: fontFamily.sans,
+  fontSize: fontSize.md,
+  '& .MuiInputBase-input': {
+    padding: `${spacing.md}px 0`,
+    '&::placeholder': {
+      color: colors.text.tertiary,
+      opacity: opacity.full,
+    },
+  },
+});
+
+const NetworkBox = styled(Box)({
+  backgroundColor: colors.input.background,
+  borderRadius: borderRadius.lg,
+  padding: `${spacing.md}px ${spacing.lg}px`,
+});
+
+const NetworkText = styled(Typography)({
+  color: colors.text.secondary,
+  fontSize: fontSize.md,
+  fontFamily: fontFamily.sans,
+});
+
+const SaveButton = styled(Button)({
+  width: '100%',
+  marginTop: spacing['2xl'],
+  padding: `${spacing.md}px`,
+  borderRadius: borderRadius.lg,
+  textTransform: 'none',
+  fontSize: fontSize.md,
+  fontWeight: fontWeight.medium,
+  fontFamily: fontFamily.sans,
+  backgroundColor: colors.accent.primary,
+  color: colors.text.primary,
+  '&:hover': {
+    backgroundColor: colors.accent.primary,
+    opacity: opacity.soft,
+  },
+  '&:disabled': {
+    backgroundColor: colors.accent.primary,
+    color: colors.text.primary,
+    opacity: opacity.faint,
+  },
+});
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export function AddressAddPanel({
+  activeNetworkId,
+  activeNetworkName: _activeNetworkName,
+  activeBlockchain,
+  onSave,
+  onBack,
+}: AddressAddPanelProps): React.ReactElement {
+  const { t } = useTranslation();
+  const form = useAddressBookForm({ networkId: activeNetworkId });
+
+  const handleSave = useCallback(async () => {
+    if (!form.canSave) return;
+    await onSave(form.buildInput());
+  }, [form, onSave]);
+
+  return (
+    <SettingsPanelContent
+      title={t('settings.addressbook.add', 'Add Address')}
+      onBack={onBack}
+    >
+      <Box sx={{ px: `${spacing.lg}px` }}>
+        {/* Label */}
+        <FieldLabel>{t('settings.addressbook.label', 'Label')}</FieldLabel>
+        <StyledInput
+          value={form.label}
+          onChange={(e) => form.setLabel(e.target.value)}
+          placeholder={t('settings.addressbook.label', 'Label')}
+          autoComplete="off"
+          inputProps={{ spellCheck: false }}
+        />
+
+        {/* Address */}
+        <Box sx={{ mt: `${spacing.lg}px` }}>
+          <InputAddress
+            address={form.address}
+            onChange={form.setAddress}
+            onValidation={form.handleValidation}
+            label={t('general.address', 'Address')}
+          />
+        </Box>
+
+        {/* Network */}
+        <FieldLabel>Network</FieldLabel>
+        <NetworkBox>
+          <NetworkText>{activeBlockchain.charAt(0).toUpperCase() + activeBlockchain.slice(1)}</NetworkText>
+        </NetworkBox>
+
+        {/* Save */}
+        <SaveButton onClick={handleSave} disabled={!form.canSave}>
+          {t('settings.addressbook.save', 'Save Address')}
+        </SaveButton>
+      </Box>
+    </SettingsPanelContent>
+  );
+}

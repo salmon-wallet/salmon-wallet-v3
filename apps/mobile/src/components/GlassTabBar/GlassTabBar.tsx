@@ -1,0 +1,214 @@
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { colors, componentSizes, fontFamilyNative, ms, s, spacing, vs, borderWidth, gradients } from '@salmon/shared';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+import { BlurContainer } from '../BlurContainer';
+import { BlinksSvgIcon, GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '../Icon';
+import { useTabChrome } from '../../../hooks/useTabChrome';
+import type { TabConfig } from './types';
+
+const TAB_CONFIG: Record<string, TabConfig> = {
+  index: {
+    name: 'index',
+    icon: HomeSvgIcon,
+    label: 'Home',
+    iconSize: s(26),
+  },
+  collectibles: {
+    name: 'collectibles',
+    icon: GridViewSvgIcon,
+    label: 'Collectibles',
+    iconSize: s(26),
+  },
+  swap: {
+    name: 'swap',
+    icon: SwapSvgIcon,
+    label: 'Swap',
+    iconSize: s(26),
+  },
+  blinks: {
+    name: 'blinks',
+    icon: BlinksSvgIcon,
+    label: 'Blinks',
+    iconSize: s(26),
+  },
+};
+
+// Order of tabs as they should appear
+const TAB_ORDER = ['index', 'collectibles', 'swap', 'blinks'];
+
+interface TabItemProps {
+  routeName: string;
+  isFocused: boolean;
+  onPress: () => void;
+  onLongPress: () => void;
+}
+
+function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
+  const config = TAB_CONFIG[routeName];
+
+  if (!config) {
+    return null;
+  }
+
+  const iconColor = isFocused ? colors.tabBar.active : colors.tabBar.inactive;
+  const labelColor = isFocused ? colors.tabBar.active : colors.tabBar.inactive;
+  const IconComponent = config.icon;
+
+  return (
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityState={isFocused ? { selected: true } : {}}
+      accessibilityLabel={config.label}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={styles.tabItem}
+    >
+      <View style={styles.tabIconContainer}>
+        <IconComponent size={config.iconSize} color={iconColor} />
+      </View>
+      <Text style={[styles.tabLabel, isFocused ? styles.tabLabelActive : styles.tabLabelInactive, { color: labelColor }]}>
+        {config.label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+export function GlassTabBar({
+  state,
+  descriptors: _descriptors,
+  navigation,
+}: BottomTabBarProps) {
+  const { tabBarBottomPadding } = useTabChrome();
+
+  // Filter and order routes to show Home, Collectibles, Swap, and Blinks
+  const visibleRoutes = TAB_ORDER
+    .map(tabName => state.routes.find(route => route.name === tabName))
+    .filter((route): route is typeof state.routes[0] => route !== undefined);
+
+  return (
+    <LinearGradient
+      colors={gradients.tabBarFade.colors}
+      start={gradients.tabBarFade.start}
+      end={gradients.tabBarFade.end}
+      style={[
+        styles.container,
+        {
+          paddingBottom: tabBarBottomPadding,
+        },
+      ]}
+      pointerEvents="box-none"
+    >
+      <BlurContainer
+        style={styles.glassContainer}
+        blurIntensity={24}
+        backgroundColor={colors.background.glass}
+        borderColor={colors.border.subtle}
+        borderWidth={borderWidth.thin}
+        useGradientBorder
+      >
+        <View style={styles.bar}>
+          {visibleRoutes.map((route) => {
+            const isFocused = state.routes[state.index]?.name === route.name;
+
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
+
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name, route.params);
+              }
+            };
+
+            const onLongPress = () => {
+              navigation.emit({
+                type: 'tabLongPress',
+                target: route.key,
+              });
+            };
+
+            return (
+              <TabItem
+                key={route.key}
+                routeName={route.name}
+                isFocused={isFocused}
+                onPress={onPress}
+                onLongPress={onLongPress}
+              />
+            );
+          })}
+        </View>
+      </BlurContainer>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    paddingHorizontal: s(spacing.lg),
+    paddingTop: vs(spacing.lg),
+    zIndex: 50,
+  },
+  glassContainer: {
+    width: '100%',
+    borderRadius: 28,
+    overflow: 'hidden',
+    backgroundColor: colors.background.glass,
+    borderColor: colors.border.subtle,
+    borderWidth: borderWidth.thin,
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.22)',
+  },
+  bar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: '100%',
+    minHeight: vs(componentSizes.tabBarItemHeight + 8),
+    paddingHorizontal: s(spacing.md),
+    paddingVertical: vs(spacing.xs),
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: vs(componentSizes.tabBarItemHeight),
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing.xs),
+    gap: s(2),
+  },
+  tabIconContainer: {
+    height: vs(componentSizes.iconSizeMButton),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabLabel: {
+    fontFamily: fontFamilyNative.semiBold,
+    fontSize: ms(11),
+    lineHeight: ms(13),
+    letterSpacing: ms(0.2, 0.3),
+    textAlign: 'center',
+  },
+  tabLabelActive: {
+    color: colors.tabBar.active,
+  },
+  tabLabelInactive: {
+    color: colors.tabBar.inactive,
+  },
+});
+
+export default GlassTabBar;

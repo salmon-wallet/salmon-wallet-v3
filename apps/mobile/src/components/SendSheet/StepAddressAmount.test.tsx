@@ -1,0 +1,180 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react-native';
+import { TouchableOpacity } from 'react-native';
+
+const mockUseAddressValidation = jest.fn();
+const mockUseSendContacts = jest.fn();
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (_key: string, fallbackOrOptions?: string | { blockchain?: string; defaultValue?: string }) =>
+      typeof fallbackOrOptions === 'string'
+        ? fallbackOrOptions
+        : fallbackOrOptions?.defaultValue ?? _key,
+  }),
+}));
+
+jest.mock('expo-linear-gradient', () => ({
+  LinearGradient: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+}));
+
+jest.mock('@salmon/shared', () => ({
+  borderRadius: { lg: 16, sm: 8, button: 16, badge: 12 },
+  borderWidth: { thin: 1 },
+  accent: { border: '#0f0' },
+  colors: {
+    accent: { border: '#0f0' },
+    text: { primary: '#fff', secondary: '#999' },
+    status: { error: '#f00', warning: '#fc0', success: '#0f0' },
+    button: { secondaryBackground: '#222', cancelBackground: '#111' },
+    background: { card: '#111', tertiary: '#333' },
+    border: { default: '#444' },
+  },
+  componentSizes: { buttonHeightMedium: 48 },
+  fontFamilyNative: { regular: 'System', medium: 'System', bold: 'System' },
+  fontSize: { xs: 12, sm: 14, base: 16, md: 18, xl: 24 },
+  getShortAddress: (value: string) => `${value.slice(0, 4)}...${value.slice(-4)}`,
+  gradients: {
+    primary: { colors: ['#0f0', '#0c0'] },
+    disabled: { colors: ['#555', '#444'] },
+  },
+  ms: (value: number) => value,
+  vs: (value: number) => value,
+  s: (value: number) => value,
+  opacity: { disabled: 0.5 },
+  shadows: { button: {} },
+  spacing: { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 20, base: 10, headerPadding: 20, '2xl': 24 },
+  useAddressValidation: (...args: unknown[]) => mockUseAddressValidation(...args),
+  useCurrencyContext: () => [{ currency: 'usd' }, { formatPrecise: (value: number) => value.toFixed(2) }],
+  useSendContacts: (...args: unknown[]) => mockUseSendContacts(...args),
+}));
+
+jest.mock('../../../hooks/useBottomSheetChrome', () => ({
+  useBottomSheetChrome: () => ({
+    actionRowBottomPadding: 0,
+    compactContentBottomPadding: 0,
+  }),
+}));
+
+jest.mock('../BlurContainer', () => ({
+  BlurContainer: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+}));
+
+jest.mock('../TokenLogo', () => ({
+  TokenLogo: () => null,
+}));
+
+import { StepAddressAmount } from './StepAddressAmount';
+
+const account = {
+  getReceiveAddress: () => 'Sender111111111111111111111111111111',
+} as any;
+
+const token = {
+  name: 'USD Coin',
+  symbol: 'USDC',
+  uiAmount: 4,
+  decimals: 2,
+  price: 2,
+} as any;
+
+describe('StepAddressAmount', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    mockUseSendContacts.mockReturnValue({
+      contacts: [{ name: 'Alice', address: 'Alice11111111111111111111111111111', blockchain: 'solana' }],
+      ownWallets: [{ accountName: 'Vault', address: 'Vault11111111111111111111111111111' }],
+      isLoading: false,
+    });
+
+    mockUseAddressValidation.mockImplementation((address: string) => {
+      if (address.trim() === 'Vault11111111111111111111111111111') {
+        return {
+          validationState: 'valid',
+          isValidating: false,
+          isValid: true,
+          resolvedAddress: 'ResolvedVault11111111111111111111111',
+          message: null,
+          messageType: null,
+        };
+      }
+
+      return {
+        validationState: address ? 'invalid' : 'idle',
+        isValidating: false,
+        isValid: false,
+        resolvedAddress: null,
+        message: address ? 'Invalid recipient' : null,
+        messageType: address ? 'error' : null,
+      };
+    });
+  });
+
+  it('fills recipient from own wallets, quick-fills amount and reviews with resolved address', () => {
+    const onReview = jest.fn();
+
+    render(
+      <StepAddressAmount
+        token={token}
+        blockchain="solana"
+        account={account}
+        onBack={jest.fn()}
+        onReview={onReview}
+        onCancel={jest.fn()}
+      />
+    );
+
+    fireEvent.press(screen.getByText('Vault'));
+    fireEvent.press(screen.getByText('MAX'));
+    fireEvent.press(screen.getByText('Review & Send'));
+
+    expect(screen.getByDisplayValue('4')).toBeTruthy();
+    expect(screen.getByText('8.00 USD')).toBeTruthy();
+    expect(onReview).toHaveBeenCalledWith(
+      'Vault11111111111111111111111111111',
+      '4',
+      'ResolvedVault11111111111111111111111'
+    );
+  });
+
+  it('uses liveBalance over snapshot uiAmount for MAX quick fill', () => {
+    // token snapshot says 4 USDC but liveBalance reflects an inbound transfer
+    // of 6 USDC bringing the live total to 10. MAX must fill 10, not 4.
+    render(
+      <StepAddressAmount
+        token={token}
+        liveBalance={10}
+        blockchain="solana"
+        account={account}
+        onBack={jest.fn()}
+        onReview={jest.fn()}
+        onCancel={jest.fn()}
+      />
+    );
+
+    fireEvent.press(screen.getByText('MAX'));
+
+    expect(screen.getByDisplayValue('10')).toBeTruthy();
+  });
+
+  it('shows validation feedback and keeps review disabled for invalid address', () => {
+    const view = render(
+      <StepAddressAmount
+        token={token}
+        blockchain="solana"
+        account={account}
+        onBack={jest.fn()}
+        onReview={jest.fn()}
+        onCancel={jest.fn()}
+      />
+    );
+
+    fireEvent.changeText(screen.getByPlaceholderText('Solana Address'), 'bad-address');
+    fireEvent.changeText(screen.getByPlaceholderText('0'), '1');
+
+    expect(screen.getByText('Invalid recipient')).toBeTruthy();
+    const touchables = view.UNSAFE_getAllByType(TouchableOpacity);
+    expect(touchables.at(-1)?.props.disabled).toBe(true);
+  });
+});

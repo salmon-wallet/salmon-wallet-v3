@@ -1,0 +1,1043 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Animated,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  BackHandler,
+  Dimensions,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  colors,
+  fontSize,
+  borderRadius,
+  fontFamilyNative,
+  gradients,
+  shadows,
+  componentSizes,
+  ms,
+  vs,
+  s,
+  isSolanaNft,
+  isBitcoinNft,
+  getSatRarityColor,
+  getShortAddress,
+  borderWidth,
+  letterSpacing,
+  lineHeight,
+  spacing,
+  fontWeight,
+  formatRawAmount,
+  useNftTransfer,
+  getTransactionUrl,
+  getDefaultExplorer,
+  type Blockchain,
+  type NetworkEnvironment,
+  type ValidationCallbackResult,
+} from '@salmon/shared';
+import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
+import {
+  CallMadeSvgIcon,
+} from '../Icon/SvgIcons';
+import { BlurContainer } from '../BlurContainer';
+import { BottomSheetContainer } from '../BottomSheetContainer';
+import { BottomSheetTitleHeader } from '../BottomSheetTitleHeader';
+import { InputAddress } from '../InputAddress';
+import { TransactionSuccessScreen } from '../TransactionSuccessScreen';
+import type { NftDetailSheetProps, NftAttribute } from './types';
+
+type NftDetailStep = 'detail' | 'send' | 'burn' | 'success';
+type SuccessKind = 'send' | 'burn' | null;
+
+const FALLBACK_GRADIENT = {
+  colors: [...gradients.primaryButton.colors],
+  start: { x: 0.12, y: 0.5 },
+  end: { x: 0.83, y: 0.5 },
+} as const;
+
+export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
+  visible,
+  onClose,
+  nft,
+  account,
+  onSendSuccess,
+  burnPreview,
+  burnPreparing = false,
+  burnSuccessTxId,
+  burnError,
+  onBurnPress,
+  onBurnConfirm,
+  onBurnSuccess,
+  onBurnReset,
+  style,
+}) => {
+  const { t } = useTranslation();
+  const { bottomInset, spaciousContentBottomPadding } = useBottomSheetChrome();
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+  const [prevMint, setPrevMint] = useState<string | undefined>(undefined);
+  const [step, setStep] = useState<NftDetailStep>('detail');
+  const [transitionFromStep, setTransitionFromStep] = useState<NftDetailStep | null>(null);
+  const [transitionToStep, setTransitionToStep] = useState<NftDetailStep | null>(null);
+  const [transitionDirection, setTransitionDirection] = useState<1 | -1>(1);
+  const [address, setAddress] = useState('');
+  const [addressValid, setAddressValid] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [successTxId, setSuccessTxId] = useState<string | null>(null);
+  const [successKind, setSuccessKind] = useState<SuccessKind>(null);
+
+  const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
+  const stepTransitionProgress = useMemo(() => new Animated.Value(1), []);
+  const { sendNft, reset: resetTransfer } = useNftTransfer({ account });
+  const sheetSlideDistance = useMemo(() => Dimensions.get('window').width, []);
+
+  if (nft?.mint !== prevMint) {
+    setPrevMint(nft?.mint);
+    setImageLoading(true);
+    setImageError(false);
+  }
+
+  const resetFlowState = useCallback(() => {
+    setStep('detail');
+    setTransitionFromStep(null);
+    setTransitionToStep(null);
+    setTransitionDirection(1);
+    stepTransitionProgress.setValue(1);
+    setAddress('');
+    setAddressValid(false);
+    setSending(false);
+    setSendError(null);
+    setSuccessTxId(null);
+    setSuccessKind(null);
+    resetTransfer();
+    onBurnReset?.();
+  }, [onBurnReset, resetTransfer, stepTransitionProgress]);
+
+  useEffect(() => {
+    if (!visible) {
+      resetFlowState();
+    }
+  }, [visible, resetFlowState]);
+
+  useEffect(() => {
+    resetFlowState();
+  }, [nft?.mint, resetFlowState]);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const opacity = Math.min(offsetY / componentSizes.sheetFadeGradientHeight, 1);
+    topFadeOpacity.setValue(opacity);
+  }, [topFadeOpacity]);
+
+  const handleClose = useCallback(() => {
+    resetFlowState();
+    onClose();
+  }, [onClose, resetFlowState]);
+
+  const handleSuccessContinue = useCallback(() => {
+    const txId = successTxId;
+    const completedFlow = successKind;
+    handleClose();
+    if (txId) {
+      if (completedFlow === 'burn') {
+        onBurnSuccess?.(txId);
+      } else {
+        onSendSuccess?.(txId);
+      }
+    }
+  }, [handleClose, onBurnSuccess, onSendSuccess, successKind, successTxId]);
+
+  const startStepTransition = useCallback((nextStep: 'detail' | 'send' | 'burn', direction: 1 | -1) => {
+    if (step === nextStep) return;
+
+    setTransitionFromStep(step);
+    setTransitionToStep(nextStep);
+    setTransitionDirection(direction);
+    stepTransitionProgress.setValue(0);
+
+    Animated.timing(stepTransitionProgress, {
+      toValue: 1,
+      duration: 260,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (!finished) return;
+      setStep(nextStep);
+      setTransitionFromStep(null);
+      setTransitionToStep(null);
+      setTransitionDirection(1);
+      stepTransitionProgress.setValue(1);
+    });
+  }, [step, stepTransitionProgress]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android' || !visible) return undefined;
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (step === 'success') {
+        handleSuccessContinue();
+      } else if (step === 'send' || step === 'burn') {
+        startStepTransition('detail', -1);
+        onBurnReset?.();
+      } else {
+        handleClose();
+      }
+      return true;
+    });
+
+    return () => backHandler.remove();
+  }, [visible, step, handleClose, handleSuccessContinue, onBurnReset, startStepTransition]);
+
+  useEffect(() => {
+    if (!visible || !burnSuccessTxId || step !== 'burn') return;
+    setSuccessTxId(burnSuccessTxId);
+    setSuccessKind('burn');
+    setStep('success');
+  }, [burnSuccessTxId, step, visible]);
+
+  const handleValidation = useCallback((result: ValidationCallbackResult) => {
+    setAddressValid(result.isValid);
+  }, []);
+
+  const handleOpenSendStep = useCallback(() => {
+    setSendError(null);
+    startStepTransition('send', 1);
+  }, [startStepTransition]);
+
+  const handleBackToDetail = useCallback(() => {
+    setSending(false);
+    setSendError(null);
+    startStepTransition('detail', -1);
+  }, [startStepTransition]);
+
+  const handleOpenBurnStep = useCallback(() => {
+    if (nft?.blockchain !== 'solana') {
+      onBurnPress?.();
+      return;
+    }
+    startStepTransition('burn', 1);
+    onBurnPress?.();
+  }, [nft?.blockchain, onBurnPress, startStepTransition]);
+
+  const handleBackFromBurn = useCallback(() => {
+    onBurnReset?.();
+    startStepTransition('detail', -1);
+  }, [onBurnReset, startStepTransition]);
+
+  const handleConfirmBurn = useCallback(() => {
+    onBurnConfirm?.();
+  }, [onBurnConfirm]);
+
+  const handleConfirmSend = useCallback(async () => {
+    if (!nft || !addressValid || sending) return;
+
+    setSending(true);
+    setSendError(null);
+
+    try {
+      const result = await sendNft(nft, address);
+      setSuccessKind('send');
+      setSuccessTxId(result.txId);
+      setStep('success');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'NFT transfer failed';
+      setSendError(errorMessage);
+    } finally {
+      setSending(false);
+    }
+  }, [address, addressValid, nft, sendNft, sending]);
+
+  const renderAttribute = useCallback((attribute: NftAttribute, index: number) => {
+    return (
+      <View key={`${attribute.trait_type}-${index}`} style={styles.attributeItem}>
+        <Text style={styles.attributeName}>{attribute.trait_type}</Text>
+        <Text style={styles.attributeValue}>{attribute.value}</Text>
+      </View>
+    );
+  }, []);
+
+  const renderBlockchainDetails = useCallback(() => {
+    if (!nft) return null;
+
+    if (isSolanaNft(nft)) {
+      return (
+        <>
+          {nft.tokenStandard && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>{t('nft.detail.tokenStandard', 'Token Standard')}</Text>
+              <Text style={styles.detailValue}>{nft.tokenStandard}</Text>
+            </View>
+          )}
+          {nft.compressed !== undefined && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>{t('nft.detail.compressed', 'Compressed')}</Text>
+              <Text style={styles.detailValue}>{nft.compressed ? 'Yes' : 'No'}</Text>
+            </View>
+          )}
+          {nft.collectionVerified !== undefined && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>{t('nft.detail.collectionVerified', 'Collection Verified')}</Text>
+              <Text style={styles.detailValue}>{nft.collectionVerified ? '✓' : '✗'}</Text>
+            </View>
+          )}
+          {nft.royaltyBps !== undefined && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>{t('nft.detail.royalties', 'Royalties')}</Text>
+              <Text style={styles.detailValue}>{(nft.royaltyBps / 100).toFixed(2)}%</Text>
+            </View>
+          )}
+        </>
+      );
+    }
+
+    if (isBitcoinNft(nft)) {
+      return (
+        <>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('nft.detail.inscriptionNumber', 'Inscription #')}</Text>
+            <Text style={styles.detailValue}>{nft.inscriptionNumber}</Text>
+          </View>
+          {nft.satRarity && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>{t('nft.detail.rarity', 'Rarity')}</Text>
+              <View style={[styles.rarityBadge, { backgroundColor: getSatRarityColor(nft.satRarity) }]}>
+                <Text style={styles.rarityText}>{nft.satRarity}</Text>
+              </View>
+            </View>
+          )}
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('nft.detail.contentType', 'Content Type')}</Text>
+            <Text style={styles.detailValue}>{nft.contentType}</Text>
+          </View>
+          {nft.genesisHeight && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>{t('nft.detail.genesisBlock', 'Genesis Block')}</Text>
+              <Text style={styles.detailValue}>{nft.genesisHeight}</Text>
+            </View>
+          )}
+        </>
+      );
+    }
+
+    return null;
+  }, [nft, t]);
+
+  const renderNftImage = useCallback(() => {
+    if (!nft) return null;
+
+    return (
+      <View style={styles.imageContainer}>
+        {!nft.image || imageError ? (
+          <LinearGradient
+            colors={[...FALLBACK_GRADIENT.colors]}
+            start={FALLBACK_GRADIENT.start}
+            end={FALLBACK_GRADIENT.end}
+            style={styles.nftImage}
+          />
+        ) : (
+          <>
+            <Image
+              source={nft.image}
+              style={styles.nftImage}
+              contentFit="cover"
+              autoplay={true}
+              recyclingKey={nft.mint}
+              onLoadStart={() => setImageLoading(true)}
+              onLoadEnd={() => setImageLoading(false)}
+              onError={() => {
+                setImageLoading(false);
+                setImageError(true);
+              }}
+            />
+            {imageLoading && (
+              <View style={[styles.nftImage, styles.imageLoadingOverlay]}>
+                <LinearGradient
+                  colors={[...FALLBACK_GRADIENT.colors]}
+                  start={FALLBACK_GRADIENT.start}
+                  end={FALLBACK_GRADIENT.end}
+                  style={StyleSheet.absoluteFill}
+                />
+                <ActivityIndicator size="small" color={colors.text.primary} />
+              </View>
+            )}
+          </>
+        )}
+      </View>
+    );
+  }, [imageError, imageLoading, nft]);
+
+  const detailHeaderContent = nft ? (
+    <>
+      <Text style={styles.nftName} numberOfLines={2}>
+        {nft.name}
+      </Text>
+    </>
+  ) : null;
+
+  const sendHeaderContent = nft ? (
+    <BottomSheetTitleHeader
+      title={t('nft.send.title', 'Send NFT')}
+      onBack={handleBackToDetail}
+      backAccessibilityLabel={t('general.back', 'Back')}
+    />
+  ) : null;
+
+  const burnHeaderContent = nft ? (
+    <BottomSheetTitleHeader
+      title={t('nft.burn.reviewTitle', 'Burn NFT')}
+      onBack={handleBackFromBurn}
+      backAccessibilityLabel={t('general.back', 'Back')}
+    />
+  ) : null;
+
+  const headerContent =
+    step === 'send'
+      ? sendHeaderContent
+      : step === 'burn'
+        ? burnHeaderContent
+        : step === 'detail'
+          ? detailHeaderContent
+          : undefined;
+  const canConfirmSend = addressValid && !sending && nft?.blockchain !== 'bitcoin';
+  const canConfirmBurn = !burnPreparing && !burnError && !!burnPreview;
+  const lutInfo = burnPreview?.lookupTable;
+  const burnBusyLabel = burnPreview
+    ? t('nft.burn.submitting', 'Burning NFT...')
+    : t('nft.burn.preparing', 'Preparing burn...');
+
+  const explorerUrl = useMemo(() => {
+    if (!successTxId || !nft || !account) return undefined;
+
+    const networkId = account.getNetworkId();
+    if (!networkId) return undefined;
+
+    const blockchain = nft.blockchain.toUpperCase() as Blockchain;
+    return getTransactionUrl(
+      blockchain,
+      networkId as NetworkEnvironment,
+      getDefaultExplorer(blockchain),
+      successTxId,
+    );
+  }, [account, nft, successTxId]);
+
+  if (!visible || !nft) {
+    return null;
+  }
+
+  const renderDetailStep = () => (
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={[
+        styles.scrollViewContent,
+        { paddingBottom: spaciousContentBottomPadding },
+      ]}
+      showsVerticalScrollIndicator={false}
+      scrollIndicatorInsets={{ bottom: bottomInset }}
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
+    >
+      {renderNftImage()}
+
+      {nft.description && (
+        <BlurContainer
+          blurIntensity={10}
+          blurTint="dark"
+          style={styles.sectionContainer}
+        >
+          <View style={styles.sectionContent}>
+            <Text style={styles.sectionTitle}>{t('nft.detail.description', 'Description')}</Text>
+            <Text style={styles.descriptionText}>{nft.description}</Text>
+          </View>
+        </BlurContainer>
+      )}
+
+      {nft.attributes && nft.attributes.length > 0 && (
+        <BlurContainer
+          blurIntensity={10}
+          blurTint="dark"
+          style={styles.sectionContainer}
+        >
+          <View style={styles.sectionContent}>
+            <Text style={styles.sectionTitle}>{t('nft.detail.attributes', 'Attributes')}</Text>
+            <View style={styles.attributesGrid}>
+              {nft.attributes.map(renderAttribute)}
+            </View>
+          </View>
+        </BlurContainer>
+      )}
+
+      <BlurContainer
+        blurIntensity={10}
+        blurTint="dark"
+        style={styles.sectionContainer}
+      >
+        <View style={styles.sectionContent}>
+          <Text style={styles.sectionTitle}>{t('nft.detail.details', 'Details')}</Text>
+          {renderBlockchainDetails()}
+        </View>
+      </BlurContainer>
+
+      <View style={styles.actionButtonsContainer}>
+        <TouchableOpacity
+          style={styles.buttonWrapper}
+          onPress={handleOpenSendStep}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Send NFT"
+        >
+          <LinearGradient
+            colors={[...gradients.primaryButton.colors]}
+            start={gradients.primaryButton.start}
+            end={gradients.primaryButton.end}
+            style={styles.primaryButton}
+          >
+            <CallMadeSvgIcon size={ms(15)} color={colors.text.balance} />
+            <Text style={styles.buttonText}>{t('actions.send', 'Send')}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <BlurContainer
+          style={styles.secondaryButtonWrapper}
+          blurIntensity={2.5}
+          backgroundColor={colors.interactive.surface}
+          borderColor={colors.accent.border}
+          borderWidth={borderWidth.actionButton}
+        >
+          <TouchableOpacity
+            style={styles.secondaryButtonContent}
+            onPress={handleOpenBurnStep}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Burn NFT"
+          >
+            <MaterialIcons name="local-fire-department" size={ms(18)} color={colors.text.balance} />
+            <Text style={styles.buttonText}>{t('nft.burn_nft', 'Burn')}</Text>
+          </TouchableOpacity>
+        </BlurContainer>
+      </View>
+    </ScrollView>
+  );
+
+  const renderSendStep = () => (
+    <KeyboardAvoidingView
+      style={styles.keyboardView}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollViewContent,
+          { paddingBottom: spaciousContentBottomPadding },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        scrollIndicatorInsets={{ bottom: bottomInset }}
+      >
+        {renderNftImage()}
+
+        <BlurContainer
+          blurIntensity={10}
+          blurTint="dark"
+          style={styles.sectionContainer}
+        >
+          <View style={styles.sectionContent}>
+            {nft.collectionName && (
+              <Text style={styles.collectionName} numberOfLines={1}>
+                {nft.collectionName}
+              </Text>
+            )}
+
+            {nft.blockchain === 'bitcoin' ? (
+              <Text style={styles.messageText}>
+                {t('nft.send.ordinalsNotSupported', 'Ordinal transfers are not yet supported.')}
+              </Text>
+            ) : (
+              <>
+                <InputAddress
+                  address={address}
+                  onChange={setAddress}
+                  onValidation={handleValidation}
+                  placeholder={t('nft.send.enterRecipientAddress', 'Enter recipient address')}
+                  label={t('token.send.recipient', 'Recipient')}
+                />
+
+                {sendError && <Text style={styles.errorText}>{sendError}</Text>}
+              </>
+            )}
+          </View>
+        </BlurContainer>
+
+        {sending && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.accent.primary} />
+            <Text style={styles.loadingText}>{t('nft.send.sending', 'Sending NFT...')}</Text>
+          </View>
+        )}
+
+        <View style={styles.actionButtonsContainer}>
+          <BlurContainer
+            style={styles.secondaryButtonWrapper}
+            blurIntensity={2.5}
+            backgroundColor={colors.interactive.surface}
+            borderColor={colors.accent.border}
+            borderWidth={borderWidth.actionButton}
+          >
+            <TouchableOpacity
+              style={styles.secondaryButtonContent}
+              onPress={handleBackToDetail}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Back to NFT details"
+            >
+              <Text style={styles.buttonText}>{t('actions.back', 'Back')}</Text>
+            </TouchableOpacity>
+          </BlurContainer>
+
+          {nft.blockchain !== 'bitcoin' && (
+            <TouchableOpacity
+              style={styles.buttonWrapper}
+              onPress={handleConfirmSend}
+              disabled={!canConfirmSend}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Send NFT"
+            >
+              <LinearGradient
+                colors={[...gradients.primaryButton.colors]}
+                start={gradients.primaryButton.start}
+                end={gradients.primaryButton.end}
+                style={[styles.primaryButton, !canConfirmSend && styles.primaryButtonDisabled]}
+              >
+                <CallMadeSvgIcon size={ms(15)} color={colors.text.balance} />
+                <Text style={styles.buttonText}>{t('actions.send', 'Send')}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+
+  const renderBurnStep = () => (
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={[
+        styles.scrollViewContent,
+        { paddingBottom: spaciousContentBottomPadding },
+      ]}
+      showsVerticalScrollIndicator={false}
+      scrollIndicatorInsets={{ bottom: bottomInset }}
+    >
+      {renderNftImage()}
+
+      <BlurContainer
+        blurIntensity={32}
+        blurTint="dark"
+        style={styles.sectionContainer}
+      >
+        <View style={styles.sectionContent}>
+          <Text style={styles.sectionTitle}>{t('nft.burn.reviewTitle', 'Burn NFT')}</Text>
+          <Text style={styles.descriptionText}>
+            {t(
+              'nft.burn.reviewBody',
+              'This action is irreversible. Confirm only if you want to permanently burn this NFT.'
+            )}
+          </Text>
+        </View>
+      </BlurContainer>
+
+      {lutInfo && (
+        <BlurContainer
+          blurIntensity={32}
+          blurTint="dark"
+          style={styles.sectionContainer}
+        >
+          <View style={styles.sectionContent}>
+            <Text style={styles.sectionTitle}>{t('nft.burn.lutTitle', 'Temporary lookup table required')}</Text>
+            <Text style={styles.descriptionText}>
+              {t(
+                'nft.burn.lutBody',
+                'To fit this burn on Solana, Salmon needs to create a temporary address lookup table before submitting the burn transaction.'
+              )}
+            </Text>
+
+            <View style={styles.warningDetailList}>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('nft.burn.lutRent', 'Approximate rent lock')}</Text>
+                <Text style={styles.detailValue}>{formatRawAmount(lutInfo.estimatedRentLamports, 9)} SOL</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('nft.burn.lutAddressCount', 'Addresses stored')}</Text>
+                <Text style={styles.detailValue}>{lutInfo.addressCount}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('nft.burn.lutSteps', 'Additional setup transactions')}</Text>
+                <Text style={styles.detailValue}>{lutInfo.extendTransactionCount + 1}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.warningFootnote}>
+              {t(
+                'nft.burn.lutFootnote',
+                'The rent stays locked in the lookup table account until it is later deactivated and closed.'
+              )}
+            </Text>
+          </View>
+        </BlurContainer>
+      )}
+
+      {burnPreparing && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.accent.primary} />
+          <Text style={styles.loadingText}>{burnBusyLabel}</Text>
+        </View>
+      )}
+
+      {burnError && <Text style={styles.errorText}>{burnError}</Text>}
+
+      <View style={styles.actionButtonsContainer}>
+        <BlurContainer
+          style={styles.secondaryButtonWrapper}
+          blurIntensity={2.5}
+          backgroundColor={colors.interactive.surface}
+          borderColor={colors.accent.border}
+          borderWidth={borderWidth.actionButton}
+        >
+          <TouchableOpacity
+            style={styles.secondaryButtonContent}
+            onPress={handleBackFromBurn}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Back to NFT details"
+          >
+            <Text style={styles.buttonText}>{t('actions.back', 'Back')}</Text>
+          </TouchableOpacity>
+        </BlurContainer>
+
+        <TouchableOpacity
+          style={styles.buttonWrapper}
+          onPress={handleConfirmBurn}
+          disabled={!canConfirmBurn}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Confirm burn"
+        >
+          <LinearGradient
+            colors={[...gradients.primaryButton.colors]}
+            start={gradients.primaryButton.start}
+            end={gradients.primaryButton.end}
+            style={[styles.primaryButton, !canConfirmBurn && styles.primaryButtonDisabled]}
+          >
+            <MaterialIcons name="local-fire-department" size={ms(18)} color={colors.text.balance} />
+            <Text style={styles.buttonText}>{t('nft.burn_nft', 'Burn')}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+
+  const renderSlidingSteps = () => {
+    if (!transitionFromStep || !transitionToStep) {
+      if (step === 'detail') return renderDetailStep();
+      if (step === 'send') return renderSendStep();
+      return renderBurnStep();
+    }
+
+    const outgoingStyle = {
+      transform: [{
+        translateX: stepTransitionProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, transitionDirection === 1 ? -sheetSlideDistance : sheetSlideDistance],
+        }),
+      }],
+    };
+
+    const incomingStyle = {
+      transform: [{
+        translateX: stepTransitionProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [transitionDirection === 1 ? sheetSlideDistance : -sheetSlideDistance, 0],
+        }),
+      }],
+    };
+
+    return (
+      <View style={styles.stepTransitionContainer}>
+        <Animated.View style={[styles.stepTransitionPane, outgoingStyle]}>
+          {transitionFromStep === 'detail'
+            ? renderDetailStep()
+            : transitionFromStep === 'send'
+              ? renderSendStep()
+              : renderBurnStep()}
+        </Animated.View>
+        <Animated.View style={[styles.stepTransitionPane, incomingStyle]}>
+          {transitionToStep === 'detail'
+            ? renderDetailStep()
+            : transitionToStep === 'send'
+              ? renderSendStep()
+              : renderBurnStep()}
+        </Animated.View>
+      </View>
+    );
+  };
+
+  return (
+    <BottomSheetContainer
+      visible={visible}
+      onClose={handleClose}
+      headerContent={headerContent}
+      showFadeGradient={step === 'detail'}
+      fadeGradientTop={vs(12) + vs(8) + ms(24) + vs(16)}
+      scrollOffsetValue={topFadeOpacity}
+      showTextureOverlay
+      style={[styles.sheetContainer, style]}
+    >
+      {(step === 'detail' || step === 'send' || step === 'burn' || transitionFromStep || transitionToStep) && renderSlidingSteps()}
+
+      {step === 'success' && (
+        <TransactionSuccessScreen
+          title={successKind === 'burn'
+            ? t('nft.burn.successTitle', 'NFT burned')
+            : t('nft.send.successTitle', 'NFT sent')}
+          summary={successKind === 'burn'
+            ? t('nft.burn.successSummary', {
+              name: nft.name,
+              defaultValue: `"${nft.name}" has been burned.`,
+            })
+            : t('nft.send.successSummary', {
+              defaultValue: `${nft.name} sent to ${getShortAddress(address) ?? address}`,
+            })}
+          explorerUrl={explorerUrl ?? null}
+          onContinue={handleSuccessContinue}
+        />
+      )}
+    </BottomSheetContainer>
+  );
+};
+
+const styles = StyleSheet.create({
+  sheetContainer: {
+    minHeight: '85%',
+    maxHeight: '92%',
+    overflow: 'hidden',
+  },
+  nftName: {
+    fontSize: ms(fontSize['2xl']),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.primary,
+    textAlign: 'center',
+    marginBottom: vs(spacing.sm),
+    paddingHorizontal: s(spacing.headerPadding),
+    letterSpacing: ms(-0.32, 0.3),
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  stepTransitionContainer: {
+    flex: 1,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  stepTransitionPane: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingHorizontal: s(spacing.headerPadding),
+    gap: vs(spacing.lg),
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginBottom: vs(spacing.sm),
+  },
+  nftImage: {
+    width: s(componentSizes.nftImageMaxWidth),
+    height: s(componentSizes.nftImageMaxWidth),
+    borderRadius: ms(borderRadius.iconContainer),
+    ...shadows.imageHero,
+  },
+  imageLoadingOverlay: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  sectionContainer: {
+    borderRadius: ms(borderRadius.badge),
+    borderWidth: borderWidth.thin,
+    borderColor: colors.border.default,
+    overflow: 'hidden',
+    backgroundColor: colors.background.tokenItem,
+  },
+  sectionContent: {
+    padding: s(spacing.sm),
+  },
+  sectionTitle: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.primary,
+    marginBottom: vs(spacing.sm),
+  },
+  collectionName: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.secondary,
+    marginBottom: vs(spacing.sm),
+  },
+  descriptionText: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.regular,
+    color: colors.text.secondary,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
+  },
+  attributesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -s(spacing.xs),
+  },
+  attributeItem: {
+    width: '50%',
+    paddingHorizontal: s(spacing.xs),
+    paddingVertical: vs(spacing.sm),
+  },
+  attributeName: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.primary,
+    marginBottom: vs(spacing.xs),
+    textTransform: 'uppercase',
+    letterSpacing: letterSpacing.wider,
+  },
+  attributeValue: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.regular,
+    color: colors.text.secondary,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: vs(spacing.sm),
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.border.default,
+  },
+  detailLabel: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.secondary,
+  },
+  detailValue: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.primary,
+  },
+  detailValueWithCopy: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(spacing.sm),
+  },
+  warningDetailList: {
+    marginTop: vs(spacing.md),
+  },
+  warningFootnote: {
+    marginTop: vs(spacing.md),
+    fontSize: ms(fontSize.xs),
+    fontFamily: fontFamilyNative.regular,
+    color: colors.text.secondary,
+    lineHeight: ms(fontSize.xs * lineHeight.normal),
+  },
+  rarityBadge: {
+    paddingHorizontal: s(spacing.sm),
+    paddingVertical: vs(spacing.xs),
+    borderRadius: ms(borderRadius.badge),
+  },
+  rarityText: {
+    fontSize: ms(fontSize.xs),
+    fontFamily: fontFamilyNative.bold,
+    color: colors.text.balance,
+    textTransform: 'uppercase',
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    gap: s(spacing.sm),
+    marginTop: 'auto',
+    paddingTop: vs(spacing.sm),
+  },
+  buttonWrapper: {
+    flex: 1,
+    borderRadius: ms(borderRadius.button),
+    overflow: 'hidden',
+    ...shadows.button,
+  },
+  primaryButton: {
+    minHeight: vs(componentSizes.buttonHeight),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: s(spacing.sm),
+    paddingHorizontal: s(spacing.lg),
+    borderRadius: ms(borderRadius.button),
+  },
+  primaryButtonDisabled: {
+    opacity: 0.45,
+  },
+  secondaryButtonWrapper: {
+    flex: 1,
+    borderRadius: ms(borderRadius.button),
+    overflow: 'hidden',
+  },
+  secondaryButtonContent: {
+    minHeight: vs(componentSizes.buttonHeight),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: s(spacing.sm),
+    paddingHorizontal: s(spacing.lg),
+    borderRadius: ms(borderRadius.button),
+  },
+  buttonText: {
+    fontSize: ms(fontSize.base),
+    fontFamily: fontFamilyNative.semiBold,
+    fontWeight: fontWeight.semibold,
+    color: colors.text.balance,
+  },
+  messageText: {
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.regular,
+    color: colors.text.secondary,
+    lineHeight: ms(fontSize.sm * lineHeight.normal),
+  },
+  errorText: {
+    marginTop: vs(spacing.sm),
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.status.error,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: vs(spacing.xl),
+  },
+  loadingText: {
+    marginTop: vs(spacing.sm),
+    fontSize: ms(fontSize.sm),
+    fontFamily: fontFamilyNative.medium,
+    color: colors.text.secondary,
+  },
+});
+
+export default NftDetailSheet;

@@ -1,0 +1,116 @@
+import React from 'react';
+import Box from '@mui/material/Box';
+import { useTranslation } from 'react-i18next';
+import {
+  formatOrigin,
+  getShortAddress,
+  colors,
+} from '@salmon/shared';
+import { PrimaryButton, SecondaryButton } from '../Button';
+import {
+  ButtonsContainer,
+  AppIdentityIcon,
+  AppIdentityName,
+  AppIdentityRow,
+  AppIdentityText,
+  Card,
+  Container,
+  Content,
+  FooterNote,
+  Header,
+  Label,
+  LogoWrap,
+  LogoImage,
+  MonoValue,
+  ScrollArea,
+  Subtitle,
+  Title,
+  Value,
+} from './common';
+import type { DAppConnectApprovalViewProps } from './types';
+
+export function DAppConnectApprovalView({
+  origin,
+  appName,
+  appIcon,
+  address,
+  disabled = false,
+  loading = false,
+  showOriginWarning = false,
+  onApprove,
+  onReject,
+}: DAppConnectApprovalViewProps): React.ReactElement {
+  const { t } = useTranslation();
+  const displayOrigin = formatOrigin(origin);
+  const shortAddress = address ? getShortAddress(address, 4) ?? '' : '';
+  const hasIdentity = !!appName || !!appIcon;
+
+  return (
+    <Container>
+      <Content>
+        <Header>
+          <LogoWrap>
+            <LogoImage src="/images/Logo.png" alt="Salmon" />
+          </LogoWrap>
+          <Title>{t('dapp.connect_title', 'Connect to dApp')}</Title>
+          <Subtitle>
+            {t('dapp.connect_subtitle', 'This site wants to connect to your Salmon wallet')}
+          </Subtitle>
+        </Header>
+
+        <ScrollArea>
+          <Card>
+            <Label>{t('dapp.requesting_site', 'Requesting site')}</Label>
+            {hasIdentity ? (
+              <AppIdentityRow>
+                {appIcon ? <AppIdentityIcon src={appIcon} alt={appName || displayOrigin} /> : null}
+                <AppIdentityText>
+                  {appName ? <AppIdentityName>{appName}</AppIdentityName> : null}
+                  <MonoValue sx={{ marginTop: 0 }}>{displayOrigin}</MonoValue>
+                </AppIdentityText>
+              </AppIdentityRow>
+            ) : (
+              <Value sx={{ fontSize: 20 }}>{displayOrigin}</Value>
+            )}
+            <FooterNote sx={{ marginTop: 1.5 }}>
+              {t(
+                'dapp.connect_permissions_hint',
+                'The site will be able to view your public address and request signatures.',
+              )}
+            </FooterNote>
+          </Card>
+
+          <Card>
+            <Label>{t('dapp.wallet_address', 'Wallet')}</Label>
+            <Value>{shortAddress || t('dapp.current_wallet', 'Current wallet')}</Value>
+            {address && <MonoValue>{address}</MonoValue>}
+            {showOriginWarning && (
+              <Box
+                sx={{
+                  marginTop: 2,
+                  padding: 1.5,
+                  borderRadius: 2,
+                  border: `1px solid ${colors.status.warningBorder}`,
+                  backgroundColor: colors.status.warningBackground,
+                }}
+              >
+                <MonoValue sx={{ color: colors.status.warning, marginTop: 0 }}>
+                  {t('dapp.insecure_origin_warning', 'Warning: This origin does not use HTTPS.')}
+                </MonoValue>
+              </Box>
+            )}
+          </Card>
+        </ScrollArea>
+
+        <ButtonsContainer>
+          <PrimaryButton onClick={onApprove} loading={loading} disabled={disabled || loading}>
+            {t('dapp.approve', 'Approve').toUpperCase()}
+          </PrimaryButton>
+          <SecondaryButton onClick={onReject} disabled={loading}>
+            {t('dapp.deny', 'Deny').toUpperCase()}
+          </SecondaryButton>
+        </ButtonsContainer>
+      </Content>
+    </Container>
+  );
+}

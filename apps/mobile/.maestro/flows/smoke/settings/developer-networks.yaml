@@ -1,0 +1,21 @@
+appId: io.salmonwallet.app
+---
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- runFlow: ../../../subflows/open-settings.yaml
+- assertVisible: "Settings"
+- swipe:
+    direction: UP
+    from:
+      text: "Developer Networks"
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: screenshots/smoke/settings/developer-networks-off
+# Toggle ON
+- tapOn: "Developer Networks"
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: screenshots/smoke/settings/developer-networks-on
+# Toggle OFF
+- tapOn: "Developer Networks"
+- waitForAnimationToEnd:
+    timeout: 2000

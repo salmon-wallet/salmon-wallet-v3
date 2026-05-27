@@ -1,0 +1,89 @@
+/**
+ * CurrencySelector - Display currency selection component for mobile
+ *
+ * Displays a list of supported currencies and allows the user
+ * to select their preferred display currency.
+ */
+
+import React, { useCallback } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
+
+import {
+  colors,
+  spacing,
+  borderRadius,
+  fontFamilyNative,
+  type CurrencySelectorBaseProps,
+  type CurrencySelectorItem,
+  fontSize,
+} from '@salmon/shared';
+import { SettingsScreenLayout } from '../../SettingsScreenLayout';
+import { SettingsSelectorList } from '../SettingsSelectorList';
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export function CurrencySelector({
+  currencies,
+  activeCurrencyCode,
+  onSelectCurrency,
+  onBack,
+}: CurrencySelectorBaseProps) {
+  const { t } = useTranslation();
+
+  const handleSelect = useCallback(
+    (item: CurrencySelectorItem) => onSelectCurrency(item.code),
+    [onSelectCurrency],
+  );
+
+  const renderSymbol = useCallback(
+    (item: CurrencySelectorItem) => (
+      <View style={styles.symbolContainer}>
+        <Text style={styles.symbolText}>{item.symbol}</Text>
+      </View>
+    ),
+    [],
+  );
+
+  return (
+    <SettingsScreenLayout
+      title={t('settings.currency', 'Display Currency')}
+      onBack={onBack}
+    >
+      <SettingsSelectorList
+        items={currencies}
+        getKey={(item) => item.code}
+        isSelected={(item) => activeCurrencyCode === item.code}
+        onSelect={handleSelect}
+        getPrimaryText={(item) => item.name}
+        getSecondaryText={(item) => item.code.toUpperCase()}
+        renderLeadingElement={renderSymbol}
+      />
+    </SettingsScreenLayout>
+  );
+}
+
+export default CurrencySelector;
+
+// ============================================================================
+// Styles
+// ============================================================================
+
+const styles = StyleSheet.create({
+  symbolContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background.tertiary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  symbolText: {
+    color: colors.text.primary,
+    fontFamily: fontFamilyNative.bold,
+    fontSize: fontSize.lg,
+  },
+});

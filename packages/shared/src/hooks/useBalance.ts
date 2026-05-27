@@ -1,0 +1,314 @@
+/**
+ * useBalance Hook
+ *
+ * Provides wallet balance data with automatic refresh and caching.
+ * Supports multiple blockchain types: Solana, Bitcoin, and Ethereum.
+ *
+ * All three chains follow the same pattern: calls account.getBalance() which
+ * returns a rich wallet balance object via DI-injected backend functions, then
+ * transforms to WalletBalance format.
+ *
+ * Internals are powered by @tanstack/react-query — caching, dedupe, and
+ * refetch are handled by the QueryClient mounted at the app root. The public
+ * return shape is preserved for backwards compatibility.
+ *
+ * @example
+ * ```tsx
+ * const { balance, loading, error, refresh, hiddenBalance, toggleHidden } = useBalance({
+ *   account: activeBlockchainAccount,
+ *   networkId: 'solana-mainnet',
+ * });
+ * ```
+ */
+
+import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import type { SolanaAccount } from '../blockchain/solana';
+import type { BitcoinAccount } from '../blockchain/bitcoin';
+import type { EthereumAccount } from '../blockchain/ethereum';
+import type { BlockchainAccount, NetworkId } from '../types/blockchain';
+import { isSolanaAccount, isBitcoinAccount, isEthereumAccount } from '../utils/account';
+import { removeDecimals } from '../utils/decimals';
+import { queryKeys } from '../query/keys';
+
+import {
+  type WalletBalance,
+  type TokenBalanceWithPrice,
+  SOL_CONSTANTS,
+} from '../utils/balance';
+import { getStorageItem, setStorageItem, STORAGE_KEYS } from '../storage';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+export interface UseBalanceParams {
+  account: BlockchainAccount | undefined;
+  networkId?: NetworkId;
+  skip?: boolean;
+  includeSpam?: boolean;
+}
+
+export interface UseBalanceResult {
+  balance: WalletBalance | null;
+  tokens: TokenBalanceWithPrice[];
+  usdTotal: number | undefined;
+  changePercent: number | undefined;
+  changeAmount: number | undefined;
+  loading: boolean;
+  refreshing: boolean;
+  error: string | null;
+  isError: boolean;
+  refresh: () => Promise<void>;
+  hiddenBalance: boolean;
+  toggleHidden: () => void;
+  lastUpdated: number | null;
+}
+
+// ============================================================================
+// Pure fetchers (no React state)
+// ============================================================================
+
+async function fetchSolanaBalance(
+  solanaAccount: SolanaAccount,
+  includeSpam: boolean
+): Promise<WalletBalance> {
+  try {
+    const solanaWalletBalance = await solanaAccount.getBalance({ includeSpam });
+
+    const items: TokenBalanceWithPrice[] = solanaWalletBalance.items.map((item) => ({
+      mint: item.mint || 'solana',
+      owner: solanaAccount.getReceiveAddress(),
+      amount: item.amount,
+      decimals: item.decimals,
+      uiAmount: item.uiAmount || removeDecimals(item.amount, item.decimals),
+      symbol: item.symbol,
+      name: item.name,
+      logo: item.logo || undefined,
+      // Native SOL has no mint; Jupiter/SPL programs identify it by the
+      // wrapped-SOL pubkey. The previous literal 'solana' propagated to
+      // swap requests as outputMint=solana and Jupiter rejected with
+      // "Invalid outputMint" → 404 No route found.
+      address: item.mint || SOL_CONSTANTS.ADDRESS,
+      coingeckoId: item.coingeckoId || (!item.mint ? 'solana' : undefined),
+      tags: item.tags,
+      price: item.price,
+      usdBalance: item.usdBalance,
+      priceChange24h: item.priceChange24h,
+    }));
+
+    let last24HoursChangePercent: number | undefined;
+    if (
+      solanaWalletBalance.usdTotal !== undefined &&
+      solanaWalletBalance.last24HoursChange !== undefined &&
+      solanaWalletBalance.usdTotal > 0
+    ) {
+      const previousTotal =
+        solanaWalletBalance.usdTotal - solanaWalletBalance.last24HoursChange;
+      if (previousTotal > 0) {
+        last24HoursChangePercent =
+          (solanaWalletBalance.last24HoursChange / previousTotal) * 100;
+      }
+    }
+
+    return {
+      items,
+      usdTotal: solanaWalletBalance.usdTotal,
+      last24HoursChange: solanaWalletBalance.last24HoursChange,
+      last24HoursChangePercent,
+    };
+  } catch (error) {
+    console.warn('[useBalance] Failed to fetch Solana balance:', error);
+    return { items: [], usdTotal: 0, last24HoursChange: 0, last24HoursChangePercent: 0 };
+  }
+}
+
+async function fetchBitcoinBalance(bitcoinAccount: BitcoinAccount): Promise<WalletBalance> {
+  try {
+    const bitcoinWalletBalance = await bitcoinAccount.getBalance();
+
+    const items: TokenBalanceWithPrice[] = bitcoinWalletBalance.items.map((item) => ({
+      mint: item.mint || 'bitcoin',
+      owner: bitcoinAccount.getReceiveAddress(),
+      amount: item.amount,
+      decimals: item.decimals,
+      uiAmount: item.uiAmount || removeDecimals(item.amount, item.decimals),
+      symbol: item.symbol,
+      name: item.name,
+      logo: item.logo || undefined,
+      address: item.mint || 'bitcoin',
+      coingeckoId: item.coingeckoId || (!item.mint ? 'bitcoin' : undefined),
+      price: item.price,
+      usdBalance: item.usdBalance,
+      priceChange24h: item.priceChange24h,
+    }));
+
+    let last24HoursChangePercent: number | undefined;
+    if (
+      bitcoinWalletBalance.usdTotal !== undefined &&
+      bitcoinWalletBalance.last24HoursChange !== undefined &&
+      bitcoinWalletBalance.usdTotal > 0
+    ) {
+      const previousTotal =
+        bitcoinWalletBalance.usdTotal - bitcoinWalletBalance.last24HoursChange;
+      if (previousTotal > 0) {
+        last24HoursChangePercent =
+          (bitcoinWalletBalance.last24HoursChange / previousTotal) * 100;
+      }
+    }
+
+    return {
+      items,
+      usdTotal: bitcoinWalletBalance.usdTotal,
+      last24HoursChange: bitcoinWalletBalance.last24HoursChange,
+      last24HoursChangePercent,
+    };
+  } catch (error) {
+    console.warn('[useBalance] Failed to fetch Bitcoin balance:', error);
+    return { items: [], usdTotal: 0, last24HoursChange: 0, last24HoursChangePercent: 0 };
+  }
+}
+
+async function fetchEthereumBalance(ethereumAccount: EthereumAccount): Promise<WalletBalance> {
+  try {
+    const ethereumWalletBalance = await ethereumAccount.getBalance();
+
+    const items: TokenBalanceWithPrice[] = ethereumWalletBalance.items.map((item) => ({
+      mint: item.mint || 'ethereum',
+      owner: ethereumAccount.getReceiveAddress(),
+      amount: item.amount,
+      decimals: item.decimals,
+      uiAmount: item.uiAmount || removeDecimals(item.amount, item.decimals),
+      symbol: item.symbol,
+      name: item.name,
+      logo: item.logo || undefined,
+      address: item.mint || 'ethereum',
+      coingeckoId: item.coingeckoId || (!item.mint ? 'ethereum' : undefined),
+      price: item.price,
+      usdBalance: item.usdBalance,
+      priceChange24h: item.priceChange24h,
+    }));
+
+    let last24HoursChangePercent: number | undefined;
+    if (
+      ethereumWalletBalance.usdTotal !== undefined &&
+      ethereumWalletBalance.last24HoursChange !== undefined &&
+      ethereumWalletBalance.usdTotal > 0
+    ) {
+      const previousTotal =
+        ethereumWalletBalance.usdTotal - ethereumWalletBalance.last24HoursChange;
+      if (previousTotal > 0) {
+        last24HoursChangePercent =
+          (ethereumWalletBalance.last24HoursChange / previousTotal) * 100;
+      }
+    }
+
+    return {
+      items,
+      usdTotal: ethereumWalletBalance.usdTotal,
+      last24HoursChange: ethereumWalletBalance.last24HoursChange,
+      last24HoursChangePercent,
+    };
+  } catch (error) {
+    console.warn('[useBalance] Failed to fetch Ethereum balance:', error);
+    return { items: [], usdTotal: 0, last24HoursChange: 0, last24HoursChangePercent: 0 };
+  }
+}
+
+/**
+ * Top-level fetcher used by the React Query queryFn. Routes to the per-chain
+ * fetcher based on account type.
+ */
+export async function fetchBalanceForAccount(
+  account: BlockchainAccount,
+  _networkId: NetworkId,
+  includeSpam: boolean
+): Promise<WalletBalance> {
+  if (isSolanaAccount(account)) {
+    return fetchSolanaBalance(account, includeSpam);
+  }
+  if (isBitcoinAccount(account)) {
+    return fetchBitcoinBalance(account);
+  }
+  if (isEthereumAccount(account)) {
+    return fetchEthereumBalance(account);
+  }
+  // Fallback: treat as Solana for backwards compatibility
+  return fetchSolanaBalance(account as SolanaAccount, includeSpam);
+}
+
+// ============================================================================
+// Hook
+// ============================================================================
+
+export function useBalance({
+  account,
+  networkId = 'solana-mainnet',
+  skip = false,
+  includeSpam = false,
+}: UseBalanceParams): UseBalanceResult {
+  const accountId = account?.getReceiveAddress() ?? '';
+  const enabled = !skip && !!account && !!networkId && !!accountId;
+
+  const query = useQuery<WalletBalance, Error>({
+    queryKey: queryKeys.balance({ accountId, networkId, includeSpam }),
+    queryFn: () => fetchBalanceForAccount(account!, networkId, includeSpam),
+    enabled,
+    staleTime: 15_000,
+    refetchOnMount: 'always',
+  });
+
+  // Hidden balance is a UI preference — keep separate state with storage as before.
+  const [hiddenBalance, setHiddenBalance] = useState<boolean>(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const hidden = await getStorageItem<boolean>(STORAGE_KEYS.HIDDEN_BALANCE);
+        if (!cancelled && hidden !== null) {
+          setHiddenBalance(hidden);
+        }
+      } catch {
+        // Ignore storage errors for preference
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const toggleHidden = useCallback(async () => {
+    const newValue = !hiddenBalance;
+    setHiddenBalance(newValue);
+    try {
+      await setStorageItem(STORAGE_KEYS.HIDDEN_BALANCE, newValue);
+    } catch {
+      // Ignore storage errors for preference
+    }
+  }, [hiddenBalance]);
+
+  const refresh = useCallback(async () => {
+    await query.refetch();
+  }, [query]);
+
+  const data = query.data;
+  const tokens = data?.items ?? [];
+  const lastUpdated = query.dataUpdatedAt > 0 ? query.dataUpdatedAt : null;
+
+  return {
+    balance: data ?? null,
+    tokens,
+    usdTotal: data?.usdTotal,
+    changePercent: data?.last24HoursChangePercent,
+    changeAmount: data?.last24HoursChange,
+    loading: query.isPending && enabled,
+    refreshing: query.isFetching && !query.isPending,
+    error: query.error?.message ?? null,
+    isError: query.isError,
+    refresh,
+    hiddenBalance,
+    toggleHidden,
+    lastUpdated,
+  };
+}

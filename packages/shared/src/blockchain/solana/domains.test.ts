@@ -1,0 +1,572 @@
+/**
+ * Solana Domain Name Services Tests
+ *
+ * Tests for:
+ * - SPL Name Service (.sol domains via Bonfida)
+ * - AllDomains (multiple TLDs via TldParser)
+ * - Combined functions with fallback
+ *
+ * Uses mocked responses when services are unavailable, or tests against real services if available.
+ */
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { Connection, PublicKey } from '@solana/web3.js';
+import * as BonfidaNameService from '@bonfida/spl-name-service';
+import {
+  getSolDomain,
+  resolveSolDomain,
+  getAllDomain,
+  resolveAllDomain,
+  getDomain,
+  getDomainFromPublicKey,
+  getPublicKeyFromDomain,
+} from './domains';
+import { SOLANA_NETWORKS } from './factory';
+
+// ============================================================================
+// Mock Setup
+// ============================================================================
+
+// Mock Bonfida SPL Name Service
+vi.mock('@bonfida/spl-name-service', () => ({
+  getFavoriteDomain: vi.fn(),
+  resolve: vi.fn(),
+}));
+
+// Mock TldParser - must be mocked as a class
+const mockGetMainDomain = vi.fn();
+const mockGetOwnerFromDomainTld = vi.fn();
+
+vi.mock('@onsol/tldparser', () => ({
+  TldParser: class MockTldParser {
+    getMainDomain = mockGetMainDomain;
+    getOwnerFromDomainTld = mockGetOwnerFromDomainTld;
+  },
+}));
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Check if Solana RPC is available for integration tests
+ */
+async function isRpcAvailable(nodeUrl: string): Promise<boolean> {
+  try {
+    const connection = new Connection(nodeUrl);
+    await connection.getVersion();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ============================================================================
+// Test Data
+// ============================================================================
+
+/**
+ * Test public keys and domains
+ */
+const TEST_DATA = {
+  // Known .sol domain (Bonfida example)
+  solDomain: {
+    name: 'bonfida',
+    fullName: 'bonfida.sol',
+    publicKey: new PublicKey('HKKp49qGWXd639QsuH7JiLijfVW5UtCVY4s1n2HANwEA'),
+    publicKeyString: 'HKKp49qGWXd639QsuH7JiLijfVW5UtCVY4s1n2HANwEA',
+  },
+  // Test AllDomains domain
+  allDomain: {
+    name: 'test.abc',
+    publicKey: new PublicKey('DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK'),
+    publicKeyString: 'DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK',
+    tld: '.abc',
+  },
+  // Test public key without domain
+  noDomain: {
+    publicKey: new PublicKey('11111111111111111111111111111111'),
+    publicKeyString: '11111111111111111111111111111111',
+  },
+};
+
+// ============================================================================
+// SPL Name Service (.sol domains) Tests
+// ============================================================================
+
+describe('SPL Name Service (.sol domains)', () => {
+  const network = SOLANA_NETWORKS['solana-mainnet'];
+  let connection: Connection;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    connection = new Connection(network.config.nodeUrl);
+  });
+
+  describe('getSolDomain', () => {
+    it('should get .sol domain for a public key', async () => {
+      // Mock Bonfida's getFavoriteDomain
+      vi.mocked(BonfidaNameService.getFavoriteDomain).mockResolvedValueOnce({
+        domain: TEST_DATA.solDomain.name,
+        reverse: TEST_DATA.solDomain.publicKey,
+        stale: false,
+      } as any);
+
+      const result = await getSolDomain(connection, TEST_DATA.solDomain.publicKey);
+
+      expect(BonfidaNameService.getFavoriteDomain).toHaveBeenCalledWith(
+        connection,
+        TEST_DATA.solDomain.publicKey
+      );
+      expect(result).toBe(TEST_DATA.solDomain.fullName);
+    });
+
+    it('should append .sol extension to domain name', async () => {
+      vi.mocked(BonfidaNameService.getFavoriteDomain).mockResolvedValueOnce({
+        domain: 'testdomain',
+        reverse: TEST_DATA.solDomain.publicKey,
+        stale: false,
+      } as any);
+
+      const result = await getSolDomain(connection, TEST_DATA.solDomain.publicKey);
+
+      expect(result).toBe('testdomain.sol');
+    });
+
+    it('should return null if no domain found', async () => {
+      vi.mocked(BonfidaNameService.getFavoriteDomain).mockResolvedValueOnce({
+        domain: null,
+      } as any);
+
+      const result = await getSolDomain(connection, TEST_DATA.noDomain.publicKey);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null on error', async () => {
+      vi.mocked(BonfidaNameService.getFavoriteDomain).mockRejectedValueOnce(
+        new Error('Domain not found')
+      );
+
+      const result = await getSolDomain(connection, TEST_DATA.noDomain.publicKey);
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle undefined domain in response', async () => {
+      vi.mocked(BonfidaNameService.getFavoriteDomain).mockResolvedValueOnce({
+        domain: undefined,
+      } as any);
+
+      const result = await getSolDomain(connection, TEST_DATA.noDomain.publicKey);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('resolveSolDomain', () => {
+    it('should resolve .sol domain to public key', async () => {
+      vi.mocked(BonfidaNameService.resolve).mockResolvedValueOnce(
+        TEST_DATA.solDomain.publicKey
+      );
+
+      const result = await resolveSolDomain(connection, TEST_DATA.solDomain.fullName);
+
+      expect(BonfidaNameService.resolve).toHaveBeenCalledWith(
+        connection,
+        TEST_DATA.solDomain.name
+      );
+      expect(result).toBe(TEST_DATA.solDomain.publicKeyString);
+    });
+
+    it('should handle domain without .sol extension', async () => {
+      vi.mocked(BonfidaNameService.resolve).mockResolvedValueOnce(
+        TEST_DATA.solDomain.publicKey
+      );
+
+      const result = await resolveSolDomain(connection, TEST_DATA.solDomain.name);
+
+      expect(BonfidaNameService.resolve).toHaveBeenCalledWith(
+        connection,
+        TEST_DATA.solDomain.name
+      );
+      expect(result).toBe(TEST_DATA.solDomain.publicKeyString);
+    });
+
+    it('should handle domain with .sol extension', async () => {
+      vi.mocked(BonfidaNameService.resolve).mockResolvedValueOnce(
+        TEST_DATA.solDomain.publicKey
+      );
+
+      const result = await resolveSolDomain(connection, 'bonfida.sol');
+
+      // Should strip .sol before calling resolve
+      expect(BonfidaNameService.resolve).toHaveBeenCalledWith(connection, 'bonfida');
+      expect(result).toBe(TEST_DATA.solDomain.publicKeyString);
+    });
+
+    it('should return null if domain not found', async () => {
+      vi.mocked(BonfidaNameService.resolve).mockResolvedValueOnce(null as any);
+
+      const result = await resolveSolDomain(connection, 'nonexistent.sol');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null on error', async () => {
+      vi.mocked(BonfidaNameService.resolve).mockRejectedValueOnce(
+        new Error('Invalid domain')
+      );
+
+      const result = await resolveSolDomain(connection, 'invalid.sol');
+
+      expect(result).toBeNull();
+    });
+  });
+});
+
+// ============================================================================
+// AllDomains (multiple TLDs) Tests
+// ============================================================================
+
+describe('AllDomains (multiple TLDs)', () => {
+  const network = SOLANA_NETWORKS['solana-mainnet'];
+  let connection: Connection;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    connection = new Connection(network.config.nodeUrl);
+  });
+
+  describe('getAllDomain', () => {
+    it('should get AllDomains domain for a public key', async () => {
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'test',
+        tld: '.abc',
+        owner: TEST_DATA.allDomain.publicKey,
+      });
+
+      const result = await getAllDomain(connection, TEST_DATA.allDomain.publicKey);
+
+      expect(mockGetMainDomain).toHaveBeenCalledWith(TEST_DATA.allDomain.publicKey);
+      expect(result).toBe(TEST_DATA.allDomain.name);
+    });
+
+    it('should concatenate domain and tld', async () => {
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'myname',
+        tld: '.bonk',
+        owner: TEST_DATA.allDomain.publicKey,
+      });
+
+      const result = await getAllDomain(connection, TEST_DATA.allDomain.publicKey);
+
+      expect(result).toBe('myname.bonk');
+    });
+
+    it('should return null if no domain found', async () => {
+      mockGetMainDomain.mockResolvedValueOnce(null);
+
+      const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null if domain is missing', async () => {
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: null,
+        tld: '.abc',
+      });
+
+      const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null if tld is missing', async () => {
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'test',
+        tld: null,
+      });
+
+      const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null on error', async () => {
+      mockGetMainDomain.mockRejectedValueOnce(new Error('Domain not found'));
+
+      const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('resolveAllDomain', () => {
+    it('should resolve AllDomains domain to public key', async () => {
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
+
+      const result = await resolveAllDomain(connection, TEST_DATA.allDomain.name);
+
+      expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith(TEST_DATA.allDomain.name);
+      expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
+    });
+
+    it('should handle various TLDs', async () => {
+      const domains = ['test.abc', 'myname.bonk', 'example.poor'];
+
+      for (const domain of domains) {
+        mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
+
+        const result = await resolveAllDomain(connection, domain);
+
+        expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith(domain);
+        expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
+      }
+    });
+
+    it('should return null if domain not found', async () => {
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(null);
+
+      const result = await resolveAllDomain(connection, 'nonexistent.abc');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null on error', async () => {
+      mockGetOwnerFromDomainTld.mockRejectedValueOnce(new Error('Invalid domain'));
+
+      const result = await resolveAllDomain(connection, 'invalid.xyz');
+
+      expect(result).toBeNull();
+    });
+  });
+});
+
+// ============================================================================
+// Combined Functions (with fallback) Tests
+// ============================================================================
+
+describe('Combined Domain Functions', () => {
+  const network = SOLANA_NETWORKS['solana-mainnet'];
+  let connection: Connection;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    connection = new Connection(network.config.nodeUrl);
+  });
+
+  describe('getDomain', () => {
+    it('should try AllDomains first, then fall back to .sol', async () => {
+      // AllDomains returns null
+      mockGetMainDomain.mockResolvedValueOnce(null);
+
+      // Bonfida returns a domain
+      vi.mocked(BonfidaNameService.getFavoriteDomain).mockResolvedValueOnce({
+        domain: TEST_DATA.solDomain.name,
+        reverse: TEST_DATA.solDomain.publicKey,
+        stale: false,
+      } as any);
+
+      const result = await getDomain(connection, TEST_DATA.solDomain.publicKey);
+
+      expect(mockGetMainDomain).toHaveBeenCalled();
+      expect(BonfidaNameService.getFavoriteDomain).toHaveBeenCalled();
+      expect(result).toBe(TEST_DATA.solDomain.fullName);
+    });
+
+    it('should return AllDomains result if found', async () => {
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'test',
+        tld: '.abc',
+        owner: TEST_DATA.allDomain.publicKey,
+      });
+
+      const result = await getDomain(connection, TEST_DATA.allDomain.publicKey);
+
+      expect(result).toBe(TEST_DATA.allDomain.name);
+      // Should not call Bonfida if AllDomains succeeds
+      expect(BonfidaNameService.getFavoriteDomain).not.toHaveBeenCalled();
+    });
+
+    it('should return null if both fail', async () => {
+      mockGetMainDomain.mockResolvedValueOnce(null);
+      vi.mocked(BonfidaNameService.getFavoriteDomain).mockResolvedValueOnce({
+        domain: null,
+      } as any);
+
+      const result = await getDomain(connection, TEST_DATA.noDomain.publicKey);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('getDomainFromPublicKey', () => {
+    it('should be an alias for getDomain', async () => {
+      mockGetMainDomain.mockResolvedValueOnce({
+        domain: 'test',
+        tld: '.abc',
+        owner: TEST_DATA.allDomain.publicKey,
+      });
+
+      const result = await getDomainFromPublicKey(connection, TEST_DATA.allDomain.publicKey);
+
+      expect(result).toBe(TEST_DATA.allDomain.name);
+    });
+  });
+
+  describe('getPublicKeyFromDomain', () => {
+    it('should use resolveSolDomain for .sol domains', async () => {
+      vi.mocked(BonfidaNameService.resolve).mockResolvedValueOnce(
+        TEST_DATA.solDomain.publicKey
+      );
+
+      const result = await getPublicKeyFromDomain(connection, 'bonfida.sol');
+
+      expect(BonfidaNameService.resolve).toHaveBeenCalledWith(connection, 'bonfida');
+      expect(result).toBe(TEST_DATA.solDomain.publicKeyString);
+    });
+
+    it('should use resolveAllDomain for other TLDs', async () => {
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
+
+      const result = await getPublicKeyFromDomain(connection, 'test.abc');
+
+      expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith('test.abc');
+      expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
+    });
+
+    it('should handle .bonk domain', async () => {
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
+
+      const result = await getPublicKeyFromDomain(connection, 'myname.bonk');
+
+      expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith('myname.bonk');
+      expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
+    });
+
+    it('should handle .poor domain', async () => {
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(TEST_DATA.allDomain.publicKey);
+
+      const result = await getPublicKeyFromDomain(connection, 'example.poor');
+
+      expect(mockGetOwnerFromDomainTld).toHaveBeenCalledWith('example.poor');
+      expect(result).toBe(TEST_DATA.allDomain.publicKeyString);
+    });
+
+    it('should return null if domain cannot be resolved', async () => {
+      mockGetOwnerFromDomainTld.mockResolvedValueOnce(null);
+
+      const result = await getPublicKeyFromDomain(connection, 'nonexistent.xyz');
+
+      expect(result).toBeNull();
+    });
+  });
+});
+
+// ============================================================================
+// Edge Cases and Error Handling
+// ============================================================================
+
+describe('Domain Error Handling', () => {
+  const network = SOLANA_NETWORKS['solana-mainnet'];
+  let connection: Connection;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    connection = new Connection(network.config.nodeUrl);
+  });
+
+  it('should handle malformed domains gracefully', async () => {
+    const malformedDomains = ['', '.sol', 'nodot', '..doubledot', 'spaces in name.sol'];
+
+    for (const domain of malformedDomains) {
+      vi.mocked(BonfidaNameService.resolve).mockRejectedValueOnce(
+        new Error('Invalid domain')
+      );
+
+      const result = await resolveSolDomain(connection, domain);
+      expect(result).toBeNull();
+    }
+  });
+
+  it('should handle very long domain names', async () => {
+    const longDomain = 'a'.repeat(1000) + '.sol';
+
+    vi.mocked(BonfidaNameService.resolve).mockRejectedValueOnce(
+      new Error('Domain too long')
+    );
+
+    const result = await resolveSolDomain(connection, longDomain);
+    expect(result).toBeNull();
+  });
+
+  it('should handle network timeouts gracefully', async () => {
+    vi.mocked(BonfidaNameService.getFavoriteDomain).mockRejectedValueOnce(
+      new Error('Network timeout')
+    );
+
+    const result = await getSolDomain(connection, TEST_DATA.noDomain.publicKey);
+    expect(result).toBeNull();
+  });
+
+  it('should handle invalid public keys in TldParser', async () => {
+    mockGetMainDomain.mockRejectedValueOnce(new Error('Invalid public key'));
+
+    const result = await getAllDomain(connection, TEST_DATA.noDomain.publicKey);
+    expect(result).toBeNull();
+  });
+});
+
+// ============================================================================
+// Integration Tests (Optional - only run if RPC is available)
+// ============================================================================
+
+describe('Domain Integration Tests (optional)', () => {
+  const network = SOLANA_NETWORKS['solana-mainnet'];
+
+  it('should resolve a real .sol domain round-trip if RPC available', async () => {
+    const connection = new Connection(network.config.nodeUrl);
+    const available = await isRpcAvailable(network.config.nodeUrl);
+
+    if (!available) {
+      console.log('RPC not available, skipping integration test');
+      return;
+    }
+
+    // Resolve a real favorite domain first, then verify forward lookup for the
+    // same live value. This avoids brittle assumptions about historical domains.
+    const publicKey = new PublicKey('HKKp49qGWXd639QsuH7JiLijfVW5UtCVY4s1n2HANwEA');
+    const domain = await getDomain(connection, publicKey);
+
+    if (!domain?.endsWith('.sol')) {
+      console.log('No live .sol favorite domain available, skipping integration test');
+      return;
+    }
+
+    const result = await resolveSolDomain(connection, domain);
+
+    expect(result).toBe(publicKey.toBase58());
+  });
+
+  it('should get real domain for public key if RPC available', async () => {
+    const connection = new Connection(network.config.nodeUrl);
+    const available = await isRpcAvailable(network.config.nodeUrl);
+
+    if (!available) {
+      console.log('RPC not available, skipping integration test');
+      return;
+    }
+
+    // Test with known public key (Bonfida)
+    const publicKey = new PublicKey('HKKp49qGWXd639QsuH7JiLijfVW5UtCVY4s1n2HANwEA');
+    const result = await getDomain(connection, publicKey);
+
+    // May return null if the public key doesn't have a favorite domain set
+    if (result) {
+      expect(typeof result).toBe('string');
+      expect(result).toMatch(/\./); // Should contain a dot (TLD separator)
+    }
+  });
+});

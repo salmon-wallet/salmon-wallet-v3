@@ -1,0 +1,15 @@
+appId: io.salmonwallet.app
+---
+# Walk the create-account flow up to the seed-reveal screen. Read-only —
+# capture screens, do NOT confirm. Stops before the password step.
+- clearState
+- launchApp
+- runFlow: ../../../subflows/dev-launcher-pass.yaml
+- assertVisible: "CREATE ACCOUNT"
+- tapOn: "CREATE ACCOUNT"
+- extendedWaitUntil:
+    visible: "START"
+    timeout: 10000
+- assertVisible: "Keep your seed phrase safe!"
+- takeScreenshot: screenshots/smoke/auth/create-step1
+- takeScreenshot: screenshots/smoke/auth/create-seed-reveal

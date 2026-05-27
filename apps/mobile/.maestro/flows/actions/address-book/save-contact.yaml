@@ -1,0 +1,17 @@
+appId: io.salmonwallet.app
+---
+# Save Wallet B Solana address as contact "Wallet B".
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- runFlow: ../../../subflows/open-address-add.yaml
+- tapOn:
+    id: "address-add-label-input"
+- inputText: "Wallet B"
+- tapOn:
+    id: "input-address-input"
+- inputText: ${SALMON_TEST_WALLET_B_ADDR}
+- tapOn:
+    id: "address-add-save-btn"
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: "Wallet B"
+- takeScreenshot: screenshots/actions/address-book/address-book-saved-confirm

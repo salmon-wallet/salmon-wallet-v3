@@ -1,0 +1,4 @@
+interface:
+  display_name: "API Service Authoring"
+  short_description: "Create shared API services"
+  default_prompt: "Use $api-service-authoring to create or audit a shared API service in packages/shared/src/api/services."

@@ -1,0 +1,9 @@
+appId: io.salmonwallet.app
+---
+# Verify Home shell renders the action chips after recovery.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- assertVisible: "Switch wallet account"
+- assertVisible: "Send tokens"
+- assertVisible: "Receive tokens"
+- assertVisible: "View activity"
+- takeScreenshot: screenshots/smoke/home/balance-default

@@ -1,0 +1,1 @@
+export { TrustedAppsSelector } from './TrustedAppsSelector';

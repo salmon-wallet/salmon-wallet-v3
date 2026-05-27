@@ -1,0 +1,126 @@
+import React from 'react';
+import { View } from 'react-native';
+import { render, screen } from '@testing-library/react-native';
+
+const mockBlurContainer = jest.fn(({ children }: { children?: React.ReactNode }) => (
+  <View testID="blur-container">{children}</View>
+));
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (_key: string, fallback?: string) => fallback ?? _key,
+  }),
+}));
+
+jest.mock('expo-image', () => ({
+  Image: () => null,
+}));
+
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: () => null,
+  MaterialIcons: () => null,
+}));
+
+jest.mock('expo-linear-gradient', () => ({
+  LinearGradient: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+}));
+
+jest.mock('@salmon/shared', () => ({
+  colors: {
+    text: { primary: '#fff', secondary: '#aaa', balance: '#fff' },
+    accent: { primary: '#0f0', border: '#0c0' },
+    border: { default: '#333' },
+    background: { tokenItem: '#111', interactive: '#222' },
+    interactive: { surface: '#111' },
+    status: { error: '#f00' },
+  },
+  fontSize: { sm: 14, md: 18, base: 16, '2xl': 24 },
+  borderRadius: { badge: 12, iconContainer: 18, button: 16 },
+  fontFamilyNative: { bold: 'System', medium: 'System', regular: 'System' },
+  gradients: { primaryButton: { colors: ['#0f0'], start: { x: 0, y: 0 }, end: { x: 1, y: 1 } } },
+  shadows: { imageHero: {} },
+  componentSizes: { nftImageMaxWidth: 200, sheetFadeGradientHeight: 40 },
+  ms: (value: number) => value,
+  vs: (value: number) => value,
+  s: (value: number) => value,
+  isSolanaNft: () => true,
+  isBitcoinNft: () => false,
+  getSatRarityColor: () => '#fff',
+  getShortAddress: () => 'Mint...111',
+  borderWidth: { thin: 1, actionButton: 1 },
+  letterSpacing: { wide: 0 },
+  lineHeight: { normal: 1.4 },
+  spacing: { xs: 4, sm: 8, md: 12, lg: 16, base: 8, headerPadding: 16 },
+  fontWeight: { medium: '500' },
+  formatRawAmount: () => '0',
+  useNftTransfer: () => ({ sendNft: jest.fn(), reset: jest.fn() }),
+  getTransactionUrl: () => null,
+  getDefaultExplorer: () => 'solscan',
+}));
+
+jest.mock('../../../hooks/useBottomSheetChrome', () => ({
+  useBottomSheetChrome: () => ({
+    bottomInset: 0,
+    spaciousContentBottomPadding: 0,
+  }),
+}));
+
+jest.mock('../BlurContainer', () => ({
+  BlurContainer: (props: { children?: React.ReactNode }) => mockBlurContainer(props),
+}));
+
+jest.mock('../BottomSheetContainer', () => ({
+  BottomSheetContainer: ({ children, headerContent }: { children?: React.ReactNode; headerContent?: React.ReactNode }) => (
+    <>
+      {headerContent}
+      {children}
+    </>
+  ),
+}));
+
+jest.mock('../BottomSheetTitleHeader', () => ({
+  BottomSheetTitleHeader: () => null,
+}));
+
+jest.mock('../InputAddress', () => ({
+  InputAddress: () => null,
+}));
+
+jest.mock('../TransactionSuccessScreen', () => ({
+  TransactionSuccessScreen: () => null,
+}));
+
+jest.mock('../Icon/SvgIcons', () => ({
+  CallMadeSvgIcon: () => null,
+  ContentCopySvgIcon: () => null,
+}));
+
+import { NftDetailSheet } from './NftDetailSheet';
+
+describe('NftDetailSheet', () => {
+  beforeEach(() => {
+    mockBlurContainer.mockClear();
+  });
+
+  it('uses BlurContainer for the glass sections in the detail step', () => {
+    render(
+      <NftDetailSheet
+        visible
+        onClose={jest.fn()}
+        nft={{
+          mint: 'Mint111',
+          name: 'Blur NFT',
+          image: 'https://example.com/nft.png',
+          blockchain: 'solana',
+          description: 'A collectible',
+          attributes: [{ trait_type: 'Mood', value: 'Blurred' }],
+        } as any}
+      />
+    );
+
+    expect(screen.getByText('Description')).toBeTruthy();
+    expect(screen.getByText('Attributes')).toBeTruthy();
+    expect(screen.getByText('Details')).toBeTruthy();
+    expect(screen.getAllByTestId('blur-container').length).toBeGreaterThanOrEqual(4);
+  });
+});

@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "Salmon Wallet",
+    "slug": "salmon-wallet",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/ios-icon.png",
+    "scheme": "salmonwallet",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#10131c",
+    "androidStatusBar": {
+      "barStyle": "light-content"
+    },
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#10131c"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "io.salmonwallet.app",
+      "backgroundColor": "#10131c",
+      "icon": {
+        "light": "./assets/images/ios-icon.png",
+        "dark": "./assets/images/ios-icon.png",
+        "tinted": "./assets/images/ios-icon.png"
+      }
+    },
+    "android": {
+      "package": "io.salmonwallet.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#10131c"
+      },
+      "backgroundColor": "#10131c",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-dev-client",
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-localization",
+      "expo-web-browser",
+      "expo-image"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4f3b188a-9144-4b0c-ae3d-9df7badd881d"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4f3b188a-9144-4b0c-ae3d-9df7badd881d"
+    }
+  }
+}

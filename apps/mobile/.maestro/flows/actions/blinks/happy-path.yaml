@@ -1,0 +1,50 @@
+appId: io.salmonwallet.app
+env:
+  BLINKS_FIXTURE_URL: ${BLINKS_FIXTURE_URL}
+---
+# Requires a fixture server returning a known-good Action GET/POST. See README for setup.
+# Walks the full happy path: registry → detail → approval → success.
+- runFlow: ../../../subflows/onboard-walletA.yaml
+- tapOn: "Blinks"
+- assertVisible:
+    id: "blinks-tab-list"
+- takeScreenshot: screenshots/actions/blinks/01-tab
+# Tap first registry row. Index-based point keeps the flow generic across
+# registry snapshots; swap to id `blinks-tab-row-<host>` when pinning a host.
+- tapOn:
+    point: "50%,22%"
+- extendedWaitUntil:
+    visible:
+      id: "blink-detail-continue"
+    timeout: 15000
+- takeScreenshot: screenshots/actions/blinks/02-detail
+# Fill any visible param input with a placeholder. Skipped if the action has
+# no parameters (the form is absent in that case).
+- runFlow:
+    when:
+      visible: "Enter"
+    commands:
+      - tapOn:
+          text: "Enter.*"
+      - inputText: "0.001"
+      - hideKeyboard
+- tapOn:
+    id: "blink-detail-continue"
+- extendedWaitUntil:
+    visible:
+      id: "action-approval-approve"
+    timeout: 20000
+- takeScreenshot: screenshots/actions/blinks/03-approval
+- assertVisible:
+    id: "sol-delta"
+- tapOn:
+    id: "action-approval-approve"
+- extendedWaitUntil:
+    visible:
+      id: "blink-success-title"
+    timeout: 60000
+- assertVisible:
+    id: "blink-success-signature"
+- takeScreenshot: screenshots/actions/blinks/04-success
+- tapOn:
+    id: "blink-success-done"

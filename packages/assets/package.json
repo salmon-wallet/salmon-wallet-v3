@@ -1,0 +1,45 @@
+{
+  "name": "@salmon/assets",
+  "version": "0.0.1",
+  "description": "Shared assets for Salmon Wallet",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./fonts": {
+      "import": "./src/fonts/index.ts",
+      "require": "./src/fonts/index.ts",
+      "types": "./src/fonts/index.ts"
+    },
+    "./fonts/*": "./src/fonts/*",
+    "./images": {
+      "import": "./src/images/index.ts",
+      "require": "./src/images/index.ts",
+      "types": "./src/images/index.ts"
+    },
+    "./images/*": "./src/images/*",
+    "./*": "./src/*"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "echo 'Skipping typecheck for assets package (binary files only)'"
+  },
+  "keywords": [
+    "salmon",
+    "wallet",
+    "assets",
+    "fonts",
+    "images"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.3"
+  }
+}

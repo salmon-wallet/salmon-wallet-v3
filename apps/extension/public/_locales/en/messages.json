@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Salmon Wallet",
+    "description": "The name of the extension"
+  },
+  "extDescription": {
+    "message": "Your all-in-one & open-source wallet for the crypto space.",
+    "description": "The description of the extension"
+  }
+}

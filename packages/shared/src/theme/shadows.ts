@@ -1,0 +1,112 @@
+/**
+ * Shadow definitions for Salmon Wallet
+ * Provides both React Native and CSS shadow formats
+ */
+
+/**
+ * React Native shadow properties
+ */
+export const shadows = {
+  /** Strong downward shadow for header */
+  header: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    elevation: 12,
+  },
+  /** Balance card shadow */
+  card: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 16,
+  },
+  /** Logo icon shadow */
+  logo: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  /** Balance text shadow */
+  balanceText: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 18,
+    elevation: 8,
+  },
+  /** Floating button / CTA glow — matches shadowsCSS.button */
+  button: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.64,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  /** Subtle shadow for inputs and small elevated elements */
+  sm: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  /** Medium shadow for NFT cards and image thumbnails */
+  nftCard: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 9,
+    elevation: 6,
+  },
+  /** Hero image heavy drop shadow — matches shadowsCSS.header */
+  imageHero: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.9,
+    shadowRadius: 20,
+    elevation: 16,
+  },
+  /** TopSheet subtle depth shadow */
+  topSheet: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  /** Bottom sheet upward shadow */
+  sheet: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
+    elevation: 20,
+  },
+} as const;
+
+/**
+ * CSS box-shadow values for web
+ */
+export const shadowsCSS = {
+  none: 'none',
+  /** Subtle shadow for cards */
+  sm: '0 1px 2px 0 rgba(0, 0, 0, 0.18)',
+  /** Default shadow */
+  md: '0 2px 4px -1px rgba(0, 0, 0, 0.23), 0 4px 5px 0 rgba(0, 0, 0, 0.14)',
+  /** Elevated shadow for modals, dropdowns */
+  lg: '0 4px 8px -2px rgba(0, 0, 0, 0.3), 0 8px 16px -4px rgba(0, 0, 0, 0.2)',
+  /** Header/card elements (Figma: 0px 10px 20px rgba(0,0,0,0.9)) */
+  header: '0 10px 20px rgba(0, 0, 0, 0.9)',
+  /** Balance card shadow */
+  card: '0 12px 16px rgba(0, 0, 0, 0.8)',
+  /** Button / floating CTA shadow */
+  button: '0 0 12px rgba(0, 0, 0, 0.64)',
+} as const;
+
+export type Shadows = typeof shadows;
+export type ShadowsCSS = typeof shadowsCSS;
