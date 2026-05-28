@@ -18,11 +18,12 @@ import {
   CallMadeSvgIcon,
   QrCodeScannerSvgIcon,
   ReceiptLongSvgIcon,
+  SolanaSvgIcon,
 } from '../Icon/SvgIcons';
 import type { ActionButtonRowProps } from './types';
 
 const ACTION_BUTTON_ICON_SIZE = fontSize.lg;
-const ACTION_BUTTON_TEXT_SIZE = fontSize.md;
+const ACTION_BUTTON_TEXT_SIZE = fontSize.sm;
 
 /**
  * ActionButtonRow component for primary wallet actions
@@ -49,9 +50,11 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
   onSendPress,
   onReceivePress,
   onActivityPress,
+  onStakePress,
   sendDisabled = false,
   receiveDisabled = false,
   activityDisabled = false,
+  stakeDisabled = false,
   style,
 }) => {
   const { t } = useTranslation();
@@ -74,6 +77,12 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
     }
   }, [onActivityPress, activityDisabled]);
 
+  const handleStakePress = useCallback(() => {
+    if (!stakeDisabled) {
+      onStakePress?.();
+    }
+  }, [onStakePress, stakeDisabled]);
+
   return (
     <View style={[styles.container, style]}>
       {/* Send Button - Primary */}
@@ -92,7 +101,9 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           style={styles.primaryButton}
         >
           <CallMadeSvgIcon size={ms(ACTION_BUTTON_ICON_SIZE)} color={colors.text.balance} />
-          <Text style={styles.primaryButtonText}>{t('actions.send', 'Send')}</Text>
+          <Text style={styles.primaryButtonText} numberOfLines={1} adjustsFontSizeToFit>
+            {t('actions.send', 'Send')}
+          </Text>
         </LinearGradient>
       </TouchableOpacity>
 
@@ -115,8 +126,42 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
               size={ms(ACTION_BUTTON_ICON_SIZE)}
               color={receiveDisabled ? colors.button.disabledText : colors.text.balance}
             />
-            <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
+            <Text
+              style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
               {t('actions.receive', 'Receive')}
+            </Text>
+          </TouchableOpacity>
+        </BlurContainer>
+      </View>
+
+      {/* Stake Button - Secondary with BlurContainer */}
+      <View style={[styles.buttonWrapper, stakeDisabled && styles.buttonDisabled]}>
+        <BlurContainer
+          style={styles.secondaryButton}
+          borderColor={colors.accent.primary}
+          borderWidth={borderWidth.actionButton}
+        >
+          <TouchableOpacity
+            style={styles.secondaryButtonContent}
+            onPress={handleStakePress}
+            activeOpacity={0.8}
+            disabled={stakeDisabled}
+            accessibilityRole="button"
+            accessibilityLabel="Stake SOL"
+          >
+            <SolanaSvgIcon
+              size={ms(ACTION_BUTTON_ICON_SIZE)}
+              color={stakeDisabled ? colors.button.disabledText : colors.text.balance}
+            />
+            <Text
+              style={[styles.secondaryButtonText, stakeDisabled && styles.textDisabled]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {t('actions.stake', 'Stake')}
             </Text>
           </TouchableOpacity>
         </BlurContainer>
@@ -141,7 +186,11 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
               size={ms(ACTION_BUTTON_ICON_SIZE)}
               color={activityDisabled ? colors.button.disabledText : colors.text.balance}
             />
-            <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
+            <Text
+              style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
               {t('actions.activity', 'Activity')}
             </Text>
           </TouchableOpacity>
@@ -162,12 +211,15 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: s(spacing['4xl']), // 40px
+    justifyContent: 'center',
+    gap: s(spacing.sm),
+    paddingHorizontal: s(spacing.lg),
   },
   buttonWrapper: {
-    width: s(componentSizes.actionButtonWidth), // 112px
-    height: ms(componentSizes.actionButtonHeight), // 47px
+    flex: 1,
+    minWidth: 0,
+    maxWidth: s(componentSizes.actionButtonWidth),
+    height: ms(componentSizes.actionButtonHeight + 8),
     borderRadius: ms(componentSizes.actionButtonRadius), // 14px
     overflow: 'hidden',
   },
@@ -176,10 +228,10 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: s(spacing.sm), // 8px
+    gap: s(spacing.xs),
     borderRadius: ms(componentSizes.actionButtonRadius), // 14px
     borderWidth: borderWidth.actionButton, // 0.5px
     borderColor: colors.accent.border,
@@ -189,6 +241,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.regular,
     color: colors.text.balance,
     lineHeight: ms(ACTION_BUTTON_TEXT_SIZE * 1.35),
+    maxWidth: '90%',
   },
   secondaryButton: {
     flex: 1,
@@ -196,16 +249,17 @@ const styles = StyleSheet.create({
   },
   secondaryButtonContent: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: s(spacing.sm), // 8px
+    gap: s(spacing.xs),
   },
   secondaryButtonText: {
     fontSize: ms(ACTION_BUTTON_TEXT_SIZE),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.balance,
     lineHeight: ms(ACTION_BUTTON_TEXT_SIZE * 1.35),
+    maxWidth: '90%',
   },
   textDisabled: {
     color: colors.button.disabledText,

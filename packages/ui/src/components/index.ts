@@ -156,6 +156,10 @@ export type {
 export { ReceiveSheet } from './ReceiveSheet';
 export type { ReceiveSheetProps } from './ReceiveSheet';
 
+// StakeSheet - SOL stake delegation dialog
+export { StakeSheet } from './StakeSheet';
+export type { StakeSheetProps } from './StakeSheet';
+
 // TransactionDetailModal - Transaction detail dialog
 export { TransactionDetailModal } from './TransactionDetailModal';
 export type { TransactionDetailModalProps } from './TransactionDetailModal';

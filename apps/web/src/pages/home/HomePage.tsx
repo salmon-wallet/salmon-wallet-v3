@@ -8,10 +8,13 @@ import {
   useAccountsContext,
   useAvailableNetworks,
   useBalance,
+  useInvalidateAfterTx,
   useUserConfig,
   useCurrencyContext,
   useLanguage,
   useAddressbook,
+  createStakeDelegation,
+  getStakeValidators,
   colors,
   spacing,
   fontSize,
@@ -30,6 +33,8 @@ import {
   type NetworkId,
   type PriceChartPeriod,
   type PriceDataPoint,
+  type SolanaAccount,
+  type SolanaNetworkId,
   type MarketData,
   type Token,
   type NftData,
@@ -56,6 +61,7 @@ import {
   TokenAbout,
   ScalesBackground,
   ReceiveSheet,
+  StakeSheet,
   SettingsPanelStack,
   WalletSwitcherSheet,
   ConfirmDialog,
@@ -252,6 +258,7 @@ export function HomePage(): React.ReactElement {
   const location = useLocation();
   const [state, actions] = useAccountsContext();
   const [{ currency }, { changeCurrency }] = useCurrencyContext();
+  const invalidateAfterTx = useInvalidateAfterTx();
   const {
     ready,
     activeAccount,
@@ -321,6 +328,7 @@ export function HomePage(): React.ReactElement {
   const [settingsInitialPanels, setSettingsInitialPanels] = useState<SettingsPanelEntry[] | undefined>(undefined);
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
+  const [stakeSheetVisible, setStakeSheetVisible] = useState(false);
   const [removeWalletDialogVisible, setRemoveWalletDialogVisible] = useState(false);
   const [removeAllWalletsDialogVisible, setRemoveAllWalletsDialogVisible] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
@@ -429,6 +437,12 @@ export function HomePage(): React.ReactElement {
     return active?.network.blockchain || 'solana';
   }, [activeBlockchainIndex, blockchainBalances]);
 
+  const solanaNetworkId = useMemo((): SolanaNetworkId | null => {
+    return networkId === 'solana-mainnet' || networkId === 'solana-devnet'
+      ? networkId
+      : null;
+  }, [networkId]);
+
   // BE handles spam/unknown filtering via the `includeSpam` query passed
   // to useBalance above. The FE just maps to the TokenList shape.
   const formattedTokens = useMemo(() => {
@@ -513,6 +527,21 @@ export function HomePage(): React.ReactElement {
 
   const handleSendPress = useCallback(() => navigate('/send'), [navigate]);
   const handleReceivePress = useCallback(() => setReceiveSheetVisible(true), []);
+  const handleStakePress = useCallback(() => {
+    if (solanaNetworkId) {
+      setStakeSheetVisible(true);
+    }
+  }, [solanaNetworkId]);
+  const handleStakeSuccess = useCallback(() => {
+    refresh();
+    invalidateAfterTx({
+      accountId: accountAddress,
+      networkId: solanaNetworkId ?? undefined,
+      kinds: ['balance', 'transactions'],
+    }).catch((err) => {
+      console.warn('[HomePage] invalidateAfterTx failed:', err);
+    });
+  }, [accountAddress, invalidateAfterTx, refresh, solanaNetworkId]);
   const handleActivityPress = useCallback(() => navigate('/activity'), [navigate]);
 
   // Address book items
@@ -791,7 +820,9 @@ export function HomePage(): React.ReactElement {
               <ActionButtonRow
                 onSendPress={handleSendPress}
                 onReceivePress={handleReceivePress}
+                onStakePress={handleStakePress}
                 onActivityPress={handleActivityPress}
+                stakeDisabled={!solanaNetworkId}
                 style={{ marginTop: spacing['2xl'], marginBottom: spacing['2xl'] }}
               />
 
@@ -921,6 +952,16 @@ export function HomePage(): React.ReactElement {
         visible={receiveSheetVisible}
         onClose={() => setReceiveSheetVisible(false)}
         address={accountAddress}
+      />
+
+      <StakeSheet
+        visible={stakeSheetVisible}
+        onClose={() => setStakeSheetVisible(false)}
+        account={solanaNetworkId ? (activeBlockchainAccount as SolanaAccount) : null}
+        networkId={solanaNetworkId}
+        getValidators={getStakeValidators}
+        createDelegation={createStakeDelegation}
+        onSuccess={handleStakeSuccess}
       />
     </Container>
   );

@@ -44,6 +44,9 @@ export {
 // Address utilities
 export { getShortAddress, truncateHash } from './address';
 
+// Solana amount utilities
+export { solToLamports } from './solana-amounts';
+
 // Clipboard utilities (web only - use expo-clipboard for native)
 export { copyToClipboard, pasteFromClipboard } from './clipboard';
 

@@ -115,6 +115,10 @@ export {
   // Types - Pagination
   type SolanaPagingParams,
   type SolanaTransactionsResponse,
+  type CreateStakeDelegationParams,
+  type StakeDelegationResponse,
+  type StakeValidator,
+  type StakeValidatorsResponse,
   // Note: Swap types (SwapOrderParams, SwapExecuteRequest, ApiSwapExecuteResponse)
   // are in types/swap.ts - import from @salmon/shared
   // Functions - Transactions
@@ -126,6 +130,9 @@ export {
   // Functions - Swap
   getSwapOrder,
   executeSwapApi,
+  // Functions - Stake
+  getStakeValidators,
+  createStakeDelegation,
   // DI adapter
   solanaApiFunctions,
 } from './solana';

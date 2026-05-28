@@ -28,6 +28,7 @@ export {
   ScalesBackground,
   SecurityPanel,
   SendPage,
+  StakeSheet,
   SupportSelector,
   SwapScreen,
   TokenAbout,
@@ -51,6 +52,7 @@ export type {
   BridgeTokenSimple,
   PanelRegistry,
   ReceiveSheetProps,
+  StakeSheetProps,
   SwapQuote,
   SwapToken,
 } from '@salmon/ui';

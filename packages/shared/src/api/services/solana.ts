@@ -7,6 +7,8 @@
  * - GET /v1/{networkId}/account/{address}/transactions/{txId} - Get single transaction
  * - GET /v1/{networkId}/ft/swap/order - Get swap quote
  * - POST /v1/{networkId}/ft/swap/execute - Execute swap
+ * - GET /v1/{networkId}/stake/validators - Get stake validators
+ * - POST /v1/{networkId}/stake/delegate - Create stake delegation transaction
  *
  * Note: Token list endpoints (verified, batch, search) are in tokens.ts
  */
@@ -40,6 +42,33 @@ import type {
   SwapExecuteRequest,
   ApiSwapExecuteResponse,
 } from '../../types/swap';
+
+export interface StakeValidator {
+  voteAccount: string;
+  label: string;
+}
+
+export interface StakeValidatorsResponse {
+  enabled: boolean;
+  validators: StakeValidator[];
+}
+
+export interface CreateStakeDelegationParams {
+  networkId: SolanaNetworkId;
+  account: string;
+  amountLamports: string;
+  validator: string;
+}
+
+export interface StakeDelegationResponse {
+  transaction: string;
+  message: string;
+  stakeAccount: string;
+  validator: string;
+  amountLamports: string;
+  rentExemptLamports: string;
+  lastValidBlockHeight?: number;
+}
 
 // ============================================================================
 // API Functions - Transactions
@@ -240,6 +269,38 @@ export async function executeSwapApi(
     console.error('[SolanaService] Failed to execute swap:', error);
     throw error;
   }
+}
+
+// ============================================================================
+// API Functions - Stake
+// ============================================================================
+
+export async function getStakeValidators(
+  networkId: SolanaNetworkId
+): Promise<StakeValidatorsResponse> {
+  const { data } = await apiClient.get<StakeValidatorsResponse>(
+    `/v1/${networkId}/stake/validators`
+  );
+
+  return data;
+}
+
+export async function createStakeDelegation({
+  networkId,
+  account,
+  amountLamports,
+  validator,
+}: CreateStakeDelegationParams): Promise<StakeDelegationResponse> {
+  const { data } = await apiClient.post<StakeDelegationResponse>(
+    `/v1/${networkId}/stake/delegate`,
+    {
+      account,
+      amountLamports,
+      validator,
+    }
+  );
+
+  return data;
 }
 
 // ============================================================================

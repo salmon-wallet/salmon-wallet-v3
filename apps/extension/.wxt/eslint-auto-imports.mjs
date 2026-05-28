@@ -62,6 +62,8 @@ const globals = {
   "ShadowRootContentScriptUi": true,
   "ShadowRootContentScriptUiOptions": true,
   "SolanaSvgIcon": true,
+  "StakeSheet": true,
+  "StakeSheetProps": true,
   "StopAutoMount": true,
   "StorageArea": true,
   "StorageAreaChanges": true,
