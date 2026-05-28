@@ -27,7 +27,7 @@ import {
   easing,
 } from '@salmon/shared';
 import { BlurContainer } from '../BlurContainer';
-import { SendIcon, ReceiveIcon, ActivityIcon } from '../Icon';
+import { SendIcon, ReceiveIcon, ActivityIcon, SolanaSvgIcon } from '../Icon';
 import type { ActionButtonRowProps } from './types';
 
 const Container = styled(Box)({
@@ -35,15 +35,16 @@ const Container = styled(Box)({
   flexDirection: 'row',
   alignItems: 'center',
   gap: s(spacing.sm),
-  paddingLeft: s(spacing.xl),
-  paddingRight: s(spacing.xl),
+  paddingLeft: s(spacing.lg),
+  paddingRight: s(spacing.lg),
   paddingTop: vs(spacing.md),
   paddingBottom: vs(spacing.md),
 });
 
 const ButtonWrapper = styled(Box)<{ $disabled?: boolean }>(({ $disabled }) => ({
   flex: 1,
-  height: vs(componentSizes.actionButtonHeight),
+  minWidth: 0,
+  height: vs(componentSizes.actionButtonHeight + 8),
   borderRadius: ms(componentSizes.actionButtonRadius),
   overflow: 'hidden',
   opacity: $disabled ? colors.button.disabledOpacity : 1,
@@ -54,10 +55,10 @@ const PrimaryButton = styled(Button)({
   width: '100%',
   height: '100%',
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: s(spacing.sm),
+  gap: s(spacing.xs),
   background: gradients.primaryCSS,
   borderRadius: ms(componentSizes.actionButtonRadius),
   textTransform: 'none',
@@ -77,10 +78,10 @@ const SecondaryButton = styled(Button)({
   width: '100%',
   height: '100%',
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: s(spacing.sm),
+  gap: s(spacing.xs),
   backgroundColor: 'transparent',
   border: 'none',
   borderRadius: ms(componentSizes.actionButtonRadius),
@@ -97,19 +98,25 @@ const SecondaryButton = styled(Button)({
 });
 
 const ButtonText = styled(Typography)<{ $disabled?: boolean }>(({ $disabled }) => ({
-  fontSize: ms(fontSize.actionButton),
+  fontSize: ms(fontSize.sm),
   fontWeight: fontWeight.regular,
   fontFamily: fontFamily.sans,
   color: $disabled ? colors.button.disabledText : colors.text.balance,
+  maxWidth: '90%',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 }));
 
 export function ActionButtonRow({
   onSendPress,
   onReceivePress,
   onActivityPress,
+  onStakePress,
   sendDisabled = false,
   receiveDisabled = false,
   activityDisabled = false,
+  stakeDisabled = false,
   style,
   className,
 }: ActionButtonRowProps) {
@@ -132,6 +139,12 @@ export function ActionButtonRow({
       onActivityPress?.();
     }
   }, [onActivityPress, activityDisabled]);
+
+  const handleStakePress = useCallback(() => {
+    if (!stakeDisabled) {
+      onStakePress?.();
+    }
+  }, [onStakePress, stakeDisabled]);
 
   const iconSize = ms(componentSizes.actionButtonIcon);
 
@@ -163,6 +176,24 @@ export function ActionButtonRow({
           >
             <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : colors.text.balance }} />
             <ButtonText $disabled={receiveDisabled}>{t('actions.receive', 'Receive')}</ButtonText>
+          </SecondaryButton>
+        </BlurContainer>
+      </ButtonWrapper>
+
+      {/* Stake Button - Secondary with BlurContainer */}
+      <ButtonWrapper $disabled={stakeDisabled}>
+        <BlurContainer
+          borderColor={colors.accent.primary}
+          borderWidth={borderWidth.actionButton}
+          style={{ borderRadius: ms(componentSizes.actionButtonRadius), height: '100%' }}
+        >
+          <SecondaryButton
+            onClick={handleStakePress}
+            disabled={stakeDisabled}
+            aria-label="Stake SOL"
+          >
+            <SolanaSvgIcon sx={{ fontSize: iconSize, color: stakeDisabled ? colors.button.disabledText : colors.text.balance }} />
+            <ButtonText $disabled={stakeDisabled}>{t('actions.stake', 'Stake')}</ButtonText>
           </SecondaryButton>
         </BlurContainer>
       </ButtonWrapper>

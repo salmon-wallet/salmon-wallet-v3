@@ -35,6 +35,8 @@ import {
   type BlockchainType,
   isSolanaNft,
   createBurnTransaction,
+  createStakeDelegation,
+  getStakeValidators,
   signAndSendPreparedSolanaTransactions,
   useCurrencyContext,
   LANGUAGE_NAMES,
@@ -47,6 +49,8 @@ import {
   CURRENCY_MAP,
   type CurrencyCode,
   type CurrencySelectorItem,
+  type SolanaAccount,
+  type SolanaNetworkId,
   getBlockchainFromNetworkId,
   BLOCKCHAIN_TO_COINGECKO,
   PERIOD_TO_DAYS,
@@ -76,6 +80,7 @@ import {
   ConfirmDialog,
   ScalesBackground,
   SendPage,
+  StakeSheet,
   NftSendDialog,
   ExplorerSelector,
   LanguageSelector,
@@ -398,6 +403,7 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [walletSwitcherVisible, setWalletSwitcherVisible] = useState(false);
   const [receiveSheetVisible, setReceiveSheetVisible] = useState(false);
+  const [stakeSheetVisible, setStakeSheetVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // Settings panel stack state (for deep-linking from WalletSwitcher)
@@ -535,6 +541,11 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
 
   // Fetch transaction history (only when on activity page)
   const accountAddress = activeBlockchainAccount?.getReceiveAddress() || '';
+  const solanaNetworkId = useMemo((): SolanaNetworkId | null => {
+    return networkId === 'solana-mainnet' || networkId === 'solana-devnet'
+      ? networkId
+      : null;
+  }, [networkId]);
   const {
     transactions,
     loading: transactionsLoading,
@@ -659,6 +670,24 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
   const handleReceivePress = useCallback(() => {
     setReceiveSheetVisible(true);
   }, []);
+
+  const handleStakePress = useCallback(() => {
+    if (solanaNetworkId) {
+      setStakeSheetVisible(true);
+    }
+  }, [solanaNetworkId]);
+
+  const handleStakeSuccess = useCallback(() => {
+    refresh();
+    transactionsRefresh();
+    invalidateAfterTx({
+      accountId: accountAddress,
+      networkId: solanaNetworkId ?? undefined,
+      kinds: ['balance', 'transactions'],
+    }).catch((err) => {
+      console.warn('[HomePage] invalidateAfterTx failed:', err);
+    });
+  }, [accountAddress, invalidateAfterTx, refresh, solanaNetworkId, transactionsRefresh]);
 
   const handleActivityPress = useCallback(() => {
     setCurrentPage('activity');
@@ -1285,7 +1314,9 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
               <ActionButtonRow
                 onSendPress={handleSendPress}
                 onReceivePress={handleReceivePress}
+                onStakePress={handleStakePress}
                 onActivityPress={handleActivityPress}
+                stakeDisabled={!solanaNetworkId}
                 style={{ marginTop: spacing['2xl'], marginBottom: spacing['2xl'] }}
               />
 
@@ -1424,6 +1455,16 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
         visible={receiveSheetVisible}
         onClose={() => setReceiveSheetVisible(false)}
         address={accountAddress}
+      />
+
+      <StakeSheet
+        visible={stakeSheetVisible}
+        onClose={() => setStakeSheetVisible(false)}
+        account={solanaNetworkId ? (activeBlockchainAccount as SolanaAccount) : null}
+        networkId={solanaNetworkId}
+        getValidators={getStakeValidators}
+        createDelegation={createStakeDelegation}
+        onSuccess={handleStakeSuccess}
       />
 
       {/* Transaction Detail Modal */}

@@ -35,9 +35,11 @@ import {
   borderRadius,
   colors,
   componentSizes,
+  createStakeDelegation,
   fontFamilyNative,
   fontSize,
   getCoinInfo,
+  getStakeValidators,
   getMarketChart,
   getShortAddress,
   spacing,
@@ -55,6 +57,8 @@ import {
   type NetworkId,
   type PriceChartPeriod,
   type PriceDataPoint,
+  type SolanaAccount,
+  type SolanaNetworkId,
   type Token,
 } from '@salmon/shared';
 import {
@@ -63,6 +67,7 @@ import {
   PriceChart,
   ReceiveSheet,
   SendSheet,
+  StakeSheet,
   SubAccountSelector,
   TokenAbout,
   TokenInformationSheet,
@@ -182,6 +187,9 @@ export default function HomeScreen() {
   // SendSheet visibility
   const [sendSheetVisible, setSendSheetVisible] = useState(false);
 
+  // StakeSheet visibility
+  const [stakeSheetVisible, setStakeSheetVisible] = useState(false);
+
   // TransactionHistorySheet visibility
   const [transactionHistoryVisible, setTransactionHistoryVisible] = useState(false);
 
@@ -206,6 +214,7 @@ export default function HomeScreen() {
     setTokenSheetVisible(false);
     setReceiveSheetVisible(false);
     setSendSheetVisible(false);
+    setStakeSheetVisible(false);
     setTransactionHistoryVisible(false);
     setDetailModalVisible(false);
     setSelectedTransaction(null);
@@ -359,6 +368,12 @@ export default function HomeScreen() {
     const activeBalance = blockchainBalances[activeBlockchainIndex];
     return activeBalance?.network.blockchain || 'solana';
   }, [activeBlockchainIndex, blockchainBalances]);
+
+  const solanaNetworkId = useMemo((): SolanaNetworkId | null => {
+    return networkId === 'solana-mainnet' || networkId === 'solana-devnet'
+      ? networkId
+      : null;
+  }, [networkId]);
 
   // BE drops unknown-only-tagged SPL tokens by default; developer mode opts
   // in via `includeSpam` on `useBalance` above. Trust the BE list as-is.
@@ -569,6 +584,21 @@ export default function HomeScreen() {
     refresh();
   }, [refresh]);
 
+  const handleStakePress = useCallback(() => {
+    if (solanaNetworkId) {
+      setStakeSheetVisible(true);
+    }
+  }, [solanaNetworkId]);
+
+  const handleStakeSheetClose = useCallback(() => {
+    setStakeSheetVisible(false);
+  }, []);
+
+  const handleStakeSuccess = useCallback((_signature: string) => {
+    refresh();
+    transactionsRefresh();
+  }, [refresh, transactionsRefresh]);
+
   const handleReceiveSheetCopy = useCallback(async () => {
     if (activeBlockchainAccount) {
       const addr = activeBlockchainAccount.getReceiveAddress();
@@ -696,7 +726,9 @@ export default function HomeScreen() {
       <ActionButtonRow
         onSendPress={handleSendPress}
         onReceivePress={handleReceivePress}
+        onStakePress={handleStakePress}
         onActivityPress={handleActivityPress}
+        stakeDisabled={!solanaNetworkId}
         style={styles.actionRow}
       />
     </View>
@@ -709,7 +741,9 @@ export default function HomeScreen() {
     developerNetworks,
     handleSendPress,
     handleReceivePress,
+    handleStakePress,
     handleActivityPress,
+    solanaNetworkId,
   ]);
 
   // Memoize the empty component
@@ -871,6 +905,17 @@ export default function HomeScreen() {
         account={activeBlockchainAccount}
         onSuccess={handleSendSuccess}
         showUnverifiedTokens={developerNetworks}
+      />
+
+      {/* Stake Sheet */}
+      <StakeSheet
+        visible={stakeSheetVisible}
+        onClose={handleStakeSheetClose}
+        account={solanaNetworkId ? (activeBlockchainAccount as SolanaAccount) : null}
+        networkId={solanaNetworkId}
+        getValidators={getStakeValidators}
+        createDelegation={createStakeDelegation}
+        onSuccess={handleStakeSuccess}
       />
 
       {/* Transaction History Sheet */}

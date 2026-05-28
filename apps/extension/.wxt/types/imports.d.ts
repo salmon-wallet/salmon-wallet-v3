@@ -35,6 +35,7 @@ declare global {
   const SendPage: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index').SendPage
   const SettingsPanelStack: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index').SettingsPanelStack
   const SolanaSvgIcon: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index').SolanaSvgIcon
+  const StakeSheet: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index').StakeSheet
   const SupportSelector: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index').SupportSelector
   const SwapScreen: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index').SwapScreen
   const TokenAbout: typeof import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index').TokenAbout
@@ -106,7 +107,7 @@ declare global {
   export type { ScriptPublicPath, InjectScriptOptions } from 'wxt/utils/inject-script'
   import('wxt/utils/inject-script')
   // @ts-ignore
-  export type { BridgeEstimateSimple, BridgeExchangeSimple, BridgeTokenSimple, PanelRegistry, ReceiveSheetProps, SwapQuote, SwapToken } from '/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index'
+  export type { BridgeEstimateSimple, BridgeExchangeSimple, BridgeTokenSimple, PanelRegistry, ReceiveSheetProps, StakeSheetProps, SwapQuote, SwapToken } from '/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index'
   import('/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/components/index')
   // @ts-ignore
   export type { SalmonMessageData, SalmonEventDetail, SalmonBackgroundMessage } from '/Users/lucamazzarello_/Desktop/Repositories/salmon-wallet-v3/apps/extension/src/utils/types'

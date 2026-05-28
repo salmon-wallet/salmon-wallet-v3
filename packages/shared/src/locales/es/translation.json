@@ -128,7 +128,8 @@
     "bridge": "Bridge",
     "retry": "Reintentar",
     "searching": "Buscando...",
-    "activity": "Actividad"
+    "activity": "Actividad",
+    "stake": "Stake"
   },
   "dapp": {
     "connect_title": "Conectar con dApp",
@@ -713,6 +714,24 @@
       "confirmSwap": "Confirmar",
       "reviewAndSwap": "Revisar y Swap"
     }
+  },
+  "stake": {
+    "title": "Stake SOL",
+    "amount": "Monto",
+    "amountPlaceholder": "0.00",
+    "validator": "Validador",
+    "loadingValidators": "Cargando validadores...",
+    "validatorsUnavailable": "Stake no disponible.",
+    "unsupportedNetwork": "Stake disponible solo en Solana.",
+    "invalidAmount": "Ingresá un monto válido en SOL.",
+    "selectValidator": "Seleccioná un validador.",
+    "prepareFailed": "No se pudo preparar la transacción de stake.",
+    "submitFailed": "No se pudo enviar la transacción de stake.",
+    "submit": "Stake",
+    "submitting": "Staking...",
+    "successTitle": "Stake enviado",
+    "successSummary": "{{amount}} SOL delegados",
+    "stakeAccount": "Cuenta de stake"
   },
   "bridge": {
     "bridge": "Bridge",

@@ -29,11 +29,13 @@ import { getReachableBackendBaseUrl } from '../test-backend';
 import { getSolanaNfts } from './solana-nft';
 import {
   executeSwapApi,
+  createStakeDelegation,
   fetchSolanaAccountBalance,
   getAllSolanaTransactions,
   getRecentSolanaTransactions,
   getSolanaTransaction,
   getSolanaTransactions,
+  getStakeValidators,
   getSwapOrder,
   getTransactionsByType,
   solanaApiFunctions,
@@ -284,6 +286,49 @@ describe('solana service', () => {
       status: 'Failed',
       error: 'swap execution failed',
     });
+  });
+
+  it('fetches stake validators', async () => {
+    const validatorsResponse = {
+      enabled: true,
+      validators: [{ voteAccount: 'vote-1', label: 'Salmon Validator' }],
+    };
+    mockApiClientGet.mockResolvedValueOnce({ data: validatorsResponse });
+
+    const result = await getStakeValidators('solana-mainnet');
+
+    expect(mockApiClientGet).toHaveBeenCalledWith('/v1/solana-mainnet/stake/validators');
+    expect(result).toEqual(validatorsResponse);
+  });
+
+  it('creates stake delegation transactions', async () => {
+    const delegationResponse = {
+      transaction: 'base64-transaction',
+      message: 'Stake delegation transaction created',
+      stakeAccount: 'stake-1',
+      validator: 'vote-1',
+      amountLamports: '1000000000',
+      rentExemptLamports: '2282880',
+      lastValidBlockHeight: 123456,
+    };
+    mockApiClientPost.mockResolvedValueOnce({ data: delegationResponse });
+
+    const result = await createStakeDelegation({
+      networkId: 'solana-mainnet',
+      account: 'wallet-1',
+      amountLamports: '1000000000',
+      validator: 'vote-1',
+    });
+
+    expect(mockApiClientPost).toHaveBeenCalledWith(
+      '/v1/solana-mainnet/stake/delegate',
+      {
+        account: 'wallet-1',
+        amountLamports: '1000000000',
+        validator: 'vote-1',
+      },
+    );
+    expect(result).toEqual(delegationResponse);
   });
 
   it('collects all solana transactions across multiple pages', async () => {

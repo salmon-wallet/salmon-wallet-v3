@@ -217,6 +217,9 @@ export type {
   BlockchainType as SendSheetBlockchainType,
 } from './SendSheet';
 
+export { StakeSheet } from './StakeSheet';
+export type { StakeSheetProps } from './StakeSheet';
+
 export {
   SwapScreen,
   SwapTabSelector,
@@ -334,4 +337,3 @@ export type { PrivateKeyPanelProps } from './PrivateKeyPanel';
 
 export { BackupPanel } from './BackupPanel';
 export { AboutPanel } from './AboutPanel';
-

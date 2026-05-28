@@ -88,6 +88,14 @@ export {
 export type {
   SignAndSendPreparedSolanaTransactionsOptions,
 } from './prepared-transactions';
+export {
+  inspectSerializedSolanaTransactionSigStatus,
+  signAndSubmitSerializedSolanaTransaction,
+} from './serialized-transactions';
+export type {
+  SerializedSolanaSignSubmitInput,
+  SerializedSolanaSignSubmitResult,
+} from './serialized-transactions';
 
 export {
   getRecentTransactions,

@@ -24,12 +24,16 @@ export interface ActionButtonRowPropsBase<TStyle> {
   onReceivePress?: () => void;
   /** Callback when Activity button is pressed */
   onActivityPress?: () => void;
+  /** Callback when Stake button is pressed */
+  onStakePress?: () => void;
   /** Whether Send is disabled */
   sendDisabled?: boolean;
   /** Whether Receive is disabled */
   receiveDisabled?: boolean;
   /** Whether Activity is disabled */
   activityDisabled?: boolean;
+  /** Whether Stake is disabled */
+  stakeDisabled?: boolean;
   /** Optional custom styles for the container */
   style?: TStyle;
 }
