@@ -38,6 +38,9 @@ yarn-error.*
 # local env files
 .env*.local
 .env
+.env.prod
+.env.production
+.env.staging
 
 # typescript
 *.tsbuildinfo
@@ -82,6 +85,8 @@ AGENTS.local.md
 CLAUDE.local.md
 **/AGENTS.local.md
 **/CLAUDE.local.md
+.claude/settings.local.json
+.code-review-graph/
 
 # Local planning notes — not part of the repo contract
 docs/plans/
