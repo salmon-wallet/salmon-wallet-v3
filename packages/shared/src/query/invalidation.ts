@@ -41,7 +41,15 @@ const KIND_TO_PREFIX: Record<InvalidationKind, string> = {
   transactions: 'transactions',
 };
 
-const DEFAULT_SETTLEMENT_DELAYS_MS = [10_000];
+// Measured read-after-write lag of the salmon-api balance endpoint (no-cache,
+// backed by Blockdaemon's indexed balance) is ~12.3-12.7s on a quiet wallet —
+// it consistently trails an on-chain `confirmed` change until roughly the
+// confirmed->finalized boundary (~32 slots). A single 10s refetch fires ~2s
+// BEFORE the indexer settles, so it reads stale and, with no refetchInterval,
+// the balance stays stale until window-focus/manual refresh. The first delay
+// lands just past the measured settle; the second is a safety net for slower
+// indexer runs.
+const DEFAULT_SETTLEMENT_DELAYS_MS = [13_000, 25_000];
 
 function getRemovedMintAddress(item: unknown): string | undefined {
   if (!item || typeof item !== 'object') return undefined;

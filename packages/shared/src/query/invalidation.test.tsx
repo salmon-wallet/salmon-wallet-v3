@@ -143,6 +143,56 @@ describe('useInvalidateAfterTx', () => {
     });
   });
 
+  it('applies the default backoff schedule (13s + 25s) when no delays are passed', async () => {
+    // Guards the empirically-tuned DEFAULT_SETTLEMENT_DELAYS_MS: the
+    // salmon-api balance endpoint trails an on-chain change by ~12.5s, so the
+    // default schedule must fire a refetch AFTER that settle, not at 10s.
+    const client = makeClient();
+    const balanceKey = queryKeys.balance({ accountId: ACCOUNT_A, networkId: NETWORK_SOL });
+    const fetchBalance = vi.fn().mockResolvedValue({ marker: 'balance' });
+
+    const { result } = renderHook(
+      () => {
+        useQuery({ queryKey: balanceKey, queryFn: fetchBalance, staleTime: 15_000 });
+        return useSettleAfterTx();
+      },
+      { wrapper: makeWrapper(client) },
+    );
+
+    await waitFor(() => {
+      expect(fetchBalance).toHaveBeenCalledTimes(1); // initial mount
+    });
+
+    vi.useFakeTimers();
+
+    await act(async () => {
+      // No settlementDelaysMs -> uses the default schedule.
+      await result.current({ accountId: ACCOUNT_A, networkId: NETWORK_SOL, kinds: ['balance'] });
+    });
+
+    // Immediate invalidation refetch.
+    expect(fetchBalance).toHaveBeenCalledTimes(2);
+
+    // A refetch at 10s must NOT have fired yet (regression guard against the
+    // old too-early default).
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(fetchBalance).toHaveBeenCalledTimes(2);
+
+    // First scheduled refetch lands at 13s.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3_000);
+    });
+    expect(fetchBalance).toHaveBeenCalledTimes(3);
+
+    // Safety-net refetch lands at 25s.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(12_000);
+    });
+    expect(fetchBalance).toHaveBeenCalledTimes(4);
+  });
+
   it('filters by accountId', async () => {
     const client = makeClient();
     seed(client);
