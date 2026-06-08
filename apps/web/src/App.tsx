@@ -6,6 +6,7 @@ import {
   useInactivityTimeout,
   createQueryClient,
   QueryClientProvider,
+  BridgeSettlementProvider,
 } from '@salmon/shared';
 import { router } from './router';
 import { clearSessionKey } from './utils/sessionKeyCache';
@@ -56,12 +57,14 @@ export function App(): React.ReactElement {
   const [queryClient] = useState(() => createQueryClient());
   return (
     <QueryClientProvider client={queryClient}>
-      <DAppSettlementBridge />
-      <WalletLayout>
-        <InactivityGuard>
-          <RouterProvider router={router} />
-        </InactivityGuard>
-      </WalletLayout>
+      <BridgeSettlementProvider>
+        <DAppSettlementBridge />
+        <WalletLayout>
+          <InactivityGuard>
+            <RouterProvider router={router} />
+          </InactivityGuard>
+        </WalletLayout>
+      </BridgeSettlementProvider>
     </QueryClientProvider>
   );
 }

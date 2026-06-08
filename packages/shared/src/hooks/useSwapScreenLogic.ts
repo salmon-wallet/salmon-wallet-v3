@@ -157,10 +157,17 @@ export interface UseSwapScreenLogicParams<StyleType = unknown> extends SwapScree
    * is sent. The app should register the exchange with the BridgeSettlement
    * provider so its minutes-long destination settlement is polled in the
    * background — the success screen must NOT block on it. Receives the exchange
-   * plus the resolved destination address so the app can build the pending
-   * record with the source/destination network + account it already knows.
+   * plus the source/destination network and the destination payout address so
+   * the app can build the pending record without reading hook state.
    */
-  onBridgeExchangeCreated?: (exchange: BridgeExchangeSimple, destinationAddress: string) => void;
+  onBridgeExchangeCreated?: (
+    exchange: BridgeExchangeSimple,
+    context: {
+      sourceNetworkId?: string;
+      destNetworkId?: string;
+      destinationAddress: string;
+    },
+  ) => void;
 }
 
 // ============================================================================
@@ -646,7 +653,11 @@ export function useSwapScreenLogic<StyleType = unknown>({
         }).catch((err) => {
           console.warn('[useSwapScreenLogic] settleAfterTx failed:', err);
         });
-        onBridgeExchangeCreated?.(exchange, recipientAddress);
+        onBridgeExchangeCreated?.(exchange, {
+          sourceNetworkId: inToken?.networkId,
+          destNetworkId: outToken?.networkId,
+          destinationAddress: recipientAddress,
+        });
         onBridgeSuccess?.(exchange);
       } else {
         throw new Error('Failed to create bridge exchange');
