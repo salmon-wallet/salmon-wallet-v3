@@ -152,6 +152,15 @@ export interface UseSwapScreenLogicParams<StyleType = unknown> extends SwapScree
    * Mobile uses Alert.alert; extension uses window.alert.
    */
   onBridgeInitiated?: (exchange: BridgeExchangeSimple, inAmount: string, inSymbol: string, outSymbol: string) => void;
+  /**
+   * Invoked right after a bridge (StealthEX) exchange is created and the deposit
+   * is sent. The app should register the exchange with the BridgeSettlement
+   * provider so its minutes-long destination settlement is polled in the
+   * background — the success screen must NOT block on it. Receives the exchange
+   * plus the resolved destination address so the app can build the pending
+   * record with the source/destination network + account it already knows.
+   */
+  onBridgeExchangeCreated?: (exchange: BridgeExchangeSimple, destinationAddress: string) => void;
 }
 
 // ============================================================================
@@ -259,6 +268,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onSendDeposit,
   // Platform-specific
   onBridgeInitiated: _onBridgeInitiated,
+  onBridgeExchangeCreated,
   onNavigateHome,
 }: UseSwapScreenLogicParams<StyleType>): UseSwapScreenLogicResult {
   const settleAfterTx = useSettleAfterTx();
@@ -627,11 +637,16 @@ export function useSwapScreenLogic<StyleType = unknown>({
         }
         setSuccessExchange(exchange);
         setStep('success');
+        // Source-side settle only: the deposit has left the wallet, so the
+        // source balance will drop within the indexer's lag. The DESTINATION
+        // payout takes minutes — hand the exchange to the background poller
+        // instead of blocking this screen.
         settleAfterTx({
           kinds: ['balance', 'transactions'],
         }).catch((err) => {
           console.warn('[useSwapScreenLogic] settleAfterTx failed:', err);
         });
+        onBridgeExchangeCreated?.(exchange, recipientAddress);
         onBridgeSuccess?.(exchange);
       } else {
         throw new Error('Failed to create bridge exchange');
@@ -647,7 +662,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeError, settleAfterTx]);
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeExchangeCreated, onBridgeError, settleAfterTx]);
 
   const handleRefreshQuote = useCallback(async () => {
     if (isLoadingQuote || isLoadingEstimate) return;

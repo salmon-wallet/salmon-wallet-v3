@@ -47,7 +47,10 @@ devnet('createTransfer (devnet integration)', () => {
 
     const amountSol = 0.001;
     const { txId } = await createTransfer(conn, sender, recipient, SOL_ADDRESS, amountSol);
-    expect(txId).toBeTruthy();
+    // Without `simulate`, txId is a real signature string (the union type also
+    // allows a SimulatedTransactionResponse when simulating).
+    expect(typeof txId).toBe('string');
+    if (typeof txId !== 'string') throw new Error('expected a transaction signature');
 
     await conn.confirmTransaction(txId, 'confirmed');
 

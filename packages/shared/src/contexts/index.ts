@@ -29,3 +29,14 @@ export type {
   CurrencyContextValue,
   CurrencyProviderProps,
 } from './CurrencyContext';
+
+// Bridge settlement context (background cross-chain settlement)
+export {
+  BridgeSettlementProvider,
+  useBridgeSettlement,
+} from './BridgeSettlementContext';
+
+export type {
+  PendingBridgeExchange,
+  BridgeSettlementProviderProps,
+} from './BridgeSettlementContext';
