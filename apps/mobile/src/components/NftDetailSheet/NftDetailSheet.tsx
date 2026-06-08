@@ -100,7 +100,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
 
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
   const stepTransitionProgress = useMemo(() => new Animated.Value(1), []);
-  const { sendNft, reset: resetTransfer } = useNftTransfer({ account });
+  const { sendNft, reset: resetTransfer, settling: nftSettling } = useNftTransfer({ account });
   const sheetSlideDistance = useMemo(() => Dimensions.get('window').width, []);
 
   if (nft?.mint !== prevMint) {
@@ -820,6 +820,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             })}
           explorerUrl={explorerUrl ?? null}
           onContinue={handleSuccessContinue}
+          settling={successKind === 'send' ? nftSettling : false}
         />
       )}
     </BottomSheetContainer>

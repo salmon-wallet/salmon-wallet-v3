@@ -108,6 +108,7 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
             : null
           }
           onContinue={logic.handleSuccessContinue}
+          settling={logic.settling}
           bridgeDepositAddress={logic.successExchange?.depositAddress}
           bridgeAmountIn={logic.successExchange ? `${logic.inAmount} ${logic.inToken?.symbol ?? ''}` : undefined}
           bridgeAmountOut={logic.successExchange ? `${logic.successExchange.amountOut} ${logic.outToken?.symbol ?? ''}` : undefined}

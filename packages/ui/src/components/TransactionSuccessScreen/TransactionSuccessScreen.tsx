@@ -2,6 +2,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@mui/material/Link';
 import { keyframes } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
@@ -141,6 +142,7 @@ export function TransactionSuccessScreen({
   summary,
   explorerUrl,
   onContinue,
+  settling = false,
   bridgeDepositAddress,
   bridgeAmountIn,
   bridgeAmountOut,
@@ -220,8 +222,15 @@ export function TransactionSuccessScreen({
           {t('transaction.viewOnExplorer')}
         </ExplorerLink>
       ) : null}
-      <ContinueButton onClick={onContinue}>
-        {t('transaction.continue')}
+      <ContinueButton onClick={onContinue} disabled={settling}>
+        {settling ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
+            <CircularProgress size={16} thickness={5} sx={{ color: colors.text.primary }} />
+            {t('transaction.updatingBalance', 'Updating balance…')}
+          </Box>
+        ) : (
+          t('transaction.continue')
+        )}
       </ContinueButton>
     </Container>
   );
