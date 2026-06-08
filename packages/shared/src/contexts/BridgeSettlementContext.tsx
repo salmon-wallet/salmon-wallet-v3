@@ -83,10 +83,13 @@ export function BridgeSettlementProvider({
   const [pendingExchanges, setPendingExchanges] = useState<PendingBridgeExchange[]>([]);
   const settleAfterTx = useSettleAfterTx();
   const pendingRef = useRef<PendingBridgeExchange[]>([]);
-  pendingRef.current = pendingExchanges;
   // Persistence must not run until the initial hydrate from storage completes,
   // otherwise the empty initial state would clobber a stored list.
   const hydratedRef = useRef(false);
+
+  useEffect(() => {
+    pendingRef.current = pendingExchanges;
+  }, [pendingExchanges]);
 
   const trackBridgeExchange = useCallback((exchange: PendingBridgeExchange) => {
     setPendingExchanges((prev) =>
