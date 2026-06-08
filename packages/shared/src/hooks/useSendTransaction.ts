@@ -31,7 +31,7 @@ import type {
   FeeEstimateResult,
   SendTransactionStatus,
 } from '../types/send';
-import { useInvalidateAfterTx } from '../query/invalidation';
+import { useSettleAfterTx } from '../query/invalidation';
 
 // ============================================================================
 // Types
@@ -75,7 +75,7 @@ export function useSendTransaction({
 }: UseSendTransactionParams): UseSendTransactionResult {
   const [status, setStatus] = useState<SendTransactionStatus>('idle');
   const [error, setError] = useState<string | null>(null);
-  const invalidateAfterTx = useInvalidateAfterTx();
+  const settleAfterTx = useSettleAfterTx();
 
   const reset = useCallback(() => {
     setStatus('idle');
@@ -142,12 +142,12 @@ export function useSendTransaction({
         // Fire-and-forget invalidation; do not block the caller on RQ refetch.
         const accountId = account.getReceiveAddress();
         const networkId = account.getNetworkId();
-        invalidateAfterTx({
+        settleAfterTx({
           accountId,
           networkId,
           kinds: ['balance', 'transactions'],
         }).catch((err) => {
-          console.warn('[useSendTransaction] invalidateAfterTx failed:', err);
+          console.warn('[useSendTransaction] settleAfterTx failed:', err);
         });
         return result;
       } catch (err) {
@@ -158,7 +158,7 @@ export function useSendTransaction({
         throw err;
       }
     },
-    [account, invalidateAfterTx],
+    [account, settleAfterTx],
   );
 
   return {

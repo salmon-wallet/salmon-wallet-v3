@@ -35,7 +35,7 @@ vi.mock('@salmon/shared', () => ({
     unlockWithCachedKey: mockUnlockWithCachedKey,
   }],
   useInactivityTimeout: (config: unknown) => mockUseInactivityTimeout(config),
-  useInvalidateAfterTx: () => vi.fn(),
+  useSettleAfterTx: () => vi.fn(),
 }));
 
 vi.mock('@salmon/shared/utils/account', () => ({
