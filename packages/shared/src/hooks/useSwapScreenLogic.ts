@@ -26,7 +26,7 @@ import { getSwapMode, validateAddress, getChainFromNetwork, toStealthExNetwork }
 import { getChainDisplayName } from '../utils/account';
 import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
 import { getEnabledNetworkIds } from '../api/services/network';
-import { useSettleAfterTx } from '../query/invalidation';
+import { useSettleAfterTx, useSettleUntilChanged } from '../query/invalidation';
 
 // ============================================================================
 // Constants
@@ -180,6 +180,13 @@ export interface UseSwapScreenLogicResult {
   successExchange: BridgeExchangeSimple | null;
   depositTxId: string | null;
   bridgeTransaction: BridgeTransactionSimple | null;
+  /**
+   * True while a same-chain (Jupiter) swap is waiting for the indexer to
+   * reflect the new balances. A success screen can gate its "Done" CTA on this.
+   * Always false for the StealthEX bridge, whose minutes-long settlement is
+   * tracked in the background instead of by blocking the screen.
+   */
+  settling: boolean;
 
   // Computed
   swapMode: 'jupiter' | 'stealthex' | null;
@@ -255,9 +262,11 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onNavigateHome,
 }: UseSwapScreenLogicParams<StyleType>): UseSwapScreenLogicResult {
   const settleAfterTx = useSettleAfterTx();
+  const settleUntilChanged = useSettleUntilChanged();
   // ── State ──────────────────────────────────────────────────────────────
 
   const [step, setStep] = useState<SwapScreenStep>('input');
+  const [settling, setSettling] = useState(false);
   const [inToken, setInToken] = useState<SwapToken | null>(initialInToken || tokens[0] || null);
   const [outToken, setOutToken] = useState<SwapToken | null>(initialOutToken || null);
   const [availableOutTokens, setAvailableOutTokens] = useState<SwapToken[]>([]);
@@ -558,12 +567,20 @@ export function useSwapScreenLogic<StyleType = unknown>({
       const result = await onSwap(quote);
       setSuccessTxId(result.txId);
       setStep('success');
-      settleAfterTx({
+      // Jupiter is same-chain: settle until the indexer reflects both token
+      // balances so the success screen can dwell and return the user to fresh
+      // numbers. `settling` drives the success-screen "Done" gate.
+      setSettling(true);
+      settleUntilChanged({
         networkId: quote.networkId as NetworkId,
         kinds: ['balance', 'transactions'],
-      }).catch((err) => {
-        console.warn('[useSwapScreenLogic] settleAfterTx failed:', err);
-      });
+      })
+        .catch((err) => {
+          console.warn('[useSwapScreenLogic] settleUntilChanged failed:', err);
+        })
+        .finally(() => {
+          setSettling(false);
+        });
       onSuccess?.(result.txId);
     } catch (error) {
       console.error('Swap failed:', error);
@@ -576,7 +593,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [onError, onSuccess, onSwap, quote, settleAfterTx]);
+  }, [onError, onSuccess, onSwap, quote, settleUntilChanged]);
 
   const handleConfirmBridge = useCallback(async () => {
     if (!inToken || !outToken || !inAmount || !recipientAddress || !onCreateBridgeExchange) return;
@@ -881,6 +898,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     successExchange,
     depositTxId,
     bridgeTransaction,
+    settling,
 
     swapMode,
     inUsdValue,

@@ -131,12 +131,13 @@ describe('useSendTransaction', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('keeps retrying balance refresh after send when the first refetch still returns stale provider data', async () => {
-    const fetchBalance = vi
-      .fn()
-      .mockResolvedValueOnce({ marker: 'initial-old-balance' })
-      .mockResolvedValueOnce({ marker: 'stale-provider-balance-after-send' })
-      .mockResolvedValueOnce({ marker: 'fresh-balance-after-provider-catches-up' });
+  it('settles after a send by polling until the indexer reflects the new balance', async () => {
+    // Event-driven settlement (useSettleUntilChanged): `settling` stays true and
+    // the balance is refetched until its on-chain signature actually changes.
+    const amounts = { current: '1000000000' };
+    const fetchBalance = vi.fn(async () => ({
+      items: [{ address: 'So11111111111111111111111111111111111111112', amount: amounts.current }],
+    }));
     const balanceKey = queryKeys.balance({
       accountId: 'mock-address',
       networkId: 'solana-mainnet' as never,
@@ -160,7 +161,7 @@ describe('useSendTransaction', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.balanceQuery.data?.marker).toBe('initial-old-balance');
+      expect(result.current.balanceQuery.data?.items?.[0]?.amount).toBe('1000000000');
     });
 
     vi.useFakeTimers();
@@ -176,34 +177,33 @@ describe('useSendTransaction', () => {
         resolvedRecipientAddress: RESOLVED_RECIPIENT,
         amount: AMOUNT,
       });
-      await Promise.resolve();
-      await Promise.resolve();
     });
 
-    expect(fetchBalance).toHaveBeenCalledTimes(2);
-    expect(result.current.balanceQuery.data?.marker).toBe('stale-provider-balance-after-send');
+    // Returned immediately with success; settlement still pending.
+    expect(result.current.send.status).toBe('success');
+    expect(result.current.send.settling).toBe(true);
 
+    // Still stale after the first poll.
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(10_000);
+      await vi.advanceTimersByTimeAsync(2_500);
     });
+    expect(result.current.send.settling).toBe(true);
 
+    // Indexer catches up; the next poll observes the change and releases.
+    amounts.current = '989995000';
     await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_500);
       await Promise.resolve();
       await Promise.resolve();
     });
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(0);
-    });
-
     vi.useRealTimers();
 
     await waitFor(() => {
-      expect(fetchBalance).toHaveBeenCalledTimes(3);
-      expect(client.getQueryData(balanceKey)).toEqual({
-        marker: 'fresh-balance-after-provider-catches-up',
-      });
+      expect(result.current.send.settling).toBe(false);
     });
+    expect((client.getQueryData(balanceKey) as { items: Array<{ amount: string }> }).items[0].amount).toBe(
+      '989995000',
+    );
   });
 
   it('returns null for fee estimation when account is missing', async () => {

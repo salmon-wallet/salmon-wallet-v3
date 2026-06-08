@@ -31,7 +31,7 @@ import type {
   FeeEstimateResult,
   SendTransactionStatus,
 } from '../types/send';
-import { useSettleAfterTx } from '../query/invalidation';
+import { useSettleUntilChanged } from '../query/invalidation';
 
 // ============================================================================
 // Types
@@ -57,6 +57,12 @@ export interface UseSendTransactionResult {
   sendTransaction: (params: SendTransactionParams) => Promise<{ txId: string }>;
   /** Current transaction status */
   status: SendTransactionStatus;
+  /**
+   * True while the post-success settlement is still waiting for the indexer to
+   * reflect the new balance. A success screen can gate its "Done" CTA on this
+   * so the user returns to a fresh balance instead of a stale one.
+   */
+  settling: boolean;
   /** Error message if failed */
   error: string | null;
   /** Whether the hook is in an error state */
@@ -74,11 +80,13 @@ export function useSendTransaction({
   blockchain: _blockchain,
 }: UseSendTransactionParams): UseSendTransactionResult {
   const [status, setStatus] = useState<SendTransactionStatus>('idle');
+  const [settling, setSettling] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const settleAfterTx = useSettleAfterTx();
+  const settleUntilChanged = useSettleUntilChanged();
 
   const reset = useCallback(() => {
     setStatus('idle');
+    setSettling(false);
     setError(null);
   }, []);
 
@@ -139,16 +147,24 @@ export function useSendTransaction({
         );
 
         setStatus('success');
-        // Fire-and-forget invalidation; do not block the caller on RQ refetch.
+        // Return the txId immediately so the UI can show the success screen,
+        // then settle in the background. `settling` stays true until the
+        // indexer reflects the new balance (or the ceiling is hit), letting the
+        // success screen dwell until the user can return to a fresh balance.
         const accountId = account.getReceiveAddress();
         const networkId = account.getNetworkId();
-        settleAfterTx({
+        setSettling(true);
+        settleUntilChanged({
           accountId,
           networkId,
           kinds: ['balance', 'transactions'],
-        }).catch((err) => {
-          console.warn('[useSendTransaction] settleAfterTx failed:', err);
-        });
+        })
+          .catch((err) => {
+            console.warn('[useSendTransaction] settleUntilChanged failed:', err);
+          })
+          .finally(() => {
+            setSettling(false);
+          });
         return result;
       } catch (err) {
         console.error('[useSendTransaction] Transaction failed:', err);
@@ -158,13 +174,14 @@ export function useSendTransaction({
         throw err;
       }
     },
-    [account, settleAfterTx],
+    [account, settleUntilChanged],
   );
 
   return {
     estimateFee,
     sendTransaction,
     status,
+    settling,
     error,
     isError: error !== null,
     reset,
