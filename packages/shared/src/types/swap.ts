@@ -572,6 +572,13 @@ export interface SwapScreenProps<StyleType> {
   style?: StyleType;
   /** Default recipient address for bridge (e.g., user's own BTC address) */
   defaultRecipientAddress?: string;
+  /**
+   * Resolves the wallet's own receive address for a given chain. Used by the
+   * bridge flow to auto-fill the destination address based on the selected
+   * output token's chain. Must be memoised by the caller (e.g. `useCallback`)
+   * to avoid re-firing the auto-fill effect on every render.
+   */
+  getReceiveAddressForChain?: (chain: SwapChainType) => string;
 
   // Bridge-related props (optional - if provided, bridge tab becomes functional)
   /** Bridge source tokens (user's tokens available for bridging) */

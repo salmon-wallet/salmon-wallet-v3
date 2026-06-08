@@ -706,7 +706,8 @@
     "sendComplete": "Envio Completado",
     "swapComplete": "Swap Completado",
     "viewOnExplorer": "Ver en Explorer",
-    "continue": "Continuar"
+    "continue": "Continuar",
+    "settling": "Procesando…"
   },
   "accessibility": {
     "copy_address": "Copiar dirección de billetera {{address}}",

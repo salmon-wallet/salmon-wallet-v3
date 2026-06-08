@@ -12,7 +12,7 @@ import { View, StyleSheet, AppState, type AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
 
 import { I18nProvider } from '../src/i18n';
-import { AccountsProvider, CurrencyProvider, useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider } from '@salmon/shared';
+import { AccountsProvider, CurrencyProvider, useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider, BridgeSettlementProvider } from '@salmon/shared';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -57,11 +57,13 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AccountsProvider>
-        <CurrencyProvider>
-          <RootLayoutNav />
-        </CurrencyProvider>
-      </AccountsProvider>
+      <BridgeSettlementProvider>
+        <AccountsProvider>
+          <CurrencyProvider>
+            <RootLayoutNav />
+          </CurrencyProvider>
+        </AccountsProvider>
+      </BridgeSettlementProvider>
     </QueryClientProvider>
   );
 }

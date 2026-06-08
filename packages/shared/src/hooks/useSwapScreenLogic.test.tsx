@@ -2,11 +2,13 @@
  * @vitest-environment jsdom
  */
 
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { useQuery } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import type { SwapToken } from '../types/swap';
 import { createTestQueryClient, QueryWrapper } from '../test-utils/query-wrapper';
+import { queryKeys } from '../query/keys';
 
 function makeWrapper() {
   const client = createTestQueryClient();
@@ -15,6 +17,15 @@ function makeWrapper() {
   );
   Wrapper.displayName = 'TestWrapper';
   return Wrapper;
+}
+
+function makeWrapperWithClient() {
+  const client = createTestQueryClient();
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryWrapper client={client}>{children}</QueryWrapper>
+  );
+  Wrapper.displayName = 'TestWrapperWithClient';
+  return { client, wrapper: Wrapper };
 }
 
 vi.mock('../utils/account', () => ({
@@ -295,6 +306,89 @@ describe('useSwapScreenLogic', () => {
     expect(props.onSuccess).toHaveBeenCalledWith('swap-tx-1');
     expect(result.current.step).toBe('success');
     expect(result.current.successTxId).toBe('swap-tx-1');
+  });
+
+  it('settles after a Jupiter swap by polling until the indexer reflects the new balance', async () => {
+    // Event-driven settlement (useSettleUntilChanged): keep `settling` true and
+    // keep refetching until the on-chain balance signature actually changes.
+    const amounts = { current: '1000000000' };
+    const fetchBalance = vi.fn(async () => ({
+      items: [{ address: 'So11111111111111111111111111111111111111112', amount: amounts.current }],
+    }));
+
+    const props = createProps({
+      initialInToken: SOL,
+      initialOutToken: USDC,
+    });
+    const balanceKey = queryKeys.balance({
+      accountId: 'wallet-1',
+      networkId: 'solana-mainnet' as never,
+    });
+    const { wrapper, client } = makeWrapperWithClient();
+
+    const { result } = renderHook(
+      (hookProps) => {
+        const balanceQuery = useQuery({
+          queryKey: balanceKey,
+          queryFn: fetchBalance,
+          staleTime: 15_000,
+        });
+        const swapLogic = useSwapScreenLogic(hookProps);
+        return { balanceQuery, swapLogic };
+      },
+      {
+        initialProps: props,
+        wrapper,
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.balanceQuery.data?.items?.[0]?.amount).toBe('1000000000');
+    });
+
+    vi.useFakeTimers();
+
+    act(() => {
+      result.current.swapLogic.setInAmount('1');
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    act(() => {
+      result.current.swapLogic.handleReview();
+    });
+
+    await act(async () => {
+      await result.current.swapLogic.handleConfirmSwap();
+    });
+
+    // Success is shown immediately; settlement is still pending because the
+    // indexer has not reflected the swap yet.
+    expect(result.current.swapLogic.step).toBe('success');
+    expect(result.current.swapLogic.settling).toBe(true);
+
+    // One poll later the provider is still stale -> keep waiting.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_500);
+    });
+    expect(result.current.swapLogic.settling).toBe(true);
+
+    // Indexer catches up; the next poll observes the changed signature, settles
+    // the remaining kinds, and releases the screen.
+    amounts.current = '990000000';
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_500);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    vi.useRealTimers();
+
+    await waitFor(() => {
+      expect(result.current.swapLogic.settling).toBe(false);
+    });
+    expect((client.getQueryData(balanceKey) as { items: Array<{ amount: string }> }).items[0].amount).toBe(
+      '990000000',
+    );
   });
 
   it('resets state after success and refreshes balances again on continue', async () => {

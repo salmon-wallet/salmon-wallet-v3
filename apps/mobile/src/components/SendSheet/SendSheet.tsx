@@ -245,6 +245,7 @@ export const SendSheet: React.FC<SendSheetProps> = ({
               successTxId
             )}
             onContinue={handleSuccessContinue}
+            settling={sendHook.settling}
           />
         )}
       </View>

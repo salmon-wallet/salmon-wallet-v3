@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Linking } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, TouchableOpacity, Linking } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -25,6 +25,7 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
   summary,
   explorerUrl,
   onContinue,
+  settling = false,
   bridgeDepositAddress,
   bridgeAmountIn,
   bridgeAmountOut,
@@ -130,13 +131,19 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
       ) : null}
 
       <Animated.View style={[styles.buttonContainer, buttonStyle]}>
+        {settling ? (
+          <View style={styles.settlingRow}>
+            <ActivityIndicator size="small" color={colors.text.secondary} />
+            <Text style={styles.settlingText}>{t('transaction.settling', 'Processing…')}</Text>
+          </View>
+        ) : null}
         <LinearGradient
           colors={gradients.primaryButton.colors}
           start={gradients.primaryButton.start}
           end={gradients.primaryButton.end}
           style={styles.buttonGradient}
         >
-          <PrimaryButton onPress={onContinue} style={styles.button}>
+          <PrimaryButton onPress={onContinue} style={styles.button} disabled={settling}>
             {t('transaction.continue')}
           </PrimaryButton>
         </LinearGradient>
@@ -220,6 +227,17 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignItems: 'center',
+  },
+  settlingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s(spacing.sm),
+    marginBottom: vs(spacing.md),
+  },
+  settlingText: {
+    color: colors.text.secondary,
+    fontFamily: fontFamilyNative.regular,
+    fontSize: fontSize.sm,
   },
   buttonGradient: {
     borderRadius: borderRadius.lg,

@@ -15,7 +15,7 @@ import type {
   NftData,
   SolanaNftData,
 } from '../utils/nft';
-import { useInvalidateAfterTx } from '../query/invalidation';
+import { useSettleUntilChanged } from '../query/invalidation';
 
 export type NftTransferStatus = 'idle' | 'sending' | 'success' | 'failed';
 
@@ -33,6 +33,8 @@ export interface UseNftTransferParams {
 export interface UseNftTransferResult {
   sendNft: (nft: NftData, recipientAddress: string) => Promise<{ txId: string }>;
   status: NftTransferStatus;
+  /** True while the post-success settlement waits for the indexer to catch up. */
+  settling: boolean;
   error: string | null;
   isError: boolean;
   reset: () => void;
@@ -40,11 +42,13 @@ export interface UseNftTransferResult {
 
 export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferParams): UseNftTransferResult {
   const [status, setStatus] = useState<NftTransferStatus>('idle');
+  const [settling, setSettling] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const invalidateAfterTx = useInvalidateAfterTx();
+  const settleUntilChanged = useSettleUntilChanged();
 
   const reset = useCallback(() => {
     setStatus('idle');
+    setSettling(false);
     setError(null);
   }, []);
 
@@ -79,14 +83,19 @@ export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferPar
         const networkId = account.getNetworkId();
         const transferredMint =
           nft.blockchain === 'solana' ? (nft as SolanaNftData).mint : undefined;
-        invalidateAfterTx({
+        setSettling(true);
+        settleUntilChanged({
           accountId,
           networkId,
           kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
           removedNftMintAddresses: transferredMint ? [transferredMint] : undefined,
-        }).catch((err) => {
-          console.warn('[useNftTransfer] invalidateAfterTx failed:', err);
-        });
+        })
+          .catch((err) => {
+            console.warn('[useNftTransfer] settleUntilChanged failed:', err);
+          })
+          .finally(() => {
+            setSettling(false);
+          });
         onTransferSuccess?.(nft, result.txId);
         return result;
       } catch (err) {
@@ -97,8 +106,8 @@ export function useNftTransfer({ account, onTransferSuccess }: UseNftTransferPar
         throw err;
       }
     },
-    [account, onTransferSuccess, invalidateAfterTx],
+    [account, onTransferSuccess, settleUntilChanged],
   );
 
-  return { sendNft, status, error, isError: error !== null, reset };
+  return { sendNft, status, settling, error, isError: error !== null, reset };
 }

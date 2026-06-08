@@ -29,6 +29,8 @@ export interface NftDetailPageProps {
   burnPreview?: PreparedNftTransactionResponse | null;
   /** Whether the burn preview is being prepared or executed */
   burnPreparing?: boolean;
+  /** True while post-burn settlement waits for the indexer (gates the success CTA) */
+  burnSettling?: boolean;
   /** Optional burn preparation error */
   burnError?: string | null;
   /** Callback when navigating back from the burn review step */

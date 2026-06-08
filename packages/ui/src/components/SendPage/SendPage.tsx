@@ -214,6 +214,7 @@ export function SendPage({
               successTxId
             )}
             onContinue={handleSuccessContinue}
+            settling={sendHook.settling}
           />
         )}
       </ContentArea>

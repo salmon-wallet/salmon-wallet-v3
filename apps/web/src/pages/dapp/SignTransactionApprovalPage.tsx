@@ -12,7 +12,7 @@ import {
   type DAppTransactionRequest,
 } from '@salmon/shared';
 import { getActiveSolanaApprovalAccount } from '@salmon/shared/utils/account';
-import { onRequest, sendResponse } from '../../utils/walletBridge';
+import { onRequest, sendResponse, sendSettlementRequest } from '../../utils/walletBridge';
 
 export function SignTransactionApprovalPage(): React.ReactElement {
   const [searchParams] = useSearchParams();
@@ -95,6 +95,14 @@ export function SignTransactionApprovalPage(): React.ReactElement {
     setLoading(true);
     try {
       const payload = await approveSolanaTransactionRequest(solanaAccount, request);
+      if (request.method === 'signAndSendTransaction') {
+        sendSettlementRequest({
+          type: 'settle-after-tx',
+          accountId: solanaAccount.getReceiveAddress(),
+          networkId: solanaAccount.network.id,
+          kinds: ['balance', 'transactions'],
+        });
+      }
       sendResponse({
         requestId,
         approved: true,

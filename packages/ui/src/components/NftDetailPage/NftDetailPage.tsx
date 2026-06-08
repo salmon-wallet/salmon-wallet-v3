@@ -229,6 +229,7 @@ export function NftDetailPage({
   onSendPress,
   onBurnPress,
   burnStep = 'idle',
+  burnSettling = false,
   burnPreview,
   burnPreparing = false,
   burnError,
@@ -369,6 +370,7 @@ export function NftDetailPage({
             })}
             explorerUrl={burnSuccessExplorerUrl ?? null}
             onContinue={handleBurnSuccessContinue}
+            settling={burnSettling}
           />
         ) : (
           <>

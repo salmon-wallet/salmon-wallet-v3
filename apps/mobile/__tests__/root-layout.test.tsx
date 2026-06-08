@@ -61,6 +61,7 @@ jest.mock('@salmon/shared', () => ({
   useInactivityTimeout: jest.fn(),
   createQueryClient: () => ({}),
   QueryClientProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+  BridgeSettlementProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
 }));
 
 describe('RootLayout mobile lock lifecycle', () => {

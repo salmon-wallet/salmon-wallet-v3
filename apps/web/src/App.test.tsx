@@ -29,6 +29,10 @@ vi.mock('./utils/sessionKeyCache', () => ({
   clearSessionKey: () => mockClearSessionKey(),
 }));
 
+vi.mock('./providers/DAppSettlementBridge', () => ({
+  DAppSettlementBridge: () => null,
+}));
+
 vi.mock('@salmon/shared', async () => {
   const { QueryClient, QueryClientProvider } = await import('@tanstack/react-query');
   return {

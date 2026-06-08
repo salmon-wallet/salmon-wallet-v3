@@ -12,6 +12,14 @@ export interface TransactionSuccessScreenProps {
   explorerUrl: string | null;
   /** Callback when user taps "Continue" to navigate home */
   onContinue: () => void;
+  /**
+   * True while the same-chain settlement is still waiting for the indexer to
+   * reflect the new balance. When set, the success screen disables "Continue"
+   * and shows an "Updating balance…" indicator so the user returns home to a
+   * fresh balance instead of a stale one. Always false for the bridge, whose
+   * destination settles in the background.
+   */
+  settling?: boolean;
   /** Bridge deposit address (where user must send funds) */
   bridgeDepositAddress?: string;
   /** Bridge input amount with symbol (e.g., "33 USDC") */

@@ -1,9 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { WalletLayout } from '@salmon/ui';
-import { useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider } from '@salmon/shared';
+import {
+  useAccountsContext,
+  useInactivityTimeout,
+  createQueryClient,
+  QueryClientProvider,
+  BridgeSettlementProvider,
+} from '@salmon/shared';
 import { router } from './router';
 import { clearSessionKey } from './utils/sessionKeyCache';
+import { DAppSettlementBridge } from './providers/DAppSettlementBridge';
 
 function InactivityGuard({ children }: { children: React.ReactNode }) {
   const [state, actions] = useAccountsContext();
@@ -50,11 +57,14 @@ export function App(): React.ReactElement {
   const [queryClient] = useState(() => createQueryClient());
   return (
     <QueryClientProvider client={queryClient}>
-      <WalletLayout>
-        <InactivityGuard>
-          <RouterProvider router={router} />
-        </InactivityGuard>
-      </WalletLayout>
+      <BridgeSettlementProvider>
+        <DAppSettlementBridge />
+        <WalletLayout>
+          <InactivityGuard>
+            <RouterProvider router={router} />
+          </InactivityGuard>
+        </WalletLayout>
+      </BridgeSettlementProvider>
     </QueryClientProvider>
   );
 }

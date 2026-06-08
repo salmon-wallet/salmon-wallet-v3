@@ -207,6 +207,10 @@ export const STORAGE_KEYS = {
   /** Balance visibility preference */
   HIDDEN_BALANCE: 'salmon_hidden_balance',
 
+  // -- Cross-chain settlement --
+  /** Pending StealthEX bridge exchanges awaiting completion (BridgeSettlement) */
+  PENDING_BRIDGES: 'salmon_pending_bridges',
+
   // -- Legacy keys (v2 → v3 migration, removed after upgrade) --
   /** @deprecated Legacy wallet list */
   WALLETS: 'salmon_wallets',

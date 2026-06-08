@@ -21,11 +21,12 @@ import type {
   BridgeToken,
   BridgeEstimate,
 } from '../types/ui/bridge-screen';
+import type { NetworkId } from '../types/blockchain';
 import { getSwapMode, validateAddress, getChainFromNetwork, toStealthExNetwork } from '../utils/swap';
 import { getChainDisplayName } from '../utils/account';
 import { KNOWN_DECIMALS, NATIVE_TOKEN_LOGOS } from '../utils/tokens';
 import { getEnabledNetworkIds } from '../api/services/network';
-import { useInvalidateAfterTx } from '../query/invalidation';
+import { useSettleAfterTx, useSettleUntilChanged } from '../query/invalidation';
 
 // ============================================================================
 // Constants
@@ -151,6 +152,22 @@ export interface UseSwapScreenLogicParams<StyleType = unknown> extends SwapScree
    * Mobile uses Alert.alert; extension uses window.alert.
    */
   onBridgeInitiated?: (exchange: BridgeExchangeSimple, inAmount: string, inSymbol: string, outSymbol: string) => void;
+  /**
+   * Invoked right after a bridge (StealthEX) exchange is created and the deposit
+   * is sent. The app should register the exchange with the BridgeSettlement
+   * provider so its minutes-long destination settlement is polled in the
+   * background — the success screen must NOT block on it. Receives the exchange
+   * plus the source/destination network and the destination payout address so
+   * the app can build the pending record without reading hook state.
+   */
+  onBridgeExchangeCreated?: (
+    exchange: BridgeExchangeSimple,
+    context: {
+      sourceNetworkId?: string;
+      destNetworkId?: string;
+      destinationAddress: string;
+    },
+  ) => void;
 }
 
 // ============================================================================
@@ -179,6 +196,13 @@ export interface UseSwapScreenLogicResult {
   successExchange: BridgeExchangeSimple | null;
   depositTxId: string | null;
   bridgeTransaction: BridgeTransactionSimple | null;
+  /**
+   * True while a same-chain (Jupiter) swap is waiting for the indexer to
+   * reflect the new balances. A success screen can gate its "Done" CTA on this.
+   * Always false for the StealthEX bridge, whose minutes-long settlement is
+   * tracked in the background instead of by blocking the screen.
+   */
+  settling: boolean;
 
   // Computed
   swapMode: 'jupiter' | 'stealthex' | null;
@@ -240,6 +264,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
   initialOutToken,
   jupiterTokens = [],
   defaultRecipientAddress,
+  getReceiveAddressForChain,
   // Bridge props
   onGetAvailableTokens,
   onGetBridgeEstimate,
@@ -250,12 +275,15 @@ export function useSwapScreenLogic<StyleType = unknown>({
   onSendDeposit,
   // Platform-specific
   onBridgeInitiated: _onBridgeInitiated,
+  onBridgeExchangeCreated,
   onNavigateHome,
 }: UseSwapScreenLogicParams<StyleType>): UseSwapScreenLogicResult {
-  const invalidateAfterTx = useInvalidateAfterTx();
+  const settleAfterTx = useSettleAfterTx();
+  const settleUntilChanged = useSettleUntilChanged();
   // ── State ──────────────────────────────────────────────────────────────
 
   const [step, setStep] = useState<SwapScreenStep>('input');
+  const [settling, setSettling] = useState(false);
   const [inToken, setInToken] = useState<SwapToken | null>(initialInToken || tokens[0] || null);
   const [outToken, setOutToken] = useState<SwapToken | null>(initialOutToken || null);
   const [availableOutTokens, setAvailableOutTokens] = useState<SwapToken[]>([]);
@@ -304,6 +332,21 @@ export function useSwapScreenLogic<StyleType = unknown>({
 
   const targetChain: SwapChainType | null = outToken?.chain || null;
   const addressValidation = validateAddress(recipientAddress, targetChain);
+
+  // Bridge auto-fill: when the user picks a cross-chain output, resolve the
+  // wallet's own receive address for that chain instead of defaulting to the
+  // BTC address. The effect only fires when `targetChain` or `swapMode`
+  // change, so subsequent manual edits by the user are preserved until they
+  // pick a different output chain. Callers MUST memoise
+  // `getReceiveAddressForChain` (e.g. via `useCallback`) or the effect will
+  // overwrite manual edits on every render.
+  useEffect(() => {
+    if (swapMode !== 'stealthex') return;
+    if (!targetChain) return;
+    if (!getReceiveAddressForChain) return;
+    const resolved = getReceiveAddressForChain(targetChain) || '';
+    setRecipientAddress(resolved);
+  }, [swapMode, targetChain, getReceiveAddressForChain]);
 
   const canReviewJupiter =
     swapMode === 'jupiter' &&
@@ -374,7 +417,12 @@ export function useSwapScreenLogic<StyleType = unknown>({
             decimals: KNOWN_DECIMALS[t.symbol.toLowerCase()] ?? 8,
             logo: t.logo || NATIVE_TOKEN_LOGOS[t.symbol.toLowerCase()],
             chain,
-            networkId: t.network ?? undefined,
+            // Backend returns `network: null` for native cross-chain tokens
+            // (e.g. SOL, BTC as output destinations). Synthesize the
+            // canonical wallet network id from `chain` so downstream
+            // consumers (review screen, recipient resolver) always see a
+            // populated `networkId` and don't fall back to "Unknown".
+            networkId: t.network ?? `${chain}-mainnet`,
           });
         }
         setAvailableOutTokens(bridgeOutputTokens);
@@ -536,9 +584,20 @@ export function useSwapScreenLogic<StyleType = unknown>({
       const result = await onSwap(quote);
       setSuccessTxId(result.txId);
       setStep('success');
-      invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch((err) => {
-        console.warn('[useSwapScreenLogic] invalidateAfterTx failed:', err);
-      });
+      // Jupiter is same-chain: settle until the indexer reflects both token
+      // balances so the success screen can dwell and return the user to fresh
+      // numbers. `settling` drives the success-screen "Done" gate.
+      setSettling(true);
+      settleUntilChanged({
+        networkId: quote.networkId as NetworkId,
+        kinds: ['balance', 'transactions'],
+      })
+        .catch((err) => {
+          console.warn('[useSwapScreenLogic] settleUntilChanged failed:', err);
+        })
+        .finally(() => {
+          setSettling(false);
+        });
       onSuccess?.(result.txId);
     } catch (error) {
       console.error('Swap failed:', error);
@@ -551,7 +610,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [onError, invalidateAfterTx, onSuccess, onSwap, quote]);
+  }, [onError, onSuccess, onSwap, quote, settleUntilChanged]);
 
   const handleConfirmBridge = useCallback(async () => {
     if (!inToken || !outToken || !inAmount || !recipientAddress || !onCreateBridgeExchange) return;
@@ -585,9 +644,20 @@ export function useSwapScreenLogic<StyleType = unknown>({
         }
         setSuccessExchange(exchange);
         setStep('success');
-        invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch((err) => {
-        console.warn('[useSwapScreenLogic] invalidateAfterTx failed:', err);
-      });
+        // Source-side settle only: the deposit has left the wallet, so the
+        // source balance will drop within the indexer's lag. The DESTINATION
+        // payout takes minutes — hand the exchange to the background poller
+        // instead of blocking this screen.
+        settleAfterTx({
+          kinds: ['balance', 'transactions'],
+        }).catch((err) => {
+          console.warn('[useSwapScreenLogic] settleAfterTx failed:', err);
+        });
+        onBridgeExchangeCreated?.(exchange, {
+          sourceNetworkId: inToken?.networkId,
+          destNetworkId: outToken?.networkId,
+          destinationAddress: recipientAddress,
+        });
         onBridgeSuccess?.(exchange);
       } else {
         throw new Error('Failed to create bridge exchange');
@@ -603,7 +673,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     } finally {
       setIsConfirming(false);
     }
-  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeError, invalidateAfterTx]);
+  }, [inToken, outToken, inAmount, recipientAddress, onCreateBridgeExchange, onSendDeposit, onGetBridgeTransactionStatus, onBridgeSuccess, onBridgeExchangeCreated, onBridgeError, settleAfterTx]);
 
   const handleRefreshQuote = useCallback(async () => {
     if (isLoadingQuote || isLoadingEstimate) return;
@@ -671,9 +741,9 @@ export function useSwapScreenLogic<StyleType = unknown>({
     setSuccessExchange(null);
     setDepositTxId(null);
     setBridgeTransaction(null);
-    invalidateAfterTx({ kinds: ['balance', 'transactions'] }).catch(() => undefined);
+    settleAfterTx({ kinds: ['balance', 'transactions'], settlementDelaysMs: [] }).catch(() => undefined);
     onNavigateHome?.();
-  }, [invalidateAfterTx, onNavigateHome]);
+  }, [settleAfterTx, onNavigateHome]);
 
   // ── Derived / memoised ─────────────────────────────────────────────────
 
@@ -854,6 +924,7 @@ export function useSwapScreenLogic<StyleType = unknown>({
     successExchange,
     depositTxId,
     bridgeTransaction,
+    settling,
 
     swapMode,
     inUsdValue,

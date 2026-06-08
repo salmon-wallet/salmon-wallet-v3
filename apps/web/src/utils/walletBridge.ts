@@ -2,7 +2,7 @@
  * BroadcastChannel bridge for popup-based dApp approvals in the web wallet.
  */
 
-import type { DAppApprovalRequest } from '@salmon/shared';
+import type { DAppApprovalRequest, InvalidationKind, NetworkId } from '@salmon/shared';
 
 const CHANNEL_NAME = 'salmon_wallet_bridge';
 
@@ -19,6 +19,13 @@ export interface BridgeResponse {
   error?: string;
 }
 
+export interface BridgeSettlementRequest {
+  type: 'settle-after-tx';
+  accountId: string;
+  networkId?: NetworkId;
+  kinds: InvalidationKind[];
+}
+
 let channel: BroadcastChannel | null = null;
 
 function getChannel(): BroadcastChannel {
@@ -33,6 +40,10 @@ export function sendResponse(response: BridgeResponse): void {
 }
 
 export function sendRequest(request: BridgeRequest): void {
+  getChannel().postMessage(request);
+}
+
+export function sendSettlementRequest(request: BridgeSettlementRequest): void {
   getChannel().postMessage(request);
 }
 
@@ -64,6 +75,25 @@ export function onRequest(callback: (request: BridgeRequest) => void): () => voi
 
   function handler(event: MessageEvent<BridgeRequest>) {
     if (event.data?.requestId && event.data?.request?.method) {
+      callback(event.data);
+    }
+  }
+
+  channelRef.addEventListener('message', handler);
+  return () => channelRef.removeEventListener('message', handler);
+}
+
+export function onSettlementRequest(
+  callback: (request: BridgeSettlementRequest) => void,
+): () => void {
+  const channelRef = getChannel();
+
+  function handler(event: MessageEvent<BridgeSettlementRequest>) {
+    if (
+      event.data?.type === 'settle-after-tx' &&
+      event.data.accountId &&
+      Array.isArray(event.data.kinds)
+    ) {
       callback(event.data);
     }
   }

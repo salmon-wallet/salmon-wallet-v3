@@ -7,8 +7,8 @@
 import React from 'react';
 import { styled } from '../../utils/styled';
 import Box from '@mui/material/Box';
-import { useSwapScreenLogic, getTransactionUrl, getDefaultExplorer } from '@salmon/shared';
-import type { Blockchain, NetworkEnvironment } from '@salmon/shared';
+import { useSwapScreenLogic, getTransactionUrl, getDefaultExplorer, useBridgeSettlement } from '@salmon/shared';
+import type { Blockchain, NetworkEnvironment, NetworkId } from '@salmon/shared';
 import { useTranslation } from 'react-i18next';
 import { SwapInputScreen } from './SwapInputScreen';
 import { SwapReviewScreen } from './SwapReviewScreen';
@@ -30,8 +30,20 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
   const { style } = props;
   const { t } = useTranslation();
 
+  const { trackBridgeExchange } = useBridgeSettlement();
+
   const logic = useSwapScreenLogic({
     ...props,
+    onBridgeExchangeCreated: (exchange, context) => {
+      // Hand the cross-chain exchange to the background poller; its destination
+      // settles in minutes, so the success screen must not block on it.
+      trackBridgeExchange({
+        id: exchange.id,
+        sourceNetworkId: context.sourceNetworkId as NetworkId | undefined,
+        destNetworkId: context.destNetworkId as NetworkId | undefined,
+        destAccountId: context.destinationAddress,
+      });
+    },
   });
 
   return (
@@ -108,6 +120,7 @@ export function SwapScreen(props: SwapScreenProps): React.ReactElement {
             : null
           }
           onContinue={logic.handleSuccessContinue}
+          settling={logic.settling}
           bridgeDepositAddress={logic.successExchange?.depositAddress}
           bridgeAmountIn={logic.successExchange ? `${logic.inAmount} ${logic.inToken?.symbol ?? ''}` : undefined}
           bridgeAmountOut={logic.successExchange ? `${logic.successExchange.amountOut} ${logic.outToken?.symbol ?? ''}` : undefined}
