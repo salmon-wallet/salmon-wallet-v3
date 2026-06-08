@@ -74,6 +74,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
   onSendSuccess,
   burnPreview,
   burnPreparing = false,
+  burnSettling = false,
   burnSuccessTxId,
   burnError,
   onBurnPress,
@@ -820,7 +821,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
             })}
           explorerUrl={explorerUrl ?? null}
           onContinue={handleSuccessContinue}
-          settling={successKind === 'send' ? nftSettling : false}
+          settling={successKind === 'send' ? nftSettling : successKind === 'burn' ? burnSettling : false}
         />
       )}
     </BottomSheetContainer>

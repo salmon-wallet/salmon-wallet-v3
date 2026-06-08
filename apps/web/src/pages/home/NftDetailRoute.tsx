@@ -8,10 +8,10 @@ import {
   fontSize,
   spacing,
   useAccountsContext,
+  useNftBurn,
   useSettleAfterTx,
   isSolanaNft,
   createBurnTransaction,
-  signAndSendPreparedSolanaTransactions,
   type NftData,
 } from '@salmon/shared';
 import { isSolanaAccount } from '@salmon/shared/utils/account';
@@ -24,7 +24,6 @@ export function NftDetailRoute(): React.ReactElement {
 
   const [state] = useAccountsContext();
   const { activeAccount } = state;
-  const settleAfterTx = useSettleAfterTx();
 
   const [nftSendVisible, setNftSendVisible] = useState(false);
   const [burnStep, setBurnStep] = useState<'idle' | 'review' | 'success'>('idle');
@@ -54,6 +53,12 @@ export function NftDetailRoute(): React.ReactElement {
 
     return undefined;
   }, [activeAccount]);
+
+  const settleAfterTx = useSettleAfterTx();
+  const nftBurn = useNftBurn({
+    account: collectibleSolanaAccount ?? null,
+    activeAccountId: activeAccount?.id,
+  });
 
   const handleBack = useCallback(() => navigate(-1), [navigate]);
 
@@ -106,24 +111,15 @@ export function NftDetailRoute(): React.ReactElement {
     try {
       setBurnPreparing(true);
       setBurnError(null);
-      await signAndSendPreparedSolanaTransactions(collectibleSolanaAccount, burnPreview);
+      await nftBurn.burnNft(burnPreview, nft.mint ?? undefined);
       setBurnStep('success');
-      settleAfterTx({
-        accountId: collectibleSolanaAccount.getReceiveAddress(),
-        avatarAccountId: activeAccount?.id,
-        networkId: collectibleSolanaAccount.getNetworkId(),
-        kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-        removedNftMintAddresses: nft.mint ? [nft.mint] : undefined,
-      }).catch((invalidationErr) => {
-        console.warn('[NftDetailRoute] settleAfterTx failed:', invalidationErr);
-      });
     } catch (err) {
       console.error('Failed to burn NFT:', err);
       setBurnError(err instanceof Error ? err.message : 'Burn failed');
     } finally {
       setBurnPreparing(false);
     }
-  }, [activeAccount?.id, nft, collectibleSolanaAccount, burnPreview, settleAfterTx]);
+  }, [nft, collectibleSolanaAccount, burnPreview, nftBurn]);
 
   const handleBurnSuccessContinue = useCallback(() => {
     handleBurnBack();
@@ -192,6 +188,7 @@ export function NftDetailRoute(): React.ReactElement {
         burnPreview={burnPreview}
         burnPreparing={burnPreparing}
         burnError={burnError}
+        burnSettling={nftBurn.settling}
         onBurnBack={handleBurnBack}
         onBurnConfirm={confirmBurnNft}
         onBurnSuccessContinue={handleBurnSuccessContinue}

@@ -146,6 +146,13 @@ export type {
   NftTransferStatus,
 } from './useNftTransfer';
 
+export { useNftBurn } from './useNftBurn';
+export type {
+  UseNftBurnParams,
+  UseNftBurnResult,
+  NftBurnStatus,
+} from './useNftBurn';
+
 // SwapScreen logic hook (shared between mobile & extension)
 export { useSwapScreenLogic } from './useSwapScreenLogic';
 export type {

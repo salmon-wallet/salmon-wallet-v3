@@ -33,6 +33,8 @@ export interface NftDetailSheetProps {
   burnPreview?: PreparedNftTransactionResponse | null;
   /** Whether the burn preview is being prepared or the burn is being submitted */
   burnPreparing?: boolean;
+  /** True while post-burn settlement waits for the indexer (gates the success CTA) */
+  burnSettling?: boolean;
   /** Successful burn transaction ID */
   burnSuccessTxId?: string | null;
   /** Optional burn preview error */

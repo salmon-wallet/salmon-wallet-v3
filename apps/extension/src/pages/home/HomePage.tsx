@@ -35,7 +35,6 @@ import {
   type BlockchainType,
   isSolanaNft,
   createBurnTransaction,
-  signAndSendPreparedSolanaTransactions,
   useCurrencyContext,
   LANGUAGE_NAMES,
   type LanguageCode,
@@ -52,6 +51,7 @@ import {
   PERIOD_TO_DAYS,
   coinInfoToMarketData,
   useSettleAfterTx,
+  useNftBurn,
 } from '@salmon/shared';
 import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { sessionArea } from '../../utils/storageCompat';
@@ -476,6 +476,10 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
   // NFT see-all page state
   const [seeAllData, setSeeAllData] = useState<{ title: string; blockchain: NftBlockchain; nfts: NftData[] } | null>(null);
   const settleAfterTx = useSettleAfterTx();
+  const nftBurn = useNftBurn({
+    account: collectibleSolanaAccount ?? null,
+    activeAccountId: activeAccount?.id,
+  });
 
   // Bitcoin-specific state
   const [bitcoinChartPeriod, setBitcoinChartPeriod] = useState<PriceChartPeriod>('1M');
@@ -760,26 +764,15 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
 
     setBurnLoading(true);
     try {
-      const solanaAccount = collectibleSolanaAccount;
-      await signAndSendPreparedSolanaTransactions(solanaAccount, burnPreview);
-
+      await nftBurn.burnNft(burnPreview, selectedNft.mint ?? undefined);
       setBurnStep('success');
-      settleAfterTx({
-        accountId: solanaAccount.getReceiveAddress(),
-        avatarAccountId: activeAccount?.id,
-        networkId: solanaAccount.getNetworkId(),
-        kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-        removedNftMintAddresses: selectedNft.mint ? [selectedNft.mint] : undefined,
-      }).catch((err) => {
-        console.warn('[HomePage] settleAfterTx failed:', err);
-      });
     } catch (error) {
       console.error('[HomePage] NFT burn failed:', error);
       setBurnError(error instanceof Error ? error.message : 'Burn failed');
     } finally {
       setBurnLoading(false);
     }
-  }, [activeAccount?.id, selectedNft, collectibleSolanaAccount, burnPreview, settleAfterTx]);
+  }, [selectedNft, collectibleSolanaAccount, burnPreview, nftBurn]);
 
   const handleNftBurnSuccessContinue = useCallback(() => {
     handleNftBurnBack();
@@ -1155,6 +1148,7 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
                 burnStep={burnStep}
                 burnPreview={burnPreview}
                 burnPreparing={burnLoading}
+                burnSettling={nftBurn.settling}
                 burnError={burnError}
                 onBurnBack={handleNftBurnBack}
                 onBurnConfirm={confirmBurnNft}

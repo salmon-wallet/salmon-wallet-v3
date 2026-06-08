@@ -23,7 +23,6 @@ import {
   createBurnTransaction,
   fontFamilyNative,
   fontSize,
-  signAndSendPreparedSolanaTransactions,
   letterSpacing,
   spacing,
   getNftSectionTitle,
@@ -31,6 +30,7 @@ import {
   ms,
   s,
   useAccountsContext,
+  useNftBurn,
   useSettleAfterTx,
   useSolanaNfts,
   vs,
@@ -295,6 +295,10 @@ export default function CollectiblesScreen() {
   // }, []);
 
   const settleAfterTx = useSettleAfterTx();
+  const nftBurn = useNftBurn({
+    account: (nftAccount as SolanaAccount | undefined) ?? null,
+    activeAccountId: activeAccount?.id,
+  });
 
   const handleSendSuccess = useCallback((txId: string) => {
     Alert.alert('NFT Sent', `Transaction submitted successfully.\n\nTx: ${txId.slice(0, 20)}...`, [{ text: 'OK' }]);
@@ -374,27 +378,15 @@ export default function CollectiblesScreen() {
     setBurnError(null);
 
     try {
-      const solAccount = nftAccount as SolanaAccount;
-      const signatures = await signAndSendPreparedSolanaTransactions(solAccount, burnPreview);
-      const signature = signatures[signatures.length - 1] ?? '';
-
-      setBurnSuccessTxId(signature);
-      settleAfterTx({
-        accountId: solAccount.getReceiveAddress(),
-        avatarAccountId: activeAccount?.id,
-        networkId: solAccount.getNetworkId(),
-        kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
-        removedNftMintAddresses: nft.mint ? [nft.mint] : undefined,
-      }).catch((err) => {
-        console.warn('[collectibles] settleAfterTx failed:', err);
-      });
+      const signatures = await nftBurn.burnNft(burnPreview, nft.mint ?? undefined);
+      setBurnSuccessTxId(signatures[signatures.length - 1] ?? '');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Burn failed';
       setBurnError(msg);
     } finally {
       setBurnExecuting(false);
     }
-  }, [activeAccount?.id, burnPreview, detailSheet.nft, nftAccount, settleAfterTx]);
+  }, [burnPreview, detailSheet.nft, nftAccount, nftBurn]);
 
   const handleBurnSuccess = useCallback((_txId: string) => {
     handleDetailSheetClose();
@@ -594,6 +586,7 @@ export default function CollectiblesScreen() {
         onSendSuccess={handleSendSuccess}
         burnPreview={burnPreview}
         burnPreparing={burnPreparing || burnExecuting}
+        burnSettling={nftBurn.settling}
         burnSuccessTxId={burnSuccessTxId}
         burnError={burnError}
         onBurnPress={handlePrepareBurn}

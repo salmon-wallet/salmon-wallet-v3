@@ -65,6 +65,30 @@ jest.mock('@salmon/shared', () => ({
   s: (value: number) => value,
   useAccountsContext: () => mockUseAccountsContext(),
   useSettleAfterTx: () => mockInvalidateAfterTx,
+  useNftBurn: ({
+    account,
+    activeAccountId,
+  }: {
+    account: { getReceiveAddress: () => string; getNetworkId: () => string } | null;
+    activeAccountId?: string;
+  }) => ({
+    burnNft: async (prepared: unknown, removedMint?: string) => {
+      const signatures = await mockSignAndSendPreparedSolanaTransactions(account, prepared);
+      await mockInvalidateAfterTx({
+        accountId: account?.getReceiveAddress(),
+        avatarAccountId: activeAccountId,
+        networkId: account?.getNetworkId(),
+        kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+        removedNftMintAddresses: removedMint ? [removedMint] : undefined,
+      });
+      return signatures;
+    },
+    status: 'idle',
+    settling: false,
+    error: null,
+    isError: false,
+    reset: () => {},
+  }),
   useSolanaNfts: (...args: unknown[]) => mockUseSolanaNfts(...args),
   vs: (value: number) => value,
 }));
