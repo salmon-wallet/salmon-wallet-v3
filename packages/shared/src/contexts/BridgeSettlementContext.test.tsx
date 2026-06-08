@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -10,6 +10,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BridgeSettlementProvider, useBridgeSettlement } from './BridgeSettlementContext';
 import { queryKeys } from '../query/keys';
 import type { BridgeTransaction } from '../types/bridge';
+import {
+  initStorage,
+  resetStorage,
+  isStorageInitialized,
+  createLocalStorageAdapter,
+  setStorageItem,
+  STORAGE_KEYS,
+} from '../storage';
 
 const SRC_NET = 'solana-mainnet' as never;
 const SRC_ACCT = 'sol-address';
@@ -48,6 +56,12 @@ const isInvalidated = (client: QueryClient, key: readonly unknown[]) =>
 describe('BridgeSettlementProvider', () => {
   afterEach(() => {
     vi.useRealTimers();
+    if (isStorageInitialized()) {
+      resetStorage();
+    }
+    if (typeof window !== 'undefined') {
+      window.localStorage?.clear();
+    }
   });
 
   it('polls until success, then settles the destination balance and stops tracking', async () => {
@@ -71,15 +85,16 @@ describe('BridgeSettlementProvider', () => {
     });
     expect(result.current.pendingExchanges).toHaveLength(1);
 
-    // First poll: still in progress -> keep tracking, nothing settled.
+    // Immediate poll (fires on track/resume): still in progress -> keep tracking.
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_000);
+      await Promise.resolve();
+      await Promise.resolve();
     });
     expect(getStatus).toHaveBeenCalledTimes(1);
     expect(result.current.pendingExchanges).toHaveLength(1);
     expect(isInvalidated(client, destKey)).toBe(false);
 
-    // Second poll: success -> settle destination + source, drop from pending.
+    // Next interval poll: success -> settle destination + source, drop pending.
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1_000);
       await Promise.resolve();
@@ -110,8 +125,9 @@ describe('BridgeSettlementProvider', () => {
       });
     });
 
+    // Immediate poll settles on the terminal status without waiting an interval.
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_000);
+      await Promise.resolve();
       await Promise.resolve();
       await Promise.resolve();
     });
@@ -142,5 +158,37 @@ describe('BridgeSettlementProvider', () => {
     expect(getStatus.mock.calls.length).toBeGreaterThanOrEqual(2);
     expect(result.current.pendingExchanges).toHaveLength(1);
     expect(isInvalidated(client, destKey)).toBe(false);
+  });
+
+  it('hydrates persisted exchanges on mount and settles one that finished while away', async () => {
+    // A bridge persisted in a previous session (e.g. before the extension popup
+    // closed) must resume and settle on next open.
+    initStorage({ platform: 'web', adapter: createLocalStorageAdapter() });
+    await setStorageItem(STORAGE_KEYS.PENDING_BRIDGES, [
+      {
+        id: 'ex-resumed',
+        sourceNetworkId: SRC_NET,
+        sourceAccountId: SRC_ACCT,
+        destNetworkId: DEST_NET,
+        destAccountId: DEST_ACCT,
+      },
+    ]);
+
+    const getStatus = vi
+      .fn<(id: string) => Promise<BridgeTransaction | null>>()
+      .mockResolvedValue({ status: 'success' } as BridgeTransaction);
+
+    // Real timers: the hydrate read + immediate poll resolve via microtasks.
+    const { client, result } = setup(getStatus);
+
+    // Wait for the resumed exchange to actually be polled (proves hydration ran),
+    // then for it to settle and clear.
+    await waitFor(() => {
+      expect(getStatus).toHaveBeenCalledWith('ex-resumed');
+    });
+    await waitFor(() => {
+      expect(result.current.pendingExchanges).toHaveLength(0);
+    });
+    expect(isInvalidated(client, destKey)).toBe(true);
   });
 });

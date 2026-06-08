@@ -32,6 +32,12 @@ import type { NetworkId } from '../types/blockchain';
 import type { BridgeTransaction } from '../types/bridge';
 import { getBridgeTransaction } from '../api/services/bridge';
 import { useSettleAfterTx } from '../query/invalidation';
+import {
+  getStorageItem,
+  setStorageItem,
+  isStorageInitialized,
+  STORAGE_KEYS,
+} from '../storage';
 
 export interface PendingBridgeExchange {
   /** StealthEX exchange id — used to poll status. */
@@ -78,6 +84,9 @@ export function BridgeSettlementProvider({
   const settleAfterTx = useSettleAfterTx();
   const pendingRef = useRef<PendingBridgeExchange[]>([]);
   pendingRef.current = pendingExchanges;
+  // Persistence must not run until the initial hydrate from storage completes,
+  // otherwise the empty initial state would clobber a stored list.
+  const hydratedRef = useRef(false);
 
   const trackBridgeExchange = useCallback((exchange: PendingBridgeExchange) => {
     setPendingExchanges((prev) =>
@@ -88,6 +97,39 @@ export function BridgeSettlementProvider({
   const remove = useCallback((id: string) => {
     setPendingExchanges((prev) => prev.filter((p) => p.id !== id));
   }, []);
+
+  // Hydrate persisted pending exchanges once on mount so a bridge that was
+  // created in a previous session (or before the extension popup closed)
+  // resumes being polled and settles when it eventually finishes.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      if (isStorageInitialized()) {
+        try {
+          const stored = await getStorageItem<PendingBridgeExchange[]>(
+            STORAGE_KEYS.PENDING_BRIDGES,
+          );
+          if (active && Array.isArray(stored) && stored.length > 0) {
+            setPendingExchanges(stored);
+          }
+        } catch (err) {
+          console.warn('[BridgeSettlement] hydrate failed:', err);
+        }
+      }
+      hydratedRef.current = true;
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Persist the pending list whenever it changes (after hydration).
+  useEffect(() => {
+    if (!hydratedRef.current || !isStorageInitialized()) return;
+    setStorageItem(STORAGE_KEYS.PENDING_BRIDGES, pendingExchanges).catch((err) => {
+      console.warn('[BridgeSettlement] persist failed:', err);
+    });
+  }, [pendingExchanges]);
 
   useEffect(() => {
     if (pendingExchanges.length === 0) return undefined;
@@ -136,6 +178,10 @@ export function BridgeSettlementProvider({
       }
     };
 
+    // Poll once immediately so a resumed (rehydrated) exchange that already
+    // finished while the app was closed settles right away instead of waiting a
+    // full interval.
+    void poll();
     const interval = setInterval(poll, pollIntervalMs);
     return () => {
       cancelled = true;
