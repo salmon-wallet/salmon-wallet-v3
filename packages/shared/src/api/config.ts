@@ -62,10 +62,23 @@ function getEnvVar(name: string): string | undefined {
 
   if (expoValue) return expoValue;
 
-  // Fallback: dynamic access for Vite (process.env is a real object) and Node.js
-  const viteKey = `VITE_${name}`;
+  // Vite replaces STATIC `process.env.VITE_*` member accesses at build time via
+  // its `define`. A DYNAMIC `process.env[`VITE_${name}`]` is NOT statically
+  // replaced — and the `process` shim leaves its env empty — so the web build
+  // silently fell back to prod. The static map below is required for Vite.
+  const viteValue = ({
+    SALMON_ENV: process.env.VITE_SALMON_ENV,
+    API_HOST: process.env.VITE_API_HOST,
+    API_PORT: process.env.VITE_API_PORT,
+    API_URL: process.env.VITE_API_URL,
+    STATIC_API_URL: process.env.VITE_STATIC_API_URL,
+  } as Record<string, string | undefined>)[name];
+
+  if (viteValue) return viteValue;
+
+  // Fallback: dynamic access for Node.js (tests, SSR) where process.env is real.
   if (typeof process !== 'undefined' && process.env) {
-    return process.env[viteKey] || process.env[name];
+    return process.env[`VITE_${name}`] || process.env[name];
   }
 
   return undefined;
