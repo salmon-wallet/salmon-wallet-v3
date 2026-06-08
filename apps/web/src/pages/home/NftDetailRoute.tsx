@@ -8,7 +8,7 @@ import {
   fontSize,
   spacing,
   useAccountsContext,
-  useInvalidateAfterTx,
+  useSettleAfterTx,
   isSolanaNft,
   createBurnTransaction,
   signAndSendPreparedSolanaTransactions,
@@ -24,7 +24,7 @@ export function NftDetailRoute(): React.ReactElement {
 
   const [state] = useAccountsContext();
   const { activeAccount } = state;
-  const invalidateAfterTx = useInvalidateAfterTx();
+  const settleAfterTx = useSettleAfterTx();
 
   const [nftSendVisible, setNftSendVisible] = useState(false);
   const [burnStep, setBurnStep] = useState<'idle' | 'review' | 'success'>('idle');
@@ -108,12 +108,14 @@ export function NftDetailRoute(): React.ReactElement {
       setBurnError(null);
       await signAndSendPreparedSolanaTransactions(collectibleSolanaAccount, burnPreview);
       setBurnStep('success');
-      invalidateAfterTx({
+      settleAfterTx({
         accountId: collectibleSolanaAccount.getReceiveAddress(),
+        avatarAccountId: activeAccount?.id,
+        networkId: collectibleSolanaAccount.getNetworkId(),
         kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
         removedNftMintAddresses: nft.mint ? [nft.mint] : undefined,
       }).catch((invalidationErr) => {
-        console.warn('[NftDetailRoute] invalidateAfterTx failed:', invalidationErr);
+        console.warn('[NftDetailRoute] settleAfterTx failed:', invalidationErr);
       });
     } catch (err) {
       console.error('Failed to burn NFT:', err);
@@ -121,7 +123,7 @@ export function NftDetailRoute(): React.ReactElement {
     } finally {
       setBurnPreparing(false);
     }
-  }, [nft, collectibleSolanaAccount, burnPreview, invalidateAfterTx]);
+  }, [activeAccount?.id, nft, collectibleSolanaAccount, burnPreview, settleAfterTx]);
 
   const handleBurnSuccessContinue = useCallback(() => {
     handleBurnBack();
@@ -130,13 +132,16 @@ export function NftDetailRoute(): React.ReactElement {
 
   const handleSendSuccess = useCallback(() => {
     setNftSendVisible(false);
-    invalidateAfterTx({
+    settleAfterTx({
+      accountId: collectibleSolanaAccount?.getReceiveAddress(),
+      avatarAccountId: activeAccount?.id,
+      networkId: collectibleSolanaAccount?.getNetworkId(),
       kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
     }).catch((err) => {
-      console.warn('[NftDetailRoute] invalidateAfterTx failed:', err);
+      console.warn('[NftDetailRoute] settleAfterTx failed:', err);
     });
     navigate('/home');
-  }, [invalidateAfterTx, navigate]);
+  }, [activeAccount?.id, collectibleSolanaAccount, navigate, settleAfterTx]);
 
   // Deep link fallback — no NFT data in location state
   if (!nft) {

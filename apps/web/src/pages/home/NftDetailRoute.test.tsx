@@ -46,7 +46,7 @@ vi.mock('@salmon/shared', () => ({
   createBurnTransaction: (...args: unknown[]) => mockCreateBurnTransaction(...args),
   signAndSendPreparedSolanaTransactions: (...args: unknown[]) => mockSignAndSendPreparedSolanaTransactions(...args),
   isSolanaAccount: () => true,
-  useInvalidateAfterTx: () => vi.fn().mockResolvedValue(undefined),
+  useSettleAfterTx: () => vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('@salmon/ui', () => ({

@@ -28,6 +28,7 @@ import {
   s,
   spacing,
   useAccountsContext,
+  useSettleAfterTx,
   vs,
 } from '@salmon/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -85,6 +86,7 @@ export default function BlinkApprovalScreen() {
     unknown,
   ];
   const account = accountState.activeBlockchainAccount;
+  const settleAfterTx = useSettleAfterTx();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ code: string; message?: string } | null>(null);
@@ -201,6 +203,13 @@ export default function BlinkApprovalScreen() {
         account,
         connection,
         partialSigned: status.partialSigned,
+      });
+      settleAfterTx({
+        accountId: account.getReceiveAddress?.(),
+        networkId: account.getNetworkId?.(),
+        kinds: ['balance', 'transactions'],
+      }).catch((settlementError) => {
+        console.warn('[BlinkApprovalScreen] settleAfterTx failed:', settlementError);
       });
       router.replace({
         pathname: '/blink-success' as never,

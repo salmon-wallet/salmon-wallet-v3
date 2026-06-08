@@ -55,7 +55,7 @@ import {
   BLOCKCHAIN_TO_COINGECKO,
   PERIOD_TO_DAYS,
   coinInfoToMarketData,
-  useInvalidateAfterTx,
+  useSettleAfterTx,
 } from '@salmon/shared';
 import { isSolanaAccount } from '@salmon/shared/utils/account';
 import { sessionArea } from '../../utils/storageCompat';
@@ -481,7 +481,7 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
 
   // NFT see-all page state
   const [seeAllData, setSeeAllData] = useState<{ title: string; blockchain: NftBlockchain; nfts: NftData[] } | null>(null);
-  const invalidateAfterTx = useInvalidateAfterTx();
+  const settleAfterTx = useSettleAfterTx();
 
   // Bitcoin-specific state
   const [bitcoinChartPeriod, setBitcoinChartPeriod] = useState<PriceChartPeriod>('1M');
@@ -530,7 +530,7 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
   });
 
   // RQ handles refetch-on-focus via QueryClient defaults (refetchOnWindowFocus).
-  // dApp approval invalidation is fired in App.tsx via useInvalidateAfterTx.
+  // dApp approval settlement is fired in App.tsx.
 
   // Clear switching network flag once new data has loaded
   useEffect(() => {
@@ -680,14 +680,14 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
   const handleStakeSuccess = useCallback(() => {
     refresh();
     transactionsRefresh();
-    invalidateAfterTx({
+    settleAfterTx({
       accountId: accountAddress,
       networkId: solanaNetworkId ?? undefined,
       kinds: ['balance', 'transactions'],
     }).catch((err) => {
-      console.warn('[HomePage] invalidateAfterTx failed:', err);
+      console.warn('[HomePage] settleAfterTx failed:', err);
     });
-  }, [accountAddress, invalidateAfterTx, refresh, solanaNetworkId, transactionsRefresh]);
+  }, [accountAddress, refresh, settleAfterTx, solanaNetworkId, transactionsRefresh]);
 
   const handleActivityPress = useCallback(() => {
     setCurrentPage('activity');
@@ -793,12 +793,14 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
       await signAndSendPreparedSolanaTransactions(solanaAccount, burnPreview);
 
       setBurnStep('success');
-      invalidateAfterTx({
+      settleAfterTx({
         accountId: solanaAccount.getReceiveAddress(),
+        avatarAccountId: activeAccount?.id,
+        networkId: solanaAccount.getNetworkId(),
         kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
         removedNftMintAddresses: selectedNft.mint ? [selectedNft.mint] : undefined,
       }).catch((err) => {
-        console.warn('[HomePage] invalidateAfterTx failed:', err);
+        console.warn('[HomePage] settleAfterTx failed:', err);
       });
     } catch (error) {
       console.error('[HomePage] NFT burn failed:', error);
@@ -806,7 +808,7 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
     } finally {
       setBurnLoading(false);
     }
-  }, [selectedNft, collectibleSolanaAccount, burnPreview, invalidateAfterTx]);
+  }, [activeAccount?.id, selectedNft, collectibleSolanaAccount, burnPreview, settleAfterTx]);
 
   const handleNftBurnSuccessContinue = useCallback(() => {
     handleNftBurnBack();
@@ -1198,10 +1200,13 @@ export function HomePage({ onAddAccount: _onAddAccount }: HomePageProps) {
                   setNftSendDialogVisible(false);
                   setCurrentPage('home');
                   setSelectedNft(null);
-                  invalidateAfterTx({
+                  settleAfterTx({
+                    accountId: collectibleSolanaAccount?.getReceiveAddress(),
+                    avatarAccountId: activeAccount?.id,
+                    networkId: collectibleSolanaAccount?.getNetworkId(),
                     kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
                   }).catch((err) => {
-                    console.warn('[HomePage] invalidateAfterTx failed:', err);
+                    console.warn('[HomePage] settleAfterTx failed:', err);
                   });
                 }}
               />

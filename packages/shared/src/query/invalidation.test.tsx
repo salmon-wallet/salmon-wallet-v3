@@ -2,12 +2,12 @@
  * @vitest-environment jsdom
  */
 
-import { renderHook } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 
-import { useInvalidateAfterTx } from './invalidation';
+import { useInvalidateAfterTx, useSettleAfterTx } from './invalidation';
 import { queryKeys } from './keys';
 
 function makeClient(): QueryClient {
@@ -30,6 +30,7 @@ function makeWrapper(client: QueryClient) {
 const ACCOUNT_A = 'acct-a';
 const ACCOUNT_B = 'acct-b';
 const NETWORK_SOL = 'solana-mainnet' as never;
+const NETWORK_SOL_DEV = 'solana-devnet' as never;
 const NETWORK_BTC = 'bitcoin-mainnet' as never;
 
 function seed(client: QueryClient) {
@@ -55,6 +56,10 @@ function isInvalidated(client: QueryClient, key: readonly unknown[]): boolean {
 }
 
 describe('useInvalidateAfterTx', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('invalidates only matching kinds', async () => {
     const client = makeClient();
     seed(client);
@@ -83,6 +88,59 @@ describe('useInvalidateAfterTx', () => {
         queryKeys.transactions({ accountId: ACCOUNT_A, networkId: NETWORK_SOL }),
       ),
     ).toBe(false);
+  });
+
+  it('settles transactions with a delayed scoped refetch after the immediate invalidation', async () => {
+    const client = makeClient();
+    const balanceKey = queryKeys.balance({ accountId: ACCOUNT_A, networkId: NETWORK_SOL });
+    const fetchBalance = vi
+      .fn()
+      .mockResolvedValueOnce({ marker: 'initial-old-balance' })
+      .mockResolvedValueOnce({ marker: 'stale-provider-balance-after-tx' })
+      .mockResolvedValueOnce({ marker: 'fresh-balance-after-provider-catches-up' });
+
+    const { result } = renderHook(
+      () => {
+        useQuery({
+          queryKey: balanceKey,
+          queryFn: fetchBalance,
+          staleTime: 15_000,
+        });
+        return useSettleAfterTx();
+      },
+      { wrapper: makeWrapper(client) },
+    );
+
+    await waitFor(() => {
+      expect(client.getQueryData(balanceKey)).toEqual({ marker: 'initial-old-balance' });
+    });
+
+    vi.useFakeTimers();
+
+    await act(async () => {
+      await result.current({
+        accountId: ACCOUNT_A,
+        networkId: NETWORK_SOL,
+        kinds: ['balance'],
+        settlementDelaysMs: [10_000],
+      });
+    });
+
+    expect(fetchBalance).toHaveBeenCalledTimes(2);
+    expect(client.getQueryData(balanceKey)).toEqual({
+      marker: 'stale-provider-balance-after-tx',
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchBalance).toHaveBeenCalledTimes(3);
+    expect(client.getQueryData(balanceKey)).toEqual({
+      marker: 'fresh-balance-after-provider-catches-up',
+    });
   });
 
   it('filters by accountId', async () => {
@@ -193,8 +251,22 @@ describe('useInvalidateAfterTx', () => {
         queryKeys.solanaNfts({ accountId: ACCOUNT_B, networkId: NETWORK_SOL }),
         [nft(MINT_BURN)],
       );
-      client.setQueryData(['solana-nft-detail', { mintAddress: MINT_BURN }], nft(MINT_BURN));
-      client.setQueryData(['solana-nft-detail', { mintAddress: MINT_KEEP }], nft(MINT_KEEP));
+      client.setQueryData(
+        queryKeys.solanaNfts({ accountId: ACCOUNT_A, networkId: NETWORK_SOL_DEV }),
+        [nft(MINT_BURN)],
+      );
+      client.setQueryData(
+        queryKeys.solanaNftDetail({ mintAddress: MINT_BURN, networkId: NETWORK_SOL }),
+        nft(MINT_BURN),
+      );
+      client.setQueryData(
+        queryKeys.solanaNftDetail({ mintAddress: MINT_BURN, networkId: NETWORK_SOL_DEV }),
+        nft(MINT_BURN),
+      );
+      client.setQueryData(
+        queryKeys.solanaNftDetail({ mintAddress: MINT_KEEP, networkId: NETWORK_SOL }),
+        nft(MINT_KEEP),
+      );
     }
 
     it('strips the burned NFT from solana-nfts and avatar-nfts caches scoped to the account', async () => {
@@ -240,8 +312,46 @@ describe('useInvalidateAfterTx', () => {
         removedNftMintAddresses: [MINT_BURN],
       });
 
-      expect(client.getQueryData(['solana-nft-detail', { mintAddress: MINT_BURN }])).toBeUndefined();
-      expect(client.getQueryData(['solana-nft-detail', { mintAddress: MINT_KEEP }])).toBeDefined();
+      expect(
+        client.getQueryData(
+          queryKeys.solanaNftDetail({ mintAddress: MINT_BURN, networkId: NETWORK_SOL }),
+        ),
+      ).toBeUndefined();
+      expect(
+        client.getQueryData(
+          queryKeys.solanaNftDetail({ mintAddress: MINT_BURN, networkId: NETWORK_SOL_DEV }),
+        ),
+      ).toBeUndefined();
+      expect(
+        client.getQueryData(
+          queryKeys.solanaNftDetail({ mintAddress: MINT_KEEP, networkId: NETWORK_SOL }),
+        ),
+      ).toBeDefined();
+    });
+
+    it('keeps optimistic NFT removal scoped to the requested network', async () => {
+      const client = makeClient();
+      seedNfts(client);
+      const { result } = renderHook(() => useInvalidateAfterTx(), {
+        wrapper: makeWrapper(client),
+      });
+
+      await result.current({
+        accountId: ACCOUNT_A,
+        networkId: NETWORK_SOL,
+        kinds: ['nfts'],
+        removedNftMintAddresses: [MINT_BURN],
+      });
+
+      const devnetList = client.getQueryData(
+        queryKeys.solanaNfts({ accountId: ACCOUNT_A, networkId: NETWORK_SOL_DEV }),
+      ) as Array<{ mint: { address: string } }>;
+      expect(devnetList.map((n) => n.mint.address)).toEqual([MINT_BURN]);
+      expect(
+        client.getQueryData(
+          queryKeys.solanaNftDetail({ mintAddress: MINT_BURN, networkId: NETWORK_SOL_DEV }),
+        ),
+      ).toBeDefined();
     });
 
     it('is a no-op when removedNftMintAddresses is empty or omitted', async () => {
@@ -257,6 +367,78 @@ describe('useInvalidateAfterTx', () => {
         queryKeys.solanaNfts({ accountId: ACCOUNT_A, networkId: NETWORK_SOL }),
       ) as Array<{ mint: { address: string } }>;
       expect(aSolList.map((n) => n.mint.address)).toEqual([MINT_KEEP, MINT_BURN]);
+    });
+
+    it('keeps removed NFTs tombstoned after immediate and delayed settlement refetches', async () => {
+      const client = makeClient();
+      const solanaKey = queryKeys.solanaNfts({ accountId: ACCOUNT_A, networkId: NETWORK_SOL });
+      const avatarKey = queryKeys.avatarNfts({ accountId: ACCOUNT_A });
+      const fetchSolanaNfts = vi.fn().mockResolvedValue([
+        { mint: { address: MINT_KEEP } },
+        { mint: { address: MINT_BURN } },
+      ]);
+      const fetchAvatarNfts = vi.fn().mockResolvedValue([
+        { mint: MINT_BURN },
+        { mint: MINT_KEEP },
+      ]);
+
+      const { result } = renderHook(
+        () => {
+          useQuery({
+            queryKey: solanaKey,
+            queryFn: fetchSolanaNfts,
+          });
+          useQuery({
+            queryKey: avatarKey,
+            queryFn: fetchAvatarNfts,
+          });
+          return useSettleAfterTx();
+        },
+        { wrapper: makeWrapper(client) },
+      );
+
+      await waitFor(() => {
+        expect(fetchSolanaNfts).toHaveBeenCalledTimes(1);
+        expect(fetchAvatarNfts).toHaveBeenCalledTimes(1);
+      });
+
+      vi.useFakeTimers();
+
+      await act(async () => {
+        await result.current({
+          accountId: ACCOUNT_A,
+          avatarAccountId: ACCOUNT_A,
+          networkId: NETWORK_SOL,
+          kinds: ['nfts', 'avatar-nfts'],
+          removedNftMintAddresses: [MINT_BURN],
+          settlementDelaysMs: [10_000],
+        });
+      });
+
+      expect(
+        (
+          client.getQueryData(solanaKey) as Array<{ mint: { address: string } }>
+        ).map((n) => n.mint.address),
+      ).toEqual([MINT_KEEP]);
+      expect(
+        (client.getQueryData(avatarKey) as Array<{ mint: string }>).map((n) => n.mint),
+      ).toEqual([MINT_KEEP]);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10_000);
+        await Promise.resolve();
+      });
+
+      expect(fetchSolanaNfts).toHaveBeenCalledTimes(3);
+      expect(fetchAvatarNfts).toHaveBeenCalledTimes(3);
+      expect(
+        (
+          client.getQueryData(solanaKey) as Array<{ mint: { address: string } }>
+        ).map((n) => n.mint.address),
+      ).toEqual([MINT_KEEP]);
+      expect(
+        (client.getQueryData(avatarKey) as Array<{ mint: string }>).map((n) => n.mint),
+      ).toEqual([MINT_KEEP]);
     });
   });
 });

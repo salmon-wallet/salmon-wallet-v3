@@ -1,7 +1,7 @@
 export { createQueryClient } from './query-client';
 export { queryKeys } from './keys';
-export { useInvalidateAfterTx } from './invalidation';
-export type { InvalidationKind, InvalidationOptions } from './invalidation';
+export { useInvalidateAfterTx, useSettleAfterTx } from './invalidation';
+export type { InvalidationKind, InvalidationOptions, SettlementOptions } from './invalidation';
 export {
   QueryClient,
   QueryClientProvider,
@@ -9,5 +9,6 @@ export {
   useQueries,
   useMutation,
   useQueryClient,
+  focusManager,
 } from '@tanstack/react-query';
 export type { QueryKey, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';

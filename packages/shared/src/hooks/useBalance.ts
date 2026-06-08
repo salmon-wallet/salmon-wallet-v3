@@ -289,8 +289,9 @@ export function useBalance({
   }, [hiddenBalance]);
 
   const refresh = useCallback(async () => {
+    if (!enabled) return;
     await query.refetch();
-  }, [query]);
+  }, [enabled, query]);
 
   const data = query.data;
   const tokens = data?.items ?? [];

@@ -31,7 +31,7 @@ import {
   ms,
   s,
   useAccountsContext,
-  useInvalidateAfterTx,
+  useSettleAfterTx,
   useSolanaNfts,
   vs,
   type BlockchainAccount,
@@ -294,11 +294,24 @@ export default function CollectiblesScreen() {
   //   setSeeAllSheet({ visible: false, sectionKey: null });
   // }, []);
 
+  const settleAfterTx = useSettleAfterTx();
+
   const handleSendSuccess = useCallback((txId: string) => {
     Alert.alert('NFT Sent', `Transaction submitted successfully.\n\nTx: ${txId.slice(0, 20)}...`, [{ text: 'OK' }]);
-    // Refresh NFT list
-    void handleRefresh();
-  }, [handleRefresh]);
+    if (nftAccount) {
+      settleAfterTx({
+        accountId: nftAccount.getReceiveAddress(),
+        avatarAccountId: activeAccount?.id,
+        networkId: nftAccount.getNetworkId(),
+        kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
+        removedNftMintAddresses: detailSheet.nft?.mint ? [detailSheet.nft.mint] : undefined,
+      }).catch((err) => {
+        console.warn('[collectibles] settleAfterTx failed:', err);
+      });
+    } else {
+      void handleRefresh();
+    }
+  }, [activeAccount?.id, detailSheet.nft, handleRefresh, nftAccount, settleAfterTx]);
 
   const resetBurnPreview = useCallback(() => {
     setBurnPreview(null);
@@ -353,8 +366,6 @@ export default function CollectiblesScreen() {
     }
   }, [detailSheet.nft, detailSheet.sectionKey, nftAccount]);
 
-  const invalidateAfterTx = useInvalidateAfterTx();
-
   const handleConfirmBurn = useCallback(async () => {
     const nft = detailSheet.nft;
     if (!nft || !nftAccount || !burnPreview) return;
@@ -368,12 +379,14 @@ export default function CollectiblesScreen() {
       const signature = signatures[signatures.length - 1] ?? '';
 
       setBurnSuccessTxId(signature);
-      invalidateAfterTx({
+      settleAfterTx({
         accountId: solAccount.getReceiveAddress(),
+        avatarAccountId: activeAccount?.id,
+        networkId: solAccount.getNetworkId(),
         kinds: ['balance', 'transactions', 'nfts', 'avatar-nfts'],
         removedNftMintAddresses: nft.mint ? [nft.mint] : undefined,
       }).catch((err) => {
-        console.warn('[collectibles] invalidateAfterTx failed:', err);
+        console.warn('[collectibles] settleAfterTx failed:', err);
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Burn failed';
@@ -381,7 +394,7 @@ export default function CollectiblesScreen() {
     } finally {
       setBurnExecuting(false);
     }
-  }, [burnPreview, detailSheet.nft, nftAccount, invalidateAfterTx]);
+  }, [activeAccount?.id, burnPreview, detailSheet.nft, nftAccount, settleAfterTx]);
 
   const handleBurnSuccess = useCallback((_txId: string) => {
     handleDetailSheetClose();

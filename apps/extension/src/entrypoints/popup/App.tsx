@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   colors,
   useAccountsContext,
   useInactivityTimeout,
-  useInvalidateAfterTx,
+  useSettleAfterTx,
   DerivedKeyCache,
   type NetworkId,
   type TrustedApp,
@@ -68,8 +68,18 @@ function LoadingSpinner() {
  */
 function App() {
   const [state, actions] = useAccountsContext();
-  const { ready, locked, accounts, activeAccount, activeBlockchainAccount, accountId, networkId, pathIndex } = state;
-  const invalidateAfterTx = useInvalidateAfterTx();
+  const { ready, locked, accounts, activeAccount, activeBlockchainAccount, networkId, pathIndex } = state;
+  const settleAfterTx = useSettleAfterTx();
+  const solanaApprovalAccount = useMemo(
+    () => getActiveSolanaApprovalAccount(
+      activeAccount,
+      activeBlockchainAccount,
+      pathIndex,
+    ),
+    [activeAccount, activeBlockchainAccount, pathIndex],
+  );
+  const solanaAddress = solanaApprovalAccount?.getReceiveAddress() ?? '';
+  const solanaApprovalNetworkId = solanaApprovalAccount?.network.id ?? null;
 
   // dApp connection flow (when popup is launched for connect approval)
   const [pendingDAppRequest, setPendingDAppRequest] = useState<{
@@ -190,20 +200,20 @@ function App() {
     }).catch(() => { /* ignore */ });
   }, []);
 
-  // After a dApp approval, invalidate balance + transactions for the active account/network
+  // After a dApp approval, settle balance + transactions for the active account/network
   // so HomePage re-fetches without a legacy refreshKey prop bridge.
   const dismissApprovalWithRefresh = useCallback((approved: boolean) => {
     dismissApproval();
-    if (approved && accountId) {
-      invalidateAfterTx({
-        accountId,
-        networkId: (networkId ?? undefined) as NetworkId | undefined,
+    if (approved && solanaAddress) {
+      settleAfterTx({
+        accountId: solanaAddress,
+        networkId: (solanaApprovalNetworkId ?? networkId ?? undefined) as NetworkId | undefined,
         kinds: ['balance', 'transactions'],
       }).catch((err) => {
-        console.warn('[App] invalidateAfterTx failed:', err);
+        console.warn('[App] settleAfterTx failed:', err);
       });
     }
-  }, [dismissApproval, invalidateAfterTx, accountId, networkId]);
+  }, [dismissApproval, networkId, settleAfterTx, solanaAddress, solanaApprovalNetworkId]);
 
   // Auth flow state
   const [authStep, setAuthStep] = useState<AuthStep>('select');
@@ -348,18 +358,13 @@ function App() {
   // dApp connect approval
   const handleDAppApprove = useCallback(
     async (origin: string, app?: TrustedApp) => {
-      const solanaApprovalAccount = getActiveSolanaApprovalAccount(
-        activeAccount,
-        activeBlockchainAccount,
-        pathIndex,
-      );
       if (!solanaApprovalAccount) {
         throw new Error('Solana account not available');
       }
 
       await actions.addTrustedApp(origin, app, solanaApprovalAccount.network.id);
     },
-    [actions, activeAccount, activeBlockchainAccount, pathIndex]
+    [actions, solanaApprovalAccount]
   );
 
   const handleDAppDeny = useCallback(() => {
@@ -447,14 +452,6 @@ function App() {
   }
 
   // dApp connection approval (popup launched by dApp connect request)
-  const solanaApprovalAccount = getActiveSolanaApprovalAccount(
-    activeAccount,
-    activeBlockchainAccount,
-    pathIndex,
-  );
-  const solanaAddress = solanaApprovalAccount?.getReceiveAddress() ?? '';
-  const solanaApprovalNetworkId = solanaApprovalAccount?.network.id ?? null;
-
   // dApp sign message approval
   if (
     pendingDAppSignMessageRequest &&

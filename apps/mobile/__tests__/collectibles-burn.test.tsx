@@ -64,7 +64,7 @@ jest.mock('@salmon/shared', () => ({
   ms: (value: number) => value,
   s: (value: number) => value,
   useAccountsContext: () => mockUseAccountsContext(),
-  useInvalidateAfterTx: () => mockInvalidateAfterTx,
+  useSettleAfterTx: () => mockInvalidateAfterTx,
   useSolanaNfts: (...args: unknown[]) => mockUseSolanaNfts(...args),
   vs: (value: number) => value,
 }));
@@ -129,10 +129,12 @@ describe('Collectibles burn reconciliation', () => {
         ready: true,
         activeBlockchainAccount: { id: 'active-solana-account' },
         activeAccount: {
+          id: 'account-1',
           networksAccounts: {
             'solana-mainnet': [
               {
                 getReceiveAddress: () => 'Owner111',
+                getNetworkId: () => 'solana-mainnet',
               },
             ],
           },
@@ -140,8 +142,9 @@ describe('Collectibles burn reconciliation', () => {
       },
     ]);
 
-    // useSolanaNfts hook returns the canonical NFT list and a refresh()
-    // function. Burn flow must call refresh() to clear stale cache.
+    // useSolanaNfts hook returns the canonical NFT list and a refresh() function.
+    // Burn flow now settles the matching react-query caches instead of relying
+    // on a one-off local refresh.
     mockUseSolanaNftsRefresh.mockResolvedValue(undefined);
     mockUseSolanaNfts.mockImplementation(({ networkId }: { networkId: string }) => ({
       nfts: networkId === 'solana-mainnet' ? [mockRawNft] : [],
@@ -175,6 +178,9 @@ describe('Collectibles burn reconciliation', () => {
       // are refetched by react-query (replaces the previous manual refresh()).
       expect(mockInvalidateAfterTx).toHaveBeenCalledWith(
         expect.objectContaining({
+          accountId: 'Owner111',
+          avatarAccountId: 'account-1',
+          networkId: 'solana-mainnet',
           kinds: expect.arrayContaining(['balance', 'transactions', 'nfts']),
         }),
       );

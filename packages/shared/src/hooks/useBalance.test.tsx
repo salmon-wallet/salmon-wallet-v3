@@ -129,6 +129,29 @@ describe('useBalance (react-query)', () => {
     expect(account.getBalance).toHaveBeenCalledTimes(2);
   });
 
+  it('refresh() does not refetch when the balance query is skipped', async () => {
+    const account = {
+      getReceiveAddress: vi.fn().mockReturnValue('wallet-skipped'),
+      getBalance: vi.fn().mockResolvedValue({ usdTotal: 999, last24HoursChange: 0, items: [] }),
+    };
+
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useBalance({ account: account as any, networkId: 'solana-mainnet', skip: true }),
+      { wrapper }
+    );
+
+    expect(result.current.loading).toBe(false);
+    expect(account.getBalance).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await result.current.refresh();
+    });
+
+    expect(account.getBalance).not.toHaveBeenCalled();
+    expect(result.current.balance).toBeNull();
+  });
+
   it('two consumers with the same query key share data (single fetch)', async () => {
     const account = {
       getReceiveAddress: vi.fn().mockReturnValue('wallet-shared'),

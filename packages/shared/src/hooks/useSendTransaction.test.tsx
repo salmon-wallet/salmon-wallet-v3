@@ -3,12 +3,14 @@
  * Tests for useSendTransaction hook
  */
 
-import { act, renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { useQuery } from '@tanstack/react-query';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 
 import { useSendTransaction } from './useSendTransaction';
 import { createTestQueryClient, QueryWrapper } from '../test-utils/query-wrapper';
+import { queryKeys } from '../query/keys';
 
 function makeWrapper() {
   const client = createTestQueryClient();
@@ -17,6 +19,15 @@ function makeWrapper() {
   );
   Wrapper.displayName = 'TestWrapper';
   return Wrapper;
+}
+
+function makeWrapperWithClient() {
+  const client = createTestQueryClient();
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryWrapper client={client}>{children}</QueryWrapper>
+  );
+  Wrapper.displayName = 'TestWrapperWithClient';
+  return { client, wrapper: Wrapper };
 }
 
 // ============================================================================
@@ -47,6 +58,10 @@ describe('useSendTransaction', () => {
     vi.clearAllMocks();
     mockAccount.estimateTransferFee.mockResolvedValue(FEE_RESULT);
     mockAccount.transfer.mockResolvedValue(TX_RESULT);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('uses the resolved recipient address for fee estimation when provided', async () => {
@@ -114,6 +129,81 @@ describe('useSendTransaction', () => {
     );
     expect(result.current.status).toBe('success');
     expect(result.current.error).toBeNull();
+  });
+
+  it('keeps retrying balance refresh after send when the first refetch still returns stale provider data', async () => {
+    const fetchBalance = vi
+      .fn()
+      .mockResolvedValueOnce({ marker: 'initial-old-balance' })
+      .mockResolvedValueOnce({ marker: 'stale-provider-balance-after-send' })
+      .mockResolvedValueOnce({ marker: 'fresh-balance-after-provider-catches-up' });
+    const balanceKey = queryKeys.balance({
+      accountId: 'mock-address',
+      networkId: 'solana-mainnet' as never,
+    });
+    const { client, wrapper } = makeWrapperWithClient();
+
+    const { result } = renderHook(
+      () => {
+        const balanceQuery = useQuery({
+          queryKey: balanceKey,
+          queryFn: fetchBalance,
+          staleTime: 15_000,
+        });
+        const send = useSendTransaction({
+          account: mockAccount as any,
+          blockchain: 'solana',
+        });
+        return { balanceQuery, send };
+      },
+      { wrapper }
+    );
+
+    await waitFor(() => {
+      expect(result.current.balanceQuery.data?.marker).toBe('initial-old-balance');
+    });
+
+    vi.useFakeTimers();
+
+    await act(async () => {
+      await result.current.send.sendTransaction({
+        token: {
+          address: TOKEN_ADDRESS,
+          decimals: 6,
+          symbol: 'USDC',
+        },
+        recipientAddress: RAW_RECIPIENT,
+        resolvedRecipientAddress: RESOLVED_RECIPIENT,
+        amount: AMOUNT,
+      });
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchBalance).toHaveBeenCalledTimes(2);
+    expect(result.current.balanceQuery.data?.marker).toBe('stale-provider-balance-after-send');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    vi.useRealTimers();
+
+    await waitFor(() => {
+      expect(fetchBalance).toHaveBeenCalledTimes(3);
+      expect(client.getQueryData(balanceKey)).toEqual({
+        marker: 'fresh-balance-after-provider-catches-up',
+      });
+    });
   });
 
   it('returns null for fee estimation when account is missing', async () => {

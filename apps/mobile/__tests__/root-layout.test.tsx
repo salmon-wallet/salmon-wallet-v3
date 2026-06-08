@@ -6,6 +6,7 @@ import RootLayout from '../app/_layout';
 
 const mockLockAccounts = jest.fn();
 const mockUseAccountsContext = jest.fn();
+const mockFocusSetFocused = jest.fn();
 
 jest.mock('react-native-reanimated', () => ({}));
 
@@ -61,11 +62,18 @@ jest.mock('@salmon/shared', () => ({
   useInactivityTimeout: jest.fn(),
   createQueryClient: () => ({}),
   QueryClientProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+  focusManager: { setFocused: (...args: unknown[]) => mockFocusSetFocused(...args) },
   loadTrustedHostsRegistry: jest.fn().mockResolvedValue(undefined),
 }));
 
 describe('RootLayout mobile lock lifecycle', () => {
   let listeners: Record<string, Array<(...args: any[]) => void>>;
+
+  const emitAppStateChange = (nextState: string) => {
+    for (const listener of listeners.change ?? []) {
+      listener(nextState);
+    }
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -115,7 +123,7 @@ describe('RootLayout mobile lock lifecycle', () => {
     render(<RootLayout />);
 
     await waitFor(() => {
-      expect(listeners.change).toHaveLength(1);
+      expect(listeners.change).toHaveLength(2);
     });
 
     expect(listeners.blur).toBeUndefined();
@@ -138,17 +146,17 @@ describe('RootLayout mobile lock lifecycle', () => {
     render(<RootLayout />);
 
     await waitFor(() => {
-      expect(listeners.change).toHaveLength(1);
+      expect(listeners.change).toHaveLength(2);
     });
 
-    listeners.change[0]('active');
-    listeners.change[0]('background');
+    emitAppStateChange('active');
+    emitAppStateChange('background');
     await waitFor(() => {
       expect(mockLockAccounts).toHaveBeenCalledTimes(1);
     });
 
-    listeners.change[0]('active');
-    listeners.change[0]('background');
+    emitAppStateChange('active');
+    emitAppStateChange('background');
     await waitFor(() => {
       expect(mockLockAccounts).toHaveBeenCalledTimes(2);
     });
@@ -166,10 +174,10 @@ describe('RootLayout mobile lock lifecycle', () => {
     render(<RootLayout />);
 
     await waitFor(() => {
-      expect(listeners.change).toHaveLength(1);
+      expect(listeners.change).toHaveLength(2);
     });
 
-    listeners.change[0]('inactive');
+    emitAppStateChange('inactive');
     await Promise.resolve();
 
     expect(mockLockAccounts).not.toHaveBeenCalled();
@@ -189,12 +197,12 @@ describe('RootLayout mobile lock lifecycle', () => {
     render(<RootLayout />);
 
     await waitFor(() => {
-      expect(listeners.change).toHaveLength(1);
+      expect(listeners.change).toHaveLength(2);
     });
 
-    listeners.change[0]('inactive');
+    emitAppStateChange('inactive');
     await Promise.resolve();
-    listeners.change[0]('background');
+    emitAppStateChange('background');
     await Promise.resolve();
 
     expect(mockLockAccounts).toHaveBeenCalledTimes(1);

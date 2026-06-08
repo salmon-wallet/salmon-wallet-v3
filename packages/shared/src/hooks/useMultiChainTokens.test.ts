@@ -259,4 +259,55 @@ describe('useMultiChainTokens', () => {
       expect(ethereumRefresh).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('refresh() only refetches chains that have an account', async () => {
+    const skippedBitcoinRefresh = vi.fn().mockResolvedValue(undefined);
+    const skippedEthereumRefresh = vi.fn().mockResolvedValue(undefined);
+
+    mockUseBalance.mockImplementation(({ networkId }) => {
+      if (networkId === 'solana-mainnet') {
+        return makeBalanceState({
+          tokens: [
+            {
+              mint: 'So11111111111111111111111111111111111111112',
+              address: 'So11111111111111111111111111111111111111112',
+              symbol: 'SOL',
+              name: 'Solana',
+              decimals: 9,
+              uiAmount: 2,
+              price: 150,
+              usdBalance: 300,
+            },
+          ],
+          refresh: solanaRefresh,
+        });
+      }
+
+      if (networkId === 'bitcoin-mainnet') {
+        return makeBalanceState({ refresh: skippedBitcoinRefresh });
+      }
+
+      return makeBalanceState({ refresh: skippedEthereumRefresh });
+    });
+
+    const activeAccount = {
+      networksAccounts: {
+        'solana-mainnet': [solanaAccount],
+      },
+    };
+
+    const { result } = renderHook(() =>
+      useMultiChainTokens({
+        activeAccount: activeAccount as any,
+      })
+    );
+
+    await act(async () => {
+      await result.current.refresh();
+    });
+
+    expect(solanaRefresh).toHaveBeenCalledTimes(1);
+    expect(skippedBitcoinRefresh).not.toHaveBeenCalled();
+    expect(skippedEthereumRefresh).not.toHaveBeenCalled();
+  });
 });

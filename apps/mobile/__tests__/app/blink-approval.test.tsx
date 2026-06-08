@@ -19,6 +19,7 @@ const mockGetConnection = jest.fn();
 const mockPush = jest.fn();
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
+const mockSettleAfterTx = jest.fn();
 
 class mockActionClientError extends Error {
   code: string;
@@ -44,6 +45,7 @@ const FAKE_PUBKEY = '11111111111111111111111111111112';
 
 const mockAccount: any = {
   getReceiveAddress: () => FAKE_PUBKEY,
+  getNetworkId: () => 'solana-mainnet',
   getConnection: (...args: unknown[]) => mockGetConnection(...args),
 };
 
@@ -115,6 +117,7 @@ jest.mock('@salmon/shared', () => ({
     },
   },
   useAccountsContext: () => [mockAccountState, {}],
+  useSettleAfterTx: () => mockSettleAfterTx,
 }));
 
 const mockInspectSigStatus = jest.fn();
@@ -143,6 +146,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockGetConnection.mockResolvedValue({});
   mockSignAndSubmit.mockResolvedValue({ signature: 'SIGNATURE_BASE58' });
+  mockSettleAfterTx.mockResolvedValue(undefined);
   // Map b64 fixtures to deterministic sig status for inspection.
   mockInspectSigStatus.mockImplementation((b64: string) => ({
     partialSigned: b64 === FAKE_B64_PARTIAL,
@@ -189,6 +193,13 @@ describe('BlinkApprovalScreen', () => {
     // free to set feePayer + fresh blockhash.
     expect(args.serializedTransactionBase64).toBe(FAKE_B64_UNSIGNED);
     expect(args.partialSigned).toBe(false);
+    expect(mockSettleAfterTx).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accountId: FAKE_PUBKEY,
+        networkId: 'solana-mainnet',
+        kinds: expect.arrayContaining(['balance', 'transactions']),
+      }),
+    );
   });
 
   it('shows error banner when POST fails', async () => {

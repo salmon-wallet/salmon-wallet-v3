@@ -232,12 +232,19 @@ export function useMultiChainTokens(
   }, [solanaBalance.lastUpdated, bitcoinBalance.lastUpdated, ethereumBalance.lastUpdated]);
 
   const refresh = useCallback(async () => {
-    await Promise.all([
-      solanaBalance.refresh(),
-      bitcoinBalance.refresh(),
-      ethereumBalance.refresh(),
-    ]);
-  }, [solanaBalance, bitcoinBalance, ethereumBalance]);
+    const refreshes: Promise<void>[] = [];
+    if (solanaAccount) refreshes.push(solanaBalance.refresh());
+    if (bitcoinAccount) refreshes.push(bitcoinBalance.refresh());
+    if (ethereumAccount) refreshes.push(ethereumBalance.refresh());
+    await Promise.all(refreshes);
+  }, [
+    solanaAccount,
+    solanaBalance,
+    bitcoinAccount,
+    bitcoinBalance,
+    ethereumAccount,
+    ethereumBalance,
+  ]);
 
   return {
     tokens,

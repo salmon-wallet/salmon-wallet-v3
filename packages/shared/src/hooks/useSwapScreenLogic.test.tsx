@@ -2,11 +2,13 @@
  * @vitest-environment jsdom
  */
 
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { useQuery } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import type { SwapToken } from '../types/swap';
 import { createTestQueryClient, QueryWrapper } from '../test-utils/query-wrapper';
+import { queryKeys } from '../query/keys';
 
 function makeWrapper() {
   const client = createTestQueryClient();
@@ -15,6 +17,15 @@ function makeWrapper() {
   );
   Wrapper.displayName = 'TestWrapper';
   return Wrapper;
+}
+
+function makeWrapperWithClient() {
+  const client = createTestQueryClient();
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryWrapper client={client}>{children}</QueryWrapper>
+  );
+  Wrapper.displayName = 'TestWrapperWithClient';
+  return { client, wrapper: Wrapper };
 }
 
 vi.mock('../utils/account', () => ({
@@ -295,6 +306,89 @@ describe('useSwapScreenLogic', () => {
     expect(props.onSuccess).toHaveBeenCalledWith('swap-tx-1');
     expect(result.current.step).toBe('success');
     expect(result.current.successTxId).toBe('swap-tx-1');
+  });
+
+  it('keeps retrying balance refresh after swap when the first refetch still returns stale provider data', async () => {
+    const fetchBalance = vi
+      .fn()
+      .mockResolvedValueOnce({ marker: 'initial-old-balance' })
+      .mockResolvedValueOnce({ marker: 'stale-provider-balance-after-swap' })
+      .mockResolvedValueOnce({ marker: 'fresh-balance-after-provider-catches-up' });
+
+    const props = createProps({
+      initialInToken: SOL,
+      initialOutToken: USDC,
+    });
+    const balanceKey = queryKeys.balance({
+      accountId: 'wallet-1',
+      networkId: 'solana-mainnet' as never,
+    });
+    const { wrapper, client } = makeWrapperWithClient();
+
+    const { result } = renderHook(
+      (hookProps) => {
+        const balanceQuery = useQuery({
+          queryKey: balanceKey,
+          queryFn: fetchBalance,
+          staleTime: 15_000,
+        });
+        const swapLogic = useSwapScreenLogic(hookProps);
+        return { balanceQuery, swapLogic };
+      },
+      {
+        initialProps: props,
+        wrapper,
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.balanceQuery.data?.marker).toBe('initial-old-balance');
+    });
+
+    vi.useFakeTimers();
+
+    act(() => {
+      result.current.swapLogic.setInAmount('1');
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+
+    act(() => {
+      result.current.swapLogic.handleReview();
+    });
+
+    await act(async () => {
+      await result.current.swapLogic.handleConfirmSwap();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchBalance).toHaveBeenCalledTimes(2);
+    expect(result.current.balanceQuery.data?.marker).toBe('stale-provider-balance-after-swap');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    vi.useRealTimers();
+
+    await waitFor(() => {
+      expect(fetchBalance).toHaveBeenCalledTimes(3);
+      expect(client.getQueryData(balanceKey)).toEqual({
+        marker: 'fresh-balance-after-provider-catches-up',
+      });
+    });
   });
 
   it('resets state after success and refreshes balances again on continue', async () => {

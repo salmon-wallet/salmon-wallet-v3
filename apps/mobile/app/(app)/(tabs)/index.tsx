@@ -46,6 +46,7 @@ import {
   useAccountsContext,
   useAvailableNetworks,
   useBalance,
+  useSettleAfterTx,
   useCurrencyContext,
   useTransactions,
   vs,
@@ -282,6 +283,7 @@ export default function HomeScreen() {
     // unknown-only-tagged SPL entries by default.
     includeSpam: developerNetworks,
   });
+  const settleAfterTx = useSettleAfterTx();
 
   // RQ handles refetch-on-focus via QueryClient defaults (refetchOnWindowFocus).
 
@@ -597,7 +599,14 @@ export default function HomeScreen() {
   const handleStakeSuccess = useCallback((_signature: string) => {
     refresh();
     transactionsRefresh();
-  }, [refresh, transactionsRefresh]);
+    settleAfterTx({
+      accountId: address,
+      networkId: solanaNetworkId ?? undefined,
+      kinds: ['balance', 'transactions'],
+    }).catch((err) => {
+      console.warn('[HomeScreen] settleAfterTx failed:', err);
+    });
+  }, [address, refresh, settleAfterTx, solanaNetworkId, transactionsRefresh]);
 
   const handleReceiveSheetCopy = useCallback(async () => {
     if (activeBlockchainAccount) {

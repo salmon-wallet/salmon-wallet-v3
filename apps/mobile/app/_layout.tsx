@@ -12,7 +12,7 @@ import { View, StyleSheet, AppState, type AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
 
 import { I18nProvider } from '../src/i18n';
-import { AccountsProvider, CurrencyProvider, loadTrustedHostsRegistry, useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider } from '@salmon/shared';
+import { AccountsProvider, CurrencyProvider, loadTrustedHostsRegistry, useAccountsContext, useInactivityTimeout, createQueryClient, QueryClientProvider, focusManager } from '@salmon/shared';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -58,6 +58,16 @@ export default function RootLayout() {
   // to its hardcoded safety-net hosts so blinks still resolves offline.
   useEffect(() => {
     void loadTrustedHostsRegistry();
+  }, []);
+
+  useEffect(() => {
+    focusManager.setFocused(AppState.currentState === 'active');
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      focusManager.setFocused(nextState === 'active');
+    });
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   if (!loaded) {

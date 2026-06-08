@@ -8,7 +8,7 @@ import {
   useAccountsContext,
   useAvailableNetworks,
   useBalance,
-  useInvalidateAfterTx,
+  useSettleAfterTx,
   useUserConfig,
   useCurrencyContext,
   useLanguage,
@@ -258,7 +258,7 @@ export function HomePage(): React.ReactElement {
   const location = useLocation();
   const [state, actions] = useAccountsContext();
   const [{ currency }, { changeCurrency }] = useCurrencyContext();
-  const invalidateAfterTx = useInvalidateAfterTx();
+  const settleAfterTx = useSettleAfterTx();
   const {
     ready,
     activeAccount,
@@ -534,14 +534,14 @@ export function HomePage(): React.ReactElement {
   }, [solanaNetworkId]);
   const handleStakeSuccess = useCallback(() => {
     refresh();
-    invalidateAfterTx({
+    settleAfterTx({
       accountId: accountAddress,
       networkId: solanaNetworkId ?? undefined,
       kinds: ['balance', 'transactions'],
     }).catch((err) => {
-      console.warn('[HomePage] invalidateAfterTx failed:', err);
+      console.warn('[HomePage] settleAfterTx failed:', err);
     });
-  }, [accountAddress, invalidateAfterTx, refresh, solanaNetworkId]);
+  }, [accountAddress, refresh, settleAfterTx, solanaNetworkId]);
   const handleActivityPress = useCallback(() => navigate('/activity'), [navigate]);
 
   // Address book items
