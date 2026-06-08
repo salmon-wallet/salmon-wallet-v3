@@ -222,23 +222,16 @@ export function TransactionSuccessScreen({
           {t('transaction.viewOnExplorer')}
         </ExplorerLink>
       ) : null}
-      <ContinueButton onClick={onContinue} disabled={settling}>
-        {settling ? (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: spacing.sm,
-              width: '100%',
-            }}
-          >
+      <ContinueButton
+        onClick={onContinue}
+        disabled={settling}
+        startIcon={
+          settling ? (
             <CircularProgress size={16} thickness={5} sx={{ color: colors.text.primary }} />
-            {t('transaction.settling', 'Processing…')}
-          </Box>
-        ) : (
-          t('transaction.continue')
-        )}
+          ) : undefined
+        }
+      >
+        {settling ? t('transaction.settling', 'Processing…') : t('transaction.continue')}
       </ContinueButton>
     </Container>
   );
