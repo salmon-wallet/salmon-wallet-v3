@@ -224,9 +224,17 @@ export function TransactionSuccessScreen({
       ) : null}
       <ContinueButton onClick={onContinue} disabled={settling}>
         {settling ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: spacing.sm,
+              width: '100%',
+            }}
+          >
             <CircularProgress size={16} thickness={5} sx={{ color: colors.text.primary }} />
-            {t('transaction.updatingBalance', 'Updating balance…')}
+            {t('transaction.settling', 'Processing…')}
           </Box>
         ) : (
           t('transaction.continue')

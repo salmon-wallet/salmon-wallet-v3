@@ -707,7 +707,7 @@
     "swapComplete": "Swap Complete",
     "viewOnExplorer": "View on Explorer",
     "continue": "Continue",
-    "updatingBalance": "Updating balance…"
+    "settling": "Processing…"
   },
   "accessibility": {
     "copy_address": "Copy wallet address {{address}}",

@@ -707,7 +707,7 @@
     "swapComplete": "Swap Completado",
     "viewOnExplorer": "Ver en Explorer",
     "continue": "Continuar",
-    "updatingBalance": "Actualizando saldo…"
+    "settling": "Procesando…"
   },
   "accessibility": {
     "copy_address": "Copiar dirección de billetera {{address}}",

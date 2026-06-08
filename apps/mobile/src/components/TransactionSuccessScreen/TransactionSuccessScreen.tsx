@@ -134,9 +134,7 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
         {settling ? (
           <View style={styles.settlingRow}>
             <ActivityIndicator size="small" color={colors.text.secondary} />
-            <Text style={styles.settlingText}>
-              {t('transaction.updatingBalance', 'Updating balance…')}
-            </Text>
+            <Text style={styles.settlingText}>{t('transaction.settling', 'Processing…')}</Text>
           </View>
         ) : null}
         <LinearGradient
@@ -146,9 +144,7 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
           style={styles.buttonGradient}
         >
           <PrimaryButton onPress={onContinue} style={styles.button} disabled={settling}>
-            {settling
-              ? t('transaction.updatingBalance', 'Updating balance…')
-              : t('transaction.continue')}
+            {t('transaction.continue')}
           </PrimaryButton>
         </LinearGradient>
       </Animated.View>
