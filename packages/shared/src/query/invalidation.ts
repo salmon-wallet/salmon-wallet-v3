@@ -34,6 +34,27 @@ export interface SettlementOptions extends InvalidationOptions {
   settlementDelaysMs?: number[];
 }
 
+export interface SettleUntilChangedOptions extends InvalidationOptions {
+  /** How often to re-poll the balance while waiting for the indexer. */
+  pollIntervalMs?: number;
+  /**
+   * Hard ceiling on the wait. Reaching it resolves with `changed: false` after
+   * a final refetch, so a screen gated on this never hangs if the indexer
+   * stalls or the on-chain delta is below the dust threshold.
+   */
+  maxWaitMs?: number;
+}
+
+export interface SettleResult {
+  /** True if the balance signature changed before the ceiling was hit. */
+  changed: boolean;
+  /** Total time waited, ms. */
+  waitedMs: number;
+}
+
+const DEFAULT_POLL_INTERVAL_MS = 2_500;
+const DEFAULT_MAX_WAIT_MS = 20_000;
+
 const KIND_TO_PREFIX: Record<InvalidationKind, string> = {
   balance: 'balance',
   nfts: 'solana-nfts',
@@ -201,6 +222,92 @@ export function useSettleAfterTx(): (opts: SettlementOptions) => Promise<void> {
           }
         }, delay);
       }
+    },
+    [queryClient],
+  );
+}
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Stable on-chain signature of the matching balance queries. Keys only on
+ * per-token `amount`, so price/usd fields (which tick independently of any tx)
+ * never register as a "change". Empty string when no balance query is cached.
+ */
+function balanceSignature(queryClient: QueryClient, opts: InvalidationOptions): string {
+  const matches = queryClient.getQueriesData<{
+    items?: Array<{ address?: string; amount?: string }>;
+  }>({ predicate: matchesInvalidation(opts, 'balance') });
+
+  return matches
+    .map(([key, data]) => {
+      const items = data?.items ?? [];
+      const sig = items
+        .map((i) => `${i.address}:${i.amount}`)
+        .sort()
+        .join('|');
+      return `${JSON.stringify(key)}=>${sig}`;
+    })
+    .sort()
+    .join('||');
+}
+
+/**
+ * Event-driven settlement for same-chain actions (send, Jupiter swap, NFT
+ * burn/send). Snapshots the balance, then refetches on an interval until the
+ * indexer reflects the change — resolving the moment the balance signature
+ * differs, or after `maxWaitMs`. A success screen can `await` this so it dwells
+ * exactly as long as the indexer needs (typically ~12-14s) and no longer,
+ * guaranteeing the user returns to a fresh balance instead of a stale one.
+ *
+ * NOT for the StealthEX bridge: cross-chain settlement takes minutes, so the
+ * destination balance is settled by the background exchange-status poller
+ * instead of by blocking a screen.
+ */
+export function useSettleUntilChanged(): (opts: SettleUntilChangedOptions) => Promise<SettleResult> {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    async (opts) => {
+      const {
+        pollIntervalMs = DEFAULT_POLL_INTERVAL_MS,
+        maxWaitMs = DEFAULT_MAX_WAIT_MS,
+        ...inv
+      } = opts;
+
+      // Snapshot the pre-settle (stale) balance before any refetch.
+      const before = balanceSignature(queryClient, inv);
+
+      // Immediate invalidation + refetch (also handles optimistic NFT removal).
+      await invalidateAfterTx(queryClient, inv);
+
+      // The immediate refetch may already be fresh on a fast indexer run.
+      if (balanceSignature(queryClient, inv) !== before) {
+        return { changed: true, waitedMs: 0 };
+      }
+
+      const start = Date.now();
+      while (Date.now() - start < maxWaitMs) {
+        await sleep(pollIntervalMs);
+        try {
+          await refetchAfterTx(queryClient, { ...inv, kinds: ['balance'] });
+        } catch (err) {
+          console.warn('[useSettleUntilChanged] poll refetch failed:', err);
+        }
+        if (balanceSignature(queryClient, inv) !== before) {
+          // Indexer moved — refetch the remaining kinds and re-hide optimistic
+          // NFT removals that the server refetch may have resurrected.
+          await refetchAfterTx(queryClient, inv).catch(() => undefined);
+          removeOptimisticNfts(queryClient, inv);
+          return { changed: true, waitedMs: Date.now() - start };
+        }
+      }
+
+      // Ceiling hit: do a final full refetch so the cache is at least as fresh
+      // as the provider allows, then let the screen proceed.
+      await refetchAfterTx(queryClient, inv).catch(() => undefined);
+      removeOptimisticNfts(queryClient, inv);
+      return { changed: false, waitedMs: Date.now() - start };
     },
     [queryClient],
   );

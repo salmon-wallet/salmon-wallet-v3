@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 
-import { useInvalidateAfterTx, useSettleAfterTx } from './invalidation';
+import { useInvalidateAfterTx, useSettleAfterTx, useSettleUntilChanged } from './invalidation';
 import { queryKeys } from './keys';
 
 function makeClient(): QueryClient {
@@ -490,5 +490,92 @@ describe('useInvalidateAfterTx', () => {
         (client.getQueryData(avatarKey) as Array<{ mint: string }>).map((n) => n.mint),
       ).toEqual([MINT_KEEP]);
     });
+  });
+});
+
+describe('useSettleUntilChanged', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const balanceKey = queryKeys.balance({ accountId: ACCOUNT_A, networkId: NETWORK_SOL });
+
+  // A balance query whose on-chain `amount` is controlled by the test, mirroring
+  // an indexer that returns the stale value until it catches up.
+  function renderWithBalance(amounts: { current: string }) {
+    const fetchBalance = vi.fn(async () => ({
+      items: [{ address: 'So11111111111111111111111111111111111111112', amount: amounts.current }],
+    }));
+    const view = renderHook(
+      () => {
+        useQuery({ queryKey: balanceKey, queryFn: fetchBalance, staleTime: 15_000 });
+        return useSettleUntilChanged();
+      },
+      { wrapper: makeWrapper(makeClient()) },
+    );
+    return { ...view, fetchBalance };
+  }
+
+  it('resolves changed once the indexer reflects the new balance', async () => {
+    const amounts = { current: '1000000000' };
+    const { result, fetchBalance } = renderWithBalance(amounts);
+
+    await waitFor(() => expect(fetchBalance).toHaveBeenCalledTimes(1));
+
+    vi.useFakeTimers();
+
+    let settle: Promise<{ changed: boolean; waitedMs: number }>;
+    await act(async () => {
+      settle = result.current({
+        accountId: ACCOUNT_A,
+        networkId: NETWORK_SOL,
+        kinds: ['balance', 'transactions'],
+        pollIntervalMs: 2_500,
+        maxWaitMs: 20_000,
+      });
+    });
+
+    // Immediate refetch is still stale -> not resolved yet; poll once, still stale.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_500);
+    });
+
+    // Indexer catches up.
+    amounts.current = '989995000';
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_500);
+    });
+
+    const res = await settle!;
+    expect(res.changed).toBe(true);
+    expect(res.waitedMs).toBeGreaterThan(0);
+  });
+
+  it('resolves changed:false at the ceiling when the balance never moves', async () => {
+    const amounts = { current: '1000000000' };
+    const { result, fetchBalance } = renderWithBalance(amounts);
+
+    await waitFor(() => expect(fetchBalance).toHaveBeenCalledTimes(1));
+
+    vi.useFakeTimers();
+
+    let settle: Promise<{ changed: boolean; waitedMs: number }>;
+    await act(async () => {
+      settle = result.current({
+        accountId: ACCOUNT_A,
+        networkId: NETWORK_SOL,
+        kinds: ['balance'],
+        pollIntervalMs: 2_500,
+        maxWaitMs: 10_000,
+      });
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+
+    const res = await settle!;
+    expect(res.changed).toBe(false);
+    expect(res.waitedMs).toBeGreaterThanOrEqual(10_000);
   });
 });

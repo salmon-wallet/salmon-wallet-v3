@@ -1,7 +1,13 @@
 export { createQueryClient } from './query-client';
 export { queryKeys } from './keys';
-export { useInvalidateAfterTx, useSettleAfterTx } from './invalidation';
-export type { InvalidationKind, InvalidationOptions, SettlementOptions } from './invalidation';
+export { useInvalidateAfterTx, useSettleAfterTx, useSettleUntilChanged } from './invalidation';
+export type {
+  InvalidationKind,
+  InvalidationOptions,
+  SettlementOptions,
+  SettleUntilChangedOptions,
+  SettleResult,
+} from './invalidation';
 export {
   QueryClient,
   QueryClientProvider,
