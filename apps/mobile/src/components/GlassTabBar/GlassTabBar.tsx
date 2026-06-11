@@ -12,6 +12,7 @@ import {
 import { BlurContainer } from '../BlurContainer';
 import { GridViewSvgIcon, HomeSvgIcon, SwapSvgIcon } from '../Icon';
 import { useTabChrome } from '../../../hooks/useTabChrome';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
 import type { TabConfig } from './types';
 
 const TAB_CONFIG: Record<string, TabConfig> = {
@@ -81,6 +82,7 @@ export function GlassTabBar({
   navigation,
 }: BottomTabBarProps) {
   const { tabBarBottomPadding } = useTabChrome();
+  const { tabBarMaxWidth } = useResponsiveLayout();
 
   // Filter and order routes to only show Home, Collectibles, and Swap
   const visibleRoutes = TAB_ORDER
@@ -101,7 +103,7 @@ export function GlassTabBar({
       pointerEvents="box-none"
     >
       <BlurContainer
-        style={styles.glassContainer}
+        style={[styles.glassContainer, { maxWidth: tabBarMaxWidth }]}
         blurIntensity={24}
         backgroundColor={colors.background.glass}
         borderColor={colors.border.subtle}

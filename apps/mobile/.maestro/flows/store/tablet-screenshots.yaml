@@ -1,0 +1,52 @@
+appId: io.salmonwallet.app
+---
+# Google Play tablet screenshots. SCREENSHOT_SIZE separates each device run.
+- runFlow: ../../subflows/onboard-walletA.yaml
+- assertVisible: "Switch wallet account"
+- extendedWaitUntil:
+    visible: "USD Coin"
+    timeout: 30000
+- takeScreenshot: screenshots/play-store/${SCREENSHOT_SIZE}/01-home
+
+- tapOn: "Collectibles"
+- extendedWaitUntil:
+    visible: "My Collectibles"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "Salmon Logo"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible: "Loading NFT image.*"
+    timeout: 60000
+- takeScreenshot: screenshots/play-store/${SCREENSHOT_SIZE}/02-collectibles
+
+- tapOn: "Swap"
+- extendedWaitUntil:
+    visible: "Review & Swap"
+    timeout: 30000
+- takeScreenshot: screenshots/play-store/${SCREENSHOT_SIZE}/03-swap
+
+- tapOn: "Home"
+- extendedWaitUntil:
+    visible: "Receive tokens"
+    timeout: 30000
+- tapOn: "Receive tokens"
+- extendedWaitUntil:
+    visible: "Receive"
+    timeout: 30000
+- takeScreenshot: screenshots/play-store/${SCREENSHOT_SIZE}/04-receive
+
+- pressKey: back
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible: "View activity"
+    timeout: 30000
+- tapOn: "View activity"
+- extendedWaitUntil:
+    visible: "Transaction History"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible: "Loading transactions.*"
+    timeout: 60000
+- takeScreenshot: screenshots/play-store/${SCREENSHOT_SIZE}/05-activity

@@ -18,14 +18,23 @@
  */
 import { Dimensions } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+import {
+  DESIGN_HEIGHT,
+  DESIGN_WIDTH,
+  getNativeScalingDimensions,
+} from './scaling-core';
+
+const windowDimensions = Dimensions.get('window');
+const { width, height } = getNativeScalingDimensions(
+  windowDimensions.width,
+  windowDimensions.height
+);
 
 /**
  * iPhone 17 Pro Max dimensions in logical points
  * This is our design reference device
  */
-export const DESIGN_WIDTH = 440;
-export const DESIGN_HEIGHT = 956;
+export { DESIGN_WIDTH, DESIGN_HEIGHT };
 
 /**
  * Horizontal scale - use for widths, horizontal paddings/margins, horizontal gaps

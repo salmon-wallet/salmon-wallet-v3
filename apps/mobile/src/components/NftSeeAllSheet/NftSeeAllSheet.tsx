@@ -19,6 +19,8 @@ import {
   spacing,
 } from '@salmon/shared';
 import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
+import { getGridItemWidth } from '../../../hooks/responsiveLayout';
 
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { NftCard, NftCardSkeleton } from '../NftCard';
@@ -28,7 +30,6 @@ import type { NftBlockchain } from '../NftCarouselSection';
 import type { NftData } from '../NftCard';
 
 // Grid constants
-const NUM_COLUMNS = 2;
 const GRID_GAP = s(18);
 const HORIZONTAL_PADDING = s(18);
 
@@ -49,13 +50,20 @@ const getBlockchainIcon = (blockchain: NftBlockchain, size: number = 24) => {
 /**
  * Skeleton grid for loading state
  */
-const SkeletonGrid: React.FC = () => {
+const SkeletonGrid: React.FC<{ columns: number; cardWidth: number }> = ({
+  columns,
+  cardWidth,
+}) => {
   return (
     <View style={styles.skeletonGrid}>
       {[0, 1, 2].map((row) => (
         <View key={row} style={styles.skeletonRow}>
-          <NftCardSkeleton style={styles.skeletonCard} />
-          <NftCardSkeleton style={styles.skeletonCard} />
+          {Array.from({ length: columns }, (_, column) => (
+            <NftCardSkeleton
+              key={column}
+              style={[styles.skeletonCard, { width: cardWidth }]}
+            />
+          ))}
         </View>
       ))}
     </View>
@@ -93,6 +101,14 @@ export const NftSeeAllSheet: React.FC<NftSeeAllSheetProps> = ({
   // Top fade gradient opacity (driven by scroll offset)
   const topFadeOpacity = useMemo(() => new Animated.Value(0), []);
   const { bottomInset, spaciousContentBottomPadding } = useBottomSheetChrome();
+  const { nftColumns, bottomSheetMaxWidth } = useResponsiveLayout();
+  const gridColumns = Math.min(nftColumns, 3);
+  const gridCardWidth = getGridItemWidth(
+    bottomSheetMaxWidth,
+    gridColumns,
+    GRID_GAP,
+    HORIZONTAL_PADDING
+  );
 
   // Handle scroll to show/hide top fade gradient dynamically
   const handleScroll = useCallback(
@@ -111,11 +127,11 @@ export const NftSeeAllSheet: React.FC<NftSeeAllSheetProps> = ({
         <NftCard
           nft={item}
           onPress={() => onNftPress?.(item)}
-          style={styles.nftCard}
+          style={[styles.nftCard, { width: gridCardWidth }]}
         />
       );
     },
-    [onNftPress]
+    [gridCardWidth, onNftPress]
   );
 
   // Key extractor
@@ -144,14 +160,15 @@ export const NftSeeAllSheet: React.FC<NftSeeAllSheetProps> = ({
       {/* Grid Content */}
       {loading ? (
         <View style={styles.scrollContent}>
-          <SkeletonGrid />
+          <SkeletonGrid columns={gridColumns} cardWidth={gridCardWidth} />
         </View>
       ) : (
         <FlatList
           data={nfts}
+          key={gridColumns}
           renderItem={renderNftItem}
           keyExtractor={keyExtractor}
-          numColumns={NUM_COLUMNS}
+          numColumns={gridColumns}
           columnWrapperStyle={styles.columnWrapper}
           contentContainerStyle={[
             styles.listContent,
@@ -202,12 +219,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: HORIZONTAL_PADDING,
   },
   columnWrapper: {
-    justifyContent: 'space-between',
+    gap: GRID_GAP,
     marginBottom: GRID_GAP,
   },
   nftCard: {
-    flex: 1,
-    maxWidth: `${(100 - 2) / 2}%`,
+    flexGrow: 0,
+    flexShrink: 0,
+    maxWidth: '100%',
   },
   // Skeleton styles
   skeletonGrid: {
@@ -215,12 +233,13 @@ const styles = StyleSheet.create({
   },
   skeletonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: GRID_GAP,
     marginBottom: GRID_GAP,
   },
   skeletonCard: {
-    flex: 1,
-    maxWidth: `${(100 - 2) / 2}%`,
+    flexGrow: 0,
+    flexShrink: 0,
+    maxWidth: '100%',
   },
 });
 

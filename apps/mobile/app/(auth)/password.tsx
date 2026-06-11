@@ -59,6 +59,7 @@ import {
   KeyboardAvoidingView,
   Linking,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -73,6 +74,7 @@ import {
   PrimaryButton,
   ScreenHeader,
 } from '../../src/components';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 // ============================================================================
 // Component
@@ -80,6 +82,7 @@ import {
 
 export default function PasswordScreen() {
   const { t } = useTranslation();
+  const { contentMaxWidth } = useResponsiveLayout();
   const params = useLocalSearchParams<{ type?: string }>();
   const [state, actions] = useAccountsContext();
   const [mnemonic, setMnemonic] = useState<string | null>(null);
@@ -299,18 +302,23 @@ export default function PasswordScreen() {
             style={styles.keyboardView}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
-            {/* Header with Step Indicator */}
-            <ScreenHeader
-              onBack={handleBack}
-              stepIndicator={{
-                totalSteps: flowType === 'create' ? 3 : 2,
-                currentStep: flowType === 'create' ? 3 : 2,
-              }}
-              backDisabled={isLoading || isChecking}
-            />
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Header with Step Indicator */}
+              <ScreenHeader
+                onBack={handleBack}
+                stepIndicator={{
+                  totalSteps: flowType === 'create' ? 3 : 2,
+                  currentStep: flowType === 'create' ? 3 : 2,
+                }}
+                backDisabled={isLoading || isChecking}
+              />
 
-            {/* Content */}
-            <View style={styles.content}>
+              {/* Content */}
+              <View style={[styles.content, { maxWidth: contentMaxWidth }]}>
               {/* Logo */}
               <View style={styles.logoContainer}>
                 <Image source={Logo} style={styles.logo} resizeMode="contain" />
@@ -399,7 +407,8 @@ export default function PasswordScreen() {
                   {getButtonText()}
                 </PrimaryButton>
               </View>
-            </View>
+              </View>
+            </ScrollView>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </SafeAreaView>
@@ -427,8 +436,13 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
   content: {
     flex: 1,
+    width: '100%',
+    alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: contentPadding.screen,

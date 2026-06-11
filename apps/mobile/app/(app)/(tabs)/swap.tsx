@@ -47,6 +47,7 @@ import {
   type SwapToken,
 } from '../../../src/components';
 import { useTabChrome } from '../../../hooks/useTabChrome';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
 
 /**
  * Since SwapQuote now uses the backend structure directly,
@@ -66,6 +67,7 @@ function transformQuoteForUI(
 export default function SwapScreenPage() {
   const { t } = useTranslation();
   const { headerChromeHeight } = useTabChrome();
+  const { contentMaxWidth } = useResponsiveLayout();
   const router = useRouter();
 
   // Store the current quote from useSwap for execution
@@ -361,7 +363,12 @@ export default function SwapScreenPage() {
   return (
     <View style={styles.container}>
       {/* Swap Content */}
-      <View style={[styles.contentContainer, { marginTop: headerChromeHeight }]}>
+      <View
+        style={[
+          styles.contentContainer,
+          { marginTop: headerChromeHeight, maxWidth: contentMaxWidth },
+        ]}
+      >
         <SwapScreen
           tokens={swapTokens}
           featuredTokens={featuredTokens}
@@ -395,8 +402,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+    alignItems: 'center',
   },
   contentContainer: {
+    width: '100%',
     flex: 1,
   },
   loadingContainer: {

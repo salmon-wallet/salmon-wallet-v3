@@ -64,6 +64,8 @@ import {
 } from '../../../src/components';
 import { useDeveloperMode } from '../../../src/contexts/DeveloperModeContext';
 import { useTabChrome } from '../../../hooks/useTabChrome';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
+import { getGridItemWidth } from '../../../hooks/responsiveLayout';
 
 // ============================================================================
 // Types
@@ -115,7 +117,14 @@ const GRID_HORIZONTAL_PADDING = s(18);
 // ============================================================================
 
 export default function CollectiblesScreen() {
-  const { headerContentOffset, scrollBottomPadding } = useTabChrome();
+  const { headerContentOffset, scrollBottomPadding, tabBarTotalHeight } = useTabChrome();
+  const { wideContentMaxWidth, nftColumns, isTablet } = useResponsiveLayout();
+  const gridCardWidth = getGridItemWidth(
+    wideContentMaxWidth,
+    nftColumns,
+    GRID_GAP,
+    GRID_HORIZONTAL_PADDING
+  );
 
   // UI state
   // const [seeAllSheet, setSeeAllSheet] = useState<SeeAllSheetState>({
@@ -442,9 +451,13 @@ export default function CollectiblesScreen() {
   return (
     <View style={styles.container}>
       <ScrollView
-        style={styles.scrollView}
+        style={[
+          styles.scrollView,
+          isTablet && { marginBottom: tabBarTotalHeight },
+        ]}
         contentContainerStyle={[
           styles.scrollContent,
+          { width: '100%', maxWidth: wideContentMaxWidth, alignSelf: 'center' },
           { paddingBottom: scrollBottomPadding },
           { paddingTop: headerOffset + vs(8) },
         ]}
@@ -512,23 +525,24 @@ export default function CollectiblesScreen() {
               {/* Grid or Skeleton */}
               {section.loading ? (
                 <View style={styles.gridContainer}>
-                  <View style={styles.gridRow}>
-                    <NftCardSkeleton style={styles.gridCard} />
-                    <NftCardSkeleton style={styles.gridCard} />
-                  </View>
-                  <View style={styles.gridRow}>
-                    <NftCardSkeleton style={styles.gridCard} />
-                    <NftCardSkeleton style={styles.gridCard} />
-                  </View>
-                  <View style={styles.gridRow}>
-                    <NftCardSkeleton style={styles.gridCard} />
-                    <NftCardSkeleton style={styles.gridCard} />
-                  </View>
+                  {Array.from({ length: 2 }, (_, rowIndex) => (
+                    <View key={rowIndex} style={styles.gridRow}>
+                      {Array.from({ length: nftColumns }, (_, columnIndex) => (
+                        <NftCardSkeleton
+                          key={columnIndex}
+                          style={[
+                            styles.gridCard,
+                            { width: gridCardWidth },
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  ))}
                 </View>
               ) : (
                 <View style={styles.gridContainer}>
                   {section.nfts.reduce<NftData[][]>((rows, nft, i) => {
-                    if (i % 2 === 0) rows.push([nft]);
+                    if (i % nftColumns === 0) rows.push([nft]);
                     else rows[rows.length - 1].push(nft);
                     return rows;
                   }, []).map((pair, rowIndex) => (
@@ -538,7 +552,10 @@ export default function CollectiblesScreen() {
                           key={nft.mint}
                           nft={nft}
                           onPress={() => handleNftPress(nft, sectionKey)}
-                          style={styles.gridCard}
+                          style={[
+                            styles.gridCard,
+                            { width: gridCardWidth },
+                          ]}
                         />
                       ))}
                     </View>
@@ -723,11 +740,12 @@ const styles = StyleSheet.create({
   },
   gridRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: GRID_GAP,
     marginBottom: GRID_GAP,
   },
   gridCard: {
-    flex: 1,
-    maxWidth: `${(100 - 2) / 2}%`,
+    flexGrow: 0,
+    flexShrink: 0,
+    maxWidth: '100%',
   },
 });

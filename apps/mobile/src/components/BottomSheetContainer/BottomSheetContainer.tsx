@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Platform,
   BackHandler,
-  Dimensions,
   Animated,
   StyleProp,
   ViewStyle,
@@ -36,12 +35,11 @@ import {
 } from '@salmon/shared';
 import { BlurTargetProvider } from '../BlurContainer';
 import { ScalesBackground } from '../ScalesBackground';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const ANIMATION_DURATION = 300;
 const BACKDROP_OPACITY = 0.8;
@@ -147,9 +145,10 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
 }) => {
   const blurTargetRef = useRef<View>(null);
   const [isRendered, setIsRendered] = useState(visible);
+  const { height: screenHeight, bottomSheetMaxWidth } = useResponsiveLayout();
 
   // Reanimated shared values for the sheet and backdrop
-  const translateY = useSharedValue(SCREEN_HEIGHT);
+  const translateY = useSharedValue(screenHeight);
   const backdropOpacity = useSharedValue(0);
   const dragY = useSharedValue(0);
   const isDragging = useSharedValue(false);
@@ -179,7 +178,7 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
         easing: Easing.out(Easing.cubic),
       });
     } else if (isRendered) {
-      translateY.value = withTiming(SCREEN_HEIGHT, {
+      translateY.value = withTiming(screenHeight, {
         duration: ANIMATION_DURATION,
         easing: Easing.in(Easing.cubic),
       }, (finished) => {
@@ -218,7 +217,7 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
         dragY.value = event.translationY;
         backdropOpacity.value = interpolate(
           event.translationY,
-          [0, SCREEN_HEIGHT * 0.5],
+          [0, screenHeight * 0.5],
           [BACKDROP_OPACITY, 0],
         );
       }
@@ -226,7 +225,7 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
     .onEnd((event) => {
       isDragging.value = false;
       if (event.translationY > DRAG_THRESHOLD || event.velocityY > 500) {
-        translateY.value = withTiming(SCREEN_HEIGHT, {
+        translateY.value = withTiming(screenHeight, {
           duration: 200,
           easing: Easing.out(Easing.cubic),
         });
@@ -275,7 +274,14 @@ export const BottomSheetContainer: React.FC<BottomSheetContainerProps> = ({
           </TouchableWithoutFeedback>
 
           {/* Sheet */}
-          <Reanimated.View style={[styles.sheetContainer, sheetAnimatedStyle, style]}>
+          <Reanimated.View
+            style={[
+              styles.sheetContainer,
+              { maxWidth: bottomSheetMaxWidth },
+              sheetAnimatedStyle,
+              style,
+            ]}
+          >
             <BlurTargetView ref={blurTargetRef} style={StyleSheet.absoluteFill}>
               {/* Fish scale background */}
               <ScalesBackground />
@@ -336,6 +342,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   backdrop: {
     position: 'absolute',
@@ -346,6 +353,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sheet.backdrop,
   },
   sheetContainer: {
+    width: '100%',
     backgroundColor: colors.background.primary,
     borderTopLeftRadius: borderRadius.card,
     borderTopRightRadius: borderRadius.card,

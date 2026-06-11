@@ -28,10 +28,23 @@ appId: io.salmonwallet.app
 - tapOn:
     id: "password-input"
 - inputText: ${SALMON_TEST_PASSWORD}
-- tapOn: "Choose a Password"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "password-confirm-input"
+    timeout: 10000
 - tapOn:
     id: "password-confirm-input"
 - inputText: ${SALMON_TEST_PASSWORD}
-- tapOn: "Choose a Password"
-- tapOn:
-    text: "RECOVER ACCOUNT"
+- hideKeyboard
+- runFlow:
+    when:
+      visible: "Recover Account"
+    commands:
+      - tapOn: "Recover Account"
+- runFlow:
+    when:
+      visible: "Choose a Password"
+    commands:
+      - tapOn:
+          point: "50%,95%"

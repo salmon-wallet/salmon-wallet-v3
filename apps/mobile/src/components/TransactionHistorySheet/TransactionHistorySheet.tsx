@@ -227,7 +227,9 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
 
         {/* Loading State */}
         {loading && !error && (
-          <TransactionListSkeleton count={6} />
+          <View accessibilityLabel="Loading transactions">
+            <TransactionListSkeleton count={6} />
+          </View>
         )}
 
         {/* Empty State */}

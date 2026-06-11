@@ -80,6 +80,7 @@ import {
 } from '../../../src/components';
 import { useDeveloperMode } from '../../../src/contexts/DeveloperModeContext';
 import { useTabChrome } from '../../../hooks/useTabChrome';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
 
 
 // Map blockchain to logo URL (outside component to avoid recreation)
@@ -148,7 +149,8 @@ function mapBalanceToToken(
 }
 
 export default function HomeScreen() {
-  const { scrollBottomPadding } = useTabChrome();
+  const { scrollBottomPadding, tabBarTotalHeight } = useTabChrome();
+  const { contentMaxWidth, isTablet } = useResponsiveLayout();
   const [{ currency }] = useCurrencyContext();
 
   // Top fade gradient opacity - animated based on scroll position
@@ -750,21 +752,27 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Fixed Header: Balance Card + Action Buttons */}
-      {FixedHeaderComponent}
+      <View style={[styles.mainContent, { maxWidth: contentMaxWidth }]}>
+        {/* Fixed Header: Balance Card + Action Buttons */}
+        {FixedHeaderComponent}
 
-      {/* Sub-account selector — only visible with 2+ derived accounts */}
-      <SubAccountSelector
-        accounts={subAccounts}
-        activeIndex={pathIndex}
-        onSelect={handleSubAccountChange}
-        pendingIndex={pendingSubAccountIndex}
-        style={styles.subAccountSelector}
-      />
+        {/* Sub-account selector — only visible with 2+ derived accounts */}
+        <SubAccountSelector
+          accounts={subAccounts}
+          activeIndex={pathIndex}
+          onSelect={handleSubAccountChange}
+          pendingIndex={pendingSubAccountIndex}
+          style={styles.subAccountSelector}
+        />
 
-      {/* Scrollable Token List or Bitcoin View */}
-      <View style={styles.listContainer}>
-        {currentBlockchain === 'bitcoin' ? (
+        {/* Scrollable Token List or Bitcoin View */}
+        <View
+          style={[
+            styles.listContainer,
+            isTablet && { marginBottom: tabBarTotalHeight },
+          ]}
+        >
+          {currentBlockchain === 'bitcoin' ? (
           // Bitcoin view with chart, about, and market data
           <ScrollView
             style={styles.bitcoinScrollView}
@@ -825,17 +833,18 @@ export default function HomeScreen() {
             contentContainerStyle={[styles.listContent, { paddingBottom: scrollBottomPadding }]}
             blockchain={getBlockchainFromNetworkId(currentBlockchain)}
           />
-        )}
-        {/* Top fade gradient - shows only when scrolled, fades in dynamically */}
-        <Animated.View
-          style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
-          pointerEvents="none"
-        >
-          <LinearGradient
-            colors={[colors.background.primary, 'transparent']}
-            style={StyleSheet.absoluteFill}
-          />
-        </Animated.View>
+          )}
+          {/* Top fade gradient - shows only when scrolled, fades in dynamically */}
+          <Animated.View
+            style={[styles.topFadeGradient, { opacity: topFadeOpacity }]}
+            pointerEvents="none"
+          >
+            <LinearGradient
+              colors={[colors.background.primary, 'transparent']}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
+        </View>
       </View>
 
       {/* Token Information Sheet */}
@@ -906,6 +915,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  mainContent: {
+    width: '100%',
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,

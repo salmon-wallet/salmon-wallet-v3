@@ -41,6 +41,7 @@ import {
   s,
 } from '@salmon/shared';
 import type { GateContainerProps, GateState } from './types';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
 
 // ============================================================================
 // Constants
@@ -65,6 +66,7 @@ export function GateContainer({
   onUnlockAnimationComplete,
 }: GateContainerProps) {
   const { height: screenHeight } = useWindowDimensions();
+  const { contentMaxWidth } = useResponsiveLayout();
   const insets = useSafeAreaInsets();
   const headerHeight = insets.top + componentSizes.headerHeight;
 
@@ -211,14 +213,14 @@ export function GateContainer({
         <View style={styles.surface}>
           {/* Lock content — full screen */}
           {state === 'locked' && (
-            <View style={styles.lockContentContainer}>
+            <View style={[styles.lockContentContainer, { maxWidth: contentMaxWidth }]}>
               {lockContent}
             </View>
           )}
 
           {/* Expanded content — settings or wallets (kept mounted for snapshot during close) */}
           {showExpanded && (
-            <View style={styles.expandedContentContainer}>
+            <View style={[styles.expandedContentContainer, { maxWidth: contentMaxWidth }]}>
               <View style={{ height: insets.top }} />
               {/* Header bar with title, back, close */}
               {activeExpandedHeader && (
@@ -303,6 +305,8 @@ const styles = StyleSheet.create({
   },
   lockContentContainer: {
     flex: 1,
+    width: '100%',
+    alignSelf: 'center',
   },
   headerContentContainer: {
     // Position at the bottom of the gate (which is the visible part when collapsed)
@@ -334,6 +338,8 @@ const styles = StyleSheet.create({
   },
   expandedContentContainer: {
     flex: 1,
+    width: '100%',
+    alignSelf: 'center',
   },
   expandedHeader: {
     flexDirection: 'row',

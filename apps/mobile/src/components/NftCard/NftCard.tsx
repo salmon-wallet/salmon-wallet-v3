@@ -99,7 +99,10 @@ export const NftCard: React.FC<NftCardProps> = ({
           autoplay={true}
         />
         {imageLoading && (
-          <View style={styles.loadingOverlay}>
+          <View
+            style={styles.loadingOverlay}
+            accessibilityLabel={`Loading NFT image for ${nft.name}`}
+          >
             <LinearGradient
               colors={[...FALLBACK_GRADIENT.colors]}
               start={FALLBACK_GRADIENT.start}
@@ -163,9 +166,8 @@ export const NftCard: React.FC<NftCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    // Card size: ~194x193px with responsive scaling
-    width: s(componentSizes.nftCardWidth),
-    height: vs(componentSizes.nftCardHeight),
+    width: '100%',
+    aspectRatio: componentSizes.nftCardWidth / componentSizes.nftCardHeight,
     borderRadius: ms(borderRadius.iconContainer),
     overflow: 'hidden',
     // Shadow: 0px 3px 9px rgba(0,0,0,0.4)

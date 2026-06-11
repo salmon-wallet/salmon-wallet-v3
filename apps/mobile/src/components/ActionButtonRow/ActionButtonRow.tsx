@@ -162,11 +162,12 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: s(spacing['4xl']), // 40px
+    gap: s(spacing.sm),
+    paddingHorizontal: s(spacing['2xl']),
   },
   buttonWrapper: {
-    width: s(componentSizes.actionButtonWidth), // 112px
+    flex: 1,
+    minWidth: 0,
     height: ms(componentSizes.actionButtonHeight), // 47px
     borderRadius: ms(componentSizes.actionButtonRadius), // 14px
     overflow: 'hidden',

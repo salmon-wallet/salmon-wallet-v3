@@ -17,7 +17,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +25,7 @@ import { useBottomSheetChrome } from '../../../hooks/useBottomSheetChrome';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { ContentCopySvgIcon } from '../Icon/SvgIcons';
 import QRCode from '../QRCode';
+import { useResponsiveLayout } from '../../../hooks/useResponsiveLayout';
 import type { ReceiveSheetProps } from './types';
 
 // Layout constants
@@ -61,13 +61,10 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
   onCopy,
   style,
 }) => {
-  const { width: screenWidth } = useWindowDimensions();
+  const { qrSize } = useResponsiveLayout();
   const [copied, setCopied] = useState(false);
   const { t } = useTranslation();
   const { spaciousContentBottomPadding } = useBottomSheetChrome();
-
-  // Calculate QR size: full width minus padding and border
-  const qrSize = screenWidth - (CONTENT_PADDING_HORIZONTAL * 2) - (componentSizes.qrBorderWidth * 2);
 
   // Reset copied state when sheet closes
   useEffect(() => {
