@@ -1,10 +1,10 @@
 # Salmon Wallet
 
 
-![React 18.2.0](https://img.shields.io/badge/React-18.2.0-61dafb?logo=react&logoColor=white)
-![React Native 0.70.5](https://img.shields.io/badge/React%20Native-0.70.5-61dafb?logo=react&logoColor=white)
-![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
-![Solana Web3.js 1.95.4](https://img.shields.io/badge/@solana%2Fweb3.js-1.95.4-9945FF?logo=solana&logoColor=white)
+![React 19](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
+![React Native 0.83.6](https://img.shields.io/badge/React%20Native-0.83.6-61dafb?logo=react&logoColor=white)
+![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white)
+![Solana Web3.js 1.98](https://img.shields.io/badge/@solana%2Fweb3.js-1.98-9945FF?logo=solana&logoColor=white)
 ![GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
 <img width="160" alt="logo-salmon" src="https://github.com/salmonw/salmon-wallet-v2/assets/35810074/ac99529f-aff7-47c6-b443-4a58b41a998d">
@@ -101,18 +101,16 @@ docs/
 
 ## Tech Stack
 
-- pnpm Workspaces
-- Turborepo
-- TypeScript
-- React 19
-- React Native
-- Expo
-- Vite
-- WXT
-- Vitest
-- Jest
-- Playwright
-- Maestro
+| | Web | Extension | Mobile |
+|---|---|---|---|
+| **Language** | TypeScript ~5.9 | TypeScript ~5.9 | TypeScript ~5.9 |
+| **UI** | React 19.1 | React 19.1 | React 19.2 / React Native 0.83.6 |
+| **Framework** | Vite 7 | WXT 0.20 | Expo SDK 55 |
+| **Routing** | react-router-dom 7 | react-router-dom 7 | expo-router 55 |
+| **Styling** | MUI 7 + Emotion | MUI 7 + Emotion | react-native-paper 5 |
+| **Testing** | Vitest + Playwright | Vitest | Jest + Maestro |
+
+**Monorepo tooling:** pnpm Workspaces · Turborepo · ESLint 9
 
 ---
 
