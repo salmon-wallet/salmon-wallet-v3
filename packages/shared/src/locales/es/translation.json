@@ -91,7 +91,17 @@
     "sign_message_title": "Firmar Mensaje",
     "sign_message_subtitle": "Este sitio quiere que firmes un mensaje",
     "message_label": "Mensaje",
-    "hex_message_label": "Mensaje (hex)"
+    "hex_message_label": "Mensaje (hex)",
+    "siws_account": "Cuenta",
+    "siws_uri": "URI",
+    "siws_nonce": "Nonce",
+    "siws_issued_at": "Emitido",
+    "siws_expires": "Expira",
+    "siws_copied": "Copiado",
+    "siws_view_raw": "Ver mensaje original",
+    "siws_hide_raw": "Ocultar mensaje original",
+    "siws_domain_mismatch_title": "Dominio no coincide",
+    "siws_domain_mismatch": "El dominio del mensaje no coincide con el sitio solicitante."
   },
   "settings": {
     "title": "Configuración",

@@ -78,6 +78,90 @@ export function decodeDAppMessage(data: number[]): DecodedDAppMessage {
   }
 }
 
+export interface ParsedSiwsMessage {
+  domain: string;
+  address: string;
+  statement?: string;
+  uri?: string;
+  version?: string;
+  chainId?: string;
+  nonce?: string;
+  issuedAt?: string;
+  expirationTime?: string;
+  notBefore?: string;
+  requestId?: string;
+  resources?: string[];
+}
+
+const SIWS_HEADER = /^(.+?) wants you to sign in with your Solana account:$/;
+
+const SIWS_FIELDS: Record<string, keyof ParsedSiwsMessage> = {
+  URI: 'uri',
+  Version: 'version',
+  'Chain ID': 'chainId',
+  Nonce: 'nonce',
+  'Issued At': 'issuedAt',
+  'Expiration Time': 'expirationTime',
+  'Not Before': 'notBefore',
+  'Request ID': 'requestId',
+};
+
+/**
+ * Parses a Sign-In-With-Solana message (ABNF derived from EIP-4361) into its
+ * fields. Best-effort: returns null when the header line does not match, so
+ * callers can fall back to showing the raw message verbatim. Never throws.
+ */
+export function parseSiwsMessage(text: string): ParsedSiwsMessage | null {
+  if (!text) return null;
+
+  const lines = text.split('\n');
+  const headerMatch = lines[0]?.match(SIWS_HEADER);
+  if (!headerMatch) return null;
+
+  const address = lines[1]?.trim();
+  if (!address) return null;
+
+  const result: ParsedSiwsMessage = {
+    domain: headerMatch[1].trim(),
+    address,
+  };
+
+  const statementLines: string[] = [];
+  const resources: string[] = [];
+  let seenField = false;
+  let inResources = false;
+
+  for (let i = 2; i < lines.length; i += 1) {
+    const trimmed = lines[i].trim();
+
+    if (inResources) {
+      if (trimmed.startsWith('- ')) resources.push(trimmed.slice(2).trim());
+      continue;
+    }
+
+    if (trimmed === 'Resources:') {
+      seenField = true;
+      inResources = true;
+      continue;
+    }
+
+    const fieldMatch = trimmed.match(/^([A-Za-z][A-Za-z ]*?): (.+)$/);
+    const fieldKey = fieldMatch ? SIWS_FIELDS[fieldMatch[1]] : undefined;
+    if (fieldMatch && fieldKey) {
+      seenField = true;
+      (result as unknown as Record<string, string>)[fieldKey] = fieldMatch[2].trim();
+      continue;
+    }
+
+    if (!seenField && trimmed) statementLines.push(trimmed);
+  }
+
+  if (statementLines.length) result.statement = statementLines.join(' ');
+  if (resources.length) result.resources = resources;
+
+  return result;
+}
+
 export function buildTransactionFromEncodedMessage(encodedMessage: string): ParsedSolanaTransaction {
   const bytes = bs58.decode(encodedMessage);
 

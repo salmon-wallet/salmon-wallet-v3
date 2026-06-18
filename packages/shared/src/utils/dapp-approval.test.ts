@@ -9,6 +9,7 @@ import {
 import {
   approveSolanaTransactionRequest,
   loadSolanaTransactionApprovalDetails,
+  parseSiwsMessage,
   serializeSignedTransactionFromApproval,
 } from './dapp-approval';
 
@@ -127,5 +128,79 @@ describe('dapp approval utilities', () => {
     );
 
     expect(details.recentBlockhash).toBe(recentBlockhash);
+  });
+});
+
+describe('parseSiwsMessage', () => {
+  const fullMessage = [
+    'phase.cc wants you to sign in with your Solana account:',
+    '9mpJyg7iEse9rPMP1tdiSdSAYbLJX6nJyGbNkbT3SAd3',
+    '',
+    'Sign this message to authenticate.',
+    '',
+    'URI: https://phase.cc',
+    'Version: 1',
+    'Chain ID: mainnet',
+    'Nonce: RMTMC6f5nv88C7bYwX1ddigk1vBp5sVR',
+    'Issued At: 2026-06-18T22:06:06Z',
+  ].join('\n');
+
+  it('parses a complete SIWS message into fields', () => {
+    const parsed = parseSiwsMessage(fullMessage);
+    expect(parsed).not.toBeNull();
+    expect(parsed).toMatchObject({
+      domain: 'phase.cc',
+      address: '9mpJyg7iEse9rPMP1tdiSdSAYbLJX6nJyGbNkbT3SAd3',
+      statement: 'Sign this message to authenticate.',
+      uri: 'https://phase.cc',
+      version: '1',
+      chainId: 'mainnet',
+      nonce: 'RMTMC6f5nv88C7bYwX1ddigk1vBp5sVR',
+      issuedAt: '2026-06-18T22:06:06Z',
+    });
+  });
+
+  it('returns null when the header line does not match SIWS', () => {
+    expect(parseSiwsMessage('just a plain message to sign')).toBeNull();
+    expect(parseSiwsMessage('')).toBeNull();
+  });
+
+  it('parses without an optional statement', () => {
+    const message = [
+      'phase.cc wants you to sign in with your Solana account:',
+      '9mpJyg7iEse9rPMP1tdiSdSAYbLJX6nJyGbNkbT3SAd3',
+      '',
+      'Nonce: abc123',
+    ].join('\n');
+    const parsed = parseSiwsMessage(message);
+    expect(parsed?.statement).toBeUndefined();
+    expect(parsed?.nonce).toBe('abc123');
+  });
+
+  it('returns null when the account line is missing', () => {
+    expect(
+      parseSiwsMessage('phase.cc wants you to sign in with your Solana account:'),
+    ).toBeNull();
+  });
+
+  it('collects resources entries', () => {
+    const message = [
+      'phase.cc wants you to sign in with your Solana account:',
+      '9mpJyg7iEse9rPMP1tdiSdSAYbLJX6nJyGbNkbT3SAd3',
+      '',
+      'Resources:',
+      '- https://phase.cc/tos',
+      '- https://phase.cc/privacy',
+    ].join('\n');
+    expect(parseSiwsMessage(message)?.resources).toEqual([
+      'https://phase.cc/tos',
+      'https://phase.cc/privacy',
+    ]);
+  });
+
+  it('exposes the message domain for cross-checking against the request origin', () => {
+    const parsed = parseSiwsMessage(fullMessage);
+    expect(parsed?.domain).toBe('phase.cc');
+    expect(parsed?.domain).not.toBe('evil.example');
   });
 });
