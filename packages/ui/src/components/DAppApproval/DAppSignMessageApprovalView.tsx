@@ -88,7 +88,7 @@ export function DAppSignMessageApprovalView({
                 overflowY: 'auto',
                 backgroundColor: 'rgba(255, 255, 255, 0.04)',
                 borderRadius: 2,
-                padding: spacing.lg,
+                padding: `${spacing.lg}px`,
                 border: '1px solid rgba(255, 255, 255, 0.08)',
               }}
             >
@@ -98,6 +98,8 @@ export function DAppSignMessageApprovalView({
                   fontSize: fontSize.sm,
                   fontWeight: 400,
                   whiteSpace: 'pre-wrap',
+                  wordBreak: 'normal',
+                  overflowWrap: 'anywhere',
                 }}
               >
                 {messageText}
