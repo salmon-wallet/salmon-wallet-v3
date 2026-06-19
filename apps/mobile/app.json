@@ -28,6 +28,7 @@
     },
     "android": {
       "package": "io.salmonwallet.app",
+      "allowBackup": false,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#10131c"

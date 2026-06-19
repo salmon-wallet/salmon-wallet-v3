@@ -44,9 +44,9 @@ export interface LockedVault {
  * Configuration options for the lock function.
  */
 export interface LockOptions {
-  /** Number of PBKDF2 iterations (default: 210000, OWASP 2024 recommendation for SHA-512) */
+  /** Number of PBKDF2 iterations (default: 220000, current OWASP recommendation for SHA-512) */
   iterations?: number;
-  /** Digest algorithm for PBKDF2 (default: 'sha256') */
+  /** Digest algorithm for PBKDF2 (default: 'sha512') */
   digest?: DigestAlgorithm;
 }
 
@@ -110,8 +110,11 @@ export class KeyDerivationError extends Error {
 /**
  * Default number of PBKDF2 iterations.
  * Balances security with UX responsiveness for a mobile wallet.
+ * 220000 matches the current OWASP recommendation for PBKDF2-HMAC-SHA512.
+ * Existing vaults are unaffected: decryption reads the iteration count stored
+ * in each vault, so only newly created/re-encrypted vaults use this value.
  */
-export const DEFAULT_ITERATIONS = 210000;
+export const DEFAULT_ITERATIONS = 220000;
 
 /** Default digest algorithm — sha512 enables native PBKDF2 on mobile (react-native-fast-crypto) */
 export const DEFAULT_DIGEST: DigestAlgorithm = 'sha512';
