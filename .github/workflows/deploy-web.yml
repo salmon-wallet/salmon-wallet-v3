@@ -43,12 +43,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Installs the pnpm version pinned in package.json#packageManager.
+      # Avoids `corepack enable`, whose bundled signing keys are stale on
+      # Node 22.12.0 and fail pnpm signature verification in CI.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-
-      - name: Enable Corepack (pnpm)
-        run: corepack enable
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
