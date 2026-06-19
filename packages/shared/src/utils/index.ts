@@ -8,9 +8,11 @@ export {
   getDAppTransactionRequestSummary,
   isSecureOrigin,
   loadSolanaTransactionApprovalDetails,
+  parseSiwsMessage,
   serializeSignedTransactionFromApproval,
   serializeSignedTransactionsFromApproval,
 } from './dapp-approval';
+export type { ParsedSiwsMessage } from './dapp-approval';
 
 // Account utilities
 export {

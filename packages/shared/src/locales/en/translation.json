@@ -91,7 +91,17 @@
     "sign_message_title": "Sign Message",
     "sign_message_subtitle": "This site wants you to sign a message",
     "message_label": "Message",
-    "hex_message_label": "Message (hex)"
+    "hex_message_label": "Message (hex)",
+    "siws_account": "Account",
+    "siws_uri": "URI",
+    "siws_nonce": "Nonce",
+    "siws_issued_at": "Issued at",
+    "siws_expires": "Expires",
+    "siws_copied": "Copied",
+    "siws_view_raw": "View raw message",
+    "siws_hide_raw": "Hide raw message",
+    "siws_domain_mismatch_title": "Domain mismatch",
+    "siws_domain_mismatch": "The message domain does not match the requesting site."
   },
   "settings": {
     "title": "Settings",
