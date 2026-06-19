@@ -68,7 +68,8 @@ export default defineConfig({
     description: '__MSG_extDescription__',
     // Set default locale for i18n
     default_locale: 'en',
-    version: '0.9.4',
+    // version is intentionally omitted: WXT derives it from package.json so the
+    // manifest version stays a single source of truth (currently 0.9.5).
     icons: {
       16: 'icon-16.png',
       48: 'icon-48.png',

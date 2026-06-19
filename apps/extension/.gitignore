@@ -3,5 +3,8 @@
 .env.prod
 .env.production
 .env.staging
+# Committed on purpose: deterministic, secret-free production build inputs
+# required for reproducible AMO/Web Store source builds.
+!.env.production
 ./apps/extension/.wxt/types/imports.d.ts
 *.zip
