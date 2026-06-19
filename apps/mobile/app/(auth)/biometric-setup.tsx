@@ -24,7 +24,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // ============================================================================
@@ -112,10 +112,11 @@ export default function BiometricSetupScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      <View style={styles.content}>
-        {/* Top spacer for centering */}
-        <View style={styles.topSpacer} />
-
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Centered content */}
         <View style={styles.centerContent}>
           {/* Logo */}
@@ -168,7 +169,7 @@ export default function BiometricSetupScreen() {
             {t('wallet.create.biometric_setup_skip')}
           </SecondaryButton>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -181,16 +182,17 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
-    paddingHorizontal: contentPadding.screen,
   },
-  topSpacer: {
-    flex: 1,
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: contentPadding.screen,
   },
   centerContent: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 'auto',
   },
   logoContainer: {
     marginBottom: spacing['2xl'],
@@ -226,8 +228,8 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   buttonsContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
+    marginTop: 'auto',
+    paddingTop: spacing['2xl'],
     paddingBottom: spacing['2xl'],
   },
   buttonSpacing: {

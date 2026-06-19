@@ -22,7 +22,7 @@ import {
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton, ScreenHeader, TextButton } from '../../src/components';
 import { useBiometricAuth } from '../../hooks/useBiometricAuth';
@@ -110,7 +110,11 @@ export default function BiometricScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <ScreenHeader />
 
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Logo */}
         <View style={styles.logoContainer}>
           <Image source={Logo} style={styles.logo} resizeMode="contain" />
@@ -156,7 +160,7 @@ export default function BiometricScreen() {
             {t('wallet.create.biometric_skip')}
           </TextButton>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -165,8 +169,11 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
+    flexGrow: 1,
     alignItems: 'center',
     paddingHorizontal: contentPadding.screen,
   },

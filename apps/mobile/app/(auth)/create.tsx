@@ -39,13 +39,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Image,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -100,7 +98,11 @@ function MessageStep({ onNext, onBack, t }: MessageStepProps) {
       <ScreenHeader onBack={onBack} />
 
       {/* Content */}
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Logo */}
         <View style={styles.logoContainer}>
           <Image source={Logo} style={styles.logo} resizeMode="contain" />
@@ -119,7 +121,7 @@ function MessageStep({ onNext, onBack, t }: MessageStepProps) {
         <PrimaryButton onPress={onNext} style={styles.button}>
           {t('actions.start').toUpperCase()}
         </PrimaryButton>
-      </View>
+      </ScrollView>
     </>
   );
 }
@@ -263,51 +265,55 @@ function ValidateStep({ mnemonic, onComplete, onBack, t }: ValidateStepProps) {
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.content}>
-            {/* Logo */}
-            <View style={styles.logoContainerSmall}>
-              <Image source={Logo} style={styles.logoSmall} resizeMode="contain" />
-            </View>
-
-            {/* Title */}
-            <Text style={styles.title}>{t('wallet.create.confirm_seed_phrase')}</Text>
-
-            {/* Subtitle */}
-            <Text style={styles.subtitle}>{t('wallet.create.confirm_seed_phrase_body')}</Text>
-
-            {/* Validation Inputs */}
-            <View style={styles.validationInputs}>
-              {validationWords.map((vw, index) => (
-                <SeedWordInput
-                  key={`word-${vw.position}`}
-                  position={vw.position}
-                  value={vw.userInput}
-                  onChangeText={(value) => handleInputChange(index, value)}
-                  validationState={getValidationState(index)}
-                  autoFocus={index === 0}
-                  onSubmitEditing={() => {
-                    if (index === validationWords.length - 1 && validationResult.isValid) {
-                      onComplete();
-                    }
-                  }}
-                />
-              ))}
-            </View>
-
-            {/* Spacer */}
-            <View style={styles.flexSpacer} />
-
-            {/* Next Button */}
-            <PrimaryButton
-              onPress={onComplete}
-              disabled={!validationResult.isValid}
-              style={styles.button}
-            >
-              {t('actions.next').toUpperCase()}
-            </PrimaryButton>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Logo */}
+          <View style={styles.logoContainerSmall}>
+            <Image source={Logo} style={styles.logoSmall} resizeMode="contain" />
           </View>
-        </TouchableWithoutFeedback>
+
+          {/* Title */}
+          <Text style={styles.title}>{t('wallet.create.confirm_seed_phrase')}</Text>
+
+          {/* Subtitle */}
+          <Text style={styles.subtitle}>{t('wallet.create.confirm_seed_phrase_body')}</Text>
+
+          {/* Validation Inputs */}
+          <View style={styles.validationInputs}>
+            {validationWords.map((vw, index) => (
+              <SeedWordInput
+                key={`word-${vw.position}`}
+                position={vw.position}
+                value={vw.userInput}
+                onChangeText={(value) => handleInputChange(index, value)}
+                validationState={getValidationState(index)}
+                autoFocus={index === 0}
+                onSubmitEditing={() => {
+                  if (index === validationWords.length - 1 && validationResult.isValid) {
+                    onComplete();
+                  }
+                }}
+              />
+            ))}
+          </View>
+
+          {/* Spacer */}
+          <View style={styles.flexSpacer} />
+
+          {/* Next Button */}
+          <PrimaryButton
+            onPress={onComplete}
+            disabled={!validationResult.isValid}
+            style={styles.button}
+          >
+            {t('actions.next').toUpperCase()}
+          </PrimaryButton>
+        </ScrollView>
       </KeyboardAvoidingView>
     </>
   );
@@ -414,7 +420,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing['2xl'],
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     paddingHorizontal: contentPadding.screen,
   },

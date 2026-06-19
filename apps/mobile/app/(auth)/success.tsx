@@ -29,6 +29,7 @@ import {
   Image,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -66,10 +67,11 @@ export default function SuccessScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      <View style={styles.content}>
-        {/* Top spacer for centering */}
-        <View style={styles.topSpacer} />
-
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Centered content */}
         <View style={styles.centerContent}>
           {/* Logo */}
@@ -118,7 +120,7 @@ export default function SuccessScreen() {
             {t('wallet.create.derivable_info_icon')}
           </TextButton>
         </View>
-      </View>
+      </ScrollView>
 
       {/* Derivable Info Dialog */}
       <Modal
@@ -158,16 +160,17 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
-    paddingHorizontal: contentPadding.screen,
   },
-  topSpacer: {
-    flex: 1,
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: contentPadding.screen,
   },
   centerContent: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 'auto',
   },
   logoContainer: {
     marginBottom: spacing['2xl'],
@@ -192,8 +195,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonsContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
+    marginTop: 'auto',
+    paddingTop: spacing['2xl'],
     paddingBottom: spacing['2xl'],
   },
   buttonSpacing: {
