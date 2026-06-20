@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     width: s(componentSizes.actionButtonWidth), // 112px
-    height: ms(componentSizes.actionButtonHeight), // 47px
+    minHeight: ms(componentSizes.actionButtonHeight), // 47px
     borderRadius: ms(componentSizes.actionButtonRadius), // 14px
     overflow: 'hidden',
   },
