@@ -14,6 +14,7 @@ import {
   gradients,
   shadows,
   fontFamilyNative,
+  fontScaleCap,
   ms,
   vs,
   s,
@@ -182,7 +183,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
           activeOpacity={0.7}
           disabled={isSending}
         >
-          <Text style={styles.cancelButtonText}>
+          <Text style={styles.cancelButtonText} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={fontScaleCap.chrome}>
             {t('actions.cancel', 'CANCEL').toUpperCase()}
           </Text>
         </TouchableOpacity>
@@ -202,10 +203,10 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
             {isSending ? (
               <View style={styles.sendingRow}>
                 <ActivityIndicator size="small" color={colors.text.primary} />
-                <Text style={styles.confirmButtonText}>{t('token.send.sending', 'Sending...')}</Text>
+                <Text style={styles.confirmButtonText} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={fontScaleCap.chrome}>{t('token.send.sending', 'Sending...')}</Text>
               </View>
             ) : (
-              <Text style={styles.confirmButtonText}>
+              <Text style={styles.confirmButtonText} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={fontScaleCap.chrome}>
                 {isFailed ? t('actions.retry', 'RETRY').toUpperCase() : t('actions.confirm', 'CONFIRM').toUpperCase()}
               </Text>
             )}
