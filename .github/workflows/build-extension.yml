@@ -1,0 +1,64 @@
+name: Build Extension
+
+# Mode A (manual): builds the Chrome + Firefox extension packages and the
+# full-repo source archive, then uploads them as downloadable artifacts.
+# It does NOT publish to any store — a human downloads the artifacts and
+# uploads them to the Chrome Web Store / AMO. No store secrets required.
+#
+# To automate publishing later (continuous + approval gate), add a `wxt submit`
+# step guarded by a GitHub Environment with required reviewers, plus the store
+# API secrets (CHROME_* / FIREFOX_*).
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm/action-setup reads the pinned version from package.json#packageManager
+      # and avoids `corepack enable`, whose bundled keys fail signature
+      # verification on Node 22.12.0 in CI.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Output dir is apps/extension/dist (wxt.config sets outDir: 'dist').
+      - name: Build + zip Chrome (MV3)
+        run: |
+          pnpm --filter @salmon/extension build:prod
+          pnpm --filter @salmon/extension zip
+
+      - name: Build + zip Firefox (MV2)
+        run: |
+          pnpm --filter @salmon/extension build:firefox:prod
+          pnpm --filter @salmon/extension zip:firefox
+
+      # The wxt-generated *-sources.zip only contains apps/extension and is NOT
+      # buildable for this pnpm monorepo (wxt-dev/wxt#2075). Use the full-repo
+      # archive for AMO source review instead.
+      - name: Pack full-repo source (for AMO)
+        run: pnpm pack:sources
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: salmon-extension-${{ github.sha }}
+          path: |
+            apps/extension/dist/*-chrome.zip
+            apps/extension/dist/*-firefox.zip
+            salmon-wallet-source.zip
+          if-no-files-found: error
+          retention-days: 30
