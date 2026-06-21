@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
   button: {
     minWidth: s(componentSizes.copyButtonWidth),
-    height: vs(componentSizes.buttonHeightCompact),
+    minHeight: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

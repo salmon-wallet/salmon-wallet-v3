@@ -1,5 +1,5 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { colors, componentSizes, fontFamilyNative, ms, s, spacing, vs, borderWidth, gradients } from '@salmon/shared';
+import { colors, componentSizes, fontFamilyNative, fontScaleCap, ms, s, spacing, vs, borderWidth, gradients } from '@salmon/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
@@ -68,7 +68,12 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
       <View style={styles.tabIconContainer}>
         <IconComponent size={config.iconSize} color={iconColor} />
       </View>
-      <Text style={[styles.tabLabel, isFocused ? styles.tabLabelActive : styles.tabLabelInactive, { color: labelColor }]}>
+      <Text
+        style={[styles.tabLabel, isFocused ? styles.tabLabelActive : styles.tabLabelInactive, { color: labelColor }]}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        maxFontSizeMultiplier={fontScaleCap.chrome}
+      >
         {config.label}
       </Text>
     </TouchableOpacity>

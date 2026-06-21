@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.button),
     backgroundColor: colors.background.tertiary,
     alignItems: 'center',
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.button),
     flexDirection: 'row',
     alignItems: 'center',

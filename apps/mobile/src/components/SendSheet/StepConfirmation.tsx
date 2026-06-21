@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,

@@ -3,6 +3,7 @@ import {
   colors,
   componentSizes,
   fontFamilyNative,
+  fontScaleCap,
   fontSize,
   gradients,
   ms,
@@ -92,7 +93,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           style={styles.primaryButton}
         >
           <CallMadeSvgIcon size={ms(ACTION_BUTTON_ICON_SIZE)} color={colors.text.balance} />
-          <Text style={styles.primaryButtonText}>{t('actions.send', 'Send')}</Text>
+          <Text style={styles.primaryButtonText} numberOfLines={1} ellipsizeMode="tail" maxFontSizeMultiplier={fontScaleCap.chrome}>{t('actions.send', 'Send')}</Text>
         </LinearGradient>
       </TouchableOpacity>
 
@@ -115,7 +116,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
               size={ms(ACTION_BUTTON_ICON_SIZE)}
               color={receiveDisabled ? colors.button.disabledText : colors.text.balance}
             />
-            <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]}>
+            <Text style={[styles.secondaryButtonText, receiveDisabled && styles.textDisabled]} numberOfLines={1} ellipsizeMode="tail" maxFontSizeMultiplier={fontScaleCap.chrome}>
               {t('actions.receive', 'Receive')}
             </Text>
           </TouchableOpacity>
@@ -141,7 +142,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
               size={ms(ACTION_BUTTON_ICON_SIZE)}
               color={activityDisabled ? colors.button.disabledText : colors.text.balance}
             />
-            <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]}>
+            <Text style={[styles.secondaryButtonText, activityDisabled && styles.textDisabled]} numberOfLines={1} ellipsizeMode="tail" maxFontSizeMultiplier={fontScaleCap.chrome}>
               {t('actions.activity', 'Activity')}
             </Text>
           </TouchableOpacity>
@@ -185,6 +186,7 @@ const styles = StyleSheet.create({
     borderColor: colors.accent.border,
   },
   primaryButtonText: {
+    flexShrink: 1,
     fontSize: ms(ACTION_BUTTON_TEXT_SIZE),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.balance,
@@ -202,6 +204,7 @@ const styles = StyleSheet.create({
     gap: s(spacing.sm), // 8px
   },
   secondaryButtonText: {
+    flexShrink: 1,
     fontSize: ms(ACTION_BUTTON_TEXT_SIZE),
     fontFamily: fontFamilyNative.regular,
     color: colors.text.balance,

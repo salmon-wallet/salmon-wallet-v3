@@ -136,6 +136,22 @@ export const letterSpacing = {
   widest: 1,
 } as const;
 
+/**
+ * Caps for OS font scaling (Dynamic Type / Android font scale), passed to a
+ * Text/TextInput `maxFontSizeMultiplier`. Text still scales with the user's
+ * accessibility setting, but only up to these ceilings, so dense or
+ * space-constrained UI stays legible instead of overlapping/clipping.
+ * Icons are unaffected — they keep their fixed size.
+ */
+export const fontScaleCap = {
+  /** Chrome with little room: tab bar labels, compact action buttons. */
+  chrome: 1.3,
+  /** Dense data rows where columns must coexist: token/transaction lists. */
+  dense: 1.4,
+} as const;
+
+export type FontScaleCap = typeof fontScaleCap;
+
 export type FontFamily = typeof fontFamily;
 export type FontFamilyNative = typeof fontFamilyNative;
 export type FontSize = typeof fontSize;
