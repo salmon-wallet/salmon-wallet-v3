@@ -59,6 +59,7 @@ import {
   KeyboardAvoidingView,
   Linking,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -310,7 +311,13 @@ export default function PasswordScreen() {
             />
 
             {/* Content */}
-            <View style={styles.content}>
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={styles.content}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              showsVerticalScrollIndicator={false}
+            >
               {/* Logo */}
               <View style={styles.logoContainer}>
                 <Image source={Logo} style={styles.logo} resizeMode="contain" />
@@ -399,7 +406,7 @@ export default function PasswordScreen() {
                   {getButtonText()}
                 </PrimaryButton>
               </View>
-            </View>
+            </ScrollView>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </SafeAreaView>
@@ -427,10 +434,12 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
+    flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: contentPadding.screen,
   },
   logoContainer: {

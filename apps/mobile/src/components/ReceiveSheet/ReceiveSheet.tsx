@@ -123,7 +123,7 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
           ) : (
             <ContentCopySvgIcon size={ms(23)} color={colors.button.primaryText} />
           )}
-          <Text style={styles.copyButtonText}>
+          <Text style={styles.copyButtonText} numberOfLines={1} ellipsizeMode="tail">
             {copied ? t('token.receive.copied') : t('token.receive.copyAddress')}
           </Text>
         </TouchableOpacity>
@@ -172,11 +172,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.button.primaryBackground,
     borderRadius: ms(borderRadius.lg),
-    width: s(componentSizes.copyButtonWidth),
-    height: vs(componentSizes.buttonHeightCompact),
+    minWidth: s(componentSizes.copyButtonWidth),
+    maxWidth: '100%',
+    minHeight: vs(componentSizes.buttonHeightCompact),
+    paddingVertical: vs(spacing.xs),
+    paddingHorizontal: s(spacing.lg),
     gap: s(spacing.xs),
   },
   copyButtonText: {
+    flexShrink: 1,
     fontSize: ms(fontSize.md),
     fontFamily: fontFamilyNative.bold,
     color: colors.button.primaryText,

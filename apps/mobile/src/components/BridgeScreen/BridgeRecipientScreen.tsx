@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontSize, letterSpacing, lineHeight, spacing, borderRadius, gradients, shadows, componentSizes, ms, vs, s, fontFamilyNative, borderWidth } from '@salmon/shared';
@@ -27,35 +27,41 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
   const canContinue = isValidAddress && recipientAddress.length > 0;
 
   return (
-    <View style={[styles.container, { paddingBottom: stickyCtaScrollPadding }, style]}>
-      {/* Title */}
-      <Text style={styles.title}>{t('bridge.recipient.title', 'Recipient Address')}</Text>
+    <View style={[styles.container, style]}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: stickyCtaScrollPadding }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Title */}
+        <Text style={styles.title}>{t('bridge.recipient.title', 'Recipient Address')}</Text>
 
-      {/* Description */}
-      <Text style={styles.description}>
-        {t('bridge.recipient.description', 'Enter the address where you want to receive your swapped tokens')}
-        {targetChain ? ` on ${targetChain.name}` : ''}.
-      </Text>
-
-      {/* Address Input */}
-      <View style={styles.inputContainer}>
-        <RecipientAddressInput
-          value={recipientAddress}
-          onChangeValue={onAddressChange}
-          targetChain={targetChain}
-          label={t('bridge.recipient.destinationAddress', 'Destination Address')}
-          placeholder={t('bridge.recipient.enterRecipientAddress', 'Enter recipient address')}
-          error={addressError}
-        />
-      </View>
-
-      {/* Info Box */}
-      <View style={styles.infoBox}>
-        <Text style={styles.infoTitle}>{t('bridge.recipient.important', 'Important')}</Text>
-        <Text style={styles.infoText}>
-          {t('bridge.recipient.importantText', 'Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.')}
+        {/* Description */}
+        <Text style={styles.description}>
+          {t('bridge.recipient.description', 'Enter the address where you want to receive your swapped tokens')}
+          {targetChain ? ` on ${targetChain.name}` : ''}.
         </Text>
-      </View>
+
+        {/* Address Input */}
+        <View style={styles.inputContainer}>
+          <RecipientAddressInput
+            value={recipientAddress}
+            onChangeValue={onAddressChange}
+            targetChain={targetChain}
+            label={t('bridge.recipient.destinationAddress', 'Destination Address')}
+            placeholder={t('bridge.recipient.enterRecipientAddress', 'Enter recipient address')}
+            error={addressError}
+          />
+        </View>
+
+        {/* Info Box */}
+        <View style={styles.infoBox}>
+          <Text style={styles.infoTitle}>{t('bridge.recipient.important', 'Important')}</Text>
+          <Text style={styles.infoText}>
+            {t('bridge.recipient.importantText', 'Make sure the address is correct. Cross-chain transactions cannot be reversed once initiated.')}
+          </Text>
+        </View>
+      </ScrollView>
 
       {/* Buttons */}
       <View style={[styles.buttonsContainer, { bottom: floatingBottomOffset }]}>
@@ -90,6 +96,9 @@ export const BridgeRecipientScreen: React.FC<BridgeRecipientScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: s(spacing.headerPadding),
     paddingTop: vs(spacing['2xl']),
   },
@@ -145,7 +154,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightCompact),
+    minHeight: vs(componentSizes.buttonHeightCompact),
     borderWidth: borderWidth.accent,
     borderColor: colors.accent.border,
     borderRadius: borderRadius.lg,
@@ -162,7 +171,7 @@ const styles = StyleSheet.create({
     borderColor: colors.accent.border,
   },
   continueButton: {
-    height: vs(componentSizes.buttonHeightCompact),
+    minHeight: vs(componentSizes.buttonHeightCompact),
     backgroundColor: 'transparent',
   },
 });

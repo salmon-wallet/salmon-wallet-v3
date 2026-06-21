@@ -4,6 +4,7 @@ import {
   colors,
   componentSizes,
   fontFamilyNative,
+  fontScaleCap,
   fontSize,
   getLabelValue,
   hiddenValue,
@@ -129,7 +130,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
           {/* Bitcoin Info - Price and percentage change */}
           <View style={styles.bitcoinInfoContainer}>
             {displayPrice && (
-              <Text style={styles.bitcoinPrice} numberOfLines={1}>
+              <Text style={styles.bitcoinPrice} numberOfLines={1} maxFontSizeMultiplier={fontScaleCap.dense}>
                 {displayPrice}
               </Text>
             )}
@@ -137,7 +138,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
               {displayPercentage && (
                 <>
                   <ChangeArrow isPositive={isPositiveChange} />
-                  <Text style={[styles.bitcoinChangeText, { color: changeColor }]} numberOfLines={1}>
+                  <Text style={[styles.bitcoinChangeText, { color: changeColor }]} numberOfLines={1} ellipsizeMode="tail" maxFontSizeMultiplier={fontScaleCap.dense}>
                     {displayPercentage}
                     {displayAbsChange && ` (${displayAbsChange})`}
                   </Text>
@@ -148,7 +149,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
 
           {/* Bitcoin Amount - Right Side */}
           <View style={styles.bitcoinAmountContainer}>
-            <Text style={styles.bitcoinAmount} numberOfLines={1}>
+            <Text style={styles.bitcoinAmount} numberOfLines={1} maxFontSizeMultiplier={fontScaleCap.dense}>
               {displayTokenAmount}
             </Text>
           </View>
@@ -178,21 +179,21 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
         {/* Token Info - Left Side */}
         <View style={styles.infoContainer}>
           <View style={styles.nameRow}>
-            <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+            <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail" maxFontSizeMultiplier={fontScaleCap.dense}>
               {name}
             </Text>
             <TokenBadges tags={tags} />
           </View>
           <View style={styles.priceRow}>
             {displayPrice && (
-              <Text style={styles.price} numberOfLines={1}>
+              <Text style={styles.price} numberOfLines={1} maxFontSizeMultiplier={fontScaleCap.dense}>
                 {displayPrice}
               </Text>
             )}
             {displayPercentage && (
               <>
                 <ChangeArrow isPositive={isPositiveChange} />
-                <Text style={[styles.changeText, { color: changeColor }]} numberOfLines={1}>
+                <Text style={[styles.changeText, { color: changeColor }]} numberOfLines={1} ellipsizeMode="tail" maxFontSizeMultiplier={fontScaleCap.dense}>
                   {displayPercentage}
                   {displayAbsChange && ` (${displayAbsChange})`}
                 </Text>
@@ -204,11 +205,11 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
         {/* Value Info - Right Side */}
         <View style={styles.valueContainer}>
           {displayUsdValue && (
-            <Text style={styles.usdValue} numberOfLines={1}>
+            <Text style={styles.usdValue} numberOfLines={1} maxFontSizeMultiplier={fontScaleCap.dense}>
               {displayUsdValue}
             </Text>
           )}
-          <Text style={styles.tokenAmount} numberOfLines={1}>
+          <Text style={styles.tokenAmount} numberOfLines={1} maxFontSizeMultiplier={fontScaleCap.dense}>
             {displayTokenAmount}
           </Text>
         </View>
@@ -257,6 +258,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: s(spacing.xxs),
+    minWidth: 0,
   },
   price: {
     fontSize: ms(fontSize.tokenNamePrice),
@@ -264,6 +266,7 @@ const styles = StyleSheet.create({
     color: colors.text.muted,
     lineHeight: ms(fontSize.tokenNamePrice) * lineHeight.tokenListItem,
     letterSpacing: ms(-0.07, 0.3),
+    flexShrink: 0,
   },
   changeArrow: {
     fontSize: ms(fontSize.tokenNamePrice),
@@ -272,10 +275,13 @@ const styles = StyleSheet.create({
     fontSize: ms(fontSize.tokenChange),
     fontFamily: fontFamilyNative.light,
     letterSpacing: ms(-0.06, 0.3),
+    flexShrink: 1,
   },
   valueContainer: {
     alignItems: 'flex-end',
     gap: vs(spacing.xs),
+    flexShrink: 0,
+    maxWidth: '46%',
   },
   usdValue: {
     fontSize: ms(fontSize.lg),

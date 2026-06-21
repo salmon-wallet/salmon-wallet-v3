@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   ViewStyle,
 } from 'react-native';
-import { colors, componentSizes, fontFamilyNative, fontSize, letterSpacing, } from '@salmon/shared';
+import { colors, componentSizes, fontFamilyNative, fontSize, letterSpacing, spacing, } from '@salmon/shared';
 
 interface SecondaryButtonProps {
   onPress: () => void;
@@ -48,7 +48,9 @@ export function SecondaryButton({
 const styles = StyleSheet.create({
   button: {
     width: '100%',
-    height: componentSizes.buttonHeight,
+    minHeight: componentSizes.buttonHeight,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
     backgroundColor: colors.button.secondaryBackground,
     borderRadius: componentSizes.buttonRadius,
     alignItems: 'center',
@@ -62,5 +64,6 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     fontSize: fontSize.md,
     letterSpacing: letterSpacing.widest,
+    textAlign: 'center',
   },
 });

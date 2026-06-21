@@ -64,6 +64,7 @@ export {
   lineHeight,
   fontWeight,
   letterSpacing,
+  fontScaleCap,
 } from './typography';
 export type {
   FontFamily,
@@ -72,6 +73,7 @@ export type {
   LineHeight,
   FontWeight,
   LetterSpacing,
+  FontScaleCap,
 } from './typography';
 
 // Re-export all tokens from shadows

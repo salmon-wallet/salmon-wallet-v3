@@ -40,6 +40,7 @@ jest.mock('@salmon/shared', () => ({
     medium: 'System',
     regular: 'System',
   },
+  fontScaleCap: { chrome: 1.3, dense: 1.4 },
   type: {},
   spacing: { xs: 4, sm: 8, md: 12, lg: 16, base: 8, headerPadding: 16, '2xl': 24 },
   fontWeight: { semibold: '600', medium: '500' },

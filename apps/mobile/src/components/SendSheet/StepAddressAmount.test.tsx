@@ -32,6 +32,7 @@ jest.mock('@salmon/shared', () => ({
   },
   componentSizes: { buttonHeightMedium: 48 },
   fontFamilyNative: { regular: 'System', medium: 'System', bold: 'System' },
+  fontScaleCap: { chrome: 1.3, dense: 1.4 },
   fontSize: { xs: 12, sm: 14, base: 16, md: 18, xl: 24 },
   getShortAddress: (value: string) => `${value.slice(0, 4)}...${value.slice(-4)}`,
   gradients: {

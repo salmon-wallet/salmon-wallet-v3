@@ -439,7 +439,8 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: vs(componentSizes.iconSize5XL),
+    minHeight: vs(componentSizes.iconSize5XL),
+    paddingVertical: vs(spacing.sm),
     backgroundColor: colors.input.background,
     borderWidth: borderWidth.sheet,
     borderRadius: borderRadius.badge,
@@ -465,7 +466,8 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '100%',
-    height: vs(componentSizes.iconSize4XL),
+    minHeight: vs(componentSizes.iconSize4XL),
+    paddingVertical: vs(spacing.sm),
     borderRadius: borderRadius.xl,
     borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,

@@ -31,6 +31,7 @@ import {
   type NftData,
   type BlockchainAccount,
   fontFamilyNative,
+  fontScaleCap,
   type BlockchainType,
   type ValidationCallbackResult,
   spacing,
@@ -226,7 +227,7 @@ export function NftSendSheet({
             onPress={handleClose}
             activeOpacity={0.7}
           >
-            <Text style={styles.cancelButtonText}>{t('actions.cancel', 'Cancel')}</Text>
+            <Text style={styles.cancelButtonText} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={fontScaleCap.chrome}>{t('actions.cancel', 'Cancel')}</Text>
           </TouchableOpacity>
 
           {!isBitcoin && (
@@ -238,7 +239,7 @@ export function NftSendSheet({
               activeOpacity={0.8}
             >
               <CallMadeSvgIcon size={ms(15)} color={colors.text.balance} />
-              <Text style={styles.buttonText}>{t('actions.send', 'Send')}</Text>
+              <Text style={styles.buttonText} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={fontScaleCap.chrome}>{t('actions.send', 'Send')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -355,7 +356,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.button),
     backgroundColor: colors.background.tertiary,
     alignItems: 'center',
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.button),
     flexDirection: 'row',
     alignItems: 'center',

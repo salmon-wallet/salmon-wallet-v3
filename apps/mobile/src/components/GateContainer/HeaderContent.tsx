@@ -5,7 +5,7 @@
  * No positioning or animation — GateContainer handles that.
  */
 
-import { colors, fontFamilyNative, fontSize, fontWeight, letterSpacing, componentSizes, ms, s, spacing, vs, getShortAddress, getAvatarColor, getInitials } from '@salmon/shared';
+import { colors, fontFamilyNative, fontScaleCap, fontSize, fontWeight, letterSpacing, componentSizes, ms, s, spacing, vs, getShortAddress, getAvatarColor, getInitials } from '@salmon/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -93,7 +93,7 @@ export function HeaderContent({
         </TouchableOpacity>
 
         <View style={styles.accountInfo}>
-          <Text style={styles.accountText} numberOfLines={1}>
+          <Text style={styles.accountText} numberOfLines={1} ellipsizeMode="tail" maxFontSizeMultiplier={fontScaleCap.chrome}>
             {displayText}
           </Text>
           <TouchableOpacity
@@ -103,7 +103,9 @@ export function HeaderContent({
             accessibilityLabel={t('accessibility.copy_address', { address: truncatedAddress })}
             style={styles.copyButton}
           >
-            <ContentCopySvgIcon size={s(16)} color={colors.text.primary} />
+            {/* 23 not 30: the copy glyph fills ~77% of its 24px viewBox vs the
+                settings glyph's ~60%, so it renders larger at the same size. */}
+            <ContentCopySvgIcon size={s(23)} color={colors.text.primary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -152,6 +154,8 @@ const styles = StyleSheet.create({
     gap: s(spacing.sm),
   },
   accountText: {
+    flex: 1,
+    minWidth: 0,
     fontSize: ms(fontSize.sm),
     fontFamily: fontFamilyNative.semiBold,
     fontWeight: fontWeight.semibold,
@@ -160,6 +164,7 @@ const styles = StyleSheet.create({
     lineHeight: vs(22),
   },
   copyButton: {
+    flexShrink: 0,
     padding: s(spacing.xs),
   },
   settingsButton: {

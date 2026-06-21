@@ -87,7 +87,7 @@ export function SettingsScreenLayout({
                 color={colors.text.primary}
               />
             </TouchableOpacity>
-            <Text style={styles.title} numberOfLines={1}>
+            <Text style={styles.title} numberOfLines={2}>
               {title}
             </Text>
           </View>

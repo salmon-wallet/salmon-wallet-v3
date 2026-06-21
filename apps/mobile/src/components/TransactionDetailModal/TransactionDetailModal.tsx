@@ -13,6 +13,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from '../../utils/haptics';
 import { borderWidth, colors, ms, vs, s, spacing, fontSize, borderRadius, letterSpacing, fontFamilyNative, formatBlockNumber, formatDateTime, formatRawAmount, truncateHash, getShortAddress } from '@salmon/shared';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetContainer } from '../BottomSheetContainer';
 import { BlurContainer } from '../BlurContainer';
 import { TokenLogo } from '../TokenLogo';
@@ -308,6 +309,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   style,
 }) => {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   // Inline hash copy state
   const [hashCopied, setHashCopied] = useState(false);
@@ -685,8 +687,9 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               )}
             </ScrollView>
 
-            {/* Fixed Bottom Action Bar */}
-            <View style={styles.fixedBottomBar}>
+            {/* Fixed Bottom Action Bar — pad past the system nav bar (e.g.
+                Samsung 3-button) so the Share action is never hidden. */}
+            <View style={[styles.fixedBottomBar, { paddingBottom: insets.bottom + vs(spacing.md) }]}>
               <ExplorerLinkButton
                 txHash={transaction.id}
                 blockchain="SOLANA"

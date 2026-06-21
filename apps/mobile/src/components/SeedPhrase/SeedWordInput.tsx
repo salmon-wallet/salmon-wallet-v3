@@ -68,7 +68,8 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: componentSizes.inputHeight,
+    minHeight: componentSizes.inputHeight,
+    paddingVertical: spacing.xs,
     backgroundColor: colors.input.background,
     borderWidth: borderWidth.thin,
     borderRadius: componentSizes.inputRadius,

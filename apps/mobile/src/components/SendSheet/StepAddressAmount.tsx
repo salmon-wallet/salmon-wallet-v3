@@ -17,6 +17,7 @@ import {
   gradients,
   shadows,
   fontFamilyNative,
+  fontScaleCap,
   ms,
   vs,
   s,
@@ -315,7 +316,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
           onPress={onCancel}
           activeOpacity={0.7}
         >
-          <Text style={styles.cancelButtonText}>{t('actions.cancel', 'Cancel')}</Text>
+          <Text style={styles.cancelButtonText} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={fontScaleCap.chrome}>{t('actions.cancel', 'Cancel')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -330,7 +331,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.4 }}
           >
-            <Text style={styles.reviewButtonText}>{t('token.send.reviewAndSend', 'Review & Send')}</Text>
+            <Text style={styles.reviewButtonText} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={fontScaleCap.chrome}>{t('token.send.reviewAndSend', 'Review & Send')}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: ms(borderRadius.lg),
     paddingHorizontal: s(spacing.lg),
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
   },
   inputContainerError: {
     borderWidth: borderWidth.thin,
@@ -493,7 +494,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: ms(borderRadius.lg),
     paddingHorizontal: s(spacing.lg),
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
   },
   amountInput: {
     flex: 1,
@@ -535,7 +536,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     borderWidth: borderWidth.thin,
     borderColor: colors.accent.border,
@@ -551,7 +552,7 @@ const styles = StyleSheet.create({
   },
   reviewButton: {
     flex: 1,
-    height: vs(componentSizes.buttonHeightMedium),
+    minHeight: vs(componentSizes.buttonHeightMedium),
     borderRadius: ms(borderRadius.lg),
     overflow: 'hidden',
     borderWidth: borderWidth.thin,
@@ -566,6 +567,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: s(spacing.sm),
   },
   reviewButtonText: {
     fontSize: ms(fontSize.md),

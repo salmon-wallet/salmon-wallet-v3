@@ -36,6 +36,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -124,7 +125,12 @@ export default function RecoverWalletScreen() {
           />
 
           {/* Content */}
-          <View style={styles.content}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             {/* Logo */}
             <View style={styles.logoContainer}>
               <Image
@@ -179,7 +185,7 @@ export default function RecoverWalletScreen() {
                 </PrimaryButton>
               )}
             </View>
-          </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -197,8 +203,11 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: contentPadding.screen,
@@ -233,7 +242,7 @@ const styles = StyleSheet.create({
   },
   textarea: {
     width: '100%',
-    height: 160,
+    minHeight: 160,
     backgroundColor: colors.input.background,
     borderWidth: 1,
     borderRadius: borderRadius.lg,

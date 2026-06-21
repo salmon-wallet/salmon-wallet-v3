@@ -76,10 +76,10 @@ export function SettingsSelectorList<T>({
         >
           <View style={styles.info}>
             {renderLeadingElement?.(item)}
-            <View style={renderLeadingElement ? styles.textWithLeading : undefined}>
-              <Text style={styles.primaryText}>{getPrimaryText(item)}</Text>
+            <View style={[styles.textContainer, renderLeadingElement && styles.textWithLeading]}>
+              <Text style={styles.primaryText} numberOfLines={1} ellipsizeMode="tail">{getPrimaryText(item)}</Text>
               {getSecondaryText && (
-                <Text style={styles.secondaryText}>
+                <Text style={styles.secondaryText} numberOfLines={1} ellipsizeMode="tail">
                   {getSecondaryText(item)}
                 </Text>
               )}
@@ -139,6 +139,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     marginRight: spacing.md,
+  },
+  textContainer: {
+    flex: 1,
   },
   textWithLeading: {
     gap: spacing.xxs,

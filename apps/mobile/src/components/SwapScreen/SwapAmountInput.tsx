@@ -151,7 +151,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: borderRadius.md,
-    height: vs(componentSizes.inputHeightLg),
+    minHeight: vs(componentSizes.inputHeightLg),
+    paddingVertical: vs(spacing.xs),
     paddingHorizontal: s(spacing.md),
   },
   loadingContainer: {
@@ -164,7 +165,6 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilyNative.bold,
     color: colors.text.primary,
     paddingVertical: 0,
-    height: '100%',
     opacity: 1,
   },
   tokenDropdown: {
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: s(spacing.sm),
     paddingVertical: vs(spacing.xxs),
     gap: s(spacing.sm - 1),
-    height: vs(componentSizes.iconSizeXL),
+    minHeight: vs(componentSizes.iconSizeXL),
     minWidth: s(componentSizes.swapSelectorMinWidth),
     ...shadows.sm,
   },
