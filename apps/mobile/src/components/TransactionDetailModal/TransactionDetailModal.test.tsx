@@ -15,6 +15,14 @@ jest.mock('@expo/vector-icons', () => ({
   Ionicons: () => null,
 }));
 
+// The component reads safe-area insets (added with the responsive work). Tests
+// don't mount a SafeAreaProvider, so stub the hook with zero insets.
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+  SafeAreaProvider: ({ children }: { children: React.ReactNode }) => children,
+  SafeAreaView: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 jest.mock('expo-clipboard', () => ({
   setStringAsync: (...args: unknown[]) => mockSetStringAsync(...args),
 }));
