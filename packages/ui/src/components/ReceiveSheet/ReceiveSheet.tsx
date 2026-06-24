@@ -191,9 +191,9 @@ export function ReceiveSheet({
         padding="xl"
         style={{ paddingTop: spacing.xl, paddingBottom: spacing['2xl'], flex: 1 }}
       >
-        <ContentWrapper ref={contentRef}>
+        <ContentWrapper ref={contentRef} data-testid="receive-sheet">
           {/* QR Code */}
-          <QRContainer>
+          <QRContainer data-testid="receive-qr-code">
             <QRCode
               value={address}
               size={qrSize}
@@ -203,12 +203,13 @@ export function ReceiveSheet({
           </QRContainer>
 
           {/* Full Address */}
-          <AddressText>{address}</AddressText>
+          <AddressText data-testid="receive-address">{address}</AddressText>
 
           {/* Copy Button */}
           <CopyButton
             onClick={handleCopy}
             aria-label={t('token.receive.copyAddress')}
+            data-testid="receive-copy-button"
           >
             {copied ? (
               <CheckIcon sx={{ fontSize: fontSize.xl, color: colors.button.primaryText }} />

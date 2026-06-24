@@ -91,12 +91,13 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
       visible={visible}
       onClose={onClose}
       title={title}
+      testID="receive-sheet"
       style={[styles.sheetContainer, style]}
     >
       {/* Content */}
       <View style={[styles.content, { paddingBottom: spaciousContentBottomPadding }]}>
         {/* QR Code Container */}
-        <View style={styles.qrContainer}>
+        <View style={styles.qrContainer} testID="receive-qr-code">
           <QRCode
             value={address}
             size={qrSize}
@@ -106,12 +107,13 @@ export const ReceiveSheet: React.FC<ReceiveSheetProps> = ({
         </View>
 
         {/* Address */}
-        <Text style={styles.address} selectable>
+        <Text style={styles.address} selectable testID="receive-address">
           {address}
         </Text>
 
         {/* Copy Button */}
         <TouchableOpacity
+          testID="receive-copy-button"
           style={styles.copyButton}
           onPress={handleCopyPress}
           activeOpacity={0.8}
