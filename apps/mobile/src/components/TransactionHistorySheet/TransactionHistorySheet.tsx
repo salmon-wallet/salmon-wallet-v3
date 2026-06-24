@@ -85,7 +85,7 @@ const TransactionListSkeleton: React.FC<{ count?: number }> = ({ count = 5 }) =>
  */
 const EmptyState: React.FC = () => {
   return (
-    <View style={styles.emptyContainer}>
+    <View style={styles.emptyContainer} testID="activity-empty">
       <Text style={styles.emptyTitle}>No Transactions</Text>
       <Text style={styles.emptySubtitle}>
         Your transaction history will appear here
@@ -107,7 +107,7 @@ const ErrorState: React.FC<{ message: string; onRetry?: () => void }> = ({
       <Text style={styles.errorMessage}>{message}</Text>
       {onRetry && (
         <TouchableWithoutFeedback onPress={onRetry}>
-          <View style={styles.retryButton}>
+          <View style={styles.retryButton} testID="activity-retry-button">
             <Text style={styles.retryText}>Tap to retry</Text>
           </View>
         </TouchableWithoutFeedback>
@@ -238,6 +238,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
         {/* Transaction List */}
         {!loading && !error && transactions.length > 0 && (
           <FlatList
+            testID="activity-list"
             data={transactions}
             renderItem={renderTransaction}
             keyExtractor={(item) => item.id}

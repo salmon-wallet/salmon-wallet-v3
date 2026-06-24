@@ -119,6 +119,7 @@ export function AddressCopyRow({
             onClick={handleCopy}
             size="small"
             aria-label={`Copy ${label} address`}
+            data-testid={`tx-detail-copy-address-${label}`}
             sx={copied ? { backgroundColor: `${colors.status.success}20` } : undefined}
           >
             {copied ? (

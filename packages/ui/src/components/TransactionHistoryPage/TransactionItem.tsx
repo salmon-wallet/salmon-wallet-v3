@@ -532,6 +532,7 @@ export function TransactionItem({
           onClick={handleClick}
           onDoubleClick={handleDoubleClick}
           aria-label={`${t(TYPE_LABEL_KEYS[type] ?? TYPE_LABEL_KEYS.unknown, config.label)} transaction, ${descriptionText}`}
+          data-testid="activity-tx-row"
         >
           {/* Left: Logo/Icon */}
           <LogoSection>{renderLogo()}</LogoSection>

@@ -285,9 +285,10 @@ const ActionButton: React.FC<{
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress: () => void;
-}> = ({ icon, label, onPress }) => {
+  testID?: string;
+}> = ({ icon, label, onPress, testID }) => {
   return (
-    <TouchableOpacity style={styles.actionButton} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity testID={testID} style={styles.actionButton} onPress={onPress} activeOpacity={0.7}>
       <Ionicons name={icon} size={20} color={colors.text.primary} />
       <Text style={styles.actionButtonText}>{label}</Text>
     </TouchableOpacity>
@@ -584,6 +585,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   <View style={styles.hashRow}>
                     <Text style={styles.hashValue}>{truncateHash(transaction.id, 8)}</Text>
                     <TouchableOpacity
+                      testID="tx-detail-copy-hash"
                       onPress={handleCopyInlineHash}
                       style={[styles.copyIconButton, hashCopied && styles.copyIconButtonCopied]}
                       activeOpacity={0.6}
@@ -707,6 +709,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     icon="share-outline"
                     label="Share"
                     onPress={handleShare}
+                    testID="tx-detail-share-button"
                   />
                 </View>
               )}

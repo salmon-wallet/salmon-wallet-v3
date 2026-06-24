@@ -198,7 +198,7 @@ const TransactionListSkeleton: React.FC<{ count?: number }> = ({ count = 5 }) =>
 const EmptyState: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <EmptyContainer>
+    <EmptyContainer data-testid="activity-empty">
       <ReceiptLongIcon sx={{ fontSize: fontSize['5xl'], color: colors.text.tertiary }} />
       <EmptyTitle>{t('transactions.noTransactions')}</EmptyTitle>
       <EmptySubtitle>{t('transactions.emptySubtitle')}</EmptySubtitle>
@@ -219,6 +219,7 @@ const ErrorState: React.FC<{ message: string; onRetry?: () => void }> = ({
         <RetryButton
           onClick={onRetry}
           startIcon={<RefreshIcon />}
+          data-testid="activity-retry-button"
         >
           {t('transactions.tapToRetry')}
         </RetryButton>
@@ -314,7 +315,7 @@ export function TransactionHistoryPage({
 
       {/* Transaction List */}
       {!loading && !error && transactions.length > 0 && (
-        <Box>
+        <Box data-testid="activity-list">
           {transactions.map((transaction) => (
             <TransactionItem
               key={transaction.id}

@@ -935,6 +935,7 @@ export function TransactionDetailModal({
     <StyledDialog
       open={visible}
       onClose={onClose}
+      data-testid="tx-detail-modal"
       aria-labelledby="transaction-detail-title"
       className={className}
       PaperProps={{ style }}
@@ -986,7 +987,7 @@ export function TransactionDetailModal({
           </HeaderInfoBox>
 
           {/* Close button */}
-          <CloseButton onClick={onClose} aria-label={t('general.close')}>
+          <CloseButton onClick={onClose} aria-label={t('general.close')} data-testid="tx-detail-close-button">
             <CloseIcon />
           </CloseButton>
         </HeaderRow>
@@ -1198,6 +1199,7 @@ export function TransactionDetailModal({
                   onClick={handleCopyInlineHash}
                   size="small"
                   aria-label={t('transactions.detail.copyTransactionHash')}
+                  data-testid="tx-detail-copy-hash"
                   sx={hashCopied ? { backgroundColor: `${colors.status.success}20` } : undefined}
                 >
                   {hashCopied ? (
@@ -1313,7 +1315,7 @@ export function TransactionDetailModal({
         />
         {onShare && (
           <ActionsContainer>
-            <ActionButton onClick={handleShare}>
+            <ActionButton onClick={handleShare} data-testid="tx-detail-share-button">
               <ShareIcon sx={{ fontSize: fontSize.lg, color: colors.text.primary }} />
               <ActionButtonText>{t('transactions.detail.share', 'Share')}</ActionButtonText>
             </ActionButton>
