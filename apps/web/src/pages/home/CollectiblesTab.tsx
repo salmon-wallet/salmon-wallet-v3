@@ -122,7 +122,7 @@ export function CollectiblesTab({
   return (
     <ScrollContainer>
       {isEmpty && (
-        <EmptyState>
+        <EmptyState data-testid="collectibles-empty">
           <EmptyStateText>{t('collectibles.no_nfts', 'No collectibles found')}</EmptyStateText>
         </EmptyState>
       )}

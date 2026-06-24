@@ -506,7 +506,7 @@ export function NftDetailPage({
                     borderWidth={borderWidth.actionButton}
                     style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: componentSizes.buttonMinWidthLg }}
                   >
-                    <SecondaryButtonInner onClick={handleBurnBack} aria-label="Back to NFT details">
+                    <SecondaryButtonInner onClick={handleBurnBack} aria-label="Back to NFT details" data-testid="nft-burn-back-button">
                       <ButtonText>{t('actions.back', 'Back')}</ButtonText>
                     </SecondaryButtonInner>
                   </BlurContainer>
@@ -514,6 +514,7 @@ export function NftDetailPage({
                   <PrimaryButtonBase
                     onClick={handleBurnConfirm}
                     aria-label="Confirm burn"
+                    data-testid="nft-burn-confirm-button"
                     disabled={burnPreparing || !burnPreview || !!burnError}
                     sx={{ opacity: burnPreparing || !burnPreview || !!burnError ? opacity.medium : 1 }}
                   >
@@ -524,7 +525,7 @@ export function NftDetailPage({
               </>
             ) : (
               <ActionButtonsContainer>
-                <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT">
+                <PrimaryButtonBase onClick={handleSendPress} aria-label="Send NFT" data-testid="nft-detail-send-button">
                   <CallMadeIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
                   <ButtonText>{t('actions.send', 'Send')}</ButtonText>
                 </PrimaryButtonBase>
@@ -536,7 +537,7 @@ export function NftDetailPage({
                   borderWidth={borderWidth.actionButton}
                   style={{ borderRadius: borderRadius.button, overflow: 'hidden', flex: 1, maxWidth: componentSizes.buttonMinWidthLg }}
                 >
-                  <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT">
+                  <SecondaryButtonInner onClick={handleBurnPress} aria-label="Burn NFT" data-testid="nft-detail-burn-button">
                     <LocalFireDepartmentIcon sx={{ fontSize: fontSize.md, color: colors.text.balance }} />
                     <ButtonText>{t('nft.burn_nft', 'Burn')}</ButtonText>
                   </SecondaryButtonInner>

@@ -14,9 +14,10 @@ export function CancelButton({
   children,
   onClick,
   disabled = false,
+  testID,
 }: CancelButtonProps): React.ReactElement {
   return (
-    <StyledCancelButton onClick={onClick} disabled={disabled}>
+    <StyledCancelButton onClick={onClick} disabled={disabled} data-testid={testID}>
       {children}
     </StyledCancelButton>
   );
@@ -31,12 +32,14 @@ export function ActionButton({
   disabled = false,
   isDanger = false,
   loading = false,
+  testID,
 }: ActionButtonProps): React.ReactElement {
   return (
     <StyledActionButton
       $isDanger={isDanger}
       onClick={onClick}
       disabled={disabled || loading}
+      data-testid={testID}
     >
       {loading ? (
         <CircularProgress size={20} sx={{ color: 'inherit' }} />

@@ -209,7 +209,7 @@ export function CollectiblesPage({
 
       {/* Empty state */}
       {isEmpty && (
-        <EmptyState>
+        <EmptyState data-testid="collectibles-empty">
           <EmptyStateText>
             {t('collectibles.empty', 'No collectibles found')}
           </EmptyStateText>

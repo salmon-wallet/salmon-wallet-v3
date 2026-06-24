@@ -491,6 +491,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
 
       <View style={styles.actionButtonsContainer}>
         <TouchableOpacity
+          testID="nft-detail-send-button"
           style={styles.buttonWrapper}
           onPress={handleOpenSendStep}
           activeOpacity={0.8}
@@ -516,6 +517,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
           borderWidth={borderWidth.actionButton}
         >
           <TouchableOpacity
+            testID="nft-detail-burn-button"
             style={styles.secondaryButtonContent}
             onPress={handleOpenBurnStep}
             activeOpacity={0.8}
@@ -607,6 +609,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
 
           {nft.blockchain !== 'bitcoin' && (
             <TouchableOpacity
+              testID="nft-send-confirm-button"
               style={styles.buttonWrapper}
               onPress={handleConfirmSend}
               disabled={!canConfirmSend}
@@ -727,6 +730,7 @@ export const NftDetailSheet: React.FC<NftDetailSheetProps> = ({
         </BlurContainer>
 
         <TouchableOpacity
+          testID="nft-burn-confirm-button"
           style={styles.buttonWrapper}
           onPress={handleConfirmBurn}
           disabled={!canConfirmBurn}
