@@ -15,6 +15,7 @@ import {
   spacing,
   useAccountsContext,
   validatePassword,
+  getPasswordIssue,
   vs,
 } from '@salmon/shared';
 import { generateAccountName } from '@salmon/shared/utils/account';
@@ -207,11 +208,18 @@ export function PasswordPage({
     }
   }, [actions, isFormValid, mnemonic, onCreating, onSuccess, password, showSingleInput, state.counter, t]);
 
-  const passwordError = !showSingleInput && password.length > 0 && password.length < PASSWORD_CONSTRAINTS.MIN_LENGTH
-    ? `Password must be at least ${PASSWORD_CONSTRAINTS.MIN_LENGTH} characters`
-    : wrongPassword
-      ? t('wallet.create.invalid_password') || 'Invalid Password'
-      : undefined;
+  const passwordIssue =
+    !showSingleInput && password.length > 0 ? getPasswordIssue(passwordValidation) : null;
+  const passwordError =
+    passwordIssue === 'too_short'
+      ? t('wallet.create.password_too_short', { min: PASSWORD_CONSTRAINTS.MIN_LENGTH })
+      : passwordIssue === 'too_long'
+        ? t('wallet.create.password_too_long', { max: PASSWORD_CONSTRAINTS.MAX_LENGTH })
+        : passwordIssue === 'too_weak'
+          ? t('wallet.create.password_too_weak')
+          : wrongPassword
+            ? t('wallet.create.invalid_password') || 'Invalid Password'
+            : undefined;
 
   const confirmError =
     !showSingleInput &&
