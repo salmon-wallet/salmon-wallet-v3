@@ -24,18 +24,19 @@ await unlockOrRecover(popup);
 await waitHome(popup);
 await sleep(3500);
 
-await popup.getByRole('button', { name: /Collectibles/i }).first().click();
+await popup.getByTestId('tab-collectibles').first().click();
 await sleep(2500);
+// NFT card by name — mint id is fixture-specific, so no nft-card-<mint> id to hardcode here.
 await popup.locator('text=/Salmon Logo/').first().click({ force: true });
 await sleep(3000);
 
-await popup.locator('button').filter({ hasText: 'Send' }).first().click({ force: true });
+await popup.getByTestId('nft-detail-send-button').first().click({ force: true });
 await sleep(2500);
 await popup.getByRole('textbox').first().fill(WALLET_B_ADDR);
 await sleep(2500);  // wait validation
 await capture(popup, 'nft-transfer', '01-recipient');
 
-const confirm = popup.getByRole('button', { name: /^Confirm$/i }).first();
+const confirm = popup.getByTestId('nft-send-confirm-button').first();
 const enabled = await confirm.isEnabled().catch(() => false);
 log('  Confirm enabled: ' + enabled);
 if (!enabled) {

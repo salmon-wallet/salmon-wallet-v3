@@ -46,6 +46,11 @@ export interface SettingsSelectorListProps<T> {
   loading?: boolean;
   /** Message shown when items is empty and not loading */
   emptyMessage?: string;
+  /**
+   * Prefix for a per-item `testID` (e.g. `language-option`). Each row gets
+   * `${testIdPrefix}-${getKey(item)}` so Maestro flows select options by value.
+   */
+  testIdPrefix?: string;
 }
 
 // ============================================================================
@@ -62,6 +67,7 @@ export function SettingsSelectorList<T>({
   renderLeadingElement,
   loading,
   emptyMessage,
+  testIdPrefix,
 }: SettingsSelectorListProps<T>) {
   const renderItem = useCallback(
     (item: T) => {
@@ -70,6 +76,7 @@ export function SettingsSelectorList<T>({
       return (
         <TouchableOpacity
           key={getKey(item)}
+          testID={testIdPrefix ? `${testIdPrefix}-${getKey(item)}` : undefined}
           style={[styles.option, selected && styles.optionSelected]}
           onPress={() => onSelect(item)}
           activeOpacity={0.7}
@@ -96,7 +103,7 @@ export function SettingsSelectorList<T>({
         </TouchableOpacity>
       );
     },
-    [isSelected, getKey, onSelect, getPrimaryText, getSecondaryText, renderLeadingElement],
+    [isSelected, getKey, onSelect, getPrimaryText, getSecondaryText, renderLeadingElement, testIdPrefix],
   );
 
   if (loading) {

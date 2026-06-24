@@ -32,6 +32,7 @@ export function ExplorerSelector({
         getPrimaryText={(item) => item.name}
         loading={loading}
         emptyMessage={t('common.no_explorers', 'No explorers available for this network')}
+        testIdPrefix="explorer-option"
       />
     </SettingsPanelContent>
   );

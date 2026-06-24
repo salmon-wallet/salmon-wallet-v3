@@ -63,7 +63,7 @@ export function AddressBookPanel({
 
   const renderContactItem = useCallback(
     (contact: AddressBookItem) => (
-      <View key={contact.address} style={styles.contactItem}>
+      <View key={contact.address} style={styles.contactItem} testID={`address-book-contact-${contact.address}`}>
         <View style={styles.contactInfo}>
           <View style={styles.contactIconPlaceholder}>
             <Ionicons
@@ -90,6 +90,9 @@ export function AddressBookPanel({
             style={styles.actionButton}
             onPress={() => onEditContact(contact)}
             activeOpacity={0.7}
+            testID={`address-book-edit-${contact.address}`}
+            accessibilityRole="button"
+            accessibilityLabel={t('actions.edit', 'Edit')}
           >
             <Ionicons
               name="create-outline"
@@ -101,6 +104,9 @@ export function AddressBookPanel({
             style={styles.actionButton}
             onPress={() => handleRemove(contact)}
             activeOpacity={0.7}
+            testID={`address-book-remove-${contact.address}`}
+            accessibilityRole="button"
+            accessibilityLabel={t('actions.remove', 'Remove')}
           >
             <Ionicons
               name="trash-outline"
@@ -126,6 +132,8 @@ export function AddressBookPanel({
             style={styles.addButton}
             onPress={onAddContact}
             activeOpacity={0.7}
+            testID="address-book-add-button"
+            accessibilityRole="button"
           >
             <Ionicons name="add-circle-outline" size={20} color={colors.accent.primary} />
             <Text style={styles.addButtonText}>
@@ -142,6 +150,8 @@ export function AddressBookPanel({
             style={styles.addButton}
             onPress={onAddContact}
             activeOpacity={0.7}
+            testID="address-book-add-button"
+            accessibilityRole="button"
           >
             <Ionicons name="add-circle-outline" size={20} color={colors.accent.primary} />
             <Text style={styles.addButtonText}>

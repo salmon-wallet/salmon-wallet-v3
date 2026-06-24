@@ -201,12 +201,14 @@ export function AccountAvatarPanel({ onBack }: AccountAvatarPanelProps): React.R
         <ToggleButton
           $isActive={activeTab === 'presets'}
           onClick={() => setActiveTab('presets')}
+          data-testid="avatar-tab-presets"
         >
           {t('settings.avatar_presets')}
         </ToggleButton>
         <ToggleButton
           $isActive={activeTab === 'nfts'}
           onClick={() => setActiveTab('nfts')}
+          data-testid="avatar-tab-nfts"
         >
           {t('settings.avatar_nfts')}
         </ToggleButton>
@@ -221,6 +223,7 @@ export function AccountAvatarPanel({ onBack }: AccountAvatarPanelProps): React.R
                 key={index}
                 $isSelected={selectedUrl === url}
                 onClick={() => setSelectedUrl(url)}
+                data-testid={`avatar-preset-${index}`}
               >
                 <img src={url} alt={`Avatar ${index}`} loading="lazy" />
               </AvatarCircle>
@@ -243,6 +246,7 @@ export function AccountAvatarPanel({ onBack }: AccountAvatarPanelProps): React.R
                 key={nft.mint}
                 $isSelected={selectedUrl === nft.image}
                 onClick={() => nft.image && setSelectedUrl(nft.image)}
+                data-testid={`avatar-nft-${nft.mint}`}
               >
                 <img src={nft.image} alt={nft.name} loading="lazy" />
               </NftCardButton>
@@ -256,6 +260,7 @@ export function AccountAvatarPanel({ onBack }: AccountAvatarPanelProps): React.R
         $isDisabled={!hasChanged}
         disabled={!hasChanged}
         onClick={handleSave}
+        data-testid="avatar-save-button"
       >
         {t('actions.save')}
       </SaveButton>

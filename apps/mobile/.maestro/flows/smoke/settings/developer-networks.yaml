@@ -11,11 +11,13 @@ appId: io.salmonwallet.app
     timeout: 2000
 - takeScreenshot: screenshots/smoke/settings/developer-networks-off
 # Toggle ON
-- tapOn: "Developer Networks"
+- tapOn:
+    id: "settings-developer-networks-toggle"
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: screenshots/smoke/settings/developer-networks-on
 # Toggle OFF
-- tapOn: "Developer Networks"
+- tapOn:
+    id: "settings-developer-networks-toggle"
 - waitForAnimationToEnd:
     timeout: 2000

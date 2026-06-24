@@ -11,4 +11,9 @@ export interface SettingsSelectorListProps<T> {
   renderLeadingElement?: (item: T) => ReactNode;
   loading?: boolean;
   emptyMessage?: string;
+  /**
+   * Prefix for a per-item `data-testid` (e.g. `language-option`). Each row gets
+   * `${testIdPrefix}-${getKey(item)}` so e2e suites select options by value.
+   */
+  testIdPrefix?: string;
 }

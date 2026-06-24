@@ -33,16 +33,15 @@ async function freshPopup(label) {
 async function step2() {
   log('=== 2: Address Book Save Wallet B ===');
   const popup = await freshPopup('s2');
-  await popup.getByRole('button', { name: 'Open settings' }).first().click();
+  await popup.getByTestId('wallet-header-settings-button').first().click();
   await sleep(900);
-  await popup.getByRole('button', { name: 'Address Book' }).first().click({ force: true });
+  await popup.getByTestId('settings-item-address-book').first().click({ force: true });
   await sleep(2200);
-  await popup.getByRole('button', { name: /Add New Address|Add Contact/i }).first().click({ force: true });
+  await popup.getByTestId('address-book-add-button').first().click({ force: true });
   await sleep(2000);
 
-  const tboxes = popup.getByRole('textbox');
-  await tboxes.nth(0).fill('Wallet B');
-  await tboxes.nth(1).fill(WALLET_B_ADDR);
+  await popup.getByTestId('address-book-label-input').fill('Wallet B');
+  await popup.getByTestId('address-book-address-input').fill(WALLET_B_ADDR);
   log('  filled, waiting for Save Address to enable...');
   const enabled = await waitForButtonEnabled(popup, /Save Address/i, 20000);
   log('  Save Address enabled: ' + enabled);
@@ -53,7 +52,7 @@ async function step2() {
     await popup.close();
     return;
   }
-  await popup.getByRole('button', { name: /Save Address/i }).first().click({ force: true });
+  await popup.getByTestId('address-book-save-button').first().click({ force: true });
   await sleep(2500);
   await capture(popup, 'state-modifying', '02b-saved');
   findings.push('Step 2 OK: Wallet B saved to address book');

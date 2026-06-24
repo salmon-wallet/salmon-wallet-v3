@@ -225,6 +225,7 @@ export function GateContainer({
                 <View style={styles.expandedHeader}>
                   {activeExpandedHeader.onBack ? (
                     <TouchableOpacity
+                      testID="screen-header-back-button"
                       onPress={activeExpandedHeader.onBack}
                       style={styles.headerButton}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -239,6 +240,7 @@ export function GateContainer({
                     {activeExpandedHeader.title || ''}
                   </Text>
                   <TouchableOpacity
+                    testID="sheet-close-button"
                     onPress={activeExpandedHeader.onClose}
                     style={styles.headerButton}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}

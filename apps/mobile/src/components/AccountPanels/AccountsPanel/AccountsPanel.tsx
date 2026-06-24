@@ -62,6 +62,7 @@ function AccountListItem({
 
   return (
     <TouchableOpacity
+      testID={`account-item-${account.id}`}
       style={[styles.accountItem, isActive && styles.accountItemActive]}
       onPress={onPress}
       activeOpacity={0.7}
@@ -98,6 +99,7 @@ function AccountListItem({
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
         <TouchableOpacity
+          testID={`account-edit-${account.id}`}
           style={styles.actionButton}
           onPress={onEdit}
           activeOpacity={0.7}
@@ -110,6 +112,7 @@ function AccountListItem({
 
         {canDelete && (
           <TouchableOpacity
+            testID={`account-remove-${account.id}`}
             style={styles.actionButton}
             onPress={onDelete}
             activeOpacity={0.7}
@@ -182,6 +185,7 @@ export function AccountsPanel({
   const ListFooter = useMemo(
     () => (
       <TouchableOpacity
+        testID="account-add-button"
         style={styles.addAccountButton}
         onPress={onAddAccount}
         activeOpacity={0.7}

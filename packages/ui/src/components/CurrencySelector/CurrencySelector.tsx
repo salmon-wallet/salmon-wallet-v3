@@ -71,6 +71,7 @@ export function CurrencySelector({
             <SymbolText>{item.symbol}</SymbolText>
           </CurrencySymbol>
         )}
+        testIdPrefix="currency-option"
       />
     </SettingsPanelContent>
   );

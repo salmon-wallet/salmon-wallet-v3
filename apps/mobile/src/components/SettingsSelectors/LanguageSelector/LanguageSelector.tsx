@@ -44,6 +44,7 @@ export function LanguageSelector({
         onSelect={handleSelect}
         getPrimaryText={(lang) => lang.nativeName}
         getSecondaryText={(lang) => lang.code.toUpperCase()}
+        testIdPrefix="language-option"
       />
     </SettingsScreenLayout>
   );

@@ -32,7 +32,7 @@ if (await goAcct.count()) {
 await sleep(3000);
 
 // Mode OFF — Collectibles list
-await popup.getByRole('button', { name: /Collectibles/i }).first().click();
+await popup.getByTestId('tab-collectibles').first().click();
 await sleep(4000);
 await capture(popup, 'walletB-nfts', '01-off');
 const offNfts = await popup.$$eval('img[alt]', (els) => els.map((e) => e.alt).filter((a) => /NFT image/i.test(a)));
@@ -42,24 +42,21 @@ const empty1 = /No collectibles found/i.test(offText);
 console.log('▶ empty (off): ' + empty1);
 
 // Toggle dev mode ON
-await popup.getByRole('button', { name: 'Open settings' }).first().click();
+await popup.getByTestId('wallet-header-settings-button').first().click();
 await sleep(900);
-await popup.evaluate(() => {
-  const c = document.querySelector('[role="presentation"]');
-  if (c) c.scrollTop = c.scrollHeight;
-});
+const sw = popup.getByTestId('settings-developer-networks-toggle').last();
+await sw.scrollIntoViewIfNeeded().catch(() => {});
 await sleep(800);
-const sw = popup.locator('input[type="checkbox"][role="switch"]').last();
 const checked = await sw.isChecked().catch(() => false);
 if (!checked) {
   await sw.click({ force: true });
   await sleep(2000);
 }
-await popup.getByRole('button', { name: /^Close$/i }).first().click().catch(() => {});
+await popup.getByTestId('settings-close-button').first().click().catch(() => {});
 await sleep(1500);
 
 // Collectibles ON
-await popup.getByRole('button', { name: /Collectibles/i }).first().click();
+await popup.getByTestId('tab-collectibles').first().click();
 await sleep(4000);
 const refresh = popup.getByRole('button', { name: /refresh/i }).first();
 if (await refresh.count()) {

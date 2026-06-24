@@ -225,7 +225,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
               <SectionLabel>
                 {t('settings.recovery_phrase', 'Recovery Phrase')}
               </SectionLabel>
-              <SeedPhraseCard>
+              <SeedPhraseCard data-testid="backup-seed-phrase">
                 <SeedPhraseGrid>
                   {words.map((word, index) => (
                     <WordChip key={index}>
@@ -238,7 +238,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
                 </SeedPhraseGrid>
 
                 {!seedPhraseVisible && (
-                  <BlurOverlay onClick={handleReveal}>
+                  <BlurOverlay onClick={handleReveal} data-testid="backup-seed-reveal-overlay">
                     <KeyIcon sx={{ fontSize: fontSize.iconLg, color: colors.text.secondary }} />
                     <RevealText>
                       {t('settings.tap_to_reveal', 'Tap to reveal')}
@@ -254,6 +254,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
                     startIcon={copied ? <CheckIcon sx={{ color: colors.status.success }} /> : <ContentCopyIcon />}
                     onClick={handleCopy}
                     disabled={!seedPhraseVisible}
+                    data-testid="backup-seed-copy-button"
                   >
                     {copied ? t('actions.copied', 'Copied!') : t('actions.copy', 'Copy')}
                   </CopyButton>
@@ -262,6 +263,7 @@ export function BackupPanel({ onBack }: BackupPanelProps): React.ReactElement {
                   variant="outlined"
                   startIcon={seedPhraseVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   onClick={seedPhraseVisible ? handleHide : handleReveal}
+                  data-testid="backup-seed-reveal-button"
                   sx={{
                     backgroundColor: seedPhraseVisible
                       ? colors.accent.primary

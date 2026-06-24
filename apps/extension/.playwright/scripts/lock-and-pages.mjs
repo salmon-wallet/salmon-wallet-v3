@@ -72,16 +72,16 @@ async function testRelockOnReload() {
 // =============================================================================
 async function testAboutHelp() {
   log('=== About + Help ===');
-  for (const [slug, label] of [
+  for (const [slug] of [
     ['about', 'About'],
     ['support', 'Help & Support'],
   ]) {
     const popup = await openPopup(ctx, extId);
     await unlockOrRecover(popup);
     await waitHome(popup);
-    await popup.getByRole('button', { name: 'Open settings' }).first().click();
+    await popup.getByTestId('wallet-header-settings-button').first().click();
     await sleep(800);
-    const btn = popup.getByRole('button', { name: label }).first();
+    const btn = popup.getByTestId('settings-item-' + slug).first();
     if (!(await btn.count())) {
       findings.push(slug + ': button not found');
       await popup.close();

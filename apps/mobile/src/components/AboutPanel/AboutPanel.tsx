@@ -46,8 +46,8 @@ export function AboutPanel({ onBack }: AboutPanelProps) {
     '1';
 
   const renderLinkItem = useCallback(
-    (icon: IoniconsName, label: string, url: string) => (
-      <TouchableOpacity style={styles.linkItem} onPress={() => openLink(url)} activeOpacity={0.7}>
+    (icon: IoniconsName, label: string, url: string, id: string) => (
+      <TouchableOpacity testID={`about-link-${id}`} accessibilityRole="button" style={styles.linkItem} onPress={() => openLink(url)} activeOpacity={0.7}>
         <View style={styles.linkIconContainer}>
           <Ionicons name={icon} size={20} color={colors.text.primary} />
         </View>
@@ -59,8 +59,8 @@ export function AboutPanel({ onBack }: AboutPanelProps) {
   );
 
   const renderSocialButton = useCallback(
-    (icon: IoniconsName, url: string) => (
-      <TouchableOpacity style={styles.socialButton} onPress={() => openLink(url)} activeOpacity={0.7}>
+    (icon: IoniconsName, url: string, id: string) => (
+      <TouchableOpacity testID={`about-link-${id}`} accessibilityRole="button" style={styles.socialButton} onPress={() => openLink(url)} activeOpacity={0.7}>
         <Ionicons name={icon} size={24} color={colors.text.primary} />
       </TouchableOpacity>
     ),
@@ -79,16 +79,16 @@ export function AboutPanel({ onBack }: AboutPanelProps) {
       <View style={styles.socialSection}>
         <Text style={styles.sectionLabel}>{t('actions.follow_us')}</Text>
         <View style={styles.socialButtons}>
-          {renderSocialButton('logo-twitter', LINKS.twitter)}
-          {renderSocialButton('logo-github', LINKS.github)}
-          {renderSocialButton('book-outline', LINKS.medium)}
+          {renderSocialButton('logo-twitter', LINKS.twitter, 'twitter')}
+          {renderSocialButton('logo-github', LINKS.github, 'github')}
+          {renderSocialButton('book-outline', LINKS.medium, 'medium')}
         </View>
       </View>
 
       <View style={styles.linksSection}>
-        {renderLinkItem('globe-outline', 'Website', LINKS.website)}
-        {renderLinkItem('document-text-outline', 'Privacy Policy', LINKS.privacy)}
-        {renderLinkItem('document-outline', 'Terms of Service', LINKS.terms)}
+        {renderLinkItem('globe-outline', 'Website', LINKS.website, 'website')}
+        {renderLinkItem('document-text-outline', 'Privacy Policy', LINKS.privacy, 'privacy')}
+        {renderLinkItem('document-outline', 'Terms of Service', LINKS.terms, 'terms')}
       </View>
 
       <Text style={styles.copyright}>

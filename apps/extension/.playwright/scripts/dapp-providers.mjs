@@ -117,9 +117,9 @@ async function testSecurityPanel() {
   const popup = await openPopup(ctx, extId);
   await unlockOrRecover(popup);
   await waitHome(popup);
-  await popup.getByRole('button', { name: 'Open settings' }).first().click();
+  await popup.getByTestId('wallet-header-settings-button').first().click();
   await sleep(800);
-  await popup.getByRole('button', { name: 'Security' }).first().click({ force: true });
+  await popup.getByTestId('settings-item-security').first().click({ force: true });
   await sleep(2200);
   await capture(popup, 'security-deep', '01-panel');
 

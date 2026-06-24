@@ -9,7 +9,8 @@ appId: io.salmonwallet.app
 - waitForAnimationToEnd:
     timeout: 3000
 - assertVisible: "Edit Account"
-- tapOn: "Account Name"
+- tapOn:
+    id: "account-edit-name"
 - waitForAnimationToEnd:
     timeout: 3000
 - assertVisible:
@@ -21,9 +22,9 @@ appId: io.salmonwallet.app
 # First tap dismisses keyboard (autoFocus on input grabs first tap),
 # second tap fires the save handler.
 - tapOn:
-    id: "account-name-save-btn"
+    id: "account-name-save-button"
 - tapOn:
-    id: "account-name-save-btn"
+    id: "account-name-save-button"
 - waitForAnimationToEnd:
     timeout: 4000
 - assertVisible: "Edit Account"

@@ -9,7 +9,8 @@ appId: io.salmonwallet.app
       text: "Developer Networks"
 - waitForAnimationToEnd:
     timeout: 2000
-- tapOn: "About"
+- tapOn:
+    id: "settings-item-about"
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: screenshots/smoke/settings/about

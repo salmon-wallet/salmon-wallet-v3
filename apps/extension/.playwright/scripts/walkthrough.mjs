@@ -191,13 +191,13 @@ const panels = [
 for (const [slug, name] of panels) {
   await step('settings → ' + slug, async () => {
     // Each panel is a full page navigation — reset to home + re-open Settings.
-    if (!(await popup.getByRole('button', { name: 'Accounts' }).count())) {
+    if (!(await popup.getByTestId('settings-item-accounts').count())) {
       await gotoHomeTab();
       await openSettings();
       await sleep(800);
     }
-    const btn = popup.getByRole('button', { name }).first();
-    if (!(await btn.count())) throw new Error('panel button not found');
+    const btn = popup.getByTestId('settings-item-' + slug).first();
+    if (!(await btn.count())) throw new Error('panel button not found: ' + name);
     await btn.scrollIntoViewIfNeeded().catch(() => {});
     await sleep(300);
     await btn.click({ timeout: 8000, force: true });
@@ -209,8 +209,8 @@ for (const [slug, name] of panels) {
 // === Developer Networks toggle (in Security or separate) ===
 await step('settings → developer-networks', async () => {
   // Re-open settings if needed
-  if (!(await popup.getByRole('button', { name: 'Accounts' }).count())) {
-    const close = popup.getByRole('button', { name: /^Close$/i }).first();
+  if (!(await popup.getByTestId('settings-item-accounts').count())) {
+    const close = popup.getByTestId('settings-close-button').first();
     if (await close.count()) await close.click().catch(() => {});
     await sleep(500);
     await openSettings();
@@ -222,8 +222,8 @@ await step('settings → developer-networks', async () => {
   }).catch(() => {});
   await sleep(500);
   await capture(popup, 'settings', '03-scrolled-bottom');
-  // look for Developer or Networks
-  const dev = popup.getByText(/developer|networks/i).first();
+  // toggle the developer-networks switch by its stable test id
+  const dev = popup.getByTestId('settings-developer-networks-toggle').first();
   if (await dev.count()) {
     await dev.click();
     await sleep(2000);
@@ -232,14 +232,14 @@ await step('settings → developer-networks', async () => {
 });
 
 // close any open dialog
-const closeFinal = popup.getByRole('button', { name: /^Close$/i }).first();
+const closeFinal = popup.getByTestId('settings-close-button').first();
 if (await closeFinal.count()) await closeFinal.click().catch(() => {});
 
 // === Lock cycle ===
 await step('Lock + unlock cycle', async () => {
   // open settings → Security → Lock if exists, else use storage to lock
   await openSettings();
-  const sec = popup.getByRole('button', { name: 'Security' }).first();
+  const sec = popup.getByTestId('settings-item-security').first();
   if (await sec.count()) {
     await sec.click();
     await sleep(1500);

@@ -15,7 +15,8 @@ appId: io.salmonwallet.app
 # Alert title still uses the legacy "Remove All Wallets?" key.
 - assertVisible: "Remove All Accounts"
 - takeScreenshot: screenshots/actions/reset/danger-zone
-- tapOn: "Remove All Accounts"
+- tapOn:
+    id: "settings-item-remove-all"
 - extendedWaitUntil:
     visible: "Remove All Wallets?"
     timeout: 5000

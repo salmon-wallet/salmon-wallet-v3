@@ -33,6 +33,7 @@ export function NetworkSelector({
         getSecondaryText={(item) => item.blockchain}
         secondaryTypographyProps={{ textTransform: 'capitalize' }}
         loading={loading}
+        testIdPrefix="network-option"
       />
     </SettingsPanelContent>
   );

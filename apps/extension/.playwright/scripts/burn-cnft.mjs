@@ -9,15 +9,15 @@ const findings = [];
 const { ctx, extId } = await launch();
 const popup = await openPopup(ctx, extId);
 
-const pw = popup.locator('input[type="password"]').first();
+const pw = popup.getByTestId('lock-password-input').first();
 if (await pw.count()) {
   await pw.fill(SECRETS.SALMON_TEST_PASSWORD);
-  await popup.getByRole('button', { name: /unlock/i }).click();
+  await popup.getByTestId('lock-unlock-button').click();
   await sleep(4000);
 }
 await sleep(2500);
 
-await popup.getByRole('button', { name: /Collectibles/i }).first().click();
+await popup.getByTestId('tab-collectibles').first().click();
 await sleep(4000);
 const refresh = popup.getByRole('button', { name: /refresh/i }).first();
 if (await refresh.count()) {
@@ -33,8 +33,8 @@ await popup.locator('img[alt="NFT image for JUP.PRO Drop Pass"]').first().click(
 await sleep(2500);
 await capture(popup, 'burn-cnft', '01-detail');
 
-// Use aria-label-based selector
-const burn = popup.locator('button[aria-label="Burn NFT"]').first();
+// Select the burn action by its stable test id
+const burn = popup.getByTestId('nft-detail-burn-button').first();
 const burnCount = await burn.count();
 log('  burn button count: ' + burnCount);
 if (!burnCount) {
@@ -57,18 +57,13 @@ if (!/irreversible/i.test(text)) {
   process.exit(1);
 }
 
-// Find the bottom Confirm button on burn page (has different aria probably)
-const allBtns = await popup.getByRole('button').all();
+// Confirm the burn via its stable test id (only reached after the
+// /irreversible/i safety gate above passed).
+const burnConfirm = popup.getByTestId('nft-burn-confirm-button').first();
 let confirmed = false;
-for (const b of allBtns) {
-  const t = ((await b.textContent()) || '').trim();
-  const aria = (await b.getAttribute('aria-label')) || '';
-  if (/^(Burn|Confirm)$/i.test(t.trim()) || /^Burn|^Confirm/i.test(aria)) {
-    log('  confirming via text="' + t + '" aria="' + aria + '"');
-    await b.click({ force: true }).catch(() => {});
-    confirmed = true;
-    break;
-  }
+if (await burnConfirm.count()) {
+  await burnConfirm.click({ force: true }).catch(() => {});
+  confirmed = true;
 }
 if (!confirmed) findings.push('FAIL: no confirm button found on burn page');
 
@@ -81,7 +76,7 @@ log('  result: ' + result.slice(0, 250).replace(/\n/g, ' | '));
 findings.push('Burn result: ' + result.slice(0, 250).replace(/\n/g, ' | '));
 
 // Verify list now shorter
-await popup.getByRole('button', { name: /Collectibles/i }).first().click().catch(() => {});
+await popup.getByTestId('tab-collectibles').first().click().catch(() => {});
 await sleep(3000);
 const refresh2 = popup.getByRole('button', { name: /refresh/i }).first();
 if (await refresh2.count()) {

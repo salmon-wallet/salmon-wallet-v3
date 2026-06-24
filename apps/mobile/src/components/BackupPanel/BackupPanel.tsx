@@ -62,9 +62,15 @@ export function BackupPanel({ onBack, biometricAvailable, authenticateWithBiomet
         <Text style={styles.warningText}>{t('wallet.create.messageBody')}</Text>
       </View>
 
-      <View style={styles.seedContainer}>
+      <View style={styles.seedContainer} testID="backup-seed-phrase">
         {!showSeedPhrase && (
-          <TouchableOpacity style={styles.revealOverlay} onPress={handleReveal} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.revealOverlay}
+            onPress={handleReveal}
+            activeOpacity={0.8}
+            testID="backup-seed-reveal-overlay"
+            accessibilityRole="button"
+          >
             <Ionicons name="eye-outline" size={32} color={colors.text.primary} />
             <Text style={styles.revealText}>{t('settings.wallets.tap_to_reveal')}</Text>
           </TouchableOpacity>
@@ -80,10 +86,10 @@ export function BackupPanel({ onBack, biometricAvailable, authenticateWithBiomet
       </View>
 
       <View style={styles.buttonContainer}>
-        <SecondaryButton onPress={handleCopy} disabled={!showSeedPhrase}>
+        <SecondaryButton onPress={handleCopy} disabled={!showSeedPhrase} testID="backup-seed-copy-button">
           {copied ? t('wallet.copied') : t('actions.copy').toUpperCase()}
         </SecondaryButton>
-        <PrimaryButton onPress={onBack}>
+        <PrimaryButton onPress={onBack} testID="backup-seed-done-button">
           {t('actions.done').toUpperCase()}
         </PrimaryButton>
       </View>

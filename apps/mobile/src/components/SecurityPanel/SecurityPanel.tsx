@@ -98,6 +98,7 @@ export function SecurityPanel({
               if (error) setError('');
             }}
             placeholder={t('settings.security.current_password')}
+            testID="security-current-password-input"
           />
         </View>
 
@@ -106,6 +107,7 @@ export function SecurityPanel({
             value={newPassword}
             onChangeText={setNewPassword}
             placeholder={t('settings.security.new_password')}
+            testID="security-new-password-input"
           />
           {newPassword.length > 0 && (
             <PasswordStrengthBar strength={passwordValidation.strength} />
@@ -120,6 +122,7 @@ export function SecurityPanel({
               if (error) setError('');
             }}
             placeholder={t('settings.security.confirm_password')}
+            testID="security-confirm-password-input"
           />
         </View>
 
@@ -129,6 +132,7 @@ export function SecurityPanel({
           <PrimaryButton
             onPress={handleChangePassword}
             disabled={loading || !currentPassword || !newPassword || !confirmPassword}
+            testID="security-change-password-button"
           >
             {t('settings.security.change_password_button')}
           </PrimaryButton>
@@ -148,6 +152,7 @@ export function SecurityPanel({
               </Text>
             </View>
             <Switch
+              testID="security-biometric-toggle"
               value={isBiometricEnabled}
               onValueChange={onToggleBiometric}
               trackColor={{ false: colors.background.card, true: colors.accent.primary }}

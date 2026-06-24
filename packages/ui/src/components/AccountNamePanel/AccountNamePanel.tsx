@@ -110,7 +110,7 @@ export function AccountNamePanel({
           error={!!error}
           helperText={error}
           autoFocus
-          inputProps={{ maxLength: 32 }}
+          inputProps={{ maxLength: 32, 'data-testid': 'account-name-input' }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleSave();
           }}
@@ -132,6 +132,7 @@ export function AccountNamePanel({
           variant="contained"
           onClick={handleSave}
           disabled={!name.trim()}
+          data-testid="account-name-save-button"
         >
           {t('actions.save')}
         </SaveButton>
