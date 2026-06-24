@@ -116,6 +116,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
     return (
       <BlurContainer style={[styles.glassWrapper, style]} borderWidth={borderWidth.tokenListItem}>
         <Wrapper
+          testID={`token-row-${symbol}`}
           style={styles.bitcoinContainer}
           {...wrapperProps}
         >
@@ -162,6 +163,7 @@ const TokenListItem: React.FC<TokenListItemProps> = ({
   return (
     <BlurContainer style={[styles.glassWrapper, style]} borderWidth={borderWidth.tokenListItem}>
       <TouchableOpacity
+        testID={`token-row-${symbol}`}
         style={styles.container}
         onPress={handlePress}
         activeOpacity={0.7}

@@ -24,7 +24,7 @@ test('unlocks the wallet and reaches home via the data-testid contract', async (
 
   await waitHome(popup);
 
-  // The lock screen is gone (unlock succeeded) and home content is present.
+  // The lock screen is gone (unlock succeeded) and the home screen is shown.
   await expect(popup.getByTestId('lock-password-input')).toHaveCount(0);
-  await expect(popup.locator('body')).toContainText(/Solana|Bitcoin/);
+  await expect(popup.getByTestId('home-screen')).toBeVisible();
 });

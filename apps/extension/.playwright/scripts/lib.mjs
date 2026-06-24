@@ -184,10 +184,10 @@ export async function unlockOrRecover(page) {
 }
 
 export async function waitHome(page) {
-  await page.waitForFunction(
-    () => /\$\d/.test(document.body.innerText) && /Solana|Bitcoin/.test(document.body.innerText),
-    { timeout: 15000 },
-  ).catch(() => {});
+  await page
+    .getByTestId('home-screen')
+    .waitFor({ state: 'visible', timeout: 15000 })
+    .catch(() => {});
   await sleep(1500);
 }
 

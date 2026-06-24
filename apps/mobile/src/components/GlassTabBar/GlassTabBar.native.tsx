@@ -58,6 +58,7 @@ function TabItem({ routeName, isFocused, onPress, onLongPress }: TabItemProps) {
 
   return (
     <TouchableOpacity
+      testID={`tab-${routeName === 'index' ? 'home' : routeName}`}
       accessibilityRole="button"
       accessibilityState={isFocused ? { selected: true } : {}}
       accessibilityLabel={config.label}

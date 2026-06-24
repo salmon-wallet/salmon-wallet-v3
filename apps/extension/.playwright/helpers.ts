@@ -45,11 +45,7 @@ export async function unlockOrRecover(page: Page): Promise<EntryState> {
 
 export async function waitHome(page: Page): Promise<void> {
   await page
-    .waitForFunction(
-      () =>
-        /\$\d/.test(document.body.innerText) &&
-        /Solana|Bitcoin/.test(document.body.innerText),
-      { timeout: 15_000 }
-    )
+    .getByTestId('home-screen')
+    .waitFor({ state: 'visible', timeout: 15_000 })
     .catch(() => {});
 }

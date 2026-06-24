@@ -70,6 +70,7 @@ export function HeaderContent({
       {/* Left side - Avatar/Wallet icon + Account info */}
       <View style={styles.leftSection}>
         <TouchableOpacity
+          testID="wallet-header-account-switcher"
           style={styles.walletIconContainer}
           onPress={handleWalletPress}
           activeOpacity={0.7}
@@ -97,6 +98,7 @@ export function HeaderContent({
             {displayText}
           </Text>
           <TouchableOpacity
+            testID="wallet-header-copy-address"
             onPress={handleCopyPress}
             activeOpacity={0.7}
             accessibilityRole="button"
@@ -112,6 +114,7 @@ export function HeaderContent({
 
       {/* Right side - Settings button */}
       <TouchableOpacity
+        testID="wallet-header-settings-button"
         style={styles.settingsButton}
         onPress={handleSettingsPress}
         activeOpacity={0.7}

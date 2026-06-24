@@ -161,11 +161,15 @@ export function WalletHeader({
         onClick={handleCopyPress}
         role="button"
         aria-label={t('accessibility.copy_address', { address: truncatedAddress })}
+        data-testid="wallet-header-copy-address"
       >
         {/* Avatar */}
         {avatarUrl && !imgError ? (
           <MuiAvatar
             src={avatarUrl}
+            data-testid="wallet-header-account-switcher"
+            role="button"
+            aria-label={t('accessibility.switch_wallet')}
             sx={{ width: componentSizes.iconSizeLarge, height: componentSizes.iconSizeLarge, marginRight: `${spacing.md}px`, cursor: 'pointer' }}
             imgProps={{ onError: () => setImgError(true) }}
             onClick={(e) => {
@@ -175,6 +179,9 @@ export function WalletHeader({
           />
         ) : accountId ? (
           <MuiAvatar
+            data-testid="wallet-header-account-switcher"
+            role="button"
+            aria-label={t('accessibility.switch_wallet')}
             sx={{
               width: componentSizes.iconSizeLarge,
               height: componentSizes.iconSizeLarge,
@@ -208,7 +215,7 @@ export function WalletHeader({
       {/* Right side - Refresh + Settings buttons */}
       <ActionButtons>
         {onRefreshPress && (
-          <HeaderButton onClick={onRefreshPress} aria-label={t('accessibility.refresh_balance', 'Refresh balance')}>
+          <HeaderButton onClick={onRefreshPress} aria-label={t('accessibility.refresh_balance', 'Refresh balance')} data-testid="wallet-header-refresh-button">
             <RefreshIcon
               sx={{
                 color: colors.text.primary,
@@ -224,7 +231,7 @@ export function WalletHeader({
             />
           </HeaderButton>
         )}
-        <HeaderButton onClick={handleSettingsPress} aria-label={t('accessibility.open_settings')}>
+        <HeaderButton onClick={handleSettingsPress} aria-label={t('accessibility.open_settings')} data-testid="wallet-header-settings-button">
           <SettingsIcon sx={{ color: colors.text.primary, fontSize: fontSize['2xl'] }} />
         </HeaderButton>
       </ActionButtons>

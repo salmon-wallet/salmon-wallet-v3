@@ -37,7 +37,7 @@ await capture(popup, 'home', '01-popup-home');
 // Helper: ensure on home — click "Home" tab if visible, else click back until home
 async function backHome() {
   for (let i = 0; i < 6; i++) {
-    if (await popup.getByRole('button', { name: 'Send tokens' }).count()) return;
+    if (await popup.getByTestId('home-send-button').count()) return;
     if (!(await clickBack(popup))) {
       // try Close button (dialog X)
       const close = popup.getByRole('button', { name: /^Close$/i }).first();
@@ -49,12 +49,12 @@ async function backHome() {
 
 // === Bitcoin slide of carousel ===
 await step('home — Bitcoin slide', async () => {
-  const next = popup.getByRole('button', { name: 'Next blockchain' }).first();
+  const next = popup.getByTestId('balance-carousel-next').first();
   if (await next.count()) {
     await next.click({ timeout: 4000 }).catch(() => {});
     await sleep(2000);
     await capture(popup, 'home', '02-bitcoin-slide');
-    const prev = popup.getByRole('button', { name: 'Previous blockchain' }).first();
+    const prev = popup.getByTestId('balance-carousel-prev').first();
     if (await prev.count()) {
       await prev.click({ timeout: 4000 }).catch(() => {});
       await sleep(1200);
@@ -63,13 +63,13 @@ await step('home — Bitcoin slide', async () => {
 });
 
 await step('home — Collectibles tab', async () => {
-  await popup.getByRole('button', { name: /^Collectibles$/ }).click({ timeout: 6000 });
+  await popup.getByTestId('tab-collectibles').click({ timeout: 6000 });
   await sleep(2500);
   await capture(popup, 'home', '03-collectibles');
 });
 
 await step('home — Swap tab', async () => {
-  await popup.getByRole('button', { name: /^Swap$/ }).click({ timeout: 6000 });
+  await popup.getByTestId('tab-swap').click({ timeout: 6000 });
   await sleep(3500);
   await capture(popup, 'swap', '01-swap-tab');
 });
@@ -84,7 +84,7 @@ async function gotoHomeTab() {
   await unlockOrRecover(popup);
   await waitHome(popup);
   await capture(popup, 'home', 'reset-' + resetCount);
-  const sendBtnCount = await popup.getByRole('button', { name: 'Send tokens' }).count();
+  const sendBtnCount = await popup.getByTestId('home-send-button').count();
   log('  reset-' + resetCount + ' sendBtnCount=' + sendBtnCount + ' url=' + popup.url());
 }
 
@@ -92,7 +92,7 @@ await step('back to Home tab', gotoHomeTab);
 
 // === Receive ===
 await step('Receive', async () => {
-  await popup.getByRole('button', { name: 'Receive tokens' }).click({ timeout: 6000 });
+  await popup.getByTestId('home-receive-button').click({ timeout: 6000 });
   await sleep(2200);
   await capture(popup, 'receive', '01-receive-sheet');
 });
@@ -100,7 +100,7 @@ await backHome(); await gotoHomeTab();
 
 // === Activity ===
 await step('Activity', async () => {
-  await popup.getByRole('button', { name: 'View activity' }).click({ timeout: 6000 });
+  await popup.getByTestId('home-activity-button').click({ timeout: 6000 });
   await sleep(2500);
   await capture(popup, 'activity', '01-activity');
 });
@@ -108,7 +108,7 @@ await backHome(); await gotoHomeTab();
 
 // === Send (no review) ===
 await step('Send token list', async () => {
-  await popup.getByRole('button', { name: 'Send tokens' }).click({ timeout: 6000 });
+  await popup.getByTestId('home-send-button').click({ timeout: 6000 });
   await sleep(2500);
   await capture(popup, 'send', '01-token-list');
 });
@@ -132,7 +132,7 @@ await backHome(); await gotoHomeTab();  // send is 2 levels deep
 
 // === NFT (Collectibles) ===
 await step('Collectibles list', async () => {
-  await popup.getByRole('button', { name: /^Collectibles$/ }).click({ timeout: 6000 });
+  await popup.getByTestId('tab-collectibles').click({ timeout: 6000 });
   await sleep(3000);
   await capture(popup, 'nft', '01-collectibles');
 });
@@ -149,7 +149,7 @@ await step('NFT detail (first NFT)', async () => {
       await h.click().catch(() => {});
       await sleep(2500);
       // verify we navigated to detail
-      if (!(await popup.getByRole('button', { name: 'Send tokens' }).count())) {
+      if (!(await popup.getByTestId('home-send-button').count())) {
         await capture(popup, 'nft', '02-detail');
         break;
       }
@@ -160,7 +160,7 @@ await backHome(); await gotoHomeTab();
 
 // === Settings ===
 async function openSettings() {
-  const gear = popup.getByRole('button', { name: 'Open settings' }).first();
+  const gear = popup.getByTestId('wallet-header-settings-button').first();
   if (await gear.count()) {
     await gear.click({ timeout: 5000 }).catch(() => {});
     await sleep(1200);
@@ -250,10 +250,10 @@ await step('Lock + unlock cycle', async () => {
       await sleep(2500);
       await capture(popup, 'home', '04-locked');
       // unlock
-      const pw = popup.locator('input[type="password"]').first();
+      const pw = popup.getByTestId('lock-password-input').first();
       if (await pw.count()) {
         await pw.fill(SECRETS.SALMON_TEST_PASSWORD);
-        await popup.getByRole('button', { name: /unlock/i }).click();
+        await popup.getByTestId('lock-unlock-button').click();
         await sleep(2500);
         await capture(popup, 'home', '05-unlocked');
       }

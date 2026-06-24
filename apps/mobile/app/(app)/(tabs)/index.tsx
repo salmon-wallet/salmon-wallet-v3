@@ -749,7 +749,7 @@ export default function HomeScreen() {
   // address is already defined above for useTransactions hook
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="home-screen">
       {/* Fixed Header: Balance Card + Action Buttons */}
       {FixedHeaderComponent}
 

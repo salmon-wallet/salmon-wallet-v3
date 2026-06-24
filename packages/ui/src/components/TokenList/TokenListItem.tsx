@@ -261,6 +261,7 @@ export function TokenListItem({
         style={style}
         className={className}
         aria-label={`${name} token, balance ${uiAmount} ${symbol}`}
+        data-testid={`token-row-${symbol}`}
       >
         {logo ? (
           <BitcoinLogo src={logo} alt={name} onError={(e) => {
@@ -303,6 +304,7 @@ export function TokenListItem({
       className={className}
       role="button"
       aria-label={`${name} token, balance ${uiAmount} ${symbol}`}
+      data-testid={`token-row-${symbol}`}
     >
       {logo ? (
         <TokenLogo src={logo} alt={name} onError={(e) => {

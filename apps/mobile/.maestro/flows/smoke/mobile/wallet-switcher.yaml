@@ -4,8 +4,10 @@ appId: io.salmonwallet.app
 # Note: WalletSwitcherSheet uses GateContainer panel (not BottomSheetContainer),
 # so drag-to-dismiss does NOT work. Close via top-right X.
 - runFlow: ../../../subflows/onboard-walletA.yaml
-- assertVisible: "Switch wallet account"
-- tapOn: "Switch wallet account"
+- assertVisible:
+    id: "wallet-header-account-switcher"
+- tapOn:
+    id: "wallet-header-account-switcher"
 - waitForAnimationToEnd:
     timeout: 3000
 - assertVisible: "Your Wallets"
@@ -14,4 +16,5 @@ appId: io.salmonwallet.app
     point: "92%,11%"
 - waitForAnimationToEnd:
     timeout: 3000
-- assertVisible: "Switch wallet account"
+- assertVisible:
+    id: "wallet-header-account-switcher"
