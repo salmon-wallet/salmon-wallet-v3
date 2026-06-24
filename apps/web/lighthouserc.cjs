@@ -13,7 +13,12 @@
 module.exports = {
   ci: {
     collect: {
-      staticDistDir: './dist',
+      // Serve the built app through `vite preview` (SPA history-fallback) rather
+      // than a bare static dir — the latter 404s client routes and renders the
+      // React Router error boundary, which would score a blank error page.
+      startServerCommand: 'pnpm preview --port 4173 --strictPort',
+      startServerReadyPattern: 'Local:',
+      url: ['http://localhost:4173/'],
       numberOfRuns: 3,
       settings: {
         // Desktop-class run; the wallet ships as a desktop web app + extension.
@@ -21,14 +26,14 @@ module.exports = {
       },
     },
     assert: {
-      // Thresholds are ratcheted to the current build (a11y 0.86, perf 0.87,
-      // FCP ~1.6s) with a small margin for run-to-run variance, so the gate
-      // catches regressions without flaking. Tighten as the app improves.
+      // Ratcheted to the real welcome screen (a11y/best-practices/SEO = 100,
+      // performance = 84). The first three are locked near-perfect; performance
+      // is load-bound by the JS bundle (see known debt) so it gets a floor with
+      // headroom. Tighten as the bundle shrinks; never loosen silently.
       assertions: {
-        // Category floors (axe-backed critical a11y is gated separately in e2e;
-        // this Lighthouse a11y score also covers contrast/structure ~ the rest).
-        'categories:accessibility': ['error', { minScore: 0.85 }],
-        'categories:best-practices': ['warn', { minScore: 0.9 }],
+        'categories:accessibility': ['error', { minScore: 0.95 }],
+        'categories:best-practices': ['error', { minScore: 0.95 }],
+        'categories:seo': ['error', { minScore: 0.95 }],
         'categories:performance': ['error', { minScore: 0.8 }],
         // Core Web Vitals budgets (team targets, with variance margin).
         'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
