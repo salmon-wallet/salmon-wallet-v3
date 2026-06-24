@@ -123,7 +123,7 @@ export function AccountEditPanel({
             <Avatar
               src={account.avatar}
               sx={{ width: 'min(45vw, 180px)', height: 'min(45vw, 180px)' }}
-              imgProps={{ onError: () => setImgError(true) }}
+              imgProps={{ alt: '', onError: () => setImgError(true) }}
             />
           ) : (
             <Avatar

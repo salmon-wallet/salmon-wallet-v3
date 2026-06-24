@@ -378,7 +378,7 @@ export function SettingsPanelStack({
                 checked={developerNetworksEnabled}
                 onChange={handleToggleChange}
                 onClick={(e) => e.stopPropagation()}
-                inputProps={{ 'data-testid': 'settings-developer-networks-toggle' } as React.InputHTMLAttributes<HTMLInputElement>}
+                slotProps={{ input: { 'data-testid': 'settings-developer-networks-toggle', 'aria-label': label } as React.InputHTMLAttributes<HTMLInputElement> }}
               />
             </StyledListItemButton>
           </StyledListItem>

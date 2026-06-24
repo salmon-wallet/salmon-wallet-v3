@@ -252,7 +252,7 @@ function AccountListItem({
           <Avatar
             src={account.avatar}
             sx={{ width: componentSizes.iconSize2XL, height: componentSizes.iconSize2XL }}
-            imgProps={{ onError: () => setImgError(true) }}
+            imgProps={{ alt: '', onError: () => setImgError(true) }}
           />
         ) : (
           <AccountAvatar $bgColor={avatarColor}>{initials}</AccountAvatar>

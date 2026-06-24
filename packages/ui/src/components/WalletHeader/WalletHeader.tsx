@@ -171,7 +171,7 @@ export function WalletHeader({
             role="button"
             aria-label={t('accessibility.switch_wallet')}
             sx={{ width: componentSizes.iconSizeLarge, height: componentSizes.iconSizeLarge, marginRight: `${spacing.md}px`, cursor: 'pointer' }}
-            imgProps={{ onError: () => setImgError(true) }}
+            imgProps={{ alt: '', onError: () => setImgError(true) }}
             onClick={(e) => {
               e.stopPropagation();
               handleWalletPress();

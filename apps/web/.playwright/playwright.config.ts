@@ -5,7 +5,7 @@
  * loading. Selection uses data-testid, aligned with the shared Testable
  * contract in packages/shared.
  */
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadTestEnv } from './env';
@@ -34,6 +34,14 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'off',
   },
+  // Cross-engine coverage: every web spec runs on Chromium, Firefox and
+  // WebKit (Safari). Browser binaries are installed via
+  // `pnpm exec playwright install chromium firefox webkit`.
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
   webServer: {
     command: 'pnpm --filter @salmon/web dev',
     url: BASE_URL,
