@@ -57,6 +57,7 @@ export function AddressEditPanel({
         {t('settings.addressbook.label', 'Label')}
       </Text>
       <TextInput
+        testID="address-book-label-input"
         style={styles.textInput}
         value={form.label}
         onChangeText={form.setLabel}
@@ -73,6 +74,7 @@ export function AddressEditPanel({
           onChange={form.setAddress}
           onValidation={form.handleValidation}
           label={t('general.address', 'Address')}
+          testID="address-book-address"
         />
       </View>
 
@@ -84,6 +86,8 @@ export function AddressEditPanel({
 
       {/* Save Button */}
       <TouchableOpacity
+        testID="address-book-save-button"
+        accessibilityRole="button"
         style={[styles.saveButton, !form.canSave && styles.saveButtonDisabled]}
         onPress={handleSave}
         disabled={!form.canSave}

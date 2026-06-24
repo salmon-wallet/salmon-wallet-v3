@@ -44,6 +44,7 @@ vi.mock('@salmon/shared', () => {
   };
   return {
     useSettingsPanelStack,
+    getSettingsItemTestId: (id: string) => `settings-item-${id}`,
     colors: {
       accent: { primary: '#f60' },
       background: { primary: '#000', card: '#111' },

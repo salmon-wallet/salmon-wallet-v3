@@ -75,7 +75,7 @@ export function AccountNamePanel({
       </Text>
 
       <View style={styles.buttonContainer}>
-        <PrimaryButton testID="account-name-save-btn" onPress={handleSave}>
+        <PrimaryButton testID="account-name-save-button" onPress={handleSave}>
           {t('actions.save')}
         </PrimaryButton>
       </View>

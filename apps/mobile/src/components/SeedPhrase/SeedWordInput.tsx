@@ -3,10 +3,11 @@
  */
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { colors, spacing, componentSizes, fontSize, borderWidth, fontFamilyNative, } from '@salmon/shared';
+import type { Testable } from '@salmon/shared';
 
 type ValidationState = 'idle' | 'correct' | 'incorrect';
 
-interface SeedWordInputProps {
+interface SeedWordInputProps extends Testable {
   /** Word position (1-indexed) */
   position: number;
   /** Current input value */
@@ -28,6 +29,7 @@ export function SeedWordInput({
   validationState = 'idle',
   autoFocus,
   onSubmitEditing,
+  testID,
 }: SeedWordInputProps) {
   const getBorderColor = () => {
     switch (validationState) {
@@ -41,6 +43,8 @@ export function SeedWordInput({
     <View style={styles.container}>
       <Text style={styles.label}>Word #{position}</Text>
       <TextInput
+        testID={testID}
+        accessibilityLabel={`Word #${position}`}
         style={[styles.input, { borderColor: getBorderColor() }]}
         value={value}
         onChangeText={onChangeText}

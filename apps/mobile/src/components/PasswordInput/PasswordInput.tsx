@@ -57,6 +57,9 @@ export function PasswordInput({
           returnKeyType="done"
         />
         <TouchableOpacity
+          testID={testID ? `${testID}-toggle` : undefined}
+          accessibilityRole="button"
+          accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
           onPress={() => setShowPassword(!showPassword)}
           style={styles.toggleButton}
         >

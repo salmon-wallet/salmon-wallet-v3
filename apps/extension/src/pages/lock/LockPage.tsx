@@ -232,6 +232,10 @@ export function LockPage({ onUnlock, onUnlockWithCachedKey: _onUnlockWithCachedK
                 disabled={isUnlocking}
                 autoFocus
                 fullWidth
+                inputProps={{
+                  'data-testid': 'lock-password-input',
+                  'aria-label': t('lock.password_placeholder', 'Password'),
+                }}
               />
               {error && <ErrorText>{error}</ErrorText>}
             </InputContainer>
@@ -241,6 +245,7 @@ export function LockPage({ onUnlock, onUnlockWithCachedKey: _onUnlockWithCachedK
               disabled={!password.trim()}
               loading={isUnlocking}
               fullWidth
+              testID="lock-unlock-button"
             >
               {t('lock.unlock', 'Unlock')}
             </PrimaryButton>
@@ -249,6 +254,7 @@ export function LockPage({ onUnlock, onUnlockWithCachedKey: _onUnlockWithCachedK
               type="button"
               onClick={handleForgotPassword}
               disabled={isUnlocking}
+              data-testid="lock-forgot-password-button"
             >
               {t('lock.forgot_password', 'I forgot my password')}
             </ForgotPasswordButton>

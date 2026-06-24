@@ -82,14 +82,14 @@ export function SuccessPage({
       </CenterContent>
 
       <ButtonsContainer>
-        <PrimaryButton onClick={onGoToWallet}>
+        <PrimaryButton onClick={onGoToWallet} testID="success-go-to-wallet-button">
           {t('wallet.create.go_to_my_wallet')}
         </PrimaryButton>
-        <SecondaryButton onClick={onCheckDerived}>
+        <SecondaryButton onClick={onCheckDerived} testID="success-check-derived-button">
           {t('wallet.create.check_derivables')}
         </SecondaryButton>
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <TextButton onClick={toggleDialog} color={colors.text.secondary}>
+          <TextButton onClick={toggleDialog} color={colors.text.secondary} testID="success-info-button">
             {t('wallet.create.derivable_info_icon')}
           </TextButton>
         </Box>

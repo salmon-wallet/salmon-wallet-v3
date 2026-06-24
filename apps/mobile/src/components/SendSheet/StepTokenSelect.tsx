@@ -57,6 +57,7 @@ const TokenRow: React.FC<TokenRowProps> = React.memo(({ token, onPress }) => {
 
   return (
     <TouchableOpacity
+      testID={`send-token-row-${token.symbol}`}
       onPress={handlePress}
       activeOpacity={0.7}
       accessibilityLabel={`${token.name}, ${balanceDisplay}`}
@@ -213,6 +214,7 @@ export const StepTokenSelect: React.FC<StepTokenSelectProps> = ({
           style={styles.searchIcon}
         />
         <TextInput
+          testID="send-token-search-input"
           style={styles.searchInput}
           placeholder={t('actions.search_placeholder', 'Search...')}
           placeholderTextColor={colors.text.secondary}

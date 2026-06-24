@@ -116,6 +116,8 @@ export function AddressBookPanel({
                       edge="end"
                       onClick={() => onEditContact(contact)}
                       size="small"
+                      aria-label={t('actions.edit', 'Edit')}
+                      data-testid={`address-book-edit-${contact.address}`}
                       sx={{ color: colors.text.secondary, '&:hover': { backgroundColor: colors.background.card } }}
                     >
                       <EditOutlinedIcon fontSize="small" />
@@ -124,6 +126,8 @@ export function AddressBookPanel({
                       edge="end"
                       onClick={() => setDeleteTarget(contact)}
                       size="small"
+                      aria-label={t('actions.remove', 'Remove')}
+                      data-testid={`address-book-remove-${contact.address}`}
                       sx={{ color: colors.status.error, '&:hover': { backgroundColor: colors.status.errorBackground } }}
                     >
                       <DeleteOutlineIcon fontSize="small" />
@@ -131,7 +135,7 @@ export function AddressBookPanel({
                   </Box>
                 }
               >
-                <StyledListItemButton disableRipple>
+                <StyledListItemButton disableRipple data-testid={`address-book-contact-${contact.address}`}>
                   <ListItemAvatar>
                     <ContactAvatar>
                       <PersonOutlineIcon sx={{ fontSize: fontSize.xl, color: colors.text.secondary }} />
@@ -171,7 +175,7 @@ export function AddressBookPanel({
             ))}
           </StyledList>
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <AddButton startIcon={<AddCircleOutlineIcon />} onClick={onAddContact}>
+            <AddButton startIcon={<AddCircleOutlineIcon />} onClick={onAddContact} data-testid="address-book-add-button">
               {t('settings.addressbook.addnew', 'Add New Address')}
             </AddButton>
           </Box>

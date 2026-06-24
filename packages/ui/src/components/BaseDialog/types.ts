@@ -88,6 +88,8 @@ export interface CancelButtonProps {
   onClick: () => void;
   /** Whether button is disabled */
   disabled?: boolean;
+  /** Stable test id, forwarded to data-testid */
+  testID?: string;
 }
 
 export interface ActionButtonProps {
@@ -101,4 +103,6 @@ export interface ActionButtonProps {
   isDanger?: boolean;
   /** Whether button is in loading state */
   loading?: boolean;
+  /** Stable test id, forwarded to data-testid */
+  testID?: string;
 }

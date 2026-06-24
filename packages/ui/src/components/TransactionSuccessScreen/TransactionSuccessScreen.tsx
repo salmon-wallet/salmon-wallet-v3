@@ -218,13 +218,14 @@ export function TransactionSuccessScreen({
           )}
         </BridgeInfoBox>
       ) : explorerUrl ? (
-        <ExplorerLink onClick={handleExplorerClick} underline="always">
+        <ExplorerLink onClick={handleExplorerClick} underline="always" data-testid="tx-success-explorer-link">
           {t('transaction.viewOnExplorer')}
         </ExplorerLink>
       ) : null}
       <ContinueButton
         onClick={onContinue}
         disabled={settling}
+        data-testid="tx-success-continue-button"
         startIcon={
           settling ? (
             <CircularProgress size={16} thickness={5} sx={{ color: colors.text.primary }} />

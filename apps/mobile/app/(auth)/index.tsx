@@ -81,18 +81,18 @@ export default function WelcomeScreen() {
         {/* Buttons Container - stays at bottom */}
         <View style={styles.buttonsContainer}>
           {/* Create Account Button (Primary - White) */}
-          <PrimaryButton onPress={handleCreateAccount}>
+          <PrimaryButton onPress={handleCreateAccount} testID="select-create-button">
             {t('wallet.create_wallet').toUpperCase()}
           </PrimaryButton>
 
           {/* Recover Account Button (Secondary - Dark) */}
-          <SecondaryButton onPress={handleRecoverAccount}>
+          <SecondaryButton onPress={handleRecoverAccount} testID="select-recover-button">
             {t('wallet.recover_wallet').toUpperCase()}
           </SecondaryButton>
 
           {/* Access Existing Account Button (only if accounts exist) */}
           {hasAccounts && (
-            <SecondaryButton onPress={handleAccessExistingAccount}>
+            <SecondaryButton onPress={handleAccessExistingAccount} testID="select-access-existing-button">
               {t('wallet.access_existing_account').toUpperCase()}
             </SecondaryButton>
           )}

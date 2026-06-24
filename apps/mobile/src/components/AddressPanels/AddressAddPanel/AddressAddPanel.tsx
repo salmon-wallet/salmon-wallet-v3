@@ -52,7 +52,7 @@ export function AddressAddPanel({
         {t('settings.addressbook.label', 'Label')}
       </Text>
       <TextInput
-        testID="address-add-label-input"
+        testID="address-book-label-input"
         style={styles.textInput}
         value={form.label}
         onChangeText={form.setLabel}
@@ -73,6 +73,7 @@ export function AddressAddPanel({
             token: activeBlockchain,
             defaultValue: 'Enter address or domain',
           })}
+          testID="address-book-address"
         />
       </View>
 
@@ -84,7 +85,8 @@ export function AddressAddPanel({
 
       {/* Save Button */}
       <TouchableOpacity
-        testID="address-add-save-btn"
+        testID="address-book-save-button"
+        accessibilityRole="button"
         style={[styles.saveButton, !form.canSave && styles.saveButtonDisabled]}
         onPress={handleSave}
         disabled={!form.canSave}

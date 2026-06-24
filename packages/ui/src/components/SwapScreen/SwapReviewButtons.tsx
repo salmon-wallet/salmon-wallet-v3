@@ -49,6 +49,7 @@ export function SwapReviewButtons({
         <SecondaryButton
           onClick={onBack}
           disabled={isConfirming}
+          testID="swap-back-button"
           style={{
             height: componentSizes.buttonHeightCompact,
             border: `${borderWidth.accent}px solid ${colors.accent.border}`,
@@ -64,6 +65,7 @@ export function SwapReviewButtons({
           onClick={onConfirm}
           loading={isConfirming}
           disabled={isConfirming}
+          testID="swap-confirm-button"
           style={{
             height: componentSizes.buttonHeightCompact,
             background: 'transparent',

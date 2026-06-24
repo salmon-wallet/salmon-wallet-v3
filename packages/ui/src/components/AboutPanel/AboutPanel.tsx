@@ -186,7 +186,7 @@ export function AboutPanel({ onBack }: AboutPanelProps): React.ReactElement {
   const renderLinkItem = useCallback(
     (link: LinkItem) => (
       <ListItem key={link.id} disablePadding>
-        <StyledListItemButton onClick={() => handleLinkClick(link.url)}>
+        <StyledListItemButton onClick={() => handleLinkClick(link.url)} data-testid={`about-link-${link.id}`}>
           <StyledListItemIcon>{link.icon}</StyledListItemIcon>
           <ListItemText
             primary={

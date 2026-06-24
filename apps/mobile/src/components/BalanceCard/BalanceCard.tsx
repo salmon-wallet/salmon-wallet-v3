@@ -150,6 +150,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         <View style={styles.balanceRow}>
           <Text style={styles.balanceDollars}>{hiddenValue}</Text>
           <TouchableOpacity
+            testID="balance-eye-toggle"
             onPress={handleToggleVisibility}
             style={styles.eyeButton}
             activeOpacity={0.7}
@@ -180,6 +181,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
           )}
         </View>
         <TouchableOpacity
+          testID="balance-eye-toggle"
           onPress={handleToggleVisibility}
           style={styles.eyeButton}
           activeOpacity={0.7}

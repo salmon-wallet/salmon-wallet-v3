@@ -143,6 +143,7 @@ export function ActionButtonRow({
           onClick={handleSendPress}
           disabled={sendDisabled}
           aria-label="Send tokens"
+          data-testid="home-send-button"
         >
           <SendIcon sx={{ fontSize: iconSize, color: colors.text.balance }} />
           <ButtonText>{t('actions.send', 'Send')}</ButtonText>
@@ -160,6 +161,7 @@ export function ActionButtonRow({
             onClick={handleReceivePress}
             disabled={receiveDisabled}
             aria-label="Receive tokens"
+            data-testid="home-receive-button"
           >
             <ReceiveIcon sx={{ fontSize: iconSize, color: receiveDisabled ? colors.button.disabledText : colors.text.balance }} />
             <ButtonText $disabled={receiveDisabled}>{t('actions.receive', 'Receive')}</ButtonText>
@@ -178,6 +180,7 @@ export function ActionButtonRow({
             onClick={handleActivityPress}
             disabled={activityDisabled}
             aria-label="View activity"
+            data-testid="home-activity-button"
           >
             <ActivityIcon sx={{ fontSize: iconSize, color: activityDisabled ? colors.button.disabledText : colors.text.balance }} />
             <ButtonText $disabled={activityDisabled}>{t('actions.activity', 'Activity')}</ButtonText>

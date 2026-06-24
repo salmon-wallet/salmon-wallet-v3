@@ -52,3 +52,7 @@ Report findings with file paths and specific recommendations for each violation.
 - A typecheck-passing result.
 - An audit report when asked to review component structure or conventions.
 - Questions first when scope or ownership is ambiguous.
+
+## Test labels
+
+Any interactive DOM component must follow the `e2e-test-labels` skill: thread a `testID?` prop (forwarded to `data-testid`), keep the correct implicit role, and add `aria-label` on icon-only controls so Playwright/Maestro can select it without CSS or text matching.

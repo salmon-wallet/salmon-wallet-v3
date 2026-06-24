@@ -6,19 +6,35 @@
 
 ## Mental model
 
-This is **not** a test framework with a runner. Each `.mjs` under
-`scripts/` is a self-contained Node ESM script that:
+The suite is mid-migration and runs **two ways**:
 
-1. Loads secrets from `.env.test` via `lib.mjs`.
-2. Launches a persistent Chromium with the extension preloaded.
-3. Drives one workflow end-to-end.
-4. Writes captures to `screenshots/`, snapshots to `snapshots/`, and a
-   markdown report to `reports/`.
+**Target — `@playwright/test`.** Specs live in `tests/*.spec.ts`, run via
+`pnpm --filter @salmon/extension e2e`. They use the extension fixture in
+`fixtures.ts` (persistent profile + extension loaded → `{ context,
+extensionId, popup }`), flow helpers in `helpers.ts`, and assert with
+web-first `expect`. **New work goes here.** When you migrate a legacy
+script, add the spec under `tests/` and delete the `.mjs` once parity is
+confirmed.
 
-There is no test discovery. There is no shared fixture beyond the
-chromium profile in `profiles/extension/`. Pick the script that matches
-the workflow you want to exercise, or extend `lib.mjs` and add a new
-script.
+**Legacy — `.mjs` drivers.** Each `.mjs` under `scripts/` is a
+self-contained Node ESM program that loads secrets via `lib.mjs`, launches
+a persistent Chromium with the extension preloaded, drives one workflow,
+and writes captures + a markdown report (no assertions). These are being
+phased out flow-by-flow; touch them only to keep an un-migrated flow
+working or to port it.
+
+## Selector contract (both runners)
+
+Select by the shared **`data-testid` contract** first — `Testable` in
+`packages/shared/src/types/ui`, surfaced as `testID` on components (see the
+`e2e-test-labels` skill). It is the only i18n-proof anchor; role/text names
+break when the app is localized.
+
+Priority: `getByTestId` → `getByRole` (role + accessible name) → text. Never
+make CSS, `input[type=...]`, or positional `.nth()`/index the *primary*
+selector when a stable id can be added to the component instead. If a screen
+you need is unlabeled, prefer adding the id (per the skill) over writing a
+fragile selector.
 
 ## Conventions to preserve
 
@@ -61,7 +77,22 @@ script must confirm context:
 - **Remove All Wallets:** runs only at the end of a flow because it
   invalidates the persistent profile.
 
-## Adding a new workflow
+## Adding a new spec (`@playwright/test`) — preferred
+
+1. Add `tests/<flow>.spec.ts`. Import `{ test, expect }` from `../fixtures`
+   (gives `popup`, `context`, `extensionId`).
+2. Reuse flow helpers from `helpers.ts` (`unlockOrRecover`, `waitHome`);
+   extend that file rather than duplicating logic.
+3. Select by `getByTestId` per the contract above. If the screen lacks ids,
+   add them to the component first (`e2e-test-labels` skill) — do not bake a
+   fragile selector into the spec.
+4. Gate on the backend: `test.skip(!backendUp, ...)` using `isBackendUp()`
+   from `../env` (see `tests/lock.spec.ts`).
+5. Keep the suite serial (the config enforces `workers: 1`) — the persistent
+   profile and on-chain flows are not parallel-safe.
+6. The same guardrails below (Sensitive workflows) apply to specs verbatim.
+
+## Adding a new legacy workflow (`.mjs`)
 
 1. Decide whether it belongs in an existing script or a new one. Splitting
    makes sense when the new workflow has independent setup or different

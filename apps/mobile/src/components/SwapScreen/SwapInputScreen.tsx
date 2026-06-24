@@ -36,6 +36,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
       <View style={styles.inputsContainer}>
         {/* You Send */}
         <SwapAmountInput
+          testID="swap-from"
           label={t('swap.you_send', 'You Send')}
           value={inAmount}
           onChangeValue={onInAmountChange}
@@ -51,6 +52,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
 
         {/* You Receive */}
         <SwapAmountInput
+          testID="swap-to"
           label={t('swap.you_receive', 'You Receive')}
           value={outAmount}
           onChangeValue={() => {}}
@@ -77,6 +79,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
               onPress={onReview}
               disabled={false}
               style={styles.button}
+              testID="swap-review-button"
             >
               {t('swap.review.reviewAndSwap', 'Review & Swap')}
             </PrimaryButton>
@@ -87,6 +90,7 @@ export const SwapInputScreen: React.FC<SwapInputScreenProps> = ({
               onPress={onReview}
               disabled={true}
               style={styles.button}
+              testID="swap-review-button"
             >
               {t('swap.review.reviewAndSwap', 'Review & Swap')}
             </PrimaryButton>

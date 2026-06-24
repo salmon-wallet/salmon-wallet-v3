@@ -70,6 +70,7 @@ export function TextButton({
   className,
   color,
   type = 'button',
+  testID,
 }: TextButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -82,6 +83,7 @@ export function TextButton({
       className={className}
       $customColor={color}
       disableRipple={false}
+      data-testid={testID}
     >
       {loading ? (
         <LoaderWrapper>

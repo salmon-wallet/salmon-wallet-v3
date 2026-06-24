@@ -314,6 +314,7 @@ export function LockContent({
                   <View style={styles.inputContainer}>
                     <TextInput
                       testID="lock-password-input"
+                      accessibilityLabel={t('lock.enter_password')}
                       style={[styles.input, { borderColor: getInputBorderColor() }]}
                       placeholder={t('lock.enter_password')}
                       placeholderTextColor={colors.text.secondary}
@@ -339,6 +340,10 @@ export function LockContent({
               {showPasswordFallback && (
                 <View style={styles.buttonSection}>
                   <TouchableOpacity
+                    testID="lock-unlock-button"
+                    accessibilityRole="button"
+                    accessibilityLabel={t('lock.unlock')}
+                    accessibilityState={{ disabled: isLoading || !password.trim(), busy: isLoading }}
                     onPress={handleUnlock}
                     disabled={isLoading || !password.trim()}
                     activeOpacity={0.8}
@@ -363,6 +368,10 @@ export function LockContent({
 
                   {canUseBiometric && (
                     <TouchableOpacity
+                      testID="lock-biometric-button"
+                      accessibilityRole="button"
+                      accessibilityLabel={biometricActionLabel}
+                      accessibilityState={{ disabled: isLoading }}
                       onPress={() => { void handleBiometricUnlock(); }}
                       disabled={isLoading}
                       style={styles.secondaryActionContainer}
@@ -374,6 +383,10 @@ export function LockContent({
                   )}
 
                   <TouchableOpacity
+                    testID="lock-forgot-password-button"
+                    accessibilityRole="button"
+                    accessibilityLabel={t('lock.forgot_password')}
+                    accessibilityState={{ disabled: isLoading }}
                     onPress={handleForgotPassword}
                     disabled={isLoading}
                     style={styles.forgotPasswordContainer}

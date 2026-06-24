@@ -11,14 +11,14 @@ import {
   ViewStyle,
 } from 'react-native';
 import { colors, componentSizes, fontFamilyNative, fontSize, letterSpacing, } from '@salmon/shared';
+import type { Testable } from '@salmon/shared';
 
-interface PrimaryButtonProps {
+interface PrimaryButtonProps extends Testable {
   onPress: () => void;
   children: string;
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
-  testID?: string;
 }
 
 export function PrimaryButton({
@@ -34,6 +34,9 @@ export function PrimaryButton({
   return (
     <TouchableOpacity
       testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={children}
+      accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.8}

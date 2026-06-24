@@ -75,6 +75,7 @@ export function SecondaryButton({
   fullWidth = true,
   variant = 'filled',
   type = 'button',
+  testID,
 }: SecondaryButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -88,6 +89,7 @@ export function SecondaryButton({
       style={style}
       className={className}
       disableRipple={false}
+      data-testid={testID}
     >
       {loading ? (
         <LoaderWrapper>

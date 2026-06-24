@@ -7,6 +7,10 @@ node_modules/
 # Turborepo
 .turbo/
 
+# Lighthouse CI run data (reports go to the gitignored suite reports/ dir)
+.lighthouseci/
+**/.lighthouseci/
+
 # Expo
 .expo/
 dist/
@@ -64,6 +68,8 @@ apps/*/.playwright/screenshots/
 apps/*/.playwright/snapshots/
 apps/*/.playwright/reports/
 apps/*/.playwright/fixtures/
+apps/*/.playwright/test-results/
+apps/*/.playwright/playwright-report/
 
 # `playwright-cli` skill auto-generated artifacts (per-cwd, unrelated to per-app suites above)
 .playwright-cli/

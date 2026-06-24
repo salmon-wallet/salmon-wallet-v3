@@ -11,8 +11,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { colors, componentSizes, fontFamilyNative, spacing, fontSize, letterSpacing, } from '@salmon/shared';
+import type { Testable } from '@salmon/shared';
 
-interface TextButtonProps {
+interface TextButtonProps extends Testable {
   onPress: () => void;
   children: string;
   disabled?: boolean;
@@ -28,11 +29,16 @@ export function TextButton({
   loading,
   style,
   color,
+  testID,
 }: TextButtonProps) {
   const isDisabled = disabled || loading;
 
   return (
     <TouchableOpacity
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={children}
+      accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.6}

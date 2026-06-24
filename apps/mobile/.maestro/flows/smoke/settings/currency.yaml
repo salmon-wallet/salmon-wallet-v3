@@ -3,7 +3,8 @@ appId: io.salmonwallet.app
 - runFlow: ../../../subflows/onboard-walletA.yaml
 - runFlow: ../../../subflows/open-settings.yaml
 - assertVisible: "Settings"
-- tapOn: "Display Currency"
+- tapOn:
+    id: "settings-item-display-currency"
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: screenshots/smoke/settings/currency

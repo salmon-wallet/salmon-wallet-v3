@@ -90,21 +90,25 @@ export function AccountEditPanel({
       labelKey: 'settings.account_edit.name_section',
       icon: <TextFieldsIcon sx={{ color: colors.text.primary }} />,
       onPress: () => onEditName(accountId),
+      testId: 'account-edit-name',
     },
     {
       labelKey: 'settings.account_edit.avatar_section',
       icon: <PersonIcon sx={{ color: colors.text.primary }} />,
       onPress: onEditAvatar,
+      testId: 'account-edit-avatar',
     },
     {
       labelKey: 'settings.account_edit.backup_section',
       icon: <VpnKeyIcon sx={{ color: colors.text.primary }} />,
       onPress: onBackupSeed,
+      testId: 'account-edit-backup',
     },
     {
       labelKey: 'settings.account_edit.private_key_section',
       icon: <LockIcon sx={{ color: colors.text.primary }} />,
       onPress: onExportPrivateKey,
+      testId: 'account-edit-private-key',
     },
   ];
 
@@ -119,7 +123,7 @@ export function AccountEditPanel({
             <Avatar
               src={account.avatar}
               sx={{ width: 'min(45vw, 180px)', height: 'min(45vw, 180px)' }}
-              imgProps={{ onError: () => setImgError(true) }}
+              imgProps={{ alt: '', onError: () => setImgError(true) }}
             />
           ) : (
             <Avatar
@@ -151,7 +155,7 @@ export function AccountEditPanel({
       <SectionContainer>
         {sections.map((item, index) => (
           <React.Fragment key={item.labelKey}>
-            <Row onClick={item.onPress}>
+            <Row onClick={item.onPress} data-testid={item.testId}>
               <IconContainer>{item.icon}</IconContainer>
               <Typography
                 sx={{

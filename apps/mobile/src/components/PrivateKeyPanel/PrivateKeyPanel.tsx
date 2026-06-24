@@ -154,6 +154,8 @@ export function PrivateKeyPanel({
           {networks.map((network) => (
             <TouchableOpacity
               key={network.id}
+              testID={`private-key-network-option-${network.id}`}
+              accessibilityRole="button"
               style={styles.networkCard}
               onPress={() => handleSelectNetwork(network.id)}
               activeOpacity={0.7}
@@ -228,12 +230,14 @@ export function PrivateKeyPanel({
               </View>
 
               {/* Private key with reveal overlay */}
-              <View style={styles.keyContainer}>
+              <View style={styles.keyContainer} testID={`private-key-card-${index}`}>
                 {!isRevealed && (
                   <TouchableOpacity
                     style={styles.revealOverlay}
                     onPress={() => handleReveal(index)}
                     activeOpacity={0.8}
+                    testID={`private-key-reveal-overlay-${index}`}
+                    accessibilityRole="button"
                   >
                     <Ionicons
                       name="eye-outline"
@@ -259,6 +263,7 @@ export function PrivateKeyPanel({
               <SecondaryButton
                 onPress={() => handleCopy(accountKey.privateKey, index)}
                 disabled={!isRevealed}
+                testID={`private-key-copy-button-${index}`}
               >
                 {isCopied ? t('wallet.copied') : t('actions.copy').toUpperCase()}
               </SecondaryButton>
@@ -269,7 +274,7 @@ export function PrivateKeyPanel({
 
       {/* Done button */}
       <View style={styles.doneContainer}>
-        <PrimaryButton onPress={onBack}>
+        <PrimaryButton onPress={onBack} testID="private-key-done-button">
           {t('actions.done').toUpperCase()}
         </PrimaryButton>
       </View>

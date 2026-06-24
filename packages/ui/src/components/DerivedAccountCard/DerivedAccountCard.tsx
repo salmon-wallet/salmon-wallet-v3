@@ -106,9 +106,10 @@ const DerivedAccountCardComponent: React.FC<DerivedAccountCardProps> = ({
   blockchain,
   style,
   className,
+  testID,
 }) => {
   return (
-    <Card $selected={selected} onClick={onToggle} style={style} className={className}>
+    <Card $selected={selected} onClick={onToggle} style={style} className={className} data-testid={testID}>
       <Checkbox $selected={selected}>
         {selected && <CheckIcon sx={{ fontSize: fontSize.md, color: colors.text.primary }} />}
       </Checkbox>

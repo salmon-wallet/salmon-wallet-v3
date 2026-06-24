@@ -1,9 +1,10 @@
 import type { CSSProperties, ReactNode } from 'react';
+import type { Testable } from '@salmon/shared';
 
 /**
  * Base button props interface
  */
-export interface ButtonBaseProps {
+export interface ButtonBaseProps extends Testable {
   /** Click handler */
   onClick?: () => void;
   /** Button content */

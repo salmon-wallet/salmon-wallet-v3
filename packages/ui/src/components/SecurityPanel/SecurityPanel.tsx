@@ -138,6 +138,7 @@ export function SecurityPanel({
                 if (success) setSuccess('');
               }}
               placeholder={t('settings.security.current_password')}
+              testID="security-current-password-input"
             />
           </InputGroup>
 
@@ -146,6 +147,7 @@ export function SecurityPanel({
               value={newPassword}
               onChangeText={setNewPassword}
               placeholder={t('settings.security.new_password')}
+              testID="security-new-password-input"
             />
             {newPassword.length > 0 && (
               <Box sx={{ marginTop: spacing.xs }}>
@@ -162,6 +164,7 @@ export function SecurityPanel({
                 if (error) setError('');
               }}
               placeholder={t('settings.security.confirm_password')}
+              testID="security-confirm-password-input"
             />
           </InputGroup>
 
@@ -182,6 +185,7 @@ export function SecurityPanel({
             variant="contained"
             onClick={handleChangePassword}
             disabled={loading || !currentPassword || !newPassword || !confirmPassword}
+            data-testid="security-change-password-button"
           >
             {t('settings.security.change_password_button')}
           </SubmitButton>

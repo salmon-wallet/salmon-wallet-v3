@@ -177,6 +177,7 @@ export function ExplorerLinkButton({
         <StyledButton
           onClick={handleClick}
           aria-label={buttonText}
+          data-testid="tx-detail-explorer-link"
         >
           <OpenInNewIcon sx={{ fontSize: fontSize.md, color: colors.palette.amber }} />
           <ButtonText>{buttonText}</ButtonText>

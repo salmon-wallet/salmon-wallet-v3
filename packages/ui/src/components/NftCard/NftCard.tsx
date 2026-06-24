@@ -142,7 +142,7 @@ export function NftCard({ nft, onPress, style, className, testID }: NftCardProps
       className={className}
       role="button"
       aria-label={`NFT: ${nft.name}`}
-      data-testid={testID}
+      data-testid={testID ?? `nft-card-${nft.mint ?? nft.name}`}
     >
       {/* Background: image or gradient fallback */}
       {showFallback ? (

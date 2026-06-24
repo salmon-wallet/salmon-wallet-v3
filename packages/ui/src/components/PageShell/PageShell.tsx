@@ -114,7 +114,7 @@ export function PageShell({
       )}
 
       <Header>
-        <BackButton onClick={onBack} aria-label="Back">
+        <BackButton onClick={onBack} aria-label="Back" data-testid="screen-header-back-button">
           <ArrowBackIcon />
         </BackButton>
         <HeaderTitle>{title}</HeaderTitle>

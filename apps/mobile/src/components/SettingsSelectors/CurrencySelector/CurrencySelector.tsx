@@ -60,6 +60,7 @@ export function CurrencySelector({
         getPrimaryText={(item) => item.name}
         getSecondaryText={(item) => item.code.toUpperCase()}
         renderLeadingElement={renderSymbol}
+        testIdPrefix="currency-option"
       />
     </SettingsScreenLayout>
   );

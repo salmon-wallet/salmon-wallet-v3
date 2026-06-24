@@ -8,13 +8,16 @@ appId: io.salmonwallet.app
 - runFlow: ./recover-walletA.yaml
 - runFlow:
     when:
-      visible: "Maybe Later"
+      visible:
+        id: "biometric-skip-button"
     commands:
-      - tapOn: "Maybe Later"
+      - tapOn:
+          id: "biometric-skip-button"
 - extendedWaitUntil:
     visible: "Congratulations!"
     timeout: 60000
-- tapOn: "Go to my Account!"
+- tapOn:
+    id: "success-go-to-wallet-button"
 - extendedWaitUntil:
     visible: "Switch wallet account"
     timeout: 30000

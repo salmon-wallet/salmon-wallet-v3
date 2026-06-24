@@ -174,13 +174,13 @@ export default function RecoverWalletScreen() {
             {/* Buttons */}
             <View style={styles.buttonContainer}>
               {/* Paste Button - Always visible */}
-              <SecondaryButton onPress={handlePaste}>
+              <SecondaryButton onPress={handlePaste} testID="recover-paste-button">
                 {t('wallet.recover.pasteSeed').toUpperCase()}
               </SecondaryButton>
 
               {/* Next Button - Only visible when seed phrase is valid */}
               {showNextButton && (
-                <PrimaryButton onPress={handleNext}>
+                <PrimaryButton onPress={handleNext} testID="recover-next-button">
                   {t('actions.next').toUpperCase()}
                 </PrimaryButton>
               )}

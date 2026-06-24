@@ -745,7 +745,7 @@ export function HomePage(): React.ReactElement {
   // ---------------------------------------------------------------------------
 
   return (
-    <Container>
+    <Container data-testid="home-screen">
       {/* Header */}
       <WalletHeader
         accountName={accountName}
@@ -761,13 +761,13 @@ export function HomePage(): React.ReactElement {
 
       {/* Tab Bar */}
       <TabBar>
-        <TabButton active={activeTab === 'home'} onClick={() => setActiveTab('home')}>
+        <TabButton active={activeTab === 'home'} onClick={() => setActiveTab('home')} data-testid="tab-home">
           {t('tabs.home', 'Home')}
         </TabButton>
-        <TabButton active={activeTab === 'collectibles'} onClick={() => setActiveTab('collectibles')}>
+        <TabButton active={activeTab === 'collectibles'} onClick={() => setActiveTab('collectibles')} data-testid="tab-collectibles">
           {t('tabs.collectibles', 'Collectibles')}
         </TabButton>
-        <TabButton active={activeTab === 'swap'} onClick={() => setActiveTab('swap')}>
+        <TabButton active={activeTab === 'swap'} onClick={() => setActiveTab('swap')} data-testid="tab-swap">
           {t('tabs.swap', 'Swap')}
         </TabButton>
       </TabBar>

@@ -240,13 +240,19 @@ function AccountListItem({
   );
 
   return (
-    <StyledListItem $isActive={isActive} onClick={onSelect}>
+    <StyledListItem
+      $isActive={isActive}
+      onClick={onSelect}
+      data-testid={`wallet-switcher-account-${account.id}`}
+      role="button"
+      aria-label={`${account.name}${isActive ? ', active' : ''}`}
+    >
       <ListItemAvatar>
         {account.avatar && !imgError ? (
           <Avatar
             src={account.avatar}
             sx={{ width: componentSizes.iconSize2XL, height: componentSizes.iconSize2XL }}
-            imgProps={{ onError: () => setImgError(true) }}
+            imgProps={{ alt: '', onError: () => setImgError(true) }}
           />
         ) : (
           <AccountAvatar $bgColor={avatarColor}>{initials}</AccountAvatar>
@@ -265,6 +271,7 @@ function AccountListItem({
               size="small"
               onClick={handleEditClick}
               aria-label={t('accessibility.edit_account')}
+              data-testid={`wallet-switcher-edit-${account.id}`}
             >
               <EditIcon fontSize="small" />
             </ActionIconButton>
@@ -274,6 +281,7 @@ function AccountListItem({
               size="small"
               onClick={handleDeleteClick}
               aria-label={t('accessibility.delete_account')}
+              data-testid={`wallet-switcher-delete-${account.id}`}
             >
               <DeleteIcon fontSize="small" />
             </DeleteIconButton>
@@ -394,6 +402,7 @@ export function WalletSwitcherSheet({
           <AddAccountButton
             startIcon={<AddIcon />}
             onClick={handleAddAccount}
+            data-testid="wallet-switcher-add-account"
           >
             {t('walletSwitcher.addAccount', 'Add New Account')}
           </AddAccountButton>

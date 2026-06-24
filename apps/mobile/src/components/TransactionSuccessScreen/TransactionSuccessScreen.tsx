@@ -124,7 +124,7 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
         </Animated.View>
       ) : explorerUrl ? (
         <Animated.View style={[styles.linkContainer, linkStyle]}>
-          <TouchableOpacity onPress={handleExplorerPress} activeOpacity={0.7}>
+          <TouchableOpacity testID="tx-success-explorer-link" onPress={handleExplorerPress} activeOpacity={0.7}>
             <Text style={styles.explorerLink}>{t('transaction.viewOnExplorer')}</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -143,7 +143,7 @@ export const TransactionSuccessScreen: React.FC<TransactionSuccessScreenProps> =
           end={gradients.primaryButton.end}
           style={styles.buttonGradient}
         >
-          <PrimaryButton onPress={onContinue} style={styles.button} disabled={settling}>
+          <PrimaryButton onPress={onContinue} style={styles.button} disabled={settling} testID="tx-success-continue-button">
             {t('transaction.continue')}
           </PrimaryButton>
         </LinearGradient>

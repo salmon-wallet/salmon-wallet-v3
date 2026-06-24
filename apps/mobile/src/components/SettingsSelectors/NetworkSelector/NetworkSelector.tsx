@@ -47,6 +47,7 @@ export function NetworkSelector({
         getPrimaryText={(network) => network.name}
         getSecondaryText={(network) => network.blockchain}
         loading={loading}
+        testIdPrefix="network-option"
       />
     </SettingsScreenLayout>
   );

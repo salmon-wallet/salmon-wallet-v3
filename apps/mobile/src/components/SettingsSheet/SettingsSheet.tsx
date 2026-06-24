@@ -31,6 +31,7 @@ import {
   componentSizes,
   fontFamilyNative,
   useSettingsPanelStack,
+  getSettingsItemTestId,
   type SettingsScreen,
   type SettingsPanelEntry,
 letterSpacing, } from '@salmon/shared';
@@ -294,6 +295,7 @@ export function SettingsSheet({
         return (
           <View
             key={`toggle-${option.labelKey}`}
+            testID={getSettingsItemTestId(option.id)}
             style={[styles.optionRow, styles.optionRowSurface, styles.optionRowNeutral]}
             accessibilityRole="switch"
             accessibilityLabel={label}
@@ -310,6 +312,7 @@ export function SettingsSheet({
             </View>
             <View style={styles.toggleControl}>
               <Switch
+                testID="settings-developer-networks-toggle"
                 value={developerNetworksEnabled}
                 onValueChange={handleDeveloperNetworksToggle}
                 trackColor={{ false: colors.background.card, true: colors.accent.primary }}
@@ -323,6 +326,7 @@ export function SettingsSheet({
       return (
         <TouchableOpacity
           key={option.id}
+          testID={getSettingsItemTestId(option.id)}
           style={[
             styles.optionRow,
             styles.optionRowSurface,

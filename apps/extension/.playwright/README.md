@@ -1,19 +1,36 @@
 # Playwright extension test suite
 
 Lives at `apps/extension/.playwright/`. Drives the extension build through
-Chromium with Playwright. Each script targets a single workflow and writes
-screenshots, snapshots, and a findings report.
+Chromium with Playwright.
 
-> Tracked content: `scripts/`, `README.md`, `AGENTS.md`, and
-> `.env.test.example`. Everything else (`profiles/`, `screenshots/`,
-> `snapshots/`, `reports/`, `fixtures/`, `.env.test`) is local-only.
+> **Migration in progress — two runners coexist.**
+> - **`@playwright/test` (target).** New specs live in `tests/*.spec.ts` and
+>   run with the official runner via `pnpm --filter @salmon/extension e2e`.
+>   They select elements by the shared `data-testid` contract (`Testable` in
+>   `packages/shared`, see the `e2e-test-labels` skill) and assert with
+>   web-first `expect`. The lock/unlock flow is migrated (`tests/lock.spec.ts`).
+> - **Legacy `.mjs` drivers (`scripts/`).** Self-contained Node ESM programs
+>   that predate the runner; each writes screenshots + a findings report
+>   instead of assertions. They are being ported to `tests/` flow-by-flow as
+>   their screens get labeled. Documented below under "Legacy scripts".
+
+> Tracked content: `tests/`, `scripts/`, `*.ts` (config/fixtures/helpers/env),
+> `README.md`, `AGENTS.md`, and `.env.test.example`. Everything else
+> (`profiles/`, `screenshots/`, `snapshots/`, `reports/`, `fixtures/`,
+> `test-results/`, `playwright-report/`, `.env.test`) is local-only.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
-| `scripts/` | Runnable `.mjs` test scripts + shared `lib.mjs` |
-| `scripts/lib.mjs` | Shared helpers: `launch`, `openPopup`, `unlockOrRecover`, `waitHome`, `capture`, `waitForButtonEnabled`, secrets loader |
+| `playwright.config.ts` | `@playwright/test` config — `testIdAttribute: data-testid`, serial, single worker |
+| `tests/` | Migrated specs (`*.spec.ts`) run by `@playwright/test` |
+| `fixtures.ts` | Extension fixture — loads the MV3 build into a persistent profile, exposes `{ context, extensionId, popup }` |
+| `helpers.ts` | Flow helpers for specs (`unlockOrRecover`, `waitHome`), ported from `lib.mjs` |
+| `env.ts` | Suite-local `.env.test` loader + `isBackendUp()` (used by config/global-setup/specs) |
+| `global-setup.ts` | Loads secrets and fails fast if the password is missing |
+| `scripts/` | Legacy runnable `.mjs` scripts + shared `lib.mjs` (being phased out) |
+| `scripts/lib.mjs` | Legacy shared helpers: `launch`, `openPopup`, `unlockOrRecover`, `waitHome`, `capture`, `waitForButtonEnabled`, secrets loader |
 | `fixtures/` | Generated artifacts that scripts depend on (e.g. `wallet-b-addr.txt`) |
 | `profiles/extension/` | Persistent Chromium profile — wallet recovery, dev-mode toggle, etc. survive across runs |
 | `reports/` | Markdown reports written by each script |
@@ -30,11 +47,15 @@ scripts.
 
 ## Prerequisites
 
-1. **Chromium** via Playwright. Either:
-   - `npm i -D playwright` in the repo root, or
-   - keep the global `@playwright/cli` install (resolved by `lib.mjs`
-     automatically), or
-   - export `PLAYWRIGHT_PATH=/abs/path/to/playwright/index.mjs`.
+1. **Chromium.** `@playwright/test` is a devDependency of `@salmon/extension`.
+   Install the browser once:
+   ```sh
+   pnpm --filter @salmon/extension exec playwright install chromium
+   ```
+   Extensions require a headed (non-headless-shell) Chromium — the fixture
+   launches with `headless: false`.
+   (Legacy `.mjs` scripts instead resolve Chromium at runtime via a local
+   `playwright` install, a global `@playwright/cli`, or `PLAYWRIGHT_PATH`.)
 
 2. **Extension build**. The scripts load `apps/extension/dist/chrome-mv3`.
    For local-backend testing build with development mode so the bundle
@@ -61,9 +82,28 @@ scripts.
    ```
    `lib.mjs` throws on startup if any are missing.
 
-## Running scripts
+## Running specs (`@playwright/test`)
 
-All scripts are standalone Node ESM. Run from the repo root:
+From the repo root:
+
+```sh
+pnpm --filter @salmon/extension e2e          # run tests/*.spec.ts headed
+pnpm --filter @salmon/extension e2e:ui       # Playwright UI mode
+pnpm --filter @salmon/extension e2e tests/lock.spec.ts   # a single spec
+```
+
+Specs skip automatically when `salmon-api` is unreachable (repo policy: skip
+when the backend is down, fail when it is up but behaves wrong). Reports land
+in `playwright-report/`; failure traces/screenshots in `test-results/`.
+
+The persistent profile lives at `profiles/default/`. When a run gets into a
+bad state, `rm -rf apps/extension/.playwright/profiles` and re-run — the lock
+spec re-onboards via the recover flow.
+
+## Legacy scripts
+
+The `.mjs` drivers below are not yet ported to `@playwright/test`. They are
+standalone Node ESM — run from the repo root:
 
 ```sh
 node apps/extension/.playwright/scripts/<name>.mjs
@@ -76,7 +116,7 @@ node apps/extension/.playwright/scripts/walkthrough.mjs &
 tail -f apps/extension/.playwright/reports/PHASE1-WALKTHROUGH.md
 ```
 
-## Script index
+### Script index
 
 ### Setup / debug
 

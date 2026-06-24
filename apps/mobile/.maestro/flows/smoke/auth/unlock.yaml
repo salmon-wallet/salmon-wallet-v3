@@ -21,7 +21,8 @@ appId: io.salmonwallet.app
     when:
       visible: "Unlock"
     commands:
-      - tapOn: "Unlock"
+      - tapOn:
+          id: "lock-unlock-button"
 - extendedWaitUntil:
     visible: "Switch wallet account"
     timeout: 30000

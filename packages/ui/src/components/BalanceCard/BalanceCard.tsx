@@ -290,7 +290,7 @@ export function BalanceCard({
       return (
         <BalanceRow>
           <BalanceDollars>{hiddenValue}</BalanceDollars>
-          <EyeButton onClick={handleToggleVisibility} aria-label="Show balance">
+          <EyeButton onClick={handleToggleVisibility} aria-label="Show balance" data-testid="balance-eye-toggle">
             <EyeOffIcon sx={{ fontSize: ms(componentSizes.eyeIcon) }} />
           </EyeButton>
         </BalanceRow>
@@ -306,7 +306,7 @@ export function BalanceCard({
           <BalanceDollars>{parts[0]}</BalanceDollars>
           {parts[1] && <BalanceDecimals>.{parts[1]}</BalanceDecimals>}
         </Box>
-        <EyeButton onClick={handleToggleVisibility} aria-label="Hide balance">
+        <EyeButton onClick={handleToggleVisibility} aria-label="Hide balance" data-testid="balance-eye-toggle">
           <EyeIcon sx={{ fontSize: ms(componentSizes.eyeIcon) }} />
         </EyeButton>
       </BalanceRow>

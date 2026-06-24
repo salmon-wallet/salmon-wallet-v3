@@ -2,8 +2,15 @@ appId: io.salmonwallet.app
 ---
 # Open the Receive sheet (QR + address) and dismiss it.
 - runFlow: ../../../subflows/onboard-walletA.yaml
-- assertVisible: "Switch wallet account"
-- tapOn: "Receive tokens"
+- assertVisible:
+    id: "wallet-header-account-switcher"
+- tapOn:
+    id: "home-receive-button"
+- assertVisible:
+    id: "receive-sheet"
+- assertVisible:
+    id: "receive-copy-button"
 - takeScreenshot: screenshots/smoke/receive/sheet-default
 - runFlow: ../../../subflows/dismiss-bottom-sheet.yaml
-- assertVisible: "Switch wallet account"
+- assertVisible:
+    id: "wallet-header-account-switcher"

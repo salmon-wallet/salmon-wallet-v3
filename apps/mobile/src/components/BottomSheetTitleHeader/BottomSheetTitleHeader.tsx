@@ -26,6 +26,7 @@ export function BottomSheetTitleHeader({
     <View style={[styles.container, style]}>
       {onBack && (
         <TouchableOpacity
+          testID="screen-header-back-button"
           style={styles.backButton}
           onPress={onBack}
           activeOpacity={0.7}

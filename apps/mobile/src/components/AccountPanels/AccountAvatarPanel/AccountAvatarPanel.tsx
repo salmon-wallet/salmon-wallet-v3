@@ -116,10 +116,12 @@ export function AccountAvatarPanel({
 
   // Preset avatar item renderer
   const renderPresetItem = useCallback(
-    ({ item }: { item: string }) => {
+    ({ item, index }: { item: string; index: number }) => {
       const isSelected = selectedUrl === item;
       return (
         <TouchableOpacity
+          testID={`avatar-preset-${index}`}
+          accessibilityRole="button"
           style={[
             styles.presetItem,
             {
@@ -153,6 +155,8 @@ export function AccountAvatarPanel({
       const isSelected = selectedUrl === item.image;
       return (
         <TouchableOpacity
+          testID={`avatar-nft-${item.mint}`}
+          accessibilityRole="button"
           style={[
             styles.nftItem,
             {
@@ -189,6 +193,7 @@ export function AccountAvatarPanel({
         {/* Tab Bar */}
         <View style={styles.tabBar}>
           <TouchableOpacity
+            testID="avatar-tab-presets"
             style={[styles.tab, activeTab === 'presets' && styles.tabActive]}
             onPress={() => setActiveTab('presets')}
             activeOpacity={0.7}
@@ -198,6 +203,7 @@ export function AccountAvatarPanel({
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
+            testID="avatar-tab-nfts"
             style={[styles.tab, activeTab === 'nfts' && styles.tabActive]}
             onPress={() => setActiveTab('nfts')}
             activeOpacity={0.7}
@@ -244,6 +250,8 @@ export function AccountAvatarPanel({
 
         {/* Save Button */}
         <TouchableOpacity
+          testID="avatar-save-button"
+          accessibilityRole="button"
           style={[styles.saveButton, !hasChanged && styles.saveButtonDisabled]}
           onPress={handleSave}
           disabled={!hasChanged}

@@ -20,7 +20,7 @@ async function openSettingsAndCapture(slug, name) {
   await waitHome(popup);
 
   // open settings dialog
-  const gear = popup.getByRole('button', { name: 'Open settings' }).first();
+  const gear = popup.getByTestId('wallet-header-settings-button').first();
   if (await gear.count()) {
     await gear.click({ timeout: 5000 }).catch(() => {});
     await sleep(1200);
@@ -32,8 +32,8 @@ async function openSettingsAndCapture(slug, name) {
     return;
   }
 
-  // click target panel
-  const btn = popup.getByRole('button', { name }).first();
+  // click target panel by its stable test id (settings-item-<slug>)
+  const btn = popup.getByTestId('settings-item-' + slug).first();
   if (!(await btn.count())) {
     log('  ⚠ panel button "' + name + '" not found');
     await capture(popup, 'settings', 'failed-' + slug);

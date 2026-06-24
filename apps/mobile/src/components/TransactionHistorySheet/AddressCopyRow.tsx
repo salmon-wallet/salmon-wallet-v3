@@ -125,6 +125,7 @@ export const AddressCopyRow: React.FC<AddressCopyRowProps> = ({
         </Text>
 
         <TouchableOpacity
+          testID={`tx-detail-copy-address-${label}`}
           onPress={handleCopy}
           style={[styles.copyButton, copied && styles.copyButtonCopied]}
           activeOpacity={0.6}

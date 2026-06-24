@@ -120,12 +120,14 @@ export function TrustedAppsSelector({
                   onClick={() => handleRevoke(app.domain)}
                   disabled={revoking === app.domain}
                   size="small"
+                  aria-label={t('settings.trusted_apps_revoke', 'Revoke')}
+                  data-testid={`trusted-apps-revoke-${app.domain}`}
                 >
                   <DeleteOutlineIcon fontSize="small" />
                 </RevokeButton>
               }
             >
-              <StyledListItemButton disableRipple>
+              <StyledListItemButton disableRipple data-testid={`trusted-apps-item-${app.domain}`}>
                 <ListItemAvatar>
                   {app.icon ? (
                     <AppAvatar src={app.icon} alt={app.name || app.domain} />

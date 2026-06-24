@@ -151,6 +151,7 @@ export function RecoverWalletPage({
           <InputContainer>
             <TextArea
               $borderColor={borderColor}
+              data-testid="recover-seed-input"
               placeholder={t('wallet.recover.placeholder', 'Enter your seed phrase...')}
               value={seedPhrase}
               onChange={(e) => setSeedPhrase(e.target.value)}
@@ -164,11 +165,11 @@ export function RecoverWalletPage({
         </FormArea>
 
         <ButtonGroup>
-          <SecondaryButton onClick={handlePaste}>
+          <SecondaryButton onClick={handlePaste} testID="recover-paste-button">
             {t('wallet.recover.pasteSeed', 'PASTE YOUR SEED PHRASE').toUpperCase()}
           </SecondaryButton>
           <Box sx={{ visibility: showNextButton ? 'visible' : 'hidden' }}>
-            <PrimaryButton onClick={handleNext}>
+            <PrimaryButton onClick={handleNext} testID="recover-next-button">
               {t('actions.next', 'NEXT').toUpperCase()}
             </PrimaryButton>
           </Box>

@@ -183,13 +183,14 @@ export function NftSendDialog({
       </BaseDialog.Content>
 
       <BaseDialog.Actions>
-        <BaseDialog.CancelButton onClick={onClose}>
+        <BaseDialog.CancelButton onClick={onClose} testID="nft-send-cancel-button">
           {t('actions.cancel', 'Cancel')}
         </BaseDialog.CancelButton>
         {!isBitcoin && (
           <BaseDialog.ActionButton
             onClick={handleConfirm}
             disabled={!canConfirm}
+            testID="nft-send-confirm-button"
           >
             {loading
               ? t('actions.sending', 'Sending...')

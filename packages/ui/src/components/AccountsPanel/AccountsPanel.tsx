@@ -158,6 +158,7 @@ export function AccountsPanel({
               key={account.id}
               $isActive={isActive}
               onClick={() => handleSelectAccount(account.id)}
+              data-testid={`account-item-${account.id}`}
             >
               {account.avatar ? (
                 <AvatarImage src={account.avatar} alt={account.name} />
@@ -206,6 +207,8 @@ export function AccountsPanel({
                     e.stopPropagation();
                     onEditAccount(account.id);
                   }}
+                  aria-label={t('actions.edit', 'Edit')}
+                  data-testid={`account-edit-${account.id}`}
                   sx={{ color: colors.text.secondary }}
                 >
                   <EditIcon fontSize="small" />
@@ -218,6 +221,8 @@ export function AccountsPanel({
                       e.stopPropagation();
                       handleDeleteClick(account);
                     }}
+                    aria-label={t('actions.remove', 'Remove')}
+                    data-testid={`account-remove-${account.id}`}
                     sx={{ color: colors.status.error }}
                   >
                     <DeleteIcon fontSize="small" />
@@ -235,7 +240,7 @@ export function AccountsPanel({
         })}
       </List>
 
-      <AddAccountButton onClick={onAddAccount}>
+      <AddAccountButton onClick={onAddAccount} data-testid="account-add-button">
         <AddAccountIcon>
           <AddIcon sx={{ color: colors.text.primary }} />
         </AddAccountIcon>

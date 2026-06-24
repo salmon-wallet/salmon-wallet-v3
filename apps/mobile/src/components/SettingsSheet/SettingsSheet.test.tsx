@@ -59,6 +59,7 @@ jest.mock('@salmon/shared', () => ({
     reset: mockReset,
     canGoBack: false,
   }),
+  getSettingsItemTestId: (id: string) => `settings-item-${id}`,
   letterSpacing: {
     wider: 1,
   },

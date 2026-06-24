@@ -262,6 +262,7 @@ export function PasswordPage({
 
             <InputContainer>
               <PasswordInput
+                testID="password-input"
                 value={password}
                 onChangeText={handlePasswordChange}
                 placeholder={
@@ -283,6 +284,7 @@ export function PasswordPage({
             {!showSingleInput && (
               <InputContainer>
                 <PasswordInput
+                  testID="password-confirm-input"
                   value={confirmPassword}
                   onChangeText={handleConfirmPasswordChange}
                   placeholder={t('wallet.create.passwordRepeat') || 'Repeat password'}
@@ -299,7 +301,10 @@ export function PasswordPage({
               {flowType === 'recover'
                 ? 'By recovering, you accept the '
                 : 'By creating, you accept the '}
-              <TermsLink onClick={() => window.open('https://salmonwallet.io/terms', '_blank')}>
+              <TermsLink
+                data-testid="password-terms-link"
+                onClick={() => window.open('https://salmonwallet.io/terms', '_blank')}
+              >
                 Terms & Conditions
               </TermsLink>
             </TermsText>
@@ -310,6 +315,7 @@ export function PasswordPage({
               onClick={handleSubmit}
               disabled={!isFormValid() || wrongPassword}
               loading={isLoading || isChecking}
+              testID="password-submit-button"
             >
               {buttonText}
             </PrimaryButton>

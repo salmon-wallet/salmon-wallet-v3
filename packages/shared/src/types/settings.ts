@@ -335,6 +335,41 @@ export interface SettingsSectionBase {
 }
 
 /**
+ * Canonical kebab-case slug for each settings menu item.
+ *
+ * Keyed by the menu item id used in both the DOM (`SettingsPanelStack`) and
+ * mobile (`SettingsSheet`) menus. The developer-networks toggle is keyed
+ * `developerNetworks` on DOM and `network` on mobile, but both map to the same
+ * slug so the two e2e suites share one selector vocabulary.
+ */
+export const SETTINGS_ITEM_SLUGS: Record<string, string> = {
+  accounts: 'accounts',
+  avatar: 'profile-picture',
+  security: 'security',
+  backup: 'backup-seed',
+  privateKey: 'private-key',
+  language: 'display-language',
+  currency: 'display-currency',
+  explorer: 'block-explorer',
+  addressBook: 'address-book',
+  trustedApps: 'trusted-apps',
+  developerNetworks: 'developer-networks',
+  network: 'developer-networks',
+  about: 'about',
+  support: 'support',
+  removeWallet: 'remove-wallet',
+  removeAll: 'remove-all',
+};
+
+/**
+ * Stable e2e test id for a settings menu item, e.g. `settings-item-security`.
+ * Falls back to the raw id when no slug is registered.
+ */
+export function getSettingsItemTestId(id: string): string {
+  return `settings-item-${SETTINGS_ITEM_SLUGS[id] ?? id}`;
+}
+
+/**
  * Avatar color palette for deterministic account colors.
  * Used by WalletSwitcherSheet components.
  */

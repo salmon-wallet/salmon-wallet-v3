@@ -140,12 +140,13 @@ export function BalanceCardCarousel({
   const needsTransition = slideStyle.opacity === 1 || slideStyle.transform === 'translateX(0)';
 
   return (
-    <CarouselWrapper style={style} className={className}>
+    <CarouselWrapper style={style} className={className} data-testid="balance-card-carousel">
       {hasMultiple && (
         <LeftArrow
           $visible={currentIndex > 0}
           onClick={goLeft}
           aria-label="Previous blockchain"
+          data-testid="balance-carousel-prev"
         >
           ‹
         </LeftArrow>
@@ -181,6 +182,7 @@ export function BalanceCardCarousel({
           $visible={currentIndex < blockchains.length - 1}
           onClick={goRight}
           aria-label="Next blockchain"
+          data-testid="balance-carousel-next"
         >
           ›
         </RightArrow>

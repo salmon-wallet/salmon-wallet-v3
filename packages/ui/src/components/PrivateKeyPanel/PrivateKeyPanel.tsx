@@ -281,7 +281,10 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
           <List disablePadding>
             {networks.map((network) => (
               <ListItem key={network.id} disablePadding>
-                <NetworkListItemButton onClick={() => handleSelectNetwork(network.id)}>
+                <NetworkListItemButton
+                  onClick={() => handleSelectNetwork(network.id)}
+                  data-testid={`private-key-network-option-${network.id}`}
+                >
                   <NetworkListItemIcon>
                     <PublicIcon />
                   </NetworkListItemIcon>
@@ -333,7 +336,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
                 <PathValue>{accountKey.path}</PathValue>
                 <AddressValue>{getShortAddress(accountKey.address, 8)}</AddressValue>
 
-                <PrivateKeyCard sx={{ mt: `${spacing.sm}px` }}>
+                <PrivateKeyCard sx={{ mt: `${spacing.sm}px` }} data-testid={`private-key-card-${index}`}>
                   <KeyText>
                     {isRevealed
                       ? accountKey.privateKey
@@ -341,7 +344,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
                   </KeyText>
 
                   {!isRevealed && (
-                    <BlurOverlay onClick={() => handleReveal(index)}>
+                    <BlurOverlay onClick={() => handleReveal(index)} data-testid={`private-key-reveal-overlay-${index}`}>
                       <KeyIcon sx={{ fontSize: fontSize.iconLg, color: colors.text.secondary }} />
                       <RevealText>
                         {t('settings.tap_to_reveal', 'Tap to reveal')}
@@ -360,6 +363,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
                       startIcon={isCopied ? <CheckIcon sx={{ color: colors.status.success }} /> : <ContentCopyIcon />}
                       onClick={() => handleCopy(accountKey.privateKey, index)}
                       disabled={!isRevealed}
+                      data-testid={`private-key-copy-button-${index}`}
                     >
                       {isCopied ? t('wallet.copied', 'Copied!') : t('actions.copy', 'Copy')}
                     </CopyButton>
@@ -368,6 +372,7 @@ export function PrivateKeyPanel({ onBack }: PrivateKeyPanelProps): React.ReactEl
                     variant="outlined"
                     startIcon={isRevealed ? <VisibilityOffIcon /> : <VisibilityIcon />}
                     onClick={() => (isRevealed ? handleHide(index) : handleReveal(index))}
+                    data-testid={`private-key-reveal-button-${index}`}
                     sx={{
                       backgroundColor: isRevealed
                         ? colors.accent.primary

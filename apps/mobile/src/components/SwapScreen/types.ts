@@ -4,6 +4,7 @@
  * Re-exports shared swap types with ViewStyle for React Native.
  */
 import type { ViewStyle } from 'react-native';
+import type { Testable } from '@salmon/shared';
 
 // Re-export all base types from shared
 export type {
@@ -49,7 +50,7 @@ export interface SwapTabSelectorProps extends SwapTabSelectorPropsBase<ViewStyle
 /**
  * Props for SwapAmountInput component (React Native)
  */
-export interface SwapAmountInputProps extends SwapAmountInputPropsBase<ViewStyle> {}
+export interface SwapAmountInputProps extends SwapAmountInputPropsBase<ViewStyle>, Testable {}
 
 /**
  * Props for SwapDetailRow component (React Native)

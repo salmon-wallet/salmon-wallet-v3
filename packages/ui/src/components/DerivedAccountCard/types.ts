@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
+import type { Testable } from '@salmon/shared';
 
-export interface DerivedAccountCardProps {
+export interface DerivedAccountCardProps extends Testable {
   address: string;
   networkName: string;
   path: string;

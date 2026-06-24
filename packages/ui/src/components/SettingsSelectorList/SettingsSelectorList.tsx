@@ -61,6 +61,7 @@ export function SettingsSelectorList<T>({
   renderLeadingElement,
   loading,
   emptyMessage,
+  testIdPrefix,
 }: SettingsSelectorListProps<T>): React.ReactElement {
   if (loading) {
     return (
@@ -85,6 +86,7 @@ export function SettingsSelectorList<T>({
               selected={selected}
               $selected={selected}
               onClick={() => onSelect(item)}
+              data-testid={testIdPrefix ? `${testIdPrefix}-${getKey(item)}` : undefined}
             >
               {renderLeadingElement?.(item)}
               <ListItemText

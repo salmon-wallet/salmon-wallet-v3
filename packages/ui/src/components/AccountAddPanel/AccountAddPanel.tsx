@@ -238,7 +238,7 @@ export function AccountAddPanel({
       <Box sx={{ padding: `0 ${spacing.lg}px` }}>
         {step === 'select-method' && (
           <>
-            <MethodCard onClick={handleSelectDerive}>
+            <MethodCard onClick={handleSelectDerive} data-testid="account-add-method-derive">
               <MethodIcon>
                 <AccountTreeIcon sx={{ color: colors.accent.primary, fontSize: fontSize.iconMd }} />
               </MethodIcon>
@@ -253,7 +253,7 @@ export function AccountAddPanel({
               <ChevronRightIcon sx={{ color: colors.text.secondary }} />
             </MethodCard>
 
-            <MethodCard onClick={handleSelectImport}>
+            <MethodCard onClick={handleSelectImport} data-testid="account-add-method-import">
               <MethodIcon>
                 <DescriptionIcon sx={{ color: colors.accent.primary, fontSize: fontSize.iconMd }} />
               </MethodIcon>
@@ -299,6 +299,7 @@ export function AccountAddPanel({
                   variant="contained"
                   onClick={handleDerivedContinue}
                   disabled={!selectedDerived}
+                  data-testid="account-add-derive-continue-button"
                 >
                   {t('actions.continue')}
                 </ConfirmButton>
@@ -320,6 +321,7 @@ export function AccountAddPanel({
               }}
               placeholder={t('settings.account_add.seed_placeholder', 'Enter your seed phrase...')}
               autoFocus
+              inputProps={{ 'data-testid': 'account-add-seed-input' }}
             />
             {seedError && (
               <Typography sx={{ color: colors.status.error, fontSize: fontSize.sm, marginTop: spacing.xs }}>
@@ -330,6 +332,7 @@ export function AccountAddPanel({
               fullWidth
               variant="contained"
               onClick={handleSeedSubmit}
+              data-testid="account-add-seed-continue-button"
             >
               {t('actions.continue')}
             </ConfirmButton>
@@ -347,7 +350,7 @@ export function AccountAddPanel({
               }}
               placeholder={t('settings.account_add.set_name_placeholder')}
               autoFocus
-              inputProps={{ maxLength: 32 }}
+              inputProps={{ maxLength: 32, 'data-testid': 'account-add-name-input' }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleConfirm();
               }}
@@ -361,6 +364,7 @@ export function AccountAddPanel({
               fullWidth
               variant="contained"
               onClick={handleConfirm}
+              data-testid="account-add-confirm-button"
             >
               {selectedDerived
                 ? t('settings.account_add.confirm_create')

@@ -171,6 +171,8 @@ export function AccountAddPanel({
   const renderSelectMethod = () => (
     <View style={styles.methodContainer}>
       <TouchableOpacity
+        testID="account-add-method-derive"
+        accessibilityRole="button"
         style={styles.methodCard}
         onPress={handleSelectDerive}
         activeOpacity={0.7}
@@ -188,6 +190,8 @@ export function AccountAddPanel({
       </TouchableOpacity>
 
       <TouchableOpacity
+        testID="account-add-method-import"
+        accessibilityRole="button"
         style={styles.methodCard}
         onPress={handleSelectImport}
         activeOpacity={0.7}
@@ -232,6 +236,7 @@ export function AccountAddPanel({
             <PrimaryButton
               onPress={handleDerivedContinue}
               disabled={!selectedDerived}
+              testID="account-add-derive-continue-button"
             >
               {t('actions.continue')}
             </PrimaryButton>
@@ -245,6 +250,7 @@ export function AccountAddPanel({
     <View>
       <Text style={styles.inputLabel}>{t('settings.account_add.import_seed')}</Text>
       <TextInput
+        testID="account-add-seed-input"
         style={styles.seedInput}
         value={seedPhrase}
         onChangeText={(text: string) => {
@@ -261,7 +267,7 @@ export function AccountAddPanel({
       />
       {seedError ? <Text style={styles.errorText}>{seedError}</Text> : null}
       <View style={styles.buttonContainer}>
-        <PrimaryButton onPress={handleSeedSubmit}>
+        <PrimaryButton onPress={handleSeedSubmit} testID="account-add-seed-continue-button">
           {t('actions.continue')}
         </PrimaryButton>
       </View>
@@ -272,6 +278,7 @@ export function AccountAddPanel({
     <View>
       <Text style={styles.inputLabel}>{t('settings.account_add.set_name')}</Text>
       <TextInput
+        testID="account-add-name-input"
         style={styles.input}
         value={accountName}
         onChangeText={setAccountName}
@@ -283,7 +290,7 @@ export function AccountAddPanel({
         onSubmitEditing={handleConfirm}
       />
       <View style={styles.buttonContainer}>
-        <PrimaryButton onPress={handleConfirm}>
+        <PrimaryButton onPress={handleConfirm} testID="account-add-confirm-button">
           {t('settings.account_add.confirm')}
         </PrimaryButton>
       </View>

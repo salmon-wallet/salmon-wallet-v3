@@ -28,6 +28,7 @@ interface SectionItem {
   labelKey: string;
   icon: React.ComponentProps<typeof Ionicons>['name'];
   onPress: () => void;
+  testID: string;
 }
 
 // ============================================================================
@@ -49,21 +50,25 @@ export function AccountEditPanel({
       labelKey: 'settings.account_edit.name_section',
       icon: 'text-outline',
       onPress: onEditName,
+      testID: 'account-edit-name',
     },
     {
       labelKey: 'settings.account_edit.avatar_section',
       icon: 'person-circle-outline',
       onPress: onEditAvatar,
+      testID: 'account-edit-avatar',
     },
     {
       labelKey: 'settings.account_edit.backup_section',
       icon: 'key-outline',
       onPress: onBackupSeed,
+      testID: 'account-edit-backup',
     },
     {
       labelKey: 'settings.account_edit.private_key_section',
       icon: 'lock-closed-outline',
       onPress: onExportPrivateKey,
+      testID: 'account-edit-private-key',
     },
   ];
 
@@ -77,6 +82,7 @@ export function AccountEditPanel({
         {sections.map((item, index) => (
           <TouchableOpacity
             key={item.labelKey}
+            testID={item.testID}
             style={[
               styles.row,
               index < sections.length - 1 && styles.rowBorder,

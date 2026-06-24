@@ -245,6 +245,7 @@ const TokenRow = React.memo(function TokenRow({ token, onPress }: TokenRowProps)
     <TokenRowButton
       onClick={handlePress}
       aria-label={`${token.name}, ${balanceDisplay}`}
+      data-testid={`send-token-row-${token.symbol}`}
     >
       <BlurContainer style={{ borderRadius: borderRadius.md }}>
         <TokenRowContent>
@@ -376,6 +377,7 @@ export function StepTokenSelect({
               autoCapitalize: 'none',
               autoCorrect: 'off',
               spellCheck: false,
+              'data-testid': 'send-token-search-input',
             }}
           />
         </BlurContainer>

@@ -344,6 +344,7 @@ export function StepConfirmation({
         <AddressButton
           onClick={handleCopy}
           aria-label="Copy recipient address"
+          data-testid="send-confirm-copy-address"
         >
           <BlurContainer style={{ borderRadius: borderRadius.md }}>
             <AddressContent>
@@ -379,6 +380,7 @@ export function StepConfirmation({
         <CancelButton
           onClick={isFailed ? onBack : onCancel}
           disabled={isSending}
+          data-testid="send-confirm-cancel-button"
         >
           <CancelButtonText>CANCEL</CancelButtonText>
         </CancelButton>
@@ -386,6 +388,7 @@ export function StepConfirmation({
         <ConfirmButton
           onClick={isFailed ? handleRetry : handleConfirm}
           disabled={isSending}
+          data-testid="send-confirm-button"
         >
           <ConfirmButtonGradient>
             {isSending ? (

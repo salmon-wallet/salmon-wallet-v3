@@ -2,7 +2,8 @@ appId: io.salmonwallet.app
 ---
 # Swipe the BalanceCardCarousel between Solana and Bitcoin.
 - runFlow: ../../../subflows/onboard-walletA.yaml
-- assertVisible: "Switch wallet account"
+- assertVisible:
+    id: "wallet-header-account-switcher"
 - takeScreenshot: screenshots/smoke/home/chain-solana
 # Swipe directly on the balance card (top of screen). Using "Send tokens"
 # as anchor triggers the action button instead of the carousel.

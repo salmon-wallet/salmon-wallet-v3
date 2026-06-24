@@ -330,6 +330,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
   return (
     <BlurContainer style={[styles.blurWrapper, style]}>
       <TouchableOpacity
+        testID="activity-tx-row"
         style={styles.container}
         onPress={handlePress}
         activeOpacity={0.7}

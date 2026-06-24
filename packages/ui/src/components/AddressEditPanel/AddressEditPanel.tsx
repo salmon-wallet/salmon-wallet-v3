@@ -126,7 +126,7 @@ export function AddressEditPanel({
           onChange={(e) => form.setLabel(e.target.value)}
           placeholder={t('settings.addressbook.label', 'Label')}
           autoComplete="off"
-          inputProps={{ spellCheck: false }}
+          inputProps={{ spellCheck: false, 'data-testid': 'address-book-label-input' }}
         />
 
         {/* Address */}
@@ -136,6 +136,7 @@ export function AddressEditPanel({
             onChange={form.setAddress}
             onValidation={form.handleValidation}
             label={t('general.address', 'Address')}
+            testID="address-book-address"
           />
         </Box>
 
@@ -146,7 +147,7 @@ export function AddressEditPanel({
         </NetworkBox>
 
         {/* Save */}
-        <SaveButton onClick={handleSave} disabled={!form.canSave}>
+        <SaveButton onClick={handleSave} disabled={!form.canSave} data-testid="address-book-save-button">
           {t('settings.addressbook.save', 'Save Address')}
         </SaveButton>
       </Box>

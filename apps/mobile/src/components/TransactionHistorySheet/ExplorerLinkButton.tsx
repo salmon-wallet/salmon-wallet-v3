@@ -159,6 +159,7 @@ export function ExplorerLinkButton({
         style={[styles.blurWrapper, style]}
       >
         <TouchableOpacity
+          testID="tx-detail-explorer-link"
           style={styles.button}
           onPress={handlePress}
           activeOpacity={0.7}

@@ -151,30 +151,29 @@ export async function openPopup(ctx, extId) {
 }
 
 export async function unlockOrRecover(page) {
-  const pw = page.locator('input[type="password"]').first();
+  const pw = page.getByTestId('lock-password-input').first();
   if (await pw.count()) {
     await pw.fill(PASSWORD);
-    await page.getByRole('button', { name: /unlock/i }).click();
+    await page.getByTestId('lock-unlock-button').click();
     await sleep(3000);
     return 'unlocked';
   }
   // Onboarding state
-  const recoverBtn = page.getByRole('button', { name: /recover account/i });
+  const recoverBtn = page.getByTestId('select-recover-button');
   if (await recoverBtn.count()) {
     await recoverBtn.click();
     await sleep(1500);
-    await page.locator('textarea').first().fill(SEED_A);
+    await page.getByTestId('recover-seed-input').fill(SEED_A);
     await sleep(500);
-    await page.getByRole('button', { name: /^next$/i }).click();
+    await page.getByTestId('recover-next-button').click();
     await sleep(1500);
-    const pwInputs = page.locator('input[type="password"]');
-    await pwInputs.nth(0).fill(PASSWORD);
-    await pwInputs.nth(1).fill(PASSWORD);
+    await page.getByTestId('password-input').fill(PASSWORD);
+    await page.getByTestId('password-confirm-input').fill(PASSWORD);
     await sleep(500);
-    await page.getByRole('button', { name: /recover account/i }).click();
+    await page.getByTestId('password-submit-button').click();
     await sleep(4000);
     // Success → Go to my Account
-    const goAcct = page.getByRole('button', { name: /go to my/i });
+    const goAcct = page.getByTestId('success-go-to-wallet-button');
     if (await goAcct.count()) {
       await goAcct.click();
       await sleep(2500);
@@ -185,10 +184,10 @@ export async function unlockOrRecover(page) {
 }
 
 export async function waitHome(page) {
-  await page.waitForFunction(
-    () => /\$\d/.test(document.body.innerText) && /Solana|Bitcoin/.test(document.body.innerText),
-    { timeout: 15000 },
-  ).catch(() => {});
+  await page
+    .getByTestId('home-screen')
+    .waitFor({ state: 'visible', timeout: 15000 })
+    .catch(() => {});
   await sleep(1500);
 }
 

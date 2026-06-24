@@ -33,6 +33,7 @@ import {
   colors,
   spacing,
   useSettingsPanelStack,
+  getSettingsItemTestId,
   type SettingsScreen,
   fontSize,
   fontWeight,
@@ -363,6 +364,7 @@ export function SettingsPanelStack({
         return (
           <StyledListItem key={item.id}>
             <StyledListItemButton
+              data-testid={getSettingsItemTestId(item.id)}
               onClick={() => {
                 if (onDeveloperNetworksToggle) {
                   onDeveloperNetworksToggle(!developerNetworksEnabled);
@@ -376,6 +378,7 @@ export function SettingsPanelStack({
                 checked={developerNetworksEnabled}
                 onChange={handleToggleChange}
                 onClick={(e) => e.stopPropagation()}
+                slotProps={{ input: { 'data-testid': 'settings-developer-networks-toggle', 'aria-label': label } as React.InputHTMLAttributes<HTMLInputElement> }}
               />
             </StyledListItemButton>
           </StyledListItem>
@@ -385,6 +388,7 @@ export function SettingsPanelStack({
       return (
         <StyledListItem key={item.id}>
           <StyledListItemButton
+            data-testid={getSettingsItemTestId(item.id)}
             $isDanger={item.isDanger}
             onClick={() => handleItemClick(item)}
           >
@@ -442,7 +446,7 @@ export function SettingsPanelStack({
         {/* Base: Settings Menu (panel 0) */}
         <Header>
           <HeaderTitle>{t('settings.title', 'Settings')}</HeaderTitle>
-          <CloseButton onClick={handleClose} aria-label={t('actions.close', 'Close')}>
+          <CloseButton onClick={handleClose} aria-label={t('actions.close', 'Close')} data-testid="settings-close-button">
             <CloseIcon />
           </CloseButton>
         </Header>

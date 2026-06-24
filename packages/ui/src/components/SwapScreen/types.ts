@@ -4,6 +4,7 @@
  * Re-exports shared swap types with CSSProperties for web.
  */
 import type { CSSProperties } from 'react';
+import type { Testable } from '@salmon/shared';
 
 // Re-export all base types from shared
 export type {
@@ -49,7 +50,7 @@ export interface SwapTabSelectorProps extends SwapTabSelectorPropsBase<CSSProper
 /**
  * Props for SwapAmountInput component (Web)
  */
-export interface SwapAmountInputProps extends SwapAmountInputPropsBase<CSSProperties> {}
+export interface SwapAmountInputProps extends SwapAmountInputPropsBase<CSSProperties>, Testable {}
 
 /**
  * Props for SwapDetailRow component (Web)

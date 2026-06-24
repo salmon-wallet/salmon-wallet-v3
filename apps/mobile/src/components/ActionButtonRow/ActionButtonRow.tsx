@@ -79,6 +79,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
     <View style={[styles.container, style]}>
       {/* Send Button - Primary */}
       <TouchableOpacity
+        testID="home-send-button"
         style={[styles.buttonWrapper, sendDisabled && styles.buttonDisabled]}
         onPress={handleSendPress}
         activeOpacity={0.8}
@@ -105,6 +106,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           borderWidth={borderWidth.actionButton}
         >
           <TouchableOpacity
+            testID="home-receive-button"
             style={styles.secondaryButtonContent}
             onPress={handleReceivePress}
             activeOpacity={0.8}
@@ -131,6 +133,7 @@ export const ActionButtonRow: React.FC<ActionButtonRowProps> = ({
           borderWidth={borderWidth.actionButton}
         >
           <TouchableOpacity
+            testID="home-activity-button"
             style={styles.secondaryButtonContent}
             onPress={handleActivityPress}
             activeOpacity={0.8}

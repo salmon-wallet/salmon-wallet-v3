@@ -213,6 +213,7 @@ export function SwapAmountInput({
   placeholder = 'Enter an amount',
   style,
   isLoading = false,
+  testID,
 }: SwapAmountInputProps): React.ReactElement {
   const [{ currency }, { formatPrecise }] = useCurrencyContext();
   const showQuickFill = editable && availableBalance !== undefined && !!token;
@@ -266,12 +267,13 @@ export function SwapAmountInput({
             inputProps={{
               inputMode: 'decimal',
               pattern: '[0-9.]*',
+              'data-testid': testID ? `${testID}-amount` : undefined,
             }}
           />
         )}
 
         {/* Token Dropdown */}
-        <TokenDropdown onClick={onTokenPress} aria-label={`Select token: ${token?.symbol || 'Select'}`}>
+        <TokenDropdown onClick={onTokenPress} aria-label={`Select token: ${token?.symbol || 'Select'}`} data-testid={testID ? `${testID}-token` : undefined}>
           {token?.logo ? (
             <TokenIcon
               src={token.logo}

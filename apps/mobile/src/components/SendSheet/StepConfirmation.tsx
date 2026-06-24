@@ -145,6 +145,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
 
         {/* Recipient Address */}
         <TouchableOpacity
+          testID="send-confirm-copy-address"
           style={styles.addressButton}
           onPress={handleCopy}
           activeOpacity={0.7}
@@ -178,6 +179,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
       {/* Bottom Buttons */}
       <View style={[styles.bottomButtons, { paddingBottom: actionRowBottomPadding }]}>
         <TouchableOpacity
+          testID="send-confirm-cancel-button"
           style={styles.cancelButton}
           onPress={isFailed ? onBack : onCancel}
           activeOpacity={0.7}
@@ -189,6 +191,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
         </TouchableOpacity>
 
         <TouchableOpacity
+          testID="send-confirm-button"
           style={[styles.confirmButton, isSending && styles.confirmButtonDisabled]}
           onPress={isFailed ? handleRetry : handleConfirm}
           activeOpacity={0.7}

@@ -72,6 +72,7 @@ function AccountListItem({
 
   return (
     <TouchableOpacity
+      testID={`wallet-switcher-account-${account.id}`}
       style={[
         styles.accountItem,
         isActive && styles.accountItemActive,
@@ -113,6 +114,7 @@ function AccountListItem({
         {/* Edit Button */}
         {onEdit && (
           <TouchableOpacity
+            testID={`wallet-switcher-edit-${account.id}`}
             style={styles.actionButton}
             onPress={onEdit}
             activeOpacity={0.7}
@@ -131,6 +133,7 @@ function AccountListItem({
         {/* Delete Button */}
         {onDelete && (
           <TouchableOpacity
+            testID={`wallet-switcher-delete-${account.id}`}
             style={[styles.actionButton, !canDelete && styles.actionButtonDisabled]}
             onPress={canDelete ? onDelete : undefined}
             activeOpacity={canDelete ? 0.7 : 1}
@@ -290,6 +293,7 @@ export function WalletSwitcherSheet({
   const ListFooter = useMemo(
     () => (
       <TouchableOpacity
+        testID="wallet-switcher-add-account"
         style={styles.addAccountButton}
         onPress={handleAddAccount}
         activeOpacity={0.7}
