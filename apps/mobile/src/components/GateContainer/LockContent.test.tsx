@@ -164,4 +164,38 @@ describe('LockContent', () => {
 
     expect(onRemoveAllAccounts).toHaveBeenCalledTimes(1);
   });
+
+  // Regression guard for the e2e test-label contract (Maestro `id` selectors).
+  // These ids are referenced by apps/mobile/.maestro flows — renaming them
+  // is a breaking change to the smoke suite.
+  it('exposes stable test ids and accessibility state for e2e selection', async () => {
+    render(
+      <LockContent
+        locked
+        onUnlock={jest.fn().mockResolvedValue(true)}
+        onRemoveAllAccounts={jest.fn().mockResolvedValue(undefined)}
+        biometric={{
+          state: { isAvailable: false, hasStoredKey: false, biometricType: null },
+          authenticateWithBiometric: jest.fn(),
+          storeKeyForBiometric: jest.fn(),
+          enableBiometric: false,
+          refreshState: jest.fn().mockResolvedValue(undefined),
+        }}
+      />
+    );
+
+    await act(async () => {});
+
+    await waitFor(() => {
+      expect(screen.getByTestId('lock-password-input')).toBeTruthy();
+    });
+
+    const unlockButton = screen.getByTestId('lock-unlock-button');
+    expect(unlockButton).toBeTruthy();
+    expect(screen.getByTestId('lock-forgot-password-button')).toBeTruthy();
+
+    // Unlock is disabled while the password is empty (a11y state, not just style).
+    expect(unlockButton.props.accessibilityState.disabled).toBe(true);
+    expect(unlockButton.props.accessibilityRole).toBe('button');
+  });
 });

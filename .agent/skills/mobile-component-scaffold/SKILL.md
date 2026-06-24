@@ -61,3 +61,7 @@ Report findings with file paths and concrete recommendations.
 - A typecheck-passing result
 - An audit report when asked to review mobile component structure
 - Questions first when scope, contract ownership, or platform split is ambiguous
+
+## Test labels
+
+Any interactive RN component must follow the `e2e-test-labels` skill: accept/forward `testID`, and set `accessibilityRole`, `accessibilityLabel` (defaulting to the visible text), and `accessibilityState` for disabled/loading so Maestro can select it by `id` without relying on copy.

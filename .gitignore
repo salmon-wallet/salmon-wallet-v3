@@ -64,6 +64,8 @@ apps/*/.playwright/screenshots/
 apps/*/.playwright/snapshots/
 apps/*/.playwright/reports/
 apps/*/.playwright/fixtures/
+apps/*/.playwright/test-results/
+apps/*/.playwright/playwright-report/
 
 # `playwright-cli` skill auto-generated artifacts (per-cwd, unrelated to per-app suites above)
 .playwright-cli/

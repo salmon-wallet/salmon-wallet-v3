@@ -64,6 +64,7 @@ export function PrimaryButton({
   className,
   fullWidth = true,
   type = 'button',
+  testID,
 }: PrimaryButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -76,6 +77,7 @@ export function PrimaryButton({
       style={style}
       className={className}
       disableRipple={false}
+      data-testid={testID}
     >
       {loading ? (
         <LoaderWrapper>

@@ -7,9 +7,11 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "build:staging": "tsc --noEmit && vite build --mode staging",
-    "build:prod": "tsc --noEmit && vite build --mode production",    
+    "build:prod": "tsc --noEmit && vite build --mode production",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "e2e": "playwright test -c .playwright/playwright.config.ts",
+    "e2e:ui": "playwright test -c .playwright/playwright.config.ts --ui"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -29,6 +31,7 @@
     "react-router-dom": "^7.9.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@types/react": "~19.1.0",
     "@types/react-dom": "~19.1.0",
     "@vitejs/plugin-react": "^4.3.4",

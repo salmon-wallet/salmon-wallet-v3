@@ -151,10 +151,10 @@ export async function openPopup(ctx, extId) {
 }
 
 export async function unlockOrRecover(page) {
-  const pw = page.locator('input[type="password"]').first();
+  const pw = page.getByTestId('lock-password-input').first();
   if (await pw.count()) {
     await pw.fill(PASSWORD);
-    await page.getByRole('button', { name: /unlock/i }).click();
+    await page.getByTestId('lock-unlock-button').click();
     await sleep(3000);
     return 'unlocked';
   }

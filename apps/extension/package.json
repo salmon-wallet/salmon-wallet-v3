@@ -18,7 +18,9 @@
     "typecheck": "wxt prepare && tsc --noEmit",
     "test": "node --no-warnings ../../node_modules/vitest/vitest.mjs run --passWithNoTests",
     "test:watch": "node --no-warnings ../../node_modules/vitest/vitest.mjs",
-    "test:coverage": "node --no-warnings ../../node_modules/vitest/vitest.mjs run --coverage"
+    "test:coverage": "node --no-warnings ../../node_modules/vitest/vitest.mjs run --coverage",
+    "e2e": "playwright test -c .playwright/playwright.config.ts",
+    "e2e:ui": "playwright test -c .playwright/playwright.config.ts --ui"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -46,6 +48,7 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

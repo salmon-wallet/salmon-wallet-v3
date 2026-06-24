@@ -11,8 +11,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { colors, componentSizes, fontFamilyNative, fontSize, letterSpacing, spacing, } from '@salmon/shared';
+import type { Testable } from '@salmon/shared';
 
-interface SecondaryButtonProps {
+interface SecondaryButtonProps extends Testable {
   onPress: () => void;
   children: string;
   disabled?: boolean;
@@ -26,11 +27,16 @@ export function SecondaryButton({
   disabled,
   loading,
   style,
+  testID,
 }: SecondaryButtonProps) {
   const isDisabled = disabled || loading;
 
   return (
     <TouchableOpacity
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={children}
+      accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.8}

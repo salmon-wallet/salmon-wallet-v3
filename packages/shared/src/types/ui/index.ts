@@ -8,6 +8,9 @@
  * extend these base types in their respective packages.
  */
 
+// Testable (shared test-label contract)
+export type { Testable } from './testable';
+
 // Token Selector
 export type {
   TokenSelectorToken,

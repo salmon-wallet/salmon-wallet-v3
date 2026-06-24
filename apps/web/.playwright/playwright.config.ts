@@ -1,0 +1,43 @@
+/**
+ * Playwright config for the Salmon web app e2e suite.
+ *
+ * Runs against the Vite dev server (auto-started via webServer). No extension
+ * loading. Selection uses data-testid, aligned with the shared Testable
+ * contract in packages/shared.
+ */
+import { defineConfig } from '@playwright/test';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { loadTestEnv } from './env';
+
+loadTestEnv();
+
+const suiteRoot = path.dirname(fileURLToPath(import.meta.url));
+const BASE_URL = process.env.SALMON_WEB_URL ?? 'http://localhost:5173';
+
+export default defineConfig({
+  testDir: path.join(suiteRoot, 'tests'),
+  outputDir: path.join(suiteRoot, 'test-results'),
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: path.join(suiteRoot, 'playwright-report'), open: 'never' }],
+  ],
+  use: {
+    baseURL: BASE_URL,
+    testIdAttribute: 'data-testid',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'off',
+  },
+  webServer: {
+    command: 'pnpm --filter @salmon/web dev',
+    url: BASE_URL,
+    reuseExistingServer: true,
+    timeout: 120_000,
+  },
+});

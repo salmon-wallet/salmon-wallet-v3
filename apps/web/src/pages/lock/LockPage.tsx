@@ -181,13 +181,17 @@ export function LockPage(): React.ReactElement {
                 disabled={isUnlocking}
                 autoFocus
                 fullWidth
+                inputProps={{
+                  'data-testid': 'lock-password-input',
+                  'aria-label': t('lock.password_placeholder', 'Password'),
+                }}
               />
               {error && <ErrorText>{error}</ErrorText>}
             </InputContainer>
-            <PrimaryButton type="submit" disabled={!password.trim()} loading={isUnlocking} fullWidth>
+            <PrimaryButton type="submit" disabled={!password.trim()} loading={isUnlocking} fullWidth testID="lock-unlock-button">
               {t('lock.unlock', 'Unlock')}
             </PrimaryButton>
-            <ForgotPasswordButton type="button" onClick={() => setShowResetDialog(true)} disabled={isUnlocking}>
+            <ForgotPasswordButton type="button" onClick={() => setShowResetDialog(true)} disabled={isUnlocking} data-testid="lock-forgot-password-button">
               {t('lock.forgot_password', 'I forgot my password')}
             </ForgotPasswordButton>
           </Form>
