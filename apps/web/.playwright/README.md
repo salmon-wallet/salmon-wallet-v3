@@ -1,29 +1,55 @@
 # Playwright web test suite
 
-Stub. Populate when work on the web e2e tests begins.
+`@playwright/test` suite for the web app (`@salmon/web`). Runs against the
+Vite dev server (auto-started by the config) and selects elements by the
+shared `data-testid` contract (`Testable` in `packages/shared`, see the
+`e2e-test-labels` skill).
 
-## Intended layout (mirrors `apps/extension/.playwright/`)
+> Tracked content: `tests/`, `*.ts` (config/env), `README.md`, `AGENTS.md`,
+> `.env.test.example`. Local-only: `test-results/`, `playwright-report/`,
+> `.env.test`.
+
+## Layout
 
 | Path | Purpose |
 |---|---|
-| `scripts/` | Runnable `.mjs` scripts + shared `lib.mjs` |
-| `scripts/lib.mjs` | Shared launch + secrets helpers |
-| `fixtures/` | Per-test artifacts (gitignored) |
-| `reports/` | Markdown reports written by scripts (gitignored) |
-| `profiles/` | Persistent Chromium profile if needed (gitignored) |
-| `.env.test` | Secrets (gitignored). Copy from `.env.test.example` |
+| `playwright.config.ts` | `@playwright/test` config — `testIdAttribute: data-testid`, `webServer` auto-starts the Vite dev server, `baseURL` |
+| `env.ts` | Suite-local `.env.test` loader + `isBackendUp()` |
+| `tests/` | Specs (`*.spec.ts`) |
+
+## Prerequisites
+
+1. **Chromium.** `@playwright/test` is a devDependency of `@salmon/web`:
+   ```sh
+   pnpm --filter @salmon/web exec playwright install chromium
+   ```
+2. **`salmon-api` backend** on `127.0.0.1:3001` (specs skip when it is down).
+3. The dev server starts automatically via the config's `webServer`
+   (`pnpm --filter @salmon/web dev`, `http://localhost:5173`); an already
+   running server is reused.
+
+## Running
+
+```sh
+pnpm --filter @salmon/web e2e          # run tests/*.spec.ts
+pnpm --filter @salmon/web e2e:ui       # Playwright UI mode
+```
+
+Reports land in `playwright-report/`; failure traces/screenshots in
+`test-results/`.
 
 ## Differences from the extension suite
 
-- **Target**: web app served by `pnpm --filter @salmon/web dev` (e.g.
-  `http://localhost:5173/`), not the extension popup.
-- **No extension load**. Drop the `--load-extension` chromium flags.
-- **No persistent wallet recovery**. Web app delegates to the extension
-  (or future web-only auth) — set up auth via the API or test fixtures.
+- **Target**: the web app via the dev server, not the extension popup — no
+  `--load-extension` flags and no persistent extension profile.
+- **Auth/state**: the web app has no persistent extension profile, so a fresh
+  context starts at onboarding. The current `smoke.spec.ts` only asserts the
+  app boots and honors the lock `data-testid` when present. Full unlock/recover
+  web flows need a seeded wallet captured once into a Playwright
+  `storageState` and reused — that is the next step for this suite.
 
 ## Reference
 
-The extension suite at `apps/extension/.playwright/README.md` is the
-canonical pattern. Reuse the helpers shape (launch, capture, tapConsole,
-waitForButtonEnabled) but point Chromium at the dev server instead of the
-extension dist.
+`apps/extension/.playwright/` is the canonical pattern (fixture shape, env
+loader, selector contract). The web suite mirrors it minus the extension
+loading.
