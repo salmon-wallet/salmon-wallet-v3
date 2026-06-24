@@ -80,6 +80,7 @@ export function ScreenHeader({
   backDisabled,
   className,
   style,
+  testID,
 }: ScreenHeaderProps) {
   return (
     <Container style={style} className={className}>
@@ -88,6 +89,7 @@ export function ScreenHeader({
         onClick={onBack}
         disabled={!onBack || backDisabled}
         aria-label="Go back"
+        data-testid={testID ?? 'screen-header-back-button'}
       >
         {onBack && (
           <ArrowBackIcon

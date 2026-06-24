@@ -1,8 +1,9 @@
 /**
  * ScreenHeader types for web version
  */
+import type { Testable } from '@salmon/shared';
 
-export interface ScreenHeaderProps {
+export interface ScreenHeaderProps extends Testable {
   /** Callback when back button is clicked */
   onBack?: () => void;
   /** Show step indicator */

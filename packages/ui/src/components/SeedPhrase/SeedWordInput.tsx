@@ -59,6 +59,7 @@ export function SeedWordInput({
   validationState = 'idle',
   autoFocus,
   onSubmitEditing,
+  testID,
 }: SeedWordInputProps) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -85,6 +86,7 @@ export function SeedWordInput({
           autoCapitalize: 'none',
           autoCorrect: 'off',
           spellCheck: false,
+          'data-testid': testID,
         }}
       />
     </Container>

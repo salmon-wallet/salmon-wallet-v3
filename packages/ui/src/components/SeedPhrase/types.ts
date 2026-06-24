@@ -1,3 +1,5 @@
+import type { Testable } from '@salmon/shared';
+
 export type ValidationState = 'idle' | 'correct' | 'incorrect';
 
 export interface SeedWordGridProps {
@@ -7,7 +9,7 @@ export interface SeedWordGridProps {
   columns?: number;
 }
 
-export interface SeedWordInputProps {
+export interface SeedWordInputProps extends Testable {
   /** Word position (1-indexed) */
   position: number;
   /** Current input value */

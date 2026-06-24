@@ -286,6 +286,7 @@ export default function DerivedAccountsScreen() {
                 onPress={handleImport}
                 disabled={loading || importing}
                 loading={importing}
+                testID="derived-import-button"
               >
                 {`IMPORT SELECTED (${selectedCount})`}
               </PrimaryButton>
@@ -294,6 +295,7 @@ export default function DerivedAccountsScreen() {
             <SecondaryButton
               onPress={handleSkip}
               disabled={importing}
+              testID="derived-skip-button"
             >
               {accounts.length === 0 ? 'CONTINUE' : 'SKIP'}
             </SecondaryButton>

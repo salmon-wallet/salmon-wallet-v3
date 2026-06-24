@@ -3,9 +3,9 @@ appId: io.salmonwallet.app
 # Recover Wallet B — fresh install path. Caller must launchApp/clearState first.
 - assertVisible: "Salmon"
 - assertVisible:
-    text: "RECOVER ACCOUNT"
+    id: "select-recover-button"
 - tapOn:
-    text: "RECOVER ACCOUNT"
+    id: "select-recover-button"
 - extendedWaitUntil:
     visible:
       id: "recover-seed-input"
@@ -17,10 +17,10 @@ appId: io.salmonwallet.app
 - tapOn: "Recover Existing Account"
 - extendedWaitUntil:
     visible:
-      text: "NEXT"
+      id: "recover-next-button"
     timeout: 10000
 - tapOn:
-    text: "NEXT"
+    id: "recover-next-button"
 - extendedWaitUntil:
     visible:
       id: "password-input"
@@ -34,4 +34,4 @@ appId: io.salmonwallet.app
 - inputText: ${SALMON_TEST_PASSWORD}
 - tapOn: "Choose a Password"
 - tapOn:
-    text: "RECOVER ACCOUNT"
+    id: "password-submit-button"

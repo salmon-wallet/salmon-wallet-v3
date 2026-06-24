@@ -5,10 +5,13 @@ appId: io.salmonwallet.app
 - clearState
 - launchApp
 - runFlow: ../../../subflows/dev-launcher-pass.yaml
-- assertVisible: "CREATE ACCOUNT"
-- tapOn: "CREATE ACCOUNT"
+- assertVisible:
+    id: "select-create-button"
+- tapOn:
+    id: "select-create-button"
 - extendedWaitUntil:
-    visible: "START"
+    visible:
+      id: "create-start-button"
     timeout: 10000
 - assertVisible: "Keep your seed phrase safe!"
 - takeScreenshot: screenshots/smoke/auth/create-step1

@@ -8,14 +8,17 @@ appId: io.salmonwallet.app
 # If biometrics enrolled, take the "Maybe Later" path.
 - runFlow:
     when:
-      visible: "Maybe Later"
+      visible:
+        id: "biometric-skip-button"
     commands:
-      - tapOn: "Maybe Later"
+      - tapOn:
+          id: "biometric-skip-button"
 - extendedWaitUntil:
     visible: "Congratulations!"
     timeout: 60000
 - takeScreenshot: screenshots/smoke/auth/recover-success
-- tapOn: "Go to my Account!"
+- tapOn:
+    id: "success-go-to-wallet-button"
 - extendedWaitUntil:
     visible: "Switch wallet account"
     timeout: 30000

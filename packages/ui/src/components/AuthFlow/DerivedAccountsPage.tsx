@@ -278,6 +278,7 @@ export function DerivedAccountsPage({
           return (
             <DerivedAccountCard
               key={key}
+              testID={`derived-account-${key}`}
               address={getShortAddress(account.address, 6) ?? account.address}
               networkName={account.networkName}
               path={account.path}
@@ -311,11 +312,12 @@ export function DerivedAccountsPage({
               onClick={handleImport}
               disabled={loading || importing}
               loading={importing}
+              testID="derived-import-button"
             >
               {`IMPORT SELECTED (${selectedCount})`}
             </PrimaryButton>
           )}
-          <SecondaryButton onClick={handleSkip} disabled={importing}>
+          <SecondaryButton onClick={handleSkip} disabled={importing} testID="derived-skip-button">
             {accounts.length === 0 ? 'CONTINUE' : 'SKIP'}
           </SecondaryButton>
         </ButtonContainer>

@@ -100,14 +100,14 @@ export function SelectOptionsPage({
         </CenterContent>
 
         <ButtonsContainer>
-          <PrimaryButton onClick={onCreateWallet}>
+          <PrimaryButton onClick={onCreateWallet} testID="select-create-button">
             {t('wallet.create_wallet', 'CREATE ACCOUNT').toUpperCase()}
           </PrimaryButton>
-          <SecondaryButton onClick={onRecoverWallet}>
+          <SecondaryButton onClick={onRecoverWallet} testID="select-recover-button">
             {t('wallet.recover_wallet', 'RECOVER ACCOUNT').toUpperCase()}
           </SecondaryButton>
           {hasAccounts && onAccessExisting && (
-            <SecondaryButton onClick={onAccessExisting}>
+            <SecondaryButton onClick={onAccessExisting} testID="select-access-existing-button">
               {t('wallet.access_existing', 'ACCESS EXISTING ACCOUNT').toUpperCase()}
             </SecondaryButton>
           )}

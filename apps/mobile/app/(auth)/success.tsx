@@ -100,6 +100,7 @@ export default function SuccessScreen() {
           <PrimaryButton
             onPress={handleGoToWallet}
             style={styles.buttonSpacing}
+            testID="success-go-to-wallet-button"
           >
             {t('wallet.create.go_to_my_wallet')}
           </PrimaryButton>
@@ -108,6 +109,7 @@ export default function SuccessScreen() {
           <SecondaryButton
             onPress={handleGoToDerived}
             style={styles.buttonSpacing}
+            testID="success-check-derived-button"
           >
             {t('wallet.create.check_derivables')}
           </SecondaryButton>
@@ -116,6 +118,7 @@ export default function SuccessScreen() {
           <TextButton
             onPress={toggleDialog}
             color={colors.text.secondary}
+            testID="success-info-button"
           >
             {t('wallet.create.derivable_info_icon')}
           </TextButton>
@@ -142,7 +145,7 @@ export default function SuccessScreen() {
             </Text>
 
             {/* Close Button */}
-            <PrimaryButton onPress={toggleDialog}>
+            <PrimaryButton onPress={toggleDialog} testID="success-dialog-continue-button">
               {t('actions.continue')}
             </PrimaryButton>
           </Pressable>

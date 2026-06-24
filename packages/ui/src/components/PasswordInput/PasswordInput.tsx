@@ -103,6 +103,7 @@ export function PasswordInput({
   onSubmitEditing,
   className,
   style,
+  testID,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -141,10 +142,12 @@ export function PasswordInput({
           onKeyDown={handleKeyDown}
           autoComplete="off"
           fullWidth
+          inputProps={{ 'data-testid': testID }}
         />
         <ToggleButton
           onClick={handleToggle}
           aria-label={showPassword ? 'Hide password' : 'Show password'}
+          data-testid={testID ? `${testID}-toggle` : undefined}
           tabIndex={-1}
         >
           {showPassword ? (

@@ -1,9 +1,9 @@
 /**
  * PasswordInput types for web version
  */
-import type { PasswordStrength } from '@salmon/shared';
+import type { PasswordStrength, Testable } from '@salmon/shared';
 
-export interface PasswordInputProps {
+export interface PasswordInputProps extends Testable {
   /** Current password value */
   value: string;
   /** Callback when password text changes */

@@ -6,9 +6,10 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, componentSizes, contentPadding } from '@salmon/shared';
+import type { Testable } from '@salmon/shared';
 import { StepIndicator } from '../StepIndicator';
 
-export interface ScreenHeaderProps {
+export interface ScreenHeaderProps extends Testable {
   /** Callback when back button is pressed */
   onBack?: () => void;
   /** Show step indicator */
@@ -20,11 +21,14 @@ export interface ScreenHeaderProps {
   backDisabled?: boolean;
 }
 
-export function ScreenHeader({ onBack, stepIndicator, backDisabled }: ScreenHeaderProps) {
+export function ScreenHeader({ onBack, stepIndicator, backDisabled, testID }: ScreenHeaderProps) {
   return (
     <View style={styles.container}>
       {/* Back button */}
       <TouchableOpacity
+        testID={testID ?? 'screen-header-back-button'}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
         onPress={onBack}
         disabled={!onBack || backDisabled}
         style={styles.backButton}

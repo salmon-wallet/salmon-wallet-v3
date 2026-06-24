@@ -1,10 +1,10 @@
 /**
  * Flow helpers shared across extension specs. Ported from scripts/lib.mjs.
  *
- * The lock path now selects by the stable data-testid contract
- * (lock-password-input / lock-unlock-button). The recover/onboarding path
- * still uses role/CSS selectors because those screens are not labeled yet —
- * they are the next rollout target.
+ * Both the lock path and the recover/onboarding path select by the stable
+ * data-testid contract (lock-*, select-recover-button, recover-seed-input,
+ * recover-next-button, password-input/confirm, password-submit-button,
+ * success-go-to-wallet-button).
  */
 import { type Page } from '@playwright/test';
 
@@ -22,23 +22,21 @@ export async function unlockOrRecover(page: Page): Promise<EntryState> {
     return 'unlocked';
   }
 
-  const recoverButton = page.getByRole('button', { name: /recover account/i });
+  const recoverButton = page.getByTestId('select-recover-button');
   if (await recoverButton.count()) {
     await recoverButton.click();
-    await page.waitForTimeout(1500);
-    await page.locator('textarea').first().fill(seedA());
-    await page.getByRole('button', { name: /^next$/i }).click();
-    await page.waitForTimeout(1500);
-    const passwordInputs = page.locator('input[type="password"]');
-    await passwordInputs.nth(0).fill(password());
-    await passwordInputs.nth(1).fill(password());
-    await page.getByRole('button', { name: /recover account/i }).click();
-    await page.waitForTimeout(4000);
-    const goToAccount = page.getByRole('button', { name: /go to my/i });
-    if (await goToAccount.count()) {
-      await goToAccount.click();
-      await page.waitForTimeout(2500);
-    }
+    // Auto-waiting actions (no fixed sleeps): each step waits for its target
+    // to be actionable. recover-next-button is visibility-toggled until the
+    // seed validates; success appears only after the creation loading screen.
+    await page.getByTestId('recover-seed-input').fill(seedA());
+    await page.getByTestId('recover-next-button').click({ timeout: 30_000 });
+    await page.getByTestId('password-input').fill(password());
+    await page.getByTestId('password-confirm-input').fill(password());
+    await page.getByTestId('password-submit-button').click();
+    await page
+      .getByTestId('success-go-to-wallet-button')
+      .click({ timeout: 60_000 })
+      .catch(() => {});
     return 'recovered';
   }
 

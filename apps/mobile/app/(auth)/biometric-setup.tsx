@@ -158,6 +158,7 @@ export default function BiometricSetupScreen() {
             loading={isStoring}
             disabled={isStoring}
             style={styles.buttonSpacing}
+            testID="biometric-enable-button"
           >
             {buttonLabel}
           </PrimaryButton>
@@ -165,6 +166,7 @@ export default function BiometricSetupScreen() {
           <SecondaryButton
             onPress={handleSkip}
             disabled={isStoring}
+            testID="biometric-skip-button"
           >
             {t('wallet.create.biometric_setup_skip')}
           </SecondaryButton>

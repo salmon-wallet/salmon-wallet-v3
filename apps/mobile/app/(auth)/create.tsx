@@ -118,7 +118,7 @@ function MessageStep({ onNext, onBack, t }: MessageStepProps) {
         <View style={styles.flexSpacer} />
 
         {/* Start Button */}
-        <PrimaryButton onPress={onNext} style={styles.button}>
+        <PrimaryButton onPress={onNext} style={styles.button} testID="create-start-button">
           {t('actions.start').toUpperCase()}
         </PrimaryButton>
       </ScrollView>
@@ -182,13 +182,13 @@ function SeedPhraseStep({ mnemonic, onNext, onBack, t }: SeedPhraseStepProps) {
 
         {/* Copy Button */}
         <View style={styles.copyButtonContainer}>
-          <SecondaryButton onPress={handleCopy} style={styles.button}>
+          <SecondaryButton onPress={handleCopy} style={styles.button} testID="create-copy-seed-button">
             {t('wallet.create.copy_key').toUpperCase()}
           </SecondaryButton>
         </View>
 
         {/* Backed Up Button */}
-        <PrimaryButton onPress={onNext} style={styles.button}>
+        <PrimaryButton onPress={onNext} style={styles.button} testID="create-backed-up-button">
           {t('wallet.create.ive_backed_up_seed_phrase').toUpperCase()}
         </PrimaryButton>
       </ScrollView>
@@ -288,6 +288,7 @@ function ValidateStep({ mnemonic, onComplete, onBack, t }: ValidateStepProps) {
             {validationWords.map((vw, index) => (
               <SeedWordInput
                 key={`word-${vw.position}`}
+                testID={`create-confirm-word-input-${vw.position}`}
                 position={vw.position}
                 value={vw.userInput}
                 onChangeText={(value) => handleInputChange(index, value)}
@@ -310,6 +311,7 @@ function ValidateStep({ mnemonic, onComplete, onBack, t }: ValidateStepProps) {
             onPress={onComplete}
             disabled={!validationResult.isValid}
             style={styles.button}
+            testID="create-next-button"
           >
             {t('actions.next').toUpperCase()}
           </PrimaryButton>

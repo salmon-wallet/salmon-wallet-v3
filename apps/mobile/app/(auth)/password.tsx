@@ -397,7 +397,12 @@ export default function PasswordScreen() {
                 {flowType === 'recover'
                   ? t('wallet.recover.i_accept_terms_conditions').replace('Terms & Conditions', '')
                   : t('wallet.create.i_accept_terms_conditions').replace('Terms & Conditions', '')}
-                <Text style={styles.termsHighlight} onPress={handleTermsPress}>
+                <Text
+                  style={styles.termsHighlight}
+                  onPress={handleTermsPress}
+                  testID="password-terms-link"
+                  accessibilityRole="link"
+                >
                   Terms & Conditions
                 </Text>
               </Text>
@@ -408,6 +413,7 @@ export default function PasswordScreen() {
                   onPress={handleSubmit}
                   disabled={!isFormValid() || wrongPassword}
                   loading={isLoading || isChecking}
+                  testID="password-submit-button"
                 >
                   {getButtonText()}
                 </PrimaryButton>

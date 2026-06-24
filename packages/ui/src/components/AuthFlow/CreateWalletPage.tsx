@@ -168,7 +168,7 @@ function MessageStep({
           <BodyText>{t('wallet.create.messageBody')}</BodyText>
         </FormArea>
         <ButtonContainer>
-          <PrimaryButton onClick={onNext}>
+          <PrimaryButton onClick={onNext} testID="create-start-button">
             {(t('actions.start') || 'START').toUpperCase()}
           </PrimaryButton>
         </ButtonContainer>
@@ -217,12 +217,12 @@ function SeedPhraseStep({
           <SeedWordGrid words={words} columns={3} />
         </SeedGridContainer>
         <ButtonContainer>
-          <SecondaryButton onClick={handleCopy}>
+          <SecondaryButton onClick={handleCopy} testID="create-copy-seed-button">
             {t('wallet.create.copy_key').toUpperCase()}
           </SecondaryButton>
         </ButtonContainer>
         <ButtonContainer>
-          <PrimaryButton onClick={onNext}>
+          <PrimaryButton onClick={onNext} testID="create-backed-up-button">
             {t('wallet.create.ive_backed_up_seed_phrase').toUpperCase()}
           </PrimaryButton>
         </ButtonContainer>
@@ -308,6 +308,7 @@ function ValidateStep({
             {validationWords.map((word, index) => (
               <SeedWordInput
                 key={`word-${word.position}`}
+                testID={`create-confirm-word-input-${word.position}`}
                 position={word.position}
                 value={word.userInput}
                 onChangeText={(value) => handleInputChange(index, value)}
@@ -326,6 +327,7 @@ function ValidateStep({
           <PrimaryButton
             onClick={onComplete}
             disabled={!validationResult.isValid}
+            testID="create-next-button"
           >
             {(t('actions.next') || 'NEXT').toUpperCase()}
           </PrimaryButton>
