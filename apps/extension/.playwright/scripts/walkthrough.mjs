@@ -114,14 +114,14 @@ await step('Send token list', async () => {
 });
 
 await step('Send → Solana form', async () => {
-  const sol = popup.getByRole('button', { name: /Solana/ }).first();
+  const sol = popup.getByTestId('send-token-row-SOL').first();
   if (await sol.count()) {
     await sol.click();
     await sleep(2500);
     await capture(popup, 'send', '02-form');
-    const inputs = popup.locator('input:not([type="password"]):not([type="hidden"])');
-    if (await inputs.count()) {
-      if (WALLET_B_ADDR) await inputs.nth(0).fill(WALLET_B_ADDR);
+    const recipient = popup.getByTestId('send-recipient-input');
+    if (await recipient.count()) {
+      if (WALLET_B_ADDR) await recipient.fill(WALLET_B_ADDR);
       await sleep(1000);
       await capture(popup, 'send', '03-recipient-filled');
     }

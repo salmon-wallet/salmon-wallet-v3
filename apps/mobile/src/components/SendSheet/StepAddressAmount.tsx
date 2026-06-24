@@ -165,6 +165,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
       >
         {/* Selected Token Card */}
         <TouchableOpacity
+          testID="send-selected-token"
           onPress={onBack}
           activeOpacity={0.7}
           accessibilityLabel={`Selected token: ${token.name}`}
@@ -294,6 +295,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
               {QUICK_FILL_OPTIONS.map((option) => (
                 <TouchableOpacity
                   key={option.label}
+                  testID={`send-quickfill-${option.label.replace('%', '')}`}
                   style={styles.quickFillButton}
                   onPress={() => handleQuickFill(option.value)}
                   activeOpacity={0.7}
@@ -312,6 +314,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
       {/* Bottom Buttons */}
       <View style={[styles.bottomButtons, { paddingBottom: actionRowBottomPadding }]}>
         <TouchableOpacity
+          testID="send-cancel-button"
           style={styles.cancelButton}
           onPress={onCancel}
           activeOpacity={0.7}
@@ -320,6 +323,7 @@ export const StepAddressAmount: React.FC<StepAddressAmountProps> = ({
         </TouchableOpacity>
 
         <TouchableOpacity
+          testID="send-review-button"
           style={[styles.reviewButton, !isValid && styles.reviewButtonDisabled]}
           onPress={handleReview}
           activeOpacity={0.7}

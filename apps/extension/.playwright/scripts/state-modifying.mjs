@@ -67,18 +67,18 @@ async function step7() {
   await capture(popup, 'state-modifying', '07a-home');
 
   // Wait for Send button via locator strict mode
-  const sendBtn = popup.locator('button').filter({ hasText: 'Send' }).first();
+  const sendBtn = popup.getByTestId('home-send-button');
   await sendBtn.waitFor({ state: 'visible', timeout: 30000 });
   log('  Send button found');
   await sendBtn.click({ force: true });
   await sleep(2200);
-  await popup.locator('text=/Solana/').first().click({ force: true });
+  await popup.getByTestId('send-token-row-SOL').first().click({ force: true });
   await sleep(2500);
   await capture(popup, 'state-modifying', '07b-form');
 
-  await popup.getByRole('textbox').first().fill(WALLET_B_ADDR);
+  await popup.getByTestId('send-recipient-input').fill(WALLET_B_ADDR);
   await sleep(1500);  // wait for addr validation
-  const amt = popup.locator('input[inputmode="decimal"], input[type="number"]').first();
+  const amt = popup.getByTestId('send-amount-input');
   if (await amt.count()) {
     await amt.fill('0.001');
     await sleep(800);
@@ -93,11 +93,11 @@ async function step7() {
     await popup.close();
     return;
   }
-  await popup.getByRole('button', { name: /Review|Continue|Next/i }).first().click({ force: true });
+  await popup.getByTestId('send-review-button').click({ force: true });
   await sleep(4000);
   await capture(popup, 'state-modifying', '07d-review');
 
-  const send = popup.getByRole('button', { name: /^(Send|Confirm)$/i }).first();
+  const send = popup.getByTestId('send-confirm-button');
   if (!(await send.count())) {
     findings.push('Step 7 PARTIAL: review page no Send/Confirm button');
     await popup.close();

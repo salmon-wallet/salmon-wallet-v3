@@ -2,11 +2,11 @@ appId: io.salmonwallet.app
 ---
 # Send 0.001 SOL → Wallet B Solana address. Fires a real on-chain tx.
 - runFlow: ../../../subflows/onboard-walletA.yaml
-- tapOn: "Send tokens"
-- assertVisible: "Select Token"
-# Match SOL row by regex so the test survives balance drift.
 - tapOn:
-    text: "Solana, .* SOL"
+    id: "home-send-button"
+- assertVisible: "Select Token"
+- tapOn:
+    id: "send-token-row-SOL"
 - waitForAnimationToEnd:
     timeout: 4000
 - tapOn:
@@ -23,19 +23,24 @@ appId: io.salmonwallet.app
 - tapOn: "Recipient"
 - waitForAnimationToEnd:
     timeout: 2000
-- tapOn: "Review & Send"
+- tapOn:
+    id: "send-review-button"
 - extendedWaitUntil:
-    visible: "CONFIRM"
+    visible:
+      id: "send-confirm-button"
     timeout: 10000
 - takeScreenshot: screenshots/actions/send/send-confirm-screen
-- tapOn: "CONFIRM"
+- tapOn:
+    id: "send-confirm-button"
 - extendedWaitUntil:
     visible: "Send Complete"
     timeout: 60000
 - takeScreenshot: screenshots/actions/send/send-success
-- tapOn: "Continue"
+- tapOn:
+    id: "tx-success-continue-button"
 - extendedWaitUntil:
-    visible: "Switch wallet account"
+    visible:
+      id: "wallet-header-account-switcher"
     timeout: 30000
 - waitForAnimationToEnd:
     timeout: 8000

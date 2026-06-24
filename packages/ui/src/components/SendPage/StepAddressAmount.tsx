@@ -518,6 +518,7 @@ export function StepAddressAmount({
         <TokenCardButton
           onClick={onBack}
           aria-label={`Selected token: ${token.name}`}
+          data-testid="send-selected-token"
         >
           <BlurContainer style={{ borderRadius: borderRadius.button }}>
             <TokenCardContent>
@@ -567,6 +568,7 @@ export function StepAddressAmount({
                   autoCapitalize: 'none',
                   autoCorrect: 'off',
                   spellCheck: false,
+                  'data-testid': 'send-recipient-input',
                 }}
                 sx={{ flex: 1 }}
               />
@@ -612,6 +614,7 @@ export function StepAddressAmount({
               <ContactRow
                 key={wallet.address}
                 onClick={() => setAddress(wallet.address)}
+                data-testid={`send-own-wallet-${wallet.address}`}
               >
                 <ContactName>{wallet.accountName}</ContactName>
                 <ContactAddress>{getShortAddress(wallet.address)}</ContactAddress>
@@ -628,6 +631,7 @@ export function StepAddressAmount({
               <ContactRow
                 key={contact.address}
                 onClick={() => setAddress(contact.address)}
+                data-testid={`send-contact-${contact.address}`}
               >
                 <ContactInfo>
                   <ContactName>{contact.name}</ContactName>
@@ -656,6 +660,7 @@ export function StepAddressAmount({
                 inputProps={{
                   inputMode: 'decimal',
                   autoCorrect: 'off',
+                  'data-testid': 'send-amount-input',
                 }}
                 sx={{ flex: 1 }}
               />
@@ -664,6 +669,7 @@ export function StepAddressAmount({
                   <QuickFillButton
                     key={option.label}
                     onClick={() => handleQuickFill(option.value)}
+                    data-testid={`send-quickfill-${option.label.replace('%', '')}`}
                   >
                     <QuickFillText>{option.label}</QuickFillText>
                   </QuickFillButton>
@@ -679,13 +685,14 @@ export function StepAddressAmount({
 
       {/* Bottom Buttons */}
       <BottomButtons>
-        <CancelButton onClick={onCancel}>
+        <CancelButton onClick={onCancel} data-testid="send-cancel-button">
           <CancelButtonText>Cancel</CancelButtonText>
         </CancelButton>
 
         <ReviewButton
           onClick={handleReview}
           disabled={!isValid}
+          data-testid="send-review-button"
         >
           <ReviewButtonGradient $isDisabled={!isValid}>
             <ReviewButtonText>Review & Send</ReviewButtonText>
