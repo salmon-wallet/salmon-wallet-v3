@@ -10,6 +10,7 @@
     "build:prod": "tsc --noEmit && vite build --mode production",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "lh": "lhci autorun",
     "e2e": "playwright test -c .playwright/playwright.config.ts",
     "e2e:ui": "playwright test -c .playwright/playwright.config.ts --ui"
   },
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.61.1",
     "@types/react": "~19.1.0",
     "@types/react-dom": "~19.1.0",
