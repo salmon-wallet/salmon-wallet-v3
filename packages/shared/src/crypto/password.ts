@@ -110,9 +110,14 @@ export function validatePassword(password: string): PasswordValidation {
   const score = result?.score ?? 0;
 
   // Map the zxcvbn 0-4 score onto the existing strength enum for the UI bar.
+  // Gate on length too: a password that fails the length policy must never
+  // read "medium"/"strong" while the UI also shows a length error (it would be
+  // contradictory). It stays "weak" until it meets the length window.
   let strength: PasswordStrength = 'weak';
-  if (score >= 3) strength = 'strong';
-  else if (score >= 2) strength = 'medium';
+  if (checks.hasMinLength && checks.hasMaxLength) {
+    if (score >= 3) strength = 'strong';
+    else if (score >= 2) strength = 'medium';
+  }
 
   // Enforced policy (NIST 800-63B): length window + not weak/common/guessable.
   // Composition (uppercase/number/symbol) is intentionally NOT part of the gate.
@@ -131,6 +136,25 @@ export function validatePassword(password: string): PasswordValidation {
       suggestions: result?.feedback.suggestions ?? [],
     },
   };
+}
+
+/**
+ * A single policy violation, in the order the user should fix it.
+ * `null` means the password passes the policy.
+ */
+export type PasswordIssue = 'too_short' | 'too_long' | 'too_weak' | null;
+
+/**
+ * Returns the first policy issue with a password (length checked before
+ * guessability), or null if it passes. The UI maps this to an i18n message so
+ * the reason a password is rejected is always shown — including the
+ * "long enough but too guessable" case, which length-only checks missed.
+ */
+export function getPasswordIssue(validation: PasswordValidation): PasswordIssue {
+  if (!validation.checks.hasMinLength) return 'too_short';
+  if (!validation.checks.hasMaxLength) return 'too_long';
+  if (!validation.isValid) return 'too_weak';
+  return null;
 }
 
 /**

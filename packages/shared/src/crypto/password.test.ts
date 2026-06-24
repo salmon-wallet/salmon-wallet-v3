@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   validatePassword,
   getPasswordStrengthLabel,
+  getPasswordIssue,
   PASSWORD_CONSTRAINTS,
 } from './password';
 
@@ -61,6 +62,20 @@ describe('validatePassword (NIST 800-63B aligned)', () => {
     expect(result.isValid).toBe(false);
   });
 
+  test('caps strength at weak when below minimum length, even with mixed chars', () => {
+    // Arrange — 9 chars with upper/lower/symbol that could look "strong",
+    // but it fails the length policy. Strength must not contradict that.
+    const shortMixed = 'Lucaluca!';
+
+    // Act
+    const result = validatePassword(shortMixed);
+
+    // Assert
+    expect(result.checks.hasMinLength).toBe(false);
+    expect(result.strength).toBe('weak');
+    expect(result.isValid).toBe(false);
+  });
+
   test('returns score 0 and weak strength for empty input', () => {
     // Act
     const result = validatePassword('');
@@ -79,6 +94,21 @@ describe('validatePassword (NIST 800-63B aligned)', () => {
     const hasGuidance =
       result.feedback.warning.length > 0 || result.feedback.suggestions.length > 0;
     expect(hasGuidance).toBe(true);
+  });
+});
+
+describe('getPasswordIssue', () => {
+  test('too_short when below the minimum length', () => {
+    expect(getPasswordIssue(validatePassword('Lucaluca!'))).toBe('too_short');
+  });
+
+  test('too_weak when long enough but guessable', () => {
+    // 12 chars (meets length) but trivially guessable → not too_short, too_weak
+    expect(getPasswordIssue(validatePassword('aaaaaaaaaaaa'))).toBe('too_weak');
+  });
+
+  test('null when the password passes the policy', () => {
+    expect(getPasswordIssue(validatePassword('correcthorsebatterystaple'))).toBeNull();
   });
 });
 

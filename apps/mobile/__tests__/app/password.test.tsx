@@ -58,6 +58,7 @@ jest.mock('@salmon/shared', () => ({
     isValid: value.length >= 8,
     strength: value.length >= 12 ? 'strong' : 'medium',
   }),
+  getPasswordIssue: (v: { isValid?: boolean }) => (v?.isValid ? null : 'too_short'),
 }));
 
 jest.mock('../../src/components', () => {

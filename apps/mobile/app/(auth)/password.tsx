@@ -48,6 +48,7 @@ import {
   STASH_KEYS,
   useAccountsContext,
   validatePassword,
+  getPasswordIssue,
 } from '@salmon/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -256,8 +257,9 @@ export default function PasswordScreen() {
   }, [isFormValid, mnemonic, password, actions, showSingleInput, t, state.counter]);
 
   // Error states for inputs
-  const showPasswordError =
-    !showSingleInput && password.length > 0 && password.length < PASSWORD_CONSTRAINTS.MIN_LENGTH;
+  const passwordIssue =
+    !showSingleInput && password.length > 0 ? getPasswordIssue(passwordValidation) : null;
+  const showPasswordError = passwordIssue !== null;
   const showConfirmError =
     !showSingleInput &&
     confirmPassword.length > 0 &&
@@ -276,12 +278,16 @@ export default function PasswordScreen() {
   };
 
   // Password error message
-  const passwordError = showPasswordError
-    ? t('wallet.create.wrong_password') ||
-    `Password must be at least ${PASSWORD_CONSTRAINTS.MIN_LENGTH} characters`
-    : wrongPassword
-      ? t('wallet.create.invalid_password') || 'Invalid Password'
-      : undefined;
+  const passwordError =
+    passwordIssue === 'too_short'
+      ? t('wallet.create.password_too_short', { min: PASSWORD_CONSTRAINTS.MIN_LENGTH })
+      : passwordIssue === 'too_long'
+        ? t('wallet.create.password_too_long', { max: PASSWORD_CONSTRAINTS.MAX_LENGTH })
+        : passwordIssue === 'too_weak'
+          ? t('wallet.create.password_too_weak')
+          : wrongPassword
+            ? t('wallet.create.invalid_password') || 'Invalid Password'
+            : undefined;
 
   // Confirm password error message
   const confirmError = showConfirmError
