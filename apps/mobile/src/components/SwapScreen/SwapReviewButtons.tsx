@@ -29,6 +29,7 @@ export const SwapReviewButtons: React.FC<SwapReviewButtonsProps> = ({
         onPress={onBack}
         disabled={isConfirming}
         style={styles.backButton}
+        testID="swap-back-button"
       >
         Back
       </SecondaryButton>
@@ -43,6 +44,7 @@ export const SwapReviewButtons: React.FC<SwapReviewButtonsProps> = ({
           loading={isConfirming}
           disabled={isConfirming}
           style={styles.confirmButton}
+          testID="swap-confirm-button"
         >
           {confirmLabel}
         </PrimaryButton>

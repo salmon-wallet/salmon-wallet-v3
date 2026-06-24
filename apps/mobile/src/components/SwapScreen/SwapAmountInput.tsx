@@ -34,6 +34,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
   placeholder = 'Enter an amount',
   style,
   isLoading = false,
+  testID,
 }) => {
   const { t } = useTranslation();
   const [{ currency }, { formatPrecise }] = useCurrencyContext();
@@ -79,6 +80,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
           </View>
         ) : (
           <TextInput
+            testID={testID ? `${testID}-amount` : undefined}
             style={styles.input}
             value={value}
             onChangeText={handleChangeText}
@@ -91,6 +93,7 @@ export const SwapAmountInput: React.FC<SwapAmountInputProps> = ({
 
         {/* Token Dropdown */}
         <TouchableOpacity
+          testID={testID ? `${testID}-token` : undefined}
           style={styles.tokenDropdown}
           onPress={onTokenPress}
           activeOpacity={0.7}

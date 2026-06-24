@@ -20,6 +20,7 @@ export const SwapTabSelector: React.FC<SwapTabSelectorProps> = ({
   return (
     <View style={[styles.container, style]}>
       <TouchableOpacity
+        testID="swap-tab"
         style={styles.tab}
         onPress={() => handleTabPress('swap')}
         activeOpacity={0.7}
@@ -41,6 +42,7 @@ export const SwapTabSelector: React.FC<SwapTabSelectorProps> = ({
       </TouchableOpacity>
 
       <TouchableOpacity
+        testID="bridge-tab"
         style={styles.tab}
         onPress={() => handleTabPress('bridge')}
         activeOpacity={0.7}

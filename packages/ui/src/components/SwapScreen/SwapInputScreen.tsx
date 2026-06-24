@@ -112,6 +112,7 @@ export function SwapInputScreen({
       <InputsContainer>
         {/* You Send */}
         <SwapAmountInput
+          testID="swap-from"
           label="You Send"
           value={inAmount}
           onChangeValue={onInAmountChange}
@@ -127,6 +128,7 @@ export function SwapInputScreen({
 
         {/* You Receive */}
         <SwapAmountInput
+          testID="swap-to"
           label="You Receive"
           value={outAmount}
           onChangeValue={() => {}}
@@ -146,6 +148,7 @@ export function SwapInputScreen({
           <PrimaryButton
             onClick={onReview}
             disabled={!canReview}
+            testID="swap-review-button"
             style={{
               minWidth: componentSizes.copyButtonWidth,
               height: componentSizes.buttonHeightCompact,
